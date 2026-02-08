@@ -214,8 +214,10 @@ function Header({onNavigate,currentPage,currentUser,onLogin,onLogout}){
 }
 
 function HomePage({content,themes,blindSpots,onNavigate,onVoteTheme}){
-  const[activeCycle,setActiveCycle]=useState("2026-02-09");
-  const cycles=[{date:"2026-02-09",label:"Cycle 2 \u2014 Death of the Dashboard"},{date:"2026-02-02",label:"Cycle 1 \u2014 AI Governance Reimagined"}];
+  const allCycles=[...new Set(content.filter(c=>c.sundayCycle).map(c=>c.sundayCycle))].sort((a,b)=>b.localeCompare(a));
+  const[activeCycle,setActiveCycle]=useState(allCycles[0]||"2026-02-09");
+  const cycleLabels={"2026-02-09":"Death of the Dashboard","2026-02-02":"AI Governance Reimagined"};
+  const cycles=allCycles.map((d,i)=>{const label=cycleLabels[d]||content.filter(c=>c.sundayCycle===d).map(c=>c.title.slice(0,30))[0]||"Cycle";const num=allCycles.length-i;return{date:d,label:`Cycle ${num} \u2014 ${label}`}});
   const cycleContent=content.filter(c=>c.sundayCycle===activeCycle);
   const bridges=content.filter(c=>c.type==="bridge");
   return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}>
