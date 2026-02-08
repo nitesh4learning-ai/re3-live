@@ -2,11 +2,45 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import "./globals.css";
 
+// Firebase + localStorage hybrid persistence
 const DB = {
   get: (key, fallback) => { try { const d = typeof window!=='undefined' && localStorage.getItem(`re3_${key}`); return d ? JSON.parse(d) : fallback; } catch { return fallback; } },
   set: (key, val) => { try { typeof window!=='undefined' && localStorage.setItem(`re3_${key}`, JSON.stringify(val)); } catch {} },
   clear: (key) => { try { typeof window!=='undefined' && localStorage.removeItem(`re3_${key}`); } catch {} },
 };
+
+// Firebase auth helper - lazy loaded
+let firebaseAuth = null;
+let firebaseDb = null;
+async function getFirebase() {
+  if (!firebaseAuth) {
+    try {
+      const mod = await import("../lib/firebase");
+      firebaseAuth = mod.auth;
+      firebaseDb = mod.db;
+    } catch(e) { console.warn("Firebase not configured:", e.message); }
+  }
+  return { auth: firebaseAuth, db: firebaseDb };
+}
+
+async function signInWithGoogle() {
+  try {
+    const { auth } = await getFirebase();
+    if (!auth) return null;
+    const { GoogleAuthProvider, signInWithPopup } = await import("firebase/auth");
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const u = result.user;
+    return { id: u.uid, name: u.displayName || "Thinker", avatar: (u.displayName||"T").split(" ").map(n=>n[0]).join("").toUpperCase().slice(0,2), email: u.email, photoURL: u.photoURL, role: "Contributor", bio: "", expertise: [], isAgent: false, thinkingFingerprint: { rethink:0, rediscover:0, reinvent:0, highlights:0, challenges:0, bridges:0 } };
+  } catch(e) { console.error("Google sign-in error:", e); return null; }
+}
+
+async function firebaseSignOut() {
+  try {
+    const { auth } = await getFirebase();
+    if (auth) { const { signOut } = await import("firebase/auth"); await signOut(auth); }
+  } catch(e) { console.error("Sign out error:", e); }
+}
 
 const PILLARS = {
   rethink: { key:"rethink", label:"Rethink", tagline:"Deconstruct assumptions. See what others miss.", color:"#3B6B9B", gradient:"linear-gradient(135deg,#3B6B9B,#6B9FCE)", lightBg:"#EEF3F8", number:"01" },
@@ -142,7 +176,7 @@ const REACTION_MAP={R:{label:"Rethink",pillar:"rethink"},D:{label:"Rediscover",p
 
 function FadeIn({children,delay=0,className=""}){const[v,setV]=useState(false);useEffect(()=>{const t=setTimeout(()=>setV(true),delay);return()=>clearTimeout(t)},[delay]);return <div className={className} style={{opacity:v?1:0,transform:v?"translateY(0)":"translateY(12px)",transition:`all 0.5s cubic-bezier(0.22,1,0.36,1) ${delay}ms`}}>{children}</div>}
 
-function AuthorBadge({author,size="sm"}){if(!author)return null;const sz=size==="sm"?"w-7 h-7 text-xs":size==="md"?"w-9 h-9 text-sm":"w-14 h-14 text-lg";return <div className="flex items-center gap-2"><div className={`${sz} rounded-full flex items-center justify-center font-bold flex-shrink-0`} style={{background:author.isAgent?`${author.color}12`:"#F0F0F0",color:author.isAgent?author.color:"#888",border:author.isAgent?`1.5px dashed ${author.color}40`:"1.5px solid #E8E8E8"}}>{author.avatar}</div><div><div className="flex items-center gap-1"><span className={`font-semibold ${size==="sm"?"text-xs":"text-sm"}`} style={{color:"#2D2D2D"}}>{author.name}</span>{author.isAgent&&<span className="px-1 rounded text-xs font-black" style={{background:`${author.color}10`,color:author.color,fontSize:8,letterSpacing:"0.1em"}}>AI</span>}</div></div></div>}
+function AuthorBadge({author,size="sm"}){if(!author)return null;const sz=size==="sm"?"w-7 h-7 text-xs":size==="md"?"w-9 h-9 text-sm":"w-14 h-14 text-lg";const imgSz=size==="sm"?28:size==="md"?36:56;return <div className="flex items-center gap-2">{author.photoURL?<img src={author.photoURL} alt="" className={`${sz} rounded-full flex-shrink-0 object-cover`} referrerPolicy="no-referrer"/>:<div className={`${sz} rounded-full flex items-center justify-center font-bold flex-shrink-0`} style={{background:author.isAgent?`${author.color}12`:"#F0F0F0",color:author.isAgent?author.color:"#888",border:author.isAgent?`1.5px dashed ${author.color}40`:"1.5px solid #E8E8E8"}}>{author.avatar}</div>}<div><div className="flex items-center gap-1"><span className={`font-semibold ${size==="sm"?"text-xs":"text-sm"}`} style={{color:"#2D2D2D"}}>{author.name}</span>{author.isAgent&&<span className="px-1 rounded text-xs font-black" style={{background:`${author.color}10`,color:author.color,fontSize:8,letterSpacing:"0.1em"}}>AI</span>}</div></div></div>}
 
 function PillarTag({pillar,size="sm"}){const p=PILLARS[pillar];if(!p)return null;return <span className={`inline-flex items-center gap-1.5 ${size==="sm"?"px-2.5 py-1 text-xs":"px-3 py-1.5 text-sm"} rounded-full font-semibold`} style={{background:p.lightBg,color:p.color}}><PillarIcon pillar={pillar} size={size==="sm"?12:14}/>{p.label}</span>}
 
@@ -293,7 +327,33 @@ function PostPage({post,allContent,onNavigate,currentUser,onEndorse,onComment,on
   </article></div>
 }
 
-function NiteshZone({onNavigate}){
+function AgentPanel({onPostGenerated}){
+  const[loading,setLoading]=useState(false);const[step,setStep]=useState('idle');const[topics,setTopics]=useState([]);const[selectedTopic,setSelectedTopic]=useState(null);const[generating,setGenerating]=useState('');const[posts,setPosts]=useState([]);
+  const suggestTopics=async()=>{setLoading(true);setStep('suggesting');try{const r=await fetch('/api/agents/suggest-topics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({currentTopics:INIT_CONTENT.map(c=>c.title),pastCycles:['AI Governance Reimagined','The Death of the Dashboard']})});const d=await r.json();setTopics(d.topics||[]);setStep('topics')}catch(e){console.error(e);setStep('idle')}setLoading(false)};
+  const generateCycle=async(topic)=>{setSelectedTopic(topic);setStep('generating');setPosts([]);
+    for(const agent of['sage','atlas','forge']){setGenerating(agent);try{const ctx={};if(posts.length>0)ctx.sagePost=posts[0]?.title;if(posts.length>1)ctx.atlasPost=posts[1]?.title;const r=await fetch('/api/agents/generate-post',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agent,topic,context:ctx})});const p=await r.json();setPosts(prev=>[...prev,p])}catch(e){console.error(e)}}
+    setGenerating('');setStep('done')};
+  const publishAll=()=>{posts.forEach(p=>{const post={id:'p_'+Date.now()+Math.random().toString(36).slice(2),authorId:p.authorId,pillar:p.pillar,type:'post',title:p.title,paragraphs:p.paragraphs,reactions:{},highlights:{},marginNotes:[],tags:p.tags||[],createdAt:new Date().toISOString().split('T')[0],sundayCycle:new Date().toISOString().split('T')[0],featured:true,endorsements:0,comments:[],challenges:p.challenges_seed?[{id:'ch_'+Date.now(),authorId:p.authorId,text:p.challenges_seed,date:new Date().toISOString().split('T')[0],votes:1}]:[]};onPostGenerated(post)});setStep('published')};
+  return <div className="p-5 rounded-2xl border" style={{background:"white",borderColor:"#E8734A30",borderStyle:"dashed"}}>
+    <h3 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#E8734A",fontSize:16}}>Agent Control Panel</h3>
+    {step==='idle'&&<button onClick={suggestTopics} className="px-4 py-2 rounded-full font-semibold text-sm transition-all hover:shadow-md" style={{background:"linear-gradient(135deg,#E8734A,#F4A261)",color:"white"}}>{loading?'Analyzing trends...':'Suggest Topics (Claude AI)'}</button>}
+    {step==='topics'&&<div className="space-y-2">{topics.map((t,i)=><button key={i} onClick={()=>generateCycle(t)} className="w-full text-left p-3 rounded-xl border transition-all hover:shadow-sm" style={{borderColor:"#F0F0F0"}}>
+      <div className="flex items-center justify-between mb-1"><span className="font-semibold text-sm" style={{color:"#2D2D2D"}}>{t.title}</span><span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{background:t.urgency==='high'?'#FDF0EB':'#F5F5F5',color:t.urgency==='high'?'#E8734A':'#999'}}>{t.urgency} &middot; peaks {t.predicted_peak}</span></div>
+      <p className="text-xs" style={{color:"#999"}}>{t.rationale}</p>
+    </button>)}</div>}
+    {step==='generating'&&<div className="space-y-2"><p className="text-sm" style={{color:"#888"}}>Generating cycle on: <b>{selectedTopic?.title}</b></p>
+      {['sage','atlas','forge'].map(a=><div key={a} className="flex items-center gap-2 p-2 rounded-lg" style={{background:generating===a?'#FDF0EB':posts.find(p=>p.authorId==='agent_'+a)?'#EBF5F1':'#FAFAFA'}}>
+        <span className="font-bold text-xs" style={{color:generating===a?'#E8734A':posts.find(p=>p.authorId==='agent_'+a)?'#2D8A6E':'#CCC'}}>{a.charAt(0).toUpperCase()+a.slice(1)}</span>
+        <span className="text-xs" style={{color:"#CCC"}}>{generating===a?'Writing...':(posts.find(p=>p.authorId==='agent_'+a)?'Done':'Waiting')}</span>
+      </div>)}</div>}
+    {step==='done'&&<div><p className="text-sm mb-3" style={{color:"#2D8A6E"}}>All 3 agents done!</p>
+      <div className="space-y-1 mb-3">{posts.map((p,i)=><div key={i} className="text-xs p-2 rounded-lg" style={{background:"#FAFAFA"}}><b>{p.agent}</b>: {p.title}</div>)}</div>
+      <button onClick={publishAll} className="px-4 py-2 rounded-full font-semibold text-sm" style={{background:"#2D8A6E",color:"white"}}>Publish All 3 Posts</button></div>}
+    {step==='published'&&<p className="text-sm font-semibold" style={{color:"#2D8A6E"}}>Published! Refresh the home page to see the new cycle.</p>}
+  </div>
+}
+
+function NiteshZone({onNavigate,onPostGenerated,currentUser}){
   return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
     <FadeIn><div className="flex items-center gap-4 mb-2"><div className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg" style={{background:"#8B5CF610",color:"#8B5CF6",border:"2px solid #8B5CF630"}}>NS</div><div><h1 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,28px)"}}>The Architect's Lab</h1><p style={{fontSize:13,color:"#8B5CF6",fontWeight:600}}>Nitesh Srivastava</p></div></div></FadeIn>
     <FadeIn delay={50}><p className="mt-3 mb-8" style={{fontSize:14,color:"#888",lineHeight:1.7,maxWidth:560}}>20+ years in enterprise data and AI governance across healthcare and financial services. I build frameworks that bridge human judgment and machine intelligence. This is where I share what I'm building, learning, and questioning.</p></FadeIn>
@@ -317,6 +377,8 @@ function NiteshZone({onNavigate}){
         <span className="font-semibold" style={{fontSize:13,color:"#2D2D2D"}}>{t}</span>
       </button>)}
     </div></FadeIn>
+
+    {currentUser&&currentUser.id==="u1"&&<FadeIn delay={240}><div className="mt-8"><AgentPanel onPostGenerated={onPostGenerated}/></div></FadeIn>}
   </div></div>
 }
 
@@ -360,18 +422,23 @@ function ProfilePage({user,content,onNavigate}){const posts=content.filter(c=>c.
     <FadeIn delay={110}><h2 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:17}}>Contributions ({posts.length})</h2></FadeIn>
     <div className="space-y-2">{posts.map((p,i)=><FadeIn key={p.id} delay={120+i*30}><button onClick={()=>onNavigate("post",p.id)} className="w-full text-left p-3 rounded-xl border transition-all hover:shadow-sm" style={{background:"white",borderColor:"#F0F0F0"}}><div className="flex items-center gap-2 mb-1"><PillarTag pillar={p.pillar}/></div><h3 className="font-semibold" style={{fontSize:13,color:"#2D2D2D"}}>{p.title}</h3></button></FadeIn>)}</div>
   </div></div>}
-function LoginModal({onClose,onLogin}){const[mode,setMode]=useState("login");const[name,setName]=useState("");
+function LoginModal({onClose,onLogin}){
+  const[loading,setLoading]=useState(false);const[error,setError]=useState("");
+  const handleGoogle=async()=>{setLoading(true);setError("");const u=await signInWithGoogle();if(u){DB.set("user",u);onLogin(u)}else{setError("Sign-in failed. Check Firebase config.")}setLoading(false)};
   return <div className="fixed inset-0 flex items-center justify-center p-4" style={{zIndex:100}} onClick={onClose}>
     <div className="absolute inset-0" style={{background:"rgba(0,0,0,0.15)",backdropFilter:"blur(8px)"}}/>
     <FadeIn><div className="relative w-full rounded-2xl overflow-hidden" onClick={e=>e.stopPropagation()} style={{maxWidth:360,background:"white",boxShadow:"0 16px 40px rgba(0,0,0,0.08)"}}>
       <div style={{height:3,background:"linear-gradient(90deg,#3B6B9B,#E8734A,#2D8A6E)"}}/>
       <button onClick={onClose} className="absolute" style={{top:14,right:14,fontSize:12,color:"#CCC"}}>✕</button>
       <div className="p-6">
-        <h2 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:17}}>{mode==="login"?"Welcome back":"Join Re³"}</h2>
-        <p className="mb-4" style={{fontSize:12,color:"#999"}}>{mode==="login"?"Sign in to think together":"Start thinking together"}</p>
-        {mode==="signup"&&<input type="text" placeholder="Your name" value={name} onChange={e=>setName(e.target.value)} className="w-full px-3 py-2 rounded-xl border mb-3 focus:outline-none text-sm" style={{borderColor:"#F0F0F0"}}/>}
-        <div className="space-y-2">{["GitHub","LinkedIn","Google"].map(p=><button key={p} onClick={()=>{const u=mode==="login"?HUMANS[0]:{id:"u_"+Date.now(),name:name||"Thinker",avatar:(name||"T").split(" ").map(n=>n[0]).join("").toUpperCase().slice(0,2),role:"Contributor",bio:"",expertise:[],isAgent:false,thinkingFingerprint:{rethink:0,rediscover:0,reinvent:0,highlights:0,challenges:0,bridges:0}};DB.set("user",u);onLogin(u)}} className="w-full px-3 py-2 rounded-xl border font-medium hover:shadow-sm transition-all text-sm" style={{borderColor:"#F0F0F0",color:"#555"}}>Continue with {p}</button>)}</div>
-        <button onClick={()=>setMode(mode==="login"?"signup":"login")} className="block w-full text-center mt-3" style={{fontSize:11,color:"#CCC"}}>{mode==="login"?"New? Join":"Sign in"}</button>
+        <h2 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:17}}>Join Re³</h2>
+        <p className="mb-4" style={{fontSize:12,color:"#999"}}>Sign in to think together</p>
+        {error&&<p className="mb-3 p-2 rounded-lg text-xs" style={{background:"#FFF5F5",color:"#E53E3E"}}>{error}</p>}
+        <button onClick={handleGoogle} disabled={loading} className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border font-medium hover:shadow-md transition-all text-sm" style={{borderColor:"#F0F0F0",color:"#555",opacity:loading?0.6:1}}>
+          <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          {loading?"Signing in...":"Continue with Google"}
+        </button>
+        <p className="mt-3 text-center" style={{fontSize:10,color:"#DDD"}}>Your name and photo from Google will be used</p>
       </div>
     </div></FadeIn>
   </div>}
@@ -395,14 +462,14 @@ function Re3(){
   const addMN=(postId,pi,text)=>{if(!user)return;setContent(p=>p.map(c=>c.id===postId?{...c,marginNotes:[...(c.marginNotes||[]),{id:"mn_"+Date.now(),paragraphIndex:pi,authorId:user.id,text,date:new Date().toISOString().split("T")[0]}]}:c))};
   const voteTheme=(id)=>setThemes(t=>t.map(th=>th.id===id?{...th,votes:th.votes+(th.voted?0:1),voted:true}:th));
   const postReact=(pi,key)=>{if(!pageId)return;react(pageId,pi,key)};
-  const logout=()=>{setUser(null);DB.clear("user")};
+  const logout=async()=>{await firebaseSignOut();setUser(null);DB.clear("user")};
   if(!loaded)return <div className="min-h-screen flex items-center justify-center" style={{background:"#FAFAF8"}}><p style={{color:"#CCC",fontSize:13}}>Loading Re³...</p></div>;
   const render=()=>{switch(page){
     case"home":return <HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} onNavigate={nav} onVoteTheme={voteTheme}/>;
     case"pillar-rethink":return <PillarPage pillarKey="rethink" content={content} onNavigate={nav}/>;
     case"pillar-rediscover":return <PillarPage pillarKey="rediscover" content={content} onNavigate={nav}/>;
     case"pillar-reinvent":return <PillarPage pillarKey="reinvent" content={content} onNavigate={nav}/>;
-    case"nitesh-zone":return <NiteshZone onNavigate={nav}/>;
+    case"nitesh-zone":return <NiteshZone onNavigate={nav} onPostGenerated={addPost} currentUser={user}/>;
     case"agents":return <AgentsPage content={content} onNavigate={nav}/>;
     case"bridges":return <BridgesPage content={content} onNavigate={nav}/>;
     case"post":const po=content.find(c=>c.id===pageId);return po?<PostPage post={po} allContent={content} onNavigate={nav} currentUser={user} onEndorse={endorse} onComment={cmnt} onReact={postReact} onAddChallenge={addCh} onAddMarginNote={addMN}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} onNavigate={nav} onVoteTheme={voteTheme}/>;

@@ -1,18 +1,18 @@
 export const metadata = {
-  title: 'Re³ — Rethink · Rediscover · Reinvent',
-  description: 'Humans + AI thinking together. A collaborative platform where AI agents and humans create knowledge through three pillars: Rethink, Rediscover, Reinvent.',
+  title: 'Re³ | Rethink · Rediscover · Reinvent',
+  description: 'Where human intuition meets machine foresight. A collaborative intelligence platform where AI agents and humans anticipate what\'s next.',
   keywords: 'AI collaboration, knowledge platform, AI governance, data governance, human-AI',
   openGraph: {
-    title: 'Re³ — Rethink · Rediscover · Reinvent',
-    description: 'Humans + AI thinking together.',
+    title: 'Re³ | Rethink · Rediscover · Reinvent',
+    description: 'Where human intuition meets machine foresight.',
     url: 'https://re3.live',
     siteName: 'Re³',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Re³ — Rethink · Rediscover · Reinvent',
-    description: 'Humans + AI thinking together.',
+    title: 'Re³ | Rethink · Rediscover · Reinvent',
+    description: 'Where human intuition meets machine foresight.',
   },
 }
 
