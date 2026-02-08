@@ -215,10 +215,11 @@ function Header({onNavigate,currentPage,currentUser,onLogin,onLogout}){
 
 function HomePage({content,themes,blindSpots,onNavigate,onVoteTheme}){
   const allCycles=[...new Set(content.filter(c=>c.sundayCycle).map(c=>c.sundayCycle))].sort((a,b)=>b.localeCompare(a));
-  const[activeCycle,setActiveCycle]=useState(allCycles[0]||"2026-02-09");
+  const[activeCycle,setActiveCycle]=useState(null);
+  const currentCycle=activeCycle||allCycles[0]||"2026-02-09";
   const cycleLabels={"2026-02-09":"Death of the Dashboard","2026-02-02":"AI Governance Reimagined"};
-  const cycles=allCycles.map((d,i)=>{const label=cycleLabels[d]||content.filter(c=>c.sundayCycle===d).map(c=>c.title.slice(0,30))[0]||"Cycle";const num=allCycles.length-i;return{date:d,label:`Cycle ${num} \u2014 ${label}`}});
-  const cycleContent=content.filter(c=>c.sundayCycle===activeCycle);
+  const cycles=allCycles.map((d,i)=>{const posts=content.filter(c=>c.sundayCycle===d);const label=cycleLabels[d]||posts[0]?.title?.slice(0,35)||"New Cycle";const num=allCycles.length-i;return{date:d,label:`Cycle ${num} \u2014 ${label}`}});
+  const cycleContent=content.filter(c=>c.sundayCycle===currentCycle);
   const bridges=content.filter(c=>c.type==="bridge");
   return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}>
     <section className="relative overflow-hidden" style={{background:"white"}}>
@@ -242,7 +243,7 @@ function HomePage({content,themes,blindSpots,onNavigate,onVoteTheme}){
     </section>
 
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-5"><h2 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:20}}>Synthesis Cycles</h2><div className="sm:ml-auto"><CycleSelector cycles={cycles} activeCycle={activeCycle} onSelect={setActiveCycle}/></div></div>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-5"><h2 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:20}}>Synthesis Cycles</h2><div className="sm:ml-auto"><CycleSelector cycles={cycles} activeCycle={currentCycle} onSelect={setActiveCycle}/></div></div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
         {cycleContent.map((item,i)=>{const author=getAuthor(item.authorId);const pillar=PILLARS[item.pillar];
           return <FadeIn key={item.id} delay={i*60}><button onClick={()=>onNavigate("post",item.id)} className="group w-full text-left rounded-2xl border overflow-hidden transition-all hover:shadow-xl" style={{borderColor:"#F0F0F0",background:"white"}} onMouseEnter={e=>e.currentTarget.style.transform="translateY(-3px)"} onMouseLeave={e=>e.currentTarget.style.transform="translateY(0)"}>
@@ -335,7 +336,7 @@ function AgentPanel({onPostGenerated}){
   const generateCycle=async(topic)=>{setSelectedTopic(topic);setStep('generating');setPosts([]);
     for(const agent of['sage','atlas','forge']){setGenerating(agent);try{const ctx={};if(posts.length>0)ctx.sagePost=posts[0]?.title;if(posts.length>1)ctx.atlasPost=posts[1]?.title;const r=await fetch('/api/agents/generate-post',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agent,topic,context:ctx})});const p=await r.json();setPosts(prev=>[...prev,p])}catch(e){console.error(e)}}
     setGenerating('');setStep('done')};
-  const publishAll=()=>{posts.forEach(p=>{const post={id:'p_'+Date.now()+Math.random().toString(36).slice(2),authorId:p.authorId,pillar:p.pillar,type:'post',title:p.title,paragraphs:p.paragraphs,reactions:{},highlights:{},marginNotes:[],tags:p.tags||[],createdAt:new Date().toISOString().split('T')[0],sundayCycle:new Date().toISOString().split('T')[0],featured:true,endorsements:0,comments:[],challenges:p.challenges_seed?[{id:'ch_'+Date.now(),authorId:p.authorId,text:p.challenges_seed,date:new Date().toISOString().split('T')[0],votes:1}]:[]};onPostGenerated(post)});setStep('published')};
+  const publishAll=()=>{const cycleDate=new Date().toISOString().split('T')[0];const ts=Date.now();posts.forEach((p,i)=>{const post={id:'p_'+ts+'_'+i,authorId:p.authorId,pillar:p.pillar,type:'post',title:p.title,paragraphs:p.paragraphs,reactions:{},highlights:{},marginNotes:[],tags:p.tags||[],createdAt:cycleDate,sundayCycle:cycleDate,featured:true,endorsements:0,comments:[],challenges:p.challenges_seed?[{id:'ch_'+ts+'_'+i,authorId:p.authorId,text:p.challenges_seed,date:cycleDate,votes:1}]:[]};onPostGenerated(post)});setStep('published')};
   return <div className="p-5 rounded-2xl border" style={{background:"white",borderColor:"#E8734A30",borderStyle:"dashed"}}>
     <h3 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#E8734A",fontSize:16}}>Agent Control Panel</h3>
     {(step==='idle'||loading)&&<><button onClick={suggestTopics} disabled={loading} className="px-4 py-2 rounded-full font-semibold text-sm transition-all hover:shadow-md" style={{background:"linear-gradient(135deg,#E8734A,#F4A261)",color:"white",opacity:loading?0.7:1}}>{loading?'Analyzing trends with Claude...':'Suggest Topics (Claude AI)'}</button>{error&&<p className="mt-2 p-2 rounded-lg text-xs" style={{background:"#FFF5F5",color:"#E53E3E"}}>{error}</p>}</>}
@@ -351,7 +352,7 @@ function AgentPanel({onPostGenerated}){
     {step==='done'&&<div><p className="text-sm mb-3" style={{color:"#2D8A6E"}}>All 3 agents done!</p>
       <div className="space-y-1 mb-3">{posts.map((p,i)=><div key={i} className="text-xs p-2 rounded-lg" style={{background:"#FAFAFA"}}><b>{p.agent}</b>: {p.title}</div>)}</div>
       <button onClick={publishAll} className="px-4 py-2 rounded-full font-semibold text-sm" style={{background:"#2D8A6E",color:"white"}}>Publish All 3 Posts</button></div>}
-    {step==='published'&&<p className="text-sm font-semibold" style={{color:"#2D8A6E"}}>Published! Refresh the home page to see the new cycle.</p>}
+    {step==='published'&&<div><p className="text-sm font-semibold" style={{color:"#2D8A6E"}}>Published! Go to home page to see the new cycle.</p><button onClick={()=>setStep('idle')} className="mt-2 text-xs underline" style={{color:"#CCC"}}>Generate another</button></div>}
   </div>
 }
 
