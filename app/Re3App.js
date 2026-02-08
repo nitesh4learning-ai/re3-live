@@ -378,7 +378,7 @@ function NiteshZone({onNavigate,onPostGenerated,currentUser}){
       </button>)}
     </div></FadeIn>
 
-    {currentUser&&currentUser.id==="u1"&&<FadeIn delay={240}><div className="mt-8"><AgentPanel onPostGenerated={onPostGenerated}/></div></FadeIn>}
+    {currentUser&&(currentUser.id==="u1"||currentUser.email)&&<FadeIn delay={240}><div className="mt-8"><AgentPanel onPostGenerated={onPostGenerated}/></div></FadeIn>}
   </div></div>
 }
 
