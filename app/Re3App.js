@@ -711,7 +711,7 @@ function Re3(){
   const[user,setUser]=useState(null);const[content,setContent]=useState(INIT_CONTENT);const[themes,setThemes]=useState(INIT_THEMES);
   const[articles,setArticles]=useState([]);const[agents,setAgents]=useState(INIT_AGENTS);
   const[page,setPage]=useState("home");const[pageId,setPageId]=useState(null);const[showLogin,setShowLogin]=useState(false);const[loaded,setLoaded]=useState(false);
-  useEffect(()=>{const su=DB.get("user",null);const sc=DB.get("content_v5",null);const st=DB.get("themes",null);const sa=DB.get("articles_v1",null);const sag=DB.get("agents_v1",null);if(su)setUser(su);if(sc&&sc.length>=INIT_CONTENT.length)setContent(sc);if(st)setThemes(st);if(sa)setArticles(sa);if(sag&&sag.length>0)setAgents(sag);setLoaded(true)},[]);
+  useEffect(()=>{const su=DB.get("user",null);const sc=DB.get("content_v5",null);const st=DB.get("themes",null);const sa=DB.get("articles_v1",null);const sag=DB.get("agents_v1",null);if(su)setUser(su);if(sc&&sc.length>=INIT_CONTENT.length)setContent(sc);if(st)setThemes(st);if(sa)setArticles(sa);if(sag&&sag.length>=INIT_AGENTS.length)setAgents(sag);setLoaded(true)},[]);
   useEffect(()=>{if(loaded)DB.set("content_v5",content)},[content,loaded]);
   useEffect(()=>{if(loaded)DB.set("themes",themes)},[themes,loaded]);
   useEffect(()=>{if(loaded)DB.set("articles_v1",articles)},[articles,loaded]);
