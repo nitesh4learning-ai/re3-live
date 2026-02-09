@@ -1,6 +1,10 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import "./globals.css";
+
+const ADMIN_EMAIL = "nitesh4learning@gmail.com";
+const isAdmin = (user) => user?.email === ADMIN_EMAIL;
+const LazyEditor = lazy(() => import("./Editor"));
 
 const DB = {
   get: (key, fallback) => { try { const d = typeof window!=='undefined' && localStorage.getItem(`re3_${key}`); return d ? JSON.parse(d) : fallback; } catch { return fallback; } },
@@ -52,6 +56,18 @@ const STUDIO_PROJECTS = [
   { id:"nz2", title:"Pinwheel Framework", subtitle:"AI Transformation Model", status:"Evolving", statusColor:"#E8734A", description:"Four execution blades powered by business engagement for enterprise AI adoption.", tags:["AI Strategy","Transformation"], ownerId:"u1" },
   { id:"nz3", title:"Re\u00b3 Platform", subtitle:"This platform", status:"Alpha", statusColor:"#3B6B9B", description:"Human-AI collaborative thinking platform with three AI agents.", tags:["React","Next.js","AI Agents"], link:"https://re3.live", ownerId:"u1" },
   { id:"nz4", title:"RAG Pipeline", subtitle:"Retrieval-Augmented Generation", status:"Experiment", statusColor:"#8B5CF6", description:"LangChain + PostgreSQL for enterprise knowledge retrieval.", tags:["LangChain","PostgreSQL","Python"], ownerId:"u1" },
+];
+
+const INIT_AGENTS = [
+  { id:"agent_sage", name:"Sage", persona:"A wise synthesizer rooted in Advaita Vedanta philosophy and systems thinking. Asks uncomfortable questions that reframe entire debates. References Eastern and Western philosophy but makes it accessible. Uses the Socratic method.", model:"anthropic", color:"#3B6B9B", avatar:"S", status:"active", pillar:"rethink" },
+  { id:"agent_atlas", name:"Atlas", persona:"A pattern recognition specialist who finds hidden connections across industries, history, and disciplines. Starts with compelling historical stories. Draws precise parallels between distant fields. References specific systems and models by name with dates.", model:"anthropic", color:"#E8734A", avatar:"A", status:"active", pillar:"rediscover" },
+  { id:"agent_forge", name:"Forge", persona:"A builder and architect who turns ideas into concrete, implementable systems. Proposes specific architectures with code. Is opinionated about design principles. Makes it clear everything is buildable TODAY.", model:"anthropic", color:"#2D8A6E", avatar:"F", status:"active", pillar:"reinvent" },
+];
+const MODEL_PROVIDERS = [
+  { id:"anthropic", label:"Claude (Anthropic)", color:"#D4A574" },
+  { id:"openai", label:"GPT (OpenAI)", color:"#10A37F" },
+  { id:"gemini", label:"Gemini (Google)", color:"#4285F4" },
+  { id:"llama", label:"LLaMA (Meta/Groq)", color:"#044ADB" },
 ];
 
 const CYCLE_1 = [
@@ -194,7 +210,7 @@ function CycleCard({cycle,onNavigate,variant="default"}){
 function Header({onNavigate,currentPage,currentUser,onLogin,onLogout}){
   const[sc,setSc]=useState(false);const[mob,setMob]=useState(false);
   useEffect(()=>{const fn=()=>setSc(window.scrollY>10);window.addEventListener("scroll",fn);return()=>window.removeEventListener("scroll",fn)},[]);
-  const navItems=[["home","Home"],["loom","The Loom"],["studio","Studio"],["agents","Agents"],["bridges","Bridges"]];
+  const navItems=[["home","Home"],["loom","The Loom"],["studio","My Studio"],["agent-community","Agent Community"],["bridges","Bridges"]];
   return <><header className="fixed top-0 left-0 right-0 z-50 transition-all" style={{background:sc?"rgba(255,255,255,0.97)":"rgba(255,255,255,0.85)",backdropFilter:"blur(20px)",borderBottom:sc?"1px solid #F0F0F0":"1px solid transparent"}}>
     <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between" style={{height:52}}>
       <button onClick={()=>{onNavigate("home");setMob(false)}} className="flex items-center gap-1">
@@ -328,39 +344,56 @@ function PostPage({post,allContent,onNavigate,currentUser,onEndorse,onComment,on
   </article></div>
 }
 
-// ==================== STUDIO — User-scoped workspace ====================
-function StudioPage({currentUser,content,onNavigate,onPostGenerated}){
-  const isOwner = (item) => currentUser && (item.ownerId === currentUser.id || item.ownerId === "u1" && currentUser.id === "u1");
-  // Public gallery: all projects from all users
-  const allProjects = STUDIO_PROJECTS;
-  // User's own projects
-  const myProjects = currentUser ? allProjects.filter(p=>isOwner(p)) : [];
-  const otherProjects = currentUser ? allProjects.filter(p=>!isOwner(p)) : allProjects;
-  // User's posts
-  const myPosts = currentUser ? content.filter(c=>c.authorId===currentUser.id) : [];
+// ==================== MY STUDIO — Admin-controlled workspace ====================
+function MyStudioPage({currentUser,content,articles,agents,onNavigate,onPostGenerated,onSaveArticle,onDeleteArticle}){
+  const[editing,setEditing]=useState(null); // null | "new" | article object
+  const admin = isAdmin(currentUser);
+  const myArticles = admin ? articles : [];
+  const publishedArticles = articles.filter(a=>a.status==="published");
+  const draftArticles = admin ? articles.filter(a=>a.status==="draft") : [];
+
+  const handleSave = (article) => {
+    onSaveArticle(article);
+    setEditing(null);
+  };
+
+  if(editing){return <div className="min-h-screen" style={{paddingTop:52,background:"#FAFAF8"}}><div className="px-4 sm:px-6 py-8">
+    <Suspense fallback={<div className="max-w-3xl mx-auto"><p style={{color:"#CCC"}}>Loading editor...</p></div>}>
+      <LazyEditor article={editing==="new"?null:editing} onSave={handleSave} onCancel={()=>setEditing(null)}/>
+    </Suspense>
+  </div></div>}
 
   return <div className="min-h-screen" style={{paddingTop:52,background:"#FAFAF8"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,28px)"}}>Studio</h1><p className="mb-6" style={{fontSize:13,color:"#999"}}>{currentUser?"Your workspace. Build, share, and showcase your thinking.":"A gallery of what the community is building."}</p></FadeIn>
+    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,28px)"}}>My Studio</h1><p className="mb-6" style={{fontSize:13,color:"#999"}}>{admin?"Your workspace. Write articles, manage projects, and generate cycles.":"Browse published work from the Re\u00b3 community."}</p></FadeIn>
 
-    {currentUser&&myProjects.length>0&&<><FadeIn delay={50}><h2 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:16}}>My Projects</h2></FadeIn>
-      <div className="space-y-2 mb-8">{myProjects.map((proj,i)=><FadeIn key={proj.id} delay={60+i*30}><div className="p-4 rounded-2xl border" style={{background:"white",borderColor:"#F0F0F0"}}>
-        <div className="flex flex-wrap items-center gap-2 mb-1.5"><span className="font-bold px-2 py-0.5 rounded-full" style={{fontSize:9,letterSpacing:"0.05em",background:{Live:"#EBF5F1",Evolving:"#FDF0EB",Alpha:"#EEF3F8",Experiment:"#F5F0FA"}[proj.status]||"#F5F5F5",color:proj.statusColor}}>{proj.status.toUpperCase()}</span><span style={{fontSize:11,color:"#CCC"}}>{proj.subtitle}</span></div>
-        <h3 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:15}}>{proj.title}</h3>
-        <p className="mb-2" style={{fontSize:12,color:"#888",lineHeight:1.5}}>{proj.description}</p>
-        <div className="flex flex-wrap gap-1">{proj.tags.map(t=><span key={t} className="px-1.5 py-0.5 rounded-full" style={{fontSize:9,background:"#F5F5F5",color:"#999"}}>{t}</span>)}</div>
+    {admin&&<FadeIn delay={30}><button onClick={()=>setEditing("new")} className="mb-6 px-5 py-2.5 rounded-full font-semibold text-sm transition-all hover:shadow-md" style={{background:"linear-gradient(135deg,#E8734A,#F4A261)",color:"white"}}>Write Article</button></FadeIn>}
+
+    {admin&&draftArticles.length>0&&<><FadeIn delay={40}><h2 className="font-bold mb-2" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#E8734A",fontSize:16}}>Drafts ({draftArticles.length})</h2></FadeIn>
+      <div className="space-y-1.5 mb-6">{draftArticles.map((a,i)=><FadeIn key={a.id} delay={50+i*20}><div className="flex items-center justify-between p-3 rounded-xl border" style={{background:"white",borderColor:"#F0F0F0"}}>
+        <div className="flex-1"><div className="flex items-center gap-2 mb-0.5"><PillarTag pillar={a.pillar}/><span className="font-bold px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#FFF5F5",color:"#E8734A"}}>DRAFT</span></div><h3 className="font-semibold text-sm" style={{color:"#2D2D2D"}}>{a.title}</h3></div>
+        <div className="flex gap-1"><button onClick={()=>setEditing(a)} className="px-2 py-1 rounded-lg text-xs font-semibold" style={{color:"#3B6B9B",background:"#EEF3F8"}}>Edit</button><button onClick={()=>onDeleteArticle(a.id)} className="px-2 py-1 rounded-lg text-xs font-semibold" style={{color:"#E53E3E",background:"#FFF5F5"}}>Delete</button></div>
       </div></FadeIn>)}</div></>}
 
-    {currentUser&&myPosts.length>0&&<><FadeIn delay={100}><h2 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:16}}>My Posts ({myPosts.length})</h2></FadeIn>
-      <div className="space-y-1.5 mb-8">{myPosts.map((p,i)=><FadeIn key={p.id} delay={110+i*20}><button onClick={()=>onNavigate("post",p.id)} className="w-full text-left p-3 rounded-xl border transition-all hover:shadow-sm" style={{background:"white",borderColor:"#F0F0F0"}}><div className="flex items-center gap-2 mb-0.5"><PillarTag pillar={p.pillar}/>{p.type==="bridge"&&<span style={{fontSize:8,color:"#8B5CF6",fontWeight:700}}>BRIDGE</span>}</div><h3 className="font-semibold text-sm" style={{color:"#2D2D2D"}}>{p.title}</h3></button></FadeIn>)}</div></>}
+    {publishedArticles.length>0&&<><FadeIn delay={60}><h2 className="font-bold mb-2" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:16}}>Published Articles ({publishedArticles.length})</h2></FadeIn>
+      <div className="space-y-1.5 mb-6">{publishedArticles.map((a,i)=><FadeIn key={a.id} delay={70+i*20}><div className="flex items-center justify-between p-3 rounded-xl border" style={{background:"white",borderColor:"#F0F0F0"}}>
+        <button onClick={()=>onNavigate("article",a.id)} className="flex-1 text-left"><div className="flex items-center gap-2 mb-0.5"><PillarTag pillar={a.pillar}/><span className="font-bold px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#EBF5F1",color:"#2D8A6E"}}>PUBLISHED</span></div><h3 className="font-semibold text-sm" style={{color:"#2D2D2D"}}>{a.title}</h3></button>
+        {admin&&<div className="flex gap-1"><button onClick={()=>setEditing(a)} className="px-2 py-1 rounded-lg text-xs font-semibold" style={{color:"#3B6B9B",background:"#EEF3F8"}}>Edit</button><button onClick={()=>onSaveArticle({...a,status:"draft"})} className="px-2 py-1 rounded-lg text-xs font-semibold" style={{color:"#E8734A",background:"#FDF0EB"}}>Unpublish</button></div>}
+      </div></FadeIn>)}</div></>}
 
-    {currentUser&&<FadeIn delay={150}><AgentPanel onPostGenerated={onPostGenerated}/></FadeIn>}
+    {admin&&<><FadeIn delay={80}><h2 className="font-bold mb-2" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:16}}>Projects</h2></FadeIn>
+      <div className="space-y-2 mb-6">{STUDIO_PROJECTS.map((proj,i)=><FadeIn key={proj.id} delay={90+i*20}><div className="p-3 rounded-2xl border" style={{background:"white",borderColor:"#F0F0F0"}}>
+        <div className="flex items-center gap-2 mb-1"><span className="font-bold px-2 py-0.5 rounded-full" style={{fontSize:9,background:{Live:"#EBF5F1",Evolving:"#FDF0EB",Alpha:"#EEF3F8",Experiment:"#F5F0FA"}[proj.status]||"#F5F5F5",color:proj.statusColor}}>{proj.status.toUpperCase()}</span><span style={{fontSize:11,color:"#CCC"}}>{proj.subtitle}</span></div>
+        <h3 className="font-bold text-sm" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D"}}>{proj.title}</h3>
+        <p className="text-xs mt-0.5" style={{color:"#888"}}>{proj.description}</p>
+      </div></FadeIn>)}</div></>}
 
-    <FadeIn delay={170}><h2 className="font-bold mb-3 mt-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:16}}>{currentUser?"Community Gallery":"Public Gallery"}</h2></FadeIn>
-    <div className="space-y-2">{otherProjects.map((proj,i)=><FadeIn key={proj.id} delay={180+i*30}><div className="p-4 rounded-2xl border" style={{background:"white",borderColor:"#F0F0F0"}}>
-      <div className="flex items-center justify-between mb-1.5"><div className="flex items-center gap-2"><span className="font-bold px-2 py-0.5 rounded-full" style={{fontSize:9,background:{Live:"#EBF5F1",Evolving:"#FDF0EB",Alpha:"#EEF3F8",Experiment:"#F5F0FA"}[proj.status]||"#F5F5F5",color:proj.statusColor}}>{proj.status.toUpperCase()}</span></div><span style={{fontSize:10,color:"#CCC"}}>by {HUMANS.find(h=>h.id===proj.ownerId)?.name||"Community"}</span></div>
-      <h3 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:15}}>{proj.title}</h3>
-      <p style={{fontSize:12,color:"#888",lineHeight:1.5}}>{proj.description}</p>
-    </div></FadeIn>)}</div>
+    {admin&&<FadeIn delay={120}><AgentPanel onPostGenerated={onPostGenerated}/></FadeIn>}
+
+    {!admin&&!currentUser&&<FadeIn delay={50}><div className="space-y-2">{STUDIO_PROJECTS.map((proj,i)=><div key={proj.id} className="p-3 rounded-2xl border" style={{background:"white",borderColor:"#F0F0F0"}}>
+      <div className="flex items-center justify-between mb-1"><span className="font-bold px-2 py-0.5 rounded-full" style={{fontSize:9,background:{Live:"#EBF5F1",Evolving:"#FDF0EB",Alpha:"#EEF3F8",Experiment:"#F5F0FA"}[proj.status]||"#F5F5F5",color:proj.statusColor}}>{proj.status.toUpperCase()}</span><span style={{fontSize:10,color:"#CCC"}}>by Nitesh Srivastava</span></div>
+      <h3 className="font-bold text-sm" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D"}}>{proj.title}</h3>
+      <p className="text-xs mt-0.5" style={{color:"#888"}}>{proj.description}</p>
+    </div>)}</div></FadeIn>}
   </div></div>
 }
 
@@ -390,6 +423,64 @@ function AgentPanel({onPostGenerated}){
       <button onClick={publishAll} className="px-4 py-2 rounded-full font-semibold text-sm" style={{background:"#2D8A6E",color:"white"}}>Publish Cycle</button></div>}
     {step==='published'&&<div><p className="text-sm font-semibold" style={{color:"#2D8A6E"}}>Published! Go to home to see the new cycle.</p><button onClick={()=>setStep('idle')} className="mt-1 text-xs underline" style={{color:"#CCC"}}>Generate another</button></div>}
   </div>
+}
+
+
+// ==================== AGENT COMMUNITY — Agent roster + CRUD ====================
+function AgentCommunityPage({agents,currentUser,onSaveAgent,onDeleteAgent}){
+  const admin=isAdmin(currentUser);
+  const[editing,setEditing]=useState(null);const[showForm,setShowForm]=useState(false);
+  const[name,setName]=useState("");const[persona,setPersona]=useState("");const[model,setModel]=useState("anthropic");const[color,setColor]=useState("#3B6B9B");
+
+  const startEdit=(a)=>{setName(a.name);setPersona(a.persona);setModel(a.model);setColor(a.color);setEditing(a.id);setShowForm(true)};
+  const startNew=()=>{setName("");setPersona("");setModel("anthropic");setColor(["#3B6B9B","#E8734A","#2D8A6E","#8B5CF6","#D4A574","#E53E3E","#38B2AC","#DD6B20"][Math.floor(Math.random()*8)]);setEditing(null);setShowForm(true)};
+  const save=()=>{if(!name.trim()||!persona.trim())return;const agent={id:editing||"agent_"+Date.now(),name:name.trim(),persona:persona.trim(),model,color,avatar:name.trim().charAt(0).toUpperCase(),status:"active",pillar:"rethink"};onSaveAgent(agent);setShowForm(false)};
+
+  const active=agents.filter(a=>a.status==="active");const inactive=agents.filter(a=>a.status==="inactive");
+
+  return <div className="min-h-screen" style={{paddingTop:52,background:"#FAFAF8"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,28px)"}}>Agent Community</h1><p className="mb-6" style={{fontSize:13,color:"#999"}}>AI agents that read, debate, and synthesize ideas. {active.length} active agents.{admin?" You can create up to 50.":""}</p></FadeIn>
+
+    {admin&&!showForm&&<FadeIn delay={30}><button onClick={startNew} disabled={agents.length>=50} className="mb-5 px-4 py-2 rounded-full font-semibold text-sm transition-all hover:shadow-md" style={{background:"#2D2D2D",color:"white",opacity:agents.length>=50?0.5:1}}>{agents.length>=50?"Max 50 agents":"+ Create Agent"}</button></FadeIn>}
+
+    {showForm&&<FadeIn><div className="p-4 rounded-2xl border mb-5" style={{background:"white",borderColor:"#E8734A40",borderStyle:"dashed"}}>
+      <h3 className="font-bold mb-3" style={{fontSize:14,color:"#2D2D2D"}}>{editing?"Edit Agent":"Create Agent"}</h3>
+      <input value={name} onChange={e=>setName(e.target.value)} placeholder="Agent name (e.g. Challenger, Synthesizer)" className="w-full px-3 py-2 rounded-xl border focus:outline-none text-sm mb-2" style={{borderColor:"#F0F0F0",color:"#555"}}/>
+      <textarea value={persona} onChange={e=>setPersona(e.target.value)} placeholder="Persona prompt: Define their personality, perspective, debating style..." className="w-full px-3 py-2 rounded-xl border focus:outline-none text-sm mb-2" style={{borderColor:"#F0F0F0",color:"#555",minHeight:100,resize:"vertical"}}/>
+      <div className="flex flex-wrap gap-1.5 mb-3">{MODEL_PROVIDERS.map(m=><button key={m.id} onClick={()=>setModel(m.id)} className="px-2.5 py-1 rounded-full text-xs font-semibold transition-all" style={{background:model===m.id?`${m.color}15`:"white",color:model===m.id?m.color:"#CCC",border:`1.5px solid ${model===m.id?m.color:"#F0F0F0"}`}}>{m.label}</button>)}</div>
+      <div className="flex gap-2"><button onClick={save} className="px-4 py-1.5 rounded-full font-semibold text-sm" style={{background:"#2D2D2D",color:"white"}}>{editing?"Update":"Create"}</button><button onClick={()=>setShowForm(false)} className="px-4 py-1.5 rounded-full font-semibold text-sm" style={{color:"#CCC",border:"1.5px solid #F0F0F0"}}>Cancel</button></div>
+    </div></FadeIn>}
+
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">{active.map((a,i)=>{const mp=MODEL_PROVIDERS.find(m=>m.id===a.model);return <FadeIn key={a.id} delay={40+i*25}><div className="p-4 rounded-2xl border" style={{background:"white",borderColor:"#F0F0F0"}}>
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{background:`${a.color}12`,color:a.color,border:`2px dashed ${a.color}40`,fontSize:14}}>{a.avatar}</div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5"><h3 className="font-bold" style={{fontSize:14,color:"#2D2D2D"}}>{a.name}</h3><span className="px-1.5 py-0.5 rounded-full font-bold" style={{fontSize:8,background:`${mp?.color||"#999"}15`,color:mp?.color||"#999"}}>{mp?.label?.split(" ")[0]||a.model}</span></div>
+          <p className="text-xs" style={{color:"#888",lineHeight:1.5,display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{a.persona}</p>
+          {admin&&<div className="flex gap-1 mt-2"><button onClick={()=>startEdit(a)} className="text-xs font-semibold px-2 py-0.5 rounded-lg" style={{color:"#3B6B9B",background:"#EEF3F8"}}>Edit</button><button onClick={()=>onSaveAgent({...a,status:"inactive"})} className="text-xs font-semibold px-2 py-0.5 rounded-lg" style={{color:"#E8734A",background:"#FDF0EB"}}>Deactivate</button><button onClick={()=>onDeleteAgent(a.id)} className="text-xs font-semibold px-2 py-0.5 rounded-lg" style={{color:"#E53E3E",background:"#FFF5F5"}}>Delete</button></div>}
+        </div>
+      </div>
+    </div></FadeIn>})}</div>
+
+    {inactive.length>0&&<><h3 className="font-bold mt-6 mb-2" style={{fontSize:14,color:"#CCC"}}>Inactive ({inactive.length})</h3>
+      <div className="space-y-1.5">{inactive.map(a=><div key={a.id} className="flex items-center justify-between p-2.5 rounded-xl" style={{background:"#FAFAFA"}}>
+        <span className="text-sm" style={{color:"#CCC"}}>{a.name}</span>
+        {admin&&<div className="flex gap-1"><button onClick={()=>onSaveAgent({...a,status:"active"})} className="text-xs font-semibold px-2 py-0.5 rounded-lg" style={{color:"#2D8A6E",background:"#EBF5F1"}}>Activate</button><button onClick={()=>onDeleteAgent(a.id)} className="text-xs font-semibold px-2 py-0.5 rounded-lg" style={{color:"#E53E3E",background:"#FFF5F5"}}>Delete</button></div>}
+      </div>)}</div></>}
+  </div></div>
+}
+
+// ==================== ARTICLE VIEW — Public reading page ====================
+function ArticlePage({article,onNavigate}){
+  if(!article)return null;
+  return <div className="min-h-screen" style={{paddingTop:52,background:"#FAFAF8"}}><article className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+    <FadeIn><button onClick={()=>onNavigate("studio")} style={{fontSize:12,color:"#CCC",marginBottom:24,display:"block"}}>&larr; Back</button></FadeIn>
+    <FadeIn delay={40}><div className="flex items-center gap-2 mb-3"><PillarTag pillar={article.pillar} size="md"/><span className="font-bold px-2 py-0.5 rounded-full" style={{fontSize:9,background:article.status==="published"?"#EBF5F1":"#FFF5F5",color:article.status==="published"?"#2D8A6E":"#E8734A"}}>{article.status?.toUpperCase()}</span></div></FadeIn>
+    <FadeIn delay={60}><h1 className="font-bold leading-tight mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(20px,3.5vw,30px)"}}>{article.title}</h1></FadeIn>
+    <FadeIn delay={70}><div className="flex items-center gap-2 pb-4 mb-6" style={{borderBottom:"1px solid #F0F0F0"}}><span style={{fontSize:12,color:"#999"}}>by Nitesh Srivastava</span><span style={{fontSize:12,color:"#CCC"}}>&middot; {article.updatedAt||article.createdAt}</span></div></FadeIn>
+    <FadeIn delay={80}><div className="prose prose-sm max-w-none" style={{color:"#555",fontSize:14,lineHeight:1.9}} dangerouslySetInnerHTML={{__html:article.htmlContent||""}}></div></FadeIn>
+    {article.tags?.length>0&&<div className="flex flex-wrap gap-1.5 mt-6 pt-4" style={{borderTop:"1px solid #F0F0F0"}}>{article.tags.map(t=><span key={t} className="px-2 py-0.5 rounded-full" style={{fontSize:10,background:"#F5F5F5",color:"#999"}}>{t}</span>)}</div>}
+  </article></div>
 }
 
 // ==================== REMAINING PAGES ====================
@@ -460,10 +551,13 @@ function Disclaimer(){return <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3
 // ==================== MAIN APP ====================
 function Re3(){
   const[user,setUser]=useState(null);const[content,setContent]=useState(INIT_CONTENT);const[themes,setThemes]=useState(INIT_THEMES);
+  const[articles,setArticles]=useState([]);const[agents,setAgents]=useState(INIT_AGENTS);
   const[page,setPage]=useState("home");const[pageId,setPageId]=useState(null);const[showLogin,setShowLogin]=useState(false);const[loaded,setLoaded]=useState(false);
-  useEffect(()=>{const su=DB.get("user",null);const sc=DB.get("content_v5",null);const st=DB.get("themes",null);if(su)setUser(su);if(sc&&sc.length>=INIT_CONTENT.length)setContent(sc);if(st)setThemes(st);setLoaded(true)},[]);
+  useEffect(()=>{const su=DB.get("user",null);const sc=DB.get("content_v5",null);const st=DB.get("themes",null);const sa=DB.get("articles_v1",null);const sag=DB.get("agents_v1",null);if(su)setUser(su);if(sc&&sc.length>=INIT_CONTENT.length)setContent(sc);if(st)setThemes(st);if(sa)setArticles(sa);if(sag&&sag.length>0)setAgents(sag);setLoaded(true)},[]);
   useEffect(()=>{if(loaded)DB.set("content_v5",content)},[content,loaded]);
   useEffect(()=>{if(loaded)DB.set("themes",themes)},[themes,loaded]);
+  useEffect(()=>{if(loaded)DB.set("articles_v1",articles)},[articles,loaded]);
+  useEffect(()=>{if(loaded)DB.set("agents_v1",agents)},[agents,loaded]);
   const nav=useCallback((p,id=null)=>{setPage(p);setPageId(id);window.scrollTo({top:0,behavior:"smooth"})},[]);
   const endorse=(id)=>setContent(p=>p.map(c=>c.id===id?{...c,endorsements:c.endorsements+1}:c));
   const cmnt=(id,text)=>{if(!user)return;setContent(p=>p.map(c=>c.id===id?{...c,comments:[...c.comments,{id:"cm_"+Date.now(),authorId:user.id,text,date:new Date().toISOString().split("T")[0]}]}:c))};
@@ -473,13 +567,18 @@ function Re3(){
   const addMN=(postId,pi,text)=>{if(!user)return;setContent(p=>p.map(c=>c.id===postId?{...c,marginNotes:[...(c.marginNotes||[]),{id:"mn_"+Date.now(),paragraphIndex:pi,authorId:user.id,text,date:new Date().toISOString().split("T")[0]}]}:c))};
   const voteTheme=(id)=>setThemes(t=>t.map(th=>th.id===id?{...th,votes:th.votes+(th.voted?0:1),voted:true}:th));
   const postReact=(pi,key)=>{if(!pageId)return;react(pageId,pi,key)};
+  const saveArticle=(a)=>setArticles(prev=>{const idx=prev.findIndex(x=>x.id===a.id);if(idx>=0){const up=[...prev];up[idx]=a;return up}return[a,...prev]});
+  const deleteArticle=(id)=>setArticles(prev=>prev.filter(a=>a.id!==id));
+  const saveAgent=(a)=>setAgents(prev=>{const idx=prev.findIndex(x=>x.id===a.id);if(idx>=0){const up=[...prev];up[idx]=a;return up}return[...prev,a]});
+  const deleteAgent=(id)=>setAgents(prev=>prev.filter(a=>a.id!==id));
   const logout=async()=>{await firebaseSignOut();setUser(null);DB.clear("user")};
   if(!loaded)return <div className="min-h-screen flex items-center justify-center" style={{background:"#FAFAF8"}}><p style={{color:"#CCC",fontSize:13}}>Loading Re³...</p></div>;
   const render=()=>{switch(page){
     case"home":return <HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} onNavigate={nav} onVoteTheme={voteTheme}/>;
     case"loom":return <LoomPage content={content} onNavigate={nav}/>;
-    case"studio":return <StudioPage currentUser={user} content={content} onNavigate={nav} onPostGenerated={addPost}/>;
-    case"agents":return <AgentsPage content={content} onNavigate={nav}/>;
+    case"studio":return <MyStudioPage currentUser={user} content={content} articles={articles} agents={agents} onNavigate={nav} onPostGenerated={addPost} onSaveArticle={saveArticle} onDeleteArticle={deleteArticle}/>;
+    case"agent-community":return <AgentCommunityPage agents={agents} currentUser={user} onSaveAgent={saveAgent} onDeleteAgent={deleteAgent}/>;
+    case"article":const art=articles.find(a=>a.id===pageId);return art?<ArticlePage article={art} onNavigate={nav}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} onNavigate={nav} onVoteTheme={voteTheme}/>;
     case"bridges":return <BridgesPage content={content} onNavigate={nav}/>;
     case"post":const po=content.find(c=>c.id===pageId);return po?<PostPage post={po} allContent={content} onNavigate={nav} currentUser={user} onEndorse={endorse} onComment={cmnt} onReact={postReact} onAddChallenge={addCh} onAddMarginNote={addMN}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} onNavigate={nav} onVoteTheme={voteTheme}/>;
     case"profile":const u=ALL_USERS.find(x=>x.id===pageId)||user;return u?<ProfilePage user={u} content={content} onNavigate={nav}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} onNavigate={nav} onVoteTheme={voteTheme}/>;
