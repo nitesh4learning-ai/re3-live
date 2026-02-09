@@ -58,10 +58,46 @@ const STUDIO_PROJECTS = [
   { id:"nz4", title:"RAG Pipeline", subtitle:"Retrieval-Augmented Generation", status:"Experiment", statusColor:"#8B5CF6", description:"LangChain + PostgreSQL for enterprise knowledge retrieval.", tags:["LangChain","PostgreSQL","Python"], ownerId:"u1" },
 ];
 
+// === ORCHESTRATORS (not debaters — they run the show) ===
+const ORCHESTRATORS = {
+  sage: { id:"agent_sage", name:"Sage", persona:"A wise synthesizer and systems thinker. Finds unity beneath contradictions. Weaves disparate threads into coherent insight. Reflective, philosophical, honors all perspectives rather than picking winners. Ends with open questions.", model:"anthropic", color:"#3B6B9B", avatar:"S", role:"Synthesizer" },
+  atlas: { id:"agent_atlas", name:"Atlas", persona:"A debate moderator and pattern recognition specialist. Watches discussions for drift, circular arguments, and missing perspectives. Redirects firmly but respectfully. References historical parallels when relevant.", model:"anthropic", color:"#E8734A", avatar:"A", role:"Moderator" },
+  forge: { id:"agent_forge", name:"Forge", persona:"A panel curator who reads articles and selects the most relevant debaters. Analyzes the topic's domain, stakeholders, and tensions to pick 5 agents that will create the most productive friction.", model:"anthropic", color:"#2D8A6E", avatar:"F", role:"Panel Curator" },
+};
+
+// === 25 DEBATER AGENTS ===
 const INIT_AGENTS = [
-  { id:"agent_sage", name:"Sage", persona:"A wise synthesizer rooted in Advaita Vedanta philosophy and systems thinking. Asks uncomfortable questions that reframe entire debates. References Eastern and Western philosophy but makes it accessible. Uses the Socratic method.", model:"anthropic", color:"#3B6B9B", avatar:"S", status:"active", pillar:"rethink" },
-  { id:"agent_atlas", name:"Atlas", persona:"A pattern recognition specialist who finds hidden connections across industries, history, and disciplines. Starts with compelling historical stories. Draws precise parallels between distant fields. References specific systems and models by name with dates.", model:"anthropic", color:"#E8734A", avatar:"A", status:"active", pillar:"rediscover" },
-  { id:"agent_forge", name:"Forge", persona:"A builder and architect who turns ideas into concrete, implementable systems. Proposes specific architectures with code. Is opinionated about design principles. Makes it clear everything is buildable TODAY.", model:"anthropic", color:"#2D8A6E", avatar:"F", status:"active", pillar:"reinvent" },
+  // Executive Suite
+  { id:"agent_ledger", name:"Ledger", persona:"The CEO. Bottom-line thinker. 'How does this create value?' Impatient with theory, wants ROI, timelines, and competitive advantage. Speaks in business outcomes.", model:"anthropic", color:"#1A365D", avatar:"Le", status:"active", category:"Executive Suite" },
+  { id:"agent_meridian", name:"Meridian", persona:"The CDO. Data-first pragmatist. Bridges business and technology. Obsessed with data quality, lineage, and governance. Thinks in data flows and ownership.", model:"anthropic", color:"#2B6CB0", avatar:"Me", status:"active", category:"Executive Suite" },
+  { id:"agent_flux", name:"Flux", persona:"The CTO. Engineering purist. 'Show me the architecture.' Skeptical of hype, trusts only what has been stress-tested in production. Demands technical rigor.", model:"anthropic", color:"#2C5282", avatar:"Fx", status:"active", category:"Executive Suite" },
+  { id:"agent_mint", name:"Mint", persona:"The CFO. Financial discipline. 'What is the cost structure? What is the payback period?' Guards resources ruthlessly. Every initiative must justify its budget.", model:"anthropic", color:"#276749", avatar:"Mi", status:"active", category:"Executive Suite" },
+  // Builders
+  { id:"agent_grid", name:"Grid", persona:"The Network Engineer. Infrastructure thinker. Sees everything as systems, protocols, and failure modes. 'What happens when this breaks at 10x scale?'", model:"anthropic", color:"#4A5568", avatar:"Gr", status:"active", category:"Builders" },
+  { id:"agent_scaffold", name:"Scaffold", persona:"The Software Architect. Patterns and abstractions. Thinks in APIs, microservices, and design principles. Evaluates everything through maintainability and extensibility.", model:"anthropic", color:"#5A67D8", avatar:"Sc", status:"active", category:"Builders" },
+  { id:"agent_prism", name:"Prism", persona:"The Data Scientist. Statistical rigor. 'Where is the evidence?' Challenges any claim made without data. Loves controlled experiments and measurable outcomes.", model:"anthropic", color:"#6B46C1", avatar:"Pr", status:"active", category:"Builders" },
+  { id:"agent_cipher", name:"Cipher", persona:"The Cybersecurity Analyst. Threat modeling. 'What is the attack surface? How can this be exploited?' Thinks about adversaries, vulnerabilities, and zero-trust.", model:"anthropic", color:"#9B2C2C", avatar:"Ci", status:"active", category:"Builders" },
+  // Human Lens
+  { id:"agent_torch", name:"Torch", persona:"The Social Activist. Equity and access. 'Who gets left behind?' Challenges power structures, techno-optimism, and solutions that serve only the privileged.", model:"anthropic", color:"#C05621", avatar:"To", status:"active", category:"Human Lens" },
+  { id:"agent_gavel", name:"Gavel", persona:"The Policy Maker. Regulation and governance frameworks. Thinks in compliance, precedent, and public interest. Balances innovation with protection.", model:"anthropic", color:"#744210", avatar:"Ga", status:"active", category:"Human Lens" },
+  { id:"agent_clause", name:"Clause", persona:"The Lawyer. Risk and liability. 'Who is responsible when this fails?' Thinks in contracts, IP, privacy law, regulatory exposure, and audit trails.", model:"anthropic", color:"#553C9A", avatar:"Cl", status:"active", category:"Human Lens" },
+  { id:"agent_pulse", name:"Pulse", persona:"The Doctor. Patient safety and evidence-based practice. Human factors in high-stakes decisions. 'In clinical settings, move fast and break things means people die.'", model:"anthropic", color:"#E53E3E", avatar:"Pu", status:"active", category:"Human Lens" },
+  // Cross-Domain
+  { id:"agent_truss", name:"Truss", persona:"The Civil Engineer. Physical infrastructure metaphors. Safety margins, load-bearing, structural integrity. 'You would not build a bridge this way.'", model:"anthropic", color:"#7B341E", avatar:"Tr", status:"active", category:"Cross-Domain" },
+  { id:"agent_chalk", name:"Chalk", persona:"The Educator. Learning and accessibility. 'Can a 16-year-old understand this? Can a 60-year-old adopt it?' Champions clarity and inclusive design.", model:"anthropic", color:"#22543D", avatar:"Ch", status:"active", category:"Cross-Domain" },
+  { id:"agent_quant", name:"Quant", persona:"The Economist. Markets, incentives, game theory, unintended consequences. 'What does the equilibrium look like? Who has perverse incentives?'", model:"anthropic", color:"#2A4365", avatar:"Qu", status:"active", category:"Cross-Domain" },
+  { id:"agent_canopy", name:"Canopy", persona:"The Environmentalist. Sustainability, resource impact, long-term ecological thinking. 'What is the carbon cost? What is the 50-year consequence?'", model:"anthropic", color:"#276749", avatar:"Ca", status:"active", category:"Cross-Domain" },
+  // Wild Cards
+  { id:"agent_flint", name:"Flint", persona:"The Contrarian. Deliberately takes the opposite position. Devil's advocate by design. 'Everyone agrees? Then we are missing something critical.'", model:"anthropic", color:"#C53030", avatar:"Fl", status:"active", category:"Wild Cards" },
+  { id:"agent_pixel", name:"Pixel", persona:"The Non-Technical User. Represents the everyday person. 'I do not understand any of this. Explain it like I am your neighbor.' Grounds the discussion in reality.", model:"anthropic", color:"#B794F4", avatar:"Px", status:"active", category:"Wild Cards" },
+  { id:"agent_beacon", name:"Beacon", persona:"The Journalist. Asks probing questions. 'What are you not telling us? Who benefits from this narrative?' Demands transparency and accountability.", model:"anthropic", color:"#D69E2E", avatar:"Be", status:"active", category:"Wild Cards" },
+  { id:"agent_spark", name:"Spark", persona:"The Startup Founder. Move-fast energy. 'Ship it. Iterate. Perfect is the enemy of done.' Clashes with cautious voices. Champions speed and experimentation.", model:"anthropic", color:"#DD6B20", avatar:"Sp", status:"active", category:"Wild Cards" },
+  // Industry Specialists
+  { id:"agent_orbit", name:"Orbit", persona:"The Space Engineer. Mission-critical systems, redundancy, zero-margin-for-error. 'In space, there is no patch Tuesday. It works on launch or it does not.'", model:"anthropic", color:"#1A202C", avatar:"Or", status:"active", category:"Industry" },
+  { id:"agent_harvest", name:"Harvest", persona:"The Agricultural Scientist. Food systems, supply chains, seasonal cycles, biological complexity. 'Technology that does not survive a drought is not technology, it is a luxury.'", model:"anthropic", color:"#48BB78", avatar:"Ha", status:"active", category:"Industry" },
+  { id:"agent_barrel", name:"Barrel", persona:"The Energy Sector Strategist. Oil, renewables, grid infrastructure, energy transitions. 'Every digital transformation runs on electricity someone has to generate.'", model:"anthropic", color:"#ED8936", avatar:"Ba", status:"active", category:"Industry" },
+  { id:"agent_anchor", name:"Anchor", persona:"The Maritime and Logistics Expert. Global supply chains, shipping, trade routes, port infrastructure. 'The world runs on containers. When logistics break, everything breaks.'", model:"anthropic", color:"#3182CE", avatar:"An", status:"active", category:"Industry" },
+  { id:"agent_bedrock", name:"Bedrock", persona:"The Mining and Resources Engineer. Extraction, raw materials, geological timescales, resource scarcity. 'Every chip in every AI server started as rock in someone's ground.'", model:"anthropic", color:"#718096", avatar:"Bd", status:"active", category:"Industry" },
 ];
 const MODEL_PROVIDERS = [
   { id:"anthropic", label:"Claude (Anthropic)", color:"#D4A574" },
@@ -344,6 +380,107 @@ function PostPage({post,allContent,onNavigate,currentUser,onEndorse,onComment,on
   </article></div>
 }
 
+
+// ==================== DEBATE PANEL — Live debate visualization ====================
+function DebatePanel({article,agents,onDebateComplete}){
+  const[status,setStatus]=useState("idle");const[step,setStep]=useState("");const[panel,setPanel]=useState(null);const[rounds,setRounds]=useState([]);const[atlas,setAtlas]=useState(null);const[loom,setLoom]=useState(null);const[streams,setStreams]=useState([]);const[error,setError]=useState("");const[progress,setProgress]=useState(0);
+
+  const startDebate=async()=>{
+    setStatus("running");setError("");setProgress(0);
+    const articleText=article.paragraphs?.join("\n\n")||article.htmlContent?.replace(/<[^>]*>/g," ")||"";
+    const activeAgents=agents.filter(a=>a.status==="active");
+    try{
+      // Step 1: Forge selects panel
+      setStep("Forge selecting panel...");setProgress(5);
+      const selRes=await fetch("/api/debate/select",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:article.title,articleText,agents:activeAgents,forgePersona:ORCHESTRATORS.forge.persona})});
+      if(!selRes.ok)throw new Error("Forge selection failed");
+      const sel=await selRes.json();
+      const selectedAgents=activeAgents.filter(a=>sel.selected.includes(a.id));
+      if(selectedAgents.length===0)throw new Error("No agents selected");
+      setPanel({agents:selectedAgents,rationale:sel.rationale});setProgress(15);
+
+      // Steps 2-4: Three rounds
+      const allRounds=[];
+      for(let r=1;r<=3;r++){
+        setStep(`Round ${r}: Agents ${r===1?"reading article":r===2?"cross-responding":"giving final positions"}...`);
+        const roundRes=await fetch("/api/debate/round",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:article.title,articleText,agents:selectedAgents,roundNumber:r,previousRounds:allRounds})});
+        if(!roundRes.ok)throw new Error(`Round ${r} failed`);
+        const roundData=await roundRes.json();
+        allRounds.push(roundData.responses);
+        setRounds([...allRounds]);
+        setProgress(15+r*20);
+      }
+
+      // Step 5: Atlas moderation
+      setStep("Atlas reviewing discussion...");setProgress(80);
+      const modRes=await fetch("/api/debate/moderate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:article.title,rounds:allRounds,atlasPersona:ORCHESTRATORS.atlas.persona})});
+      const modData=await modRes.json();
+      setAtlas(modData);setProgress(88);
+
+      // Step 6: Sage Loom + clustering
+      setStep("Sage weaving The Loom...");setProgress(90);
+      const loomRes=await fetch("/api/debate/loom",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:article.title,articleText,rounds:allRounds,atlasNote:modData.intervention,forgeRationale:sel.rationale,panelNames:selectedAgents.map(a=>a.name),sagePersona:ORCHESTRATORS.sage.persona})});
+      const loomData=await loomRes.json();
+      setLoom(loomData.loom);setStreams(loomData.streams||[]);setProgress(100);
+
+      setStep("Complete!");setStatus("complete");
+      if(onDebateComplete)onDebateComplete({panel:{agents:selectedAgents,rationale:sel.rationale},rounds:allRounds,atlas:modData,loom:loomData.loom,streams:loomData.streams||[]});
+    }catch(e){console.error("Debate error:",e);setError(e.message);setStatus("error")}
+  };
+
+  const getAgentColor=(name)=>{const a=[...agents,...Object.values(ORCHESTRATORS)].find(x=>x.name===name);return a?.color||"#999"};
+  const getAgentAvatar=(name)=>{const a=agents.find(x=>x.name===name);return a?.avatar||name.charAt(0)};
+
+  if(status==="idle")return <button onClick={startDebate} className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"linear-gradient(135deg,#2D2D2D,#4A4A4A)",color:"white"}}>Start Agent Debate</button>;
+
+  return <div className="rounded-2xl border overflow-hidden" style={{background:"white",borderColor:"#F0F0F0"}}>
+    {status==="running"&&<div className="p-4" style={{background:"#FAFAF9",borderBottom:"1px solid #F0F0F0"}}>
+      <div className="flex items-center justify-between mb-2"><span className="font-bold text-sm" style={{color:"#2D2D2D"}}>Debate in Progress</span><span className="text-xs font-bold" style={{color:"#E8734A"}}>{progress}%</span></div>
+      <div className="w-full rounded-full overflow-hidden mb-2" style={{height:3,background:"#F0F0F0"}}><div className="rounded-full transition-all" style={{height:"100%",width:`${progress}%`,background:"linear-gradient(90deg,#3B6B9B,#E8734A,#2D8A6E)",transition:"width 0.5s ease"}}/></div>
+      <p className="text-xs" style={{color:"#999"}}>{step}</p>
+    </div>}
+
+    {error&&<div className="p-3 m-3 rounded-xl" style={{background:"#FFF5F5"}}><p className="text-xs" style={{color:"#E53E3E"}}>Error: {error}</p><button onClick={()=>{setStatus("idle");setError("")}} className="text-xs font-semibold mt-1" style={{color:"#3B6B9B"}}>Retry</button></div>}
+
+    {panel&&<div className="p-4" style={{borderBottom:"1px solid #F0F0F0"}}>
+      <div className="flex items-center gap-2 mb-2"><div className="w-6 h-6 rounded-full flex items-center justify-center font-bold" style={{background:"#2D8A6E12",color:"#2D8A6E",fontSize:9,border:"1.5px dashed #2D8A6E40"}}>F</div><span className="font-bold text-xs" style={{color:"#2D8A6E"}}>Forge selected the panel</span></div>
+      <div className="flex flex-wrap gap-1.5 mb-2">{panel.agents.map(a=><span key={a.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full" style={{background:`${a.color}10`,border:`1px solid ${a.color}25`}}><span className="w-4 h-4 rounded-full flex items-center justify-center font-bold" style={{background:`${a.color}20`,color:a.color,fontSize:7}}>{a.avatar}</span><span className="font-semibold" style={{fontSize:10,color:a.color}}>{a.name}</span></span>)}</div>
+      <p className="text-xs" style={{color:"#999",lineHeight:1.5}}>{panel.rationale}</p>
+    </div>}
+
+    {streams.length>0?<div className="p-4">
+      <h3 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:15}}>Argument Streams</h3>
+      {streams.map((stream,si)=><div key={si} className="mb-4">
+        <div className="flex items-center gap-2 mb-2"><div className="w-1.5 rounded-full" style={{height:14,background:"linear-gradient(180deg,#E8734A,#3B6B9B)"}}/><h4 className="font-bold text-xs" style={{color:"#2D2D2D"}}>{stream.title}</h4></div>
+        <div className="ml-3 space-y-1.5" style={{borderLeft:"2px solid #F5F5F5",paddingLeft:12}}>
+          {stream.entries?.map((entry,ei)=><div key={ei} className="flex items-start gap-2">
+            <div className="w-5 h-5 rounded-full flex items-center justify-center font-bold flex-shrink-0 mt-0.5" style={{background:`${getAgentColor(entry.agent)}15`,color:getAgentColor(entry.agent),fontSize:7}}>{getAgentAvatar(entry.agent)}</div>
+            <div><span className="font-bold" style={{fontSize:10,color:getAgentColor(entry.agent)}}>{entry.agent}</span><span className="text-xs" style={{color:"#CCC"}}> R{entry.round}</span><p className="text-xs mt-0.5" style={{color:"#666",lineHeight:1.5}}>{entry.excerpt}</p></div>
+          </div>)}
+        </div>
+      </div>)}
+    </div>:rounds.length>0&&<div className="p-4">
+      {rounds.map((round,ri)=><div key={ri} className="mb-3"><h4 className="font-bold text-xs mb-1.5" style={{color:"#CCC"}}>Round {ri+1}</h4>
+        <div className="space-y-1.5">{round.filter(r=>r.response).map(r=><div key={r.id} className="flex items-start gap-2 p-2 rounded-lg" style={{background:"#FAFAF9"}}>
+          <div className="w-5 h-5 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{background:`${getAgentColor(r.name)}15`,color:getAgentColor(r.name),fontSize:7}}>{getAgentAvatar(r.name)}</div>
+          <div><span className="font-bold" style={{fontSize:10,color:getAgentColor(r.name)}}>{r.name}</span>{r.status==="failed"?<span className="text-xs ml-1" style={{color:"#E53E3E"}}>(failed)</span>:<p className="text-xs mt-0.5" style={{color:"#666",lineHeight:1.5}}>{r.response?.slice(0,200)}...</p>}</div>
+        </div>)}</div>
+      </div>)}
+    </div>}
+
+    {atlas&&<div className="mx-4 mb-3 p-3 rounded-xl" style={{background:"#FFF8F0",border:"1px solid #F8E8D5"}}>
+      <div className="flex items-center gap-2 mb-1"><div className="w-5 h-5 rounded-full flex items-center justify-center font-bold" style={{background:"#E8734A15",color:"#E8734A",fontSize:8,border:"1px dashed #E8734A40"}}>A</div><span className="font-bold text-xs" style={{color:"#E8734A"}}>Atlas</span><span className="text-xs" style={{color:"#CCC"}}>{atlas.on_topic?"On topic":"Intervention"}</span></div>
+      <p className="text-xs" style={{color:"#888",lineHeight:1.5}}>{atlas.intervention}</p>
+      {atlas.missing_perspectives&&<p className="text-xs mt-1" style={{color:"#BBB",fontStyle:"italic"}}>Missing: {atlas.missing_perspectives}</p>}
+    </div>}
+
+    {loom&&<div className="m-4 p-4 rounded-2xl" style={{background:"linear-gradient(135deg,#FAFAF8,#F5F0FA)",border:"1px solid #E8E0F0"}}>
+      <div className="flex items-center gap-2 mb-3"><span style={{fontSize:16}}>&#128296;</span><h3 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#3B6B9B",fontSize:16}}>Sage&apos;s Loom &mdash; A Synthesis</h3></div>
+      <div style={{fontSize:13,color:"#555",lineHeight:1.9}}>{loom.split("\n\n").map((p,i)=><p key={i} className="mb-2">{p}</p>)}</div>
+    </div>}
+  </div>
+}
+
 // ==================== MY STUDIO — Admin-controlled workspace ====================
 function MyStudioPage({currentUser,content,articles,agents,onNavigate,onPostGenerated,onSaveArticle,onDeleteArticle}){
   const[editing,setEditing]=useState(null); // null | "new" | article object
@@ -430,57 +567,78 @@ function AgentPanel({onPostGenerated}){
 function AgentCommunityPage({agents,currentUser,onSaveAgent,onDeleteAgent}){
   const admin=isAdmin(currentUser);
   const[editing,setEditing]=useState(null);const[showForm,setShowForm]=useState(false);
-  const[name,setName]=useState("");const[persona,setPersona]=useState("");const[model,setModel]=useState("anthropic");const[color,setColor]=useState("#3B6B9B");
+  const[name,setName]=useState("");const[persona,setPersona]=useState("");const[model,setModel]=useState("anthropic");const[color,setColor]=useState("#3B6B9B");const[category,setCategory]=useState("Wild Cards");
 
-  const startEdit=(a)=>{setName(a.name);setPersona(a.persona);setModel(a.model);setColor(a.color);setEditing(a.id);setShowForm(true)};
-  const startNew=()=>{setName("");setPersona("");setModel("anthropic");setColor(["#3B6B9B","#E8734A","#2D8A6E","#8B5CF6","#D4A574","#E53E3E","#38B2AC","#DD6B20"][Math.floor(Math.random()*8)]);setEditing(null);setShowForm(true)};
-  const save=()=>{if(!name.trim()||!persona.trim())return;const agent={id:editing||"agent_"+Date.now(),name:name.trim(),persona:persona.trim(),model,color,avatar:name.trim().charAt(0).toUpperCase(),status:"active",pillar:"rethink"};onSaveAgent(agent);setShowForm(false)};
+  const startEdit=(a)=>{setName(a.name);setPersona(a.persona);setModel(a.model);setColor(a.color);setCategory(a.category||"Wild Cards");setEditing(a.id);setShowForm(true)};
+  const startNew=()=>{setName("");setPersona("");setModel("anthropic");setCategory("Wild Cards");setColor(["#3B6B9B","#E8734A","#2D8A6E","#8B5CF6","#D4A574","#E53E3E","#38B2AC","#DD6B20"][Math.floor(Math.random()*8)]);setEditing(null);setShowForm(true)};
+  const save=()=>{if(!name.trim()||!persona.trim())return;const agent={id:editing||"agent_"+name.trim().toLowerCase().replace(/\s+/g,"_"),name:name.trim(),persona:persona.trim(),model,color,avatar:name.trim().slice(0,2),status:"active",category};onSaveAgent(agent);setShowForm(false)};
+  const changeModel=(agentId,newModel)=>{const a=agents.find(x=>x.id===agentId);if(a)onSaveAgent({...a,model:newModel})};
 
   const active=agents.filter(a=>a.status==="active");const inactive=agents.filter(a=>a.status==="inactive");
+  const categories=[...new Set(active.map(a=>a.category||"Other"))];
 
-  return <div className="min-h-screen" style={{paddingTop:52,background:"#FAFAF8"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,28px)"}}>Agent Community</h1><p className="mb-6" style={{fontSize:13,color:"#999"}}>AI agents that read, debate, and synthesize ideas. {active.length} active agents.{admin?" You can create up to 50.":""}</p></FadeIn>
+  return <div className="min-h-screen" style={{paddingTop:52,background:"#FAFAF8"}}><div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,28px)"}}>Agent Community</h1><p className="mb-6" style={{fontSize:13,color:"#999"}}>{active.length} debater agents + 3 orchestrators. Forge picks 5 per debate.</p></FadeIn>
+
+    <FadeIn delay={20}><div className="p-4 rounded-2xl border mb-6" style={{background:"white",borderColor:"#F0F0F0"}}>
+      <h3 className="font-bold mb-3" style={{fontSize:13,color:"#2D2D2D"}}>Orchestration Layer</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">{Object.values(ORCHESTRATORS).map(o=><div key={o.id} className="p-3 rounded-xl" style={{background:`${o.color}06`,border:`1px solid ${o.color}20`}}>
+        <div className="flex items-center gap-2 mb-1"><div className="w-7 h-7 rounded-full flex items-center justify-center font-bold" style={{background:`${o.color}15`,color:o.color,fontSize:10,border:`1.5px dashed ${o.color}40`}}>{o.avatar}</div><div><span className="font-bold text-xs" style={{color:o.color}}>{o.name}</span><span className="block" style={{fontSize:9,color:"#BBB"}}>{o.role}</span></div></div>
+        <p className="text-xs" style={{color:"#999",lineHeight:1.4}}>{o.persona.slice(0,100)}...</p>
+      </div>)}</div>
+    </div></FadeIn>
 
     {admin&&!showForm&&<FadeIn delay={30}><button onClick={startNew} disabled={agents.length>=50} className="mb-5 px-4 py-2 rounded-full font-semibold text-sm transition-all hover:shadow-md" style={{background:"#2D2D2D",color:"white",opacity:agents.length>=50?0.5:1}}>{agents.length>=50?"Max 50 agents":"+ Create Agent"}</button></FadeIn>}
 
     {showForm&&<FadeIn><div className="p-4 rounded-2xl border mb-5" style={{background:"white",borderColor:"#E8734A40",borderStyle:"dashed"}}>
       <h3 className="font-bold mb-3" style={{fontSize:14,color:"#2D2D2D"}}>{editing?"Edit Agent":"Create Agent"}</h3>
-      <input value={name} onChange={e=>setName(e.target.value)} placeholder="Agent name (e.g. Challenger, Synthesizer)" className="w-full px-3 py-2 rounded-xl border focus:outline-none text-sm mb-2" style={{borderColor:"#F0F0F0",color:"#555"}}/>
-      <textarea value={persona} onChange={e=>setPersona(e.target.value)} placeholder="Persona prompt: Define their personality, perspective, debating style..." className="w-full px-3 py-2 rounded-xl border focus:outline-none text-sm mb-2" style={{borderColor:"#F0F0F0",color:"#555",minHeight:100,resize:"vertical"}}/>
-      <div className="flex flex-wrap gap-1.5 mb-3">{MODEL_PROVIDERS.map(m=><button key={m.id} onClick={()=>setModel(m.id)} className="px-2.5 py-1 rounded-full text-xs font-semibold transition-all" style={{background:model===m.id?`${m.color}15`:"white",color:model===m.id?m.color:"#CCC",border:`1.5px solid ${model===m.id?m.color:"#F0F0F0"}`}}>{m.label}</button>)}</div>
-      <div className="flex gap-2"><button onClick={save} className="px-4 py-1.5 rounded-full font-semibold text-sm" style={{background:"#2D2D2D",color:"white"}}>{editing?"Update":"Create"}</button><button onClick={()=>setShowForm(false)} className="px-4 py-1.5 rounded-full font-semibold text-sm" style={{color:"#CCC",border:"1.5px solid #F0F0F0"}}>Cancel</button></div>
+      <input value={name} onChange={e=>setName(e.target.value)} placeholder="Agent name" className="w-full px-3 py-2 rounded-xl border focus:outline-none text-sm mb-2" style={{borderColor:"#F0F0F0",color:"#555"}}/>
+      <textarea value={persona} onChange={e=>setPersona(e.target.value)} placeholder="Persona prompt..." className="w-full px-3 py-2 rounded-xl border focus:outline-none text-sm mb-2" style={{borderColor:"#F0F0F0",color:"#555",minHeight:80,resize:"vertical"}}/>
+      <div className="flex flex-wrap gap-1.5 mb-2"><span className="text-xs self-center mr-1" style={{color:"#BBB"}}>Model:</span>{MODEL_PROVIDERS.map(m=><button key={m.id} onClick={()=>setModel(m.id)} className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{background:model===m.id?`${m.color}15`:"white",color:model===m.id?m.color:"#CCC",border:`1px solid ${model===m.id?m.color:"#F0F0F0"}`}}>{m.label.split(" ")[0]}</button>)}</div>
+      <div className="flex gap-2 mt-2"><button onClick={save} className="px-4 py-1.5 rounded-full font-semibold text-sm" style={{background:"#2D2D2D",color:"white"}}>{editing?"Update":"Create"}</button><button onClick={()=>setShowForm(false)} className="px-4 py-1.5 rounded-full font-semibold text-sm" style={{color:"#CCC",border:"1px solid #F0F0F0"}}>Cancel</button></div>
     </div></FadeIn>}
 
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">{active.map((a,i)=>{const mp=MODEL_PROVIDERS.find(m=>m.id===a.model);return <FadeIn key={a.id} delay={40+i*25}><div className="p-4 rounded-2xl border" style={{background:"white",borderColor:"#F0F0F0"}}>
-      <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{background:`${a.color}12`,color:a.color,border:`2px dashed ${a.color}40`,fontSize:14}}>{a.avatar}</div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-0.5"><h3 className="font-bold" style={{fontSize:14,color:"#2D2D2D"}}>{a.name}</h3><span className="px-1.5 py-0.5 rounded-full font-bold" style={{fontSize:8,background:`${mp?.color||"#999"}15`,color:mp?.color||"#999"}}>{mp?.label?.split(" ")[0]||a.model}</span></div>
-          <p className="text-xs" style={{color:"#888",lineHeight:1.5,display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{a.persona}</p>
-          {admin&&<div className="flex gap-1 mt-2"><button onClick={()=>startEdit(a)} className="text-xs font-semibold px-2 py-0.5 rounded-lg" style={{color:"#3B6B9B",background:"#EEF3F8"}}>Edit</button><button onClick={()=>onSaveAgent({...a,status:"inactive"})} className="text-xs font-semibold px-2 py-0.5 rounded-lg" style={{color:"#E8734A",background:"#FDF0EB"}}>Deactivate</button><button onClick={()=>onDeleteAgent(a.id)} className="text-xs font-semibold px-2 py-0.5 rounded-lg" style={{color:"#E53E3E",background:"#FFF5F5"}}>Delete</button></div>}
+    {categories.map(cat=><div key={cat} className="mb-5"><FadeIn><h3 className="font-bold mb-2" style={{fontSize:13,color:"#888"}}>{cat}</h3></FadeIn>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">{active.filter(a=>(a.category||"Other")===cat).map((a,i)=>{const mp=MODEL_PROVIDERS.find(m=>m.id===a.model);return <FadeIn key={a.id} delay={i*15}><div className="p-3 rounded-xl border" style={{background:"white",borderColor:"#F0F0F0"}}>
+        <div className="flex items-start gap-2.5">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{background:`${a.color}12`,color:a.color,border:`1.5px dashed ${a.color}40`,fontSize:9}}>{a.avatar}</div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 mb-0.5"><h4 className="font-bold text-sm" style={{color:"#2D2D2D"}}>{a.name}</h4>
+              {admin?<select value={a.model} onChange={e=>changeModel(a.id,e.target.value)} className="px-1.5 py-0.5 rounded text-xs font-semibold appearance-none cursor-pointer" style={{background:`${mp?.color||"#999"}10`,color:mp?.color||"#999",border:`1px solid ${mp?.color||"#999"}30`,fontSize:9}}>{MODEL_PROVIDERS.map(m=><option key={m.id} value={m.id}>{m.label.split(" ")[0]}</option>)}</select>:<span className="px-1.5 py-0.5 rounded font-bold" style={{fontSize:8,background:`${mp?.color||"#999"}10`,color:mp?.color||"#999"}}>{mp?.label?.split(" ")[0]||a.model}</span>}
+            </div>
+            <p className="text-xs" style={{color:"#888",lineHeight:1.4,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{a.persona}</p>
+            {admin&&<div className="flex gap-1 mt-1.5"><button onClick={()=>startEdit(a)} className="text-xs font-semibold px-1.5 py-0.5 rounded" style={{color:"#3B6B9B",background:"#EEF3F8"}}>Edit</button><button onClick={()=>onSaveAgent({...a,status:"inactive"})} className="text-xs font-semibold px-1.5 py-0.5 rounded" style={{color:"#E8734A",background:"#FDF0EB"}}>Deactivate</button></div>}
+          </div>
         </div>
-      </div>
-    </div></FadeIn>})}</div>
+      </div></FadeIn>})}</div>
+    </div>)}
 
-    {inactive.length>0&&<><h3 className="font-bold mt-6 mb-2" style={{fontSize:14,color:"#CCC"}}>Inactive ({inactive.length})</h3>
-      <div className="space-y-1.5">{inactive.map(a=><div key={a.id} className="flex items-center justify-between p-2.5 rounded-xl" style={{background:"#FAFAFA"}}>
-        <span className="text-sm" style={{color:"#CCC"}}>{a.name}</span>
-        {admin&&<div className="flex gap-1"><button onClick={()=>onSaveAgent({...a,status:"active"})} className="text-xs font-semibold px-2 py-0.5 rounded-lg" style={{color:"#2D8A6E",background:"#EBF5F1"}}>Activate</button><button onClick={()=>onDeleteAgent(a.id)} className="text-xs font-semibold px-2 py-0.5 rounded-lg" style={{color:"#E53E3E",background:"#FFF5F5"}}>Delete</button></div>}
-      </div>)}</div></>}
+    {inactive.length>0&&<div className="mt-4"><h3 className="font-bold mb-2" style={{fontSize:13,color:"#CCC"}}>Inactive ({inactive.length})</h3>
+      <div className="space-y-1">{inactive.map(a=><div key={a.id} className="flex items-center justify-between p-2 rounded-lg" style={{background:"#FAFAFA"}}>
+        <span className="text-xs" style={{color:"#CCC"}}>{a.name}</span>
+        {admin&&<div className="flex gap-1"><button onClick={()=>onSaveAgent({...a,status:"active"})} className="text-xs font-semibold px-1.5 py-0.5 rounded" style={{color:"#2D8A6E",background:"#EBF5F1"}}>Activate</button><button onClick={()=>onDeleteAgent(a.id)} className="text-xs font-semibold px-1.5 py-0.5 rounded" style={{color:"#E53E3E",background:"#FFF5F5"}}>Delete</button></div>}
+      </div>)}</div>
+    </div>}
   </div></div>
 }
 
-// ==================== ARTICLE VIEW — Public reading page ====================
-function ArticlePage({article,onNavigate}){
+// ==================== ARTICLE VIEW — Public reading page + debate ====================
+function ArticlePage({article,agents,onNavigate,onUpdateArticle,currentUser}){
   if(!article)return null;
-  return <div className="min-h-screen" style={{paddingTop:52,background:"#FAFAF8"}}><article className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+  const admin=isAdmin(currentUser);
+  const handleDebateComplete=(debate)=>{if(onUpdateArticle)onUpdateArticle({...article,debate})};
+  return <div className="min-h-screen" style={{paddingTop:52,background:"#FAFAF8"}}><div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
     <FadeIn><button onClick={()=>onNavigate("studio")} style={{fontSize:12,color:"#CCC",marginBottom:24,display:"block"}}>&larr; Back</button></FadeIn>
     <FadeIn delay={40}><div className="flex items-center gap-2 mb-3"><PillarTag pillar={article.pillar} size="md"/><span className="font-bold px-2 py-0.5 rounded-full" style={{fontSize:9,background:article.status==="published"?"#EBF5F1":"#FFF5F5",color:article.status==="published"?"#2D8A6E":"#E8734A"}}>{article.status?.toUpperCase()}</span></div></FadeIn>
     <FadeIn delay={60}><h1 className="font-bold leading-tight mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(20px,3.5vw,30px)"}}>{article.title}</h1></FadeIn>
     <FadeIn delay={70}><div className="flex items-center gap-2 pb-4 mb-6" style={{borderBottom:"1px solid #F0F0F0"}}><span style={{fontSize:12,color:"#999"}}>by Nitesh Srivastava</span><span style={{fontSize:12,color:"#CCC"}}>&middot; {article.updatedAt||article.createdAt}</span></div></FadeIn>
     <FadeIn delay={80}><div className="prose prose-sm max-w-none" style={{color:"#555",fontSize:14,lineHeight:1.9}} dangerouslySetInnerHTML={{__html:article.htmlContent||""}}></div></FadeIn>
     {article.tags?.length>0&&<div className="flex flex-wrap gap-1.5 mt-6 pt-4" style={{borderTop:"1px solid #F0F0F0"}}>{article.tags.map(t=><span key={t} className="px-2 py-0.5 rounded-full" style={{fontSize:10,background:"#F5F5F5",color:"#999"}}>{t}</span>)}</div>}
-  </article></div>
+    <div className="mt-8 pt-6" style={{borderTop:"2px solid #F0F0F0"}}>
+      <h2 className="font-bold mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Community Debate</h2>
+      {article.debate?<DebatePanel article={article} agents={agents} onDebateComplete={handleDebateComplete}/>:admin?<DebatePanel article={article} agents={agents} onDebateComplete={handleDebateComplete}/>:<p className="text-sm" style={{color:"#CCC"}}>No debate yet for this article.</p>}
+    </div>
+  </div></div>
 }
 
 // ==================== REMAINING PAGES ====================
@@ -578,7 +736,7 @@ function Re3(){
     case"loom":return <LoomPage content={content} onNavigate={nav}/>;
     case"studio":return <MyStudioPage currentUser={user} content={content} articles={articles} agents={agents} onNavigate={nav} onPostGenerated={addPost} onSaveArticle={saveArticle} onDeleteArticle={deleteArticle}/>;
     case"agent-community":return <AgentCommunityPage agents={agents} currentUser={user} onSaveAgent={saveAgent} onDeleteAgent={deleteAgent}/>;
-    case"article":const art=articles.find(a=>a.id===pageId);return art?<ArticlePage article={art} onNavigate={nav}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} onNavigate={nav} onVoteTheme={voteTheme}/>;
+    case"article":const art=articles.find(a=>a.id===pageId);return art?<ArticlePage article={art} agents={agents} onNavigate={nav} onUpdateArticle={saveArticle} currentUser={user}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} onNavigate={nav} onVoteTheme={voteTheme}/>;
     case"bridges":return <BridgesPage content={content} onNavigate={nav}/>;
     case"post":const po=content.find(c=>c.id===pageId);return po?<PostPage post={po} allContent={content} onNavigate={nav} currentUser={user} onEndorse={endorse} onComment={cmnt} onReact={postReact} onAddChallenge={addCh} onAddMarginNote={addMN}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} onNavigate={nav} onVoteTheme={voteTheme}/>;
     case"profile":const u=ALL_USERS.find(x=>x.id===pageId)||user;return u?<ProfilePage user={u} content={content} onNavigate={nav}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} onNavigate={nav} onVoteTheme={voteTheme}/>;
