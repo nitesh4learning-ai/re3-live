@@ -271,9 +271,10 @@ function Header({onNavigate,currentPage,currentUser,onLogin,onLogout}){
 }
 
 // ==================== HOME PAGE — Hero cycle + featured ====================
-function HomePage({content,themes,blindSpots,onNavigate,onVoteTheme}){
+function HomePage({content,themes,blindSpots,articles,onNavigate,onVoteTheme}){
   const cycles = getCycles(content);
   const bridges = content.filter(c=>c.type==="bridge");
+  const debatedArticles = (articles||[]).filter(a=>a.debate?.loom);
   const hero = cycles[0];
   const featured = cycles.slice(1, 4);
   return <div className="min-h-screen" style={{paddingTop:52,background:"#FAFAF8"}}>
@@ -295,6 +296,16 @@ function HomePage({content,themes,blindSpots,onNavigate,onVoteTheme}){
     {featured.length>0&&<section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
       <FadeIn><h2 className="font-bold mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Previous Cycles</h2></FadeIn>
       <div className="space-y-3">{featured.map((c,i)=><FadeIn key={c.date} delay={i*40}><CycleCard cycle={c} onNavigate={onNavigate}/></FadeIn>)}</div>
+    </section>}
+
+    {debatedArticles.length>0&&<section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
+      <FadeIn><div className="flex items-center justify-between mb-4"><h2 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Community Debates</h2><button onClick={()=>onNavigate("loom")} className="text-xs font-semibold" style={{color:"#8B5CF6"}}>View all in The Loom &rarr;</button></div></FadeIn>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">{debatedArticles.map((a,i)=><FadeIn key={a.id} delay={i*30}><button onClick={()=>onNavigate("article",a.id)} className="w-full text-left p-3 rounded-xl border transition-all hover:shadow-sm" style={{background:"white",borderColor:"#F0F0F0"}}>
+        <div className="flex items-center gap-1.5 mb-1"><PillarTag pillar={a.pillar}/><span className="font-bold px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#F5F0FA",color:"#8B5CF6"}}>DEBATED</span></div>
+        <h3 className="font-semibold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:13}}>{a.title}</h3>
+        <div className="flex flex-wrap gap-1 mb-1">{a.debate.panel?.agents?.slice(0,3).map(ag=><span key={ag.id} className="px-1 py-0 rounded-full" style={{fontSize:7,background:`${ag.color}10`,color:ag.color}}>{ag.name}</span>)}{a.debate.panel?.agents?.length>3&&<span style={{fontSize:7,color:"#CCC"}}>+{a.debate.panel.agents.length-3}</span>}</div>
+        <p style={{fontSize:11,color:"#BBB",lineHeight:1.4,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{a.debate.loom?.slice(0,120)}...</p>
+      </button></FadeIn>)}</div>
     </section>}
 
     {bridges.length>0&&<section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
@@ -756,17 +767,58 @@ function Disclaimer(){return <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3
   <p style={{fontSize:10,color:"#CCC",lineHeight:1.6,maxWidth:640}}>Re³ is an experimental project by Nitesh Srivastava. Content is generated through human-AI synthesis for speculative, educational, and research purposes only. Not for reproduction without attribution. Use with caution.</p>
 </div>}
 
+// ==================== URL ROUTING HELPERS ====================
+function pageToPath(pg,id){
+  switch(pg){
+    case"home":return "/";
+    case"loom":return "/loom";
+    case"studio":return "/studio";
+    case"agent-community":return "/agents";
+    case"bridges":return "/bridges";
+    case"write":return "/write";
+    case"post":return id?`/post/${id}`:"/";
+    case"article":return id?`/article/${id}`:"/";
+    case"profile":return id?`/profile/${id}`:"/";
+    default:return "/";
+  }
+}
+function pathToPage(pathname){
+  const p=pathname||"/";
+  if(p==="/")return{page:"home",pageId:null};
+  if(p==="/loom")return{page:"loom",pageId:null};
+  if(p==="/studio")return{page:"studio",pageId:null};
+  if(p==="/agents")return{page:"agent-community",pageId:null};
+  if(p==="/bridges")return{page:"bridges",pageId:null};
+  if(p==="/write")return{page:"write",pageId:null};
+  if(p.startsWith("/post/"))return{page:"post",pageId:p.slice(6)};
+  if(p.startsWith("/article/"))return{page:"article",pageId:p.slice(9)};
+  if(p.startsWith("/profile/"))return{page:"profile",pageId:p.slice(9)};
+  return{page:"home",pageId:null};
+}
+
 // ==================== MAIN APP ====================
 function Re3(){
   const[user,setUser]=useState(null);const[content,setContent]=useState(INIT_CONTENT);const[themes,setThemes]=useState(INIT_THEMES);
   const[articles,setArticles]=useState([]);const[agents,setAgents]=useState(INIT_AGENTS);
-  const[page,setPage]=useState("home");const[pageId,setPageId]=useState(null);const[showLogin,setShowLogin]=useState(false);const[loaded,setLoaded]=useState(false);
+  const initRoute=typeof window!=="undefined"?pathToPage(window.location.pathname):{page:"home",pageId:null};
+  const[page,setPage]=useState(initRoute.page);const[pageId,setPageId]=useState(initRoute.pageId);const[showLogin,setShowLogin]=useState(false);const[loaded,setLoaded]=useState(false);
   useEffect(()=>{const su=DB.get("user",null);const sc=DB.get("content_v5",null);const st=DB.get("themes",null);const sa=DB.get("articles_v1",null);const sag=DB.get("agents_v1",null);if(su)setUser(su);if(sc&&sc.length>=INIT_CONTENT.length)setContent(sc);if(st)setThemes(st);if(sa)setArticles(sa);if(sag&&sag.length>=INIT_AGENTS.length)setAgents(sag);setLoaded(true)},[]);
   useEffect(()=>{if(loaded)DB.set("content_v5",content)},[content,loaded]);
   useEffect(()=>{if(loaded)DB.set("themes",themes)},[themes,loaded]);
   useEffect(()=>{if(loaded)DB.set("articles_v1",articles)},[articles,loaded]);
   useEffect(()=>{if(loaded)DB.set("agents_v1",agents)},[agents,loaded]);
-  const nav=useCallback((p,id=null)=>{setPage(p);setPageId(id);window.scrollTo({top:0,behavior:"smooth"})},[]);
+  // Browser back/forward support
+  useEffect(()=>{
+    const onPop=()=>{const{page:pg,pageId:pid}=pathToPage(window.location.pathname);setPage(pg);setPageId(pid);window.scrollTo({top:0})};
+    window.addEventListener("popstate",onPop);
+    return()=>window.removeEventListener("popstate",onPop);
+  },[]);
+  const nav=useCallback((p,id=null)=>{
+    setPage(p);setPageId(id);
+    const path=pageToPath(p,id);
+    if(typeof window!=="undefined"&&window.location.pathname!==path)window.history.pushState({page:p,pageId:id},"",path);
+    window.scrollTo({top:0,behavior:"smooth"});
+  },[]);
   const endorse=(id)=>setContent(p=>p.map(c=>c.id===id?{...c,endorsements:c.endorsements+1}:c));
   const cmnt=(id,text)=>{if(!user)return;setContent(p=>p.map(c=>c.id===id?{...c,comments:[...c.comments,{id:"cm_"+Date.now(),authorId:user.id,text,date:new Date().toISOString().split("T")[0]}]}:c))};
   const addPost=(p)=>setContent(prev=>[p,...prev]);
@@ -782,16 +834,16 @@ function Re3(){
   const logout=async()=>{await firebaseSignOut();setUser(null);DB.clear("user")};
   if(!loaded)return <div className="min-h-screen flex items-center justify-center" style={{background:"#FAFAF8"}}><p style={{color:"#CCC",fontSize:13}}>Loading Re³...</p></div>;
   const render=()=>{switch(page){
-    case"home":return <HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} onNavigate={nav} onVoteTheme={voteTheme}/>;
+    case"home":return <HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
     case"loom":return <LoomPage content={content} articles={articles} onNavigate={nav}/>;
     case"studio":return <MyStudioPage currentUser={user} content={content} articles={articles} agents={agents} onNavigate={nav} onPostGenerated={addPost} onSaveArticle={saveArticle} onDeleteArticle={deleteArticle}/>;
     case"agent-community":return <AgentCommunityPage agents={agents} currentUser={user} onSaveAgent={saveAgent} onDeleteAgent={deleteAgent}/>;
-    case"article":const art=articles.find(a=>a.id===pageId);return art?<ArticlePage article={art} agents={agents} onNavigate={nav} onUpdateArticle={saveArticle} currentUser={user}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} onNavigate={nav} onVoteTheme={voteTheme}/>;
+    case"article":const art=articles.find(a=>a.id===pageId);return art?<ArticlePage article={art} agents={agents} onNavigate={nav} onUpdateArticle={saveArticle} currentUser={user}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
     case"bridges":return <BridgesPage content={content} onNavigate={nav}/>;
-    case"post":const po=content.find(c=>c.id===pageId);return po?<PostPage post={po} allContent={content} onNavigate={nav} currentUser={user} onEndorse={endorse} onComment={cmnt} onReact={postReact} onAddChallenge={addCh} onAddMarginNote={addMN}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} onNavigate={nav} onVoteTheme={voteTheme}/>;
-    case"profile":const u=ALL_USERS.find(x=>x.id===pageId)||user;return u?<ProfilePage user={u} content={content} onNavigate={nav}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} onNavigate={nav} onVoteTheme={voteTheme}/>;
+    case"post":const po=content.find(c=>c.id===pageId);return po?<PostPage post={po} allContent={content} onNavigate={nav} currentUser={user} onEndorse={endorse} onComment={cmnt} onReact={postReact} onAddChallenge={addCh} onAddMarginNote={addMN}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
+    case"profile":const u=ALL_USERS.find(x=>x.id===pageId)||user;return u?<ProfilePage user={u} content={content} onNavigate={nav}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
     case"write":if(!user){setShowLogin(true);nav("home");return null}return <WritePage currentUser={user} onNavigate={nav} onSubmit={addPost}/>;
-    default:return <HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} onNavigate={nav} onVoteTheme={voteTheme}/>;
+    default:return <HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
   }};
   return <div className="min-h-screen" style={{background:"#FAFAF8"}}>
     <Header onNavigate={nav} currentPage={page} currentUser={user} onLogin={()=>setShowLogin(true)} onLogout={logout}/>
