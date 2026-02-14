@@ -447,8 +447,13 @@ function DebatePanel({article,agents,onDebateComplete,currentUser}){
       const selRes=await fetch("/api/debate/select",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:article.title,articleText,agents:activeAgents,forgePersona:ORCHESTRATORS.forge.persona})});
       if(!selRes.ok)throw new Error("Forge selection failed");
       const sel=await selRes.json();
-      const selectedAgents=activeAgents.filter(a=>sel.selected.includes(a.id));
-      if(selectedAgents.length===0)throw new Error("No agents selected");
+      let selectedAgents=activeAgents.filter(a=>sel.selected.includes(a.id));
+      // Fallback: if LLM returned names instead of IDs, try matching by name
+      if(selectedAgents.length===0&&sel.selected?.length>0){
+        selectedAgents=activeAgents.filter(a=>sel.selected.some(s=>s.toLowerCase()===a.name.toLowerCase()||s.toLowerCase()===a.id.toLowerCase()||a.id.includes(s.toLowerCase().replace(/\s+/g,"_"))));
+      }
+      // Final fallback: pick first 5 active agents rather than failing
+      if(selectedAgents.length===0){selectedAgents=activeAgents.slice(0,5);showToast("Forge couldn't select agents — using default panel")}
       setPanel({agents:selectedAgents,rationale:sel.rationale});setProgress(15);
       scrollToBottom();
 
