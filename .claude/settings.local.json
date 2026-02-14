@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__server-filesystem__list_directory",
+      "mcp__server-filesystem__list_allowed_directories",
+      "Bash(wc:*)",
+      "Bash(dir:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx next build:*)",
+      "Bash(npm install)",
+      "Bash(git push:*)"
+    ]
+  }
+}
