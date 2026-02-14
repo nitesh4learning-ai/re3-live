@@ -6,7 +6,7 @@ export async function POST(req) {
     const { articleTitle, articleText, agents, forgePersona } = await req.json();
     const activeAgents = agents.filter((a) => a.status === "active");
     const agentList = activeAgents
-      .map((a) => `- ${a.name} (${a.category}): ${a.persona.slice(0, 100)}`)
+      .map((a) => `- ID: "${a.id}" | ${a.name} (${a.category}): ${a.persona.slice(0, 100)}`)
       .join("\n");
 
     const response = await callLLM(
@@ -20,9 +20,11 @@ ${agentList}
 
 Select exactly 5 agents for this debate. Pick agents whose expertise creates the most productive tension and coverage for THIS specific topic.
 
+IMPORTANT: Use the exact ID strings from the list above (e.g. "agent_ledger", "agent_prism"). Do NOT invent new IDs.
+
 Respond in JSON only:
 {
-  "selected": ["agent_id_1", "agent_id_2", "agent_id_3", "agent_id_4", "agent_id_5"],
+  "selected": ["agent_xxx", "agent_yyy", "agent_zzz", "agent_aaa", "agent_bbb"],
   "rationale": "One paragraph explaining why these 5 were chosen for this topic"
 }`,
       { maxTokens: 500 }
