@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, lazy, Suspense } from "react";
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
 import "./globals.css";
 
 const ADMIN_EMAIL = "nitesh4learning@gmail.com";
@@ -323,11 +323,30 @@ function HomePage({content,themes,blindSpots,onNavigate,onVoteTheme}){
 }
 
 // ==================== THE LOOM — Cycles Archive ====================
-function LoomPage({content,onNavigate}){
+function LoomPage({content,articles,onNavigate}){
   const cycles = getCycles(content);
+  const debatedArticles = (articles||[]).filter(a=>a.debate?.loom);
   return <div className="min-h-screen" style={{paddingTop:52,background:"#FAFAF8"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,28px)"}}>The Loom</h1><p className="mb-6" style={{fontSize:13,color:"#999"}}>Every cycle weaves three threads of thinking: question, connect, build. {cycles.length} cycles so far.</p></FadeIn>
-    <div className="space-y-4">{cycles.map((c,i)=><FadeIn key={c.date} delay={i*50}><CycleCard cycle={c} onNavigate={onNavigate} variant="hero"/></FadeIn>)}</div>
+    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,28px)"}}>The Loom</h1><p className="mb-6" style={{fontSize:13,color:"#999"}}>Every cycle weaves three threads of thinking: question, connect, build. {cycles.length} cycles{debatedArticles.length>0?` + ${debatedArticles.length} debate syntheses`:""} so far.</p></FadeIn>
+
+    {debatedArticles.length>0&&<div className="mb-8"><FadeIn><h2 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#8B5CF6",fontSize:16}}>Debate Syntheses</h2></FadeIn>
+      <div className="space-y-3">{debatedArticles.map((a,i)=><FadeIn key={a.id} delay={i*40}><div className="rounded-2xl border overflow-hidden" style={{background:"white",borderColor:"#E8E0F0"}}>
+        <div className="flex" style={{height:3}}><div className="flex-1" style={{background:"linear-gradient(90deg,#3B6B9B,#8B5CF6,#2D8A6E)"}}/></div>
+        <div className="p-4">
+          <div className="flex items-center gap-2 mb-2"><PillarTag pillar={a.pillar}/><span className="font-bold px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#F5F0FA",color:"#8B5CF6"}}>DEBATED</span></div>
+          <button onClick={()=>onNavigate("article",a.id)} className="text-left"><h3 className="font-bold mb-2 hover:underline decoration-1 underline-offset-2" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:15}}>{a.title}</h3></button>
+          {a.debate.panel&&<div className="flex flex-wrap gap-1 mb-2">{a.debate.panel.agents?.map(ag=><span key={ag.id} className="px-1.5 py-0.5 rounded-full font-semibold" style={{fontSize:8,background:`${ag.color}10`,color:ag.color}}>{ag.name}</span>)}</div>}
+          <div className="p-3 rounded-xl" style={{background:"linear-gradient(135deg,#FAFAF8,#F5F0FA)",border:"1px solid #E8E0F0"}}>
+            <div className="flex items-center gap-1.5 mb-1.5"><span style={{fontSize:12}}>&#128296;</span><span className="font-bold text-xs" style={{color:"#3B6B9B"}}>Sage&apos;s Synthesis</span></div>
+            <p style={{fontSize:12,color:"#666",lineHeight:1.7,display:"-webkit-box",WebkitLineClamp:4,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{a.debate.loom}</p>
+          </div>
+          <button onClick={()=>onNavigate("article",a.id)} className="mt-2 text-xs font-semibold" style={{color:"#8B5CF6"}}>View full debate &rarr;</button>
+        </div>
+      </div></FadeIn>)}</div>
+    </div>}
+
+    <FadeIn><h2 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:16}}>Synthesis Cycles</h2></FadeIn>
+    <div className="space-y-4">{cycles.length>0?cycles.map((c,i)=><FadeIn key={c.date} delay={i*50}><CycleCard cycle={c} onNavigate={onNavigate} variant="hero"/></FadeIn>):<FadeIn><div className="p-6 rounded-2xl border text-center" style={{background:"white",borderColor:"#F0F0F0"}}><p style={{fontSize:13,color:"#CCC"}}>No synthesis cycles yet. Publish articles and run debates to generate Loom entries.</p></div></FadeIn>}</div>
   </div></div>
 }
 
@@ -382,13 +401,19 @@ function PostPage({post,allContent,onNavigate,currentUser,onEndorse,onComment,on
 
 
 // ==================== DEBATE PANEL — Live debate visualization ====================
-function DebatePanel({article,agents,onDebateComplete}){
-  const[status,setStatus]=useState("idle");const[step,setStep]=useState("");const[panel,setPanel]=useState(null);const[rounds,setRounds]=useState([]);const[atlas,setAtlas]=useState(null);const[loom,setLoom]=useState(null);const[streams,setStreams]=useState([]);const[error,setError]=useState("");const[progress,setProgress]=useState(0);
+function DebatePanel({article,agents,onDebateComplete,currentUser}){
+  const[status,setStatus]=useState(article?.debate?"complete":"idle");const[step,setStep]=useState(article?.debate?"Complete!":"");const[panel,setPanel]=useState(article?.debate?.panel||null);const[rounds,setRounds]=useState(article?.debate?.rounds||[]);const[atlas,setAtlas]=useState(article?.debate?.atlas||null);const[loom,setLoom]=useState(article?.debate?.loom||null);const[streams,setStreams]=useState(article?.debate?.streams||[]);const[error,setError]=useState("");const[progress,setProgress]=useState(article?.debate?100:0);const[toast,setToast]=useState("");const debateRef=useRef(null);
+
+  const scrollToBottom=()=>{if(debateRef.current)debateRef.current.scrollIntoView({behavior:"smooth",block:"end"})};
+  const showToast=(msg)=>{setToast(msg);setTimeout(()=>setToast(""),4000)};
+  const admin=isAdmin(currentUser);
 
   const startDebate=async()=>{
+    if(!admin)return;
     setStatus("running");setError("");setProgress(0);
     const articleText=article.paragraphs?.join("\n\n")||article.htmlContent?.replace(/<[^>]*>/g," ")||"";
     const activeAgents=agents.filter(a=>a.status==="active");
+    if(activeAgents.length===0){setError("No active agents available. Add agents in Agent Community first.");setStatus("error");return}
     try{
       // Step 1: Forge selects panel
       setStep("Forge selecting panel...");setProgress(5);
@@ -398,32 +423,50 @@ function DebatePanel({article,agents,onDebateComplete}){
       const selectedAgents=activeAgents.filter(a=>sel.selected.includes(a.id));
       if(selectedAgents.length===0)throw new Error("No agents selected");
       setPanel({agents:selectedAgents,rationale:sel.rationale});setProgress(15);
+      scrollToBottom();
 
       // Steps 2-4: Three rounds
       const allRounds=[];
       for(let r=1;r<=3;r++){
-        setStep(`Round ${r}: Agents ${r===1?"reading article":r===2?"cross-responding":"giving final positions"}...`);
+        const responded=allRounds.flat().filter(x=>x.status==="success").length;
+        const total=selectedAgents.length*r;
+        setStep(`Round ${r}/3: ${r===1?"Initial positions":r===2?"Cross-responses":"Final positions"} (${responded}/${selectedAgents.length*3} total responses)`);
         const roundRes=await fetch("/api/debate/round",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:article.title,articleText,agents:selectedAgents,roundNumber:r,previousRounds:allRounds})});
         if(!roundRes.ok)throw new Error(`Round ${r} failed`);
         const roundData=await roundRes.json();
-        allRounds.push(roundData.responses);
+        // Add timestamps to responses
+        const timestampedResponses=roundData.responses.map(resp=>({...resp,timestamp:new Date().toISOString()}));
+        allRounds.push(timestampedResponses);
         setRounds([...allRounds]);
         setProgress(15+r*20);
+        scrollToBottom();
+        // Check if all agents failed in this round
+        const successCount=timestampedResponses.filter(r=>r.status==="success").length;
+        if(successCount===0){showToast(`All agents failed in Round ${r}. Ending debate early.`);break}
       }
+
+      // Check if we have any successful responses at all
+      const totalSuccessful=allRounds.flat().filter(r=>r.status==="success").length;
+      if(totalSuccessful===0){setError("No agents were able to participate. Check API keys and agent configurations.");setStatus("error");return}
 
       // Step 5: Atlas moderation
       setStep("Atlas reviewing discussion...");setProgress(80);
+      showToast("Debate rounds complete — Atlas is reviewing...");
       const modRes=await fetch("/api/debate/moderate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:article.title,rounds:allRounds,atlasPersona:ORCHESTRATORS.atlas.persona})});
       const modData=await modRes.json();
       setAtlas(modData);setProgress(88);
+      scrollToBottom();
 
       // Step 6: Sage Loom + clustering
       setStep("Sage weaving The Loom...");setProgress(90);
+      showToast("Debate complete — Sage is weaving the Loom...");
       const loomRes=await fetch("/api/debate/loom",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:article.title,articleText,rounds:allRounds,atlasNote:modData.intervention,forgeRationale:sel.rationale,panelNames:selectedAgents.map(a=>a.name),sagePersona:ORCHESTRATORS.sage.persona})});
       const loomData=await loomRes.json();
       setLoom(loomData.loom);setStreams(loomData.streams||[]);setProgress(100);
 
       setStep("Complete!");setStatus("complete");
+      showToast("Loom ready! Sage has woven the synthesis.");
+      scrollToBottom();
       if(onDebateComplete)onDebateComplete({panel:{agents:selectedAgents,rationale:sel.rationale},rounds:allRounds,atlas:modData,loom:loomData.loom,streams:loomData.streams||[]});
     }catch(e){console.error("Debate error:",e);setError(e.message);setStatus("error")}
   };
@@ -431,13 +474,18 @@ function DebatePanel({article,agents,onDebateComplete}){
   const getAgentColor=(name)=>{const a=[...agents,...Object.values(ORCHESTRATORS)].find(x=>x.name===name);return a?.color||"#999"};
   const getAgentAvatar=(name)=>{const a=agents.find(x=>x.name===name);return a?.avatar||name.charAt(0)};
 
-  if(status==="idle")return <button onClick={startDebate} className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"linear-gradient(135deg,#2D2D2D,#4A4A4A)",color:"white"}}>Start Agent Debate</button>;
+  if(status==="idle"){
+    if(!admin)return <div className="p-4 rounded-xl text-center" style={{background:"#FAFAF9",border:"1px solid #F0F0F0"}}><p className="text-sm" style={{color:"#CCC"}}>No debate has been run for this article yet.</p></div>;
+    return <button onClick={startDebate} className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"linear-gradient(135deg,#2D2D2D,#4A4A4A)",color:"white"}}>Start Agent Debate</button>;
+  }
 
-  return <div className="rounded-2xl border overflow-hidden" style={{background:"white",borderColor:"#F0F0F0"}}>
+  return <div ref={debateRef} className="rounded-2xl border overflow-hidden" style={{background:"white",borderColor:"#F0F0F0"}}>
+    {toast&&<div className="mx-4 mt-3 p-2.5 rounded-xl animate-pulse" style={{background:"#EBF5F1",border:"1px solid #B2DFDB"}}><p className="text-xs font-semibold" style={{color:"#2D8A6E"}}>{toast}</p></div>}
     {status==="running"&&<div className="p-4" style={{background:"#FAFAF9",borderBottom:"1px solid #F0F0F0"}}>
       <div className="flex items-center justify-between mb-2"><span className="font-bold text-sm" style={{color:"#2D2D2D"}}>Debate in Progress</span><span className="text-xs font-bold" style={{color:"#E8734A"}}>{progress}%</span></div>
       <div className="w-full rounded-full overflow-hidden mb-2" style={{height:3,background:"#F0F0F0"}}><div className="rounded-full transition-all" style={{height:"100%",width:`${progress}%`,background:"linear-gradient(90deg,#3B6B9B,#E8734A,#2D8A6E)",transition:"width 0.5s ease"}}/></div>
       <p className="text-xs" style={{color:"#999"}}>{step}</p>
+      {rounds.length===0&&<div className="mt-3 space-y-2">{[1,2,3].map(i=><div key={i} className="animate-pulse flex items-center gap-2 p-2 rounded-lg" style={{background:"#F5F5F5"}}><div className="w-5 h-5 rounded-full" style={{background:"#E8E8E8"}}/><div className="flex-1"><div className="h-2.5 rounded" style={{background:"#E8E8E8",width:`${60+i*10}%`}}/><div className="h-2 rounded mt-1.5" style={{background:"#F0F0F0",width:`${40+i*15}%`}}/></div></div>)}</div>}
     </div>}
 
     {error&&<div className="p-3 m-3 rounded-xl" style={{background:"#FFF5F5"}}><p className="text-xs" style={{color:"#E53E3E"}}>Error: {error}</p><button onClick={()=>{setStatus("idle");setError("")}} className="text-xs font-semibold mt-1" style={{color:"#3B6B9B"}}>Retry</button></div>}
@@ -461,9 +509,9 @@ function DebatePanel({article,agents,onDebateComplete}){
       </div>)}
     </div>:rounds.length>0&&<div className="p-4">
       {rounds.map((round,ri)=><div key={ri} className="mb-3"><h4 className="font-bold text-xs mb-1.5" style={{color:"#CCC"}}>Round {ri+1}</h4>
-        <div className="space-y-1.5">{round.filter(r=>r.response).map(r=><div key={r.id} className="flex items-start gap-2 p-2 rounded-lg" style={{background:"#FAFAF9"}}>
+        <div className="space-y-1.5">{round.map(r=><div key={r.id} className="flex items-start gap-2 p-2 rounded-lg" style={{background:r.status==="failed"?"#FFF5F5":"#FAFAF9"}}>
           <div className="w-5 h-5 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{background:`${getAgentColor(r.name)}15`,color:getAgentColor(r.name),fontSize:7}}>{getAgentAvatar(r.name)}</div>
-          <div><span className="font-bold" style={{fontSize:10,color:getAgentColor(r.name)}}>{r.name}</span>{r.status==="failed"?<span className="text-xs ml-1" style={{color:"#E53E3E"}}>(failed)</span>:<p className="text-xs mt-0.5" style={{color:"#666",lineHeight:1.5}}>{r.response?.slice(0,200)}...</p>}</div>
+          <div className="flex-1"><div className="flex items-center gap-1.5"><span className="font-bold" style={{fontSize:10,color:getAgentColor(r.name)}}>{r.name}</span>{r.model&&<span className="px-1 py-0 rounded" style={{fontSize:7,background:"#F5F5F5",color:"#BBB"}}>{r.model}</span>}{r.timestamp&&<span style={{fontSize:8,color:"#DDD"}}>{new Date(r.timestamp).toLocaleTimeString()}</span>}</div>{r.status==="failed"?<span className="text-xs" style={{color:"#E53E3E"}}>Response unavailable — {r.error||"agent timed out"}</span>:<p className="text-xs mt-0.5" style={{color:"#666",lineHeight:1.5}}>{r.response?.slice(0,200)}...</p>}</div>
         </div>)}</div>
       </div>)}
     </div>}
@@ -478,6 +526,8 @@ function DebatePanel({article,agents,onDebateComplete}){
       <div className="flex items-center gap-2 mb-3"><span style={{fontSize:16}}>&#128296;</span><h3 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#3B6B9B",fontSize:16}}>Sage&apos;s Loom &mdash; A Synthesis</h3></div>
       <div style={{fontSize:13,color:"#555",lineHeight:1.9}}>{loom.split("\n\n").map((p,i)=><p key={i} className="mb-2">{p}</p>)}</div>
     </div>}
+
+    {status==="complete"&&admin&&<div className="p-3 mx-4 mb-4"><button onClick={()=>{setStatus("idle");setPanel(null);setRounds([]);setAtlas(null);setLoom(null);setStreams([]);setProgress(0);setToast("")}} className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:shadow-sm" style={{border:"1.5px solid #F0F0F0",color:"#999"}}>Run New Debate</button></div>}
   </div>
 }
 
@@ -636,7 +686,7 @@ function ArticlePage({article,agents,onNavigate,onUpdateArticle,currentUser}){
     {article.tags?.length>0&&<div className="flex flex-wrap gap-1.5 mt-6 pt-4" style={{borderTop:"1px solid #F0F0F0"}}>{article.tags.map(t=><span key={t} className="px-2 py-0.5 rounded-full" style={{fontSize:10,background:"#F5F5F5",color:"#999"}}>{t}</span>)}</div>}
     <div className="mt-8 pt-6" style={{borderTop:"2px solid #F0F0F0"}}>
       <h2 className="font-bold mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Community Debate</h2>
-      {article.debate?<DebatePanel article={article} agents={agents} onDebateComplete={handleDebateComplete}/>:admin?<DebatePanel article={article} agents={agents} onDebateComplete={handleDebateComplete}/>:<p className="text-sm" style={{color:"#CCC"}}>No debate yet for this article.</p>}
+      <DebatePanel article={article} agents={agents} onDebateComplete={handleDebateComplete} currentUser={currentUser}/>
     </div>
   </div></div>
 }
@@ -733,7 +783,7 @@ function Re3(){
   if(!loaded)return <div className="min-h-screen flex items-center justify-center" style={{background:"#FAFAF8"}}><p style={{color:"#CCC",fontSize:13}}>Loading Re³...</p></div>;
   const render=()=>{switch(page){
     case"home":return <HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} onNavigate={nav} onVoteTheme={voteTheme}/>;
-    case"loom":return <LoomPage content={content} onNavigate={nav}/>;
+    case"loom":return <LoomPage content={content} articles={articles} onNavigate={nav}/>;
     case"studio":return <MyStudioPage currentUser={user} content={content} articles={articles} agents={agents} onNavigate={nav} onPostGenerated={addPost} onSaveArticle={saveArticle} onDeleteArticle={deleteArticle}/>;
     case"agent-community":return <AgentCommunityPage agents={agents} currentUser={user} onSaveAgent={saveAgent} onDeleteAgent={deleteAgent}/>;
     case"article":const art=articles.find(a=>a.id===pageId);return art?<ArticlePage article={art} agents={agents} onNavigate={nav} onUpdateArticle={saveArticle} currentUser={user}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} onNavigate={nav} onVoteTheme={voteTheme}/>;

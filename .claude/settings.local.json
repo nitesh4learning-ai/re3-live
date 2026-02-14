@@ -6,7 +6,10 @@
       "Bash(wc:*)",
       "Bash(dir:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx next build:*)",
+      "Bash(npm install)"
     ]
   }
 }
