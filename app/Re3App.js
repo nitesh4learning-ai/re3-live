@@ -275,6 +275,7 @@ function HomePage({content,themes,blindSpots,articles,onNavigate,onVoteTheme}){
   const cycles = getCycles(content);
   const bridges = content.filter(c=>c.type==="bridge");
   const debatedArticles = (articles||[]).filter(a=>a.debate?.loom);
+  const debatedPosts = content.filter(c=>c.debate?.loom);
   const hero = cycles[0];
   const featured = cycles.slice(1, 4);
   return <div className="min-h-screen" style={{paddingTop:52,background:"#FAFAF8"}}>
@@ -298,14 +299,22 @@ function HomePage({content,themes,blindSpots,articles,onNavigate,onVoteTheme}){
       <div className="space-y-3">{featured.map((c,i)=><FadeIn key={c.date} delay={i*40}><CycleCard cycle={c} onNavigate={onNavigate}/></FadeIn>)}</div>
     </section>}
 
-    {debatedArticles.length>0&&<section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
+    {(debatedArticles.length>0||debatedPosts.length>0)&&<section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
       <FadeIn><div className="flex items-center justify-between mb-4"><h2 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Community Debates</h2><button onClick={()=>onNavigate("loom")} className="text-xs font-semibold" style={{color:"#8B5CF6"}}>View all in The Loom &rarr;</button></div></FadeIn>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">{debatedArticles.map((a,i)=><FadeIn key={a.id} delay={i*30}><button onClick={()=>onNavigate("article",a.id)} className="w-full text-left p-3 rounded-xl border transition-all hover:shadow-sm" style={{background:"white",borderColor:"#F0F0F0"}}>
-        <div className="flex items-center gap-1.5 mb-1"><PillarTag pillar={a.pillar}/><span className="font-bold px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#F5F0FA",color:"#8B5CF6"}}>DEBATED</span></div>
-        <h3 className="font-semibold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:13}}>{a.title}</h3>
-        <div className="flex flex-wrap gap-1 mb-1">{a.debate.panel?.agents?.slice(0,3).map(ag=><span key={ag.id} className="px-1 py-0 rounded-full" style={{fontSize:7,background:`${ag.color}10`,color:ag.color}}>{ag.name}</span>)}{a.debate.panel?.agents?.length>3&&<span style={{fontSize:7,color:"#CCC"}}>+{a.debate.panel.agents.length-3}</span>}</div>
-        <p style={{fontSize:11,color:"#BBB",lineHeight:1.4,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{a.debate.loom?.slice(0,120)}...</p>
-      </button></FadeIn>)}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        {debatedPosts.map((p,i)=><FadeIn key={p.id} delay={i*30}><button onClick={()=>onNavigate("post",p.id)} className="w-full text-left p-3 rounded-xl border transition-all hover:shadow-sm" style={{background:"white",borderColor:"#F0F0F0"}}>
+          <div className="flex items-center gap-1.5 mb-1"><PillarTag pillar={p.pillar}/><span className="font-bold px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#F5F0FA",color:"#8B5CF6"}}>DEBATED</span></div>
+          <h3 className="font-semibold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:13}}>{p.title}</h3>
+          <div className="flex flex-wrap gap-1 mb-1">{p.debate.panel?.agents?.slice(0,3).map(ag=><span key={ag.id} className="px-1 py-0 rounded-full" style={{fontSize:7,background:`${ag.color}10`,color:ag.color}}>{ag.name}</span>)}{p.debate.panel?.agents?.length>3&&<span style={{fontSize:7,color:"#CCC"}}>+{p.debate.panel.agents.length-3}</span>}</div>
+          <p style={{fontSize:11,color:"#BBB",lineHeight:1.4,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{p.debate.loom?.slice(0,120)}...</p>
+        </button></FadeIn>)}
+        {debatedArticles.map((a,i)=><FadeIn key={a.id} delay={(debatedPosts.length+i)*30}><button onClick={()=>onNavigate("article",a.id)} className="w-full text-left p-3 rounded-xl border transition-all hover:shadow-sm" style={{background:"white",borderColor:"#F0F0F0"}}>
+          <div className="flex items-center gap-1.5 mb-1"><PillarTag pillar={a.pillar}/><span className="font-bold px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#F5F0FA",color:"#8B5CF6"}}>DEBATED</span></div>
+          <h3 className="font-semibold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:13}}>{a.title}</h3>
+          <div className="flex flex-wrap gap-1 mb-1">{a.debate.panel?.agents?.slice(0,3).map(ag=><span key={ag.id} className="px-1 py-0 rounded-full" style={{fontSize:7,background:`${ag.color}10`,color:ag.color}}>{ag.name}</span>)}{a.debate.panel?.agents?.length>3&&<span style={{fontSize:7,color:"#CCC"}}>+{a.debate.panel.agents.length-3}</span>}</div>
+          <p style={{fontSize:11,color:"#BBB",lineHeight:1.4,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{a.debate.loom?.slice(0,120)}...</p>
+        </button></FadeIn>)}
+      </div>
     </section>}
 
     {bridges.length>0&&<section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
@@ -337,21 +346,23 @@ function HomePage({content,themes,blindSpots,articles,onNavigate,onVoteTheme}){
 function LoomPage({content,articles,onNavigate}){
   const cycles = getCycles(content);
   const debatedArticles = (articles||[]).filter(a=>a.debate?.loom);
+  const debatedPosts = content.filter(c=>c.debate?.loom);
+  const allDebated = [...debatedPosts.map(p=>({...p,_type:"post"})),...debatedArticles.map(a=>({...a,_type:"article"}))];
   return <div className="min-h-screen" style={{paddingTop:52,background:"#FAFAF8"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,28px)"}}>The Loom</h1><p className="mb-6" style={{fontSize:13,color:"#999"}}>Every cycle weaves three threads of thinking: question, connect, build. {cycles.length} cycles{debatedArticles.length>0?` + ${debatedArticles.length} debate syntheses`:""} so far.</p></FadeIn>
+    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,28px)"}}>The Loom</h1><p className="mb-6" style={{fontSize:13,color:"#999"}}>Every cycle weaves three threads of thinking: question, connect, build. {cycles.length} cycles{allDebated.length>0?` + ${allDebated.length} debate syntheses`:""} so far.</p></FadeIn>
 
-    {debatedArticles.length>0&&<div className="mb-8"><FadeIn><h2 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#8B5CF6",fontSize:16}}>Debate Syntheses</h2></FadeIn>
-      <div className="space-y-3">{debatedArticles.map((a,i)=><FadeIn key={a.id} delay={i*40}><div className="rounded-2xl border overflow-hidden" style={{background:"white",borderColor:"#E8E0F0"}}>
+    {allDebated.length>0&&<div className="mb-8"><FadeIn><h2 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#8B5CF6",fontSize:16}}>Debate Syntheses</h2></FadeIn>
+      <div className="space-y-3">{allDebated.map((a,i)=><FadeIn key={a.id} delay={i*40}><div className="rounded-2xl border overflow-hidden" style={{background:"white",borderColor:"#E8E0F0"}}>
         <div className="flex" style={{height:3}}><div className="flex-1" style={{background:"linear-gradient(90deg,#3B6B9B,#8B5CF6,#2D8A6E)"}}/></div>
         <div className="p-4">
           <div className="flex items-center gap-2 mb-2"><PillarTag pillar={a.pillar}/><span className="font-bold px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#F5F0FA",color:"#8B5CF6"}}>DEBATED</span></div>
-          <button onClick={()=>onNavigate("article",a.id)} className="text-left"><h3 className="font-bold mb-2 hover:underline decoration-1 underline-offset-2" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:15}}>{a.title}</h3></button>
+          <button onClick={()=>onNavigate(a._type==="article"?"article":"post",a.id)} className="text-left"><h3 className="font-bold mb-2 hover:underline decoration-1 underline-offset-2" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:15}}>{a.title}</h3></button>
           {a.debate.panel&&<div className="flex flex-wrap gap-1 mb-2">{a.debate.panel.agents?.map(ag=><span key={ag.id} className="px-1.5 py-0.5 rounded-full font-semibold" style={{fontSize:8,background:`${ag.color}10`,color:ag.color}}>{ag.name}</span>)}</div>}
           <div className="p-3 rounded-xl" style={{background:"linear-gradient(135deg,#FAFAF8,#F5F0FA)",border:"1px solid #E8E0F0"}}>
             <div className="flex items-center gap-1.5 mb-1.5"><span style={{fontSize:12}}>&#128296;</span><span className="font-bold text-xs" style={{color:"#3B6B9B"}}>Sage&apos;s Synthesis</span></div>
             <p style={{fontSize:12,color:"#666",lineHeight:1.7,display:"-webkit-box",WebkitLineClamp:4,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{a.debate.loom}</p>
           </div>
-          <button onClick={()=>onNavigate("article",a.id)} className="mt-2 text-xs font-semibold" style={{color:"#8B5CF6"}}>View full debate &rarr;</button>
+          <button onClick={()=>onNavigate(a._type==="article"?"article":"post",a.id)} className="mt-2 text-xs font-semibold" style={{color:"#8B5CF6"}}>View full debate &rarr;</button>
         </div>
       </div></FadeIn>)}</div>
     </div>}
@@ -362,7 +373,7 @@ function LoomPage({content,articles,onNavigate}){
 }
 
 // ==================== POST PAGE ====================
-function PostPage({post,allContent,onNavigate,currentUser,onEndorse,onComment,onReact,onAddChallenge,onAddMarginNote}){
+function PostPage({post,allContent,onNavigate,currentUser,onEndorse,onComment,onReact,onAddChallenge,onAddMarginNote,agents,onUpdatePost}){
   const[comment,setComment]=useState("");const[endorsed,setEndorsed]=useState(false);const[newCh,setNewCh]=useState("");const[showNote,setShowNote]=useState(null);const[noteText,setNoteText]=useState("");
   const author=getAuthor(post.authorId);const pillar=PILLARS[post.pillar];
   const bFrom=post.bridgeFrom?allContent.find(c=>c.id===post.bridgeFrom):null;
@@ -406,6 +417,11 @@ function PostPage({post,allContent,onNavigate,currentUser,onEndorse,onComment,on
 
     {siblings.length>0&&<div className="pt-4" style={{borderTop:"1px solid #F0F0F0"}}><h3 className="font-bold mb-2" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:14}}>Also in this cycle</h3>
       <div className="space-y-1.5">{siblings.map(s=>{const sa=getAuthor(s.authorId);return <button key={s.id} onClick={()=>onNavigate("post",s.id)} className="w-full text-left p-2.5 rounded-xl border transition-all hover:shadow-sm" style={{background:"white",borderColor:"#F0F0F0"}}><div className="flex items-center gap-2"><PillarTag pillar={s.pillar}/><span className="font-semibold text-xs" style={{color:"#2D2D2D"}}>{s.title}</span></div></button>})}</div>
+    </div>}
+
+    {agents&&<div className="mt-8 pt-6" style={{borderTop:"2px solid #F0F0F0"}}>
+      <h2 className="font-bold mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Community Debate</h2>
+      <DebatePanel article={post} agents={agents} onDebateComplete={(debate)=>{if(onUpdatePost)onUpdatePost({...post,debate})}} currentUser={currentUser}/>
     </div>}
   </article></div>
 }
@@ -825,6 +841,7 @@ function Re3(){
   const react=(postId,pi,key)=>{setContent(p=>p.map(c=>{if(c.id!==postId)return c;const r={...c.reactions};if(!r[pi])r[pi]={};r[pi]={...r[pi],[key]:(r[pi][key]||0)+1};return{...c,reactions:r}}))};
   const addCh=(postId,text)=>{if(!user)return;setContent(p=>p.map(c=>c.id===postId?{...c,challenges:[...(c.challenges||[]),{id:"ch_"+Date.now(),authorId:user.id,text,date:new Date().toISOString().split("T")[0],votes:1}]}:c))};
   const addMN=(postId,pi,text)=>{if(!user)return;setContent(p=>p.map(c=>c.id===postId?{...c,marginNotes:[...(c.marginNotes||[]),{id:"mn_"+Date.now(),paragraphIndex:pi,authorId:user.id,text,date:new Date().toISOString().split("T")[0]}]}:c))};
+  const updatePost=(updated)=>setContent(p=>p.map(c=>c.id===updated.id?updated:c));
   const voteTheme=(id)=>setThemes(t=>t.map(th=>th.id===id?{...th,votes:th.votes+(th.voted?0:1),voted:true}:th));
   const postReact=(pi,key)=>{if(!pageId)return;react(pageId,pi,key)};
   const saveArticle=(a)=>setArticles(prev=>{const idx=prev.findIndex(x=>x.id===a.id);if(idx>=0){const up=[...prev];up[idx]=a;return up}return[a,...prev]});
@@ -840,7 +857,7 @@ function Re3(){
     case"agent-community":return <AgentCommunityPage agents={agents} currentUser={user} onSaveAgent={saveAgent} onDeleteAgent={deleteAgent}/>;
     case"article":const art=articles.find(a=>a.id===pageId);return art?<ArticlePage article={art} agents={agents} onNavigate={nav} onUpdateArticle={saveArticle} currentUser={user}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
     case"bridges":return <BridgesPage content={content} onNavigate={nav}/>;
-    case"post":const po=content.find(c=>c.id===pageId);return po?<PostPage post={po} allContent={content} onNavigate={nav} currentUser={user} onEndorse={endorse} onComment={cmnt} onReact={postReact} onAddChallenge={addCh} onAddMarginNote={addMN}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
+    case"post":const po=content.find(c=>c.id===pageId);return po?<PostPage post={po} allContent={content} onNavigate={nav} currentUser={user} onEndorse={endorse} onComment={cmnt} onReact={postReact} onAddChallenge={addCh} onAddMarginNote={addMN} agents={agents} onUpdatePost={updatePost}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
     case"profile":const u=ALL_USERS.find(x=>x.id===pageId)||user;return u?<ProfilePage user={u} content={content} onNavigate={nav}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
     case"write":if(!user){setShowLogin(true);nav("home");return null}return <WritePage currentUser={user} onNavigate={nav} onSubmit={addPost}/>;
     default:return <HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
