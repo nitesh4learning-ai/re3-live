@@ -222,23 +222,23 @@ function ParagraphReactions({reactions={},onReact,paragraphIndex}){const[my,setM
 // ==================== CYCLE CARD — The core visual unit ====================
 function CycleCard({cycle,onNavigate,variant="default"}){
   const isHero = variant==="hero";
-  return <div className={`rounded-2xl overflow-hidden transition-all ${isHero?"":"hover:shadow-lg"}`} style={{background:"#1E1E2E",border:"1px solid rgba(255,255,255,0.06)"}} onMouseEnter={e=>{if(!isHero)e.currentTarget.style.transform="translateY(-2px)"}} onMouseLeave={e=>{if(!isHero)e.currentTarget.style.transform="translateY(0)"}}>
+  return <div className={`rounded-2xl overflow-hidden transition-all ${isHero?"":"hover:shadow-lg"}`} style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}} onMouseEnter={e=>{if(!isHero)e.currentTarget.style.transform="translateY(-2px)"}} onMouseLeave={e=>{if(!isHero)e.currentTarget.style.transform="translateY(0)"}}>
     <div className="flex" style={{height:4}}><div className="flex-1" style={{background:"linear-gradient(90deg,#3B6B9B,#5A8BB8)"}}/><div className="flex-1" style={{background:"linear-gradient(90deg,#E8734A,#F4A261)"}}/><div className="flex-1" style={{background:"linear-gradient(90deg,#2D8A6E,#4ECBA5)"}}/></div>
     <div className={isHero?"p-5 sm:p-7":"p-4"}>
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2"><span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontFamily:"'Inter',sans-serif",fontSize:11,background:"rgba(255,255,255,0.1)",color:"#EAEAEA"}}>Cycle {cycle.number}</span><span style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(255,255,255,0.35)"}}>{fmtS(cycle.date)}</span></div>
-        <div className="flex items-center gap-3" style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(255,255,255,0.3)"}}><span>{cycle.endorsements} endorsements</span><span>{cycle.comments} replies</span></div>
+        <div className="flex items-center gap-2"><span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontFamily:"'Inter',sans-serif",fontSize:11,background:"rgba(0,0,0,0.05)",color:"#2D2D2D"}}>Cycle {cycle.number}</span><span style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.35)"}}>{fmtS(cycle.date)}</span></div>
+        <div className="flex items-center gap-3" style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.3)"}}><span>{cycle.endorsements} endorsements</span><span>{cycle.comments} replies</span></div>
       </div>
       <div className={`grid grid-cols-1 ${isHero?"md:grid-cols-3":""} gap-3`}>
-        {[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean).map(post=>{const author=getAuthor(post.authorId);const pillar=PILLARS[post.pillar];return <button key={post.id} onClick={()=>onNavigate("post",post.id)} className="text-left p-4 rounded-xl transition-all group" style={{background:"rgba(255,255,255,0.03)",borderLeft:`3px solid ${pillar.color}`,borderTop:"none",borderRight:"none",borderBottom:"none"}} onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,0.06)";e.currentTarget.style.boxShadow=`0 0 20px ${pillar.color}15`}} onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,0.03)";e.currentTarget.style.boxShadow="none"}}>
+        {[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean).map(post=>{const author=getAuthor(post.authorId);const pillar=PILLARS[post.pillar];return <button key={post.id} onClick={()=>onNavigate("post",post.id)} className="text-left p-4 rounded-xl transition-all group" style={{background:"rgba(0,0,0,0.02)",borderLeft:`3px solid ${pillar.color}`,borderTop:"none",borderRight:"none",borderBottom:"none"}} onMouseEnter={e=>{e.currentTarget.style.background="rgba(0,0,0,0.06)";e.currentTarget.style.boxShadow=`0 0 20px ${pillar.color}15`}} onMouseLeave={e=>{e.currentTarget.style.background="rgba(0,0,0,0.02)";e.currentTarget.style.boxShadow="none"}}>
           <div className="flex items-center gap-1.5 mb-2"><PillarTag pillar={post.pillar}/></div>
-          <h3 className="font-bold leading-snug mb-1.5" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA",fontSize:isHero?16:14}}>{post.title}</h3>
-          <p className="mb-2" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(255,255,255,0.45)",lineHeight:1.5,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.paragraphs[0]?.slice(0,isHero?140:100)}...</p>
+          <h3 className="font-bold leading-snug mb-1.5" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:isHero?16:14}}>{post.title}</h3>
+          <p className="mb-2" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)",lineHeight:1.5,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.paragraphs[0]?.slice(0,isHero?140:100)}...</p>
           <AuthorBadge author={author}/>
           <span className="text-xs font-semibold opacity-0 group-hover:opacity-100 transition-all mt-1 inline-block" style={{color:pillar.color}}>Read &rarr;</span>
         </button>})}
       </div>
-      {cycle.extra?.length>0&&<div className="mt-2 text-xs" style={{color:"rgba(255,255,255,0.3)"}}>+{cycle.extra.length} more</div>}
+      {cycle.extra?.length>0&&<div className="mt-2 text-xs" style={{color:"rgba(0,0,0,0.3)"}}>+{cycle.extra.length} more</div>}
     </div>
   </div>
 }
@@ -248,26 +248,26 @@ function Header({onNavigate,currentPage,currentUser,onLogin,onLogout}){
   const[sc,setSc]=useState(false);const[mob,setMob]=useState(false);
   useEffect(()=>{const fn=()=>setSc(window.scrollY>10);window.addEventListener("scroll",fn);return()=>window.removeEventListener("scroll",fn)},[]);
   const navItems=[["home","Home"],["loom","The Loom"],["studio","My Studio"],["agent-community","Agent Community"],["bridges","Bridges"]];
-  return <><header className="fixed top-0 left-0 right-0 z-50 transition-all" style={{background:sc?"rgba(15,15,26,0.95)":"rgba(15,15,26,0.8)",backdropFilter:"blur(20px)",borderBottom:sc?"1px solid rgba(255,255,255,0.06)":"1px solid transparent"}}>
+  return <><header className="fixed top-0 left-0 right-0 z-50 transition-all" style={{background:sc?"rgba(255,255,255,0.95)":"rgba(255,255,255,0.85)",backdropFilter:"blur(20px)",borderBottom:sc?"1px solid rgba(0,0,0,0.08)":"1px solid transparent"}}>
     <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between" style={{height:56}}>
       <button onClick={()=>{onNavigate("home");setMob(false)}} className="flex items-center gap-1">
-        <span className="text-lg font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA"}}>Re</span>
+        <span className="text-lg font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D"}}>Re</span>
         <span className="font-black px-1 py-0 rounded" style={{fontSize:9,background:"linear-gradient(135deg,#E8734A,#F4A261)",color:"white"}}>3</span>
       </button>
       <nav className="hidden md:flex items-center gap-0.5">{navItems.map(([pg,label])=>{const a=currentPage===pg;const pc=pg==="loom"?"#8B5CF6":pg==="studio"?"#E8734A":null;
-        return <button key={pg} onClick={()=>onNavigate(pg)} className="relative px-2.5 py-1.5 rounded-lg transition-all" style={{fontFamily:"'Inter',sans-serif",fontSize:12,fontWeight:a?600:400,color:a?(pc||"white"):"rgba(255,255,255,0.5)",background:a?"rgba(255,255,255,0.08)":"transparent"}}>{label}{a&&<span className="absolute bottom-0 left-1/2 w-4 rounded-full" style={{height:2,transform:"translateX(-50%)",background:pc||"#E8734A",boxShadow:`0 2px 8px ${(pc||"#E8734A")}40`}}/>}</button>})}</nav>
+        return <button key={pg} onClick={()=>onNavigate(pg)} className="relative px-2.5 py-1.5 rounded-lg transition-all" style={{fontFamily:"'Inter',sans-serif",fontSize:12,fontWeight:a?600:400,color:a?(pc||"#2D2D2D"):"rgba(0,0,0,0.5)",background:a?"rgba(0,0,0,0.04)":"transparent"}}>{label}{a&&<span className="absolute bottom-0 left-1/2 w-4 rounded-full" style={{height:2,transform:"translateX(-50%)",background:pc||"#E8734A",boxShadow:`0 2px 8px ${(pc||"#E8734A")}40`}}/>}</button>})}</nav>
       <div className="flex items-center gap-2">
         {currentUser ? <><button onClick={()=>onNavigate("write")} className="hidden sm:block px-3 py-1 rounded-full font-semibold transition-all hover:shadow-md" style={{fontFamily:"'Inter',sans-serif",fontSize:11,background:"linear-gradient(135deg,#E8734A,#F4A261)",color:"white"}}>Write</button>
-          <button onClick={()=>onNavigate("profile",currentUser.id)} className="w-7 h-7 rounded-full flex items-center justify-center font-bold overflow-hidden" style={{fontSize:9,background:"rgba(255,255,255,0.1)",color:"rgba(255,255,255,0.7)",border:"1px solid rgba(255,255,255,0.15)"}}>{currentUser.photoURL?<img src={currentUser.photoURL} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer"/>:currentUser.avatar}</button>
-          <button onClick={onLogout} className="hidden sm:block" style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:"rgba(255,255,255,0.3)"}}>Logout</button>
-        </> : <button onClick={onLogin} className="px-3 py-1 rounded-full font-semibold transition-all hover:shadow-md" style={{fontFamily:"'Inter',sans-serif",fontSize:11,border:"1px solid rgba(255,255,255,0.2)",color:"rgba(255,255,255,0.8)",background:"rgba(255,255,255,0.05)",backdropFilter:"blur(8px)"}}>Sign in</button>}
-        <button onClick={()=>setMob(!mob)} className="md:hidden p-1" style={{color:"rgba(255,255,255,0.5)",fontSize:18}}>{mob?"\u2715":"\u2630"}</button>
+          <button onClick={()=>onNavigate("profile",currentUser.id)} className="w-7 h-7 rounded-full flex items-center justify-center font-bold overflow-hidden" style={{fontSize:9,background:"rgba(0,0,0,0.05)",color:"rgba(0,0,0,0.55)",border:"1px solid rgba(0,0,0,0.1)"}}>{currentUser.photoURL?<img src={currentUser.photoURL} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer"/>:currentUser.avatar}</button>
+          <button onClick={onLogout} className="hidden sm:block" style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:"rgba(0,0,0,0.3)"}}>Logout</button>
+        </> : <button onClick={onLogin} className="px-3 py-1 rounded-full font-semibold transition-all hover:shadow-md" style={{fontFamily:"'Inter',sans-serif",fontSize:11,border:"1px solid rgba(0,0,0,0.12)",color:"rgba(0,0,0,0.7)",background:"rgba(0,0,0,0.03)",backdropFilter:"blur(8px)"}}>Sign in</button>}
+        <button onClick={()=>setMob(!mob)} className="md:hidden p-1" style={{color:"rgba(0,0,0,0.5)",fontSize:18}}>{mob?"\u2715":"\u2630"}</button>
       </div>
     </div>
   </header>
-  {mob&&<div className="fixed inset-0 z-40 pt-14" style={{background:"rgba(15,15,26,0.98)",backdropFilter:"blur(20px)"}}><div className="flex flex-col p-6 gap-1">
-    {navItems.map(([pg,label])=><button key={pg} onClick={()=>{onNavigate(pg);setMob(false)}} className="text-left p-3 rounded-xl text-base font-semibold" style={{fontFamily:"'Inter',sans-serif",color:currentPage===pg?"white":"rgba(255,255,255,0.4)"}}>{label}</button>)}
-    {currentUser&&<><div className="my-2" style={{height:1,background:"rgba(255,255,255,0.06)"}}/><button onClick={()=>{onNavigate("write");setMob(false)}} className="text-left p-3 rounded-xl text-base font-semibold" style={{color:"#E8734A"}}>Write</button></>}
+  {mob&&<div className="fixed inset-0 z-40 pt-14" style={{background:"rgba(255,255,255,0.98)",backdropFilter:"blur(20px)"}}><div className="flex flex-col p-6 gap-1">
+    {navItems.map(([pg,label])=><button key={pg} onClick={()=>{onNavigate(pg);setMob(false)}} className="text-left p-3 rounded-xl text-base font-semibold" style={{fontFamily:"'Inter',sans-serif",color:currentPage===pg?"#2D2D2D":"rgba(0,0,0,0.4)"}}>{label}</button>)}
+    {currentUser&&<><div className="my-2" style={{height:1,background:"rgba(0,0,0,0.06)"}}/><button onClick={()=>{onNavigate("write");setMob(false)}} className="text-left p-3 rounded-xl text-base font-semibold" style={{color:"#E8734A"}}>Write</button></>}
   </div></div>}</>
 }
 
@@ -282,56 +282,56 @@ function HomePage({content,themes,blindSpots,articles,onNavigate,onVoteTheme}){
   const featured = cycles.slice(1, 4);
   const totalPosts=content.filter(c=>c.type==="post").length;
   const activeAgentCount=25;
-  return <div className="min-h-screen" style={{paddingTop:56,background:"#0F0F1A"}}>
+  return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}>
     {/* DARK HERO */}
-    <section className="relative overflow-hidden" style={{background:"linear-gradient(135deg,#0F0F1A 0%,#1A1A2E 50%,#0F1A2E 100%)"}}>
+    <section className="relative overflow-hidden" style={{background:"linear-gradient(135deg,#FAFAF8 0%,#F0F4F8 50%,#F5F0EB 100%)"}}>
       <div className="absolute rounded-full hidden sm:block" style={{top:-40,left:"10%",width:300,height:300,filter:"blur(100px)",background:"rgba(59,107,155,0.12)"}}/>
       <div className="absolute rounded-full hidden sm:block" style={{top:60,left:"45%",width:250,height:250,filter:"blur(100px)",background:"rgba(232,115,74,0.1)"}}/>
       <div className="absolute rounded-full hidden sm:block" style={{bottom:-20,right:"15%",width:280,height:280,filter:"blur(100px)",background:"rgba(45,138,110,0.1)"}}/>
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6" style={{paddingTop:56,paddingBottom:48}}>
         <FadeIn><div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-5" style={{background:"rgba(232,115,74,0.1)",border:"1px solid rgba(232,115,74,0.2)"}}><span className="relative flex" style={{width:6,height:6}}><span className="animate-ping absolute inline-flex rounded-full opacity-75" style={{width:"100%",height:"100%",background:"#E8734A"}}/><span className="relative inline-flex rounded-full" style={{width:6,height:6,background:"#E8734A"}}/></span><span className="font-bold" style={{fontFamily:"'Inter',sans-serif",fontSize:10,letterSpacing:"0.12em",color:"#E8734A"}}>HUMAN-AI SYNTHESIS LAB</span></div></FadeIn>
         <FadeIn delay={60}><h1 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",fontSize:"clamp(36px,6vw,64px)",lineHeight:1.05,letterSpacing:"-0.03em",marginBottom:16}}><span style={{color:"#3B6B9B"}}>Rethink.</span>{" "}<span style={{color:"#E8734A"}}>Rediscover.</span>{" "}<span style={{color:"#2D8A6E"}}>Reinvent.</span></h1></FadeIn>
-        <FadeIn delay={120}><p style={{fontFamily:"'Inter',sans-serif",fontSize:"clamp(14px,1.6vw,16px)",maxWidth:520,color:"rgba(255,255,255,0.5)",lineHeight:1.7,marginBottom:28}}>Where human intuition meets machine foresight. AI agents and humans create connected ideas through structured knowledge synthesis.</p></FadeIn>
+        <FadeIn delay={120}><p style={{fontFamily:"'Inter',sans-serif",fontSize:"clamp(14px,1.6vw,16px)",maxWidth:520,color:"rgba(0,0,0,0.5)",lineHeight:1.7,marginBottom:28}}>Where human intuition meets machine foresight. AI agents and humans create connected ideas through structured knowledge synthesis.</p></FadeIn>
         <FadeIn delay={160}><div className="flex flex-wrap items-center gap-3 mb-8">
-          <button onClick={()=>hero&&onNavigate("post",hero.posts[0]?.id)} className="px-5 py-2.5 rounded-full font-semibold text-sm transition-all" style={{fontFamily:"'Inter',sans-serif",background:"rgba(255,255,255,0.08)",backdropFilter:"blur(12px)",border:"1px solid rgba(255,255,255,0.15)",color:"white"}}>Explore Latest Cycle &rarr;</button>
-          <div className="flex items-center gap-2 flex-wrap">{[["rethink","Question"],["rediscover","Connect"],["reinvent","Build"]].map(([pk,lb],idx)=><><div key={pk} className="flex items-center gap-1 px-2.5 py-1 rounded-full" style={{background:`${PILLARS[pk].color}20`}}><PillarIcon pillar={pk} size={12}/><span className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:PILLARS[pk].color}}>{lb}</span></div>{idx<2&&<span style={{color:"rgba(255,255,255,0.2)"}}>&rarr;</span>}</>)}</div>
+          <button onClick={()=>hero&&onNavigate("post",hero.posts[0]?.id)} className="px-5 py-2.5 rounded-full font-semibold text-sm transition-all" style={{fontFamily:"'Inter',sans-serif",background:"#2D2D2D",border:"1px solid #2D2D2D",color:"white",borderRadius:24}}>Explore Latest Cycle &rarr;</button>
+          <div className="flex items-center gap-2 flex-wrap">{[["rethink","Question"],["rediscover","Connect"],["reinvent","Build"]].map(([pk,lb],idx)=><><div key={pk} className="flex items-center gap-1 px-2.5 py-1 rounded-full" style={{background:`${PILLARS[pk].color}20`}}><PillarIcon pillar={pk} size={12}/><span className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:PILLARS[pk].color}}>{lb}</span></div>{idx<2&&<span style={{color:"rgba(0,0,0,0.2)"}}>&rarr;</span>}</>)}</div>
         </div></FadeIn>
-        <FadeIn delay={200}><div className="flex flex-wrap gap-6 sm:gap-8" style={{padding:"16px 24px",borderRadius:12,background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)"}}>
-          {[[cycles.length,"Thinking Cycles","#3B6B9B"],[activeAgentCount,"AI Agents","#E8734A"],[totalPosts,"Perspectives","#2D8A6E"],[allDebated.length,"Agent Debates","#8B5CF6"]].map(([val,lb,cl])=><div key={lb}><span style={{fontFamily:"'Inter',sans-serif",fontSize:28,fontWeight:800,color:cl}}>{val}</span><span style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(255,255,255,0.45)",marginLeft:8}}>{lb}</span></div>)}
+        <FadeIn delay={200}><div className="flex flex-wrap gap-6 sm:gap-8" style={{padding:"16px 24px",borderRadius:12,background:"rgba(255,255,255,0.7)",border:"1px solid rgba(0,0,0,0.06)"}}>
+          {[[cycles.length,"Thinking Cycles","#3B6B9B"],[activeAgentCount,"AI Agents","#E8734A"],[totalPosts,"Perspectives","#2D8A6E"],[allDebated.length,"Agent Debates","#8B5CF6"]].map(([val,lb,cl])=><div key={lb}><span style={{fontFamily:"'Inter',sans-serif",fontSize:28,fontWeight:800,color:cl}}>{val}</span><span style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.45)",marginLeft:8}}>{lb}</span></div>)}
         </div></FadeIn>
       </div>
     </section>
 
     {/* BENTO: Latest Cycle */}
     {hero&&<section className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-      <FadeIn><div className="flex items-center justify-between mb-4"><h2 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA",fontSize:24}}>Latest Cycle</h2><button onClick={()=>onNavigate("loom")} className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:"#8B5CF6"}}>View all in The Loom &rarr;</button></div></FadeIn>
+      <FadeIn><div className="flex items-center justify-between mb-4"><h2 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:24}}>Latest Cycle</h2><button onClick={()=>onNavigate("loom")} className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:"#8B5CF6"}}>View all in The Loom &rarr;</button></div></FadeIn>
       <FadeIn delay={50}><CycleCard cycle={hero} onNavigate={onNavigate} variant="hero"/></FadeIn>
     </section>}
 
     {/* BENTO: Loom + Agent Community row */}
     <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <FadeIn><div className="md:col-span-2 rounded-2xl p-5" style={{background:"#1E1E2E",border:"1px solid rgba(255,255,255,0.06)"}}>
-          <div className="flex items-center justify-between mb-3"><h3 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA",fontSize:18}}>The Loom</h3><button onClick={()=>onNavigate("loom")} className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:"#8B5CF6"}}>View all &rarr;</button></div>
-          {featured.length>0?<div className="space-y-2">{featured.map(c=><button key={c.date} onClick={()=>onNavigate("post",c.posts[0]?.id)} className="w-full text-left p-3 rounded-xl transition-all" style={{background:"rgba(255,255,255,0.03)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.06)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,0.03)"}><div className="flex items-center gap-2 mb-1"><span className="font-bold px-2 py-0.5 rounded-full" style={{fontFamily:"'Inter',sans-serif",fontSize:10,background:"rgba(255,255,255,0.08)",color:"rgba(255,255,255,0.6)"}}>Cycle {c.number}</span><span style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:"rgba(255,255,255,0.3)"}}>{fmtS(c.date)}</span></div><h4 className="font-semibold text-sm" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA"}}>{c.rethink?.title||c.rediscover?.title||c.reinvent?.title}</h4></button>)}</div>:<p style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(255,255,255,0.3)"}}>Cycles will appear here as they are created.</p>}
+        <FadeIn><div className="md:col-span-2 rounded-2xl p-5" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}}>
+          <div className="flex items-center justify-between mb-3"><h3 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>The Loom</h3><button onClick={()=>onNavigate("loom")} className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:"#8B5CF6"}}>View all &rarr;</button></div>
+          {featured.length>0?<div className="space-y-2">{featured.map(c=><button key={c.date} onClick={()=>onNavigate("post",c.posts[0]?.id)} className="w-full text-left p-3 rounded-xl transition-all" style={{background:"rgba(0,0,0,0.02)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(0,0,0,0.06)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(0,0,0,0.02)"}><div className="flex items-center gap-2 mb-1"><span className="font-bold px-2 py-0.5 rounded-full" style={{fontFamily:"'Inter',sans-serif",fontSize:10,background:"rgba(0,0,0,0.04)",color:"rgba(0,0,0,0.5)"}}>Cycle {c.number}</span><span style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:"rgba(0,0,0,0.3)"}}>{fmtS(c.date)}</span></div><h4 className="font-semibold text-sm" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D"}}>{c.rethink?.title||c.rediscover?.title||c.reinvent?.title}</h4></button>)}</div>:<p style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.3)"}}>Cycles will appear here as they are created.</p>}
         </div></FadeIn>
-        <FadeIn delay={40}><div className="rounded-2xl p-5" style={{background:"#1E1E2E",border:"1px solid rgba(255,255,255,0.06)"}}>
-          <div className="flex items-center justify-between mb-3"><h3 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA",fontSize:18}}>Agents</h3><button onClick={()=>onNavigate("agent-community")} className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:"#E8734A"}}>Meet the panel &rarr;</button></div>
-          <p className="mb-3" style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(255,255,255,0.4)"}}>25 active &middot; 3 orchestrators</p>
-          <div className="flex flex-wrap gap-1">{INIT_AGENTS.slice(0,12).map(a=><div key={a.id} className="w-7 h-7 rounded-full flex items-center justify-center font-bold" style={{background:`${a.color}20`,color:a.color,fontSize:7,border:`1px solid ${a.color}30`}}>{a.avatar}</div>)}<div className="w-7 h-7 rounded-full flex items-center justify-center font-bold" style={{background:"rgba(255,255,255,0.05)",color:"rgba(255,255,255,0.4)",fontSize:8}}>+13</div></div>
+        <FadeIn delay={40}><div className="rounded-2xl p-5" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}}>
+          <div className="flex items-center justify-between mb-3"><h3 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Agents</h3><button onClick={()=>onNavigate("agent-community")} className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:"#E8734A"}}>Meet the panel &rarr;</button></div>
+          <p className="mb-3" style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.4)"}}>25 active &middot; 3 orchestrators</p>
+          <div className="flex flex-wrap gap-1">{INIT_AGENTS.slice(0,12).map(a=><div key={a.id} className="w-7 h-7 rounded-full flex items-center justify-center font-bold" style={{background:`${a.color}20`,color:a.color,fontSize:7,border:`1px solid ${a.color}30`}}>{a.avatar}</div>)}<div className="w-7 h-7 rounded-full flex items-center justify-center font-bold" style={{background:"rgba(0,0,0,0.03)",color:"rgba(0,0,0,0.4)",fontSize:8}}>+13</div></div>
         </div></FadeIn>
       </div>
     </section>
 
     {/* Community Debates */}
     {allDebated.length>0&&<section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
-      <FadeIn><div className="flex items-center justify-between mb-4"><h2 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA",fontSize:24}}>Community Debates</h2><button onClick={()=>onNavigate("loom")} className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:"#8B5CF6"}}>View all &rarr;</button></div></FadeIn>
+      <FadeIn><div className="flex items-center justify-between mb-4"><h2 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:24}}>Community Debates</h2><button onClick={()=>onNavigate("loom")} className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:"#8B5CF6"}}>View all &rarr;</button></div></FadeIn>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {allDebated.map((item,i)=><FadeIn key={item.id} delay={i*30}><button onClick={()=>onNavigate(item._type==="article"?"article":"post",item.id)} className="w-full text-left p-4 rounded-xl transition-all" style={{background:"#1E1E2E",border:"1px solid rgba(255,255,255,0.06)"}} onMouseEnter={e=>{e.currentTarget.style.background="#252540";e.currentTarget.style.boxShadow="0 0 20px rgba(139,92,246,0.1)"}} onMouseLeave={e=>{e.currentTarget.style.background="#1E1E2E";e.currentTarget.style.boxShadow="none"}}>
+        {allDebated.map((item,i)=><FadeIn key={item.id} delay={i*30}><button onClick={()=>onNavigate(item._type==="article"?"article":"post",item.id)} className="w-full text-left p-4 rounded-xl transition-all" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}} onMouseEnter={e=>{e.currentTarget.style.background="#F5F5FF";e.currentTarget.style.boxShadow="0 0 20px rgba(139,92,246,0.08)"}} onMouseLeave={e=>{e.currentTarget.style.background="#FFFFFF";e.currentTarget.style.boxShadow="none"}}>
           <div className="flex items-center gap-1.5 mb-1"><PillarTag pillar={item.pillar}/><span className="font-bold px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"rgba(139,92,246,0.15)",color:"#8B5CF6"}}>DEBATED</span></div>
-          <h3 className="font-semibold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA",fontSize:14}}>{item.title}</h3>
-          <div className="flex flex-wrap gap-1 mb-1">{item.debate?.panel?.agents?.slice(0,3).map(ag=><span key={ag.id} className="px-1.5 py-0 rounded-full" style={{fontSize:8,background:`${ag.color}15`,color:ag.color}}>{ag.name}</span>)}{item.debate?.panel?.agents?.length>3&&<span style={{fontSize:8,color:"rgba(255,255,255,0.3)"}}>+{item.debate.panel.agents.length-3}</span>}</div>
-          <p style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(255,255,255,0.4)",lineHeight:1.4,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{item.debate?.loom?.slice(0,120)}...</p>
+          <h3 className="font-semibold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:14}}>{item.title}</h3>
+          <div className="flex flex-wrap gap-1 mb-1">{item.debate?.panel?.agents?.slice(0,3).map(ag=><span key={ag.id} className="px-1.5 py-0 rounded-full" style={{fontSize:8,background:`${ag.color}15`,color:ag.color}}>{ag.name}</span>)}{item.debate?.panel?.agents?.length>3&&<span style={{fontSize:8,color:"rgba(0,0,0,0.3)"}}>+{item.debate.panel.agents.length-3}</span>}</div>
+          <p style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.4)",lineHeight:1.4,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{item.debate?.loom?.slice(0,120)}...</p>
         </button></FadeIn>)}
       </div>
     </section>}
@@ -339,14 +339,14 @@ function HomePage({content,themes,blindSpots,articles,onNavigate,onVoteTheme}){
     {/* BENTO: Bridges + Blind Spots row */}
     <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {bridges.length>0&&<FadeIn><div className="rounded-2xl p-5" style={{background:"#1E1E2E",border:"1px solid rgba(255,255,255,0.06)"}}>
-          <div className="flex items-center gap-3 mb-3"><h3 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA",fontSize:18}}>Bridges</h3><div className="flex-1" style={{height:1,background:"rgba(255,255,255,0.06)"}}/></div>
-          <div className="space-y-2">{bridges.map(b=>{const author=getAuthor(b.authorId);return <button key={b.id} onClick={()=>onNavigate("post",b.id)} className="w-full text-left p-3 rounded-xl transition-all" style={{background:"rgba(255,255,255,0.03)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.06)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,0.03)"}><div className="flex items-center gap-1.5 mb-1"><PillarTag pillar={b.pillar}/><span className="font-bold px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"rgba(139,92,246,0.15)",color:"#8B5CF6"}}>BRIDGE</span></div><h4 className="font-semibold text-sm mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA"}}>{b.title}</h4><AuthorBadge author={author}/></button>})}</div>
+        {bridges.length>0&&<FadeIn><div className="rounded-2xl p-5" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}}>
+          <div className="flex items-center gap-3 mb-3"><h3 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Bridges</h3><div className="flex-1" style={{height:1,background:"rgba(0,0,0,0.06)"}}/></div>
+          <div className="space-y-2">{bridges.map(b=>{const author=getAuthor(b.authorId);return <button key={b.id} onClick={()=>onNavigate("post",b.id)} className="w-full text-left p-3 rounded-xl transition-all" style={{background:"rgba(0,0,0,0.02)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(0,0,0,0.06)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(0,0,0,0.02)"}><div className="flex items-center gap-1.5 mb-1"><PillarTag pillar={b.pillar}/><span className="font-bold px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"rgba(139,92,246,0.15)",color:"#8B5CF6"}}>BRIDGE</span></div><h4 className="font-semibold text-sm mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D"}}>{b.title}</h4><AuthorBadge author={author}/></button>})}</div>
         </div></FadeIn>}
-        <FadeIn delay={40}><div className="rounded-2xl p-5" style={{background:"#1E1E2E",border:"1px solid rgba(255,255,255,0.06)"}}>
-          <h3 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA",fontSize:18}}>Collective Blind Spots</h3>
-          <div className="space-y-2">{blindSpots.map((bs,i)=><div key={i} className="flex flex-col sm:flex-row sm:items-center gap-2 p-2.5 rounded-lg" style={{background:"rgba(255,255,255,0.03)"}}>
-            <div className="flex-1"><h4 className="font-semibold text-xs" style={{fontFamily:"'Inter',sans-serif",color:"#EAEAEA"}}>{bs.topic}</h4><p style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(255,255,255,0.35)"}}>{bs.description}</p></div>
+        <FadeIn delay={40}><div className="rounded-2xl p-5" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}}>
+          <h3 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Collective Blind Spots</h3>
+          <div className="space-y-2">{blindSpots.map((bs,i)=><div key={i} className="flex flex-col sm:flex-row sm:items-center gap-2 p-2.5 rounded-lg" style={{background:"rgba(0,0,0,0.02)"}}>
+            <div className="flex-1"><h4 className="font-semibold text-xs" style={{fontFamily:"'Inter',sans-serif",color:"#2D2D2D"}}>{bs.topic}</h4><p style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.35)"}}>{bs.description}</p></div>
             <div className="flex gap-1">{[["rethink",bs.rethinkCount],["rediscover",bs.rediscoverCount],["reinvent",bs.reinventCount]].map(([pk,ct])=><span key={pk} className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full" style={{fontSize:9,background:ct===0?"rgba(229,62,62,0.1)":`${PILLARS[pk].color}20`,color:ct===0?"#E53E3E":PILLARS[pk].color,border:ct===0?"1px dashed rgba(229,62,62,0.3)":"none"}}><PillarIcon pillar={pk} size={9}/>{ct}</span>)}</div>
           </div>)}</div>
         </div></FadeIn>
@@ -354,12 +354,12 @@ function HomePage({content,themes,blindSpots,articles,onNavigate,onVoteTheme}){
     </section>
 
     {/* Theme Voting */}
-    <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-12"><div className="rounded-2xl p-5" style={{background:"linear-gradient(135deg,rgba(59,107,155,0.08),rgba(139,92,246,0.08),rgba(45,138,110,0.08))",border:"1px solid rgba(255,255,255,0.06)"}}>
-      <h3 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA",fontSize:18}}>What Should We Think About Next?</h3>
-      <p className="mb-3" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(255,255,255,0.4)"}}>Your vote shapes the next synthesis cycle.</p>
-      <div className="space-y-1.5">{themes.map(th=><button key={th.id} onClick={()=>onVoteTheme(th.id)} className="w-full flex items-center justify-between p-3 rounded-xl transition-all" style={{background:th.voted?"rgba(232,115,74,0.1)":"rgba(255,255,255,0.03)",border:`1px solid ${th.voted?"rgba(232,115,74,0.2)":"rgba(255,255,255,0.06)"}`}} onMouseEnter={e=>{if(!th.voted)e.currentTarget.style.background="rgba(255,255,255,0.06)"}} onMouseLeave={e=>{if(!th.voted)e.currentTarget.style.background="rgba(255,255,255,0.03)"}}>
-        <span className="font-medium text-sm" style={{fontFamily:"'Inter',sans-serif",color:"#EAEAEA"}}>{th.title}</span>
-        <span className="font-bold" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:th.voted?"#E8734A":"rgba(255,255,255,0.3)"}}>{th.votes}</span>
+    <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-12"><div className="rounded-2xl p-5" style={{background:"linear-gradient(135deg,rgba(59,107,155,0.08),rgba(139,92,246,0.08),rgba(45,138,110,0.08))",border:"1px solid rgba(0,0,0,0.06)"}}>
+      <h3 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>What Should We Think About Next?</h3>
+      <p className="mb-3" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.4)"}}>Your vote shapes the next synthesis cycle.</p>
+      <div className="space-y-1.5">{themes.map(th=><button key={th.id} onClick={()=>onVoteTheme(th.id)} className="w-full flex items-center justify-between p-3 rounded-xl transition-all" style={{background:th.voted?"rgba(232,115,74,0.1)":"rgba(0,0,0,0.02)",border:`1px solid ${th.voted?"rgba(232,115,74,0.2)":"rgba(0,0,0,0.06)"}`}} onMouseEnter={e=>{if(!th.voted)e.currentTarget.style.background="rgba(0,0,0,0.06)"}} onMouseLeave={e=>{if(!th.voted)e.currentTarget.style.background="rgba(0,0,0,0.02)"}}>
+        <span className="font-medium text-sm" style={{fontFamily:"'Inter',sans-serif",color:"#2D2D2D"}}>{th.title}</span>
+        <span className="font-bold" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:th.voted?"#E8734A":"rgba(0,0,0,0.3)"}}>{th.votes}</span>
       </button>)}</div>
     </div></section>
   </div>
@@ -371,34 +371,34 @@ function LoomPage({content,articles,onNavigate}){
   const debatedArticles = (articles||[]).filter(a=>a.debate?.loom);
   const debatedPosts = content.filter(c=>c.debate?.loom);
   const allDebated = [...debatedPosts.map(p=>({...p,_type:"post"})),...debatedArticles.map(a=>({...a,_type:"article"}))];
-  return <div className="min-h-screen" style={{paddingTop:56,background:"#0F0F1A"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA",fontSize:"clamp(22px,3.5vw,32px)"}}>The Loom</h1><p className="mb-6" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(255,255,255,0.45)"}}>Every cycle weaves three threads of thinking: question, connect, build. {cycles.length} cycles{allDebated.length>0?` + ${allDebated.length} debate syntheses`:""} so far.</p></FadeIn>
+  return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,32px)"}}>The Loom</h1><p className="mb-6" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>Every cycle weaves three threads of thinking: question, connect, build. {cycles.length} cycles{allDebated.length>0?` + ${allDebated.length} debate syntheses`:""} so far.</p></FadeIn>
 
     {allDebated.length>0&&<div className="mb-8"><FadeIn><h2 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#8B5CF6",fontSize:20}}>Debate Syntheses</h2></FadeIn>
-      <div className="space-y-3">{allDebated.map((a,i)=><FadeIn key={a.id} delay={i*40}><div className="rounded-2xl overflow-hidden" style={{background:"#1E1E2E",border:"1px solid rgba(139,92,246,0.15)"}}>
+      <div className="space-y-3">{allDebated.map((a,i)=><FadeIn key={a.id} delay={i*40}><div className="rounded-2xl overflow-hidden" style={{background:"#FFFFFF",border:"1px solid rgba(139,92,246,0.15)"}}>
         <div className="flex" style={{height:3}}><div className="flex-1" style={{background:"linear-gradient(90deg,#3B6B9B,#8B5CF6,#2D8A6E)"}}/></div>
         <div className="p-4">
           <div className="flex items-center gap-2 mb-2"><PillarTag pillar={a.pillar}/><span className="font-bold px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"rgba(139,92,246,0.15)",color:"#8B5CF6"}}>DEBATED</span></div>
-          <button onClick={()=>onNavigate(a._type==="article"?"article":"post",a.id)} className="text-left"><h3 className="font-bold mb-2 hover:underline decoration-1 underline-offset-2" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA",fontSize:16}}>{a.title}</h3></button>
+          <button onClick={()=>onNavigate(a._type==="article"?"article":"post",a.id)} className="text-left"><h3 className="font-bold mb-2 hover:underline decoration-1 underline-offset-2" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:16}}>{a.title}</h3></button>
           {a.debate.panel&&<div className="flex flex-wrap gap-1 mb-2">{a.debate.panel.agents?.map(ag=><span key={ag.id} className="px-1.5 py-0.5 rounded-full font-semibold" style={{fontSize:8,background:`${ag.color}15`,color:ag.color}}>{ag.name}</span>)}</div>}
           <div className="p-3 rounded-xl" style={{background:"rgba(139,92,246,0.06)",border:"1px solid rgba(139,92,246,0.1)"}}>
             <div className="flex items-center gap-1.5 mb-1.5"><span style={{fontSize:12}}>&#128296;</span><span className="font-bold text-xs" style={{color:"#3B6B9B"}}>Sage&apos;s Synthesis</span></div>
-            <p style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(255,255,255,0.55)",lineHeight:1.7,display:"-webkit-box",WebkitLineClamp:4,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{a.debate.loom}</p>
+            <p style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.5)",lineHeight:1.7,display:"-webkit-box",WebkitLineClamp:4,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{a.debate.loom}</p>
           </div>
           <button onClick={()=>onNavigate(a._type==="article"?"article":"post",a.id)} className="mt-2 text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:"#8B5CF6"}}>View full debate &rarr;</button>
         </div>
       </div></FadeIn>)}</div>
     </div>}
 
-    <FadeIn><h2 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA",fontSize:20}}>Synthesis Cycles</h2></FadeIn>
+    <FadeIn><h2 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:20}}>Synthesis Cycles</h2></FadeIn>
     {/* Timeline layout */}
     <div className="relative" style={{paddingLeft:24}}>
       <div className="absolute" style={{left:5,top:0,bottom:0,width:2,background:"linear-gradient(180deg,#8B5CF6,rgba(139,92,246,0.1))"}}/>
       <div className="space-y-6">{cycles.length>0?cycles.map((c,i)=><FadeIn key={c.date} delay={i*50}><div className="relative">
-        <div className="absolute" style={{left:-24,top:8,width:12,height:12,borderRadius:"50%",background:"#8B5CF6",border:"3px solid #1E1E2E"}}/>
-        <div className="mb-2"><span className="font-bold text-xs" style={{fontFamily:"'Inter',sans-serif",color:"rgba(255,255,255,0.5)"}}>Cycle {c.number} &mdash; {fmtS(c.date)}</span></div>
+        <div className="absolute" style={{left:-24,top:8,width:12,height:12,borderRadius:"50%",background:"#8B5CF6",border:"3px solid #FAFAF8"}}/>
+        <div className="mb-2"><span className="font-bold text-xs" style={{fontFamily:"'Inter',sans-serif",color:"rgba(0,0,0,0.5)"}}>Cycle {c.number} &mdash; {fmtS(c.date)}</span></div>
         <CycleCard cycle={c} onNavigate={onNavigate} variant="hero"/>
-      </div></FadeIn>):<FadeIn><div className="p-6 rounded-2xl text-center" style={{background:"#1E1E2E",border:"1px solid rgba(255,255,255,0.06)"}}><p style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(255,255,255,0.3)"}}>No synthesis cycles yet.</p></div></FadeIn>}</div>
+      </div></FadeIn>):<FadeIn><div className="p-6 rounded-2xl text-center" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}}><p style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.3)"}}>No synthesis cycles yet.</p></div></FadeIn>}</div>
     </div>
   </div></div>
 }
@@ -411,7 +411,7 @@ function PostPage({post,allContent,onNavigate,currentUser,onEndorse,onComment,on
   const bTo=post.bridgeTo?allContent.find(c=>c.id===post.bridgeTo):null;
   // Find sibling posts in same cycle
   const siblings=post.sundayCycle?allContent.filter(c=>c.sundayCycle===post.sundayCycle&&c.id!==post.id):[];
-  return <div className="min-h-screen" style={{paddingTop:56,background:"#0F0F1A"}}><article className="mx-auto py-8" style={{maxWidth:720,background:"#FEFEFE",borderRadius:16,padding:"32px 40px",margin:"32px auto",boxShadow:"0 4px 40px rgba(0,0,0,0.3)"}}>
+  return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><article className="mx-auto py-8" style={{maxWidth:720,background:"#FFFFFF",borderRadius:16,padding:"32px 40px",margin:"32px auto",boxShadow:"0 2px 16px rgba(0,0,0,0.06)"}}>
     <FadeIn><button onClick={()=>onNavigate("home")} style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"#CCC",marginBottom:24,display:"block"}}>&larr; Back</button></FadeIn>
     <FadeIn delay={40}><div className="flex flex-wrap items-center gap-2 mb-3"><PillarTag pillar={post.pillar} size="md"/>{post.type==="bridge"&&<span className="font-bold px-2 py-0.5 rounded-full" style={{fontSize:10,background:"#F5F0FA",color:"#8B5CF6"}}>BRIDGE</span>}{post.sundayCycle&&<span className="font-bold px-2 py-0.5 rounded-full" style={{fontSize:9,color:"#CCC",background:"#F5F5F5"}}>CYCLE</span>}</div></FadeIn>
     <FadeIn delay={60}><h1 className="font-bold leading-tight mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(20px,3.5vw,30px)",letterSpacing:"-0.02em"}}>{post.title}</h1></FadeIn>
@@ -645,13 +645,13 @@ function MyStudioPage({currentUser,content,articles,agents,projects,onNavigate,o
     setDebateRunning(false);
   };
 
-  if(editing){return <div className="min-h-screen" style={{paddingTop:56,background:"#0F0F1A"}}><div className="px-4 sm:px-6 py-8">
+  if(editing){return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><div className="px-4 sm:px-6 py-8">
     <Suspense fallback={<div className="max-w-3xl mx-auto"><p style={{color:"#CCC"}}>Loading editor...</p></div>}>
       <LazyEditor article={editing==="new"?null:editing} onSave={handleSave} onCancel={()=>setEditing(null)}/>
     </Suspense>
   </div></div>}
 
-  return <div className="min-h-screen" style={{paddingTop:56,background:"#0F0F1A"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+  return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
     <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,28px)"}}>My Studio</h1><p className="mb-6" style={{fontSize:13,color:"#999"}}>{admin?"Your workspace. Write articles, manage projects, run debates, and generate cycles.":"Browse published work from the Re\u00b3 community."}</p></FadeIn>
 
     {admin&&<FadeIn delay={30}><button onClick={()=>setEditing("new")} className="mb-6 px-5 py-2.5 rounded-full font-semibold text-sm transition-all hover:shadow-md" style={{background:"linear-gradient(135deg,#E8734A,#F4A261)",color:"white"}}>Write Article</button></FadeIn>}
@@ -758,11 +758,11 @@ function AgentCommunityPage({agents,currentUser,onSaveAgent,onDeleteAgent}){
   const active=agents.filter(a=>a.status==="active");const inactive=agents.filter(a=>a.status==="inactive");
   const categories=[...new Set(active.map(a=>a.category||"Other"))];
 
-  return <div className="min-h-screen" style={{paddingTop:56,background:"#0F0F1A"}}><div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA",fontSize:"clamp(22px,3.5vw,32px)"}}>Agent Community</h1><p className="mb-6" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(255,255,255,0.45)"}}>{active.length} debater agents + 3 orchestrators. Forge picks 5 per debate.</p></FadeIn>
+  return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,32px)"}}>Agent Community</h1><p className="mb-6" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>{active.length} debater agents + 3 orchestrators. Forge picks 5 per debate.</p></FadeIn>
 
-    <FadeIn delay={20}><div className="p-4 rounded-2xl mb-6" style={{background:"#1E1E2E",border:"1px solid rgba(255,255,255,0.06)"}}>
-      <h3 className="font-bold mb-3" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"#EAEAEA",letterSpacing:"0.05em",textTransform:"uppercase"}}>Orchestration Layer</h3>
+    <FadeIn delay={20}><div className="p-4 rounded-2xl mb-6" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}}>
+      <h3 className="font-bold mb-3" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"#2D2D2D",letterSpacing:"0.05em",textTransform:"uppercase"}}>Orchestration Layer</h3>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">{Object.values(ORCHESTRATORS).map(o=><div key={o.id} className="p-3 rounded-xl" style={{background:`${o.color}06`,border:`1px solid ${o.color}20`}}>
         <div className="flex items-center gap-2 mb-1"><div className="w-7 h-7 rounded-full flex items-center justify-center font-bold" style={{background:`${o.color}15`,color:o.color,fontSize:10,border:`1.5px dashed ${o.color}40`}}>{o.avatar}</div><div><span className="font-bold text-xs" style={{color:o.color}}>{o.name}</span><span className="block" style={{fontSize:9,color:"#BBB"}}>{o.role}</span></div></div>
         <p className="text-xs" style={{color:"#999",lineHeight:1.4}}>{o.persona.slice(0,100)}...</p>
@@ -779,15 +779,15 @@ function AgentCommunityPage({agents,currentUser,onSaveAgent,onDeleteAgent}){
       <div className="flex gap-2 mt-2"><button onClick={save} className="px-4 py-1.5 rounded-full font-semibold text-sm" style={{background:"#2D2D2D",color:"white"}}>{editing?"Update":"Create"}</button><button onClick={()=>setShowForm(false)} className="px-4 py-1.5 rounded-full font-semibold text-sm" style={{color:"#CCC",border:"1px solid #F0F0F0"}}>Cancel</button></div>
     </div></FadeIn>}
 
-    {categories.map(cat=><div key={cat} className="mb-5"><FadeIn><h3 className="font-bold mb-2" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(255,255,255,0.4)",letterSpacing:"0.1em",textTransform:"uppercase",borderBottom:"1px solid rgba(255,255,255,0.06)",paddingBottom:8}}>{cat}</h3></FadeIn>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">{active.filter(a=>(a.category||"Other")===cat).map((a,i)=>{const mp=MODEL_PROVIDERS.find(m=>m.id===a.model);return <FadeIn key={a.id} delay={i*15}><div className="p-3 rounded-xl transition-all" style={{background:"#1E1E2E",border:"1px solid rgba(255,255,255,0.06)"}} onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.02)";e.currentTarget.style.boxShadow=`0 0 20px ${a.color}15`}} onMouseLeave={e=>{e.currentTarget.style.transform="scale(1)";e.currentTarget.style.boxShadow="none"}}>
+    {categories.map(cat=><div key={cat} className="mb-5"><FadeIn><h3 className="font-bold mb-2" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.4)",letterSpacing:"0.1em",textTransform:"uppercase",borderBottom:"1px solid rgba(0,0,0,0.06)",paddingBottom:8}}>{cat}</h3></FadeIn>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">{active.filter(a=>(a.category||"Other")===cat).map((a,i)=>{const mp=MODEL_PROVIDERS.find(m=>m.id===a.model);return <FadeIn key={a.id} delay={i*15}><div className="p-3 rounded-xl transition-all" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}} onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.02)";e.currentTarget.style.boxShadow=`0 0 20px ${a.color}15`}} onMouseLeave={e=>{e.currentTarget.style.transform="scale(1)";e.currentTarget.style.boxShadow="none"}}>
         <div className="flex items-start gap-2.5">
           <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{background:`${a.color}20`,color:a.color,border:`1.5px solid ${a.color}40`,fontSize:9}}>{a.avatar}</div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 mb-0.5"><h4 className="font-bold text-sm" style={{color:"#EAEAEA"}}>{a.name}</h4>
+            <div className="flex items-center gap-1.5 mb-0.5"><h4 className="font-bold text-sm" style={{color:"#2D2D2D"}}>{a.name}</h4>
               {admin?<select value={a.model} onChange={e=>changeModel(a.id,e.target.value)} className="px-1.5 py-0.5 rounded text-xs font-semibold appearance-none cursor-pointer" style={{background:`${mp?.color||"#999"}10`,color:mp?.color||"#999",border:`1px solid ${mp?.color||"#999"}30`,fontSize:9}}>{MODEL_PROVIDERS.map(m=><option key={m.id} value={m.id}>{m.label.split(" ")[0]}</option>)}</select>:<span className="px-1.5 py-0.5 rounded font-bold" style={{fontSize:8,background:`${mp?.color||"#999"}10`,color:mp?.color||"#999"}}>{mp?.label?.split(" ")[0]||a.model}</span>}
             </div>
-            <p className="text-xs" style={{fontFamily:"'Inter',sans-serif",color:"rgba(255,255,255,0.4)",lineHeight:1.4,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{a.persona}</p>
+            <p className="text-xs" style={{fontFamily:"'Inter',sans-serif",color:"rgba(0,0,0,0.4)",lineHeight:1.4,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{a.persona}</p>
             {admin&&<div className="flex gap-1 mt-1.5"><button onClick={()=>startEdit(a)} className="text-xs font-semibold px-1.5 py-0.5 rounded" style={{color:"#3B6B9B",background:"#EEF3F8"}}>Edit</button><button onClick={()=>onSaveAgent({...a,status:"inactive"})} className="text-xs font-semibold px-1.5 py-0.5 rounded" style={{color:"#E8734A",background:"#FDF0EB"}}>Deactivate</button></div>}
           </div>
         </div>
@@ -808,7 +808,7 @@ function ArticlePage({article,agents,onNavigate,onUpdateArticle,currentUser}){
   if(!article)return null;
   const admin=isAdmin(currentUser);
   const handleDebateComplete=(debate)=>{if(onUpdateArticle)onUpdateArticle({...article,debate})};
-  return <div className="min-h-screen" style={{paddingTop:56,background:"#0F0F1A"}}><div className="mx-auto py-8" style={{maxWidth:720,background:"#FEFEFE",borderRadius:16,padding:"32px 40px",margin:"32px auto",boxShadow:"0 4px 40px rgba(0,0,0,0.3)"}}>
+  return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><div className="mx-auto py-8" style={{maxWidth:720,background:"#FFFFFF",borderRadius:16,padding:"32px 40px",margin:"32px auto",boxShadow:"0 2px 16px rgba(0,0,0,0.06)"}}>
     <FadeIn><button onClick={()=>onNavigate("studio")} style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"#CCC",marginBottom:24,display:"block"}}>&larr; Back</button></FadeIn>
     <FadeIn delay={40}><div className="flex items-center gap-2 mb-3"><PillarTag pillar={article.pillar} size="md"/><span className="font-bold px-2 py-0.5 rounded-full" style={{fontSize:9,background:article.status==="published"?"#EBF5F1":"#FFF5F5",color:article.status==="published"?"#2D8A6E":"#E8734A"}}>{article.status?.toUpperCase()}</span></div></FadeIn>
     <FadeIn delay={60}><h1 className="font-bold leading-tight mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(20px,3.5vw,30px)"}}>{article.title}</h1></FadeIn>
@@ -823,26 +823,26 @@ function ArticlePage({article,agents,onNavigate,onUpdateArticle,currentUser}){
 }
 
 // ==================== REMAINING PAGES ====================
-function AgentsPage({content,onNavigate}){return <div className="min-h-screen" style={{paddingTop:56,background:"#0F0F1A"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-  <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA",fontSize:"clamp(22px,3.5vw,32px)"}}>AI Agents</h1><p className="mb-6" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(255,255,255,0.45)"}}>Three agents, three lenses, one continuous conversation.</p></FadeIn>
-  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">{AGENTS.map((a,i)=>{const posts=content.filter(c=>c.authorId===a.id);return <FadeIn key={a.id} delay={i*60}><div className="p-4 rounded-2xl text-center" style={{background:"#1E1E2E",border:"1px solid rgba(255,255,255,0.06)"}}>
+function AgentsPage({content,onNavigate}){return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+  <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,32px)"}}>AI Agents</h1><p className="mb-6" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>Three agents, three lenses, one continuous conversation.</p></FadeIn>
+  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">{AGENTS.map((a,i)=>{const posts=content.filter(c=>c.authorId===a.id);return <FadeIn key={a.id} delay={i*60}><div className="p-4 rounded-2xl text-center" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}}>
     <div className="w-12 h-12 mx-auto rounded-full flex items-center justify-center font-bold text-lg mb-2" style={{background:`${a.color}10`,color:a.color,border:`2px dashed ${a.color}40`}}>{a.avatar}</div>
     <h3 className="font-bold mb-0.5" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:a.color,fontSize:16}}>{a.name}</h3>
     <p style={{fontSize:11,color:"#BBB"}}>{a.role}</p>
     <div className="mt-2 font-bold" style={{fontSize:11,color:a.color}}>{posts.length} posts</div>
   </div></FadeIn>})}</div></div></div>}
 
-function BridgesPage({content,onNavigate}){const bridges=content.filter(c=>c.type==="bridge");return <div className="min-h-screen" style={{paddingTop:56,background:"#0F0F1A"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-  <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA",fontSize:"clamp(22px,3.5vw,32px)"}}>Bridges</h1><p className="mb-6" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(255,255,255,0.45)"}}>Ideas connected across pillars by humans.</p></FadeIn>
+function BridgesPage({content,onNavigate}){const bridges=content.filter(c=>c.type==="bridge");return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+  <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,32px)"}}>Bridges</h1><p className="mb-6" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>Ideas connected across pillars by humans.</p></FadeIn>
   <div className="space-y-2">{bridges.map((b,i)=>{const author=getAuthor(b.authorId);const from=content.find(c=>c.id===b.bridgeFrom);const to=content.find(c=>c.id===b.bridgeTo);
-    return <FadeIn key={b.id} delay={i*40}><button onClick={()=>onNavigate("post",b.id)} className="w-full text-left p-4 rounded-2xl transition-all hover:shadow-md" style={{background:"#1E1E2E",border:"1px solid rgba(255,255,255,0.06)"}}>
+    return <FadeIn key={b.id} delay={i*40}><button onClick={()=>onNavigate("post",b.id)} className="w-full text-left p-4 rounded-2xl transition-all hover:shadow-md" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}}>
       <div className="flex flex-wrap items-center gap-2 mb-1">{from&&<PillarTag pillar={from.pillar}/>}<span style={{color:"#DDD"}}>&rarr;</span>{to&&<PillarTag pillar={to.pillar}/>}</div>
       <h3 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:14}}>{b.title}</h3>
       <AuthorBadge author={author}/>
     </button></FadeIn>})}</div></div></div>}
 
 function ProfilePage({user,content,onNavigate}){const posts=content.filter(c=>c.authorId===user.id);const fp=user.thinkingFingerprint;
-  return <div className="min-h-screen" style={{paddingTop:56,background:"#0F0F1A"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+  return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
     <FadeIn><div className="flex items-center gap-3 mb-4">{user.photoURL?<img src={user.photoURL} alt="" className="w-12 h-12 rounded-full object-cover" referrerPolicy="no-referrer"/>:<div className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg" style={{background:"#F0F0F0",color:"#888"}}>{user.avatar}</div>}<div><h1 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:20}}>{user.name}</h1><p style={{fontSize:12,color:"#BBB"}}>{user.role}</p></div></div></FadeIn>
     {user.bio&&<FadeIn delay={40}><p className="mb-4" style={{fontSize:13,color:"#888",lineHeight:1.5}}>{user.bio}</p></FadeIn>}
     {fp&&<FadeIn delay={60}><div className="p-4 rounded-2xl border mb-6" style={{background:"white",borderColor:"#F0F0F0"}}>
@@ -855,7 +855,7 @@ function ProfilePage({user,content,onNavigate}){const posts=content.filter(c=>c.
 
 function WritePage({currentUser,onNavigate,onSubmit}){const[title,setTitle]=useState("");const[pillar,setPillar]=useState("rethink");const[body,setBody]=useState("");
   const submit=()=>{if(!title.trim()||!body.trim())return;onSubmit({id:"p_"+Date.now(),authorId:currentUser.id,pillar,type:"post",title:title.trim(),paragraphs:body.split("\n\n").filter(p=>p.trim()),reactions:{},highlights:{},marginNotes:[],tags:[],createdAt:new Date().toISOString().split("T")[0],sundayCycle:null,featured:false,endorsements:0,comments:[],challenges:[]});onNavigate("home")};
-  return <div className="min-h-screen" style={{paddingTop:56,background:"#0F0F1A"}}><div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+  return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
     <FadeIn><h1 className="font-bold mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:20}}>Write</h1></FadeIn>
     <div className="flex gap-2 mb-3">{Object.values(PILLARS).map(p=><button key={p.key} onClick={()=>setPillar(p.key)} className="flex items-center gap-1 px-2.5 py-1 rounded-full font-semibold transition-all text-xs" style={{background:pillar===p.key?p.lightBg:"white",color:pillar===p.key?p.color:"#CCC",border:`1.5px solid ${pillar===p.key?p.color:"#F0F0F0"}`}}><PillarIcon pillar={p.key} size={11}/>{p.label}</button>)}</div>
     <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="Title..." className="w-full text-lg font-bold mb-3 p-3 rounded-xl border focus:outline-none" style={{fontFamily:"'Instrument Serif',Georgia,serif",borderColor:"#F0F0F0",color:"#2D2D2D"}}/>
@@ -867,15 +867,15 @@ function LoginModal({onClose,onLogin}){
   const[loading,setLoading]=useState(false);const[error,setError]=useState("");
   const handleGoogle=async()=>{setLoading(true);setError("");const u=await signInWithGoogle();if(u){DB.set("user",u);onLogin(u)}else{setError("Sign-in failed. Check Firebase config.")}setLoading(false)};
   return <div className="fixed inset-0 flex items-center justify-center p-4" style={{zIndex:100}} onClick={onClose}>
-    <div className="absolute inset-0" style={{background:"rgba(0,0,0,0.5)",backdropFilter:"blur(12px)"}}/>
-    <FadeIn><div className="relative w-full rounded-2xl overflow-hidden" onClick={e=>e.stopPropagation()} style={{maxWidth:340,background:"#1E1E2E",boxShadow:"0 16px 40px rgba(0,0,0,0.4)"}}>
+    <div className="absolute inset-0" style={{background:"rgba(0,0,0,0.3)",backdropFilter:"blur(12px)"}}/>
+    <FadeIn><div className="relative w-full rounded-2xl overflow-hidden" onClick={e=>e.stopPropagation()} style={{maxWidth:340,background:"#FFFFFF",boxShadow:"0 16px 40px rgba(0,0,0,0.15)"}}>
       <div style={{height:3,background:"linear-gradient(90deg,#3B6B9B,#E8734A,#2D8A6E)"}}/>
-      <button onClick={onClose} className="absolute" style={{top:12,right:12,fontSize:12,color:"rgba(255,255,255,0.3)"}}>{"✕"}</button>
+      <button onClick={onClose} className="absolute" style={{top:12,right:12,fontSize:12,color:"rgba(0,0,0,0.3)"}}>{"✕"}</button>
       <div className="p-5">
-        <h2 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA",fontSize:16}}>Join Re³</h2>
-        <p className="mb-4" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(255,255,255,0.45)"}}>Sign in to think together</p>
+        <h2 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:16}}>Join Re³</h2>
+        <p className="mb-4" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.45)"}}>Sign in to think together</p>
         {error&&<p className="mb-3 p-2 rounded-lg text-xs" style={{background:"rgba(229,62,62,0.1)",color:"#E53E3E"}}>{error}</p>}
-        <button onClick={handleGoogle} disabled={loading} className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-medium hover:shadow-md transition-all text-sm" style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",color:"#EAEAEA",opacity:loading?0.6:1}}>
+        <button onClick={handleGoogle} disabled={loading} className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-medium hover:shadow-md transition-all text-sm" style={{background:"rgba(0,0,0,0.06)",border:"1px solid rgba(0,0,0,0.05)",color:"#2D2D2D",opacity:loading?0.6:1}}>
           <svg width="16" height="16" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
           {loading?"Signing in...":"Continue with Google"}
         </button>
@@ -883,8 +883,8 @@ function LoginModal({onClose,onLogin}){
     </div></FadeIn>
   </div>}
 
-function Disclaimer(){return <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3" style={{borderTop:"1px solid rgba(255,255,255,0.04)"}}>
-  <p style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:"rgba(255,255,255,0.15)",lineHeight:1.6,maxWidth:640}}>Re³ is an experimental project by Nitesh Srivastava. Content is generated through human-AI synthesis for speculative, educational, and research purposes only. Not for reproduction without attribution. Use with caution.</p>
+function Disclaimer(){return <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3" style={{borderTop:"1px solid rgba(0,0,0,0.04)"}}>
+  <p style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:"rgba(0,0,0,0.1)",lineHeight:1.6,maxWidth:640}}>Re³ is an experimental project by Nitesh Srivastava. Content is generated through human-AI synthesis for speculative, educational, and research purposes only. Not for reproduction without attribution. Use with caution.</p>
 </div>}
 
 // ==================== URL ROUTING HELPERS ====================
@@ -969,11 +969,11 @@ function Re3(){
     case"write":if(!user){setShowLogin(true);nav("home");return null}return <WritePage currentUser={user} onNavigate={nav} onSubmit={addPost}/>;
     default:return <HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
   }};
-  return <div className="min-h-screen" style={{background:"#0F0F1A"}}>
+  return <div className="min-h-screen" style={{background:"#FAFAF8"}}>
     <Header onNavigate={nav} currentPage={page} currentUser={user} onLogin={()=>setShowLogin(true)} onLogout={logout}/>
     {render()}
     {showLogin&&<LoginModal onClose={()=>setShowLogin(false)} onLogin={(u)=>{setUser(u);setShowLogin(false)}}/>}
-    <footer className="py-5" style={{borderTop:"1px solid rgba(255,255,255,0.06)",background:"#0A0A14"}}><div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2"><div className="flex items-center gap-2"><span className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#EAEAEA",fontSize:15}}>Re</span><span className="font-black px-1 rounded" style={{fontSize:8,background:"linear-gradient(135deg,#E8734A,#F4A261)",color:"white"}}>3</span><span className="ml-2 hidden sm:inline" style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(255,255,255,0.25)"}}>Where human intuition meets machine foresight</span></div><span style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:"rgba(255,255,255,0.15)"}}>A Nitesh Srivastava project</span></div></footer>
+    <footer className="py-5" style={{borderTop:"1px solid rgba(0,0,0,0.06)",background:"#F5F5F5"}}><div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2"><div className="flex items-center gap-2"><span className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:15}}>Re</span><span className="font-black px-1 rounded" style={{fontSize:8,background:"linear-gradient(135deg,#E8734A,#F4A261)",color:"white"}}>3</span><span className="ml-2 hidden sm:inline" style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.35)"}}>Where human intuition meets machine foresight</span></div><span style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:"rgba(0,0,0,0.1)"}}>A Nitesh Srivastava project</span></div></footer>
     <Disclaimer/>
   </div>;
 }
