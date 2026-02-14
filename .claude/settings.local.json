@@ -10,7 +10,12 @@
       "Bash(npm run build:*)",
       "Bash(npx next build:*)",
       "Bash(npm install)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh auth:*)",
+      "mcp__server-filesystem__read_text_file",
+      "Bash(python:*)",
+      "Bash(pip install:*)"
     ]
   }
 }
