@@ -12,9 +12,9 @@ const nextConfig = {
   async rewrites() {
     return [
       { source: "/loom", destination: "/" },
+      { source: "/forge", destination: "/" },
       { source: "/studio", destination: "/" },
       { source: "/agents", destination: "/" },
-      { source: "/bridges", destination: "/" },
       { source: "/write", destination: "/" },
       { source: "/post/:id", destination: "/" },
       { source: "/article/:id", destination: "/" },
