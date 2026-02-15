@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
+import { useState, useEffect, useCallback, useRef, lazy, Suspense, Fragment } from "react";
 import "./globals.css";
 
 const ADMIN_EMAIL = "nitesh4learning@gmail.com";
@@ -295,7 +295,7 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
           <div className="flex items-center gap-2 flex-wrap">{[["rethink","Question"],["rediscover","Connect"],["reinvent","Build"]].map(([pk,lb],idx)=><><div key={pk} className="flex items-center gap-1 px-2.5 py-1 rounded-full" style={{background:`${PILLARS[pk].color}20`}}><PillarIcon pillar={pk} size={12}/><span className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:PILLARS[pk].color}}>{lb}</span></div>{idx<2&&<span style={{color:"rgba(0,0,0,0.2)"}}>&rarr;</span>}</>)}</div>
         </div></FadeIn>
         <FadeIn delay={200}><div className="flex flex-wrap items-center gap-2 sm:gap-0" style={{padding:"16px 24px",borderRadius:12,background:"rgba(255,255,255,0.7)",border:"1px solid rgba(0,0,0,0.06)"}}>
-          {[["💡","Question","A human poses a question or idea","#3B6B9B"],["🤖",`${activeAgentCount} Agents`,"Diverse AI perspectives activate","#E8734A"],["⚔️","Debate","Agents challenge & refine positions","#8B5CF6"],["💡","Ideate","Generate novel solutions together","#2D8A6E"],["🔨","Implement","Build actionable architectures","#E8734A"],["✨","Synthesis","Weave insights into The Loom","#3B6B9B"]].map(([icon,label,desc,color],i)=><React.Fragment key={label+i}>{i>0&&<span className="hidden sm:block mx-1" style={{color:"rgba(0,0,0,0.15)",fontSize:14}}>→</span>}<div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg" style={{minWidth:"fit-content"}}><span style={{fontSize:16}}>{icon}</span><div><div className="font-bold" style={{fontFamily:"'Inter',sans-serif",fontSize:11,color,lineHeight:1.2}}>{label}</div><div className="hidden md:block" style={{fontFamily:"'Inter',sans-serif",fontSize:9,color:"rgba(0,0,0,0.35)",lineHeight:1.3}}>{desc}</div></div></div></React.Fragment>)}
+          {[["💡","Question","A human poses a question or idea","#3B6B9B"],["🤖",`${activeAgentCount} Agents`,"Diverse AI perspectives activate","#E8734A"],["⚔️","Debate","Agents challenge & refine positions","#8B5CF6"],["💡","Ideate","Generate novel solutions together","#2D8A6E"],["🔨","Implement","Build actionable architectures","#E8734A"],["✨","Synthesis","Weave insights into The Loom","#3B6B9B"]].map(([icon,label,desc,color],i)=><Fragment key={label+i}>{i>0&&<span className="hidden sm:block mx-1" style={{color:"rgba(0,0,0,0.15)",fontSize:14}}>→</span>}<div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg" style={{minWidth:"fit-content"}}><span style={{fontSize:16}}>{icon}</span><div><div className="font-bold" style={{fontFamily:"'Inter',sans-serif",fontSize:11,color,lineHeight:1.2}}>{label}</div><div className="hidden md:block" style={{fontFamily:"'Inter',sans-serif",fontSize:9,color:"rgba(0,0,0,0.35)",lineHeight:1.3}}>{desc}</div></div></div></Fragment>)}
         </div></FadeIn>
       </div>
     </section>
@@ -312,7 +312,7 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
           <div style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.4)",lineHeight:1.5}}>{p.key==="rethink"?"Deconstruct assumptions and question foundations":p.key==="rediscover"?"Find hidden patterns across disciplines":"Build implementable architectures"}</div>
         </div></FadeIn>)}
       </div>
-      <div className="flex justify-center mt-4"><div className="flex items-center gap-1">{Object.values(PILLARS).map((p,i)=><React.Fragment key={p.key}><div style={{width:60,height:3,borderRadius:2,background:p.color,opacity:0.5}}/>{i<2&&<div style={{width:12,height:3,borderRadius:2,background:"rgba(0,0,0,0.1)"}}/>}</React.Fragment>)}</div></div>
+      <div className="flex justify-center mt-4"><div className="flex items-center gap-1">{Object.values(PILLARS).map((p,i)=><Fragment key={p.key}><div style={{width:60,height:3,borderRadius:2,background:p.color,opacity:0.5}}/>{i<2&&<div style={{width:12,height:3,borderRadius:2,background:"rgba(0,0,0,0.1)"}}/>}</Fragment>)}</div></div>
     </section>
 
     {/* BENTO: Latest Cycle */}
