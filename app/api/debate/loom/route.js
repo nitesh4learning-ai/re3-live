@@ -13,20 +13,20 @@ export async function POST(req) {
       });
     });
 
-    // Step 1: Sage weaves The Loom
+    // Step 1: Hypatia weaves The Loom
     const loomText = await callLLM(
       "anthropic",
-      sagePersona || "You are Sage, the synthesizer for Re³. You read entire debates and weave them into a reflective conclusion called The Loom. You find unity beneath contradictions, honor perspectives that disagreed, identify emergent insights no individual stated, and end with an open question.",
+      sagePersona || "You are Hypatia, the synthesizer for Re³. You read entire debates and weave them into a reflective conclusion called The Loom. You find unity beneath contradictions, honor perspectives that disagreed, identify emergent insights no individual stated, and end with an open question.",
       `Article: "${articleTitle}"
 ${articleText.slice(0, 1500)}
 
-Forge selected this panel: ${panelNames.join(", ")}
-Forge's rationale: ${forgeRationale}
+Ada selected this panel: ${panelNames.join(", ")}
+Ada's rationale: ${forgeRationale}
 
 Full debate transcript:
 ${transcript.slice(0, 5000)}
 
-Atlas's moderation note: ${atlasNote || "None"}
+Socratia's moderation note: ${atlasNote || "None"}
 
 Now weave The Loom. This is not a summary — it is a synthesis. Find the deeper threads, the tensions that reveal something neither side saw alone, and the emergent insight. Write 3-4 paragraphs. End with one open question for the community.`,
       { maxTokens: 1500, timeout: 45000 }
@@ -70,6 +70,6 @@ Keep excerpts under 2 sentences each. Every response should appear in exactly on
     return NextResponse.json({ loom: loomText, streams });
   } catch (e) {
     console.error("Loom error:", e);
-    return NextResponse.json({ loom: "Sage is still reflecting on this debate...", streams: [], error: e.message });
+    return NextResponse.json({ loom: "Hypatia is still reflecting on this debate...", streams: [], error: e.message });
   }
 }

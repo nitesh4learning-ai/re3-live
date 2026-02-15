@@ -359,7 +359,7 @@ Count:  3 tokens`}/>
 
   <Quiz question="Why do LLMs use tokens instead of whole words?" options={["It makes the model faster to train","It allows handling any text, including words the model has never seen","Words are too complicated for computers","It reduces the model's memory usage"]} correctIndex={1} explanation="Tokenization via BPE allows the model to handle any text input, including words it has never seen before, by breaking them into known sub-word pieces. Even made-up words can be tokenized!" onAnswer={()=>onComplete&&onComplete('tokens','quiz1')}/>
 
-  <SeeItInRe3 text="In The Forge, each agent's debate response is measured in tokens. This is why there are length limits on arguments." targetPage="forge" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="In The Ada, each agent's debate response is measured in tokens. This is why there are length limits on arguments." targetPage="forge" onNavigate={onNavigate}/>
 </div>}
 
 // ---- Tab 2: The Context Window ----
@@ -419,7 +419,7 @@ function TabTemperature({onNavigate,onComplete}){return <div>
 
   <Quiz question="You're building a legal compliance checker. What temperature should you use?" options={["Temperature 1.5 for creative legal interpretations","Temperature 0.7 for balanced responses","Temperature 0 or near 0 for consistent, deterministic outputs","Temperature 2.0 to explore all possibilities"]} correctIndex={2} explanation="For legal, medical, and compliance use cases, you want deterministic, reproducible outputs. Temperature 0 ensures the same input always produces the same output, which is critical for audit trails and consistency." onAnswer={()=>onComplete&&onComplete('temperature','quiz1')}/>
 
-  <SeeItInRe3 text="Re\u00b3's AI agents use different temperature settings based on their personality. Sage (the synthesizer) uses lower temperature for accuracy, while creative agents use higher values." targetPage="agent-community" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="Re\u00b3's AI agents use different temperature settings based on their personality. Hypatia (the synthesizer) uses lower temperature for accuracy, while creative agents use higher values." targetPage="agent-community" onNavigate={onNavigate}/>
 </div>}
 
 // ---- Tab 4: How Models Are Trained ----
@@ -537,7 +537,7 @@ If uncertain, say 'I don't have enough data to assess this.'"`}/>
   <PromptBuilder/>
   <Quiz question="What is the most reliable way to ensure consistent AI behavior across different users?" options={["Ask each user to state their preferences","Use a well-crafted system prompt","Set temperature to 0","Use the newest model available"]} correctIndex={1} explanation="System prompts are applied to every interaction automatically. They define role, constraints, and format before any user input, making them the most reliable consistency mechanism." onAnswer={()=>onComplete&&onComplete('system-prompts','quiz1')}/>
   <Quiz question="Which element should NOT typically be in a system prompt?" options={["Role definition","Output format requirements","The user's private data","Behavioral constraints"]} correctIndex={2} explanation="System prompts should define role, format, and constraints -- never include private user data, which could leak in outputs or logs." onAnswer={()=>onComplete&&onComplete('system-prompts','quiz2')}/>
-  <SeeItInRe3 text="In The Forge, each debater agent receives a detailed system prompt defining their persona, expertise area, and debate style. This is why each agent argues differently." targetPage="forge" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="In The Ada, each debater agent receives a detailed system prompt defining their persona, expertise area, and debate style. This is why each agent argues differently." targetPage="forge" onNavigate={onNavigate}/>
 </div>}
 
 function TabFewShot({onNavigate,onComplete}){return <div>
@@ -584,7 +584,7 @@ function TabChainOfThought({onNavigate,onComplete}){return <div>
   </ExpandableSection>
   <Quiz question="When does Chain-of-Thought prompting provide the biggest improvement?" options={["Simple factual questions","Complex multi-step reasoning tasks","Creative writing","Translation between languages"]} correctIndex={1} explanation="CoT provides the biggest gains on tasks requiring multi-step reasoning -- math, logic, analysis, and planning. For simple recall or creative tasks, it adds little value." onAnswer={()=>onComplete&&onComplete('cot','quiz1')}/>
   <Quiz question="What is the simplest way to activate chain-of-thought reasoning?" options={["Use a larger model","Set temperature to 1.0","Add 'Let\\'s think step by step' to your prompt","Use few-shot examples"]} correctIndex={2} explanation="Research shows that simply adding 'Let\\'s think step by step' to the end of a prompt can trigger chain-of-thought reasoning, improving accuracy on complex tasks by 20-40%." onAnswer={()=>onComplete&&onComplete('cot','quiz2')}/>
-  <SeeItInRe3 text="Re\u00b3's Sage agent uses chain-of-thought reasoning when synthesizing debate arguments into The Loom -- breaking down complex multi-perspective analysis into structured steps." targetPage="loom" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="Re\u00b3's Hypatia agent uses chain-of-thought reasoning when synthesizing debate arguments into The Loom -- breaking down complex multi-perspective analysis into structured steps." targetPage="loom" onNavigate={onNavigate}/>
 </div>}
 
 function TabPEPlayground({onNavigate,onComplete}){return <div>
@@ -708,7 +708,7 @@ function TabVectorDBs({onNavigate,onComplete}){return <div>
     <p className="mt-3">HNSW trades ~5% accuracy for 100x speed improvement. For most applications, the small accuracy loss is negligible.</p>
   </ExpandableSection>
   <Quiz question="Why do vector databases use Approximate Nearest Neighbor instead of exact search?" options={["ANN gives better results","Exact search is too slow for millions of vectors","ANN uses less storage","Exact search doesn't work with high dimensions"]} correctIndex={1} explanation="Exact search requires comparing your query against every vector in the database -- this is O(n) and too slow for millions of vectors. ANN algorithms like HNSW provide near-perfect results in milliseconds." onAnswer={()=>onComplete&&onComplete('vector-dbs','quiz1')}/>
-  <SeeItInRe3 text="Re\u00b3 uses vector search to find relevant articles when the Forge selects content for debates. Your query becomes a vector, and similar article vectors are found instantly." targetPage="forge" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="Re\u00b3 uses vector search to find relevant articles when Ada selects content for debates. Your query becomes a vector, and similar article vectors are found instantly." targetPage="forge" onNavigate={onNavigate}/>
 </div>}
 
 function TabEmbPlayground({onNavigate,onComplete}){return <div>
@@ -819,7 +819,7 @@ SEMANTIC SEARCH finds: Documents with similar MEANING
   ✓ "Changing a tire step-by-step" (related topic)
   ✓ "Roadside emergency tire fix" (synonymous intent)`}/>
   <Quiz question="Why is semantic search better than keyword search for RAG?" options={["It's faster","It finds documents by meaning, not just matching words","It uses less storage","It doesn't need embeddings"]} correctIndex={1} explanation="Semantic search understands meaning, so 'fix a flat tire' matches 'puncture repair guide' even without shared keywords. This dramatically improves retrieval quality." onAnswer={()=>onComplete&&onComplete('rag-embeddings','quiz1')}/>
-  <SeeItInRe3 text="When you submit an article to Re\u00b3's Forge, the system uses semantic search to find related articles and themes -- exactly this embedding-based retrieval process." targetPage="forge" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="When you submit an article to Re\u00b3's Ada, the system uses semantic search to find related articles and themes -- exactly this embedding-based retrieval process." targetPage="forge" onNavigate={onNavigate}/>
 </div>}
 
 function TabRAGPipeline({onNavigate,onComplete}){return <div>
@@ -1017,7 +1017,7 @@ async def get_greeting(name: str) -> str:
     <p className="mt-3">This convention-over-configuration approach means writing an MCP server is almost as simple as writing a regular Python function.</p>
   </ExpandableSection>
   <Quiz question="What does the MCP SDK auto-generate from a Python function?" options={["The server's hosting infrastructure","The tool's name, description, and input schema","The client-side UI","Test cases for the tool"]} correctIndex={1} explanation="The SDK inspects the function name (tool name), docstring (description), and type hints (input schema) to automatically generate the complete MCP tool definition." onAnswer={()=>onComplete&&onComplete('mcp-build','quiz1')}/>
-  <SeeItInRe3 text="Re\u00b3's Forge could be exposed as an MCP server -- offering tools like 'search_articles', 'start_debate', and 'get_loom_synthesis' to any MCP-compatible AI client." targetPage="forge" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="Re\u00b3's Ada could be exposed as an MCP server -- offering tools like 'search_articles', 'start_debate', and 'get_loom_synthesis' to any MCP-compatible AI client." targetPage="forge" onNavigate={onNavigate}/>
 </div>}
 
 function TabMCPPlayground({onNavigate,onComplete}){return <div>
@@ -1072,8 +1072,8 @@ function TabAgentCards({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Agent Cards</h2>
   <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>An <b>Agent Card</b> is a JSON document that describes what an AI agent can do. It's like a LinkedIn profile for AI agents -- advertising capabilities so other agents know who to collaborate with.</p>
   <AnalogyBox emoji={'\uD83D\uDCBC'} title="Think of it like a business card + resume">An Agent Card tells other agents: "Here's my name, what I specialize in, how to reach me, and what I can help with." It enables discovery and capability negotiation.</AnalogyBox>
-  <CodeBlock language="json" label="Example Agent Card (Re\u00b3 Forge)" code={`{
-  "name": "Re\u00b3 Forge Agent",
+  <CodeBlock language="json" label="Example Agent Card (Re\u00b3 Ada)" code={`{
+  "name": "Re\u00b3 Ada Agent",
   "description": "Orchestrates multi-agent debates on any topic",
   "url": "https://re3.live/api/a2a",
   "capabilities": {
@@ -1094,7 +1094,7 @@ function TabAgentCards({onNavigate,onComplete}){return <div>
   ]
 }`}/>
   <Quiz question="What is the primary purpose of an Agent Card?" options={["To authenticate the agent","To describe capabilities for discovery by other agents","To store the agent's conversation history","To define the agent's pricing"]} correctIndex={1} explanation="Agent Cards enable discovery -- other agents can find and understand what capabilities are available, then decide whether to collaborate." onAnswer={()=>onComplete&&onComplete('agent-cards','quiz1')}/>
-  <SeeItInRe3 text="Each Re\u00b3 agent (Forge, Atlas, Sage) could publish an Agent Card describing their debate capabilities, allowing external AI systems to discover and collaborate with them." targetPage="agent-community" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="Each Re\u00b3 agent (Ada, Socratia, Hypatia) could publish an Agent Card describing their debate capabilities, allowing external AI systems to discover and collaborate with them." targetPage="agent-community" onNavigate={onNavigate}/>
 </div>}
 
 function TabTaskLifecycle({onNavigate,onComplete}){return <div>
@@ -1384,8 +1384,8 @@ function TabRolesPatterns({onNavigate,onComplete}){return <div>
     </table>
   </div>
   <PatternMatcher/>
-  <SeeItInRe3 text="Re\u00b3 uses the Debate Pattern: Forge curates the panel, Atlas moderates quality, specialized debater agents argue positions, and Sage synthesizes insights into The Loom." targetPage="forge" onNavigate={onNavigate}/>
-  <Quiz question="Re\u00b3 uses which orchestration pattern?" options={["Orchestrator","Debate","Pipeline","Consensus"]} correctIndex={1} explanation="Re\u00b3 uses the Debate Pattern -- agents present arguments, engage in multiple rounds, and a synthesizer (Sage) draws emergent insights from the collective discussion." onAnswer={()=>onComplete&&onComplete('roles-patterns','quiz1')}/>
+  <SeeItInRe3 text="Re\u00b3 uses the Debate Pattern: Ada curates the panel, Socratia moderates quality, specialized debater agents argue positions, and Hypatia synthesizes insights into The Loom." targetPage="forge" onNavigate={onNavigate}/>
+  <Quiz question="Re\u00b3 uses which orchestration pattern?" options={["Orchestrator","Debate","Pipeline","Consensus"]} correctIndex={1} explanation="Re\u00b3 uses the Debate Pattern -- agents present arguments, engage in multiple rounds, and a synthesizer (Hypatia) draws emergent insights from the collective discussion." onAnswer={()=>onComplete&&onComplete('roles-patterns','quiz1')}/>
 </div>}
 
 function TabStateMemory({onNavigate,onComplete}){return <div>
@@ -1428,7 +1428,7 @@ function TabFrameworks({onNavigate,onComplete}){return <div>
     </table>
   </div>
   <Quiz question="Which framework is best for building a graph-based workflow with loops and conditional branching?" options={["CrewAI","LangGraph","AutoGen","Flask"]} correctIndex={1} explanation="LangGraph is specifically designed for graph-based workflows. Its nodes-and-edges model naturally supports cycles, branches, and conditional routing between agent steps." onAnswer={()=>onComplete&&onComplete('frameworks','quiz1')}/>
-  <SeeItInRe3 text="Re\u00b3 built its own orchestration framework for debates, using a round-based flow: Forge (select) \u2192 Rounds (debate) \u2192 Atlas (moderate) \u2192 Sage (synthesize)." targetPage="agent-community" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="Re\u00b3 built its own orchestration framework for debates, using a round-based flow: Ada (select) \u2192 Rounds (debate) \u2192 Socratia (moderate) \u2192 Hypatia (synthesize)." targetPage="agent-community" onNavigate={onNavigate}/>
 </div>}
 
 function TabMAPlayground({onNavigate,onComplete}){return <div>
@@ -1438,7 +1438,7 @@ function TabMAPlayground({onNavigate,onComplete}){return <div>
     <Quiz question="You're building a content pipeline: research \u2192 write \u2192 edit \u2192 SEO optimize. Which pattern?" options={["Debate -- agents discuss the content","Pipeline -- each stage feeds the next","Consensus -- all agents must agree","Orchestrator -- one agent manages all"]} correctIndex={1} explanation="A sequential workflow where each stage's output becomes the next stage's input is the textbook Pipeline pattern." onAnswer={()=>onComplete&&onComplete('ma-playground','quiz1')}/>
   </ExpandableSection>
   <ExpandableSection title="Exercise 2: Re\u00b3 Architecture" icon={'\uD83E\uDD16'}>
-    <Quiz question="In Re\u00b3, what role does Atlas play?" options={["Selects which agents participate","Moderates debate quality and scores arguments","Synthesizes the final Loom output","Generates the initial article"]} correctIndex={1} explanation="Atlas is the moderator -- it evaluates argument quality, assigns scores, and ensures the debate stays on-topic and productive." onAnswer={()=>onComplete&&onComplete('ma-playground','quiz2')}/>
+    <Quiz question="In Re\u00b3, what role does Socratia play?" options={["Selects which agents participate","Moderates debate quality and scores arguments","Synthesizes the final Loom output","Generates the initial article"]} correctIndex={1} explanation="Socratia is the moderator -- it evaluates argument quality, assigns scores, and ensures the debate stays on-topic and productive." onAnswer={()=>onComplete&&onComplete('ma-playground','quiz2')}/>
   </ExpandableSection>
   <ExpandableSection title="Exercise 3: Trade-offs" icon={'\u2696\uFE0F'}>
     <Quiz question="What is the biggest challenge of multi-agent systems?" options={["They're always slower than single agents","Coordinating state and managing complexity","They require more GPU memory","They can only use one LLM provider"]} correctIndex={1} explanation="The biggest challenge is coordination complexity -- managing shared state, ensuring agents communicate effectively, handling failures, and debugging interactions across multiple agents." onAnswer={()=>onComplete&&onComplete('ma-playground','quiz3')}/>
@@ -1630,7 +1630,7 @@ function TabEvalFrameworks({onNavigate,onComplete}){return <div>
   </div>
   <Quiz question="Users report that your AI sometimes includes information not found in the source documents. Which metric is low?" options={["Answer Relevancy","Context Precision","Faithfulness","Coherence"]} correctIndex={2} explanation="Faithfulness measures whether the answer is grounded in the retrieved context. Low faithfulness means the LLM is generating information beyond what was retrieved -- hallucinating." onAnswer={()=>onComplete&&onComplete('eval-frameworks','quiz1')}/>
   <Quiz question="Your RAG system retrieves mostly irrelevant documents. Which metric would flag this?" options={["Faithfulness","Context Precision","Answer Relevancy","Coherence"]} correctIndex={1} explanation="Context Precision measures whether the retrieved documents are actually relevant to the query. Low precision means the retrieval step is returning too much irrelevant content." onAnswer={()=>onComplete&&onComplete('eval-frameworks','quiz2')}/>
-  <SeeItInRe3 text="Re\u00b3's Atlas agent acts as a quality evaluator -- scoring debate arguments for relevance, depth, and accuracy. This is AI evaluation applied to a debate system." targetPage="forge" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="Re\u00b3's Socratia agent acts as a quality evaluator -- scoring debate arguments for relevance, depth, and accuracy. This is AI evaluation applied to a debate system." targetPage="forge" onNavigate={onNavigate}/>
 </div>}
 
 function TabObsPlayground({onNavigate,onComplete}){return <div>

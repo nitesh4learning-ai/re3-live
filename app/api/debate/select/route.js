@@ -37,7 +37,7 @@ export async function POST(req) {
 
     const response = await callLLM(
       "anthropic",
-      forgePersona || "You are Forge, a panel curator. You read articles and select the most relevant agents that will create productive friction and diverse perspectives.",
+      forgePersona || "You are Ada, a panel curator. You read articles and select the most relevant agents that will create productive friction and diverse perspectives.",
       `Article title: "${articleTitle}"
 Article content: ${articleText.slice(0, 2000)}
 
@@ -59,7 +59,7 @@ Respond in JSON only:
     );
 
     const match = response.match(/\{[\s\S]*\}/);
-    if (!match) return NextResponse.json({ error: "Failed to parse Forge response" }, { status: 500 });
+    if (!match) return NextResponse.json({ error: "Failed to parse Ada response" }, { status: 500 });
     const parsed = JSON.parse(match[0]);
 
     // Validate selected agents exist
@@ -68,7 +68,7 @@ Respond in JSON only:
 
     return NextResponse.json({ selected, rationale: parsed.rationale || "" });
   } catch (e) {
-    console.error("Forge select error:", e);
+    console.error("Ada select error:", e);
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }

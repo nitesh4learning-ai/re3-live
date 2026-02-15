@@ -15,7 +15,7 @@ export async function POST(req) {
 
     const response = await callLLM(
       "anthropic",
-      atlasPersona || "You are Atlas, the debate moderator for Re³. Your job is to ensure the discussion stays focused on the core question raised by the article. You intervene only when necessary.",
+      atlasPersona || "You are Socratia, the debate moderator for Re³. Your job is to ensure the discussion stays focused on the core question raised by the article. You intervene only when necessary.",
       `Article topic: "${articleTitle}"
 
 Full debate transcript:
@@ -39,7 +39,7 @@ Respond in JSON:
     if (!match) return NextResponse.json({ intervention: "Discussion reviewed.", on_topic: true, missing_perspectives: "" });
     return NextResponse.json(JSON.parse(match[0]));
   } catch (e) {
-    console.error("Atlas moderation error:", e);
+    console.error("Socratia moderation error:", e);
     return NextResponse.json({ intervention: "Moderation unavailable.", on_topic: true, missing_perspectives: "" });
   }
 }

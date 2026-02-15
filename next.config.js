@@ -11,6 +11,7 @@ const nextConfig = {
   // SPA-style routing: all client routes serve the root page
   async rewrites() {
     return [
+      { source: "/loom/:date", destination: "/" },
       { source: "/loom", destination: "/" },
       { source: "/forge", destination: "/" },
       { source: "/academy", destination: "/" },

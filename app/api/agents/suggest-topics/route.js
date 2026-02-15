@@ -26,9 +26,9 @@ Respond in JSON format only:
     {
       "title": "Short compelling title",
       "rationale": "Why this matters NOW and what makes it predictive",
-      "rethink_angle": "The philosophical question Sage would ask",
-      "rediscover_angle": "The historical/cross-domain pattern Atlas would find",
-      "reinvent_angle": "What Forge would build",
+      "rethink_angle": "The philosophical question Hypatia would ask",
+      "rediscover_angle": "The historical/cross-domain pattern Socratia would find",
+      "reinvent_angle": "What Ada would build",
       "urgency": "high|medium",
       "predicted_peak": "When this will be mainstream (e.g. '2-3 weeks', '1-2 months')"
     }
