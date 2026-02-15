@@ -247,7 +247,7 @@ function CycleCard({cycle,onNavigate,variant="default"}){
 function Header({onNavigate,currentPage,currentUser,onLogin,onLogout}){
   const[sc,setSc]=useState(false);const[mob,setMob]=useState(false);
   useEffect(()=>{const fn=()=>setSc(window.scrollY>10);window.addEventListener("scroll",fn);return()=>window.removeEventListener("scroll",fn)},[]);
-  const navItems=[["home","Home"],["loom","The Loom"],["studio","My Studio"],["agent-community","Agent Community"],["bridges","Bridges"]];
+  const navItems=[["home","Home"],["loom","The Loom"],["studio","My Studio"],["agent-community","Agent Atlas"],["bridges","Bridges"]];
   return <><header className="fixed top-0 left-0 right-0 z-50 transition-all" style={{background:sc?"rgba(255,255,255,0.95)":"rgba(255,255,255,0.85)",backdropFilter:"blur(20px)",borderBottom:sc?"1px solid rgba(0,0,0,0.08)":"1px solid transparent"}}>
     <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between" style={{height:56}}>
       <button onClick={()=>{onNavigate("home");setMob(false)}} className="flex items-center gap-1">
@@ -272,7 +272,7 @@ function Header({onNavigate,currentPage,currentUser,onLogin,onLogout}){
 }
 
 // ==================== HOME PAGE — Dark bento grid ====================
-function HomePage({content,themes,blindSpots,articles,onNavigate,onVoteTheme}){
+function HomePage({content,themes,blindSpots,articles,onNavigate,onVoteTheme,registry}){
   const cycles = getCycles(content);
   const bridges = content.filter(c=>c.type==="bridge");
   const debatedArticles = (articles||[]).filter(a=>a.debate?.loom);
@@ -281,7 +281,7 @@ function HomePage({content,themes,blindSpots,articles,onNavigate,onVoteTheme}){
   const hero = cycles[0];
   const featured = cycles.slice(1, 4);
   const totalPosts=content.filter(c=>c.type==="post").length;
-  const activeAgentCount=25;
+  const activeAgentCount=(registry?.totalAgents||25);
   return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}>
     {/* DARK HERO */}
     <section className="relative overflow-hidden" style={{background:"linear-gradient(135deg,#FAFAF8 0%,#F0F4F8 50%,#F5F0EB 100%)"}}>
@@ -316,9 +316,9 @@ function HomePage({content,themes,blindSpots,articles,onNavigate,onVoteTheme}){
           {featured.length>0?<div className="space-y-2">{featured.map(c=><button key={c.date} onClick={()=>onNavigate("post",c.posts[0]?.id)} className="w-full text-left p-3 rounded-xl transition-all" style={{background:"rgba(0,0,0,0.02)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(0,0,0,0.06)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(0,0,0,0.02)"}><div className="flex items-center gap-2 mb-1"><span className="font-bold px-2 py-0.5 rounded-full" style={{fontFamily:"'Inter',sans-serif",fontSize:10,background:"rgba(0,0,0,0.04)",color:"rgba(0,0,0,0.5)"}}>Cycle {c.number}</span><span style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:"rgba(0,0,0,0.3)"}}>{fmtS(c.date)}</span></div><h4 className="font-semibold text-sm" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D"}}>{c.rethink?.title||c.rediscover?.title||c.reinvent?.title}</h4></button>)}</div>:<p style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.3)"}}>Cycles will appear here as they are created.</p>}
         </div></FadeIn>
         <FadeIn delay={40}><div className="rounded-2xl p-5" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}}>
-          <div className="flex items-center justify-between mb-3"><h3 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Agents</h3><button onClick={()=>onNavigate("agent-community")} className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:"#E8734A"}}>Meet the panel &rarr;</button></div>
-          <p className="mb-3" style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.4)"}}>25 active &middot; 3 orchestrators</p>
-          <div className="flex flex-wrap gap-1">{INIT_AGENTS.slice(0,12).map(a=><div key={a.id} className="w-7 h-7 rounded-full flex items-center justify-center font-bold" style={{background:`${a.color}20`,color:a.color,fontSize:7,border:`1px solid ${a.color}30`}}>{a.avatar}</div>)}<div className="w-7 h-7 rounded-full flex items-center justify-center font-bold" style={{background:"rgba(0,0,0,0.03)",color:"rgba(0,0,0,0.4)",fontSize:8}}>+13</div></div>
+          <div className="flex items-center justify-between mb-3"><h3 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Agent Atlas</h3><button onClick={()=>onNavigate("agent-community")} className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:"#E8734A"}}>Explore &rarr;</button></div>
+          <p className="mb-3" style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.4)"}}>{activeAgentCount} agents &middot; {registry?.domains?.length||0} domains &middot; 3 orchestrators</p>
+          <div className="flex flex-wrap gap-1">{(registry?.domains||[]).slice(0,6).map(d=><div key={d.id} className="px-2 py-0.5 rounded-full" style={{fontSize:8,background:`${d.color}12`,color:d.color,border:`1px solid ${d.color}25`}}>{d.name.split("&")[0].trim()}</div>)}{registry&&registry.domains.length>6&&<div className="px-2 py-0.5 rounded-full" style={{fontSize:8,background:"rgba(0,0,0,0.03)",color:"rgba(0,0,0,0.35)"}}>+{registry.domains.length-6}</div>}</div>
         </div></FadeIn>
       </div>
     </section>
@@ -365,16 +365,76 @@ function HomePage({content,themes,blindSpots,articles,onNavigate,onVoteTheme}){
   </div>
 }
 
+// ==================== TRIPTYCH COMPONENTS ====================
+function TriptychCard({cycle,onExpand}){
+  const[hovered,setHovered]=useState(false);
+  const pillars=[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean);
+  const getKeyConcept=(post)=>{if(!post)return"";const w=post.title.split(" ");return w.slice(0,7).join(" ")+(w.length>7?"...":"")};
+  const connectionDensity=cycle.posts.reduce((sum,p)=>sum+(p.debate?.streams?.length||0),0);
+  const cardStyle=(i)=>{const rot=[-3,0,3];const off=[-20,0,20];const hRot=[-6,0,6];const hOff=[-50,0,50];const z=[1,3,2];const p=pillars[i];const pc=PILLARS[p?.pillar]?.color||"#CCC";
+    return{position:"absolute",width:"60%",height:"100%",left:"50%",top:0,transform:`translateX(calc(-50% + ${hovered?hOff[i]:off[i]}px)) rotate(${hovered?hRot[i]:rot[i]}deg)`,zIndex:z[i],background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)",borderTop:`4px solid ${pc}`,borderRadius:12,boxShadow:hovered?"0 4px 20px rgba(0,0,0,0.1)":"0 2px 12px rgba(0,0,0,0.05)",transition:"all 0.35s cubic-bezier(0.22,1,0.36,1)",overflow:"hidden",padding:12}};
+  return <div className="cursor-pointer" onClick={()=>onExpand(cycle.date)} onMouseEnter={()=>setHovered(true)} onMouseLeave={()=>setHovered(false)}>
+    <div className="flex items-center justify-between mb-3"><div className="flex items-center gap-2"><span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontSize:11,background:"rgba(0,0,0,0.05)",color:"#2D2D2D"}}>Cycle {cycle.number}</span><span style={{fontSize:12,color:"rgba(0,0,0,0.35)"}}>{fmtS(cycle.date)}</span></div>
+      <div className="flex items-center gap-3" style={{fontSize:11,color:"rgba(0,0,0,0.3)"}}><span>{cycle.endorsements} endorsements</span>{connectionDensity>0&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:9,background:"rgba(139,92,246,0.1)",color:"#8B5CF6"}}>{connectionDensity} threads</span>}</div>
+    </div>
+    <div className="relative" style={{height:160,marginBottom:8}}>{pillars.map((post,i)=><div key={post.id} style={cardStyle(i)}>
+      <PillarTag pillar={post.pillar}/>
+      <h4 className="font-bold mt-1.5" style={{fontFamily:"'Instrument Serif',Georgia,serif",fontSize:13,color:"#2D2D2D",lineHeight:1.3,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{getKeyConcept(post)}</h4>
+    </div>)}</div>
+    <div className="text-center"><span className="text-xs" style={{color:hovered?"#8B5CF6":"rgba(0,0,0,0.2)",transition:"color 0.2s"}}>Click to explore &rarr;</span></div>
+  </div>
+}
+
+function TriptychExpanded({cycle,onNavigate,onCollapse}){
+  const pillars=[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean);
+  const getAgentPerspectives=(post)=>{if(!post?.debate?.rounds)return[];return post.debate.rounds.flat().filter(r=>r.status==="success"&&r.response).slice(0,2).map(r=>({name:r.name,excerpt:(r.response||"").slice(0,120)+"..."}))};
+  const synthesisPost=pillars.find(p=>p?.debate?.loom);
+  return <div className="rounded-2xl overflow-hidden mb-2" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 4px 24px rgba(0,0,0,0.08)"}}>
+    <div className="flex items-center justify-between p-4" style={{borderBottom:"1px solid rgba(0,0,0,0.06)"}}>
+      <div className="flex items-center gap-2"><span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontSize:11,background:"rgba(0,0,0,0.05)",color:"#2D2D2D"}}>Cycle {cycle.number}</span><span style={{fontSize:12,color:"rgba(0,0,0,0.35)"}}>{fmtS(cycle.date)}</span></div>
+      <button onClick={onCollapse} className="px-2 py-1 rounded-lg text-xs" style={{color:"rgba(0,0,0,0.3)",border:"1px solid rgba(0,0,0,0.08)"}}>Collapse</button>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-3">{pillars.map((post,i)=>{const pillar=PILLARS[post.pillar];const perspectives=getAgentPerspectives(post);
+      return <div key={post.id} className="p-4" style={{borderRight:i<pillars.length-1?"1px solid rgba(0,0,0,0.06)":"none",borderTop:`3px solid ${pillar.color}`}}>
+        <PillarTag pillar={post.pillar}/>
+        <h3 className="font-bold mt-2 mb-2" style={{fontFamily:"'Instrument Serif',Georgia,serif",fontSize:15,color:"#2D2D2D",lineHeight:1.3}}>{post.title}</h3>
+        <p className="mb-3" style={{fontSize:12,color:"rgba(0,0,0,0.45)",lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.paragraphs?.[0]?.slice(0,180)}...</p>
+        {perspectives.length>0&&<div className="mb-3"><span className="font-bold" style={{fontSize:9,color:"rgba(0,0,0,0.3)",letterSpacing:"0.1em"}}>PERSPECTIVES</span><div className="mt-1 space-y-1">{perspectives.map((p,pi)=><div key={pi} className="p-2 rounded-lg" style={{background:"rgba(0,0,0,0.02)",fontSize:11,color:"#888"}}><span className="font-bold" style={{color:pillar.color}}>{p.name}: </span>{p.excerpt}</div>)}</div></div>}
+        <button onClick={()=>onNavigate("post",post.id)} className="text-xs font-semibold" style={{color:pillar.color}}>Read full post &rarr;</button>
+      </div>})}</div>
+    {synthesisPost?.debate?.loom&&<div className="p-4" style={{background:"linear-gradient(135deg,rgba(59,107,155,0.06),rgba(139,92,246,0.06),rgba(45,138,110,0.06))",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
+      <div className="flex items-center gap-1.5 mb-1"><span style={{fontSize:12}}>&#128296;</span><span className="font-bold text-xs" style={{color:"#3B6B9B"}}>Sage&apos;s Synthesis</span></div>
+      <p style={{fontSize:12,color:"rgba(0,0,0,0.5)",lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{synthesisPost.debate.loom.slice(0,300)}...</p>
+    </div>}
+  </div>
+}
+
 // ==================== THE LOOM — Cycles Archive ====================
 function LoomPage({content,articles,onNavigate}){
-  const cycles = getCycles(content);
-  const debatedArticles = (articles||[]).filter(a=>a.debate?.loom);
-  const debatedPosts = content.filter(c=>c.debate?.loom);
-  const allDebated = [...debatedPosts.map(p=>({...p,_type:"post"})),...debatedArticles.map(a=>({...a,_type:"article"}))];
+  const cycles=getCycles(content);
+  const[expandedCycle,setExpandedCycle]=useState(null);
+  const debatedArticles=(articles||[]).filter(a=>a.debate?.loom);
+  const debatedPosts=content.filter(c=>c.debate?.loom);
+  const allDebated=[...debatedPosts.map(p=>({...p,_type:"post"})),...debatedArticles.map(a=>({...a,_type:"article"}))];
+  const latestDebated=allDebated[0];
   return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,32px)"}}>The Loom</h1><p className="mb-6" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>Every cycle weaves three threads of thinking: question, connect, build. {cycles.length} cycles{allDebated.length>0?` + ${allDebated.length} debate syntheses`:""} so far.</p></FadeIn>
+    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,32px)"}}>The Loom</h1><p className="mb-6" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>Every cycle weaves three threads. {cycles.length} cycles{allDebated.length>0?` + ${allDebated.length} debate syntheses`:""} so far.</p></FadeIn>
 
-    {allDebated.length>0&&<div className="mb-8"><FadeIn><h2 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#8B5CF6",fontSize:20}}>Debate Syntheses</h2></FadeIn>
+    {/* Latest synthesis ribbon */}
+    {latestDebated&&<FadeIn><div className="mb-8 p-4 rounded-2xl" style={{background:"linear-gradient(135deg,rgba(59,107,155,0.08),rgba(139,92,246,0.08),rgba(45,138,110,0.08))",border:"1px solid rgba(139,92,246,0.15)"}}>
+      <div className="flex items-center gap-1.5 mb-2"><span style={{fontSize:14}}>&#128296;</span><span className="font-bold text-sm" style={{color:"#3B6B9B"}}>Latest Synthesis</span></div>
+      <p style={{fontSize:13,color:"rgba(0,0,0,0.5)",lineHeight:1.7,display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{latestDebated.debate?.loom?.slice(0,300)}...</p>
+      <button onClick={()=>onNavigate(latestDebated._type==="article"?"article":"post",latestDebated.id)} className="mt-2 text-xs font-semibold" style={{color:"#8B5CF6"}}>View full debate &rarr;</button>
+    </div></FadeIn>}
+
+    {/* Triptych grid */}
+    <FadeIn><h2 className="font-bold mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:20}}>Synthesis Cycles</h2></FadeIn>
+    <div className="space-y-6">{cycles.length>0?cycles.map((c,i)=><FadeIn key={c.date} delay={i*50}>
+      {expandedCycle===c.date?<TriptychExpanded cycle={c} onNavigate={onNavigate} onCollapse={()=>setExpandedCycle(null)}/>:<TriptychCard cycle={c} onExpand={(date)=>setExpandedCycle(date)}/>}
+    </FadeIn>):<FadeIn><div className="p-6 rounded-2xl text-center" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}}><p style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.3)"}}>No synthesis cycles yet.</p></div></FadeIn>}</div>
+
+    {/* Debate syntheses */}
+    {allDebated.length>0&&<div className="mt-8"><FadeIn><h2 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#8B5CF6",fontSize:20}}>Debate Syntheses</h2></FadeIn>
       <div className="space-y-3">{allDebated.map((a,i)=><FadeIn key={a.id} delay={i*40}><div className="rounded-2xl overflow-hidden" style={{background:"#FFFFFF",border:"1px solid rgba(139,92,246,0.15)"}}>
         <div className="flex" style={{height:3}}><div className="flex-1" style={{background:"linear-gradient(90deg,#3B6B9B,#8B5CF6,#2D8A6E)"}}/></div>
         <div className="p-4">
@@ -389,22 +449,11 @@ function LoomPage({content,articles,onNavigate}){
         </div>
       </div></FadeIn>)}</div>
     </div>}
-
-    <FadeIn><h2 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:20}}>Synthesis Cycles</h2></FadeIn>
-    {/* Timeline layout */}
-    <div className="relative" style={{paddingLeft:24}}>
-      <div className="absolute" style={{left:5,top:0,bottom:0,width:2,background:"linear-gradient(180deg,#8B5CF6,rgba(139,92,246,0.1))"}}/>
-      <div className="space-y-6">{cycles.length>0?cycles.map((c,i)=><FadeIn key={c.date} delay={i*50}><div className="relative">
-        <div className="absolute" style={{left:-24,top:8,width:12,height:12,borderRadius:"50%",background:"#8B5CF6",border:"3px solid #FAFAF8"}}/>
-        <div className="mb-2"><span className="font-bold text-xs" style={{fontFamily:"'Inter',sans-serif",color:"rgba(0,0,0,0.5)"}}>Cycle {c.number} &mdash; {fmtS(c.date)}</span></div>
-        <CycleCard cycle={c} onNavigate={onNavigate} variant="hero"/>
-      </div></FadeIn>):<FadeIn><div className="p-6 rounded-2xl text-center" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}}><p style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.3)"}}>No synthesis cycles yet.</p></div></FadeIn>}</div>
-    </div>
   </div></div>
 }
 
 // ==================== POST PAGE ====================
-function PostPage({post,allContent,onNavigate,currentUser,onEndorse,onComment,onReact,onAddChallenge,onAddMarginNote,agents,onUpdatePost}){
+function PostPage({post,allContent,onNavigate,currentUser,onEndorse,onComment,onReact,onAddChallenge,onAddMarginNote,agents,registry,registryIndex,onUpdatePost}){
   const[comment,setComment]=useState("");const[endorsed,setEndorsed]=useState(false);const[newCh,setNewCh]=useState("");const[showNote,setShowNote]=useState(null);const[noteText,setNoteText]=useState("");
   const author=getAuthor(post.authorId);const pillar=PILLARS[post.pillar];
   const bFrom=post.bridgeFrom?allContent.find(c=>c.id===post.bridgeFrom):null;
@@ -451,8 +500,8 @@ function PostPage({post,allContent,onNavigate,currentUser,onEndorse,onComment,on
     </div>}
 
     {agents&&<div className="mt-8 pt-6" style={{borderTop:"2px solid #F0F0F0"}}>
-      <h2 className="font-bold mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Community Debate</h2>
-      <DebatePanel article={post} agents={agents} onDebateComplete={(debate)=>{if(onUpdatePost)onUpdatePost({...post,debate})}} currentUser={currentUser}/>
+      <h2 className="font-bold mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Agent Workshop</h2>
+      <AgentWorkshop article={post} agents={agents} registry={registry} registryIndex={registryIndex} onDebateComplete={(debate)=>{if(onUpdatePost)onUpdatePost({...post,debate})}} currentUser={currentUser}/>
     </div>}
   </article></div>
 }
@@ -591,6 +640,191 @@ function DebatePanel({article,agents,onDebateComplete,currentUser}){
     </div>}
 
     {status==="complete"&&admin&&<div className="p-3 mx-4 mb-4"><button onClick={()=>{setStatus("idle");setPanel(null);setRounds([]);setAtlas(null);setLoom(null);setStreams([]);setProgress(0);setToast("")}} className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:shadow-sm" style={{border:"1.5px solid #F0F0F0",color:"#999"}}>Run New Debate</button></div>}
+  </div>
+}
+
+// ==================== AGENT WORKSHOP — Tabbed Debate + Ideate + Implement ====================
+function AgentWorkshop({article,agents,registry,registryIndex,onDebateComplete,currentUser}){
+  const[activeTab,setActiveTab]=useState("debate");
+  const[ideateStatus,setIdeateStatus]=useState("idle");const[ideateStep,setIdeateStep]=useState("");const[ideateProgress,setIdeateProgress]=useState(0);const[ideateResult,setIdeateResult]=useState(null);const[ideateError,setIdeateError]=useState("");
+  const[implStatus,setImplStatus]=useState("idle");const[implStep,setImplStep]=useState("");const[implProgress,setImplProgress]=useState(0);const[implResult,setImplResult]=useState(null);const[implError,setImplError]=useState("");
+  const admin=isAdmin(currentUser);
+
+  // Helper: Pre-filter agents by capability from registry
+  const getRegistryAgents=(capability,count=15)=>{
+    if(!registryIndex?.byId)return[];
+    return Object.values(registryIndex.byId).sort((a,b)=>(b.capabilities?.[capability]||0)-(a.capabilities?.[capability]||0)).slice(0,count);
+  };
+
+  // Combine registry + custom agents, picking best by capability
+  const selectAgentPool=(capability)=>{
+    const customActive=agents.filter(a=>a.status==="active");
+    const registryTop=getRegistryAgents(capability,40);
+    const combined=[...customActive,...registryTop];
+    const seen=new Set();
+    return combined.filter(a=>{if(seen.has(a.id))return false;seen.add(a.id);return true}).slice(0,60);
+  };
+
+  const startIdeation=async()=>{
+    if(!admin)return;
+    setIdeateStatus("running");setIdeateError("");setIdeateResult(null);setIdeateProgress(0);
+    const articleText=article.paragraphs?.join("\n\n")||article.htmlContent?.replace(/<[^>]*>/g," ")||"";
+    const pool=selectAgentPool("ideate");
+    if(pool.length===0){setIdeateError("No agents available.");setIdeateStatus("error");return}
+    try{
+      setIdeateStep("Forge selecting ideation panel...");setIdeateProgress(10);
+      const selRes=await fetch("/api/debate/select",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:article.title,articleText:articleText.slice(0,2000),agents:pool,forgePersona:ORCHESTRATORS.forge.persona+" For this ideation session, prioritize agents with strong creative and research capabilities.",activityType:"ideate"})});
+      if(!selRes.ok)throw new Error("Forge selection failed");
+      const sel=await selRes.json();
+      let selected=pool.filter(a=>sel.selected.includes(a.id));
+      if(selected.length===0)selected=pool.slice(0,8);
+      if(selected.length<5)selected=pool.slice(0,Math.min(8,pool.length));
+      setIdeateProgress(25);setIdeateStep(`${selected.length} agents ideating...`);
+      const ideaRes=await fetch("/api/agents/ideate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({topic:article.title,agents:selected,context:articleText.slice(0,1500)})});
+      if(!ideaRes.ok)throw new Error("Ideation failed");
+      const data=await ideaRes.json();
+      setIdeateResult(data);setIdeateProgress(100);setIdeateStep("Complete!");setIdeateStatus("complete");
+    }catch(e){setIdeateError(e.message);setIdeateStatus("error")}
+  };
+
+  const startImplementation=async()=>{
+    if(!admin)return;
+    setImplStatus("running");setImplError("");setImplResult(null);setImplProgress(0);
+    const articleText=article.paragraphs?.join("\n\n")||article.htmlContent?.replace(/<[^>]*>/g," ")||"";
+    const pool=selectAgentPool("implement");
+    if(pool.length===0){setImplError("No agents available.");setImplStatus("error");return}
+    try{
+      setImplStep("Forge selecting builder panel...");setImplProgress(10);
+      const selRes=await fetch("/api/debate/select",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:article.title,articleText:articleText.slice(0,2000),agents:pool,forgePersona:ORCHESTRATORS.forge.persona+" For this implementation session, prioritize agents with strong architecture and implementation capabilities.",activityType:"implement"})});
+      if(!selRes.ok)throw new Error("Forge selection failed");
+      const sel=await selRes.json();
+      let selected=pool.filter(a=>sel.selected.includes(a.id));
+      if(selected.length===0)selected=pool.slice(0,6);
+      if(selected.length<4)selected=pool.slice(0,Math.min(6,pool.length));
+      setImplProgress(25);setImplStep(`${selected.length} agents architecting...`);
+      const implRes=await fetch("/api/agents/implement",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({concept:article.title,agents:selected,priorContext:articleText.slice(0,1500)})});
+      if(!implRes.ok)throw new Error("Implementation planning failed");
+      const data=await implRes.json();
+      setImplResult(data);setImplProgress(100);setImplStep("Complete!");setImplStatus("complete");
+    }catch(e){setImplError(e.message);setImplStatus("error")}
+  };
+
+  const tabColors={debate:"#E8734A",ideate:"#3B6B9B",implement:"#2D8A6E"};
+  const tabLabels={debate:"Debate",ideate:"Ideate",implement:"Implement"};
+  const tabIcons={debate:"\u2694",ideate:"\u{1F4A1}",implement:"\u{1F528}"};
+
+  return <div>
+    {/* Tab selector */}
+    <div className="flex gap-1 mb-4 p-1 rounded-xl" style={{background:"rgba(0,0,0,0.03)"}}>
+      {["debate","ideate","implement"].map(tab=><button key={tab} onClick={()=>setActiveTab(tab)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg font-semibold text-sm transition-all" style={{background:activeTab===tab?"#FFFFFF":"transparent",color:activeTab===tab?tabColors[tab]:"rgba(0,0,0,0.35)",boxShadow:activeTab===tab?"0 1px 4px rgba(0,0,0,0.08)":"none"}}><span style={{fontSize:14}}>{tabIcons[tab]}</span>{tabLabels[tab]}</button>)}
+    </div>
+
+    {/* Debate tab */}
+    {activeTab==="debate"&&<DebatePanel article={article} agents={agents} onDebateComplete={onDebateComplete} currentUser={currentUser}/>}
+
+    {/* Ideate tab */}
+    {activeTab==="ideate"&&<div className="rounded-2xl border overflow-hidden" style={{background:"white",borderColor:"rgba(59,107,155,0.15)"}}>
+      <div className="p-4" style={{background:"rgba(59,107,155,0.04)",borderBottom:"1px solid rgba(59,107,155,0.1)"}}>
+        <h3 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#3B6B9B",fontSize:16}}>Multi-Agent Ideation</h3>
+        <p style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.4)"}}>Agents generate creative ideas from diverse perspectives, then Sage clusters them into themes.</p>
+      </div>
+
+      {ideateStatus==="idle"&&(admin?<div className="p-4"><button onClick={startIdeation} className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"linear-gradient(135deg,#3B6B9B,#6B9FCE)",color:"white"}}>Start Ideation Session</button></div>:<div className="p-4"><p className="text-sm text-center" style={{color:"rgba(0,0,0,0.3)"}}>No ideation session has been run yet.</p></div>)}
+
+      {ideateStatus==="running"&&<div className="p-4">
+        <div className="flex items-center justify-between mb-2"><span className="font-bold text-sm" style={{color:"#3B6B9B"}}>Ideation in Progress</span><span className="text-xs font-bold" style={{color:"#3B6B9B"}}>{ideateProgress}%</span></div>
+        <div className="w-full rounded-full overflow-hidden mb-2" style={{height:3,background:"rgba(0,0,0,0.06)"}}><div className="rounded-full transition-all" style={{height:"100%",width:`${ideateProgress}%`,background:"linear-gradient(90deg,#3B6B9B,#6B9FCE)",transition:"width 0.5s ease"}}/></div>
+        <p className="text-xs" style={{color:"rgba(0,0,0,0.4)"}}>{ideateStep}</p>
+      </div>}
+
+      {ideateError&&<div className="p-3 m-3 rounded-xl" style={{background:"rgba(229,62,62,0.06)"}}><p className="text-xs" style={{color:"#E53E3E"}}>Error: {ideateError}</p><button onClick={()=>{setIdeateStatus("idle");setIdeateError("")}} className="text-xs font-semibold mt-1" style={{color:"#3B6B9B"}}>Retry</button></div>}
+
+      {ideateResult&&<div className="p-4">
+        {/* Clusters */}
+        {ideateResult.clusters?.length>0&&<div className="mb-4">{ideateResult.clusters.map((cluster,ci)=>{const pc=PILLARS[cluster.pillar]||PILLARS.rethink;
+          return <div key={ci} className="mb-3 rounded-xl overflow-hidden" style={{border:`1px solid ${pc.color}20`}}>
+            <div className="px-3 py-2 flex items-center gap-2" style={{background:`${pc.color}08`,borderBottom:`1px solid ${pc.color}15`}}>
+              <PillarTag pillar={cluster.pillar||"rethink"}/><h4 className="font-bold text-sm" style={{color:"#2D2D2D"}}>{cluster.theme}</h4>
+            </div>
+            <div className="p-3 space-y-2">{(cluster.ideas||[]).map((idea,ii)=><div key={ii} className="flex items-start gap-2 p-2.5 rounded-lg" style={{background:"rgba(0,0,0,0.02)"}}>
+              <div className="w-6 h-6 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{background:`${idea.color||"#999"}20`,color:idea.color||"#999",fontSize:7}}>{idea.avatar||"?"}</div>
+              <div className="flex-1"><div className="flex items-center gap-1.5 mb-0.5"><span className="font-bold" style={{fontSize:11,color:idea.color||"#999"}}>{idea.agent}</span>{idea.novelty&&<span className="px-1 py-0 rounded" style={{fontSize:8,background:"rgba(139,92,246,0.1)",color:"#8B5CF6"}}>Novelty {idea.novelty}/5</span>}</div>
+                <h5 className="font-semibold text-xs mb-0.5" style={{color:"#2D2D2D"}}>{idea.concept}</h5>
+                <p className="text-xs" style={{color:"rgba(0,0,0,0.45)",lineHeight:1.5}}>{idea.rationale}</p>
+              </div>
+            </div>)}</div>
+          </div>})}</div>}
+
+        {/* Unclustered ideas fallback */}
+        {(!ideateResult.clusters||ideateResult.clusters.length===0)&&ideateResult.ideas?.length>0&&<div className="space-y-2">{ideateResult.ideas.map((idea,i)=><div key={i} className="flex items-start gap-2 p-2.5 rounded-lg" style={{background:"rgba(0,0,0,0.02)"}}>
+          <div className="w-6 h-6 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{background:`${idea.color||"#999"}20`,color:idea.color||"#999",fontSize:7}}>{idea.avatar||"?"}</div>
+          <div className="flex-1"><span className="font-bold" style={{fontSize:11,color:idea.color||"#999"}}>{idea.agent}</span><h5 className="font-semibold text-xs mt-0.5" style={{color:"#2D2D2D"}}>{idea.concept}</h5><p className="text-xs" style={{color:"rgba(0,0,0,0.45)"}}>{idea.rationale}</p></div>
+        </div>)}</div>}
+
+        {admin&&ideateStatus==="complete"&&<button onClick={()=>{setIdeateStatus("idle");setIdeateResult(null)}} className="mt-3 text-xs font-semibold px-3 py-1.5 rounded-full" style={{border:"1.5px solid rgba(0,0,0,0.08)",color:"rgba(0,0,0,0.4)"}}>Run New Ideation</button>}
+      </div>}
+    </div>}
+
+    {/* Implement tab */}
+    {activeTab==="implement"&&<div className="rounded-2xl border overflow-hidden" style={{background:"white",borderColor:"rgba(45,138,110,0.15)"}}>
+      <div className="p-4" style={{background:"rgba(45,138,110,0.04)",borderBottom:"1px solid rgba(45,138,110,0.1)"}}>
+        <h3 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D8A6E",fontSize:16}}>Multi-Agent Implementation</h3>
+        <p style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.4)"}}>Builder agents design components from their expertise, then Sage synthesizes a unified architecture.</p>
+      </div>
+
+      {implStatus==="idle"&&(admin?<div className="p-4"><button onClick={startImplementation} className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"linear-gradient(135deg,#2D8A6E,#5CC4A0)",color:"white"}}>Start Implementation Planning</button></div>:<div className="p-4"><p className="text-sm text-center" style={{color:"rgba(0,0,0,0.3)"}}>No implementation session has been run yet.</p></div>)}
+
+      {implStatus==="running"&&<div className="p-4">
+        <div className="flex items-center justify-between mb-2"><span className="font-bold text-sm" style={{color:"#2D8A6E"}}>Implementation Planning in Progress</span><span className="text-xs font-bold" style={{color:"#2D8A6E"}}>{implProgress}%</span></div>
+        <div className="w-full rounded-full overflow-hidden mb-2" style={{height:3,background:"rgba(0,0,0,0.06)"}}><div className="rounded-full transition-all" style={{height:"100%",width:`${implProgress}%`,background:"linear-gradient(90deg,#2D8A6E,#5CC4A0)",transition:"width 0.5s ease"}}/></div>
+        <p className="text-xs" style={{color:"rgba(0,0,0,0.4)"}}>{implStep}</p>
+      </div>}
+
+      {implError&&<div className="p-3 m-3 rounded-xl" style={{background:"rgba(229,62,62,0.06)"}}><p className="text-xs" style={{color:"#E53E3E"}}>Error: {implError}</p><button onClick={()=>{setImplStatus("idle");setImplError("")}} className="text-xs font-semibold mt-1" style={{color:"#2D8A6E"}}>Retry</button></div>}
+
+      {implResult&&<div className="p-4">
+        {/* Architecture overview */}
+        {implResult.architecture&&<div className="mb-4 p-3 rounded-xl" style={{background:"linear-gradient(135deg,rgba(45,138,110,0.06),rgba(59,107,155,0.06))",border:"1px solid rgba(45,138,110,0.15)"}}>
+          <h4 className="font-bold mb-1.5" style={{fontFamily:"'Instrument Serif',Georgia,serif",fontSize:14,color:"#2D2D2D"}}>Architecture Overview</h4>
+          <p style={{fontSize:12,color:"rgba(0,0,0,0.5)",lineHeight:1.7}}>{implResult.architecture}</p>
+          {implResult.totalWeeks>0&&<span className="inline-block mt-2 px-2 py-0.5 rounded-full font-semibold" style={{fontSize:10,background:"rgba(45,138,110,0.1)",color:"#2D8A6E"}}>Est. {implResult.totalWeeks} weeks</span>}
+        </div>}
+
+        {/* Components from agents */}
+        {implResult.components?.filter(c=>c.status==="success").length>0&&<div className="mb-4">
+          <h4 className="font-bold mb-2" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.4)",letterSpacing:"0.05em",textTransform:"uppercase"}}>Agent Components</h4>
+          <div className="space-y-2">{implResult.components.filter(c=>c.status==="success").map((comp,i)=><div key={i} className="p-3 rounded-xl" style={{background:"rgba(0,0,0,0.02)",border:"1px solid rgba(0,0,0,0.05)"}}>
+            <div className="flex items-center gap-2 mb-1.5"><div className="w-6 h-6 rounded-full flex items-center justify-center font-bold" style={{background:`${comp.color||"#999"}20`,color:comp.color||"#999",fontSize:7}}>{comp.avatar||"?"}</div><span className="font-bold text-xs" style={{color:comp.color||"#999"}}>{comp.agent}</span>{comp.timelineWeeks&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"rgba(0,0,0,0.04)",color:"rgba(0,0,0,0.4)"}}>{comp.timelineWeeks}w</span>}</div>
+            <h5 className="font-semibold text-sm mb-1" style={{color:"#2D2D2D"}}>{comp.component}</h5>
+            <p className="text-xs mb-1.5" style={{color:"rgba(0,0,0,0.45)",lineHeight:1.5}}>{comp.approach}</p>
+            {comp.integrations?.length>0&&<div className="flex flex-wrap gap-1">{comp.integrations.map((int,ii)=><span key={ii} className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"rgba(59,107,155,0.08)",color:"#3B6B9B"}}>{int}</span>)}</div>}
+          </div>)}</div>
+        </div>}
+
+        {/* Implementation sequence */}
+        {implResult.sequence?.length>0&&<div className="mb-4">
+          <h4 className="font-bold mb-2" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.4)",letterSpacing:"0.05em",textTransform:"uppercase"}}>Implementation Sequence</h4>
+          <div className="space-y-1.5">{implResult.sequence.map((phase,i)=><div key={i} className="flex items-start gap-2 p-2.5 rounded-lg" style={{background:"rgba(0,0,0,0.02)"}}>
+            <div className="w-6 h-6 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{background:"rgba(45,138,110,0.1)",color:"#2D8A6E",fontSize:10}}>{i+1}</div>
+            <div className="flex-1"><div className="flex items-center gap-2"><h5 className="font-semibold text-xs" style={{color:"#2D2D2D"}}>{phase.phase}</h5><span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"rgba(0,0,0,0.04)",color:"rgba(0,0,0,0.4)"}}>{phase.weeks}</span></div>
+              <p className="text-xs mt-0.5" style={{color:"rgba(0,0,0,0.45)"}}>{phase.description}</p>
+            </div>
+          </div>)}</div>
+        </div>}
+
+        {/* Risks */}
+        {implResult.risks?.length>0&&<div className="mb-3">
+          <h4 className="font-bold mb-2" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.4)",letterSpacing:"0.05em",textTransform:"uppercase"}}>Cross-Cutting Risks</h4>
+          <div className="space-y-1">{implResult.risks.map((risk,i)=>{const sevColors={high:"#E53E3E",medium:"#E8734A",low:"#2D8A6E"};
+            return <div key={i} className="flex items-start gap-2 p-2 rounded-lg" style={{background:risk.severity==="high"?"rgba(229,62,62,0.04)":"rgba(0,0,0,0.02)"}}>
+              <span className="px-1.5 py-0.5 rounded-full font-bold flex-shrink-0" style={{fontSize:8,background:`${sevColors[risk.severity]||"#999"}15`,color:sevColors[risk.severity]||"#999"}}>{(risk.severity||"").toUpperCase()}</span>
+              <div className="flex-1"><p className="text-xs font-semibold" style={{color:"#2D2D2D"}}>{risk.risk}</p><p className="text-xs" style={{color:"rgba(0,0,0,0.4)"}}>{risk.mitigation}</p></div>
+            </div>})}</div>
+        </div>}
+
+        {admin&&implStatus==="complete"&&<button onClick={()=>{setImplStatus("idle");setImplResult(null)}} className="mt-2 text-xs font-semibold px-3 py-1.5 rounded-full" style={{border:"1.5px solid rgba(0,0,0,0.08)",color:"rgba(0,0,0,0.4)"}}>Run New Implementation</button>}
+      </div>}
+    </div>}
   </div>
 }
 
@@ -745,8 +979,10 @@ function AgentPanel({onPostGenerated}){
 
 
 // ==================== AGENT COMMUNITY — Agent roster + CRUD ====================
-function AgentCommunityPage({agents,currentUser,onSaveAgent,onDeleteAgent}){
+function AgentAtlasPage({agents,registry,registryIndex,currentUser,onSaveAgent,onDeleteAgent}){
   const admin=isAdmin(currentUser);
+  const[view,setView]=useState("domains");const[selectedDomain,setSelectedDomain]=useState(null);const[selectedSpec,setSelectedSpec]=useState(null);
+  const[searchQuery,setSearchQuery]=useState("");const[styleFilter,setStyleFilter]=useState("");
   const[editing,setEditing]=useState(null);const[showForm,setShowForm]=useState(false);
   const[name,setName]=useState("");const[persona,setPersona]=useState("");const[model,setModel]=useState("anthropic");const[color,setColor]=useState("#3B6B9B");const[category,setCategory]=useState("Wild Cards");
 
@@ -756,11 +992,63 @@ function AgentCommunityPage({agents,currentUser,onSaveAgent,onDeleteAgent}){
   const changeModel=(agentId,newModel)=>{const a=agents.find(x=>x.id===agentId);if(a)onSaveAgent({...a,model:newModel})};
 
   const active=agents.filter(a=>a.status==="active");const inactive=agents.filter(a=>a.status==="inactive");
-  const categories=[...new Set(active.map(a=>a.category||"Other"))];
+  const totalAgents=(registry?.totalAgents||0)+active.length;
+  const domains=registry?.domains||[];
+
+  // Search across all agents
+  const searchResults=searchQuery.trim().length>2?[
+    ...active.filter(a=>(a.name+' '+a.persona+' '+(a.category||'')).toLowerCase().includes(searchQuery.toLowerCase())),
+    ...Object.values(registryIndex.byId).filter(a=>(a.name+' '+a.persona+' '+a.domain+' '+a.specialization).toLowerCase().includes(searchQuery.toLowerCase())).slice(0,60)
+  ]:[];
+
+  const currentDomain=selectedDomain?domains.find(d=>d.id===selectedDomain):null;
+  const currentSpec=selectedSpec?registryIndex.bySpec[selectedSpec]:null;
+  const specAgents=currentSpec?.agents||[];
+  const filteredAgents=styleFilter?specAgents.filter(a=>a.cognitiveStyle?.type===styleFilter||a.cognitiveStyle?.disposition===styleFilter):specAgents;
+
+  // Capability bar mini component
+  const CapBar=({caps})=>{if(!caps)return null;const keys=["debate","ideate","critique","architect","implement","research","synthesize"];const labels=["Deb","Ide","Cri","Arc","Imp","Res","Syn"];const colors=["#E8734A","#3B6B9B","#C53030","#2D8A6E","#DD6B20","#6B46C1","#8B5CF6"];
+    return <div className="flex gap-0.5 mt-1">{keys.map((k,i)=><div key={k} title={labels[i]+": "+caps[k]} className="flex flex-col items-center"><div className="rounded-sm" style={{width:12,height:3,background:`${colors[i]}${Math.round((caps[k]||1)/5*99).toString(16).padStart(2,'0')}`}}/><span style={{fontSize:6,color:"#CCC"}}>{labels[i]}</span></div>)}</div>};
+
+  // Agent card renderer (reusable for registry + custom agents)
+  const AgentCard=({a,isCustom})=>{const mp=MODEL_PROVIDERS.find(m=>m.id===a.model);
+    return <div className="p-3 rounded-xl transition-all" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}} onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.02)";e.currentTarget.style.boxShadow=`0 0 20px ${a.color}15`}} onMouseLeave={e=>{e.currentTarget.style.transform="scale(1)";e.currentTarget.style.boxShadow="none"}}>
+      <div className="flex items-start gap-2.5">
+        <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{background:`${a.color}20`,color:a.color,border:`1.5px solid ${a.color}40`,fontSize:9}}>{a.avatar}</div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 mb-0.5"><h4 className="font-bold text-sm" style={{color:"#2D2D2D"}}>{a.name}</h4>
+            {isCustom&&admin?<select value={a.model} onChange={e=>changeModel(a.id,e.target.value)} className="px-1.5 py-0.5 rounded text-xs font-semibold appearance-none cursor-pointer" style={{background:`${mp?.color||"#999"}10`,color:mp?.color||"#999",border:`1px solid ${mp?.color||"#999"}30`,fontSize:9}}>{MODEL_PROVIDERS.map(m=><option key={m.id} value={m.id}>{m.label.split(" ")[0]}</option>)}</select>:<span className="px-1.5 py-0.5 rounded font-bold" style={{fontSize:8,background:`${mp?.color||"#999"}10`,color:mp?.color||"#999"}}>{mp?.label?.split(" ")[0]||a.model}</span>}
+          </div>
+          {a.cognitiveStyle&&<div className="flex gap-1 mb-1">{[a.cognitiveStyle.type,a.cognitiveStyle.disposition].filter(Boolean).map(s=><span key={s} className="px-1.5 py-0 rounded-full" style={{fontSize:7,background:"rgba(0,0,0,0.04)",color:"rgba(0,0,0,0.4)",textTransform:"capitalize"}}>{s}</span>)}</div>}
+          <p className="text-xs" style={{fontFamily:"'Inter',sans-serif",color:"rgba(0,0,0,0.4)",lineHeight:1.4,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{a.persona}</p>
+          <CapBar caps={a.capabilities}/>
+          {isCustom&&admin&&<div className="flex gap-1 mt-1.5"><button onClick={()=>startEdit(a)} className="text-xs font-semibold px-1.5 py-0.5 rounded" style={{color:"#3B6B9B",background:"#EEF3F8"}}>Edit</button><button onClick={()=>onSaveAgent({...a,status:"inactive"})} className="text-xs font-semibold px-1.5 py-0.5 rounded" style={{color:"#E8734A",background:"#FDF0EB"}}>Deactivate</button></div>}
+        </div>
+      </div>
+    </div>};
 
   return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,32px)"}}>Agent Community</h1><p className="mb-6" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>{active.length} debater agents + 3 orchestrators. Forge picks 5 per debate.</p></FadeIn>
+    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,32px)"}}>Agent Atlas</h1><p className="mb-4" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>{totalAgents} agents across {domains.length} domains + 3 orchestrators. Forge selects the best team per task.</p></FadeIn>
 
+    {/* Breadcrumb */}
+    <FadeIn><div className="flex items-center gap-1.5 mb-4 flex-wrap">
+      <button onClick={()=>{setView("domains");setSelectedDomain(null);setSelectedSpec(null)}} className="text-xs font-semibold" style={{color:view==="domains"?"#2D2D2D":"#3B6B9B"}}>All Domains</button>
+      {currentDomain&&<><span style={{color:"#DDD",fontSize:10}}>/</span><button onClick={()=>{setView("specializations");setSelectedSpec(null)}} className="text-xs font-semibold" style={{color:view==="specializations"?"#2D2D2D":"#3B6B9B"}}>{currentDomain.name}</button></>}
+      {currentSpec&&<><span style={{color:"#DDD",fontSize:10}}>/</span><span className="text-xs font-semibold" style={{color:"#2D2D2D"}}>{currentSpec.name}</span></>}
+    </div></FadeIn>
+
+    {/* Search bar */}
+    <div className="flex gap-2 mb-5"><input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="Search agents by name, domain, or expertise..." className="flex-1 px-3 py-2 rounded-xl border focus:outline-none text-sm" style={{borderColor:"#F0F0F0",color:"#555"}}/>
+      {view==="agents"&&<select value={styleFilter} onChange={e=>setStyleFilter(e.target.value)} className="px-2 py-2 rounded-xl border text-xs" style={{borderColor:"#F0F0F0",color:"#999"}}><option value="">All styles</option><option value="convergent">Convergent</option><option value="divergent">Divergent</option><option value="optimist">Optimist</option><option value="skeptic">Skeptic</option><option value="pragmatist">Pragmatist</option></select>}
+    </div>
+
+    {/* Search results */}
+    {searchQuery.trim().length>2?<div className="mb-6"><h3 className="font-bold mb-2 text-xs" style={{color:"rgba(0,0,0,0.4)",letterSpacing:"0.1em",textTransform:"uppercase"}}>Search Results ({searchResults.length})</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">{searchResults.slice(0,20).map(a=><FadeIn key={a.id}><AgentCard a={a} isCustom={!a.domain}/></FadeIn>)}</div>
+      {searchResults.length>20&&<p className="mt-2 text-xs text-center" style={{color:"rgba(0,0,0,0.3)"}}>Showing 20 of {searchResults.length} — narrow your search</p>}
+    </div>:<>
+
+    {/* Orchestration Layer */}
     <FadeIn delay={20}><div className="p-4 rounded-2xl mb-6" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}}>
       <h3 className="font-bold mb-3" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"#2D2D2D",letterSpacing:"0.05em",textTransform:"uppercase"}}>Orchestration Layer</h3>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">{Object.values(ORCHESTRATORS).map(o=><div key={o.id} className="p-3 rounded-xl" style={{background:`${o.color}06`,border:`1px solid ${o.color}20`}}>
@@ -769,7 +1057,43 @@ function AgentCommunityPage({agents,currentUser,onSaveAgent,onDeleteAgent}){
       </div>)}</div>
     </div></FadeIn>
 
-    {admin&&!showForm&&<FadeIn delay={30}><button onClick={startNew} disabled={agents.length>=50} className="mb-5 px-4 py-2 rounded-full font-semibold text-sm transition-all hover:shadow-md" style={{background:"#2D2D2D",color:"white",opacity:agents.length>=50?0.5:1}}>{agents.length>=50?"Max 50 agents":"+ Create Agent"}</button></FadeIn>}
+    {/* VIEW 1: Domain Map */}
+    {view==="domains"&&<div className="mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">{domains.map((d,i)=>{const agentCount=d.specializations.reduce((s,sp)=>s+sp.agents.length,0);const previewAgents=d.specializations.flatMap(s=>s.agents).slice(0,4);
+        return <FadeIn key={d.id} delay={i*20}><button onClick={()=>{setSelectedDomain(d.id);setView("specializations")}} className="w-full text-left p-4 rounded-xl transition-all" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)",borderTop:`4px solid ${d.color}`}} onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow=`0 4px 20px ${d.color}15`}} onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="none"}}>
+          <div className="flex items-center justify-between mb-2"><div className="flex items-center gap-2"><span style={{fontSize:16}}>{d.icon}</span><h3 className="font-bold text-sm" style={{color:"#2D2D2D"}}>{d.name}</h3></div><span className="font-bold px-2 py-0.5 rounded-full" style={{fontSize:10,background:`${d.color}12`,color:d.color}}>{agentCount}</span></div>
+          <p className="text-xs mb-3" style={{color:"rgba(0,0,0,0.4)",lineHeight:1.4}}>{d.description}</p>
+          <div className="flex items-center gap-1"><div className="flex -space-x-1">{previewAgents.map(a=><div key={a.id} className="w-5 h-5 rounded-full flex items-center justify-center font-bold" style={{background:`${a.color}20`,color:a.color,fontSize:6,border:"1px solid white"}}>{a.avatar}</div>)}</div><span className="text-xs ml-1" style={{color:"rgba(0,0,0,0.3)"}}>{d.specializations.length} specializations</span></div>
+        </button></FadeIn>})}
+      </div>
+
+      {/* Custom agents section */}
+      {active.length>0&&<div className="mt-6"><FadeIn><h3 className="font-bold mb-2" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.4)",letterSpacing:"0.1em",textTransform:"uppercase",borderBottom:"1px solid rgba(0,0,0,0.06)",paddingBottom:8}}>Custom Agents ({active.length})</h3></FadeIn>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">{active.map((a,i)=><FadeIn key={a.id} delay={i*15}><AgentCard a={a} isCustom={true}/></FadeIn>)}</div>
+      </div>}
+    </div>}
+
+    {/* VIEW 2: Specializations */}
+    {view==="specializations"&&currentDomain&&<div className="mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{currentDomain.specializations.map((s,i)=>{const topCap=s.agents.length>0?Object.entries(s.agents[0].capabilities||{}).sort((a,b)=>b[1]-a[1])[0]:null;
+        return <FadeIn key={s.id} delay={i*25}><button onClick={()=>{setSelectedSpec(currentDomain.id+'/'+s.id);setView("agents")}} className="w-full text-left p-4 rounded-xl transition-all" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)",borderLeft:`3px solid ${currentDomain.color}`}} onMouseEnter={e=>{e.currentTarget.style.background="#FAFCFF";e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,0.06)"}} onMouseLeave={e=>{e.currentTarget.style.background="#FFFFFF";e.currentTarget.style.boxShadow="none"}}>
+          <div className="flex items-center justify-between mb-1"><h3 className="font-bold text-sm" style={{color:"#2D2D2D"}}>{s.name}</h3><span className="font-bold px-2 py-0.5 rounded-full" style={{fontSize:10,background:`${currentDomain.color}12`,color:currentDomain.color}}>{s.agents.length}</span></div>
+          {topCap&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"rgba(0,0,0,0.04)",color:"rgba(0,0,0,0.4)",textTransform:"capitalize"}}>Top: {topCap[0]}</span>}
+          <div className="flex -space-x-1 mt-2">{s.agents.slice(0,6).map(a=><div key={a.id} className="w-5 h-5 rounded-full flex items-center justify-center font-bold" style={{background:`${a.color}20`,color:a.color,fontSize:6,border:"1px solid white"}}>{a.avatar}</div>)}{s.agents.length>6&&<div className="w-5 h-5 rounded-full flex items-center justify-center" style={{background:"rgba(0,0,0,0.03)",color:"rgba(0,0,0,0.4)",fontSize:7}}>+{s.agents.length-6}</div>}</div>
+        </button></FadeIn>})}
+      </div>
+    </div>}
+
+    {/* VIEW 3: Agent Grid */}
+    {view==="agents"&&currentSpec&&<div className="mb-6">
+      <p className="text-xs mb-3" style={{color:"rgba(0,0,0,0.4)"}}>{filteredAgents.length} agents in {currentSpec.name}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">{filteredAgents.map((a,i)=><FadeIn key={a.id} delay={i*15}><AgentCard a={a} isCustom={false}/></FadeIn>)}</div>
+    </div>}
+
+    </>}
+
+    {/* Admin: Create agent */}
+    {admin&&!showForm&&<FadeIn delay={30}><button onClick={startNew} className="mb-5 px-4 py-2 rounded-full font-semibold text-sm transition-all hover:shadow-md" style={{background:"#2D2D2D",color:"white"}}>+ Create Custom Agent</button></FadeIn>}
 
     {showForm&&<FadeIn><div className="p-4 rounded-2xl border mb-5" style={{background:"white",borderColor:"#E8734A40",borderStyle:"dashed"}}>
       <h3 className="font-bold mb-3" style={{fontSize:14,color:"#2D2D2D"}}>{editing?"Edit Agent":"Create Agent"}</h3>
@@ -778,21 +1102,6 @@ function AgentCommunityPage({agents,currentUser,onSaveAgent,onDeleteAgent}){
       <div className="flex flex-wrap gap-1.5 mb-2"><span className="text-xs self-center mr-1" style={{color:"#BBB"}}>Model:</span>{MODEL_PROVIDERS.map(m=><button key={m.id} onClick={()=>setModel(m.id)} className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{background:model===m.id?`${m.color}15`:"white",color:model===m.id?m.color:"#CCC",border:`1px solid ${model===m.id?m.color:"#F0F0F0"}`}}>{m.label.split(" ")[0]}</button>)}</div>
       <div className="flex gap-2 mt-2"><button onClick={save} className="px-4 py-1.5 rounded-full font-semibold text-sm" style={{background:"#2D2D2D",color:"white"}}>{editing?"Update":"Create"}</button><button onClick={()=>setShowForm(false)} className="px-4 py-1.5 rounded-full font-semibold text-sm" style={{color:"#CCC",border:"1px solid #F0F0F0"}}>Cancel</button></div>
     </div></FadeIn>}
-
-    {categories.map(cat=><div key={cat} className="mb-5"><FadeIn><h3 className="font-bold mb-2" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.4)",letterSpacing:"0.1em",textTransform:"uppercase",borderBottom:"1px solid rgba(0,0,0,0.06)",paddingBottom:8}}>{cat}</h3></FadeIn>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">{active.filter(a=>(a.category||"Other")===cat).map((a,i)=>{const mp=MODEL_PROVIDERS.find(m=>m.id===a.model);return <FadeIn key={a.id} delay={i*15}><div className="p-3 rounded-xl transition-all" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}} onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.02)";e.currentTarget.style.boxShadow=`0 0 20px ${a.color}15`}} onMouseLeave={e=>{e.currentTarget.style.transform="scale(1)";e.currentTarget.style.boxShadow="none"}}>
-        <div className="flex items-start gap-2.5">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{background:`${a.color}20`,color:a.color,border:`1.5px solid ${a.color}40`,fontSize:9}}>{a.avatar}</div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 mb-0.5"><h4 className="font-bold text-sm" style={{color:"#2D2D2D"}}>{a.name}</h4>
-              {admin?<select value={a.model} onChange={e=>changeModel(a.id,e.target.value)} className="px-1.5 py-0.5 rounded text-xs font-semibold appearance-none cursor-pointer" style={{background:`${mp?.color||"#999"}10`,color:mp?.color||"#999",border:`1px solid ${mp?.color||"#999"}30`,fontSize:9}}>{MODEL_PROVIDERS.map(m=><option key={m.id} value={m.id}>{m.label.split(" ")[0]}</option>)}</select>:<span className="px-1.5 py-0.5 rounded font-bold" style={{fontSize:8,background:`${mp?.color||"#999"}10`,color:mp?.color||"#999"}}>{mp?.label?.split(" ")[0]||a.model}</span>}
-            </div>
-            <p className="text-xs" style={{fontFamily:"'Inter',sans-serif",color:"rgba(0,0,0,0.4)",lineHeight:1.4,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{a.persona}</p>
-            {admin&&<div className="flex gap-1 mt-1.5"><button onClick={()=>startEdit(a)} className="text-xs font-semibold px-1.5 py-0.5 rounded" style={{color:"#3B6B9B",background:"#EEF3F8"}}>Edit</button><button onClick={()=>onSaveAgent({...a,status:"inactive"})} className="text-xs font-semibold px-1.5 py-0.5 rounded" style={{color:"#E8734A",background:"#FDF0EB"}}>Deactivate</button></div>}
-          </div>
-        </div>
-      </div></FadeIn>})}</div>
-    </div>)}
 
     {inactive.length>0&&<div className="mt-4"><h3 className="font-bold mb-2" style={{fontSize:13,color:"#CCC"}}>Inactive ({inactive.length})</h3>
       <div className="space-y-1">{inactive.map(a=><div key={a.id} className="flex items-center justify-between p-2 rounded-lg" style={{background:"#FAFAFA"}}>
@@ -804,7 +1113,7 @@ function AgentCommunityPage({agents,currentUser,onSaveAgent,onDeleteAgent}){
 }
 
 // ==================== ARTICLE VIEW — Public reading page + debate ====================
-function ArticlePage({article,agents,onNavigate,onUpdateArticle,currentUser}){
+function ArticlePage({article,agents,registry,registryIndex,onNavigate,onUpdateArticle,currentUser}){
   if(!article)return null;
   const admin=isAdmin(currentUser);
   const handleDebateComplete=(debate)=>{if(onUpdateArticle)onUpdateArticle({...article,debate})};
@@ -816,8 +1125,8 @@ function ArticlePage({article,agents,onNavigate,onUpdateArticle,currentUser}){
     <FadeIn delay={80}><div className="prose prose-sm max-w-none" style={{color:"#555",fontSize:14,lineHeight:1.9}} dangerouslySetInnerHTML={{__html:article.htmlContent||""}}></div></FadeIn>
     {article.tags?.length>0&&<div className="flex flex-wrap gap-1.5 mt-6 pt-4" style={{borderTop:"1px solid #F0F0F0"}}>{article.tags.map(t=><span key={t} className="px-2 py-0.5 rounded-full" style={{fontSize:10,background:"#F5F5F5",color:"#999"}}>{t}</span>)}</div>}
     <div className="mt-8 pt-6" style={{borderTop:"2px solid #F0F0F0"}}>
-      <h2 className="font-bold mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Community Debate</h2>
-      <DebatePanel article={article} agents={agents} onDebateComplete={handleDebateComplete} currentUser={currentUser}/>
+      <h2 className="font-bold mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Agent Workshop</h2>
+      <AgentWorkshop article={article} agents={agents} registry={registry} registryIndex={registryIndex} onDebateComplete={handleDebateComplete} currentUser={currentUser}/>
     </div>
   </div></div>
 }
@@ -920,6 +1229,7 @@ function pathToPage(pathname){
 function Re3(){
   const[user,setUser]=useState(null);const[content,setContent]=useState(INIT_CONTENT);const[themes,setThemes]=useState(INIT_THEMES);
   const[articles,setArticles]=useState([]);const[agents,setAgents]=useState(INIT_AGENTS);const[projects,setProjects]=useState(DEFAULT_PROJECTS);
+  const[registry,setRegistry]=useState(null);const[registryIndex,setRegistryIndex]=useState({byDomain:{},byId:{},bySpec:{}});
   const initRoute=typeof window!=="undefined"?pathToPage(window.location.pathname):{page:"home",pageId:null};
   const[page,setPage]=useState(initRoute.page);const[pageId,setPageId]=useState(initRoute.pageId);const[showLogin,setShowLogin]=useState(false);const[loaded,setLoaded]=useState(false);
   useEffect(()=>{const su=DB.get("user",null);const sc=DB.get("content_v5",null);const st=DB.get("themes",null);const sa=DB.get("articles_v1",null);const sag=DB.get("agents_v1",null);const sp=DB.get("projects_v1",null);if(su)setUser(su);if(sc&&sc.length>=INIT_CONTENT.length)setContent(sc);if(st)setThemes(st);if(sa)setArticles(sa);if(sag&&sag.length>=INIT_AGENTS.length)setAgents(sag);if(sp)setProjects(sp);setLoaded(true)},[]);
@@ -928,6 +1238,8 @@ function Re3(){
   useEffect(()=>{if(loaded)DB.set("articles_v1",articles)},[articles,loaded]);
   useEffect(()=>{if(loaded)DB.set("agents_v1",agents)},[agents,loaded]);
   useEffect(()=>{if(loaded)DB.set("projects_v1",projects)},[projects,loaded]);
+  // Load agent registry
+  useEffect(()=>{fetch('/agents-registry.json').then(r=>r.json()).then(data=>{setRegistry(data);const byDomain={},byId={},bySpec={};data.domains.forEach(d=>{byDomain[d.id]=d;d.specializations.forEach(s=>{const key=d.id+'/'+s.id;bySpec[key]={...s,domainId:d.id,domainName:d.name,domainColor:d.color};s.agents.forEach(a=>{byId[a.id]=a})})});setRegistryIndex({byDomain,byId,bySpec})}).catch(()=>{})},[]);
   // Browser back/forward support
   useEffect(()=>{
     const onPop=()=>{const{page:pg,pageId:pid}=pathToPage(window.location.pathname);setPage(pg);setPageId(pid);window.scrollTo({top:0})};
@@ -958,13 +1270,13 @@ function Re3(){
   const logout=async()=>{await firebaseSignOut();setUser(null);DB.clear("user")};
   if(!loaded)return <div className="min-h-screen flex items-center justify-center" style={{background:"#FAFAF8"}}><p style={{color:"#CCC",fontSize:13}}>Loading Re³...</p></div>;
   const render=()=>{switch(page){
-    case"home":return <HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
+    case"home":return <HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry}/>;
     case"loom":return <LoomPage content={content} articles={articles} onNavigate={nav}/>;
-    case"studio":return <MyStudioPage currentUser={user} content={content} articles={articles} agents={agents} projects={projects} onNavigate={nav} onPostGenerated={addPost} onSaveArticle={saveArticle} onDeleteArticle={deleteArticle} onSaveProject={saveProject} onDeleteProject={deleteProject}/>;
-    case"agent-community":return <AgentCommunityPage agents={agents} currentUser={user} onSaveAgent={saveAgent} onDeleteAgent={deleteAgent}/>;
-    case"article":const art=articles.find(a=>a.id===pageId);return art?<ArticlePage article={art} agents={agents} onNavigate={nav} onUpdateArticle={saveArticle} currentUser={user}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
+    case"studio":return <MyStudioPage currentUser={user} content={content} articles={articles} agents={agents} registry={registry} registryIndex={registryIndex} projects={projects} onNavigate={nav} onPostGenerated={addPost} onSaveArticle={saveArticle} onDeleteArticle={deleteArticle} onSaveProject={saveProject} onDeleteProject={deleteProject}/>;
+    case"agent-community":return <AgentAtlasPage agents={agents} registry={registry} registryIndex={registryIndex} currentUser={user} onSaveAgent={saveAgent} onDeleteAgent={deleteAgent}/>;
+    case"article":const art=articles.find(a=>a.id===pageId);return art?<ArticlePage article={art} agents={agents} registry={registry} registryIndex={registryIndex} onNavigate={nav} onUpdateArticle={saveArticle} currentUser={user}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
     case"bridges":return <BridgesPage content={content} onNavigate={nav}/>;
-    case"post":const po=content.find(c=>c.id===pageId);return po?<PostPage post={po} allContent={content} onNavigate={nav} currentUser={user} onEndorse={endorse} onComment={cmnt} onReact={postReact} onAddChallenge={addCh} onAddMarginNote={addMN} agents={agents} onUpdatePost={updatePost}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
+    case"post":const po=content.find(c=>c.id===pageId);return po?<PostPage post={po} allContent={content} onNavigate={nav} currentUser={user} onEndorse={endorse} onComment={cmnt} onReact={postReact} onAddChallenge={addCh} onAddMarginNote={addMN} agents={agents} registry={registry} registryIndex={registryIndex} onUpdatePost={updatePost}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
     case"profile":const u=ALL_USERS.find(x=>x.id===pageId)||user;return u?<ProfilePage user={u} content={content} onNavigate={nav}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
     case"write":if(!user){setShowLogin(true);nav("home");return null}return <WritePage currentUser={user} onNavigate={nav} onSubmit={addPost}/>;
     default:return <HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
