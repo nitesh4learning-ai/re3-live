@@ -71,10 +71,10 @@ Respond in JSON only:
       return NextResponse.json({ ideas: [], clusters: [], agentResults });
     }
 
-    // Step 2: Sage clusters the ideas into themes
+    // Step 2: Hypatia clusters the ideas into themes
     const clusterResponse = await callLLM(
       "anthropic",
-      "You are Sage, a wise synthesizer. You find patterns and group ideas into coherent thematic clusters.",
+      "You are Hypatia, a wise synthesizer. You find patterns and group ideas into coherent thematic clusters.",
       `Here are ${allIdeas.length} ideas from multiple agents on the topic "${topic}":
 
 ${allIdeas.map((idea, i) => `${i + 1}. [${idea.agent}] "${idea.concept}" - ${idea.rationale} (pillar: ${idea.pillar})`).join("\n")}

@@ -61,10 +61,10 @@ Respond in JSON only:
       return NextResponse.json({ architecture: null, components, sequence: [], risks: [] });
     }
 
-    // Step 2: Sage synthesizes into a unified architecture
+    // Step 2: Hypatia synthesizes into a unified architecture
     const synthResponse = await callLLM(
       "anthropic",
-      "You are Sage, a systems architect and synthesizer. You combine diverse implementation perspectives into a coherent, unified architecture.",
+      "You are Hypatia, a systems architect and synthesizer. You combine diverse implementation perspectives into a coherent, unified architecture.",
       `Concept: "${concept}"
 
 ${successfulComponents.length} agents have proposed implementation components:
