@@ -247,14 +247,14 @@ function CycleCard({cycle,onNavigate,variant="default"}){
 function Header({onNavigate,currentPage,currentUser,onLogin,onLogout}){
   const[sc,setSc]=useState(false);const[mob,setMob]=useState(false);
   useEffect(()=>{const fn=()=>setSc(window.scrollY>10);window.addEventListener("scroll",fn);return()=>window.removeEventListener("scroll",fn)},[]);
-  const navItems=[["home","Home"],["loom","The Loom"],["studio","My Studio"],["agent-community","Agent Atlas"],["bridges","Bridges"]];
+  const navItems=[["home","Home"],["loom","The Loom"],["forge","The Forge"],["agent-community","Agent Atlas"],["studio","My Studio"]];
   return <><header className="fixed top-0 left-0 right-0 z-50 transition-all" style={{background:sc?"rgba(255,255,255,0.95)":"rgba(255,255,255,0.85)",backdropFilter:"blur(20px)",borderBottom:sc?"1px solid rgba(0,0,0,0.08)":"1px solid transparent"}}>
     <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between" style={{height:56}}>
-      <button onClick={()=>{onNavigate("home");setMob(false)}} className="flex items-center gap-1">
-        <span className="text-lg font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D"}}>Re</span>
-        <span className="font-black px-1 py-0 rounded" style={{fontSize:9,background:"linear-gradient(135deg,#E8734A,#F4A261)",color:"white"}}>3</span>
+      <button onClick={()=>{onNavigate("home");setMob(false)}} className="flex items-center gap-2">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="12" height="16" rx="2" fill="#3B6B9B" fillOpacity="0.7" transform="rotate(-6 8 12)"/><rect x="6" y="3" width="12" height="16" rx="2" fill="#E8734A" fillOpacity="0.75"/><rect x="10" y="4" width="12" height="16" rx="2" fill="#2D8A6E" fillOpacity="0.7" transform="rotate(6 16 12)"/></svg>
+        <span className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:16}}>Re<sup style={{background:"linear-gradient(135deg,#3B6B9B,#E8734A,#2D8A6E)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",fontWeight:900,fontSize:10}}>3</sup></span>
       </button>
-      <nav className="hidden md:flex items-center gap-0.5">{navItems.map(([pg,label])=>{const a=currentPage===pg;const pc=pg==="loom"?"#8B5CF6":pg==="studio"?"#E8734A":null;
+      <nav className="hidden md:flex items-center gap-0.5">{navItems.map(([pg,label])=>{const a=currentPage===pg;const pc=pg==="loom"?"#8B5CF6":pg==="forge"?"#2D8A6E":pg==="studio"?"#E8734A":null;
         return <button key={pg} onClick={()=>onNavigate(pg)} className="relative px-2.5 py-1.5 rounded-lg transition-all" style={{fontFamily:"'Inter',sans-serif",fontSize:12,fontWeight:a?600:400,color:a?(pc||"#2D2D2D"):"rgba(0,0,0,0.5)",background:a?"rgba(0,0,0,0.04)":"transparent"}}>{label}{a&&<span className="absolute bottom-0 left-1/2 w-4 rounded-full" style={{height:2,transform:"translateX(-50%)",background:pc||"#E8734A",boxShadow:`0 2px 8px ${(pc||"#E8734A")}40`}}/>}</button>})}</nav>
       <div className="flex items-center gap-2">
         {currentUser ? <><button onClick={()=>onNavigate("write")} className="hidden sm:block px-3 py-1 rounded-full font-semibold transition-all hover:shadow-md" style={{fontFamily:"'Inter',sans-serif",fontSize:11,background:"linear-gradient(135deg,#E8734A,#F4A261)",color:"white"}}>Write</button>
@@ -272,16 +272,14 @@ function Header({onNavigate,currentPage,currentUser,onLogin,onLogout}){
 }
 
 // ==================== HOME PAGE — Dark bento grid ====================
-function HomePage({content,themes,blindSpots,articles,onNavigate,onVoteTheme,registry}){
+function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onEditTheme,onDeleteTheme,currentUser,registry,forgeSessions}){
   const cycles = getCycles(content);
-  const bridges = content.filter(c=>c.type==="bridge");
-  const debatedArticles = (articles||[]).filter(a=>a.debate?.loom);
-  const debatedPosts = content.filter(c=>c.debate?.loom);
-  const allDebated=[...debatedPosts.map(p=>({...p,_type:"post"})),...debatedArticles.map(a=>({...a,_type:"article"}))];
   const hero = cycles[0];
   const featured = cycles.slice(1, 4);
-  const totalPosts=content.filter(c=>c.type==="post").length;
   const activeAgentCount=(registry?.totalAgents||25);
+  const[newThemeTxt,setNewThemeTxt]=useState("");
+  const[editingTheme,setEditingTheme]=useState(null);
+  const[editThemeTxt,setEditThemeTxt]=useState("");
   return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}>
     {/* DARK HERO */}
     <section className="relative overflow-hidden" style={{background:"linear-gradient(135deg,#FAFAF8 0%,#F0F4F8 50%,#F5F0EB 100%)"}}>
@@ -296,10 +294,25 @@ function HomePage({content,themes,blindSpots,articles,onNavigate,onVoteTheme,reg
           <button onClick={()=>hero&&onNavigate("post",hero.posts[0]?.id)} className="px-5 py-2.5 rounded-full font-semibold text-sm transition-all" style={{fontFamily:"'Inter',sans-serif",background:"#2D2D2D",border:"1px solid #2D2D2D",color:"white",borderRadius:24}}>Explore Latest Cycle &rarr;</button>
           <div className="flex items-center gap-2 flex-wrap">{[["rethink","Question"],["rediscover","Connect"],["reinvent","Build"]].map(([pk,lb],idx)=><><div key={pk} className="flex items-center gap-1 px-2.5 py-1 rounded-full" style={{background:`${PILLARS[pk].color}20`}}><PillarIcon pillar={pk} size={12}/><span className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:PILLARS[pk].color}}>{lb}</span></div>{idx<2&&<span style={{color:"rgba(0,0,0,0.2)"}}>&rarr;</span>}</>)}</div>
         </div></FadeIn>
-        <FadeIn delay={200}><div className="flex flex-wrap gap-6 sm:gap-8" style={{padding:"16px 24px",borderRadius:12,background:"rgba(255,255,255,0.7)",border:"1px solid rgba(0,0,0,0.06)"}}>
-          {[[cycles.length,"Thinking Cycles","#3B6B9B"],[activeAgentCount,"AI Agents","#E8734A"],[totalPosts,"Perspectives","#2D8A6E"],[allDebated.length,"Agent Debates","#8B5CF6"]].map(([val,lb,cl])=><div key={lb}><span style={{fontFamily:"'Inter',sans-serif",fontSize:28,fontWeight:800,color:cl}}>{val}</span><span style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.45)",marginLeft:8}}>{lb}</span></div>)}
+        <FadeIn delay={200}><div className="flex flex-wrap items-center gap-2 sm:gap-0" style={{padding:"16px 24px",borderRadius:12,background:"rgba(255,255,255,0.7)",border:"1px solid rgba(0,0,0,0.06)"}}>
+          {[["💡","Question","A human poses a question or idea","#3B6B9B"],["🤖",`${activeAgentCount} Agents`,"Diverse AI perspectives activate","#E8734A"],["⚔️","Debate","Agents challenge & refine positions","#8B5CF6"],["💡","Ideate","Generate novel solutions together","#2D8A6E"],["🔨","Implement","Build actionable architectures","#E8734A"],["✨","Synthesis","Weave insights into The Loom","#3B6B9B"]].map(([icon,label,desc,color],i)=><React.Fragment key={label+i}>{i>0&&<span className="hidden sm:block mx-1" style={{color:"rgba(0,0,0,0.15)",fontSize:14}}>→</span>}<div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg" style={{minWidth:"fit-content"}}><span style={{fontSize:16}}>{icon}</span><div><div className="font-bold" style={{fontFamily:"'Inter',sans-serif",fontSize:11,color,lineHeight:1.2}}>{label}</div><div className="hidden md:block" style={{fontFamily:"'Inter',sans-serif",fontSize:9,color:"rgba(0,0,0,0.35)",lineHeight:1.3}}>{desc}</div></div></div></React.Fragment>)}
         </div></FadeIn>
       </div>
+    </section>
+
+    {/* Three Pillars Explainer */}
+    <section className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      <FadeIn><h2 className="font-bold mb-1 text-center" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:22}}>Three Lenses, One Conversation</h2>
+        <p className="mb-6 text-center" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.4)"}}>Every topic is examined through three complementary philosophical pillars</p></FadeIn>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {Object.values(PILLARS).map((p,i)=><FadeIn key={p.key} delay={i*80}><div className="relative p-5 rounded-2xl text-center transition-all cursor-default group" style={{background:"#FFFFFF",border:`1px solid ${p.color}20`,borderTop:`3px solid ${p.color}`}} onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-4px)";e.currentTarget.style.boxShadow=`0 8px 24px ${p.color}15`}} onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="none"}}>
+          <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl mb-3" style={{background:`${p.color}15`}}><PillarIcon pillar={p.key} size={20}/></div>
+          <div className="font-bold mb-0.5" style={{fontFamily:"'Inter',sans-serif",fontSize:11,letterSpacing:"0.1em",color:p.color}}>{p.label.toUpperCase()}</div>
+          <div className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",fontSize:15,color:"#2D2D2D"}}>{p.tagline}</div>
+          <div style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.4)",lineHeight:1.5}}>{p.key==="rethink"?"Deconstruct assumptions and question foundations":p.key==="rediscover"?"Find hidden patterns across disciplines":"Build implementable architectures"}</div>
+        </div></FadeIn>)}
+      </div>
+      <div className="flex justify-center mt-4"><div className="flex items-center gap-1">{Object.values(PILLARS).map((p,i)=><React.Fragment key={p.key}><div style={{width:60,height:3,borderRadius:2,background:p.color,opacity:0.5}}/>{i<2&&<div style={{width:12,height:3,borderRadius:2,background:"rgba(0,0,0,0.1)"}}/>}</React.Fragment>)}</div></div>
     </section>
 
     {/* BENTO: Latest Cycle */}
@@ -323,44 +336,32 @@ function HomePage({content,themes,blindSpots,articles,onNavigate,onVoteTheme,reg
       </div>
     </section>
 
-    {/* Community Debates */}
-    {allDebated.length>0&&<section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
-      <FadeIn><div className="flex items-center justify-between mb-4"><h2 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:24}}>Community Debates</h2><button onClick={()=>onNavigate("loom")} className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:"#8B5CF6"}}>View all &rarr;</button></div></FadeIn>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {allDebated.map((item,i)=><FadeIn key={item.id} delay={i*30}><button onClick={()=>onNavigate(item._type==="article"?"article":"post",item.id)} className="w-full text-left p-4 rounded-xl transition-all" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}} onMouseEnter={e=>{e.currentTarget.style.background="#F5F5FF";e.currentTarget.style.boxShadow="0 0 20px rgba(139,92,246,0.08)"}} onMouseLeave={e=>{e.currentTarget.style.background="#FFFFFF";e.currentTarget.style.boxShadow="none"}}>
-          <div className="flex items-center gap-1.5 mb-1"><PillarTag pillar={item.pillar}/><span className="font-bold px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"rgba(139,92,246,0.15)",color:"#8B5CF6"}}>DEBATED</span></div>
-          <h3 className="font-semibold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:14}}>{item.title}</h3>
-          <div className="flex flex-wrap gap-1 mb-1">{item.debate?.panel?.agents?.slice(0,3).map(ag=><span key={ag.id} className="px-1.5 py-0 rounded-full" style={{fontSize:8,background:`${ag.color}15`,color:ag.color}}>{ag.name}</span>)}{item.debate?.panel?.agents?.length>3&&<span style={{fontSize:8,color:"rgba(0,0,0,0.3)"}}>+{item.debate.panel.agents.length-3}</span>}</div>
-          <p style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.4)",lineHeight:1.4,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{item.debate?.loom?.slice(0,120)}...</p>
-        </button></FadeIn>)}
-      </div>
+    {/* Recent Forge Sessions */}
+    {forgeSessions&&forgeSessions.length>0&&<section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
+      <FadeIn><div className="flex items-center justify-between mb-3"><h2 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Recent Forge Sessions</h2><button onClick={()=>onNavigate("forge")} className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:"#2D8A6E"}}>View all in The Forge &rarr;</button></div></FadeIn>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">{forgeSessions.slice(0,6).map((s,i)=>{
+        const modeColors={debate:"#E8734A",ideate:"#3B6B9B",implement:"#2D8A6E"};
+        const modeIcons={debate:"⚔️",ideate:"💡",implement:"🔨"};
+        return <FadeIn key={s.id} delay={i*40}><div onClick={()=>onNavigate("forge")} className="p-3 rounded-xl cursor-pointer transition-all hover:shadow-sm" style={{background:"white",border:"1px solid rgba(0,0,0,0.06)"}}>
+          <div className="flex items-center gap-2 mb-1"><span style={{fontSize:12}}>{modeIcons[s.mode]||"📝"}</span><span className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:9,background:`${modeColors[s.mode]||"#999"}15`,color:modeColors[s.mode]||"#999"}}>{s.mode}</span><span style={{fontSize:9,color:"rgba(0,0,0,0.3)"}}>{new Date(s.date).toLocaleDateString()}</span></div>
+          <h4 className="font-semibold text-sm" style={{color:"#2D2D2D",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{s.topic?.title||"Untitled"}</h4>
+        </div></FadeIn>
+      })}</div>
     </section>}
 
-    {/* BENTO: Bridges + Blind Spots row */}
-    <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {bridges.length>0&&<FadeIn><div className="rounded-2xl p-5" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}}>
-          <div className="flex items-center gap-3 mb-3"><h3 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Bridges</h3><div className="flex-1" style={{height:1,background:"rgba(0,0,0,0.06)"}}/></div>
-          <div className="space-y-2">{bridges.map(b=>{const author=getAuthor(b.authorId);return <button key={b.id} onClick={()=>onNavigate("post",b.id)} className="w-full text-left p-3 rounded-xl transition-all" style={{background:"rgba(0,0,0,0.02)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(0,0,0,0.06)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(0,0,0,0.02)"}><div className="flex items-center gap-1.5 mb-1"><PillarTag pillar={b.pillar}/><span className="font-bold px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"rgba(139,92,246,0.15)",color:"#8B5CF6"}}>BRIDGE</span></div><h4 className="font-semibold text-sm mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D"}}>{b.title}</h4><AuthorBadge author={author}/></button>})}</div>
-        </div></FadeIn>}
-        <FadeIn delay={40}><div className="rounded-2xl p-5" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}}>
-          <h3 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Collective Blind Spots</h3>
-          <div className="space-y-2">{blindSpots.map((bs,i)=><div key={i} className="flex flex-col sm:flex-row sm:items-center gap-2 p-2.5 rounded-lg" style={{background:"rgba(0,0,0,0.02)"}}>
-            <div className="flex-1"><h4 className="font-semibold text-xs" style={{fontFamily:"'Inter',sans-serif",color:"#2D2D2D"}}>{bs.topic}</h4><p style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.35)"}}>{bs.description}</p></div>
-            <div className="flex gap-1">{[["rethink",bs.rethinkCount],["rediscover",bs.rediscoverCount],["reinvent",bs.reinventCount]].map(([pk,ct])=><span key={pk} className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full" style={{fontSize:9,background:ct===0?"rgba(229,62,62,0.1)":`${PILLARS[pk].color}20`,color:ct===0?"#E53E3E":PILLARS[pk].color,border:ct===0?"1px dashed rgba(229,62,62,0.3)":"none"}}><PillarIcon pillar={pk} size={9}/>{ct}</span>)}</div>
-          </div>)}</div>
-        </div></FadeIn>
-      </div>
-    </section>
-
-    {/* Theme Voting */}
+    {/* On the Horizon */}
     <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-12"><div className="rounded-2xl p-5" style={{background:"linear-gradient(135deg,rgba(59,107,155,0.08),rgba(139,92,246,0.08),rgba(45,138,110,0.08))",border:"1px solid rgba(0,0,0,0.06)"}}>
-      <h3 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>What Should We Think About Next?</h3>
-      <p className="mb-3" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.4)"}}>Your vote shapes the next synthesis cycle.</p>
-      <div className="space-y-1.5">{themes.map(th=><button key={th.id} onClick={()=>onVoteTheme(th.id)} className="w-full flex items-center justify-between p-3 rounded-xl transition-all" style={{background:th.voted?"rgba(232,115,74,0.1)":"rgba(0,0,0,0.02)",border:`1px solid ${th.voted?"rgba(232,115,74,0.2)":"rgba(0,0,0,0.06)"}`}} onMouseEnter={e=>{if(!th.voted)e.currentTarget.style.background="rgba(0,0,0,0.06)"}} onMouseLeave={e=>{if(!th.voted)e.currentTarget.style.background="rgba(0,0,0,0.02)"}}>
-        <span className="font-medium text-sm" style={{fontFamily:"'Inter',sans-serif",color:"#2D2D2D"}}>{th.title}</span>
-        <span className="font-bold" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:th.voted?"#E8734A":"rgba(0,0,0,0.3)"}}>{th.votes}</span>
-      </button>)}</div>
+      <h3 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>On the Horizon</h3>
+      <p className="mb-3" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.4)"}}>Upcoming themes the community wants to explore.</p>
+      {isAdmin(currentUser)&&<div className="mb-3 flex gap-2"><input value={newThemeTxt} onChange={e=>setNewThemeTxt(e.target.value)} placeholder="Add a new topic..." className="flex-1 px-3 py-2 rounded-xl text-sm border focus:outline-none" style={{borderColor:"rgba(0,0,0,0.1)",fontFamily:"'Inter',sans-serif"}} onKeyDown={e=>{if(e.key==="Enter"&&newThemeTxt.trim()){onAddTheme(newThemeTxt.trim());setNewThemeTxt("")}}}/><button onClick={()=>{if(newThemeTxt.trim()){onAddTheme(newThemeTxt.trim());setNewThemeTxt("")}}} className="px-4 py-2 rounded-xl font-semibold text-sm" style={{background:"#2D8A6E",color:"white"}}>Add</button></div>}
+      <div className="space-y-1.5">{themes.map(th=><div key={th.id} className="flex items-center gap-2">
+        {editingTheme===th.id?<div className="flex-1 flex gap-2"><input value={editThemeTxt} onChange={e=>setEditThemeTxt(e.target.value)} className="flex-1 px-3 py-2 rounded-xl text-sm border focus:outline-none" style={{borderColor:"rgba(0,0,0,0.1)",fontFamily:"'Inter',sans-serif"}} onKeyDown={e=>{if(e.key==="Enter"&&editThemeTxt.trim()){onEditTheme(th.id,editThemeTxt.trim());setEditingTheme(null)}}}/><button onClick={()=>{if(editThemeTxt.trim()){onEditTheme(th.id,editThemeTxt.trim());setEditingTheme(null)}}} className="px-3 py-1 rounded-lg text-xs font-semibold" style={{background:"#2D8A6E",color:"white"}}>Save</button><button onClick={()=>setEditingTheme(null)} className="px-3 py-1 rounded-lg text-xs" style={{color:"rgba(0,0,0,0.4)"}}>Cancel</button></div>
+        :<button onClick={()=>onVoteTheme(th.id)} className="flex-1 flex items-center justify-between p-3 rounded-xl transition-all" style={{background:th.voted?"rgba(232,115,74,0.1)":"rgba(0,0,0,0.02)",border:`1px solid ${th.voted?"rgba(232,115,74,0.2)":"rgba(0,0,0,0.06)"}`}} onMouseEnter={e=>{if(!th.voted)e.currentTarget.style.background="rgba(0,0,0,0.06)"}} onMouseLeave={e=>{if(!th.voted)e.currentTarget.style.background="rgba(0,0,0,0.02)"}}>
+          <span className="font-medium text-sm" style={{fontFamily:"'Inter',sans-serif",color:"#2D2D2D"}}>{th.title}</span>
+          <span className="font-bold" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:th.voted?"#E8734A":"rgba(0,0,0,0.3)"}}>{th.votes}</span>
+        </button>}
+        {isAdmin(currentUser)&&editingTheme!==th.id&&<><button onClick={()=>{setEditingTheme(th.id);setEditThemeTxt(th.title)}} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors" style={{fontSize:12,color:"rgba(0,0,0,0.3)"}} title="Edit">✏️</button><button onClick={()=>onDeleteTheme(th.id)} className="p-1.5 rounded-lg hover:bg-red-50 transition-colors" style={{fontSize:12,color:"rgba(0,0,0,0.3)"}} title="Delete">🗑️</button></>}
+      </div>)}</div>
     </div></section>
   </div>
 }
@@ -385,7 +386,7 @@ function TriptychCard({cycle,onExpand}){
   </div>
 }
 
-function TriptychExpanded({cycle,onNavigate,onCollapse}){
+function TriptychExpanded({cycle,onNavigate,onCollapse,onForge}){
   const pillars=[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean);
   const getAgentPerspectives=(post)=>{if(!post?.debate?.rounds)return[];return post.debate.rounds.flat().filter(r=>r.status==="success"&&r.response).slice(0,2).map(r=>({name:r.name,excerpt:(r.response||"").slice(0,120)+"..."}))};
   const synthesisPost=pillars.find(p=>p?.debate?.loom);
@@ -400,7 +401,8 @@ function TriptychExpanded({cycle,onNavigate,onCollapse}){
         <h3 className="font-bold mt-2 mb-2" style={{fontFamily:"'Instrument Serif',Georgia,serif",fontSize:15,color:"#2D2D2D",lineHeight:1.3}}>{post.title}</h3>
         <p className="mb-3" style={{fontSize:12,color:"rgba(0,0,0,0.45)",lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.paragraphs?.[0]?.slice(0,180)}...</p>
         {perspectives.length>0&&<div className="mb-3"><span className="font-bold" style={{fontSize:9,color:"rgba(0,0,0,0.3)",letterSpacing:"0.1em"}}>PERSPECTIVES</span><div className="mt-1 space-y-1">{perspectives.map((p,pi)=><div key={pi} className="p-2 rounded-lg" style={{background:"rgba(0,0,0,0.02)",fontSize:11,color:"#888"}}><span className="font-bold" style={{color:pillar.color}}>{p.name}: </span>{p.excerpt}</div>)}</div></div>}
-        <button onClick={()=>onNavigate("post",post.id)} className="text-xs font-semibold" style={{color:pillar.color}}>Read full post &rarr;</button>
+        <div className="flex items-center gap-3"><button onClick={()=>onNavigate("post",post.id)} className="text-xs font-semibold" style={{color:pillar.color}}>Read full post &rarr;</button>
+        {onForge&&<button onClick={()=>onForge({title:post.title,text:post.paragraphs?.[0]||"",sourceType:"loom"})} className="text-xs font-semibold" style={{color:"#2D8A6E"}}>Take to The Forge →</button>}</div>
       </div>})}</div>
     {synthesisPost?.debate?.loom&&<div className="p-4" style={{background:"linear-gradient(135deg,rgba(59,107,155,0.06),rgba(139,92,246,0.06),rgba(45,138,110,0.06))",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
       <div className="flex items-center gap-1.5 mb-1"><span style={{fontSize:12}}>&#128296;</span><span className="font-bold text-xs" style={{color:"#3B6B9B"}}>Sage&apos;s Synthesis</span></div>
@@ -410,7 +412,7 @@ function TriptychExpanded({cycle,onNavigate,onCollapse}){
 }
 
 // ==================== THE LOOM — Cycles Archive ====================
-function LoomPage({content,articles,onNavigate}){
+function LoomPage({content,articles,onNavigate,onForge}){
   const cycles=getCycles(content);
   const[expandedCycle,setExpandedCycle]=useState(null);
   const debatedArticles=(articles||[]).filter(a=>a.debate?.loom);
@@ -430,7 +432,7 @@ function LoomPage({content,articles,onNavigate}){
     {/* Triptych grid */}
     <FadeIn><h2 className="font-bold mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:20}}>Synthesis Cycles</h2></FadeIn>
     <div className="space-y-6">{cycles.length>0?cycles.map((c,i)=><FadeIn key={c.date} delay={i*50}>
-      {expandedCycle===c.date?<TriptychExpanded cycle={c} onNavigate={onNavigate} onCollapse={()=>setExpandedCycle(null)}/>:<TriptychCard cycle={c} onExpand={(date)=>setExpandedCycle(date)}/>}
+      {expandedCycle===c.date?<TriptychExpanded cycle={c} onNavigate={onNavigate} onCollapse={()=>setExpandedCycle(null)} onForge={onForge}/>:<TriptychCard cycle={c} onExpand={(date)=>setExpandedCycle(date)}/>}
     </FadeIn>):<FadeIn><div className="p-6 rounded-2xl text-center" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}}><p style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.3)"}}>No synthesis cycles yet.</p></div></FadeIn>}</div>
 
     {/* Debate syntheses */}
@@ -483,6 +485,7 @@ function PostPage({post,allContent,onNavigate,currentUser,onEndorse,onComment,on
     <div className="flex flex-wrap items-center gap-1.5 mb-4 pb-4" style={{borderBottom:"1px solid #F0F0F0"}}>
       {post.tags.map(t=><span key={t} className="px-2 py-0.5 rounded-full" style={{fontSize:10,background:"#F5F5F5",color:"#999"}}>{t}</span>)}<div className="flex-1"/>
       <button onClick={()=>{if(!endorsed){onEndorse(post.id);setEndorsed(true)}}} className="flex items-center gap-1 px-3 py-1 rounded-full font-semibold transition-all" style={{fontSize:11,background:endorsed?`${pillar?.color}08`:"white",border:`1.5px solid ${endorsed?pillar?.color:"#E0E0E0"}`,color:endorsed?pillar?.color:"#BBB"}}>{endorsed?"\u2665":"\u2661"} {post.endorsements+(endorsed?1:0)}</button>
+      <ShareButton title={post.title} text={post.paragraphs?.[0]?.slice(0,140)}/>
     </div>
 
     {(post.challenges||[]).length>0&&<div className="mb-5"><h3 className="font-bold mb-2" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:14}}>Challenges</h3>
@@ -508,8 +511,11 @@ function PostPage({post,allContent,onNavigate,currentUser,onEndorse,onComment,on
 
 
 // ==================== DEBATE PANEL — Live debate visualization ====================
-function DebatePanel({article,agents,onDebateComplete,currentUser}){
-  const[status,setStatus]=useState(article?.debate?"complete":"idle");const[step,setStep]=useState(article?.debate?"Complete!":"");const[panel,setPanel]=useState(article?.debate?.panel||null);const[rounds,setRounds]=useState(article?.debate?.rounds||[]);const[atlas,setAtlas]=useState(article?.debate?.atlas||null);const[loom,setLoom]=useState(article?.debate?.loom||null);const[streams,setStreams]=useState(article?.debate?.streams||[]);const[error,setError]=useState("");const[progress,setProgress]=useState(article?.debate?100:0);const[toast,setToast]=useState("");const debateRef=useRef(null);
+function DebatePanel({article,topic,agents,onDebateComplete,onSaveSession,currentUser}){
+  const topicTitle=article?.title||topic?.title||"";
+  const topicText=article?.paragraphs?.join("\n\n")||article?.htmlContent?.replace(/<[^>]*>/g," ")||topic?.text||"";
+  const existingDebate=article?.debate;
+  const[status,setStatus]=useState(existingDebate?"complete":"idle");const[step,setStep]=useState(existingDebate?"Complete!":"");const[panel,setPanel]=useState(existingDebate?.panel||null);const[rounds,setRounds]=useState(existingDebate?.rounds||[]);const[atlas,setAtlas]=useState(existingDebate?.atlas||null);const[loom,setLoom]=useState(existingDebate?.loom||null);const[streams,setStreams]=useState(existingDebate?.streams||[]);const[error,setError]=useState("");const[progress,setProgress]=useState(existingDebate?100:0);const[toast,setToast]=useState("");const debateRef=useRef(null);
 
   const scrollToBottom=()=>{if(debateRef.current)debateRef.current.scrollIntoView({behavior:"smooth",block:"end"})};
   const showToast=(msg)=>{setToast(msg);setTimeout(()=>setToast(""),4000)};
@@ -518,13 +524,13 @@ function DebatePanel({article,agents,onDebateComplete,currentUser}){
   const startDebate=async()=>{
     if(!admin)return;
     setStatus("running");setError("");setProgress(0);
-    const articleText=article.paragraphs?.join("\n\n")||article.htmlContent?.replace(/<[^>]*>/g," ")||"";
+    const articleText=topicText;
     const activeAgents=agents.filter(a=>a.status==="active");
     if(activeAgents.length===0){setError("No active agents available. Add agents in Agent Community first.");setStatus("error");return}
     try{
       // Step 1: Forge selects panel
       setStep("Forge selecting panel...");setProgress(5);
-      const selRes=await fetch("/api/debate/select",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:article.title,articleText,agents:activeAgents,forgePersona:ORCHESTRATORS.forge.persona})});
+      const selRes=await fetch("/api/debate/select",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:topicTitle,articleText,agents:activeAgents,forgePersona:ORCHESTRATORS.forge.persona})});
       if(!selRes.ok)throw new Error("Forge selection failed");
       const sel=await selRes.json();
       let selectedAgents=activeAgents.filter(a=>sel.selected.includes(a.id));
@@ -543,7 +549,7 @@ function DebatePanel({article,agents,onDebateComplete,currentUser}){
         const responded=allRounds.flat().filter(x=>x.status==="success").length;
         const total=selectedAgents.length*r;
         setStep(`Round ${r}/3: ${r===1?"Initial positions":r===2?"Cross-responses":"Final positions"} (${responded}/${selectedAgents.length*3} total responses)`);
-        const roundRes=await fetch("/api/debate/round",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:article.title,articleText,agents:selectedAgents,roundNumber:r,previousRounds:allRounds})});
+        const roundRes=await fetch("/api/debate/round",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:topicTitle,articleText,agents:selectedAgents,roundNumber:r,previousRounds:allRounds})});
         if(!roundRes.ok)throw new Error(`Round ${r} failed`);
         const roundData=await roundRes.json();
         // Add timestamps to responses
@@ -564,7 +570,7 @@ function DebatePanel({article,agents,onDebateComplete,currentUser}){
       // Step 5: Atlas moderation
       setStep("Atlas reviewing discussion...");setProgress(80);
       showToast("Debate rounds complete — Atlas is reviewing...");
-      const modRes=await fetch("/api/debate/moderate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:article.title,rounds:allRounds,atlasPersona:ORCHESTRATORS.atlas.persona})});
+      const modRes=await fetch("/api/debate/moderate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:topicTitle,rounds:allRounds,atlasPersona:ORCHESTRATORS.atlas.persona})});
       const modData=await modRes.json();
       setAtlas(modData);setProgress(88);
       scrollToBottom();
@@ -572,7 +578,7 @@ function DebatePanel({article,agents,onDebateComplete,currentUser}){
       // Step 6: Sage Loom + clustering
       setStep("Sage weaving The Loom...");setProgress(90);
       showToast("Debate complete — Sage is weaving the Loom...");
-      const loomRes=await fetch("/api/debate/loom",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:article.title,articleText,rounds:allRounds,atlasNote:modData.intervention,forgeRationale:sel.rationale,panelNames:selectedAgents.map(a=>a.name),sagePersona:ORCHESTRATORS.sage.persona})});
+      const loomRes=await fetch("/api/debate/loom",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:topicTitle,articleText,rounds:allRounds,atlasNote:modData.intervention,forgeRationale:sel.rationale,panelNames:selectedAgents.map(a=>a.name),sagePersona:ORCHESTRATORS.sage.persona})});
       const loomData=await loomRes.json();
       setLoom(loomData.loom);setStreams(loomData.streams||[]);setProgress(100);
 
@@ -580,6 +586,7 @@ function DebatePanel({article,agents,onDebateComplete,currentUser}){
       showToast("Loom ready! Sage has woven the synthesis.");
       scrollToBottom();
       if(onDebateComplete)onDebateComplete({panel:{agents:selectedAgents,rationale:sel.rationale},rounds:allRounds,atlas:modData,loom:loomData.loom,streams:loomData.streams||[]});
+      if(onSaveSession&&admin)onSaveSession({mode:"debate",topic:topicTitle,results:{panel:{agents:selectedAgents.map(a=>({id:a.id,name:a.name,color:a.color,avatar:a.avatar})),rationale:sel.rationale},loom:loomData.loom,streams:loomData.streams||[]}});
     }catch(e){console.error("Debate error:",e);setError(e.message);setStatus("error")}
   };
 
@@ -644,7 +651,9 @@ function DebatePanel({article,agents,onDebateComplete,currentUser}){
 }
 
 // ==================== AGENT WORKSHOP — Tabbed Debate + Ideate + Implement ====================
-function AgentWorkshop({article,agents,registry,registryIndex,onDebateComplete,currentUser}){
+function AgentWorkshop({article,topic,agents,registry,registryIndex,onDebateComplete,onSaveSession,currentUser}){
+  const wsTitle=article?.title||topic?.title||"";
+  const wsText=article?.paragraphs?.join("\n\n")||article?.htmlContent?.replace(/<[^>]*>/g," ")||topic?.text||"";
   const[activeTab,setActiveTab]=useState("debate");
   const[ideateStatus,setIdeateStatus]=useState("idle");const[ideateStep,setIdeateStep]=useState("");const[ideateProgress,setIdeateProgress]=useState(0);const[ideateResult,setIdeateResult]=useState(null);const[ideateError,setIdeateError]=useState("");
   const[implStatus,setImplStatus]=useState("idle");const[implStep,setImplStep]=useState("");const[implProgress,setImplProgress]=useState(0);const[implResult,setImplResult]=useState(null);const[implError,setImplError]=useState("");
@@ -668,44 +677,44 @@ function AgentWorkshop({article,agents,registry,registryIndex,onDebateComplete,c
   const startIdeation=async()=>{
     if(!admin)return;
     setIdeateStatus("running");setIdeateError("");setIdeateResult(null);setIdeateProgress(0);
-    const articleText=article.paragraphs?.join("\n\n")||article.htmlContent?.replace(/<[^>]*>/g," ")||"";
     const pool=selectAgentPool("ideate");
     if(pool.length===0){setIdeateError("No agents available.");setIdeateStatus("error");return}
     try{
       setIdeateStep("Forge selecting ideation panel...");setIdeateProgress(10);
-      const selRes=await fetch("/api/debate/select",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:article.title,articleText:articleText.slice(0,2000),agents:pool,forgePersona:ORCHESTRATORS.forge.persona+" For this ideation session, prioritize agents with strong creative and research capabilities.",activityType:"ideate"})});
+      const selRes=await fetch("/api/debate/select",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:wsTitle,articleText:wsText.slice(0,2000),agents:pool,forgePersona:ORCHESTRATORS.forge.persona+" For this ideation session, prioritize agents with strong creative and research capabilities.",activityType:"ideate"})});
       if(!selRes.ok)throw new Error("Forge selection failed");
       const sel=await selRes.json();
       let selected=pool.filter(a=>sel.selected.includes(a.id));
       if(selected.length===0)selected=pool.slice(0,8);
       if(selected.length<5)selected=pool.slice(0,Math.min(8,pool.length));
       setIdeateProgress(25);setIdeateStep(`${selected.length} agents ideating...`);
-      const ideaRes=await fetch("/api/agents/ideate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({topic:article.title,agents:selected,context:articleText.slice(0,1500)})});
+      const ideaRes=await fetch("/api/agents/ideate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({topic:wsTitle,agents:selected,context:wsText.slice(0,1500)})});
       if(!ideaRes.ok)throw new Error("Ideation failed");
       const data=await ideaRes.json();
       setIdeateResult(data);setIdeateProgress(100);setIdeateStep("Complete!");setIdeateStatus("complete");
+      if(onSaveSession&&admin)onSaveSession({mode:"ideate",topic:wsTitle,results:data});
     }catch(e){setIdeateError(e.message);setIdeateStatus("error")}
   };
 
   const startImplementation=async()=>{
     if(!admin)return;
     setImplStatus("running");setImplError("");setImplResult(null);setImplProgress(0);
-    const articleText=article.paragraphs?.join("\n\n")||article.htmlContent?.replace(/<[^>]*>/g," ")||"";
     const pool=selectAgentPool("implement");
     if(pool.length===0){setImplError("No agents available.");setImplStatus("error");return}
     try{
       setImplStep("Forge selecting builder panel...");setImplProgress(10);
-      const selRes=await fetch("/api/debate/select",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:article.title,articleText:articleText.slice(0,2000),agents:pool,forgePersona:ORCHESTRATORS.forge.persona+" For this implementation session, prioritize agents with strong architecture and implementation capabilities.",activityType:"implement"})});
+      const selRes=await fetch("/api/debate/select",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:wsTitle,articleText:wsText.slice(0,2000),agents:pool,forgePersona:ORCHESTRATORS.forge.persona+" For this implementation session, prioritize agents with strong architecture and implementation capabilities.",activityType:"implement"})});
       if(!selRes.ok)throw new Error("Forge selection failed");
       const sel=await selRes.json();
       let selected=pool.filter(a=>sel.selected.includes(a.id));
       if(selected.length===0)selected=pool.slice(0,6);
       if(selected.length<4)selected=pool.slice(0,Math.min(6,pool.length));
       setImplProgress(25);setImplStep(`${selected.length} agents architecting...`);
-      const implRes=await fetch("/api/agents/implement",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({concept:article.title,agents:selected,priorContext:articleText.slice(0,1500)})});
+      const implRes=await fetch("/api/agents/implement",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({concept:wsTitle,agents:selected,priorContext:wsText.slice(0,1500)})});
       if(!implRes.ok)throw new Error("Implementation planning failed");
       const data=await implRes.json();
       setImplResult(data);setImplProgress(100);setImplStep("Complete!");setImplStatus("complete");
+      if(onSaveSession&&admin)onSaveSession({mode:"implement",topic:wsTitle,results:data});
     }catch(e){setImplError(e.message);setImplStatus("error")}
   };
 
@@ -720,7 +729,7 @@ function AgentWorkshop({article,agents,registry,registryIndex,onDebateComplete,c
     </div>
 
     {/* Debate tab */}
-    {activeTab==="debate"&&<DebatePanel article={article} agents={agents} onDebateComplete={onDebateComplete} currentUser={currentUser}/>}
+    {activeTab==="debate"&&<DebatePanel article={article} topic={topic} agents={agents} onDebateComplete={onDebateComplete} onSaveSession={onSaveSession} currentUser={currentUser}/>}
 
     {/* Ideate tab */}
     {activeTab==="ideate"&&<div className="rounded-2xl border overflow-hidden" style={{background:"white",borderColor:"rgba(59,107,155,0.15)"}}>
@@ -979,7 +988,7 @@ function AgentPanel({onPostGenerated}){
 
 
 // ==================== AGENT COMMUNITY — Agent roster + CRUD ====================
-function AgentAtlasPage({agents,registry,registryIndex,currentUser,onSaveAgent,onDeleteAgent}){
+function AgentAtlasPage({agents,registry,registryIndex,currentUser,onSaveAgent,onDeleteAgent,onForge}){
   const admin=isAdmin(currentUser);
   const[view,setView]=useState("domains");const[selectedDomain,setSelectedDomain]=useState(null);const[selectedSpec,setSelectedSpec]=useState(null);
   const[searchQuery,setSearchQuery]=useState("");const[styleFilter,setStyleFilter]=useState("");
@@ -1028,7 +1037,8 @@ function AgentAtlasPage({agents,registry,registryIndex,currentUser,onSaveAgent,o
     </div>};
 
   return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,32px)"}}>Agent Atlas</h1><p className="mb-4" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>{totalAgents} agents across {domains.length} domains + 3 orchestrators. Forge selects the best team per task.</p></FadeIn>
+    <FadeIn><div className="flex items-start justify-between"><div><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,32px)"}}>Agent Atlas</h1><p className="mb-4" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>{totalAgents} agents across {domains.length} domains + 3 orchestrators. Forge selects the best team per task.</p></div>
+    {onForge&&<button onClick={()=>onForge({title:"",text:"",sourceType:"custom"})} className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-sm transition-all hover:shadow-md flex-shrink-0" style={{background:"linear-gradient(135deg,#2D8A6E,#3B6B9B)",color:"white"}}>🔨 Collaborate in The Forge</button>}</div></FadeIn>
 
     {/* Breadcrumb */}
     <FadeIn><div className="flex items-center gap-1.5 mb-4 flex-wrap">
@@ -1123,7 +1133,7 @@ function ArticlePage({article,agents,registry,registryIndex,onNavigate,onUpdateA
     <FadeIn delay={60}><h1 className="font-bold leading-tight mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(20px,3.5vw,30px)"}}>{article.title}</h1></FadeIn>
     <FadeIn delay={70}><div className="flex items-center gap-2 pb-4 mb-6" style={{borderBottom:"1px solid #F0F0F0"}}><span style={{fontSize:12,color:"#999"}}>by Nitesh Srivastava</span><span style={{fontSize:12,color:"#CCC"}}>&middot; {article.updatedAt||article.createdAt}</span></div></FadeIn>
     <FadeIn delay={80}><div className="prose prose-sm max-w-none" style={{color:"#555",fontSize:14,lineHeight:1.9}} dangerouslySetInnerHTML={{__html:article.htmlContent||""}}></div></FadeIn>
-    {article.tags?.length>0&&<div className="flex flex-wrap gap-1.5 mt-6 pt-4" style={{borderTop:"1px solid #F0F0F0"}}>{article.tags.map(t=><span key={t} className="px-2 py-0.5 rounded-full" style={{fontSize:10,background:"#F5F5F5",color:"#999"}}>{t}</span>)}</div>}
+    {article.tags?.length>0&&<div className="flex flex-wrap items-center gap-1.5 mt-6 pt-4" style={{borderTop:"1px solid #F0F0F0"}}>{article.tags.map(t=><span key={t} className="px-2 py-0.5 rounded-full" style={{fontSize:10,background:"#F5F5F5",color:"#999"}}>{t}</span>)}<div className="flex-1"/><ShareButton title={article.title} text={article.title}/></div>}
     <div className="mt-8 pt-6" style={{borderTop:"2px solid #F0F0F0"}}>
       <h2 className="font-bold mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>Agent Workshop</h2>
       <AgentWorkshop article={article} agents={agents} registry={registry} registryIndex={registryIndex} onDebateComplete={handleDebateComplete} currentUser={currentUser}/>
@@ -1141,14 +1151,143 @@ function AgentsPage({content,onNavigate}){return <div className="min-h-screen" s
     <div className="mt-2 font-bold" style={{fontSize:11,color:a.color}}>{posts.length} posts</div>
   </div></FadeIn>})}</div></div></div>}
 
-function BridgesPage({content,onNavigate}){const bridges=content.filter(c=>c.type==="bridge");return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-  <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(22px,3.5vw,32px)"}}>Bridges</h1><p className="mb-6" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>Ideas connected across pillars by humans.</p></FadeIn>
-  <div className="space-y-2">{bridges.map((b,i)=>{const author=getAuthor(b.authorId);const from=content.find(c=>c.id===b.bridgeFrom);const to=content.find(c=>c.id===b.bridgeTo);
-    return <FadeIn key={b.id} delay={i*40}><button onClick={()=>onNavigate("post",b.id)} className="w-full text-left p-4 rounded-2xl transition-all hover:shadow-md" style={{background:"#FFFFFF",border:"1px solid rgba(0,0,0,0.06)"}}>
-      <div className="flex flex-wrap items-center gap-2 mb-1">{from&&<PillarTag pillar={from.pillar}/>}<span style={{color:"#DDD"}}>&rarr;</span>{to&&<PillarTag pillar={to.pillar}/>}</div>
-      <h3 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:14}}>{b.title}</h3>
-      <AuthorBadge author={author}/>
-    </button></FadeIn>})}</div></div></div>}
+// ==================== SHARE BUTTON ====================
+function ShareButton({title,text,url}){
+  const[copied,setCopied]=useState(false);
+  const handleShare=async()=>{
+    const shareUrl=url||window.location.href;
+    if(navigator.share){try{await navigator.share({title:title||"Re³",text:text||"",url:shareUrl});return}catch(e){if(e.name==="AbortError")return}}
+    try{await navigator.clipboard.writeText(shareUrl);setCopied(true);setTimeout(()=>setCopied(false),2000)}catch(e){/* fallback */}
+  };
+  return <button onClick={handleShare} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all hover:shadow-sm" style={{background:copied?"#EBF5F1":"rgba(0,0,0,0.04)",color:copied?"#2D8A6E":"rgba(0,0,0,0.5)",border:`1px solid ${copied?"rgba(45,138,110,0.3)":"rgba(0,0,0,0.08)"}`}}>{copied?"✓ Copied":"📤 Share"}</button>
+}
+
+// ==================== THE FORGE — Standalone Collaboration Hub ====================
+function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onNavigate,forgeSessions,onSaveForgeSession,onDeleteForgeSession,forgePreload}){
+  const[topicSource,setTopicSource]=useState(null);
+  const[selectedTopic,setSelectedTopic]=useState(null);
+  const[workshopActive,setWorkshopActive]=useState(false);
+  const[customTitle,setCustomTitle]=useState("");
+  const[customText,setCustomText]=useState("");
+  const[urlInput,setUrlInput]=useState("");
+  const[viewingSession,setViewingSession]=useState(null);
+  const admin=isAdmin(currentUser);
+  const cycles=getCycles(content);
+
+  // Consume forgePreload
+  useEffect(()=>{if(forgePreload){setSelectedTopic(forgePreload);setWorkshopActive(true)}},[forgePreload]);
+
+  const confirmTopic=(topic)=>{setSelectedTopic(topic);setTopicSource(null)};
+  const startSession=()=>{if(selectedTopic)setWorkshopActive(true)};
+  const resetSession=()=>{setSelectedTopic(null);setWorkshopActive(false);setTopicSource(null);setCustomTitle("");setCustomText("");setUrlInput("")};
+
+  const handleSaveSession=(sessionData)=>{
+    if(!admin||!onSaveForgeSession)return;
+    onSaveForgeSession({id:"fs_"+Date.now(),topic:selectedTopic,date:new Date().toISOString(),mode:sessionData.mode,results:sessionData.results,status:"saved"});
+  };
+
+  // Viewing a saved session
+  if(viewingSession){
+    const s=viewingSession;
+    const modeColors={debate:"#E8734A",ideate:"#3B6B9B",implement:"#2D8A6E"};
+    return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+      <FadeIn><div className="flex items-center gap-3 mb-6">
+        <button onClick={()=>setViewingSession(null)} className="px-3 py-1.5 rounded-lg text-xs font-semibold" style={{border:"1px solid rgba(0,0,0,0.1)",color:"rgba(0,0,0,0.5)"}}>← Back</button>
+        <div><h1 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:20}}>{s.topic?.title||"Session"}</h1>
+          <div className="flex items-center gap-2 mt-1"><span className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:10,background:`${modeColors[s.mode]||"#999"}15`,color:modeColors[s.mode]||"#999"}}>{s.mode}</span><span style={{fontSize:11,color:"rgba(0,0,0,0.35)"}}>{new Date(s.date).toLocaleDateString()}</span></div>
+        </div>
+        <div className="ml-auto"><ShareButton title={`Re³ Forge: ${s.topic?.title}`} text={`${s.mode} session on "${s.topic?.title}"`}/></div>
+      </div></FadeIn>
+      <FadeIn delay={60}><div className="p-4 rounded-2xl" style={{background:"white",border:"1px solid rgba(0,0,0,0.06)"}}>
+        {s.mode==="debate"&&s.results?.loom&&<div style={{fontSize:13,color:"#555",lineHeight:1.9}}>{s.results.loom.split("\n\n").map((p,i)=><p key={i} className="mb-2">{p}</p>)}</div>}
+        {s.mode==="ideate"&&s.results?.clusters?.map((cl,ci)=><div key={ci} className="mb-3"><h4 className="font-bold text-sm mb-1" style={{color:"#3B6B9B"}}>{cl.theme}</h4><div className="space-y-1">{(cl.ideas||[]).map((idea,ii)=><div key={ii} className="p-2 rounded-lg text-xs" style={{background:"rgba(0,0,0,0.02)"}}><span className="font-bold" style={{color:idea.color||"#999"}}>{idea.agent}: </span>{idea.concept}</div>)}</div></div>)}
+        {s.mode==="implement"&&s.results?.architecture&&<div><p className="mb-3" style={{fontSize:13,color:"#555",lineHeight:1.7}}>{s.results.architecture}</p>{s.results.components?.filter(c=>c.status==="success").map((comp,i)=><div key={i} className="p-2 rounded-lg mb-1 text-xs" style={{background:"rgba(0,0,0,0.02)"}}><span className="font-bold" style={{color:comp.color||"#999"}}>{comp.agent}: </span>{comp.component} — {comp.approach?.slice(0,150)}</div>)}</div>}
+        {!s.results&&<p style={{fontSize:13,color:"rgba(0,0,0,0.3)"}}>Session data not available.</p>}
+      </div></FadeIn>
+    </div></div>;
+  }
+
+  return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+    {/* Header */}
+    <FadeIn><div className="text-center mb-8">
+      <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style={{background:"linear-gradient(135deg,rgba(45,138,110,0.15),rgba(59,107,155,0.15))"}}><span style={{fontSize:24}}>🔨</span></div>
+      <h1 className="font-bold mb-1" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:"clamp(24px,4vw,36px)"}}>The Forge</h1>
+      <p style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>Where agents and humans shape ideas together</p>
+    </div></FadeIn>
+
+    {/* Topic Picker — only show if no active workshop */}
+    {!workshopActive&&<FadeIn delay={60}><div className="rounded-2xl p-5 mb-6" style={{background:"white",border:"1px solid rgba(0,0,0,0.06)"}}>
+      <h3 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:16}}>Pick a Topic</h3>
+
+      {/* Source buttons */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {[["loom","📖 From Loom","#8B5CF6"],["horizon","🔮 From Horizon","#E8734A"],["custom","✏️ Custom Topic","#3B6B9B"],["url","🔗 From URL","#2D8A6E"]].map(([key,label,color])=>
+          <button key={key} onClick={()=>setTopicSource(topicSource===key?null:key)} className="px-3 py-2 rounded-xl text-xs font-semibold transition-all" style={{background:topicSource===key?`${color}15`:"rgba(0,0,0,0.03)",color:topicSource===key?color:"rgba(0,0,0,0.5)",border:`1px solid ${topicSource===key?`${color}30`:"rgba(0,0,0,0.06)"}`}}>{label}</button>
+        )}
+      </div>
+
+      {/* Source panels */}
+      {topicSource==="loom"&&<div className="space-y-1.5 mb-4" style={{maxHeight:250,overflowY:"auto"}}>{cycles.flatMap(c=>c.posts).slice(0,20).map(post=>
+        <button key={post.id} onClick={()=>confirmTopic({title:post.title,text:post.paragraphs?.[0]||"",sourceType:"loom"})} className="w-full text-left p-3 rounded-xl transition-all" style={{background:"rgba(0,0,0,0.02)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(139,92,246,0.06)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(0,0,0,0.02)"}>
+          <div className="flex items-center gap-2"><PillarTag pillar={post.pillar}/><span className="font-semibold text-sm" style={{color:"#2D2D2D"}}>{post.title}</span></div>
+        </button>
+      )}</div>}
+
+      {topicSource==="horizon"&&<div className="space-y-1.5 mb-4">{themes.map(th=>
+        <button key={th.id} onClick={()=>confirmTopic({title:th.title,text:"",sourceType:"horizon"})} className="w-full text-left p-3 rounded-xl transition-all" style={{background:"rgba(0,0,0,0.02)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(232,115,74,0.06)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(0,0,0,0.02)"}>
+          <span className="font-semibold text-sm" style={{color:"#2D2D2D"}}>{th.title}</span>
+          <span className="ml-2 text-xs" style={{color:"rgba(0,0,0,0.3)"}}>{th.votes} votes</span>
+        </button>
+      )}</div>}
+
+      {topicSource==="custom"&&<div className="mb-4 space-y-2">
+        <input value={customTitle} onChange={e=>setCustomTitle(e.target.value)} placeholder="Topic title..." className="w-full px-3 py-2 rounded-xl text-sm border focus:outline-none" style={{borderColor:"rgba(0,0,0,0.1)"}}/>
+        <textarea value={customText} onChange={e=>setCustomText(e.target.value)} placeholder="Context or description (optional)..." className="w-full px-3 py-2 rounded-xl text-sm border focus:outline-none" style={{borderColor:"rgba(0,0,0,0.1)",minHeight:80,resize:"vertical"}}/>
+        <button onClick={()=>{if(customTitle.trim())confirmTopic({title:customTitle.trim(),text:customText.trim(),sourceType:"custom"})}} className="px-4 py-2 rounded-xl text-sm font-semibold" style={{background:"#3B6B9B",color:"white"}} disabled={!customTitle.trim()}>Set Topic</button>
+      </div>}
+
+      {topicSource==="url"&&<div className="mb-4 space-y-2">
+        <input value={urlInput} onChange={e=>setUrlInput(e.target.value)} placeholder="https://..." className="w-full px-3 py-2 rounded-xl text-sm border focus:outline-none" style={{borderColor:"rgba(0,0,0,0.1)"}}/>
+        <button onClick={()=>{if(urlInput.trim())confirmTopic({title:urlInput.trim(),text:"Discuss content from: "+urlInput.trim(),sourceType:"url"})}} className="px-4 py-2 rounded-xl text-sm font-semibold" style={{background:"#2D8A6E",color:"white"}} disabled={!urlInput.trim()}>Set URL Topic</button>
+      </div>}
+
+      {/* Selected topic display */}
+      {selectedTopic&&<div className="p-3 rounded-xl mb-4" style={{background:"linear-gradient(135deg,rgba(45,138,110,0.06),rgba(59,107,155,0.06))",border:"1px solid rgba(45,138,110,0.15)"}}>
+        <div className="flex items-center justify-between"><div>
+          <span className="text-xs font-bold" style={{color:"rgba(0,0,0,0.3)"}}>SELECTED TOPIC</span>
+          <h4 className="font-bold text-sm mt-0.5" style={{color:"#2D2D2D"}}>{selectedTopic.title}</h4>
+          {selectedTopic.text&&<p className="text-xs mt-1" style={{color:"rgba(0,0,0,0.4)",lineHeight:1.5}}>{selectedTopic.text.slice(0,200)}{selectedTopic.text.length>200?"...":""}</p>}
+        </div><button onClick={()=>setSelectedTopic(null)} className="text-xs" style={{color:"rgba(0,0,0,0.3)"}}>✕</button></div>
+      </div>}
+
+      {/* Start session button */}
+      {selectedTopic&&<button onClick={startSession} className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"linear-gradient(135deg,#2D8A6E,#3B6B9B)",color:"white"}}>Start Session →</button>}
+    </div></FadeIn>}
+
+    {/* Active Workshop */}
+    {workshopActive&&selectedTopic&&<FadeIn delay={80}><div className="mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <div><span className="text-xs font-bold" style={{color:"rgba(0,0,0,0.3)"}}>FORGING</span><h2 className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:18}}>{selectedTopic.title}</h2></div>
+        <div className="flex items-center gap-2"><ShareButton title={`Re³ Forge: ${selectedTopic.title}`} text={`Exploring "${selectedTopic.title}" in The Forge`}/><button onClick={resetSession} className="px-3 py-1.5 rounded-lg text-xs font-semibold" style={{border:"1px solid rgba(0,0,0,0.1)",color:"rgba(0,0,0,0.4)"}}>New Topic</button></div>
+      </div>
+      <AgentWorkshop topic={selectedTopic} agents={agents} registry={registry} registryIndex={registryIndex} onSaveSession={handleSaveSession} currentUser={currentUser}/>
+    </div></FadeIn>}
+
+    {/* Saved Sessions */}
+    {forgeSessions&&forgeSessions.length>0&&<FadeIn delay={120}><div className="rounded-2xl p-5" style={{background:"white",border:"1px solid rgba(0,0,0,0.06)"}}>
+      <h3 className="font-bold mb-3" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:16}}>Saved Sessions</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{forgeSessions.map(s=>{
+        const modeColors={debate:"#E8734A",ideate:"#3B6B9B",implement:"#2D8A6E"};
+        const modeIcons={debate:"⚔️",ideate:"💡",implement:"🔨"};
+        return <div key={s.id} className="p-3 rounded-xl cursor-pointer transition-all hover:shadow-sm" style={{background:"rgba(0,0,0,0.02)",border:"1px solid rgba(0,0,0,0.06)"}} onClick={()=>setViewingSession(s)}>
+          <div className="flex items-center gap-2 mb-1"><span style={{fontSize:14}}>{modeIcons[s.mode]||"📝"}</span><span className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:9,background:`${modeColors[s.mode]||"#999"}15`,color:modeColors[s.mode]||"#999"}}>{s.mode}</span><span style={{fontSize:10,color:"rgba(0,0,0,0.3)"}}>{new Date(s.date).toLocaleDateString()}</span></div>
+          <h4 className="font-semibold text-sm" style={{color:"#2D2D2D"}}>{s.topic?.title||"Untitled"}</h4>
+          {admin&&onDeleteForgeSession&&<button onClick={e=>{e.stopPropagation();onDeleteForgeSession(s.id)}} className="text-xs mt-1" style={{color:"rgba(0,0,0,0.25)"}}>Delete</button>}
+        </div>
+      })}</div>
+    </div></FadeIn>}
+  </div></div>;
+}
 
 function ProfilePage({user,content,onNavigate}){const posts=content.filter(c=>c.authorId===user.id);const fp=user.thinkingFingerprint;
   return <div className="min-h-screen" style={{paddingTop:56,background:"#FAFAF8"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
@@ -1203,7 +1342,7 @@ function pageToPath(pg,id){
     case"loom":return "/loom";
     case"studio":return "/studio";
     case"agent-community":return "/agents";
-    case"bridges":return "/bridges";
+    case"forge":return "/forge";
     case"write":return "/write";
     case"post":return id?`/post/${id}`:"/";
     case"article":return id?`/article/${id}`:"/";
@@ -1217,7 +1356,7 @@ function pathToPage(pathname){
   if(p==="/loom")return{page:"loom",pageId:null};
   if(p==="/studio")return{page:"studio",pageId:null};
   if(p==="/agents")return{page:"agent-community",pageId:null};
-  if(p==="/bridges")return{page:"bridges",pageId:null};
+  if(p==="/forge")return{page:"forge",pageId:null};
   if(p==="/write")return{page:"write",pageId:null};
   if(p.startsWith("/post/"))return{page:"post",pageId:p.slice(6)};
   if(p.startsWith("/article/"))return{page:"article",pageId:p.slice(9)};
@@ -1230,14 +1369,16 @@ function Re3(){
   const[user,setUser]=useState(null);const[content,setContent]=useState(INIT_CONTENT);const[themes,setThemes]=useState(INIT_THEMES);
   const[articles,setArticles]=useState([]);const[agents,setAgents]=useState(INIT_AGENTS);const[projects,setProjects]=useState(DEFAULT_PROJECTS);
   const[registry,setRegistry]=useState(null);const[registryIndex,setRegistryIndex]=useState({byDomain:{},byId:{},bySpec:{}});
+  const[forgeSessions,setForgeSessions]=useState([]);const[forgePreload,setForgePreload]=useState(null);
   const initRoute=typeof window!=="undefined"?pathToPage(window.location.pathname):{page:"home",pageId:null};
   const[page,setPage]=useState(initRoute.page);const[pageId,setPageId]=useState(initRoute.pageId);const[showLogin,setShowLogin]=useState(false);const[loaded,setLoaded]=useState(false);
-  useEffect(()=>{const su=DB.get("user",null);const sc=DB.get("content_v5",null);const st=DB.get("themes",null);const sa=DB.get("articles_v1",null);const sag=DB.get("agents_v1",null);const sp=DB.get("projects_v1",null);if(su)setUser(su);if(sc&&sc.length>=INIT_CONTENT.length)setContent(sc);if(st)setThemes(st);if(sa)setArticles(sa);if(sag&&sag.length>=INIT_AGENTS.length)setAgents(sag);if(sp)setProjects(sp);setLoaded(true)},[]);
+  useEffect(()=>{const su=DB.get("user",null);const sc=DB.get("content_v5",null);const st=DB.get("themes",null);const sa=DB.get("articles_v1",null);const sag=DB.get("agents_v1",null);const sp=DB.get("projects_v1",null);const sfs=DB.get("forge_sessions_v1",null);if(su)setUser(su);if(sc&&sc.length>=INIT_CONTENT.length)setContent(sc);if(st)setThemes(st);if(sa)setArticles(sa);if(sag&&sag.length>=INIT_AGENTS.length)setAgents(sag);if(sp)setProjects(sp);if(sfs)setForgeSessions(sfs);setLoaded(true)},[]);
   useEffect(()=>{if(loaded)DB.set("content_v5",content)},[content,loaded]);
   useEffect(()=>{if(loaded)DB.set("themes",themes)},[themes,loaded]);
   useEffect(()=>{if(loaded)DB.set("articles_v1",articles)},[articles,loaded]);
   useEffect(()=>{if(loaded)DB.set("agents_v1",agents)},[agents,loaded]);
   useEffect(()=>{if(loaded)DB.set("projects_v1",projects)},[projects,loaded]);
+  useEffect(()=>{if(loaded)DB.set("forge_sessions_v1",forgeSessions)},[forgeSessions,loaded]);
   // Load agent registry
   useEffect(()=>{fetch('/agents-registry.json').then(r=>r.json()).then(data=>{setRegistry(data);const byDomain={},byId={},bySpec={};data.domains.forEach(d=>{byDomain[d.id]=d;d.specializations.forEach(s=>{const key=d.id+'/'+s.id;bySpec[key]={...s,domainId:d.id,domainName:d.name,domainColor:d.color};s.agents.forEach(a=>{byId[a.id]=a})})});setRegistryIndex({byDomain,byId,bySpec})}).catch(()=>{})},[]);
   // Browser back/forward support
@@ -1260,6 +1401,9 @@ function Re3(){
   const addMN=(postId,pi,text)=>{if(!user)return;setContent(p=>p.map(c=>c.id===postId?{...c,marginNotes:[...(c.marginNotes||[]),{id:"mn_"+Date.now(),paragraphIndex:pi,authorId:user.id,text,date:new Date().toISOString().split("T")[0]}]}:c))};
   const updatePost=(updated)=>{const next=content.map(c=>c.id===updated.id?updated:c);setContent(next);DB.set("content_v5",next)};
   const voteTheme=(id)=>setThemes(t=>t.map(th=>th.id===id?{...th,votes:th.votes+(th.voted?0:1),voted:true}:th));
+  const addTheme=(title)=>setThemes(t=>[...t,{id:"t_"+Date.now(),title,votes:0,voted:false}]);
+  const editTheme=(id,newTitle)=>setThemes(t=>t.map(th=>th.id===id?{...th,title:newTitle}:th));
+  const deleteTheme=(id)=>setThemes(t=>t.filter(th=>th.id!==id));
   const postReact=(pi,key)=>{if(!pageId)return;react(pageId,pi,key)};
   const saveArticle=(a)=>{setArticles(prev=>{const idx=prev.findIndex(x=>x.id===a.id);let next;if(idx>=0){next=[...prev];next[idx]=a}else{next=[a,...prev]}DB.set("articles_v1",next);return next})};
   const deleteArticle=(id)=>setArticles(prev=>prev.filter(a=>a.id!==id));
@@ -1267,25 +1411,28 @@ function Re3(){
   const deleteAgent=(id)=>setAgents(prev=>prev.filter(a=>a.id!==id));
   const saveProject=(p)=>setProjects(prev=>{const idx=prev.findIndex(x=>x.id===p.id);if(idx>=0){const up=[...prev];up[idx]=p;return up}return[...prev,p]});
   const deleteProject=(id)=>setProjects(prev=>prev.filter(p=>p.id!==id));
+  const saveForgeSession=(session)=>setForgeSessions(prev=>[session,...prev]);
+  const deleteForgeSession=(id)=>setForgeSessions(prev=>prev.filter(s=>s.id!==id));
+  const navToForge=(topic)=>{setForgePreload(topic);nav("forge")};
   const logout=async()=>{await firebaseSignOut();setUser(null);DB.clear("user")};
   if(!loaded)return <div className="min-h-screen flex items-center justify-center" style={{background:"#FAFAF8"}}><p style={{color:"#CCC",fontSize:13}}>Loading Re³...</p></div>;
   const render=()=>{switch(page){
-    case"home":return <HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry}/>;
-    case"loom":return <LoomPage content={content} articles={articles} onNavigate={nav}/>;
+    case"home":return <HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry} currentUser={user} onAddTheme={addTheme} onEditTheme={editTheme} onDeleteTheme={deleteTheme} forgeSessions={forgeSessions}/>;
+    case"loom":return <LoomPage content={content} articles={articles} onNavigate={nav} onForge={navToForge}/>;
+    case"forge":return <ForgePage content={content} themes={themes} agents={agents} registry={registry} registryIndex={registryIndex} currentUser={user} onNavigate={nav} forgeSessions={forgeSessions} onSaveForgeSession={saveForgeSession} onDeleteForgeSession={deleteForgeSession} forgePreload={forgePreload}/>;
     case"studio":return <MyStudioPage currentUser={user} content={content} articles={articles} agents={agents} registry={registry} registryIndex={registryIndex} projects={projects} onNavigate={nav} onPostGenerated={addPost} onSaveArticle={saveArticle} onDeleteArticle={deleteArticle} onSaveProject={saveProject} onDeleteProject={deleteProject}/>;
-    case"agent-community":return <AgentAtlasPage agents={agents} registry={registry} registryIndex={registryIndex} currentUser={user} onSaveAgent={saveAgent} onDeleteAgent={deleteAgent}/>;
-    case"article":const art=articles.find(a=>a.id===pageId);return art?<ArticlePage article={art} agents={agents} registry={registry} registryIndex={registryIndex} onNavigate={nav} onUpdateArticle={saveArticle} currentUser={user}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
-    case"bridges":return <BridgesPage content={content} onNavigate={nav}/>;
-    case"post":const po=content.find(c=>c.id===pageId);return po?<PostPage post={po} allContent={content} onNavigate={nav} currentUser={user} onEndorse={endorse} onComment={cmnt} onReact={postReact} onAddChallenge={addCh} onAddMarginNote={addMN} agents={agents} registry={registry} registryIndex={registryIndex} onUpdatePost={updatePost}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
-    case"profile":const u=ALL_USERS.find(x=>x.id===pageId)||user;return u?<ProfilePage user={u} content={content} onNavigate={nav}/>:<HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
+    case"agent-community":return <AgentAtlasPage agents={agents} registry={registry} registryIndex={registryIndex} currentUser={user} onSaveAgent={saveAgent} onDeleteAgent={deleteAgent} onForge={navToForge}/>;
+    case"article":const art=articles.find(a=>a.id===pageId);return art?<ArticlePage article={art} agents={agents} registry={registry} registryIndex={registryIndex} onNavigate={nav} onUpdateArticle={saveArticle} currentUser={user}/>:<HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry}/>;
+    case"post":const po=content.find(c=>c.id===pageId);return po?<PostPage post={po} allContent={content} onNavigate={nav} currentUser={user} onEndorse={endorse} onComment={cmnt} onReact={postReact} onAddChallenge={addCh} onAddMarginNote={addMN} agents={agents} registry={registry} registryIndex={registryIndex} onUpdatePost={updatePost}/>:<HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry}/>;
+    case"profile":const u=ALL_USERS.find(x=>x.id===pageId)||user;return u?<ProfilePage user={u} content={content} onNavigate={nav}/>:<HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry}/>;
     case"write":if(!user){setShowLogin(true);nav("home");return null}return <WritePage currentUser={user} onNavigate={nav} onSubmit={addPost}/>;
-    default:return <HomePage content={content} themes={themes} blindSpots={BLIND_SPOTS} articles={articles} onNavigate={nav} onVoteTheme={voteTheme}/>;
+    default:return <HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry}/>;
   }};
   return <div className="min-h-screen" style={{background:"#FAFAF8"}}>
     <Header onNavigate={nav} currentPage={page} currentUser={user} onLogin={()=>setShowLogin(true)} onLogout={logout}/>
     {render()}
     {showLogin&&<LoginModal onClose={()=>setShowLogin(false)} onLogin={(u)=>{setUser(u);setShowLogin(false)}}/>}
-    <footer className="py-5" style={{borderTop:"1px solid rgba(0,0,0,0.06)",background:"#F5F5F5"}}><div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2"><div className="flex items-center gap-2"><span className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:15}}>Re</span><span className="font-black px-1 rounded" style={{fontSize:8,background:"linear-gradient(135deg,#E8734A,#F4A261)",color:"white"}}>3</span><span className="ml-2 hidden sm:inline" style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.35)"}}>Where human intuition meets machine foresight</span></div><span style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:"rgba(0,0,0,0.1)"}}>A Nitesh Srivastava project</span></div></footer>
+    <footer className="py-5" style={{borderTop:"1px solid rgba(0,0,0,0.06)",background:"#F5F5F5"}}><div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2"><div className="flex items-center gap-2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="12" height="16" rx="2" fill="#3B6B9B" fillOpacity="0.7" transform="rotate(-6 8 12)"/><rect x="6" y="3" width="12" height="16" rx="2" fill="#E8734A" fillOpacity="0.75"/><rect x="10" y="4" width="12" height="16" rx="2" fill="#2D8A6E" fillOpacity="0.7" transform="rotate(6 16 12)"/></svg><span className="font-bold" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#2D2D2D",fontSize:14}}>Re<sup style={{background:"linear-gradient(135deg,#3B6B9B,#E8734A,#2D8A6E)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",fontWeight:900,fontSize:9}}>3</sup></span><span className="ml-1 hidden sm:inline" style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.35)"}}>Where human intuition meets machine foresight</span></div><span style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:"rgba(0,0,0,0.1)"}}>A Nitesh Srivastava project</span></div></footer>
     <Disclaimer/>
   </div>;
 }
