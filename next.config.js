@@ -13,6 +13,7 @@ const nextConfig = {
     return [
       { source: "/loom", destination: "/" },
       { source: "/forge", destination: "/" },
+      { source: "/academy", destination: "/" },
       { source: "/studio", destination: "/" },
       { source: "/agents", destination: "/" },
       { source: "/write", destination: "/" },
