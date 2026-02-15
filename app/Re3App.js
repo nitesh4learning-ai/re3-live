@@ -5,6 +5,7 @@ import "./globals.css";
 const ADMIN_EMAIL = "nitesh4learning@gmail.com";
 const isAdmin = (user) => user?.email === ADMIN_EMAIL;
 const LazyEditor = lazy(() => import("./Editor"));
+const LazyAcademy = lazy(() => import("./Academy"));
 
 const DB = {
   get: (key, fallback) => { try { const d = typeof window!=='undefined' && localStorage.getItem(`re3_${key}`); return d ? JSON.parse(d) : fallback; } catch { return fallback; } },
@@ -265,7 +266,7 @@ function CycleCard({cycle,onNavigate,variant="default"}){
 function Header({onNavigate,currentPage,currentUser,onLogin,onLogout}){
   const[sc,setSc]=useState(false);const[mob,setMob]=useState(false);
   useEffect(()=>{const fn=()=>setSc(window.scrollY>10);window.addEventListener("scroll",fn);return()=>window.removeEventListener("scroll",fn)},[]);
-  const navItems=[["home","Home","🏠"],["loom","The Loom","🧵"],["forge","The Forge","⚡"],["agent-community","Agent Atlas","🤖"],["studio","My Studio","📝"]];
+  const navItems=[["home","Home","🏠"],["loom","The Loom","🧵"],["forge","The Forge","⚡"],["academy","Academy","🎓"],["agent-community","Agent Atlas","🤖"],["studio","My Studio","📝"]];
   return <><header className="fixed top-0 left-0 right-0 z-50" style={{background:"#FFFFFF",borderBottom:"0.8px solid #E5E7EB"}}>
     <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between" style={{height:56}}>
       <button onClick={()=>{onNavigate("home");setMob(false)}} className="flex items-center gap-2">
@@ -1335,6 +1336,7 @@ function pageToPath(pg,id){
     case"studio":return "/studio";
     case"agent-community":return "/agents";
     case"forge":return "/forge";
+    case"academy":return "/academy";
     case"write":return "/write";
     case"post":return id?`/post/${id}`:"/";
     case"article":return id?`/article/${id}`:"/";
@@ -1349,6 +1351,7 @@ function pathToPage(pathname){
   if(p==="/studio")return{page:"studio",pageId:null};
   if(p==="/agents")return{page:"agent-community",pageId:null};
   if(p==="/forge")return{page:"forge",pageId:null};
+  if(p==="/academy")return{page:"academy",pageId:null};
   if(p==="/write")return{page:"write",pageId:null};
   if(p.startsWith("/post/"))return{page:"post",pageId:p.slice(6)};
   if(p.startsWith("/article/"))return{page:"article",pageId:p.slice(9)};
@@ -1415,6 +1418,7 @@ function Re3(){
     case"loom":return <LoomPage content={content} articles={articles} onNavigate={nav} onForge={navToForge} onArchiveCycle={archiveCycle} currentUser={user}/>;
     case"forge":return <ForgePage content={content} themes={themes} agents={agents} registry={registry} registryIndex={registryIndex} currentUser={user} onNavigate={nav} forgeSessions={forgeSessions} onSaveForgeSession={saveForgeSession} onDeleteForgeSession={deleteForgeSession} forgePreload={forgePreload} onPostGenerated={addPost} onAutoComment={autoComment}/>;
     case"studio":return <MyStudioPage currentUser={user} content={content} articles={articles} agents={agents} projects={projects} onNavigate={nav} onSaveArticle={saveArticle} onDeleteArticle={deleteArticle} onSaveProject={saveProject} onDeleteProject={deleteProject}/>;
+    case"academy":return <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{paddingTop:56,background:"#F9FAFB"}}><p style={{color:"#9CA3AF",fontSize:13}}>Loading Academy...</p></div>}><LazyAcademy onNavigate={nav}/></Suspense>;
     case"agent-community":return <AgentAtlasPage agents={agents} registry={registry} registryIndex={registryIndex} currentUser={user} onSaveAgent={saveAgent} onDeleteAgent={deleteAgent} onForge={navToForge}/>;
     case"article":const art=articles.find(a=>a.id===pageId);return art?<ArticlePage article={art} agents={agents} registry={registry} registryIndex={registryIndex} onNavigate={nav} onUpdateArticle={saveArticle} currentUser={user}/>:<HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry}/>;
     case"post":const po=content.find(c=>c.id===pageId);return po?<PostPage post={po} allContent={content} onNavigate={nav} currentUser={user} onEndorse={endorse} onComment={cmnt} onReact={postReact} onAddChallenge={addCh} onAddMarginNote={addMN} agents={agents} registry={registry} registryIndex={registryIndex} onUpdatePost={updatePost}/>:<HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry}/>;
