@@ -3,29 +3,57 @@ import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
-    const { articleTitle, articleText, agents, forgePersona } = await req.json();
-    const activeAgents = agents.filter((a) => a.status === "active");
+    const { articleTitle, articleText, agents, forgePersona, activityType } = await req.json();
+    const activeAgents = agents.filter((a) => a.status !== "inactive");
     const agentList = activeAgents
-      .map((a) => `- ID: "${a.id}" | ${a.name} (${a.category}): ${a.persona.slice(0, 100)}`)
+      .map((a) => {
+        let line = `- ID: "${a.id}" | ${a.name}`;
+        if (a.category) line += ` (${a.category})`;
+        if (a.domain) line += ` [${a.domain}]`;
+        line += `: ${(a.persona || "").slice(0, 80)}`;
+        if (a.capabilities) {
+          const caps = Object.entries(a.capabilities)
+            .sort((x, y) => y[1] - x[1])
+            .slice(0, 3)
+            .map(([k, v]) => `${k}:${v}`)
+            .join(",");
+          line += ` | Top: ${caps}`;
+        }
+        return line;
+      })
       .join("\n");
+
+    const activityHints = {
+      ideate:
+        "Select agents with the strongest creative ideation, research, and divergent thinking capabilities. Prioritize diversity of perspective.",
+      implement:
+        "Select agents with the strongest architecture, implementation, and synthesis capabilities. Prioritize practical builders.",
+      debate:
+        "Select agents whose expertise creates the most productive tension and coverage for this topic.",
+    };
+
+    const activityHint = activityHints[activityType] || activityHints.debate;
+    const selectCount = activityType === "implement" ? 6 : activityType === "ideate" ? 8 : 5;
 
     const response = await callLLM(
       "anthropic",
-      forgePersona || "You are Forge, a panel curator. You read articles and select the 5 most relevant debater agents that will create productive friction and diverse perspectives.",
+      forgePersona || "You are Forge, a panel curator. You read articles and select the most relevant agents that will create productive friction and diverse perspectives.",
       `Article title: "${articleTitle}"
-Article content: ${articleText.slice(0, 3000)}
+Article content: ${articleText.slice(0, 2000)}
 
 Available agents (${activeAgents.length} total):
 ${agentList}
 
-Select exactly 5 agents for this debate. Pick agents whose expertise creates the most productive tension and coverage for THIS specific topic.
+${activityHint}
 
-IMPORTANT: Use the exact ID strings from the list above (e.g. "agent_ledger", "agent_prism"). Do NOT invent new IDs.
+Select exactly ${selectCount} agents. Pick agents whose expertise is most relevant for THIS specific topic.
+
+IMPORTANT: Use the exact ID strings from the list above. Do NOT invent new IDs.
 
 Respond in JSON only:
 {
-  "selected": ["agent_xxx", "agent_yyy", "agent_zzz", "agent_aaa", "agent_bbb"],
-  "rationale": "One paragraph explaining why these 5 were chosen for this topic"
+  "selected": [${Array(selectCount).fill('"agent_xxx"').join(", ")}],
+  "rationale": "One paragraph explaining why these were chosen for this topic"
 }`,
       { maxTokens: 500 }
     );
@@ -36,7 +64,7 @@ Respond in JSON only:
 
     // Validate selected agents exist
     const validIds = activeAgents.map((a) => a.id);
-    const selected = parsed.selected.filter((id) => validIds.includes(id)).slice(0, 5);
+    const selected = parsed.selected.filter((id) => validIds.includes(id)).slice(0, selectCount);
 
     return NextResponse.json({ selected, rationale: parsed.rationale || "" });
   } catch (e) {
