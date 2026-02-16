@@ -207,11 +207,12 @@ function ArchitectureDecision({scenario,options,correctIndex,explanation,onAnswe
 }
 
 // ==================== COMPARISON TABLE (Deep Track) ====================
-function ComparisonTable({title,columns,rows}){
+function ComparisonTable({title,columns,headers,rows}){
+  const cols=columns||headers||[];
   return <div className="rounded-xl border overflow-hidden mb-4" style={{borderColor:GIM.border}}>
     {title&&<div className="px-4 py-2" style={{background:GIM.borderLight,borderBottom:`1px solid ${GIM.border}`}}><span className="font-semibold" style={{fontSize:13,color:GIM.headingText,fontFamily:GIM.fontMain}}>{title}</span></div>}
     <table className="w-full" style={{fontSize:13,fontFamily:GIM.fontMain}}>
-      <thead><tr style={{background:GIM.borderLight}}>{columns.map((c,i)=><th key={i} className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>{c}</th>)}</tr></thead>
+      <thead><tr style={{background:GIM.borderLight}}>{cols.map((c,i)=><th key={i} className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>{c}</th>)}</tr></thead>
       <tbody>{rows.map((row,i)=><tr key={i} style={{borderTop:`1px solid ${GIM.border}`}}>{row.map((cell,j)=><td key={j} className="p-3" style={{color:j===0?GIM.headingText:GIM.bodyText,fontWeight:j===0?600:400}}>{cell}</td>)}</tr>)}</tbody>
     </table>
   </div>;
@@ -262,20 +263,137 @@ function useDepthPreference(){
   return[getDepth,setDepth];
 }
 
+// ==================== ADMIN CONFIG ====================
+const ADMIN_EMAIL='nitesh4learning@gmail.com';
+const isAcademyAdmin=(user)=>user?.email===ADMIN_EMAIL;
+const DEFAULT_TIER_COLORS=['#2D8A6E','#3B82F6','#9333EA','#DC2626','#D97706','#0891B2','#7C3AED','#E11D48'];
+
+function useAcademyAdmin(){
+  const[config,setConfig]=useState(()=>ADB.get('admin_config',null));
+  const save=(next)=>{setConfig(next);ADB.set('admin_config',next)};
+  const reset=()=>{setConfig(null);if(typeof window!=='undefined')localStorage.removeItem('re3_academy_admin_config')};
+
+  // Merge admin overrides with hardcoded defaults
+  const getTiers=useCallback(()=>{
+    const base={...TIER_COLORS};
+    if(!config?.tiers)return base;
+    const merged={};
+    // Admin tiers override base tiers
+    const allKeys=new Set([...Object.keys(base),...Object.keys(config.tiers)]);
+    allKeys.forEach(k=>{
+      const bk=base[k]||{accent:'#6B7280',bg:'#F3F4F6',label:`Tier ${k}`};
+      const ak=config.tiers[k];
+      merged[k]={accent:ak?.accent||bk.accent,bg:ak?.bg||bk.bg,label:ak?.label||bk.label,order:ak?.order??parseInt(k)};
+    });
+    return merged;
+  },[config]);
+
+  const getCourses=useCallback(()=>{
+    let list=[...COURSES];
+    if(!config?.courses)return list;
+    // Apply admin overrides
+    list=list.map(c=>{
+      const override=config.courses[c.id];
+      if(!override)return c;
+      return {...c,tier:override.tier??c.tier,status:override.status??c.status,title:override.title||c.title,description:override.description||c.description};
+    });
+    // Add admin-created courses
+    if(config.customCourses){
+      config.customCourses.forEach(cc=>{list.push({...cc,status:cc.status||'coming_soon'})});
+    }
+    // Apply ordering
+    if(config.courseOrder){
+      const orderMap={};config.courseOrder.forEach((id,i)=>orderMap[id]=i);
+      list.sort((a,b)=>{
+        const oa=orderMap[a.id]??999;const ob=orderMap[b.id]??999;
+        if(oa!==ob)return oa-ob;return 0;
+      });
+    }
+    return list;
+  },[config]);
+
+  const updateTier=(tierNum,updates)=>{
+    const next={...config||{},tiers:{...(config?.tiers||{})}};
+    next.tiers[tierNum]={...(next.tiers[tierNum]||{}), ...updates};
+    save(next);
+  };
+  const addTier=()=>{
+    const existing=Object.keys(config?.tiers||TIER_COLORS).map(Number);
+    const newNum=Math.max(...existing,0)+1;
+    const colorIdx=(newNum-1)%DEFAULT_TIER_COLORS.length;
+    updateTier(newNum,{label:`New Tier ${newNum}`,accent:DEFAULT_TIER_COLORS[colorIdx],bg:'#F9FAFB',order:newNum});
+  };
+  const removeTier=(tierNum)=>{
+    const courses=getCourses().filter(c=>c.tier===tierNum);
+    if(courses.length>0)return false;
+    const next={...config||{},tiers:{...(config?.tiers||{})}};
+    delete next.tiers[tierNum];
+    save(next);return true;
+  };
+  const updateCourse=(courseId,updates)=>{
+    const next={...config||{},courses:{...(config?.courses||{})}};
+    next.courses[courseId]={...(next.courses[courseId]||{}),...updates};
+    save(next);
+  };
+  const moveCourse=(courseId,newTier)=>updateCourse(courseId,{tier:newTier});
+  const reorderCourse=(courseId,direction)=>{
+    const courses=getCourses();
+    const idx=courses.findIndex(c=>c.id===courseId);
+    if(idx<0)return;
+    const swap=direction==='up'?idx-1:idx+1;
+    if(swap<0||swap>=courses.length)return;
+    const order=courses.map(c=>c.id);
+    [order[idx],order[swap]]=[order[swap],order[idx]];
+    save({...config||{},courseOrder:order});
+  };
+  const addCourse=(courseData)=>{
+    const next={...config||{},customCourses:[...(config?.customCourses||[])]};
+    next.customCourses.push({id:`custom_${Date.now()}`,icon:'\uD83D\uDCD8',difficulty:'Beginner',timeMinutes:30,exerciseCount:0,tabCount:0,...courseData});
+    save(next);
+  };
+
+  return{config,getTiers,getCourses,updateTier,addTier,removeTier,updateCourse,moveCourse,reorderCourse,addCourse,reset,save};
+}
+
 // ==================== ACADEMY HUB ====================
-function AcademyHub({onStartCourse,progress}){
-  const totalCourses=COURSES.length;
-  const totalExercises=COURSES.reduce((s,c)=>s+c.exerciseCount,0);
-  const totalTime=Math.round(COURSES.reduce((s,c)=>s+c.timeMinutes,0)/60);
-  const availableCourses=COURSES.filter(c=>c.status==='available');
+function AcademyHub({onStartCourse,progress,currentUser}){
+  const admin=useAcademyAdmin();
+  const isAdmin=isAcademyAdmin(currentUser);
+  const[adminMode,setAdminMode]=useState(false);
+  const[editingTier,setEditingTier]=useState(null);
+  const[editTierLabel,setEditTierLabel]=useState('');
+  const[editingCourse,setEditingCourse]=useState(null);
+  const[editCourseData,setEditCourseData]=useState({});
+  const[showAddCourse,setShowAddCourse]=useState(null);
+  const[newCourse,setNewCourse]=useState({title:'',description:'',tier:1,icon:'\uD83D\uDCD8',difficulty:'Beginner',timeMinutes:30,exerciseCount:0,tabCount:0});
+
+  const tiers=admin.getTiers();
+  const courses=admin.getCourses();
+  const totalCourses=courses.length;
+  const totalExercises=courses.reduce((s,c)=>s+c.exerciseCount,0);
+  const totalTime=Math.round(courses.reduce((s,c)=>s+c.timeMinutes,0)/60);
+  const availableCourses=courses.filter(c=>c.status==='available');
   const overallPercent=availableCourses.length>0?Math.round(availableCourses.reduce((s,c)=>s+(progress[c.id]?.percent||0),0)/availableCourses.length):0;
+  const tierKeys=Object.keys(tiers).map(Number).sort((a,b)=>(tiers[a]?.order??a)-(tiers[b]?.order??b));
+
+  const statusCycle={'available':'draft','draft':'coming_soon','coming_soon':'available'};
+  const statusColors={'available':'#2D8A6E','draft':'#D97706','coming_soon':'#9CA3AF'};
 
   return <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+    {/* Admin Bar */}
+    {adminMode&&<FadeIn><div className="flex items-center justify-between p-3 rounded-xl mb-6" style={{background:'#FEF3C7',border:'1px solid #FDE68A'}}>
+      <div className="flex items-center gap-2"><span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{background:'#F59E0B',color:'white'}}>ADMIN MODE</span><span style={{fontSize:12,color:'#92400E'}}>Changes save to this browser automatically</span></div>
+      <div className="flex items-center gap-2"><button onClick={()=>{admin.reset();setAdminMode(false)}} className="px-3 py-1 rounded-lg text-xs font-semibold" style={{color:'#DC2626',border:'1px solid #FECACA'}}>Reset to Defaults</button><button onClick={()=>setAdminMode(false)} className="px-3 py-1 rounded-lg text-xs font-semibold" style={{color:'#4B5563',border:'1px solid #E5E7EB'}}>Exit Admin</button></div>
+    </div></FadeIn>}
+
     {/* Hero */}
     <FadeIn><div className="mb-8">
-      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-4" style={{background:GIM.primaryBadge,border:'1px solid rgba(147,51,234,0.2)'}}>
-        <span style={{fontSize:14}}>{'\uD83C\uDF93'}</span>
-        <span className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:10,letterSpacing:'0.12em',color:GIM.primary}}>RE{'\u00b3'} ACADEMY</span>
+      <div className="flex items-center justify-between">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-4" style={{background:GIM.primaryBadge,border:'1px solid rgba(147,51,234,0.2)'}}>
+          <span style={{fontSize:14}}>{'\uD83C\uDF93'}</span>
+          <span className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:10,letterSpacing:'0.12em',color:GIM.primary}}>RE{'\u00b3'} ACADEMY</span>
+        </div>
+        {isAdmin&&!adminMode&&<button onClick={()=>setAdminMode(true)} className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm" style={{background:'#FEF3C7',color:'#92400E',border:'1px solid #FDE68A'}}>{'\u2699\uFE0F'} Manage</button>}
       </div>
       <h1 className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:'clamp(28px,5vw,42px)',lineHeight:1.1,letterSpacing:'-0.02em',color:GIM.headingText,marginBottom:8}}>Learn AI by <span style={{color:GIM.primary}}>Doing</span></h1>
       <p style={{fontFamily:GIM.fontMain,fontSize:'clamp(14px,1.6vw,16px)',maxWidth:540,color:GIM.bodyText,lineHeight:1.7,marginBottom:16}}>Interactive courses that teach you how AI systems work -- from tokens to multi-agent orchestration. Every concept includes hands-on exercises you can try right here.</p>
@@ -293,26 +411,81 @@ function AcademyHub({onStartCourse,progress}){
     </div></FadeIn>
 
     {/* Tier Sections */}
-    {[1,2,3,4].map(tier=>{const tc=TIER_COLORS[tier];const tierCourses=COURSES.filter(c=>c.tier===tier);
+    {tierKeys.map(tier=>{const tc=tiers[tier]||TIER_COLORS[tier]||{accent:'#6B7280',bg:'#F3F4F6',label:`Tier ${tier}`};const tierCourses=courses.filter(c=>c.tier===tier);
       return <FadeIn key={tier} delay={80+tier*40}><div className="mb-8">
-        <div className="flex items-center gap-2 mb-4"><div className="w-1 rounded-full" style={{height:20,background:tc.accent}}/><h2 className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:18,color:tc.accent}}>Tier {tier}: {tc.label}</h2><span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{background:tc.bg,color:tc.accent}}>{tierCourses.length} courses</span></div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{tierCourses.map(course=>{
-          const cp=progress[course.id]||{percent:0};const isComing=course.status==='coming_soon';const isComplete=cp.percent>=100;const isStarted=cp.percent>0&&!isComplete;
-          return <div key={course.id} className="rounded-xl border p-4 transition-all" style={{background:isComing?GIM.borderLight:GIM.cardBg,borderColor:GIM.border,opacity:isComing?0.65:1}} onMouseEnter={e=>{if(!isComing)e.currentTarget.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)'}} onMouseLeave={e=>{e.currentTarget.style.boxShadow='none'}}>
-            <div className="flex items-start justify-between mb-2"><span style={{fontSize:28}}>{course.icon}</span><div className="flex items-center gap-2"><DepthBadge/><span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{background:tc.bg,color:tc.accent}}>{course.difficulty}</span></div></div>
-            <h3 className="font-bold mb-1" style={{fontSize:15,color:GIM.headingText,fontFamily:GIM.fontMain}}>{course.title}</h3>
-            <p className="mb-3" style={{fontSize:12,color:GIM.bodyText,lineHeight:1.5}}>{course.description}</p>
-            <div className="flex items-center gap-2 mb-3" style={{fontSize:11,color:GIM.mutedText}}><span>{course.timeMinutes} min</span><span>{'\u00b7'}</span><span>{course.exerciseCount} exercises</span><span>{'\u00b7'}</span><span>{course.tabCount} lessons</span></div>
-            {!isComing&&<div className="mb-3"><ProgressBar percent={cp.percent} size="sm"/></div>}
-            {isComing?<span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold" style={{background:GIM.borderLight,color:GIM.mutedText}}>Coming Soon</span>
-            :<button onClick={()=>onStartCourse(course.id)} className="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm" style={{background:isComplete?'#EBF5F1':isStarted?GIM.primary:GIM.primaryBadge,color:isComplete?'#2D8A6E':isStarted?'white':GIM.primary}}>{isComplete?'\u2713 Review':isStarted?'Continue':'Start Course'}</button>}
+        {/* Tier Header */}
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-1 rounded-full" style={{height:20,background:tc.accent}}/>
+          {editingTier===tier?<div className="flex items-center gap-2 flex-1">
+            <input value={editTierLabel} onChange={e=>setEditTierLabel(e.target.value)} className="flex-1 px-3 py-1 rounded-lg border text-sm font-bold focus:outline-none" style={{borderColor:GIM.border,color:tc.accent}} autoFocus onKeyDown={e=>{if(e.key==='Enter'){admin.updateTier(tier,{label:editTierLabel});setEditingTier(null)}}}/>
+            <button onClick={()=>{admin.updateTier(tier,{label:editTierLabel});setEditingTier(null)}} className="px-2 py-1 rounded text-xs font-semibold" style={{background:tc.accent,color:'white'}}>Save</button>
+            <button onClick={()=>setEditingTier(null)} className="px-2 py-1 rounded text-xs" style={{color:GIM.mutedText}}>Cancel</button>
+          </div>:<>
+            <h2 className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:18,color:tc.accent}}>Tier {tier}: {tc.label}</h2>
+            <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{background:tc.bg,color:tc.accent}}>{tierCourses.length} courses</span>
+            {adminMode&&<div className="flex items-center gap-1 ml-auto">
+              <button onClick={()=>{setEditingTier(tier);setEditTierLabel(tc.label)}} className="p-1 rounded hover:bg-gray-100" title="Rename" style={{fontSize:12}}>{'\u270F\uFE0F'}</button>
+              {tierKeys.indexOf(tier)>0&&<button onClick={()=>{const prev=tierKeys[tierKeys.indexOf(tier)-1];const myOrder=tiers[tier]?.order??tier;const prevOrder=tiers[prev]?.order??prev;admin.updateTier(tier,{order:prevOrder});admin.updateTier(prev,{order:myOrder})}} className="p-1 rounded hover:bg-gray-100" title="Move up" style={{fontSize:12}}>{'\u2B06\uFE0F'}</button>}
+              {tierKeys.indexOf(tier)<tierKeys.length-1&&<button onClick={()=>{const next=tierKeys[tierKeys.indexOf(tier)+1];const myOrder=tiers[tier]?.order??tier;const nextOrder=tiers[next]?.order??next;admin.updateTier(tier,{order:nextOrder});admin.updateTier(next,{order:myOrder})}} className="p-1 rounded hover:bg-gray-100" title="Move down" style={{fontSize:12}}>{'\u2B07\uFE0F'}</button>}
+              {tierCourses.length===0&&<button onClick={()=>admin.removeTier(tier)} className="p-1 rounded hover:bg-red-50" title="Delete empty tier" style={{fontSize:12}}>{'\uD83D\uDDD1\uFE0F'}</button>}
+            </div>}
+          </>}
+        </div>
+        {/* Course Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{tierCourses.map((course,ci)=>{
+          const cp=progress[course.id]||{percent:0};const isComing=course.status==='coming_soon';const isDraft=course.status==='draft';const isComplete=cp.percent>=100;const isStarted=cp.percent>0&&!isComplete;
+          return <div key={course.id} className="rounded-xl border p-4 transition-all" style={{background:isComing||isDraft?GIM.borderLight:GIM.cardBg,borderColor:adminMode?tc.accent+'40':GIM.border,opacity:isComing?0.65:isDraft?0.75:1}} onMouseEnter={e=>{if(!isComing)e.currentTarget.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)'}} onMouseLeave={e=>{e.currentTarget.style.boxShadow='none'}}>
+            {/* Admin controls row */}
+            {adminMode&&<div className="flex items-center gap-1 mb-2 pb-2" style={{borderBottom:`1px solid ${GIM.border}`}}>
+              <button onClick={()=>admin.updateCourse(course.id,{status:statusCycle[course.status]||'available'})} className="px-2 py-0.5 rounded-full text-xs font-bold" style={{background:statusColors[course.status]+'18',color:statusColors[course.status],border:`1px solid ${statusColors[course.status]}30`}}>{course.status}</button>
+              <select value={course.tier} onChange={e=>admin.moveCourse(course.id,parseInt(e.target.value))} className="px-1 py-0.5 rounded text-xs border" style={{borderColor:GIM.border,fontSize:10}}>
+                {tierKeys.map(t=><option key={t} value={t}>Tier {t}</option>)}
+              </select>
+              <div className="ml-auto flex items-center gap-0.5">
+                {ci>0&&<button onClick={()=>admin.reorderCourse(course.id,'up')} className="p-0.5 rounded hover:bg-gray-100" style={{fontSize:10}}>{'\u25B2'}</button>}
+                {ci<tierCourses.length-1&&<button onClick={()=>admin.reorderCourse(course.id,'down')} className="p-0.5 rounded hover:bg-gray-100" style={{fontSize:10}}>{'\u25BC'}</button>}
+                <button onClick={()=>{setEditingCourse(course.id);setEditCourseData({title:course.title,description:course.description,icon:course.icon})}} className="p-0.5 rounded hover:bg-gray-100" style={{fontSize:10}}>{'\u270F\uFE0F'}</button>
+              </div>
+            </div>}
+            {/* Course edit form */}
+            {editingCourse===course.id?<div className="space-y-2">
+              <input value={editCourseData.title||''} onChange={e=>setEditCourseData({...editCourseData,title:e.target.value})} className="w-full px-3 py-1.5 rounded-lg border text-sm font-bold focus:outline-none" style={{borderColor:GIM.border}} placeholder="Course title"/>
+              <textarea value={editCourseData.description||''} onChange={e=>setEditCourseData({...editCourseData,description:e.target.value})} className="w-full px-3 py-1.5 rounded-lg border text-xs focus:outline-none" style={{borderColor:GIM.border}} rows={2} placeholder="Description"/>
+              <div className="flex gap-2">
+                <button onClick={()=>{admin.updateCourse(course.id,editCourseData);setEditingCourse(null)}} className="px-3 py-1 rounded-lg text-xs font-semibold" style={{background:GIM.primary,color:'white'}}>Save</button>
+                <button onClick={()=>setEditingCourse(null)} className="px-3 py-1 rounded-lg text-xs" style={{color:GIM.mutedText}}>Cancel</button>
+              </div>
+            </div>:<>
+              <div className="flex items-start justify-between mb-2"><span style={{fontSize:28}}>{course.icon}</span><div className="flex items-center gap-2"><DepthBadge/><span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{background:tc.bg,color:tc.accent}}>{course.difficulty}</span>{isDraft&&<span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{background:'#FEF3C7',color:'#D97706'}}>Draft</span>}</div></div>
+              <h3 className="font-bold mb-1" style={{fontSize:15,color:GIM.headingText,fontFamily:GIM.fontMain}}>{course.title}</h3>
+              <p className="mb-3" style={{fontSize:12,color:GIM.bodyText,lineHeight:1.5}}>{course.description}</p>
+              <div className="flex items-center gap-2 mb-3" style={{fontSize:11,color:GIM.mutedText}}><span>{course.timeMinutes} min</span><span>{'\u00b7'}</span><span>{course.exerciseCount} exercises</span><span>{'\u00b7'}</span><span>{course.tabCount} lessons</span></div>
+              {!isComing&&!isDraft&&<div className="mb-3"><ProgressBar percent={cp.percent} size="sm"/></div>}
+              {isComing?<span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold" style={{background:GIM.borderLight,color:GIM.mutedText}}>Coming Soon</span>
+              :isDraft?<span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold" style={{background:'#FEF3C7',color:'#D97706'}}>Draft — Admin Only</span>
+              :<button onClick={()=>onStartCourse(course.id)} className="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm" style={{background:isComplete?'#EBF5F1':isStarted?GIM.primary:GIM.primaryBadge,color:isComplete?'#2D8A6E':isStarted?'white':GIM.primary}}>{isComplete?'\u2713 Review':isStarted?'Continue':'Start Course'}</button>}
+            </>}
           </div>})}</div>
+        {/* Add Course button (admin) */}
+        {adminMode&&<div className="mt-3">
+          {showAddCourse===tier?<div className="rounded-xl border p-4 space-y-2" style={{borderColor:GIM.border,background:GIM.cardBg}}>
+            <input value={newCourse.title} onChange={e=>setNewCourse({...newCourse,title:e.target.value})} className="w-full px-3 py-1.5 rounded-lg border text-sm font-bold focus:outline-none" style={{borderColor:GIM.border}} placeholder="Course title"/>
+            <textarea value={newCourse.description} onChange={e=>setNewCourse({...newCourse,description:e.target.value})} className="w-full px-3 py-1.5 rounded-lg border text-xs focus:outline-none" style={{borderColor:GIM.border}} rows={2} placeholder="Description"/>
+            <div className="flex gap-2">
+              <button onClick={()=>{if(newCourse.title.trim()){admin.addCourse({...newCourse,tier});setNewCourse({title:'',description:'',tier:1,icon:'\uD83D\uDCD8',difficulty:'Beginner',timeMinutes:30,exerciseCount:0,tabCount:0});setShowAddCourse(null)}}} className="px-3 py-1 rounded-lg text-xs font-semibold" style={{background:tc.accent,color:'white'}}>Add Course</button>
+              <button onClick={()=>setShowAddCourse(null)} className="px-3 py-1 rounded-lg text-xs" style={{color:GIM.mutedText}}>Cancel</button>
+            </div>
+          </div>:<button onClick={()=>setShowAddCourse(tier)} className="w-full py-2 rounded-xl border-2 border-dashed text-xs font-semibold transition-all hover:border-solid" style={{borderColor:tc.accent+'40',color:tc.accent}}>+ Add Course to Tier {tier}</button>}
+        </div>}
       </div></FadeIn>})}
+
+    {/* Add Tier button (admin) */}
+    {adminMode&&<FadeIn><button onClick={admin.addTier} className="w-full py-3 rounded-xl border-2 border-dashed text-sm font-semibold transition-all hover:border-solid mb-8" style={{borderColor:GIM.primary+'40',color:GIM.primary}}>+ Add New Tier</button></FadeIn>}
   </div>;
 }
 
 // ==================== MAIN EXPORT ====================
-export default function Academy({onNavigate}){
+export default function Academy({onNavigate,currentUser}){
   const[activeCourse,setActiveCourse]=useState(null);
   const[progress,updateProgress]=useAcademyProgress();
   const[getDepth,setDepth]=useDepthPreference();
@@ -343,7 +516,7 @@ export default function Academy({onNavigate}){
   for(const[id,Comp]of routes){const r=courseShell(id,Comp);if(r)return r;}
 
   return <div className="min-h-screen" style={{paddingTop:56,background:GIM.pageBg}}>
-    <AcademyHub onStartCourse={(id)=>setActiveCourse(id)} progress={progress}/>
+    <AcademyHub onStartCourse={(id)=>setActiveCourse(id)} progress={progress} currentUser={currentUser}/>
   </div>;
 }
 

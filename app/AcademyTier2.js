@@ -158,7 +158,7 @@ async def get_greeting(name: str) -> str:
     <p className="mt-3">This convention-over-configuration approach means writing an MCP server is almost as simple as writing a regular Python function.</p>
   </ExpandableSection>
   <Quiz question="What does the MCP SDK auto-generate from a Python function?" options={["The server's hosting infrastructure","The tool's name, description, and input schema","The client-side UI","Test cases for the tool"]} correctIndex={1} explanation="The SDK inspects the function name (tool name), docstring (description), and type hints (input schema) to automatically generate the complete MCP tool definition." onAnswer={()=>onComplete&&onComplete('mcp-build','quiz1')}/>
-  <SeeItInRe3 text="Re\u00b3's Ada could be exposed as an MCP server -- offering tools like 'search_articles', 'start_debate', and 'get_loom_synthesis' to any MCP-compatible AI client." targetPage="forge" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="Re\u00b3's Debate Lab could be exposed as an MCP server -- offering tools like 'search_articles', 'start_debate', and 'get_loom_synthesis' to any MCP-compatible AI client." targetPage="forge" onNavigate={onNavigate}/>
 </div>}
 
 function TabMCPPlayground({onNavigate,onComplete}){return <div>
@@ -832,8 +832,8 @@ function TabAgentCards({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Agent Cards</h2>
   <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>An <b>Agent Card</b> is a JSON document that describes what an AI agent can do. It's like a LinkedIn profile for AI agents -- advertising capabilities so other agents know who to collaborate with.</p>
   <AnalogyBox emoji={'\uD83D\uDCBC'} title="Think of it like a business card + resume">An Agent Card tells other agents: "Here's my name, what I specialize in, how to reach me, and what I can help with." It enables discovery and capability negotiation.</AnalogyBox>
-  <CodeBlock language="json" label="Example Agent Card (Re\u00b3 Ada)" code={`{
-  "name": "Re\u00b3 Ada Agent",
+  <CodeBlock language="json" label="Example Agent Card (Re\u00b3 Debate Lab)" code={`{
+  "name": "Re\u00b3 Debate Lab Agent",
   "description": "Orchestrates multi-agent debates on any topic",
   "url": "https://re3.live/api/a2a",
   "capabilities": {
@@ -854,7 +854,7 @@ function TabAgentCards({onNavigate,onComplete}){return <div>
   ]
 }`}/>
   <Quiz question="What is the primary purpose of an Agent Card?" options={["To authenticate the agent","To describe capabilities for discovery by other agents","To store the agent's conversation history","To define the agent's pricing"]} correctIndex={1} explanation="Agent Cards enable discovery -- other agents can find and understand what capabilities are available, then decide whether to collaborate." onAnswer={()=>onComplete&&onComplete('agent-cards','quiz1')}/>
-  <SeeItInRe3 text="Each Re\u00b3 agent (Ada, Socratia, Hypatia) could publish an Agent Card describing their debate capabilities, allowing external AI systems to discover and collaborate with them." targetPage="agent-community" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="Each Re\u00b3 orchestrator agent could publish an Agent Card describing their debate capabilities, allowing external AI systems to discover and collaborate with them." targetPage="agent-community" onNavigate={onNavigate}/>
 </div>}
 
 function TabTaskLifecycle({onNavigate,onComplete}){return <div>

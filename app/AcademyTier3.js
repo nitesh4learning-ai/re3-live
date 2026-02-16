@@ -43,7 +43,7 @@ function TabRolesPatterns({onNavigate,onComplete}){return <div>
     </table>
   </div>
   <PatternMatcher/>
-  <SeeItInRe3 text="Re\u00b3 uses the Debate Pattern: Ada curates the panel, Socratia moderates quality, specialized debater agents argue positions, and Hypatia synthesizes insights into The Loom." targetPage="forge" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="Re\u00b3 uses the Debate Pattern: the panel curator selects agents, the moderator evaluates quality, specialized debater agents argue positions, and the synthesizer weaves insights into The Loom." targetPage="forge" onNavigate={onNavigate}/>
   <Quiz question="Re\u00b3 uses which orchestration pattern?" options={["Orchestrator","Debate","Pipeline","Consensus"]} correctIndex={1} explanation="Re\u00b3 uses the Debate Pattern -- agents present arguments, engage in multiple rounds, and a synthesizer (Hypatia) draws emergent insights from the collective discussion." onAnswer={()=>onComplete&&onComplete('roles-patterns','quiz1')}/>
 </div>}
 
@@ -87,7 +87,7 @@ function TabFrameworks({onNavigate,onComplete}){return <div>
     </table>
   </div>
   <Quiz question="Which framework is best for building a graph-based workflow with loops and conditional branching?" options={["CrewAI","LangGraph","AutoGen","Flask"]} correctIndex={1} explanation="LangGraph is specifically designed for graph-based workflows. Its nodes-and-edges model naturally supports cycles, branches, and conditional routing between agent steps." onAnswer={()=>onComplete&&onComplete('frameworks','quiz1')}/>
-  <SeeItInRe3 text="Re\u00b3 built its own orchestration framework for debates, using a round-based flow: Ada (select) \u2192 Rounds (debate) \u2192 Socratia (moderate) \u2192 Hypatia (synthesize)." targetPage="agent-community" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="Re\u00b3 built its own orchestration framework for debates, using a round-based flow: Select panel \u2192 Rounds (debate) \u2192 Moderate \u2192 Synthesize into The Loom." targetPage="agent-community" onNavigate={onNavigate}/>
 </div>}
 
 function TabMAPlayground({onNavigate,onComplete}){return <div>
@@ -97,7 +97,7 @@ function TabMAPlayground({onNavigate,onComplete}){return <div>
     <Quiz question="You're building a content pipeline: research \u2192 write \u2192 edit \u2192 SEO optimize. Which pattern?" options={["Debate -- agents discuss the content","Pipeline -- each stage feeds the next","Consensus -- all agents must agree","Orchestrator -- one agent manages all"]} correctIndex={1} explanation="A sequential workflow where each stage's output becomes the next stage's input is the textbook Pipeline pattern." onAnswer={()=>onComplete&&onComplete('ma-playground','quiz1')}/>
   </ExpandableSection>
   <ExpandableSection title="Exercise 2: Re\u00b3 Architecture" icon={'\uD83E\uDD16'}>
-    <Quiz question="In Re\u00b3, what role does Socratia play?" options={["Selects which agents participate","Moderates debate quality and scores arguments","Synthesizes the final Loom output","Generates the initial article"]} correctIndex={1} explanation="Socratia is the moderator -- it evaluates argument quality, assigns scores, and ensures the debate stays on-topic and productive." onAnswer={()=>onComplete&&onComplete('ma-playground','quiz2')}/>
+    <Quiz question="In Re\u00b3, what role does the moderator play?" options={["Selects which agents participate","Moderates debate quality and scores arguments","Synthesizes the final Loom output","Generates the initial article"]} correctIndex={1} explanation="The moderator evaluates argument quality, assigns scores, and ensures the debate stays on-topic and productive." onAnswer={()=>onComplete&&onComplete('ma-playground','quiz2')}/>
   </ExpandableSection>
   <ExpandableSection title="Exercise 3: Trade-offs" icon={'\u2696\uFE0F'}>
     <Quiz question="What is the biggest challenge of multi-agent systems?" options={["They're always slower than single agents","Coordinating state and managing complexity","They require more GPU memory","They can only use one LLM provider"]} correctIndex={1} explanation="The biggest challenge is coordination complexity -- managing shared state, ensuring agents communicate effectively, handling failures, and debugging interactions across multiple agents." onAnswer={()=>onComplete&&onComplete('ma-playground','quiz3')}/>
@@ -1500,7 +1500,7 @@ function TabEvalFrameworks({onNavigate,onComplete}){return <div>
   </div>
   <Quiz question="Users report that your AI sometimes includes information not found in the source documents. Which metric is low?" options={["Answer Relevancy","Context Precision","Faithfulness","Coherence"]} correctIndex={2} explanation="Faithfulness measures whether the answer is grounded in the retrieved context. Low faithfulness means the LLM is generating information beyond what was retrieved -- hallucinating." onAnswer={()=>onComplete&&onComplete('eval-frameworks','quiz1')}/>
   <Quiz question="Your RAG system retrieves mostly irrelevant documents. Which metric would flag this?" options={["Faithfulness","Context Precision","Answer Relevancy","Coherence"]} correctIndex={1} explanation="Context Precision measures whether the retrieved documents are actually relevant to the query. Low precision means the retrieval step is returning too much irrelevant content." onAnswer={()=>onComplete&&onComplete('eval-frameworks','quiz2')}/>
-  <SeeItInRe3 text="Re\u00b3's Socratia agent acts as a quality evaluator -- scoring debate arguments for relevance, depth, and accuracy. This is AI evaluation applied to a debate system." targetPage="forge" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="Re\u00b3's moderator agent acts as a quality evaluator -- scoring debate arguments for relevance, depth, and accuracy. This is AI evaluation applied to a debate system." targetPage="forge" onNavigate={onNavigate}/>
 </div>}
 
 function TabObsPlayground({onNavigate,onComplete}){return <div>

@@ -294,7 +294,7 @@ function TabTokens({onNavigate,onComplete}){return <div>
   </ExpandableSection>
   <TokenCounter/>
   <Quiz question="Why do LLMs use tokens instead of whole words?" options={["It makes the model faster to train","It allows handling any text, including words the model has never seen","Words are too complicated for computers","It reduces the model's memory usage"]} correctIndex={1} explanation="Tokenization via BPE allows the model to handle any text input, including words it has never seen before, by breaking them into known sub-word pieces. Even made-up words can be tokenized!" onAnswer={()=>onComplete&&onComplete('tokens','quiz1')}/>
-  <SeeItInRe3 text="In The Ada, each agent's debate response is measured in tokens. This is why there are length limits on arguments." targetPage="forge" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="In the Debate Lab, each agent's debate response is measured in tokens. This is why there are length limits on arguments." targetPage="forge" onNavigate={onNavigate}/>
 </div>}
 
 function TabContext({onNavigate,onComplete}){return <div>
@@ -854,7 +854,7 @@ function TabSystemPrompts({onNavigate,onComplete}){return <div>
   <PromptBuilder/>
   <Quiz question="What is the most reliable way to ensure consistent AI behavior across different users?" options={["Ask each user to state their preferences","Use a well-crafted system prompt","Set temperature to 0","Use the newest model available"]} correctIndex={1} explanation="System prompts are applied to every interaction automatically. They define role, constraints, and format before any user input, making them the most reliable consistency mechanism." onAnswer={()=>onComplete&&onComplete('system-prompts','quiz1')}/>
   <Quiz question="Which element should NOT typically be in a system prompt?" options={["Role definition","Output format requirements","The user's private data","Behavioral constraints"]} correctIndex={2} explanation="System prompts should define role, format, and constraints -- never include private user data, which could leak in outputs or logs." onAnswer={()=>onComplete&&onComplete('system-prompts','quiz2')}/>
-  <SeeItInRe3 text="In The Ada, each debater agent receives a detailed system prompt defining their persona, expertise area, and debate style. This is why each agent argues differently." targetPage="forge" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="In the Debate Lab, each debater agent receives a detailed system prompt defining their persona, expertise area, and debate style. This is why each agent argues differently." targetPage="forge" onNavigate={onNavigate}/>
 </div>}
 
 function TabFewShot({onNavigate,onComplete}){return <div>
@@ -1400,7 +1400,7 @@ function TabVectorDBs({onNavigate,onComplete}){return <div>
     <p className="mt-3">HNSW trades ~5% accuracy for 100x speed improvement. For most applications, the small accuracy loss is negligible.</p>
   </ExpandableSection>
   <Quiz question="Why do vector databases use Approximate Nearest Neighbor instead of exact search?" options={["ANN gives better results","Exact search is too slow for millions of vectors","ANN uses less storage","Exact search doesn't work with high dimensions"]} correctIndex={1} explanation="Exact search requires comparing your query against every vector in the database -- this is O(n) and too slow for millions of vectors. ANN algorithms like HNSW provide near-perfect results in milliseconds." onAnswer={()=>onComplete&&onComplete('vector-dbs','quiz1')}/>
-  <SeeItInRe3 text="Re\u00b3 uses vector search to find relevant articles when Ada selects content for debates. Your query becomes a vector, and similar article vectors are found instantly." targetPage="forge" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="Re\u00b3 uses vector search to find relevant articles when the AI selects content for debates. Your query becomes a vector, and similar article vectors are found instantly." targetPage="forge" onNavigate={onNavigate}/>
 </div>}
 
 function TabEmbPlayground({onNavigate,onComplete}){return <div>
@@ -1919,7 +1919,7 @@ function TabRAGEmbeddings({onNavigate,onComplete}){return <div>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>This is called <b>semantic search</b> -- finding documents by meaning, not just keywords. "How do I fix a flat tire?" will match a document about "tire puncture repair" even though the words are different.</p>
   <CodeBlock language="text" label="Semantic vs Keyword Search" code={`QUERY: "How to fix a flat tire?"\n\nKEYWORD SEARCH finds: Documents containing "fix", "flat", "tire"\n  \u2717 Misses: "Puncture repair guide" (no matching keywords!)\n\nSEMANTIC SEARCH finds: Documents with similar MEANING\n  \u2713 "Puncture repair guide" (similar concept)\n  \u2713 "Changing a tire step-by-step" (related topic)\n  \u2713 "Roadside emergency tire fix" (synonymous intent)`}/>
   <Quiz question="Why is semantic search better than keyword search for RAG?" options={["It's faster","It finds documents by meaning, not just matching words","It uses less storage","It doesn't need embeddings"]} correctIndex={1} explanation="Semantic search understands meaning, so 'fix a flat tire' matches 'puncture repair guide' even without shared keywords. This dramatically improves retrieval quality." onAnswer={()=>onComplete&&onComplete('rag-embeddings','quiz1')}/>
-  <SeeItInRe3 text="When you submit an article to Re\u00b3's Ada, the system uses semantic search to find related articles and themes -- exactly this embedding-based retrieval process." targetPage="forge" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="When you submit an article to Re\u00b3's Debate Lab, the system uses semantic search to find related articles and themes -- exactly this embedding-based retrieval process." targetPage="forge" onNavigate={onNavigate}/>
 </div>}
 
 function TabRAGPipeline({onNavigate,onComplete}){return <div>

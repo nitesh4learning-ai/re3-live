@@ -284,7 +284,7 @@ function CycleCard({cycle,onNavigate,variant="default"}){
 function Header({onNavigate,currentPage,currentUser,onLogin,onLogout}){
   const[sc,setSc]=useState(false);const[mob,setMob]=useState(false);
   useEffect(()=>{const fn=()=>setSc(window.scrollY>10);window.addEventListener("scroll",fn);return()=>window.removeEventListener("scroll",fn)},[]);
-  const navItems=[["home","Home","🏠"],["loom","The Loom","🧵"],["forge","The Ada","⚡"],["academy","Academy","🎓"],["agent-community","Agent Socratia","🤖"],["studio","My Studio","📝"]];
+  const navItems=[["home","Home","🏠"],["loom","The Loom","🧵"],["forge","Debate Lab","⚡"],["academy","Academy","🎓"],["agent-community","Team","🤖"],["studio","My Studio","📝"]];
   return <><header className="fixed top-0 left-0 right-0 z-50" style={{background:"#FFFFFF",borderBottom:"0.8px solid #E5E7EB"}}>
     <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between" style={{height:56}}>
       <button onClick={()=>{onNavigate("home");setMob(false)}} className="flex items-center gap-2">
@@ -325,7 +325,7 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
         <FadeIn delay={140}><div className="flex flex-wrap items-center gap-3">
           <button onClick={()=>hero&&onNavigate("post",hero.posts[0]?.id)} className="px-5 py-2.5 font-semibold text-sm transition-all hover:shadow-lg" style={{fontFamily:"'Inter',sans-serif",background:"#9333EA",color:"white",borderRadius:8}}>Explore Latest Cycle &rarr;</button>
           <button onClick={()=>onNavigate("loom")} className="px-5 py-2.5 font-semibold text-sm transition-all" style={{fontFamily:"'Inter',sans-serif",background:"#FFFFFF",color:"#4B5563",border:"1px solid #E5E7EB",borderRadius:8}}>View The Loom</button>
-          <button onClick={()=>onNavigate("agent-community")} className="px-5 py-2.5 font-semibold text-sm transition-all" style={{fontFamily:"'Inter',sans-serif",background:"#FFFFFF",color:"#4B5563",border:"1px solid #E5E7EB",borderRadius:8}}>Agent Socratia</button>
+          <button onClick={()=>onNavigate("agent-community")} className="px-5 py-2.5 font-semibold text-sm transition-all" style={{fontFamily:"'Inter',sans-serif",background:"#FFFFFF",color:"#4B5563",border:"1px solid #E5E7EB",borderRadius:8}}>Team</button>
         </div></FadeIn>
       </div>
     </section>
@@ -353,7 +353,7 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
 
     {/* Recent Forge Sessions */}
     {forgeSessions&&forgeSessions.length>0&&<section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
-      <FadeIn><div className="flex items-center justify-between mb-3"><h2 className="font-bold" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:18}}>Recent Ada Sessions</h2><button onClick={()=>onNavigate("forge")} className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:"#9333EA"}}>View all in The Ada &rarr;</button></div></FadeIn>
+      <FadeIn><div className="flex items-center justify-between mb-3"><h2 className="font-bold" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:18}}>Recent Debate Sessions</h2><button onClick={()=>onNavigate("forge")} className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:"#9333EA"}}>View all in Debate Lab &rarr;</button></div></FadeIn>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">{forgeSessions.slice(0,6).map((s,i)=>{
         const modeColors={debate:"#E8734A",ideate:"#3B6B9B",implement:"#2D8A6E"};
         const modeIcons={debate:"⚔️",ideate:"💡",implement:"🔨"};
@@ -422,7 +422,7 @@ function TriptychExpanded({cycle,onNavigate,onCollapse,onForge,onArchiveCycle,cu
         <p className="mb-3" style={{fontSize:12,color:"rgba(0,0,0,0.45)",lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.paragraphs?.[0]?.slice(0,180)}...</p>
         {perspectives.length>0&&<div className="mb-3"><span className="font-bold" style={{fontSize:9,color:"rgba(0,0,0,0.3)",letterSpacing:"0.1em"}}>PERSPECTIVES</span><div className="mt-1 space-y-1">{perspectives.map((p,pi)=><div key={pi} className="p-2 rounded-lg" style={{background:"rgba(0,0,0,0.02)",fontSize:11,color:"#888"}}><span className="font-bold" style={{color:pillar.color}}>{p.name}: </span>{p.excerpt}</div>)}</div></div>}
         <div className="flex items-center gap-3"><button onClick={()=>onNavigate("post",post.id)} className="text-xs font-semibold" style={{color:"#9333EA"}}>Read full post &rarr;</button>
-        {onForge&&<button onClick={()=>onForge({title:post.title,text:post.paragraphs?.[0]||"",sourceType:"loom"})} className="text-xs font-semibold" style={{color:"#9333EA"}}>Take to The Ada →</button>}</div>
+        {onForge&&<button onClick={()=>onForge({title:post.title,text:post.paragraphs?.[0]||"",sourceType:"loom"})} className="text-xs font-semibold" style={{color:"#9333EA"}}>Take to Debate Lab →</button>}</div>
       </div>})}</div>
     {synthesisPost?.debate?.loom&&<div className="p-4" style={{background:"#FAF5FF",borderTop:"1px solid #E9D5FF"}}>
       <div className="flex items-center gap-1.5 mb-1"><span style={{fontSize:12}}>&#128296;</span><span className="font-bold text-xs" style={{color:"#9333EA"}}>Hypatia&apos;s Synthesis</span></div>
@@ -483,7 +483,7 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
       <div className="flex flex-wrap gap-2">{allParticipants.map(name=><span key={name} className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{background:"#F3F4F6",color:"#4B5563"}}>{name}</span>)}</div>
     </div></FadeIn>}
     {/* Continue in Ada */}
-    {onForge&&pillars[0]&&<FadeIn delay={340}><button onClick={()=>onForge({title:pillars[0].title,text:pillars[0].paragraphs?.[0]||"",sourceType:"loom"})} className="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white"}}>Continue in The Ada &rarr;</button></FadeIn>}
+    {onForge&&pillars[0]&&<FadeIn delay={340}><button onClick={()=>onForge({title:pillars[0].title,text:pillars[0].paragraphs?.[0]||"",sourceType:"loom"})} className="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white"}}>Continue in Debate Lab &rarr;</button></FadeIn>}
   </div></div>;
 }
 
@@ -613,7 +613,7 @@ function DebatePanel({article,topic,agents,onDebateComplete,onSaveSession,curren
     if(activeAgents.length===0){setError("No active agents available. Add agents in Agent Community first.");setStatus("error");return}
     try{
       // Step 1: Ada selects panel
-      setStep("Ada selecting panel...");setProgress(5);
+      setStep("Selecting panel...");setProgress(5);
       const selRes=await fetch("/api/debate/select",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:topicTitle,articleText,agents:activeAgents,forgePersona:ORCHESTRATORS.forge.persona})});
       if(!selRes.ok)throw new Error("Ada selection failed");
       const sel=await selRes.json();
@@ -623,7 +623,7 @@ function DebatePanel({article,topic,agents,onDebateComplete,onSaveSession,curren
         selectedAgents=activeAgents.filter(a=>sel.selected.some(s=>s.toLowerCase()===a.name.toLowerCase()||s.toLowerCase()===a.id.toLowerCase()||a.id.includes(s.toLowerCase().replace(/\s+/g,"_"))));
       }
       // Final fallback: pick first 5 active agents rather than failing
-      if(selectedAgents.length===0){selectedAgents=activeAgents.slice(0,5);showToast("Ada couldn't select agents — using default panel")}
+      if(selectedAgents.length===0){selectedAgents=activeAgents.slice(0,5);showToast("Couldn't select agents — using default panel")}
       setPanel({agents:selectedAgents,rationale:sel.rationale});setProgress(15);
       scrollToBottom();
 
@@ -652,7 +652,7 @@ function DebatePanel({article,topic,agents,onDebateComplete,onSaveSession,curren
       if(totalSuccessful===0){setError("No agents were able to participate. Check API keys and agent configurations.");setStatus("error");return}
 
       // Step 5: Socratia moderation
-      setStep("Socratia reviewing discussion...");setProgress(80);
+      setStep("Reviewing discussion...");setProgress(80);
       showToast("Debate rounds complete — Socratia is reviewing...");
       const modRes=await fetch("/api/debate/moderate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:topicTitle,rounds:allRounds,atlasPersona:ORCHESTRATORS.atlas.persona})});
       const modData=await modRes.json();
@@ -696,7 +696,7 @@ function DebatePanel({article,topic,agents,onDebateComplete,onSaveSession,curren
     {error&&<div className="p-3 m-3 rounded-xl" style={{background:"#FFF5F5"}}><p className="text-xs" style={{color:"#E53E3E"}}>Error: {error}</p><button onClick={()=>{setStatus("idle");setError("")}} className="text-xs font-semibold mt-1" style={{color:"#3B6B9B"}}>Retry</button></div>}
 
     {panel&&<div className="p-4" style={{borderBottom:"1px solid #E5E7EB"}}>
-      <div className="flex items-center gap-2 mb-2"><div className="w-6 h-6 rounded-full flex items-center justify-center" style={{border:"1.5px dashed #2D8A6E40"}}><OrchestratorAvatar type="ada" size={18}/></div><span className="font-bold text-xs" style={{color:"#2D8A6E"}}>Ada selected the panel</span></div>
+      <div className="flex items-center gap-2 mb-2"><div className="w-6 h-6 rounded-full flex items-center justify-center" style={{border:"1.5px dashed #2D8A6E40"}}><OrchestratorAvatar type="ada" size={18}/></div><span className="font-bold text-xs" style={{color:"#2D8A6E"}}>Panel selected</span></div>
       <div className="flex flex-wrap gap-1.5 mb-2">{panel.agents.map(a=><span key={a.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full" style={{background:`${a.color}10`,border:`1px solid ${a.color}25`}}><span className="w-4 h-4 rounded-full flex items-center justify-center font-bold" style={{background:`${a.color}20`,color:a.color,fontSize:7}}>{a.avatar}</span><span className="font-semibold" style={{fontSize:10,color:a.color}}>{a.name}</span></span>)}</div>
       <p className="text-xs" style={{color:"#999",lineHeight:1.5}}>{panel.rationale}</p>
     </div>}
@@ -767,7 +767,7 @@ function AgentWorkshop({article,topic,agents,registry,registryIndex,onDebateComp
     const pool=selectAgentPool("implement");
     if(pool.length===0){setImplError("No agents available.");setImplStatus("error");return}
     try{
-      setImplStep("Ada selecting builder panel...");setImplProgress(10);
+      setImplStep("Selecting builder panel...");setImplProgress(10);
       const selRes=await fetch("/api/debate/select",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:wsTitle,articleText:wsText.slice(0,2000),agents:pool,forgePersona:ORCHESTRATORS.forge.persona+" For this implementation session, prioritize agents with strong architecture and implementation capabilities.",activityType:"implement"})});
       if(!selRes.ok)throw new Error("Ada selection failed");
       const sel=await selRes.json();
@@ -1058,8 +1058,8 @@ function AgentAtlasPage({agents,registry,registryIndex,currentUser,onSaveAgent,o
     </div>};
 
   return <div className="min-h-screen" style={{paddingTop:56,background:"#F9FAFB"}}><div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-    <FadeIn><div className="flex items-start justify-between"><div><h1 className="font-bold mb-1" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:"clamp(22px,3.5vw,32px)"}}>Agent Socratia</h1><p className="mb-4" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>{totalAgents} agents across {domains.length} domains + 3 orchestrators. Ada selects the best team per task.</p></div>
-    {onForge&&<button onClick={()=>onForge({title:"",text:"",sourceType:"custom"})} className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-sm transition-all hover:shadow-md flex-shrink-0" style={{background:"#9333EA",color:"white"}}>🔨 Collaborate in The Ada</button>}</div></FadeIn>
+    <FadeIn><div className="flex items-start justify-between"><div><h1 className="font-bold mb-1" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:"clamp(22px,3.5vw,32px)"}}>Team</h1><p className="mb-4" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>{totalAgents} agents across {domains.length} domains + 3 orchestrators. AI selects the best team per task.</p></div>
+    {onForge&&<button onClick={()=>onForge({title:"",text:"",sourceType:"custom"})} className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-sm transition-all hover:shadow-md flex-shrink-0" style={{background:"#9333EA",color:"white"}}>🔨 Collaborate in Debate Lab</button>}</div></FadeIn>
 
     {/* Breadcrumb */}
     <FadeIn><div className="flex items-center gap-1.5 mb-4 flex-wrap">
@@ -1240,7 +1240,7 @@ function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onN
     {/* Header */}
     <FadeIn><div className="text-center mb-8">
       <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style={{background:"#F3E8FF"}}><span style={{fontSize:24}}>🔨</span></div>
-      <h1 className="font-bold mb-1" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:"clamp(24px,4vw,36px)"}}>The Ada</h1>
+      <h1 className="font-bold mb-1" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:"clamp(24px,4vw,36px)"}}>Debate Lab</h1>
       <p style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>Where agents and humans shape ideas together</p>
     </div></FadeIn>
 
@@ -1310,7 +1310,7 @@ function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onN
     {workshopActive&&selectedTopic&&<div className="mb-6">
       <div className="flex items-center justify-between mb-4">
         <div><span className="text-xs font-bold" style={{color:"rgba(0,0,0,0.3)"}}>FORGING</span><h2 className="font-bold" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:18}}>{selectedTopic.title}</h2></div>
-        <div className="flex items-center gap-2"><ShareButton title={`Re³ Ada: ${selectedTopic.title}`} text={`Exploring "${selectedTopic.title}" in The Ada`}/><button onClick={resetSession} className="px-3 py-1.5 rounded-lg text-xs font-semibold" style={{border:"1px solid rgba(0,0,0,0.1)",color:"rgba(0,0,0,0.4)"}}>New Topic</button></div>
+        <div className="flex items-center gap-2"><ShareButton title={`Re³ Debate Lab: ${selectedTopic.title}`} text={`Exploring "${selectedTopic.title}" in Debate Lab`}/><button onClick={resetSession} className="px-3 py-1.5 rounded-lg text-xs font-semibold" style={{border:"1px solid rgba(0,0,0,0.1)",color:"rgba(0,0,0,0.4)"}}>New Topic</button></div>
       </div>
       <AgentWorkshop key={selectedTopic?.title||''} topic={selectedTopic} agents={agents} registry={registry} registryIndex={registryIndex} onSaveSession={handleSaveSession} currentUser={currentUser}/>
     </div>}
@@ -1471,7 +1471,7 @@ function Re3(){
     case"loom-cycle":return <LoomCyclePage cycleDate={pageId} content={content} articles={articles} onNavigate={nav} onForge={navToForge} currentUser={user}/>;
     case"forge":return <ForgePage content={content} themes={themes} agents={agents} registry={registry} registryIndex={registryIndex} currentUser={user} onNavigate={nav} forgeSessions={forgeSessions} onSaveForgeSession={saveForgeSession} onDeleteForgeSession={deleteForgeSession} forgePreload={forgePreload} onPostGenerated={addPost} onAutoComment={autoComment}/>;
     case"studio":return <MyStudioPage currentUser={user} content={content} articles={articles} agents={agents} projects={projects} onNavigate={nav} onSaveArticle={saveArticle} onDeleteArticle={deleteArticle} onSaveProject={saveProject} onDeleteProject={deleteProject}/>;
-    case"academy":return <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{paddingTop:56,background:"#F9FAFB"}}><p style={{color:"#9CA3AF",fontSize:13}}>Loading Academy...</p></div>}><LazyAcademy onNavigate={nav}/></Suspense>;
+    case"academy":return <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{paddingTop:56,background:"#F9FAFB"}}><p style={{color:"#9CA3AF",fontSize:13}}>Loading Academy...</p></div>}><LazyAcademy onNavigate={nav} currentUser={user}/></Suspense>;
     case"agent-community":return <AgentAtlasPage agents={agents} registry={registry} registryIndex={registryIndex} currentUser={user} onSaveAgent={saveAgent} onDeleteAgent={deleteAgent} onForge={navToForge}/>;
     case"article":const art=articles.find(a=>a.id===pageId);return art?<ArticlePage article={art} agents={agents} registry={registry} registryIndex={registryIndex} onNavigate={nav} onUpdateArticle={saveArticle} currentUser={user}/>:<HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry}/>;
     case"post":const po=content.find(c=>c.id===pageId);return po?<PostPage post={po} allContent={content} onNavigate={nav} currentUser={user} onEndorse={endorse} onComment={cmnt} onReact={postReact} onAddChallenge={addCh} onAddMarginNote={addMN} agents={agents} registry={registry} registryIndex={registryIndex} onUpdatePost={updatePost}/>:<HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry}/>;
