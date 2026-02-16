@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" fill="none">
+  <defs>
+    <linearGradient id="infinityGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#2D8A6E"/>
+      <stop offset="35%" stop-color="#3B82F6"/>
+      <stop offset="70%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+  <path d="M18 30c0-6 4.5-12 11-12s9 4 13 8c4-4 6.5-8 13-8s11 6 11 12-4.5 12-11 12-9-4-13-8c-4 4-6.5 8-13 8S18 36 18 30zm11-7c-4 0-6 3.5-6 7s2 7 6 7 7-3.5 10-7c-3-3.5-6-7-10-7zm26 0c-4 0-7 3.5-10 7 3 3.5 6 7 10 7s6-3.5 6-7-2-7-6-7z" fill="url(#infinityGrad)" stroke="url(#infinityGrad)" stroke-width="1.5" stroke-linejoin="round"/>
+</svg>
