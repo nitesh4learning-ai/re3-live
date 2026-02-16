@@ -61,12 +61,12 @@ const COURSES = [
   {id:'retrieval-eng',tier:3,icon:'\uD83D\uDD0E',title:'Retrieval Engineering',description:'Advanced chunking, hybrid search, reranking, RAPTOR. Going beyond basic RAG.',difficulty:'Advanced',timeMinutes:45,exerciseCount:8,tabCount:4,status:'available'},
   {id:'ai-testing',tier:3,icon:'\uD83E\uDDEA',title:'AI Testing & Red-Teaming',description:'Adversarial testing, prompt injection defense, safety benchmarks. Hardening AI systems.',difficulty:'Advanced',timeMinutes:40,exerciseCount:7,tabCount:4,status:'available'},
   // Tier 4: Strategic & Frontier (6 courses)
-  {id:'ai-regulatory',tier:4,icon:'\u2696\uFE0F',title:'AI Governance & Regulatory Landscape',description:'NIST AI RMF, EU AI Act, model risk management. Navigating the regulatory maze.',difficulty:'Expert',timeMinutes:50,exerciseCount:7,tabCount:4,status:'coming_soon'},
-  {id:'responsible-ai',tier:4,icon:'\uD83E\uDD1D',title:'Responsible AI in Practice',description:'Fairness, explainability, Fairlearn, AI Fairness 360. Ethical AI at production scale.',difficulty:'Expert',timeMinutes:45,exerciseCount:6,tabCount:4,status:'coming_soon'},
-  {id:'enterprise-strategy',tier:4,icon:'\uD83D\uDCCA',title:'Enterprise AI Strategy',description:'Top-down vs bottom-up, value realization, workflow redesign. AI transformation leadership.',difficulty:'Expert',timeMinutes:40,exerciseCount:5,tabCount:4,status:'coming_soon'},
-  {id:'ai-economics',tier:4,icon:'\uD83D\uDCC8',title:'AI Economics & ROI',description:'Cost modeling, build vs buy, GPU economics, inference optimization. The business of AI.',difficulty:'Expert',timeMinutes:35,exerciseCount:5,tabCount:3,status:'coming_soon'},
-  {id:'computer-use',tier:4,icon:'\uD83D\uDDA5\uFE0F',title:'Computer Use & Browser Agents',description:'Anthropic computer use, web agents, RPA 2.0. AI that operates your software.',difficulty:'Expert',timeMinutes:45,exerciseCount:7,tabCount:4,status:'coming_soon'},
-  {id:'physical-ai',tier:4,icon:'\uD83E\uDD16',title:'Physical AI & Robotics Foundations',description:'Embodied AI, simulation-to-real, sensor fusion. When AI meets the physical world.',difficulty:'Expert',timeMinutes:40,exerciseCount:5,tabCount:4,status:'coming_soon'},
+  {id:'ai-regulatory',tier:4,icon:'\u2696\uFE0F',title:'AI Governance & Regulatory Landscape',description:'NIST AI RMF, EU AI Act, model risk management. Navigating the regulatory maze.',difficulty:'Expert',timeMinutes:50,exerciseCount:7,tabCount:4,status:'available'},
+  {id:'responsible-ai',tier:4,icon:'\uD83E\uDD1D',title:'Responsible AI in Practice',description:'Fairness, explainability, Fairlearn, AI Fairness 360. Ethical AI at production scale.',difficulty:'Expert',timeMinutes:45,exerciseCount:6,tabCount:4,status:'available'},
+  {id:'enterprise-strategy',tier:4,icon:'\uD83D\uDCCA',title:'Enterprise AI Strategy',description:'Top-down vs bottom-up, value realization, workflow redesign. AI transformation leadership.',difficulty:'Expert',timeMinutes:40,exerciseCount:5,tabCount:4,status:'available'},
+  {id:'ai-economics',tier:4,icon:'\uD83D\uDCC8',title:'AI Economics & ROI',description:'Cost modeling, build vs buy, GPU economics, inference optimization. The business of AI.',difficulty:'Expert',timeMinutes:35,exerciseCount:5,tabCount:3,status:'available'},
+  {id:'computer-use',tier:4,icon:'\uD83D\uDDA5\uFE0F',title:'Computer Use & Browser Agents',description:'Anthropic computer use, web agents, RPA 2.0. AI that operates your software.',difficulty:'Expert',timeMinutes:45,exerciseCount:7,tabCount:4,status:'available'},
+  {id:'physical-ai',tier:4,icon:'\uD83E\uDD16',title:'Physical AI & Robotics Foundations',description:'Embodied AI, simulation-to-real, sensor fusion. When AI meets the physical world.',difficulty:'Expert',timeMinutes:40,exerciseCount:5,tabCount:4,status:'available'},
 ];
 
 // ==================== SHARED COMPONENTS ====================
@@ -336,7 +336,7 @@ export default function Academy({onNavigate}){
     // Tier 3
     ['multi-agent',CourseMultiAgent],['graph-rag',CourseGraphRAG],['ai-observability',CourseObservability],['llm-gateway',CourseLLMGateway],
     ['fine-tuning',CourseFineTuning],['ai-code-gen',CourseAICodeGen],['multimodal',CourseMultimodal],['voice-ai',CourseVoiceAI],['retrieval-eng',CourseRetrievalEng],['ai-testing',CourseAITesting],
-    // Tier 4 (coming soon — placeholders)
+    // Tier 4
     ['ai-regulatory',CourseAIRegulatory],['responsible-ai',CourseResponsibleAI],['enterprise-strategy',CourseEnterpriseStrategy],
     ['ai-economics',CourseAIEconomics],['computer-use',CourseComputerUse],['physical-ai',CoursePhysicalAI],
   ];
