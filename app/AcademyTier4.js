@@ -1,6 +1,5 @@
 "use client";
-import { useState } from "react";
-import { GIM, CODE_BG, CODE_TEXT, FadeIn, ProgressBar, ExpandableSection, CodeBlock, Quiz, MessageSimulator, AnalogyBox, SeeItInRe3, CourseShell, ArchitectureDecision, ComparisonTable } from "./Academy";
+import { GIM, ExpandableSection, CodeBlock, Quiz, AnalogyBox, CourseShell, ArchitectureDecision, ComparisonTable } from "./Academy";
 
 // ==================== TIER 4: STRATEGIC & FRONTIER ====================
 
@@ -276,7 +275,6 @@ export function CourseAIRegulatory({onBack,onNavigate,progress,onComplete,depth,
     {id:'d-docs',label:'Documentation',icon:'\uD83D\uDCDD'},
     {id:'d-audit',label:'Audit & Incident',icon:'\uD83D\uDEA8'},
     {id:'d-strategy',label:'Strategy',icon:'\u265F\uFE0F'},
-    {id:'d-future',label:'Future Trends',icon:'\uD83D\uDD2E'},
   ];
   const renderTab=(tab,i,d)=>{
     if(d==='visionary'){
@@ -290,7 +288,6 @@ export function CourseAIRegulatory({onBack,onNavigate,progress,onComplete,depth,
     if(i===2)return <ComplianceTab/>;
     if(i===3)return <RegDeepDocTab/>;
     if(i===4)return <RegDeepAuditTab/>;
-    if(i===5)return <RegStrategyTab/>;
     return <RegStrategyTab/>;
   };
   return <CourseShell id="ai-regulatory" icon={'\u2696\uFE0F'} title="AI Governance & Regulatory Landscape" timeMinutes={50} exerciseCount={7} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={vTabs} deepTabs={dTabs} renderTab={renderTab}/>;
@@ -499,7 +496,6 @@ export function CourseResponsibleAI({onBack,onNavigate,progress,onComplete,depth
     {id:'d-prod-explain',label:'Prod Explainability',icon:'\u2699\uFE0F'},
     {id:'d-practice',label:'In Practice',icon:'\uD83D\uDD27'},
     {id:'d-tools',label:'Tools',icon:'\uD83E\uDDF0'},
-    {id:'d-governance',label:'Governance',icon:'\uD83C\uDFDB\uFE0F'},
   ];
   const renderTab=(tab,i,d)=>{
     if(d==='visionary'){
@@ -513,7 +509,6 @@ export function CourseResponsibleAI({onBack,onNavigate,progress,onComplete,depth
     if(i===2)return <RAIDeepFairnessTab/>;
     if(i===3)return <RAIDeepExplainTab/>;
     if(i===4)return <RAIPracticeTab/>;
-    if(i===5)return <RAIToolsTab/>;
     return <RAIToolsTab/>;
   };
   return <CourseShell id="responsible-ai" icon={'\uD83E\uDD1D'} title="Responsible AI in Practice" timeMinutes={45} exerciseCount={6} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={vTabs} deepTabs={dTabs} renderTab={renderTab}/>;
@@ -945,7 +940,6 @@ export function CourseAIEconomics({onBack,onNavigate,progress,onComplete,depth,o
     {id:'d-gpu',label:'GPU Economics',icon:'\u26A1'},
     {id:'d-roi',label:'Measuring ROI',icon:'\uD83D\uDCC8'},
     {id:'d-bizcase',label:'Business Case',icon:'\uD83D\uDCBC'},
-    {id:'d-optimize',label:'Cost Optimization',icon:'\uD83D\uDCB8'},
   ];
   const renderTab=(tab,i,d)=>{
     if(d==='visionary'){
@@ -957,8 +951,7 @@ export function CourseAIEconomics({onBack,onNavigate,progress,onComplete,depth,o
     if(i===1)return <BuildVsBuyTab/>;
     if(i===2)return <EconDeepGPUTab/>;
     if(i===3)return <ROITab/>;
-    if(i===4)return <EconDeepBizCaseTab/>;
-    return <EconDeepGPUTab/>;
+    return <EconDeepBizCaseTab/>;
   };
   return <CourseShell id="ai-economics" icon={'\uD83D\uDCC8'} title="AI Economics & ROI" timeMinutes={35} exerciseCount={5} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={vTabs} deepTabs={dTabs} renderTab={renderTab}/>;
 }
@@ -1232,7 +1225,6 @@ export function CourseComputerUse({onBack,onNavigate,progress,onComplete,depth,o
     {id:'d-rpa',label:'RPA 2.0',icon:'\uD83E\uDD16'},
     {id:'d-safety',label:'Safety Architecture',icon:'\uD83D\uDEE1\uFE0F'},
     {id:'d-future',label:'Future',icon:'\uD83D\uDD2E'},
-    {id:'d-practice',label:'Hands-On',icon:'\u2699\uFE0F'},
   ];
   const renderTab=(tab,i,d)=>{
     if(d==='visionary'){
@@ -1246,7 +1238,6 @@ export function CourseComputerUse({onBack,onNavigate,progress,onComplete,depth,o
     if(i===2)return <CompUseDeepArchTab/>;
     if(i===3)return <RPA2Tab/>;
     if(i===4)return <CompUseDeepSafetyTab/>;
-    if(i===5)return <CompUseFutureTab/>;
     return <CompUseFutureTab/>;
   };
   return <CourseShell id="computer-use" icon={'\uD83D\uDDA5\uFE0F'} title="Computer Use & Browser Agents" timeMinutes={45} exerciseCount={7} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={vTabs} deepTabs={dTabs} renderTab={renderTab}/>;
