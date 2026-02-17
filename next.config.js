@@ -18,6 +18,8 @@ const nextConfig = {
       { source: "/studio", destination: "/" },
       { source: "/agents", destination: "/" },
       { source: "/write", destination: "/" },
+      { source: "/debates", destination: "/" },
+      { source: "/search", destination: "/" },
       { source: "/post/:id", destination: "/" },
       { source: "/article/:id", destination: "/" },
       { source: "/profile/:id", destination: "/" },
