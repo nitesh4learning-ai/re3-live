@@ -1,0 +1,7 @@
+# Re³ — Rethink · Rediscover · Reinvent
+# https://re3.live
+
+User-agent: *
+Allow: /
+
+Sitemap: https://re3.live/sitemap.xml

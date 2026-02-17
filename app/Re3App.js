@@ -13,6 +13,29 @@ const DB = {
   clear: (key) => { try { typeof window!=='undefined' && localStorage.removeItem(`re3_${key}`); } catch {} },
 };
 
+// Lazy Firestore sync — loads module on demand, never blocks initial render
+let _firestoreModule = null;
+async function getFirestoreModule() {
+  if (!_firestoreModule) {
+    try { _firestoreModule = await import("../lib/firestore"); } catch (e) { console.warn("Firestore module unavailable:", e.message); _firestoreModule = null; }
+  }
+  return _firestoreModule;
+}
+// Background Firestore sync (non-blocking)
+function syncToFirestore(type, data) {
+  getFirestoreModule().then(mod => {
+    if (!mod) return;
+    switch(type) {
+      case 'content': mod.saveContent(data); break;
+      case 'themes': mod.saveThemes(data); break;
+      case 'articles': mod.saveArticles(data); break;
+      case 'agents': mod.saveAgents(data); break;
+      case 'projects': mod.saveProjects(data); break;
+      case 'forge_sessions': mod.saveForgeSessions(data); break;
+    }
+  }).catch(() => {});
+}
+
 let firebaseAuth = null;
 async function getFirebase() {
   if (!firebaseAuth) {
@@ -311,26 +334,33 @@ function Header({onNavigate,currentPage,currentUser,onLogin,onLogout}){
   const[sc,setSc]=useState(false);const[mob,setMob]=useState(false);
   useEffect(()=>{const fn=()=>setSc(window.scrollY>10);window.addEventListener("scroll",fn);return()=>window.removeEventListener("scroll",fn)},[]);
   const navItems=[["home","Home","🏠"],["loom","The Loom","🧵"],["forge","Debate Lab","⚡"],["academy","Academy","🎓"],["agent-community","Team","🤖"],["studio","My Studio","📝"]];
+  const bottomTabs=[["home","Home","🏠"],["loom","Loom","🧵"],["forge","Debate","⚡"],["academy","Learn","🎓"],["agent-community","Team","🤖"]];
   return <><header className="fixed top-0 left-0 right-0 z-50" style={{background:"#FFFFFF",borderBottom:"0.8px solid #E5E7EB"}}>
     <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between" style={{height:56}}>
-      <button onClick={()=>{onNavigate("home");setMob(false)}} className="flex items-center gap-2">
+      <button onClick={()=>{onNavigate("home");setMob(false)}} className="flex items-center gap-2" style={{minHeight:'auto',minWidth:'auto'}}>
         <Re3Logo variant="full" size={24}/>
       </button>
-      <nav className="hidden md:flex items-center gap-0.5">{navItems.map(([pg,label,icon])=>{const a=currentPage===pg;
-        return <button key={pg} onClick={()=>onNavigate(pg)} className="px-3 py-1.5 rounded-lg transition-all" style={{fontFamily:"'Inter',sans-serif",fontSize:13,fontWeight:a?600:500,color:a?"#9333EA":"#4B5563",background:a?"#FAF5FF":"transparent"}}><span style={{marginRight:4}}>{icon}</span>{label}</button>})}</nav>
+      <nav className="re3-desktop-nav hidden md:flex items-center gap-0.5">{navItems.map(([pg,label,icon])=>{const a=currentPage===pg;
+        return <button key={pg} onClick={()=>onNavigate(pg)} className="px-3 py-1.5 rounded-lg transition-all" style={{fontFamily:"'Inter',sans-serif",fontSize:13,fontWeight:a?600:500,color:a?"#9333EA":"#4B5563",background:a?"#FAF5FF":"transparent",minHeight:'auto',minWidth:'auto'}}><span style={{marginRight:4}}>{icon}</span>{label}</button>})}</nav>
       <div className="flex items-center gap-2">
-        {currentUser ? <><button onClick={()=>onNavigate("write")} className="hidden sm:block px-3 py-1.5 font-medium transition-all hover:shadow-md" style={{fontFamily:"'Inter',sans-serif",fontSize:12,background:"#9333EA",color:"white",borderRadius:8}}>✏️ Write</button>
-          <button onClick={()=>onNavigate("profile",currentUser.id)} className="w-7 h-7 rounded-full flex items-center justify-center font-bold overflow-hidden" style={{fontSize:9,background:"#FAF5FF",color:"#9333EA",border:"1px solid #E9D5FF"}}>{currentUser.photoURL?<img src={currentUser.photoURL} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer"/>:currentUser.avatar}</button>
-          <button onClick={onLogout} className="hidden sm:block" style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:"#9CA3AF"}}>Logout</button>
+        {currentUser ? <><button onClick={()=>onNavigate("write")} className="hidden sm:block px-3 py-1.5 font-medium transition-all hover:shadow-md" style={{fontFamily:"'Inter',sans-serif",fontSize:12,background:"#9333EA",color:"white",borderRadius:8,minHeight:'auto',minWidth:'auto'}}>✏️ Write</button>
+          <button onClick={()=>onNavigate("profile",currentUser.id)} className="w-8 h-8 rounded-full flex items-center justify-center font-bold overflow-hidden" style={{fontSize:9,background:"#FAF5FF",color:"#9333EA",border:"1px solid #E9D5FF",minHeight:'auto',minWidth:'auto'}}>{currentUser.photoURL?<img src={currentUser.photoURL} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer"/>:currentUser.avatar}</button>
+          <button onClick={onLogout} className="hidden sm:block" style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:"#9CA3AF",minHeight:'auto',minWidth:'auto'}}>Logout</button>
         </> : <button onClick={onLogin} className="px-3 py-1.5 font-medium transition-all hover:shadow-md" style={{fontFamily:"'Inter',sans-serif",fontSize:12,background:"#9333EA",color:"white",borderRadius:8}}>Sign in</button>}
-        <button onClick={()=>setMob(!mob)} className="md:hidden p-1" style={{color:"#4B5563",fontSize:18}}>{mob?"\u2715":"\u2630"}</button>
+        <button onClick={()=>setMob(!mob)} className="md:hidden p-1" style={{color:"#4B5563",fontSize:18,minHeight:'auto',minWidth:'auto'}}>{mob?"\u2715":"\u2630"}</button>
       </div>
     </div>
   </header>
+  {/* Mobile fullscreen menu (hamburger overlay) */}
   {mob&&<div className="fixed inset-0 z-40 pt-14" style={{background:"#FFFFFF"}}><div className="flex flex-col p-6 gap-1">
     {navItems.map(([pg,label,icon])=><button key={pg} onClick={()=>{onNavigate(pg);setMob(false)}} className="text-left p-3 rounded-xl text-base font-medium" style={{fontFamily:"'Inter',sans-serif",color:currentPage===pg?"#9333EA":"#4B5563",background:currentPage===pg?"#FAF5FF":"transparent"}}>{icon} {label}</button>)}
-    {currentUser&&<><div className="my-2" style={{height:1,background:"#E5E7EB"}}/><button onClick={()=>{onNavigate("write");setMob(false)}} className="text-left p-3 rounded-xl text-base font-medium" style={{color:"#9333EA"}}>✏️ Write</button></>}
-  </div></div>}</>
+    {currentUser&&<><div className="my-2" style={{height:1,background:"#E5E7EB"}}/><button onClick={()=>{onNavigate("write");setMob(false)}} className="text-left p-3 rounded-xl text-base font-medium" style={{color:"#9333EA"}}>✏️ Write</button>
+    <button onClick={()=>{onNavigate("studio");setMob(false)}} className="text-left p-3 rounded-xl text-base font-medium" style={{color:"#4B5563"}}>📝 My Studio</button></>}
+  </div></div>}
+  {/* Mobile bottom tab bar */}
+  <nav className="re3-bottom-tabs">{bottomTabs.map(([pg,label,icon])=>{const a=currentPage===pg;
+    return <button key={pg} onClick={()=>{onNavigate(pg);setMob(false)}} style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",flex:1,padding:"6px 0",gap:2,border:"none",background:"transparent",cursor:"pointer",minHeight:56,minWidth:'auto'}}><span style={{fontSize:18,lineHeight:1,opacity:a?1:0.5}}>{icon}</span><span style={{fontFamily:"'Inter',sans-serif",fontSize:9,fontWeight:a?700:500,color:a?"#9333EA":"#9CA3AF",letterSpacing:"0.02em"}}>{label}</span></button>})}</nav>
+  </>
 }
 
 // ==================== HOME PAGE — Dark bento grid ====================
@@ -348,7 +378,7 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
         <FadeIn><div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-5" style={{background:"#F3E8FF",border:"1px solid rgba(147,51,234,0.2)"}}><span className="relative flex" style={{width:6,height:6}}><span className="animate-ping absolute inline-flex rounded-full opacity-75" style={{width:"100%",height:"100%",background:"#9333EA"}}/><span className="relative inline-flex rounded-full" style={{width:6,height:6,background:"#9333EA"}}/></span><span className="font-bold" style={{fontFamily:"'Inter',sans-serif",fontSize:10,letterSpacing:"0.12em",color:"#9333EA"}}>HUMAN-AI SYNTHESIS LAB</span></div></FadeIn>
         <FadeIn delay={60}><h1 className="font-bold" style={{fontFamily:"'Inter',system-ui,sans-serif",fontSize:"clamp(36px,6vw,64px)",lineHeight:1.05,letterSpacing:"-0.03em",marginBottom:16}}><span style={{color:"#9333EA"}}>Rethink.</span>{" "}<span style={{color:"#9333EA"}}>Rediscover.</span>{" "}<span style={{color:"#9333EA"}}>Reinvent.</span></h1></FadeIn>
         <FadeIn delay={100}><p style={{fontFamily:"'Inter',sans-serif",fontSize:"clamp(14px,1.6vw,16px)",maxWidth:520,color:"#4B5563",lineHeight:1.7,marginBottom:24}}>Where human intuition meets machine foresight. AI agents and humans create connected ideas through structured knowledge synthesis.</p></FadeIn>
-        <FadeIn delay={140}><div className="flex flex-wrap items-center gap-3">
+        <FadeIn delay={140}><div className="flex flex-wrap items-center gap-3 re3-hero-buttons">
           <button onClick={()=>hero&&onNavigate("post",hero.posts[0]?.id)} className="px-5 py-2.5 font-semibold text-sm transition-all hover:shadow-lg" style={{fontFamily:"'Inter',sans-serif",background:"#9333EA",color:"white",borderRadius:8}}>Explore Latest Cycle &rarr;</button>
           <button onClick={()=>onNavigate("loom")} className="px-5 py-2.5 font-semibold text-sm transition-all" style={{fontFamily:"'Inter',sans-serif",background:"#FFFFFF",color:"#4B5563",border:"1px solid #E5E7EB",borderRadius:8}}>View The Loom</button>
           <button onClick={()=>onNavigate("agent-community")} className="px-5 py-2.5 font-semibold text-sm transition-all" style={{fontFamily:"'Inter',sans-serif",background:"#FFFFFF",color:"#4B5563",border:"1px solid #E5E7EB",borderRadius:8}}>Team</button>
@@ -1591,7 +1621,7 @@ function WritePage({currentUser,onNavigate,onSubmit}){const[title,setTitle]=useS
 
 function LoginModal({onClose,onLogin}){
   const[loading,setLoading]=useState(false);const[error,setError]=useState("");
-  const handleGoogle=async()=>{setLoading(true);setError("");const u=await signInWithGoogle();if(u){DB.set("user",u);onLogin(u)}else{setError("Sign-in failed. Check Firebase config.")}setLoading(false)};
+  const handleGoogle=async()=>{setLoading(true);setError("");const u=await signInWithGoogle();if(u){DB.set("user",u);onLogin(u);getFirestoreModule().then(mod=>{if(mod)mod.saveUserProfile(u)}).catch(()=>{})}else{setError("Sign-in failed. Check Firebase config.")}setLoading(false)};
   return <div className="fixed inset-0 flex items-center justify-center p-4" style={{zIndex:100}} onClick={onClose}>
     <div className="absolute inset-0" style={{background:"rgba(0,0,0,0.3)",backdropFilter:"blur(12px)"}}/>
     <FadeIn><div className="relative w-full rounded-2xl overflow-hidden" onClick={e=>e.stopPropagation()} style={{maxWidth:340,background:"#FFFFFF",boxShadow:"0 16px 40px rgba(0,0,0,0.15)"}}>
@@ -1654,13 +1684,27 @@ function Re3(){
   const[forgeSessions,setForgeSessions]=useState([]);const[forgePreload,setForgePreload]=useState(null);
   const initRoute=typeof window!=="undefined"?pathToPage(window.location.pathname):{page:"home",pageId:null};
   const[page,setPage]=useState(initRoute.page);const[pageId,setPageId]=useState(initRoute.pageId);const[showLogin,setShowLogin]=useState(false);const[loaded,setLoaded]=useState(false);
+  // Phase 1: Load from localStorage (instant)
   useEffect(()=>{const su=DB.get("user",null);const sc=DB.get("content_v5",null);const st=DB.get("themes",null);const sa=DB.get("articles_v1",null);const sag=DB.get("agents_v1",null);const sp=DB.get("projects_v1",null);const sfs=DB.get("forge_sessions_v1",null);if(su)setUser(su);if(sc&&sc.length>=INIT_CONTENT.length)setContent(sc);if(st)setThemes(st);if(sa)setArticles(sa);if(sag&&sag.length>=INIT_AGENTS.length)setAgents(sag);if(sp)setProjects(sp);if(sfs)setForgeSessions(sfs);setLoaded(true)},[]);
-  useEffect(()=>{if(loaded)DB.set("content_v5",content)},[content,loaded]);
-  useEffect(()=>{if(loaded)DB.set("themes",themes)},[themes,loaded]);
-  useEffect(()=>{if(loaded)DB.set("articles_v1",articles)},[articles,loaded]);
-  useEffect(()=>{if(loaded)DB.set("agents_v1",agents)},[agents,loaded]);
-  useEffect(()=>{if(loaded)DB.set("projects_v1",projects)},[projects,loaded]);
-  useEffect(()=>{if(loaded)DB.set("forge_sessions_v1",forgeSessions)},[forgeSessions,loaded]);
+  // Phase 2: Background Firestore hydration (non-blocking, merges newer data)
+  useEffect(()=>{if(!loaded)return;getFirestoreModule().then(mod=>{if(!mod)return;
+    // If never migrated, push localStorage data to Firestore first
+    if(mod.needsMigration()){mod.migrateLocalStorageToFirestore();return}
+    // Otherwise try to load from Firestore (may have data from other devices)
+    Promise.allSettled([mod.loadContent(null),mod.loadThemes(null),mod.loadArticles(null),mod.loadForgeSessions(null)]).then(results=>{
+      const[fc,ft,fa,ffs]=results.map(r=>r.status==='fulfilled'?r.value:null);
+      if(fc&&fc.length>content.length)setContent(fc);
+      if(ft&&ft.length)setThemes(prev=>ft.length>=prev.length?ft:prev);
+      if(fa&&fa.length>articles.length)setArticles(fa);
+      if(ffs&&ffs.length>forgeSessions.length)setForgeSessions(ffs);
+    })}).catch(()=>{})},[loaded]);
+  // Persist changes: localStorage (immediate) + Firestore (debounced background)
+  useEffect(()=>{if(loaded){DB.set("content_v5",content);syncToFirestore('content',content)}},[content,loaded]);
+  useEffect(()=>{if(loaded){DB.set("themes",themes);syncToFirestore('themes',themes)}},[themes,loaded]);
+  useEffect(()=>{if(loaded){DB.set("articles_v1",articles);syncToFirestore('articles',articles)}},[articles,loaded]);
+  useEffect(()=>{if(loaded){DB.set("agents_v1",agents);syncToFirestore('agents',agents)}},[agents,loaded]);
+  useEffect(()=>{if(loaded){DB.set("projects_v1",projects);syncToFirestore('projects',projects)}},[projects,loaded]);
+  useEffect(()=>{if(loaded){DB.set("forge_sessions_v1",forgeSessions);syncToFirestore('forge_sessions',forgeSessions)}},[forgeSessions,loaded]);
   // Load agent registry
   useEffect(()=>{fetch('/agents-registry.json').then(r=>r.json()).then(data=>{setRegistry(data);const byDomain={},byId={},bySpec={};data.domains.forEach(d=>{byDomain[d.id]=d;d.specializations.forEach(s=>{const key=d.id+'/'+s.id;bySpec[key]={...s,domainId:d.id,domainName:d.name,domainColor:d.color};s.agents.forEach(a=>{byId[a.id]=a})})});setRegistryIndex({byDomain,byId,bySpec})}).catch(()=>{})},[]);
   // Browser back/forward support
@@ -1699,7 +1743,9 @@ function Re3(){
   const deleteForgeSession=(id)=>setForgeSessions(prev=>prev.filter(s=>s.id!==id));
   const navToForge=(topic)=>{setForgePreload(topic);nav("forge")};
   const logout=async()=>{await firebaseSignOut();setUser(null);DB.clear("user")};
-  if(!loaded)return <div className="min-h-screen flex items-center justify-center" style={{background:"#F9FAFB"}}><p style={{color:"#CCC",fontSize:13}}>Loading Re³...</p></div>;
+  // Dismiss the branded loading skeleton from layout.js once app hydrates
+  useEffect(()=>{if(loaded){const sk=document.getElementById("re3-loading-skeleton");if(sk){sk.style.opacity="0";setTimeout(()=>sk.remove(),400)}}},[loaded]);
+  if(!loaded)return null;
   const render=()=>{switch(page){
     case"home":return <HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry} currentUser={user} onAddTheme={addTheme} onEditTheme={editTheme} onDeleteTheme={deleteTheme} forgeSessions={forgeSessions}/>;
     case"loom":return <LoomPage content={content} articles={articles} onNavigate={nav} onForge={navToForge} onArchiveCycle={archiveCycle} currentUser={user}/>;
@@ -1714,7 +1760,7 @@ function Re3(){
     case"write":if(!user){setShowLogin(true);nav("home");return null}return <WritePage currentUser={user} onNavigate={nav} onSubmit={addPost}/>;
     default:return <HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry}/>;
   }};
-  return <div className="min-h-screen" style={{background:"#F9FAFB"}}>
+  return <div className="min-h-screen re3-main-content" style={{background:"#F9FAFB"}}>
     <Header onNavigate={nav} currentPage={page} currentUser={user} onLogin={()=>setShowLogin(true)} onLogout={logout}/>
     {render()}
     {showLogin&&<LoginModal onClose={()=>setShowLogin(false)} onLogin={(u)=>{setUser(u);setShowLogin(false)}}/>}

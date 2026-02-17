@@ -1,0 +1,60 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper: check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper: check if user is admin
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'nitesh4learning@gmail.com';
+    }
+
+    // Content (posts) — anyone can read, authenticated users can write
+    match /content/{postId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+
+    // Articles — anyone can read, authenticated users can create, admin can modify
+    match /articles/{articleId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+
+    // Forge sessions — anyone can read, authenticated users can create
+    match /forge_sessions/{sessionId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+
+    // Config (themes, agents, projects) — anyone can read, admin can write
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // User profiles — users can read/write their own, admin can read all
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated() && request.auth.uid == userId;
+      allow delete: if isAdmin();
+    }
+
+    // Cycles collection (future) — anyone can read, admin can write
+    match /cycles/{cycleId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Deny everything else by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
