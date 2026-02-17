@@ -101,9 +101,9 @@ function OrchestratorAvatar({type,size=24}){
 const ORCH_AVATAR_KEY={agent_sage:"hypatia",agent_atlas:"socratia",agent_forge:"ada"};
 
 const AGENTS = [
-  { id:"agent_sage", name:"Hypatia", avatar:"Hy", role:"Philosophy of Technology", pillar:"rethink", personality:"Asks the questions no one else is asking.", color:"#3B6B9B", isAgent:true },
-  { id:"agent_atlas", name:"Socratia", avatar:"So", role:"Pattern Recognition", pillar:"rediscover", personality:"Finds connections across industries.", color:"#E8734A", isAgent:true },
-  { id:"agent_forge", name:"Ada", avatar:"Ad", role:"Builder & Architect", pillar:"reinvent", personality:"Turns ideas into implementation.", color:"#2D8A6E", isAgent:true },
+  { id:"agent_sage", name:"Hypatia", avatar:"Hy", role:"Rethink Orchestrator", pillar:"rethink", personality:"Deconstructs assumptions. Questions what everyone accepts as true.", color:"#3B6B9B", isAgent:true },
+  { id:"agent_atlas", name:"Socratia", avatar:"So", role:"Rediscover Orchestrator", pillar:"rediscover", personality:"Finds hidden patterns across history and disciplines.", color:"#E8734A", isAgent:true },
+  { id:"agent_forge", name:"Ada", avatar:"Ad", role:"Reinvent Orchestrator", pillar:"reinvent", personality:"Turns principles into buildable architectures.", color:"#2D8A6E", isAgent:true },
 ];
 const HUMANS = [
   { id:"u1", name:"Nitesh", avatar:"NS", role:"Enterprise AI & Data Governance Leader", bio:"20+ years transforming healthcare & financial services through data. Creator of the GIM and Pinwheel frameworks. Builder of Re\u00b3.", expertise:["AI Governance","MDM","Enterprise Architecture"], isAgent:false, thinkingFingerprint:{ rethink:18, rediscover:12, reinvent:24, highlights:56, challenges:11, bridges:5 } },
@@ -119,9 +119,9 @@ const DEFAULT_PROJECTS = [
 
 // === ORCHESTRATORS (not debaters — they run the show) ===
 const ORCHESTRATORS = {
-  sage: { id:"agent_sage", name:"Hypatia", persona:"A wise synthesizer and systems thinker. Finds unity beneath contradictions. Weaves disparate threads into coherent insight. Reflective, philosophical, honors all perspectives rather than picking winners. Ends with open questions.", model:"anthropic", color:"#3B6B9B", avatar:"Hy", role:"Synthesizer" },
-  atlas: { id:"agent_atlas", name:"Socratia", persona:"A debate moderator and pattern recognition specialist. Watches discussions for drift, circular arguments, and missing perspectives. Redirects firmly but respectfully. References historical parallels when relevant.", model:"anthropic", color:"#E8734A", avatar:"So", role:"Moderator" },
-  forge: { id:"agent_forge", name:"Ada", persona:"A panel curator who reads articles and selects the most relevant debaters. Analyzes the topic's domain, stakeholders, and tensions to pick 5 agents that will create the most productive friction.", model:"anthropic", color:"#2D8A6E", avatar:"Ad", role:"Panel Curator" },
+  sage: { id:"agent_sage", name:"Hypatia", persona:"The Rethink orchestrator. Deconstructs assumptions and questions what everyone accepts as true. A philosophical provocateur who exposes fractures in consensus thinking — not to destroy, but to create the tension that drives deeper understanding. Ends with open questions that demand answers.", model:"anthropic", color:"#3B6B9B", avatar:"Hy", role:"Rethink Orchestrator" },
+  atlas: { id:"agent_atlas", name:"Socratia", persona:"The Rediscover orchestrator. Finds hidden patterns across history, industries, and disciplines that others miss. A cross-domain detective who answers the hard questions Rethink raised — not with new theories, but with evidence from overlooked places. Extracts universal principles from surprising connections.", model:"anthropic", color:"#E8734A", avatar:"So", role:"Rediscover Orchestrator" },
+  forge: { id:"agent_forge", name:"Ada", persona:"The Reinvent orchestrator. Turns deconstructed assumptions and rediscovered principles into something concrete and buildable. A pragmatic architect who resolves the full intellectual arc — proposing specific systems, frameworks, and working code that readers can implement today.", model:"anthropic", color:"#2D8A6E", avatar:"Ad", role:"Reinvent Orchestrator" },
 };
 
 // === 25 DEBATER AGENTS ===
@@ -409,7 +409,7 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
       <FadeIn delay={50}><CycleCard cycle={hero} onNavigate={onNavigate} variant="hero"/></FadeIn>
     </section>}
 
-    {/* Recent Forge Sessions */}
+    {/* Recent Debate Lab Sessions */}
     {forgeSessions&&forgeSessions.length>0&&<section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
       <FadeIn><div className="flex items-center justify-between mb-3"><h2 className="font-bold" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:18}}>Recent Debate Sessions</h2><button onClick={()=>onNavigate("forge")} className="text-xs font-semibold" style={{fontFamily:"'Inter',sans-serif",color:"#9333EA"}}>View all in Debate Lab &rarr;</button></div></FadeIn>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">{forgeSessions.slice(0,6).map((s,i)=>{
@@ -1182,26 +1182,26 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
       const tl=tlData.data;
       setThroughLine(tl);setGenProgress(15);
 
-      // Step 1: Sage writes Rethink (reads nothing)
+      // Step 1: Hypatia writes Rethink (reads nothing)
       setGenerating('sage');setGenProgress(20);
       const sageRes=await fetch('/api/cycle/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,step:'rethink',previousData:{throughLine:tl}})});
-      if(!sageRes.ok)throw new Error('Sage generation failed');
+      if(!sageRes.ok)throw new Error('Hypatia (Rethink) generation failed');
       const sageData=await sageRes.json();
       const sage=sageData.data;
       setPosts(prev=>[...prev,sage]);setGenProgress(45);
 
-      // Step 2: Atlas writes Rediscover (reads Sage's full output)
+      // Step 2: Socratia writes Rediscover (reads Hypatia's full output)
       setGenerating('atlas');setGenProgress(50);
       const atlasRes=await fetch('/api/cycle/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,step:'rediscover',previousData:{throughLine:tl,sage}})});
-      if(!atlasRes.ok)throw new Error('Atlas generation failed');
+      if(!atlasRes.ok)throw new Error('Socratia (Rediscover) generation failed');
       const atlasData=await atlasRes.json();
       const atlas=atlasData.data;
       setPosts(prev=>[...prev,atlas]);setGenProgress(75);
 
-      // Step 3: Forge writes Reinvent (reads Sage + Atlas full output)
+      // Step 3: Ada writes Reinvent (reads Hypatia + Socratia full output)
       setGenerating('forge');setGenProgress(80);
       const forgeRes=await fetch('/api/cycle/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,step:'reinvent',previousData:{throughLine:tl,sage,atlas}})});
-      if(!forgeRes.ok)throw new Error('Forge generation failed');
+      if(!forgeRes.ok)throw new Error('Ada (Reinvent) generation failed');
       const forgeData=await forgeRes.json();
       const forge=forgeData.data;
       setPosts(prev=>[...prev,forge]);setGenProgress(100);
@@ -1250,7 +1250,7 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
     }
   };
 
-  const STEP_LABELS=[['through-line','Crafting the through-line question...','#8B5CF6'],['sage','Sage is questioning assumptions...','#3B6B9B'],['atlas','Atlas is discovering hidden patterns...','#E8734A'],['forge','Forge is building the architecture...','#2D8A6E']];
+  const STEP_LABELS=[['through-line','Crafting the through-line question...','#8B5CF6'],['sage','Hypatia is rethinking assumptions...','#3B6B9B'],['atlas','Socratia is rediscovering hidden patterns...','#E8734A'],['forge','Ada is reinventing the architecture...','#2D8A6E']];
   const currentStepIdx=STEP_LABELS.findIndex(s=>s[0]===generating);
 
   return <div className="p-5 rounded-2xl" style={{background:"white",border:"1px solid #E5E7EB"}}>

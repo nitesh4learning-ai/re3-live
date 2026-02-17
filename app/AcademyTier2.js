@@ -1709,7 +1709,7 @@ function TabDeepProdTools({onNavigate,onComplete}){return <div>
   }
 }`}/>
   <Quiz question="Why is caching important in a production tool system?" options={["To reduce code complexity","To avoid redundant API calls, saving latency and cost","Caching is not important","To prevent all errors"]} correctIndex={1} explanation="Many tool calls are idempotent. Caching prevents redundant API calls, reducing both latency and cost." onAnswer={()=>onComplete&&onComplete("deep-prod-tools","quiz1")}/>
-  <SeeItInRe3 text="Re³ uses a tool registry pattern in its debate system -- each orchestrator (Sage, Atlas, Forge) has registered capabilities with logging and error handling." targetPage="forge" onNavigate={onNavigate}/>
+  <SeeItInRe3 text="Re³ uses a tool registry pattern in its debate system -- each orchestrator (Hypatia, Socratia, Ada) has registered capabilities with logging and error handling." targetPage="forge" onNavigate={onNavigate}/>
 </div>}
 
 function TabDeepFCPlayground({onNavigate,onComplete}){return <div>
