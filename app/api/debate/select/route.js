@@ -35,11 +35,15 @@ export async function POST(req) {
     const activityHint = activityHints[activityType] || activityHints.debate;
     const selectCount = activityType === "implement" ? 6 : activityType === "ideate" ? 8 : 5;
 
+    const isCycleDebate = articleText.length > 3000 || articleText.includes("---\n\n");
+    const contentSlice = isCycleDebate ? articleText.slice(0, 4000) : articleText.slice(0, 2000);
+    const contentLabel = isCycleDebate ? "Re3 Cycle (3 connected articles)" : "Article";
+
     const response = await callLLM(
       "anthropic",
       forgePersona || "You are Ada, a panel curator. You read articles and select the most relevant agents that will create productive friction and diverse perspectives.",
-      `Article title: "${articleTitle}"
-Article content: ${articleText.slice(0, 2000)}
+      `${contentLabel} title: "${articleTitle}"
+${contentLabel} content: ${contentSlice}
 
 Available agents (${activeAgents.length} total):
 ${agentList}

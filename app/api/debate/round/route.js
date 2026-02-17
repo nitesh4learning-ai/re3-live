@@ -14,13 +14,19 @@ export async function POST(req) {
       });
     });
 
+    // Detect if this is a full-cycle debate (longer content with all 3 articles)
+    const isCycleDebate = articleText.length > 3000 || articleText.includes("---\n\n");
+    const contentSlice1 = isCycleDebate ? articleText.slice(0, 5000) : articleText.slice(0, 2500);
+    const contentSlice2 = isCycleDebate ? articleText.slice(0, 3000) : articleText.slice(0, 1500);
+    const contentLabel = isCycleDebate ? "Re3 Cycle (3 connected articles — Rethink, Rediscover, Reinvent)" : "Article";
+
     const roundPrompts = {
       1: (agent) =>
-        `Read this article and give your initial position from your unique perspective.\n\nArticle: "${articleTitle}"\n${articleText.slice(0, 2500)}\n\nRespond in 2-3 paragraphs. Be direct, opinionated, and true to your role.`,
+        `Read this ${contentLabel} and give your initial position from your unique perspective. Address the full intellectual arc — the questions raised, patterns discovered, and architecture proposed.\n\n${contentLabel}: "${articleTitle}"\n${contentSlice1}\n\nRespond in 2-3 paragraphs. Be direct, opinionated, and true to your role.`,
       2: (agent) =>
-        `Read this article and the Round 1 responses from other agents. Now respond to the most compelling or problematic points. Reference specific agents by name. Agree, challenge, or build on their ideas.\n\nArticle: "${articleTitle}"\n${articleText.slice(0, 1500)}\n${context}\n\nRespond in 2-3 paragraphs. Engage directly with what others said.`,
+        `Read this ${contentLabel} and the Round 1 responses from other agents. Now respond to the most compelling or problematic points. Reference specific agents by name. Agree, challenge, or build on their ideas.\n\n${contentLabel}: "${articleTitle}"\n${contentSlice2}\n${context}\n\nRespond in 2-3 paragraphs. Engage directly with what others said.`,
       3: (agent) =>
-        `This is the final round. You have seen the article and two rounds of debate. Give your refined final position. What is the one thing this discussion must not lose sight of?\n\nArticle: "${articleTitle}"\n${context}\n\nRespond in 1-2 paragraphs. Be sharp and conclusive.`,
+        `This is the final round. You have seen the ${contentLabel.toLowerCase()} and two rounds of debate. Give your refined final position. What is the one thing this discussion must not lose sight of?\n\n${contentLabel}: "${articleTitle}"\n${context}\n\nRespond in 1-2 paragraphs. Be sharp and conclusive.`,
     };
 
     const getPrompt = roundPrompts[roundNumber] || roundPrompts[1];

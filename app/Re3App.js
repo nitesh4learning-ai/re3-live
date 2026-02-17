@@ -240,7 +240,7 @@ function deriveHeadline(rethink, rediscover, reinvent) {
   return first.length > 50 ? first.slice(0, 47) + '...' : first;
 }
 
-// Group content into cycles (filters archived)
+// Group content into cycles (filters archived) — includes journey metadata
 function getCycles(content) {
   const active = content.filter(c => c.sundayCycle && !c.archived);
   const cycleDates = [...new Set(active.map(c=>c.sundayCycle))].sort((a,b)=>b.localeCompare(a));
@@ -251,7 +251,15 @@ function getCycles(content) {
     const reinvent = posts.find(p=>p.pillar==="reinvent");
     const extra = posts.filter(p=>!["rethink","rediscover","reinvent"].includes(p.pillar));
     const headline = deriveHeadline(rethink, rediscover, reinvent);
-    return { date, number: cycleDates.length - i, rethink, rediscover, reinvent, extra, posts, headline, endorsements: posts.reduce((s,p)=>s+p.endorsements,0), comments: posts.reduce((s,p)=>s+p.comments.length,0) };
+    // Journey metadata (from connected cycle generation)
+    const throughLineQuestion = rethink?.throughLineQuestion || rediscover?.throughLineQuestion || reinvent?.throughLineQuestion || null;
+    const artifacts = {
+      questions: rethink?.artifact?.type==="questions" ? rethink.artifact : null,
+      principle: rediscover?.artifact?.type==="principle" ? rediscover.artifact : null,
+      blueprint: reinvent?.artifact?.type==="blueprint" ? reinvent.artifact : null,
+    };
+    const isJourney = !!(throughLineQuestion || rethink?.bridgeSentence || rediscover?.synthesisPrinciple);
+    return { date, number: cycleDates.length - i, rethink, rediscover, reinvent, extra, posts, headline, endorsements: posts.reduce((s,p)=>s+p.endorsements,0), comments: posts.reduce((s,p)=>s+p.comments.length,0), throughLineQuestion, artifacts, isJourney };
   });
 }
 
@@ -265,24 +273,34 @@ function HeatBar({count,max=48}){const i=Math.min(count/max,1);return <div class
 
 function ParagraphReactions({reactions={},onReact,paragraphIndex}){const[my,setMy]=useState({});return <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">{Object.entries(REACTION_MAP).map(([key,{label,pillar}])=>{const c=(reactions[key]||0)+(my[key]?1:0);const pc=PILLARS[pillar];return <button key={key} onClick={()=>{if(!my[key]){setMy(p=>({...p,[key]:true}));onReact(paragraphIndex,key)}}} title={label} className="flex items-center gap-1 px-1.5 py-0.5 rounded-full transition-all hover:scale-105" style={{fontSize:10,background:my[key]?`${pc.color}12`:"#F8F8F8",color:my[key]?pc.color:"#CCC",border:my[key]?`1px solid ${pc.color}20`:"1px solid transparent"}}><PillarIcon pillar={pillar} size={10}/>{c>0&&<span className="font-semibold">{c}</span>}</button>})}</div>}
 
-// ==================== CYCLE CARD — The core visual unit ====================
+// ==================== CYCLE CARD — The core visual unit (journey-aware) ====================
 function CycleCard({cycle,onNavigate,variant="default"}){
   const isHero = variant==="hero";
   return <div className="rounded-xl overflow-hidden transition-all hover:shadow-md" style={{background:"#FFFFFF",border:"1px solid #E5E7EB"}} onMouseEnter={e=>{if(!isHero)e.currentTarget.style.transform="translateY(-2px)"}} onMouseLeave={e=>{if(!isHero)e.currentTarget.style.transform="translateY(0)"}}>
+    {/* Through-line question for journey cycles */}
+    {cycle.isJourney&&cycle.throughLineQuestion&&isHero&&<div className="px-5 pt-4 pb-2">
+      <p className="text-sm font-semibold text-center" style={{color:"#8B5CF6",fontStyle:"italic",lineHeight:1.5}}>"{cycle.throughLineQuestion}"</p>
+    </div>}
     <div className={isHero?"p-5 sm:p-6":"p-4"}>
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2"><span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontFamily:"'Inter',sans-serif",fontSize:11,background:"#F3E8FF",color:"#9333EA"}}>Cycle {cycle.number}{cycle.headline?': '+cycle.headline:''}</span><span style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"#9CA3AF"}}>{fmtS(cycle.date)}</span></div>
+        <div className="flex items-center gap-2"><span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontFamily:"'Inter',sans-serif",fontSize:11,background:"#F3E8FF",color:"#9333EA"}}>Cycle {cycle.number}{cycle.headline?': '+cycle.headline:''}</span>{cycle.isJourney&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#E0F2EC",color:"#2D8A6E",fontWeight:700}}>Journey</span>}<span style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"#9CA3AF"}}>{fmtS(cycle.date)}</span></div>
         <div className="flex items-center gap-3" style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"#9CA3AF"}}><span>{cycle.endorsements} endorsements</span><span>{cycle.comments} replies</span></div>
       </div>
+      {/* Journey progress dots */}
+      {isHero&&<div className="flex items-center justify-center gap-1.5 mb-4">
+        {[["rethink","Rethink","#3B6B9B"],["rediscover","Rediscover","#E8734A"],["reinvent","Reinvent","#2D8A6E"]].map(([key,label,color],i)=>{const post=cycle[key];return <Fragment key={key}>{i>0&&<div style={{width:24,height:2,background:`linear-gradient(90deg,${[["#3B6B9B"],["#E8734A"],["#2D8A6E"]][i-1]},${color})`,borderRadius:4}}/>}<button onClick={()=>post&&onNavigate(cycle.isJourney?"loom-cycle":"post",cycle.isJourney?cycle.date:post.id)} className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-full" style={{background:post?color:"#E5E7EB"}}/><span className="text-xs font-semibold hidden sm:inline" style={{color:post?color:"#CCC"}}>{post?.title?.slice(0,25)||(label+"...")}{post?.title?.length>25?"...":""}</span></button></Fragment>})}
+      </div>}
       <div className={`grid grid-cols-1 ${isHero?"md:grid-cols-3":""} gap-3`}>
-        {[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean).map(post=>{const author=getAuthor(post.authorId);const pillar=PILLARS[post.pillar];return <button key={post.id} onClick={()=>onNavigate("post",post.id)} className="text-left p-4 rounded-xl transition-all group" style={{background:"#FFFFFF",borderLeft:`4px solid ${pillar.color}`,border:"1px solid #E5E7EB",borderLeftWidth:4,borderLeftColor:pillar.color}} onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,0.08)"}} onMouseLeave={e=>{e.currentTarget.style.boxShadow="none"}}>
+        {[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean).map(post=>{const author=getAuthor(post.authorId);const pillar=PILLARS[post.pillar];return <button key={post.id} onClick={()=>onNavigate(cycle.isJourney?"loom-cycle":"post",cycle.isJourney?cycle.date:post.id)} className="text-left p-4 rounded-xl transition-all group" style={{background:"#FFFFFF",borderLeft:`4px solid ${pillar.color}`,border:"1px solid #E5E7EB",borderLeftWidth:4,borderLeftColor:pillar.color}} onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,0.08)"}} onMouseLeave={e=>{e.currentTarget.style.boxShadow="none"}}>
           <div className="flex items-center gap-1.5 mb-2"><PillarTag pillar={post.pillar}/></div>
           <h3 className="font-bold leading-snug mb-1.5" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:isHero?16:14}}>{post.title}</h3>
           <p className="mb-2" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"#6B7280",lineHeight:1.5,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.paragraphs[0]?.slice(0,isHero?140:100)}...</p>
           <AuthorBadge author={author}/>
-          <span className="text-xs font-semibold opacity-0 group-hover:opacity-100 transition-all mt-1 inline-block" style={{color:"#9333EA"}}>Read &rarr;</span>
+          <span className="text-xs font-semibold opacity-0 group-hover:opacity-100 transition-all mt-1 inline-block" style={{color:"#9333EA"}}>{cycle.isJourney?"View journey":"Read"} &rarr;</span>
         </button>})}
       </div>
+      {/* Journey artifact summary */}
+      {isHero&&cycle.isJourney&&<div className="flex items-center justify-center gap-2 mt-3">{["questions","principle","blueprint"].map(type=>{const a=cycle.artifacts[type];return a?<span key={type} className="px-2 py-0.5 rounded-full text-xs" style={{background:type==="questions"?"#E8EEF5":type==="principle"?"#FDE8E0":"#E0F2EC",color:type==="questions"?"#3B6B9B":type==="principle"?"#E8734A":"#2D8A6E",fontSize:10}}>{type==="questions"?"🔍 "+(a.items?.length||0)+" Qs":type==="principle"?"💡 Principle":"🔧 Blueprint"}</span>:null})}</div>}
       {cycle.extra?.length>0&&<div className="mt-2 text-xs" style={{color:"#9CA3AF"}}>+{cycle.extra.length} more</div>}
     </div>
   </div>
@@ -416,22 +434,30 @@ function TriptychExpanded({cycle,onNavigate,onCollapse,onForge,onArchiveCycle,cu
   const synthesisPost=pillars.find(p=>p?.debate?.loom);
   return <div className="rounded-xl overflow-hidden mb-2" style={{background:"#FFFFFF",border:"1px solid #E5E7EB",boxShadow:"0 4px 24px rgba(0,0,0,0.08)"}}>
     <div className="flex items-center justify-between p-4" style={{borderBottom:"1px solid #E5E7EB"}}>
-      <div className="flex items-center gap-2"><span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontSize:11,background:"#F3E8FF",color:"#9333EA"}}>Cycle {cycle.number}{cycle.headline?': '+cycle.headline:''}</span><span style={{fontSize:12,color:"#9CA3AF"}}>{fmtS(cycle.date)}</span></div>
+      <div className="flex items-center gap-2"><span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontSize:11,background:"#F3E8FF",color:"#9333EA"}}>Cycle {cycle.number}{cycle.headline?': '+cycle.headline:''}</span>{cycle.isJourney&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#E0F2EC",color:"#2D8A6E"}}>Connected Journey</span>}<span style={{fontSize:12,color:"#9CA3AF"}}>{fmtS(cycle.date)}</span></div>
       <div className="flex items-center gap-2">
         <ShareButton title={`Re³ Cycle ${cycle.number}${cycle.headline?': '+cycle.headline:''}`} text="Explore this synthesis cycle on Re³" url={typeof window!=='undefined'?window.location.origin+'/loom':''}/>
         {isAdmin(currentUser)&&onArchiveCycle&&<button onClick={()=>{if(confirm('Archive this cycle? It will be hidden from views.'))onArchiveCycle(cycle.date)}} className="px-2 py-1 rounded-lg text-xs font-semibold transition-all hover:bg-red-50" style={{color:"rgba(229,62,62,0.6)",border:"1px solid rgba(229,62,62,0.2)"}}>Archive</button>}
         <button onClick={onCollapse} className="px-2 py-1 rounded-lg text-xs" style={{color:"rgba(0,0,0,0.3)",border:"1px solid rgba(0,0,0,0.08)"}}>Collapse</button>
       </div>
     </div>
+    {/* Through-line question (for journey cycles) */}
+    {cycle.throughLineQuestion&&<div className="px-4 py-2" style={{background:"#FAF5FF",borderBottom:"1px solid #E9D5FF"}}>
+      <p className="text-xs font-semibold text-center" style={{color:"#8B5CF6",fontStyle:"italic"}}>"{cycle.throughLineQuestion}"</p>
+    </div>}
     <div className="grid grid-cols-1 md:grid-cols-3">{pillars.map((post,i)=>{const pillar=PILLARS[post.pillar];const perspectives=getAgentPerspectives(post);
       return <div key={post.id} className="p-4" style={{borderRight:i<pillars.length-1?"1px solid #E5E7EB":"none",borderLeft:`4px solid ${pillar.color}`}}>
         <PillarTag pillar={post.pillar}/>
         <h3 className="font-bold mt-2 mb-2" style={{fontFamily:"'Inter',system-ui,sans-serif",fontSize:15,color:"#111827",lineHeight:1.3}}>{post.title}</h3>
         <p className="mb-3" style={{fontSize:12,color:"rgba(0,0,0,0.45)",lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.paragraphs?.[0]?.slice(0,180)}...</p>
         {perspectives.length>0&&<div className="mb-3"><span className="font-bold" style={{fontSize:9,color:"rgba(0,0,0,0.3)",letterSpacing:"0.1em"}}>PERSPECTIVES</span><div className="mt-1 space-y-1">{perspectives.map((p,pi)=><div key={pi} className="p-2 rounded-lg" style={{background:"rgba(0,0,0,0.02)",fontSize:11,color:"#888"}}><span className="font-bold" style={{color:pillar.color}}>{p.name}: </span>{p.excerpt}</div>)}</div></div>}
-        <div className="flex items-center gap-3"><button onClick={()=>onNavigate("post",post.id)} className="text-xs font-semibold" style={{color:"#9333EA"}}>Read full post &rarr;</button>
-        {onForge&&<button onClick={()=>onForge({title:post.title,text:post.paragraphs?.[0]||"",sourceType:"loom"})} className="text-xs font-semibold" style={{color:"#9333EA"}}>Take to Debate Lab →</button>}</div>
+        <button onClick={()=>onNavigate("post",post.id)} className="text-xs font-semibold" style={{color:"#9333EA"}}>Read full post &rarr;</button>
       </div>})}</div>
+    {/* Action bar with full-cycle debate option */}
+    <div className="flex items-center gap-3 px-4 py-3" style={{borderTop:"1px solid #E5E7EB",background:"#FAFAFA"}}>
+      {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"Cycle "+cycle.number,text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date})} className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm" style={{background:"#9333EA",color:"white"}}>Debate Full Cycle</button>}
+      <button onClick={()=>onNavigate("loom-cycle",cycle.date)} className="px-3 py-1.5 rounded-lg text-xs font-semibold" style={{border:"1px solid #E9D5FF",color:"#9333EA"}}>View Journey</button>
+    </div>
     {synthesisPost?.debate?.loom&&<div className="p-4" style={{background:"#FAF5FF",borderTop:"1px solid #E9D5FF"}}>
       <div className="flex items-center gap-1.5 mb-1"><span style={{fontSize:12}}>&#128296;</span><span className="font-bold text-xs" style={{color:"#9333EA"}}>Hypatia&apos;s Synthesis</span></div>
       <p style={{fontSize:12,color:"rgba(0,0,0,0.5)",lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{synthesisPost.debate.loom.slice(0,300)}...</p>
@@ -439,10 +465,38 @@ function TriptychExpanded({cycle,onNavigate,onCollapse,onForge,onArchiveCycle,cu
   </div>
 }
 
-// ==================== LOOM CYCLE DETAIL PAGE ====================
+// ==================== ARTIFACT BOX — Reusable component for journey artifacts ====================
+function ArtifactBox({type,data,pillar}){
+  if(!data)return null;
+  const configs={questions:{icon:"🔍",label:"Questions Raised",color:"#3B6B9B",bg:"#E8EEF5"},principle:{icon:"💡",label:"Principle Extracted",color:"#E8734A",bg:"#FDE8E0"},blueprint:{icon:"🔧",label:"Blueprint",color:"#2D8A6E",bg:"#E0F2EC"}};
+  const c=configs[type]||configs.questions;
+  return <div className="rounded-xl p-4 mt-4" style={{background:c.bg,border:`1px solid ${c.color}30`}}>
+    <div className="flex items-center gap-2 mb-2"><span style={{fontSize:14}}>{c.icon}</span><span className="font-bold text-xs" style={{color:c.color,letterSpacing:"0.05em"}}>{c.label.toUpperCase()}</span></div>
+    {type==="questions"&&data.items?.map((q,i)=><div key={i} className="flex items-start gap-2 mb-1.5"><span className="font-bold text-xs mt-0.5" style={{color:c.color}}>{i+1}.</span><p className="text-sm" style={{color:"#444",lineHeight:1.5}}>{q}</p></div>)}
+    {type==="principle"&&<><p className="text-sm font-semibold mb-2" style={{color:"#333",lineHeight:1.5,fontStyle:"italic"}}>"{data.statement}"</p>{data.evidence?.map((e,i)=><p key={i} className="text-xs mb-1" style={{color:"#888"}}>Evidence: {e}</p>)}</>}
+    {type==="blueprint"&&<><div className="flex flex-wrap gap-1.5 mb-2">{data.components?.map((comp,i)=><span key={i} className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{background:`${c.color}15`,color:c.color}}>{comp}</span>)}</div>{data.principle_applied&&<p className="text-xs" style={{color:"#888"}}>Principle applied: {data.principle_applied}</p>}{data.code_summary&&<p className="text-xs mt-1" style={{color:"#666"}}>{data.code_summary}</p>}</>}
+  </div>
+}
+
+// ==================== BRIDGE TRANSITION — Visual divider between acts ====================
+function BridgeTransition({from,to,bridgeSentence}){
+  const fromColor=PILLARS[from]?.color||"#999";const toColor=PILLARS[to]?.color||"#999";
+  const transitionTexts={rethink_rediscover:"The question echoes across time...",rediscover_reinvent:"The pattern crystallizes into a blueprint..."};
+  const hint=transitionTexts[`${from}_${to}`]||"The thread continues...";
+  return <div className="my-6 relative">
+    <div className="w-full rounded-full" style={{height:3,background:`linear-gradient(90deg,${fromColor},${toColor})`}}/>
+    {bridgeSentence&&<div className="mt-3 px-4 py-3 rounded-xl" style={{background:"rgba(147,51,234,0.04)",border:"1px solid rgba(147,51,234,0.1)"}}>
+      <p className="text-sm" style={{color:"#666",fontStyle:"italic",lineHeight:1.6}}>{bridgeSentence}</p>
+    </div>}
+    <p className="text-center mt-2 text-xs font-semibold" style={{color:"rgba(0,0,0,0.2)"}}>{hint}</p>
+  </div>
+}
+
+// ==================== LOOM CYCLE DETAIL PAGE — Journey View ====================
 function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUser}){
   const cycles=getCycles(content);
   const cycle=cycles.find(c=>c.date===cycleDate);
+  const[activeAct,setActiveAct]=useState("rethink");
   if(!cycle)return <div className="min-h-screen" style={{paddingTop:56,background:"#F9FAFB"}}><div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 text-center">
     <p style={{color:"#9CA3AF",fontSize:14}}>Cycle not found.</p>
     <button onClick={()=>onNavigate("loom")} className="mt-4 text-sm font-semibold" style={{color:"#9333EA"}}>&larr; Back to The Loom</button>
@@ -452,32 +506,129 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
   const allStreams=pillars.flatMap(p=>p?.debate?.streams||[]);
   const allParticipants=[...new Set(pillars.flatMap(p=>(p?.debate?.panel?.agents||[]).map(a=>a.name)))];
   const copyShareUrl=()=>{const url=typeof window!=='undefined'?window.location.origin+'/loom/'+cycle.date:'';navigator.clipboard?.writeText(url).then(()=>{})};
-  return <div className="min-h-screen" style={{paddingTop:56,background:"#F9FAFB"}}><div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+  const isJourney=cycle.isJourney;
+
+  // Scroll handlers for act tracking
+  const rethinkRef=useRef(null);const rediscoverRef=useRef(null);const reinventRef=useRef(null);
+  useEffect(()=>{
+    if(!isJourney)return;
+    const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){setActiveAct(e.target.dataset.act)}})},{rootMargin:"-100px 0px -50% 0px",threshold:0.1});
+    [rethinkRef,rediscoverRef,reinventRef].forEach(ref=>{if(ref.current)observer.observe(ref.current)});
+    return()=>observer.disconnect();
+  },[isJourney]);
+
+  // Journey progress dots
+  const ACTS=[["rethink","Rethink","#3B6B9B","01"],["rediscover","Rediscover","#E8734A","02"],["reinvent","Reinvent","#2D8A6E","03"]];
+  const scrollToAct=(act)=>{const refs={rethink:rethinkRef,rediscover:rediscoverRef,reinvent:reinventRef};refs[act]?.current?.scrollIntoView({behavior:"smooth",block:"start"})};
+
+  return <div className="min-h-screen" style={{paddingTop:56,background:"#F9FAFB"}}>
+    {/* Sticky Journey Header */}
+    {isJourney&&<div className="sticky z-40" style={{top:56,background:"rgba(255,255,255,0.95)",backdropFilter:"blur(8px)",borderBottom:"1px solid #E5E7EB",padding:"8px 0"}}>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+        {cycle.throughLineQuestion&&<p className="text-xs font-semibold text-center mb-1.5" style={{color:"#8B5CF6",fontStyle:"italic"}}>"{cycle.throughLineQuestion}"</p>}
+        <div className="flex items-center justify-center gap-2">{ACTS.map(([key,label,color,num],i)=>{const isActive=activeAct===key;const isPast=ACTS.findIndex(a=>a[0]===activeAct)>i;
+          return <Fragment key={key}>{i>0&&<div style={{width:32,height:2,background:isPast||isActive?`linear-gradient(90deg,${ACTS[i-1][2]},${color})`:"#E5E7EB",borderRadius:4}}/>}
+            <button onClick={()=>scrollToAct(key)} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all" style={{background:isActive?`${color}12`:"transparent",border:isActive?`1px solid ${color}30`:"1px solid transparent"}}>
+              <div className="w-3 h-3 rounded-full" style={{background:isActive||isPast?color:"#E5E7EB"}}/>
+              <span className="font-bold text-xs hidden sm:inline" style={{color:isActive?color:isPast?"#666":"#CCC"}}>{label}</span>
+            </button></Fragment>})}</div>
+      </div>
+    </div>}
+
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
     <FadeIn><div className="flex items-center justify-between mb-6">
       <button onClick={()=>onNavigate("loom")} className="text-xs font-semibold px-3 py-1.5 rounded-lg" style={{border:"1px solid rgba(0,0,0,0.1)",color:"rgba(0,0,0,0.5)"}}>&larr; Back to The Loom</button>
-      <button onClick={copyShareUrl} className="text-xs font-semibold px-3 py-1.5 rounded-lg" style={{border:"1px solid #E9D5FF",color:"#9333EA",background:"#FAF5FF"}}>Share Cycle</button>
+      <div className="flex gap-2">
+        <button onClick={copyShareUrl} className="text-xs font-semibold px-3 py-1.5 rounded-lg" style={{border:"1px solid #E9D5FF",color:"#9333EA",background:"#FAF5FF"}}>Share</button>
+        {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"",text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date})} className="text-xs font-semibold px-3 py-1.5 rounded-lg" style={{background:"#9333EA",color:"white"}}>Debate Full Cycle</button>}
+      </div>
     </div></FadeIn>
-    <FadeIn delay={40}><div className="mb-6">
+
+    {/* Cycle Header */}
+    <FadeIn delay={40}><div className="mb-8 text-center">
       <span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontSize:11,background:"#F3E8FF",color:"#9333EA"}}>Cycle {cycle.number}{cycle.headline?': '+cycle.headline:''}</span>
       <span className="ml-2" style={{fontSize:12,color:"#9CA3AF"}}>{fmtS(cycle.date)}</span>
-      <div className="flex items-center gap-3 mt-2" style={{fontSize:11,color:"#9CA3AF"}}><span>{cycle.endorsements} endorsements</span><span>{cycle.comments} replies</span></div>
+      {isJourney&&<div className="flex items-center justify-center gap-1.5 mt-2">{["questions","principle","blueprint"].map(type=>{const a=cycle.artifacts[type];return a?<span key={type} className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{background:type==="questions"?"#E8EEF5":type==="principle"?"#FDE8E0":"#E0F2EC",color:type==="questions"?"#3B6B9B":type==="principle"?"#E8734A":"#2D8A6E"}}>{type==="questions"?"🔍 "+(a.items?.length||0)+" Questions":type==="principle"?"💡 1 Principle":"🔧 1 Blueprint"}</span>:null})}</div>}
     </div></FadeIn>
-    {/* Three pillar cards */}
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">{pillars.map((post,i)=>{const pillar=PILLARS[post.pillar];
-      return <FadeIn key={post.id} delay={80+i*40}><div className="rounded-xl overflow-hidden" style={{background:"white",border:`1px solid ${pillar.color}25`,borderLeft:`4px solid ${pillar.color}`}}>
-        <div className="p-4">
-          <PillarTag pillar={post.pillar}/>
-          <h3 className="font-bold mt-2 mb-2" style={{fontFamily:"'Inter',system-ui,sans-serif",fontSize:15,color:"#111827",lineHeight:1.3}}>{post.title}</h3>
-          <p className="mb-3" style={{fontSize:12,color:"rgba(0,0,0,0.45)",lineHeight:1.6}}>{post.paragraphs?.[0]?.slice(0,250)}...</p>
-          <button onClick={()=>onNavigate("post",post.id)} className="text-xs font-semibold" style={{color:"#9333EA"}}>Read full post &rarr;</button>
+
+    {/* Journey View — sequential acts with transitions */}
+    {isJourney ? <>
+      {/* ACT 1: RETHINK */}
+      {cycle.rethink&&<div ref={rethinkRef} data-act="rethink" className="mb-2">
+        <FadeIn delay={80}><div className="rounded-2xl overflow-hidden" style={{background:"white",border:"1px solid #E5E7EB",borderLeft:`5px solid #3B6B9B`}}>
+          <div className="p-6">
+            <div className="flex items-center gap-2 mb-1"><span className="font-bold" style={{fontSize:11,color:"#3B6B9B",letterSpacing:"0.1em"}}>01 &middot; RETHINK</span><OrchestratorAvatar type="hypatia" size={16}/></div>
+            <h2 className="font-bold mt-2 mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#111827",fontSize:24,lineHeight:1.2}}>{cycle.rethink.title}</h2>
+            <div style={{fontSize:15,color:"#444",lineHeight:1.9}}>{cycle.rethink.paragraphs?.map((p,i)=>{if(p.startsWith("```"))return <pre key={i} className="my-3 p-4 rounded-xl overflow-x-auto" style={{background:"#1E1E2E",color:"#D4D4D4",fontSize:13,lineHeight:1.5}}><code>{p.replace(/```\w*\n?/g,"").replace(/```$/,"")}</code></pre>;return <p key={i} className="mb-3">{p}</p>})}</div>
+            <ArtifactBox type="questions" data={cycle.rethink.artifact}/>
+          </div>
+        </div></FadeIn>
+        {cycle.rediscover&&<BridgeTransition from="rethink" to="rediscover" bridgeSentence={cycle.rethink.bridgeSentence}/>}
+      </div>}
+
+      {/* ACT 2: REDISCOVER */}
+      {cycle.rediscover&&<div ref={rediscoverRef} data-act="rediscover" className="mb-2">
+        <FadeIn delay={120}><div className="rounded-2xl overflow-hidden" style={{background:"white",border:"1px solid #E5E7EB",borderLeft:`5px solid #E8734A`}}>
+          <div className="p-6">
+            <div className="flex items-center gap-2 mb-1"><span className="font-bold" style={{fontSize:11,color:"#E8734A",letterSpacing:"0.1em"}}>02 &middot; REDISCOVER</span><OrchestratorAvatar type="socratia" size={16}/></div>
+            <h2 className="font-bold mt-2 mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#111827",fontSize:24,lineHeight:1.2}}>{cycle.rediscover.title}</h2>
+            <div style={{fontSize:15,color:"#444",lineHeight:1.9}}>{cycle.rediscover.paragraphs?.map((p,i)=>{if(p.startsWith("```"))return <pre key={i} className="my-3 p-4 rounded-xl overflow-x-auto" style={{background:"#1E1E2E",color:"#D4D4D4",fontSize:13,lineHeight:1.5}}><code>{p.replace(/```\w*\n?/g,"").replace(/```$/,"")}</code></pre>;return <p key={i} className="mb-3">{p}</p>})}</div>
+            {/* Patterns Discovered */}
+            {cycle.rediscover.patterns&&cycle.rediscover.patterns.length>0&&<div className="mt-4 p-3 rounded-xl" style={{background:"#FFF8F0",border:"1px solid #F8E8D5"}}>
+              <span className="font-bold text-xs" style={{color:"#E8734A",letterSpacing:"0.05em"}}>PATTERNS DISCOVERED</span>
+              <div className="mt-2 space-y-2">{cycle.rediscover.patterns.map((pat,i)=><div key={i} className="flex items-start gap-2"><span className="font-bold text-xs mt-0.5" style={{color:"#E8734A"}}>{pat.domain}{pat.year?` (${pat.year})`:""}</span><span className="text-sm" style={{color:"#666"}}>{pat.summary}</span></div>)}</div>
+            </div>}
+            <ArtifactBox type="principle" data={cycle.rediscover.artifact}/>
+          </div>
+        </div></FadeIn>
+        {cycle.reinvent&&<BridgeTransition from="rediscover" to="reinvent" bridgeSentence={cycle.rediscover.bridgeSentence}/>}
+      </div>}
+
+      {/* ACT 3: REINVENT */}
+      {cycle.reinvent&&<div ref={reinventRef} data-act="reinvent" className="mb-8">
+        <FadeIn delay={160}><div className="rounded-2xl overflow-hidden" style={{background:"white",border:"1px solid #E5E7EB",borderLeft:`5px solid #2D8A6E`}}>
+          <div className="p-6">
+            <div className="flex items-center gap-2 mb-1"><span className="font-bold" style={{fontSize:11,color:"#2D8A6E",letterSpacing:"0.1em"}}>03 &middot; REINVENT</span><OrchestratorAvatar type="ada" size={16}/></div>
+            <h2 className="font-bold mt-2 mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#111827",fontSize:24,lineHeight:1.2}}>{cycle.reinvent.title}</h2>
+            <div style={{fontSize:15,color:"#444",lineHeight:1.9}}>{cycle.reinvent.paragraphs?.map((p,i)=>{if(p.startsWith("```"))return <pre key={i} className="my-3 p-4 rounded-xl overflow-x-auto" style={{background:"#1E1E2E",color:"#D4D4D4",fontSize:13,lineHeight:1.5}}><code>{p.replace(/```\w*\n?/g,"").replace(/```$/,"")}</code></pre>;return <p key={i} className="mb-3">{p}</p>})}</div>
+            <ArtifactBox type="blueprint" data={cycle.reinvent.artifact}/>
+            {/* Open Thread */}
+            {cycle.reinvent.openThread&&<div className="mt-4 p-3 rounded-xl" style={{background:"#E0F2EC",border:"1px solid #2D8A6E30"}}>
+              <span className="font-bold text-xs" style={{color:"#2D8A6E"}}>🌀 OPEN THREAD</span>
+              <p className="text-sm mt-1" style={{color:"#555",lineHeight:1.5}}>{cycle.reinvent.openThread}</p>
+              <p className="text-xs mt-1" style={{color:"rgba(0,0,0,0.3)",fontStyle:"italic"}}>This seeds the next cycle...</p>
+            </div>}
+          </div>
+        </div></FadeIn>
+      </div>}
+
+      {/* Journey Complete Footer */}
+      <FadeIn delay={200}><div className="p-6 rounded-2xl text-center" style={{background:"white",border:"1px solid #E5E7EB"}}>
+        <h3 className="font-bold mb-2" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:16}}>Journey Complete</h3>
+        <div className="flex items-center justify-center gap-3 mb-4">{["questions","principle","blueprint"].map(type=>{const a=cycle.artifacts[type];return a?<span key={type} className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{background:type==="questions"?"#E8EEF5":type==="principle"?"#FDE8E0":"#E0F2EC",color:type==="questions"?"#3B6B9B":type==="principle"?"#E8734A":"#2D8A6E"}}>{type==="questions"?"🔍 "+(a.items?.length||0)+" Questions":type==="principle"?"💡 1 Principle":"🔧 1 Blueprint"}</span>:null})}</div>
+        <div className="flex items-center justify-center gap-3">
+          {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"",text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date})} className="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white"}}>Debate This Cycle</button>}
+          <button onClick={copyShareUrl} className="px-5 py-2.5 rounded-xl font-semibold text-sm" style={{border:"1px solid #E9D5FF",color:"#9333EA"}}>Share</button>
         </div>
-      </div></FadeIn>})}</div>
-    {/* Full Synthesis */}
+      </div></FadeIn>
+    </> : <>
+      {/* CLASSIC VIEW — Three pillar cards (for legacy cycles without journey metadata) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">{pillars.map((post,i)=>{const pillar=PILLARS[post.pillar];
+        return <FadeIn key={post.id} delay={80+i*40}><div className="rounded-xl overflow-hidden" style={{background:"white",border:`1px solid ${pillar.color}25`,borderLeft:`4px solid ${pillar.color}`}}>
+          <div className="p-4">
+            <PillarTag pillar={post.pillar}/>
+            <h3 className="font-bold mt-2 mb-2" style={{fontFamily:"'Inter',system-ui,sans-serif",fontSize:15,color:"#111827",lineHeight:1.3}}>{post.title}</h3>
+            <p className="mb-3" style={{fontSize:12,color:"rgba(0,0,0,0.45)",lineHeight:1.6}}>{post.paragraphs?.[0]?.slice(0,250)}...</p>
+            <button onClick={()=>onNavigate("post",post.id)} className="text-xs font-semibold" style={{color:"#9333EA"}}>Read full post &rarr;</button>
+          </div>
+        </div></FadeIn>})}</div>
+    </>}
+
+    {/* Synthesis & Streams (shared between journey and classic) */}
     {synthesisPost?.debate?.loom&&<FadeIn delay={200}><div className="p-6 rounded-2xl mb-8" style={{background:"#FAF5FF",border:"1px solid #E9D5FF"}}>
       <div className="flex items-center gap-2 mb-3"><OrchestratorAvatar type="hypatia" size={20}/><h3 className="font-bold" style={{color:"#3B6B9B",fontSize:18}}>{"Hypatia\u2019s Loom \u2014 A Synthesis"}</h3></div>
       <div style={{fontSize:14,color:"#555",lineHeight:1.9}}>{synthesisPost.debate.loom.split("\n\n").map((p,i)=><p key={i} className="mb-3">{p}</p>)}</div>
     </div></FadeIn>}
-    {/* Thematic streams */}
     {allStreams.length>0&&<FadeIn delay={260}><div className="mb-8">
       <h3 className="font-bold mb-3" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:16}}>Argument Streams</h3>
       {allStreams.map((stream,si)=><div key={si} className="mb-4 p-4 rounded-xl" style={{background:"white",border:"1px solid #E5E7EB"}}>
@@ -485,13 +636,11 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
         <div className="space-y-1.5">{stream.entries?.map((entry,ei)=><div key={ei} className="flex items-start gap-2 text-xs"><span className="font-bold" style={{color:"#999"}}>{entry.agent}</span><span style={{color:"#666"}}>{entry.excerpt}</span></div>)}</div>
       </div>)}
     </div></FadeIn>}
-    {/* Debate participants */}
     {allParticipants.length>0&&<FadeIn delay={300}><div className="mb-8">
       <h3 className="font-bold mb-2" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:14}}>Debate Participants</h3>
       <div className="flex flex-wrap gap-2">{allParticipants.map(name=><span key={name} className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{background:"#F3F4F6",color:"#4B5563"}}>{name}</span>)}</div>
     </div></FadeIn>}
-    {/* Continue in Ada */}
-    {onForge&&pillars[0]&&<FadeIn delay={340}><button onClick={()=>onForge({title:pillars[0].title,text:pillars[0].paragraphs?.[0]||"",sourceType:"loom"})} className="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white"}}>Continue in Debate Lab &rarr;</button></FadeIn>}
+    {!isJourney&&onForge&&pillars[0]&&<FadeIn delay={340}><button onClick={()=>onForge({title:pillars[0].title,text:pillars[0].paragraphs?.[0]||"",sourceType:"loom"})} className="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white"}}>Continue in Debate Lab &rarr;</button></FadeIn>}
   </div></div>;
 }
 
@@ -603,8 +752,9 @@ function DebateIdentityPanel({panelAgents,rounds,status,isOpen,onToggle}){
 }
 
 function DebatePanel({article,topic,agents,onDebateComplete,onSaveSession,currentUser}){
-  const topicTitle=article?.title||topic?.title||"";
-  const topicText=article?.paragraphs?.join("\n\n")||article?.htmlContent?.replace(/<[^>]*>/g," ")||topic?.text||"";
+  const isCycleDebate=topic?.sourceType==="cycle";
+  const topicTitle=isCycleDebate?(topic?.title||"Full Cycle Debate"):(article?.title||topic?.title||"");
+  const topicText=isCycleDebate?(topic?.text||""):(article?.paragraphs?.join("\n\n")||article?.htmlContent?.replace(/<[^>]*>/g," ")||topic?.text||"");
   const existingDebate=article?.debate;
   const[status,setStatus]=useState(existingDebate?"complete":"idle");const[step,setStep]=useState(existingDebate?"Complete!":"");const[panel,setPanel]=useState(existingDebate?.panel||null);const[rounds,setRounds]=useState(existingDebate?.rounds||[]);const[atlas,setAtlas]=useState(existingDebate?.atlas||null);const[loom,setLoom]=useState(existingDebate?.loom||null);const[streams,setStreams]=useState(existingDebate?.streams||[]);const[error,setError]=useState("");const[progress,setProgress]=useState(existingDebate?100:0);const[toast,setToast]=useState("");const debateRef=useRef(null);
   const[sidePanelOpen,setSidePanelOpen]=useState(typeof window!=='undefined'&&window.innerWidth>=768);
@@ -954,17 +1104,65 @@ function MyStudioPage({currentUser,content,articles,agents,projects,onNavigate,o
   </div></div>
 }
 
-// ==================== AGENT PANEL (Cycle Creator) ====================
+// ==================== AGENT PANEL (Cycle Creator — Sequential Pipeline) ====================
 function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
   const[loading,setLoading]=useState(false);const[step,setStep]=useState('idle');const[topics,setTopics]=useState([]);const[selectedTopic,setSelectedTopic]=useState(null);const[generating,setGenerating]=useState('');const[posts,setPosts]=useState([]);const[error,setError]=useState('');
   const[customCycleTopic,setCustomCycleTopic]=useState('');const[commentProgress,setCommentProgress]=useState('');
+  const[throughLine,setThroughLine]=useState(null);const[genProgress,setGenProgress]=useState(0);
   const suggestTopics=async()=>{setLoading(true);setError('');try{const r=await fetch('/api/agents/suggest-topics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({currentTopics:INIT_CONTENT.map(c=>c.title),pastCycles:['AI Governance Reimagined','The Death of the Dashboard']})});if(!r.ok){const e=await r.json();throw new Error(e.error||'API returned '+r.status)}const d=await r.json();if(d.topics&&d.topics.length>0){setTopics(d.topics);setStep('topics')}else{setError('No topics returned.')}}catch(e){setError(e.message||'Failed to reach API')}setLoading(false)};
-  const generateCycle=async(topic)=>{setSelectedTopic(topic);setStep('generating');setPosts([]);
-    for(const agent of['sage','atlas','forge']){setGenerating(agent);try{const ctx={};if(posts.length>0)ctx.sagePost=posts[0]?.title;if(posts.length>1)ctx.atlasPost=posts[1]?.title;const r=await fetch('/api/agents/generate-post',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agent,topic,context:ctx})});const p=await r.json();setPosts(prev=>[...prev,p])}catch(e){console.error(e)}}
-    setGenerating('');setStep('done')};
+
+  // New sequential pipeline
+  const generateCycle=async(topic)=>{setSelectedTopic(topic);setStep('generating');setPosts([]);setThroughLine(null);setGenProgress(0);setError('');
+    try{
+      // Step 0: Through-line question
+      setGenerating('through-line');setGenProgress(5);
+      const tlRes=await fetch('/api/cycle/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,step:'through-line'})});
+      if(!tlRes.ok)throw new Error('Through-line generation failed');
+      const tlData=await tlRes.json();
+      const tl=tlData.data;
+      setThroughLine(tl);setGenProgress(15);
+
+      // Step 1: Sage writes Rethink (reads nothing)
+      setGenerating('sage');setGenProgress(20);
+      const sageRes=await fetch('/api/cycle/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,step:'rethink',previousData:{throughLine:tl}})});
+      if(!sageRes.ok)throw new Error('Sage generation failed');
+      const sageData=await sageRes.json();
+      const sage=sageData.data;
+      setPosts(prev=>[...prev,sage]);setGenProgress(45);
+
+      // Step 2: Atlas writes Rediscover (reads Sage's full output)
+      setGenerating('atlas');setGenProgress(50);
+      const atlasRes=await fetch('/api/cycle/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,step:'rediscover',previousData:{throughLine:tl,sage}})});
+      if(!atlasRes.ok)throw new Error('Atlas generation failed');
+      const atlasData=await atlasRes.json();
+      const atlas=atlasData.data;
+      setPosts(prev=>[...prev,atlas]);setGenProgress(75);
+
+      // Step 3: Forge writes Reinvent (reads Sage + Atlas full output)
+      setGenerating('forge');setGenProgress(80);
+      const forgeRes=await fetch('/api/cycle/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,step:'reinvent',previousData:{throughLine:tl,sage,atlas}})});
+      if(!forgeRes.ok)throw new Error('Forge generation failed');
+      const forgeData=await forgeRes.json();
+      const forge=forgeData.data;
+      setPosts(prev=>[...prev,forge]);setGenProgress(100);
+
+      setGenerating('');setStep('done');
+    }catch(e){console.error('Cycle generation error:',e);setError(e.message||'Generation failed');setStep('idle');setGenerating('')}
+  };
+
   const publishAll=async()=>{const cycleDate=new Date().toISOString().split('T')[0];const ts=Date.now();
     const publishedIds=[];
-    posts.forEach((p,i)=>{const postId='p_'+ts+'_'+i;publishedIds.push(postId);const post={id:postId,authorId:p.authorId,pillar:p.pillar,type:'post',title:p.title,paragraphs:p.paragraphs,reactions:{},highlights:{},marginNotes:[],tags:p.tags||[],createdAt:cycleDate,sundayCycle:cycleDate,featured:true,endorsements:0,comments:[],challenges:p.challenges_seed?[{id:'ch_'+ts+'_'+i,authorId:p.authorId,text:p.challenges_seed,date:cycleDate,votes:1}]:[]};onPostGenerated(post)});
+    posts.forEach((p,i)=>{const postId='p_'+ts+'_'+i;publishedIds.push(postId);const post={id:postId,authorId:p.authorId,pillar:p.pillar,type:'post',title:p.title,paragraphs:p.paragraphs,reactions:{},highlights:{},marginNotes:[],tags:p.tags||[],createdAt:cycleDate,sundayCycle:cycleDate,featured:true,endorsements:0,comments:[],challenges:[],
+      // Journey metadata — new connected fields
+      throughLineQuestion:throughLine?.through_line_question||null,
+      openQuestions:p.open_questions||null,
+      bridgeSentence:p.bridge_sentence||null,
+      patterns:p.patterns||null,
+      synthesisPrinciple:p.synthesis_principle||null,
+      architectureComponents:p.architecture_components||null,
+      openThread:p.open_thread||null,
+      artifact:p.artifact||null
+    };onPostGenerated(post)});
     setStep('published');
     // Auto-batch agent comments
     if(onAutoComment){
@@ -991,8 +1189,12 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
       }catch(e){console.error('Auto-comment failed:',e);setCommentProgress('');setStep('published')}
     }
   };
+
+  const STEP_LABELS=[['through-line','Crafting the through-line question...','#8B5CF6'],['sage','Sage is questioning assumptions...','#3B6B9B'],['atlas','Atlas is discovering hidden patterns...','#E8734A'],['forge','Forge is building the architecture...','#2D8A6E']];
+  const currentStepIdx=STEP_LABELS.findIndex(s=>s[0]===generating);
+
   return <div className="p-5 rounded-2xl" style={{background:"white",border:"1px solid #E5E7EB"}}>
-    <p className="mb-3" style={{fontSize:12,color:"rgba(0,0,0,0.4)"}}>Generate a new synthesis cycle using Claude AI. Get topic suggestions or provide your own.</p>
+    <p className="mb-3" style={{fontSize:12,color:"rgba(0,0,0,0.4)"}}>Generate a connected 3-act synthesis cycle. Each agent reads the previous agent&apos;s work to build one cohesive intellectual journey.</p>
     {(step==='idle'||loading)&&<><div className="flex flex-wrap gap-3 items-end">
       <button onClick={suggestTopics} disabled={loading} className="px-4 py-2 rounded-full font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white",opacity:loading?0.7:1}}>{loading?'Analyzing trends with Claude...':'Suggest Topics'}</button>
       <div className="flex items-center gap-2"><span className="text-xs font-bold" style={{color:"rgba(0,0,0,0.2)"}}>OR</span></div>
@@ -1002,16 +1204,30 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
       <div className="flex items-center justify-between mb-0.5"><span className="font-semibold text-sm" style={{color:"#111827"}}>{t.title}</span><span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{background:t.urgency==='high'?'#FDF0EB':'#F3F4F6',color:t.urgency==='high'?'#E8734A':'#999'}}>peaks {t.predicted_peak}</span></div>
       <p className="text-xs" style={{color:"#999"}}>{t.rationale}</p>
     </button>)}</div><div className="mt-3 flex gap-2 items-center"><span className="text-xs" style={{color:"rgba(0,0,0,0.2)"}}>OR</span><input value={customCycleTopic} onChange={e=>setCustomCycleTopic(e.target.value)} placeholder="Enter your own topic..." className="flex-1 px-3 py-2 rounded-xl text-sm border focus:outline-none" style={{borderColor:"rgba(0,0,0,0.1)"}}/><button onClick={()=>{if(customCycleTopic.trim())generateCycle({title:customCycleTopic.trim(),rationale:'Custom topic',urgency:'medium',predicted_peak:'now'})}} disabled={!customCycleTopic.trim()} className="px-3 py-2 rounded-xl text-sm font-semibold" style={{background:customCycleTopic.trim()?"#9333EA":"rgba(0,0,0,0.08)",color:customCycleTopic.trim()?"white":"rgba(0,0,0,0.3)"}}>Generate</button></div></div>}
-    {step==='generating'&&<div><p className="text-sm mb-2" style={{color:"#888"}}>Generating: <b>{selectedTopic?.title}</b></p>
-      {[['sage','Hypatia'],['atlas','Socratia'],['forge','Ada']].map(([a,label])=><div key={a} className="flex items-center gap-2 p-1.5 rounded-lg mb-1" style={{background:generating===a?'#FDF0EB':posts.find(p=>p.authorId==='agent_'+a)?'#EBF5F1':'#FAFAFA'}}>
-        <span className="font-bold text-xs" style={{color:generating===a?'#E8734A':posts.find(p=>p.authorId==='agent_'+a)?'#2D8A6E':'#CCC'}}>{label}</span>
-        <span className="text-xs" style={{color:"#CCC"}}>{generating===a?'Writing...':(posts.find(p=>p.authorId==='agent_'+a)?'Done':'Waiting')}</span>
-      </div>)}</div>}
-    {step==='done'&&<div><p className="text-sm mb-2" style={{color:"#2D8A6E"}}>All 3 agents done!</p>
-      <div className="space-y-1 mb-2">{posts.map((p,i)=><div key={i} className="text-xs p-2 rounded-lg" style={{background:"#F9FAFB"}}><b>{p.agent}</b>: {p.title}</div>)}</div>
-      <button onClick={publishAll} className="px-4 py-2 rounded-full font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white"}}>Publish Cycle & Generate Comments</button></div>}
+    {step==='generating'&&<div>
+      <p className="text-sm mb-3 font-semibold" style={{color:"#111827"}}>Generating: <b>{selectedTopic?.title}</b></p>
+      {throughLine&&<div className="mb-3 p-3 rounded-xl" style={{background:"#FAF5FF",border:"1px solid #E9D5FF"}}>
+        <span className="font-bold text-xs" style={{color:"#8B5CF6"}}>Through-Line Question</span>
+        <p className="text-sm mt-1" style={{color:"#555",fontStyle:"italic"}}>{throughLine.through_line_question}</p>
+      </div>}
+      <div className="w-full rounded-full overflow-hidden mb-3" style={{height:4,background:"#E5E7EB"}}><div className="rounded-full transition-all" style={{height:"100%",width:`${genProgress}%`,background:"linear-gradient(90deg,#3B6B9B,#E8734A,#2D8A6E)",transition:"width 0.8s ease"}}/></div>
+      {STEP_LABELS.map(([key,label,color],i)=>{const isDone=i<currentStepIdx||(i===currentStepIdx&&false);const isActive=key===generating;const completed=posts.find(p=>p.authorId==='agent_'+key)||(key==='through-line'&&throughLine);
+        return <div key={key} className="flex items-center gap-2 p-2 rounded-lg mb-1" style={{background:isActive?`${color}08`:completed?'#EBF5F1':'#FAFAFA',border:isActive?`1px solid ${color}25`:'1px solid transparent'}}>
+          <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{background:completed?'#2D8A6E':isActive?color:'#E5E7EB'}}>{completed?<span style={{color:'white',fontSize:10}}>&#10003;</span>:isActive?<span className="animate-pulse w-2 h-2 rounded-full" style={{background:'white'}}/>:<span style={{color:'#CCC',fontSize:10}}>{i+1}</span>}</div>
+          <span className="font-semibold text-xs" style={{color:isActive?color:completed?'#2D8A6E':'#CCC'}}>{isActive?label:completed?(key==='through-line'?'Through-line ready':posts.find(p=>p.pillar===(key==='sage'?'rethink':key==='atlas'?'rediscover':'reinvent'))?.title||'Done'):'Waiting'}</span>
+        </div>})}
+    </div>}
+    {step==='done'&&<div>
+      {throughLine&&<div className="mb-3 p-3 rounded-xl" style={{background:"#FAF5FF",border:"1px solid #E9D5FF"}}>
+        <span className="font-bold text-xs" style={{color:"#8B5CF6"}}>Through-Line Question</span>
+        <p className="text-sm mt-1" style={{color:"#555",fontStyle:"italic"}}>{throughLine.through_line_question}</p>
+      </div>}
+      <p className="text-sm mb-2 font-semibold" style={{color:"#2D8A6E"}}>Journey complete! All 3 acts are connected.</p>
+      <div className="space-y-1 mb-3">{posts.map((p,i)=>{const colors=['#3B6B9B','#E8734A','#2D8A6E'];const labels=['Act 1: Rethink','Act 2: Rediscover','Act 3: Reinvent'];
+        return <div key={i} className="text-xs p-2.5 rounded-lg" style={{background:"#F9FAFB",borderLeft:`3px solid ${colors[i]}`}}><span className="font-bold" style={{color:colors[i]}}>{labels[i]}</span> &mdash; {p.title}</div>})}</div>
+      <button onClick={publishAll} className="px-4 py-2 rounded-full font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white"}}>Publish Journey & Generate Comments</button></div>}
     {step==='commenting'&&<div><p className="text-sm mb-2 font-semibold" style={{color:"#8B5CF6"}}>Published! Now generating agent comments...</p><div className="w-full rounded-full overflow-hidden mb-2" style={{height:3,background:"#E5E7EB"}}><div className="rounded-full animate-pulse" style={{height:"100%",width:"60%",background:"linear-gradient(90deg,#3B6B9B,#8B5CF6,#2D8A6E)"}}/></div><p className="text-xs" style={{color:"#8B5CF6"}}>{commentProgress}</p></div>}
-    {step==='published'&&<div><p className="text-sm font-semibold" style={{color:"#2D8A6E"}}>Published! {onAutoComment?'Agent comments generated.':'Go to home to see the new cycle.'}</p><button onClick={()=>{setStep('idle');setPosts([]);setCustomCycleTopic('')}} className="mt-1 text-xs underline" style={{color:"#CCC"}}>Generate another</button></div>}
+    {step==='published'&&<div><p className="text-sm font-semibold" style={{color:"#2D8A6E"}}>Published! {onAutoComment?'Agent comments generated.':'Go to home to see the new cycle.'}</p><button onClick={()=>{setStep('idle');setPosts([]);setCustomCycleTopic('');setThroughLine(null);setGenProgress(0)}} className="mt-1 text-xs underline" style={{color:"#CCC"}}>Generate another</button></div>}
   </div>
 }
 
@@ -1277,7 +1493,18 @@ function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onN
       </div>
 
       {/* Source panels */}
-      {topicSource==="loom"&&<div className="space-y-1.5 mb-4" style={{maxHeight:250,overflowY:"auto"}}>{cycles.flatMap(c=>c.posts).slice(0,20).map(post=>
+      {topicSource==="loom"&&<div className="space-y-1.5 mb-4" style={{maxHeight:300,overflowY:"auto"}}>
+        {/* Full cycles first — debate all 3 articles together */}
+        {cycles.slice(0,10).map(c=>{
+          const fullText=c.posts.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n");
+          return <button key={c.date} onClick={()=>confirmTopic({title:c.throughLineQuestion||c.headline||c.rethink?.title||"Cycle "+c.number,text:fullText,sourceType:"cycle",cycleDate:c.date})} className="w-full text-left p-3 rounded-xl transition-all" style={{background:"rgba(139,92,246,0.03)",border:"1px solid rgba(139,92,246,0.1)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(139,92,246,0.08)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(139,92,246,0.03)"}>
+            <div className="flex items-center gap-2 mb-1"><span className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:9,background:"#F3E8FF",color:"#9333EA"}}>Full Cycle {c.number}</span>{c.isJourney&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#E0F2EC",color:"#2D8A6E"}}>Connected Journey</span>}</div>
+            <span className="font-semibold text-sm" style={{color:"#111827"}}>{c.throughLineQuestion||c.headline||"Cycle "+c.number}</span>
+            <div className="flex items-center gap-2 mt-1">{["rethink","rediscover","reinvent"].map(pil=>{const post=c[pil];return post?<span key={pil} className="text-xs" style={{color:PILLARS[pil]?.color||"#999"}}>{post.title?.slice(0,30)}...</span>:null})}</div>
+          </button>})}
+        <div className="my-2 flex items-center gap-2"><div className="flex-1" style={{height:1,background:"#E5E7EB"}}/><span className="text-xs" style={{color:"#CCC"}}>or pick a single article</span><div className="flex-1" style={{height:1,background:"#E5E7EB"}}/></div>
+        {/* Individual posts as fallback */}
+        {cycles.flatMap(c=>c.posts).slice(0,15).map(post=>
         <button key={post.id} onClick={()=>confirmTopic({title:post.title,text:post.paragraphs?.[0]||"",sourceType:"loom"})} className="w-full text-left p-3 rounded-xl transition-all" style={{background:"rgba(0,0,0,0.02)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(139,92,246,0.06)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(0,0,0,0.02)"}>
           <div className="flex items-center gap-2"><PillarTag pillar={post.pillar}/><span className="font-semibold text-sm" style={{color:"#111827"}}>{post.title}</span></div>
         </button>
