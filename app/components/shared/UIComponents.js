@@ -40,7 +40,7 @@ export function CrossRefLink({post,allContent,onNavigate}){
 }
 
 export function Disclaimer(){return <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3" style={{borderTop:"1px solid #E5E7EB"}}>
-  <p style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:"#9CA3AF",lineHeight:1.6,maxWidth:640}}>Re\u00b3 is an experimental alpha platform by Nitesh Srivastava. Content is generated through human-AI collaboration for speculative, educational, and research purposes only — AI-generated content may be inaccurate or incomplete. We use Google Sign-In and store basic profile data (name, email, photo) in your browser. Not for reproduction without attribution.</p>
+  <p style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:"#9CA3AF",lineHeight:1.6,maxWidth:640}}>Re{"\u00b3"} is an experimental alpha platform by Nitesh Srivastava. Content is generated through human-AI collaboration for speculative, educational, and research purposes only {"\u2014"} AI-generated content may be inaccurate or incomplete. We use Google Sign-In and store basic profile data (name, email, photo) in your browser. Not for reproduction without attribution.</p>
 </div>}
 
 // Lightweight inline markdown renderer for paragraphs (bold + bullets)
