@@ -1,6 +1,15 @@
 import { callLLM } from "../../../../lib/llm-router";
 import { NextResponse } from "next/server";
 
+// Shared writing style rules injected into all agent prompts
+const WRITING_STYLE_RULES = `
+WRITING STYLE RULES (apply to every paragraph you write):
+1. SENTENCE LENGTH: No sentence longer than 25 words. Mix short punchy sentences (5-10 words) with medium ones (15-20 words) to create rhythm. Never stack two medium sentences without a short one between them.
+2. FRONT-LOAD VALUE: Lead with conclusions, not setup. The reader should know the main point before paragraph two.
+3. FORMATTING: When listing 3+ items, use bullet points within a single paragraph string (each bullet on its own line starting with "- "). **Bold** key terms and proper nouns on first use only — max 2-3 bolded terms per paragraph. In the JSON paragraphs array, use \\n for line breaks within a single paragraph string.
+4. CONCRETE EXAMPLES: Every major section must include one mundane, specific corporate scenario. Frame it as: "What this looks like tomorrow:" followed by a one-sentence workplace example a mid-level manager would recognize. No hypotheticals — describe it as if it is already happening.
+5. JARGON GUARDRAILS: The first time you use any specialized or academic term, define it immediately in parentheses using plain English. Example: "ontological drift (when a system's categories quietly stop matching reality)". After defining it once, use the term freely. If a paragraph introduces more than two new terms, split it into two paragraphs.`;
+
 // ==================== STEP 0: Through-Line Question ====================
 async function generateThroughLine(topic) {
   const response = await callLLM(
@@ -40,9 +49,9 @@ THE RE3 ARC:
 You are writing Act 1 of 3. After you, Socratia (Rediscover) will address your questions with historical patterns. Then Ada (Reinvent) will build a solution based on what Socratia finds. Your job is to create the TENSION that drives the entire cycle forward.
 
 YOUR STRUCTURE (follow exactly):
-1. THE ACCEPTED NARRATIVE (1-2 paragraphs): State what "everyone" in AI/enterprise tech currently believes about this topic. Make the reader nod.
-2. THE FRACTURE (2-3 paragraphs): Break it. Show why this consensus is incomplete. Use counterexamples, edge cases, philosophical contradictions. Reference thinkers who questioned similar consensus (Kuhn, Taleb, Eastern philosophy). Be curious, not cynical.
-3. THE OPEN WOUNDS (1-2 paragraphs): End with 2-3 specific uncomfortable questions that the consensus can't answer. These are NOT rhetorical — Socratia will directly address them in Act 2.
+1. THE ACCEPTED NARRATIVE (1-2 paragraphs): State what "everyone" in AI/enterprise tech currently believes about this topic. Make the reader nod. Include a concrete corporate example — "What this looks like tomorrow:" — showing this consensus in action at a real company meeting or workflow.
+2. THE FRACTURE (2-3 paragraphs): Break it. Show why this consensus is incomplete. Use counterexamples, edge cases, philosophical contradictions. Reference thinkers who questioned similar consensus (Kuhn, Taleb, Eastern philosophy). **Bold** the name of each thinker or framework on first mention. Define any specialized term in parentheses on first use. Be curious, not cynical.
+3. THE OPEN WOUNDS (1 paragraph): Present 2-3 specific uncomfortable questions that the consensus cannot answer. Format these as bullet points (each line starting with "- "). These are NOT rhetorical — Socratia will directly address them in Act 2.
 4. THE BRIDGE (1 paragraph): A bridge sentence pointing forward to Rediscover. Example: "These questions aren't new. Other fields have faced this exact tension — and what they found might change how we think about [topic]."
 
 RULES:
@@ -52,7 +61,8 @@ RULES:
 - DO make the reader feel destabilized — their certainty should be shaken
 - DO end with questions that DEMAND answers (which Socratia will provide)
 - Write 5-7 paragraphs total
-- Tone: Socratic, philosophical, provocative but intellectually honest`,
+- Tone: Socratic, philosophical, provocative but intellectually honest
+${WRITING_STYLE_RULES}`,
     `Topic: "${topic.title}"
 Through-Line Question: "${throughLine.through_line_question}"
 Your angle: "${throughLine.rethink_angle}"
@@ -60,6 +70,7 @@ Your angle: "${throughLine.rethink_angle}"
 Return JSON:
 {
   "title": "A compelling, provocative title",
+  "tldr": "A 40-50 word summary of what assumption is broken and why it matters. Do NOT repeat this in the paragraphs array.",
   "paragraphs": ["paragraph 1", "paragraph 2", ...],
   "open_questions": ["Question 1 that Socratia must address", "Question 2", "Question 3"],
   "bridge_sentence": "The explicit bridge to Rediscover",
@@ -69,7 +80,7 @@ Return JSON:
     "items": ["Question 1", "Question 2", "Question 3"]
   }
 }`,
-    { maxTokens: 3000, timeout: 45000 }
+    { maxTokens: 3500, timeout: 45000 }
   );
 
   const match = response.match(/\{[\s\S]*\}/);
@@ -98,9 +109,9 @@ HYPATIA'S OPEN QUESTIONS (you must address ALL of these):
 
 YOUR STRUCTURE (follow exactly):
 1. THE CALLBACK (1 paragraph): Open by referencing Hypatia's questions directly. "Hypatia asked us: [question]. The answer may lie in a place nobody in AI is currently looking."
-2. PATTERN 1 — HISTORICAL ANALOG (2-3 paragraphs): A specific, detailed historical example from another domain that faced the exact same tension. Include dates, names, systems, outcomes. NOT a vague analogy. Show how this case resolved the tension Hypatia identified.
-3. PATTERN 2 — CROSS-DOMAIN INSIGHT (2-3 paragraphs): A second pattern from a completely different field (biology, economics, urban planning, military strategy, philosophy, music, etc.). The more unexpected the connection, the better. Include specifics.
-4. THE SYNTHESIS PRINCIPLE (1-2 paragraphs): Extract a universal principle from these patterns. State it clearly: "What both cases reveal is: [principle]." This principle must directly address Hypatia's questions.
+2. PATTERN 1 — HISTORICAL ANALOG (2-3 paragraphs): A specific, detailed historical example from another domain that faced the exact same tension. Include dates, names, systems, outcomes. NOT a vague analogy. **Bold** the name of the system/project/person on first mention. Include "What this looks like tomorrow:" — a concrete present-day corporate scenario that mirrors this historical pattern.
+3. PATTERN 2 — CROSS-DOMAIN INSIGHT (2-3 paragraphs): A second pattern from a completely different field (biology, economics, urban planning, military strategy, philosophy, music, etc.). The more unexpected the connection, the better. Include specifics. **Bold** key domain-specific terms and define them in parentheses on first use.
+4. THE SYNTHESIS PRINCIPLE (1-2 paragraphs): Extract a universal principle from these patterns. State it clearly: "What both cases reveal is: [principle]." This principle must directly address Hypatia's questions. If listing components of the principle, use bullet points.
 5. THE BRIDGE (1 paragraph): Point forward to Reinvent. "The principle of [X] gives us a foundation. But a principle isn't a product. What would it look like if we actually built this?"
 
 RULES:
@@ -110,7 +121,8 @@ RULES:
 - DO use specific, dated, named examples — no vague analogies
 - DO extract a clear, stated principle that Ada can build on
 - Write 6-8 paragraphs total
-- Tone: Detective-like, scholarly but accessible, surprising connections`,
+- Tone: Detective-like, scholarly but accessible, surprising connections
+${WRITING_STYLE_RULES}`,
     `Topic: "${topic.title}"
 Through-Line Question: "${throughLine.through_line_question}"
 Your angle: "${throughLine.rediscover_angle}"
@@ -118,6 +130,7 @@ Your angle: "${throughLine.rediscover_angle}"
 Return JSON:
 {
   "title": "A title that hints at the surprising connection",
+  "tldr": "A 40-50 word summary of the patterns found and the principle extracted. Do NOT repeat this in the paragraphs array.",
   "paragraphs": ["paragraph 1", "paragraph 2", ...],
   "patterns": [
     {"domain": "Domain name", "year": "Year", "principle": "Key principle", "summary": "One-line summary"},
@@ -132,7 +145,7 @@ Return JSON:
     "evidence": ["Pattern 1 summary", "Pattern 2 summary"]
   }
 }`,
-    { maxTokens: 3000, timeout: 45000 }
+    { maxTokens: 3500, timeout: 45000 }
   );
 
   const match = response.match(/\{[\s\S]*\}/);
@@ -169,9 +182,9 @@ ${atlasOutput.synthesis_principle || ""}
 
 YOUR STRUCTURE (follow exactly):
 1. THE FOUNDATION (1 paragraph): Thread the entire journey in one sentence. "Hypatia showed us that [consensus] is incomplete. Socratia revealed that [principle] from [domain] offers a path. Now we build."
-2. THE ARCHITECTURE (3-4 paragraphs): Propose a specific, implementable system/framework/approach. Include concrete components, data flows, design decisions. Reference BOTH Hypatia (what you're solving) and Socratia (what principle you're applying). Be opinionated about design choices.
+2. THE ARCHITECTURE (3-4 paragraphs): Propose a specific, implementable system/framework/approach. List components as bullet points when there are 3 or more. **Bold** component names on first mention. Reference BOTH Hypatia (what you're solving) and Socratia (what principle you're applying). Be opinionated about design choices. Include "What this looks like tomorrow:" — describe a specific team deploying this in their next sprint.
 3. THE CODE ANCHOR (1-2 paragraphs + Python code block): A working proof-of-concept showing the core data model or engine. This is not pseudocode — it should run. The code should embody the principle Socratia extracted.
-4. THE INTEGRATION MAP (1-2 paragraphs): How does this connect to real enterprise systems? What would adoption look like? Be specific: "Start with X, not Y."
+4. THE INTEGRATION MAP (1-2 paragraphs): How does this connect to real enterprise systems? What would adoption look like? Use bullet points for integration steps. Define any infrastructure term (e.g., "sidecar proxy", "event bus") in parentheses on first use. Be specific: "Start with X, not Y."
 5. THE OPEN THREAD (1 paragraph): End with the next question this raises — seeding the next cycle. "Building this reveals a new tension: [question]."
 
 RULES:
@@ -183,6 +196,7 @@ RULES:
 - DO make it buildable TODAY, not theoretical future
 - Write 7-9 paragraphs total including code block
 - Tone: Builder, pragmatic, opinionated, concrete
+${WRITING_STYLE_RULES}
 
 For code blocks, use \`\`\`python at the start of the paragraph.`,
     `Topic: "${topic.title}"
@@ -192,6 +206,7 @@ Your angle: "${throughLine.reinvent_angle}"
 Return JSON:
 {
   "title": "A title that signals something buildable",
+  "tldr": "A 40-50 word summary of what is being built, on what principle, and why it works. Do NOT repeat this in the paragraphs array.",
   "paragraphs": ["paragraph 1", "\`\`\`python\\ncode here\\n\`\`\`", "paragraph 3", ...],
   "architecture_components": ["Component 1", "Component 2", "Component 3"],
   "open_thread": "The next question this raises — seed for next cycle",
@@ -203,7 +218,7 @@ Return JSON:
     "code_summary": "One-line description of what the code demonstrates"
   }
 }`,
-    { maxTokens: 3500, timeout: 60000 }
+    { maxTokens: 4000, timeout: 60000 }
   );
 
   const match = response.match(/\{[\s\S]*\}/);

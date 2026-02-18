@@ -294,6 +294,10 @@ function PillarTag({pillar,size="sm"}){const p=PILLARS[pillar];if(!p)return null
 
 function HeatBar({count,max=48}){const i=Math.min(count/max,1);return <div className="rounded-full" style={{width:3,height:"100%",minHeight:8,background:`rgba(232,115,74,${0.1+i*0.5})`}}/>}
 
+// Lightweight inline markdown renderer for paragraphs (bold + bullets)
+function renderInline(text){if(!text)return text;const parts=text.split(/(\*\*[^*]+\*\*)/g);return parts.map((part,i)=>{if(part.startsWith("**")&&part.endsWith("**"))return <strong key={i} style={{color:"#111827"}}>{part.slice(2,-2)}</strong>;return part})}
+function renderParagraph(text){if(!text||typeof text!=="string")return text;if(text.includes("\n- ")||text.startsWith("- ")){const lines=text.split("\n");const intro=[];const bullets=[];let inBullets=false;for(const line of lines){if(line.startsWith("- ")){inBullets=true;bullets.push(line.slice(2))}else if(!inBullets){intro.push(line)}}return <>{intro.length>0&&intro[0]&&<span>{renderInline(intro.join(" "))}</span>}<ul style={{margin:"8px 0",paddingLeft:20,listStyleType:"disc"}}>{bullets.map((b,i)=><li key={i} style={{marginBottom:4,lineHeight:1.7}}>{renderInline(b)}</li>)}</ul></>}return renderInline(text)}
+
 function ParagraphReactions({reactions={},onReact,paragraphIndex}){const[my,setMy]=useState({});return <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">{Object.entries(REACTION_MAP).map(([key,{label,pillar}])=>{const c=(reactions[key]||0)+(my[key]?1:0);const pc=PILLARS[pillar];return <button key={key} onClick={()=>{if(!my[key]){setMy(p=>({...p,[key]:true}));onReact(paragraphIndex,key)}}} title={label} className="flex items-center gap-1 px-1.5 py-0.5 rounded-full transition-all hover:scale-105" style={{fontSize:10,background:my[key]?`${pc.color}12`:"#F8F8F8",color:my[key]?pc.color:"#CCC",border:my[key]?`1px solid ${pc.color}20`:"1px solid transparent"}}><PillarIcon pillar={pillar} size={10}/>{c>0&&<span className="font-semibold">{c}</span>}</button>})}</div>}
 
 // ==================== CYCLE CARD — The core visual unit (journey-aware) ====================
@@ -618,7 +622,8 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
           <div className="p-6">
             <div className="flex items-center gap-2 mb-1"><span className="font-bold" style={{fontSize:11,color:"#3B6B9B",letterSpacing:"0.1em"}}>01 &middot; RETHINK</span><OrchestratorAvatar type="hypatia" size={16}/></div>
             <h2 className="font-bold mt-2 mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#111827",fontSize:24,lineHeight:1.2}}>{cycle.rethink.title}</h2>
-            <div style={{fontSize:15,color:"#444",lineHeight:1.9}}>{cycle.rethink.paragraphs?.map((p,i)=>{if(p.startsWith("```"))return <pre key={i} className="my-3 p-4 rounded-xl overflow-x-auto" style={{background:"#1E1E2E",color:"#D4D4D4",fontSize:13,lineHeight:1.5}}><code>{p.replace(/```\w*\n?/g,"").replace(/```$/,"")}</code></pre>;return <p key={i} className="mb-3">{p}</p>})}</div>
+            {cycle.rethink.tldr&&<div className="mb-4 px-4 py-3 rounded-xl" style={{background:"#F0F4F8",border:"1px solid #D5DDE5",fontSize:13,color:"#3B6B9B",lineHeight:1.6,fontStyle:"italic"}}><span className="font-bold" style={{fontSize:10,letterSpacing:"0.05em",color:"#3B6B9B",fontStyle:"normal"}}>TL;DR</span><span style={{margin:"0 6px",color:"#CBD5E0"}}>|</span>{cycle.rethink.tldr}</div>}
+            <div style={{fontSize:15,color:"#444",lineHeight:1.9}}>{cycle.rethink.paragraphs?.map((p,i)=>{if(p.startsWith("```"))return <pre key={i} className="my-3 p-4 rounded-xl overflow-x-auto" style={{background:"#1E1E2E",color:"#D4D4D4",fontSize:13,lineHeight:1.5}}><code>{p.replace(/```\w*\n?/g,"").replace(/```$/,"")}</code></pre>;return <p key={i} className="mb-3">{renderParagraph(p)}</p>})}</div>
             <ArtifactBox type="questions" data={cycle.rethink.artifact}/>
           </div>
         </div></FadeIn>
@@ -631,7 +636,8 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
           <div className="p-6">
             <div className="flex items-center gap-2 mb-1"><span className="font-bold" style={{fontSize:11,color:"#E8734A",letterSpacing:"0.1em"}}>02 &middot; REDISCOVER</span><OrchestratorAvatar type="socratia" size={16}/></div>
             <h2 className="font-bold mt-2 mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#111827",fontSize:24,lineHeight:1.2}}>{cycle.rediscover.title}</h2>
-            <div style={{fontSize:15,color:"#444",lineHeight:1.9}}>{cycle.rediscover.paragraphs?.map((p,i)=>{if(p.startsWith("```"))return <pre key={i} className="my-3 p-4 rounded-xl overflow-x-auto" style={{background:"#1E1E2E",color:"#D4D4D4",fontSize:13,lineHeight:1.5}}><code>{p.replace(/```\w*\n?/g,"").replace(/```$/,"")}</code></pre>;return <p key={i} className="mb-3">{p}</p>})}</div>
+            {cycle.rediscover.tldr&&<div className="mb-4 px-4 py-3 rounded-xl" style={{background:"#FFF8F0",border:"1px solid #F8E8D5",fontSize:13,color:"#E8734A",lineHeight:1.6,fontStyle:"italic"}}><span className="font-bold" style={{fontSize:10,letterSpacing:"0.05em",color:"#E8734A",fontStyle:"normal"}}>TL;DR</span><span style={{margin:"0 6px",color:"#F5D5C0"}}>|</span>{cycle.rediscover.tldr}</div>}
+            <div style={{fontSize:15,color:"#444",lineHeight:1.9}}>{cycle.rediscover.paragraphs?.map((p,i)=>{if(p.startsWith("```"))return <pre key={i} className="my-3 p-4 rounded-xl overflow-x-auto" style={{background:"#1E1E2E",color:"#D4D4D4",fontSize:13,lineHeight:1.5}}><code>{p.replace(/```\w*\n?/g,"").replace(/```$/,"")}</code></pre>;return <p key={i} className="mb-3">{renderParagraph(p)}</p>})}</div>
             {/* Patterns Discovered */}
             {cycle.rediscover.patterns&&cycle.rediscover.patterns.length>0&&<div className="mt-4 p-3 rounded-xl" style={{background:"#FFF8F0",border:"1px solid #F8E8D5"}}>
               <span className="font-bold text-xs" style={{color:"#E8734A",letterSpacing:"0.05em"}}>PATTERNS DISCOVERED</span>
@@ -649,7 +655,8 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
           <div className="p-6">
             <div className="flex items-center gap-2 mb-1"><span className="font-bold" style={{fontSize:11,color:"#2D8A6E",letterSpacing:"0.1em"}}>03 &middot; REINVENT</span><OrchestratorAvatar type="ada" size={16}/></div>
             <h2 className="font-bold mt-2 mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#111827",fontSize:24,lineHeight:1.2}}>{cycle.reinvent.title}</h2>
-            <div style={{fontSize:15,color:"#444",lineHeight:1.9}}>{cycle.reinvent.paragraphs?.map((p,i)=>{if(p.startsWith("```"))return <pre key={i} className="my-3 p-4 rounded-xl overflow-x-auto" style={{background:"#1E1E2E",color:"#D4D4D4",fontSize:13,lineHeight:1.5}}><code>{p.replace(/```\w*\n?/g,"").replace(/```$/,"")}</code></pre>;return <p key={i} className="mb-3">{p}</p>})}</div>
+            {cycle.reinvent.tldr&&<div className="mb-4 px-4 py-3 rounded-xl" style={{background:"#E0F2EC",border:"1px solid #B8DFD0",fontSize:13,color:"#2D8A6E",lineHeight:1.6,fontStyle:"italic"}}><span className="font-bold" style={{fontSize:10,letterSpacing:"0.05em",color:"#2D8A6E",fontStyle:"normal"}}>TL;DR</span><span style={{margin:"0 6px",color:"#A8D5C4"}}>|</span>{cycle.reinvent.tldr}</div>}
+            <div style={{fontSize:15,color:"#444",lineHeight:1.9}}>{cycle.reinvent.paragraphs?.map((p,i)=>{if(p.startsWith("```"))return <pre key={i} className="my-3 p-4 rounded-xl overflow-x-auto" style={{background:"#1E1E2E",color:"#D4D4D4",fontSize:13,lineHeight:1.5}}><code>{p.replace(/```\w*\n?/g,"").replace(/```$/,"")}</code></pre>;return <p key={i} className="mb-3">{renderParagraph(p)}</p>})}</div>
             <ArtifactBox type="blueprint" data={cycle.reinvent.artifact}/>
             {/* Open Thread */}
             {cycle.reinvent.openThread&&<div className="mt-4 p-3 rounded-xl" style={{background:"#E0F2EC",border:"1px solid #2D8A6E30"}}>
@@ -742,6 +749,8 @@ function PostPage({post,allContent,onNavigate,currentUser,onEndorse,onComment,on
     {post.type==="bridge"&&(bFrom||bTo)&&<FadeIn delay={70}><div className="flex flex-wrap items-center gap-2 mb-4 p-3 rounded-xl" style={{background:"#F5F0FA",border:"1px dashed #D4C4F0"}}><span style={{fontSize:11,color:"#8B5CF6"}}>Bridging:</span>{bFrom&&<button onClick={()=>onNavigate("post",bFrom.id)} className="font-semibold underline text-xs" style={{color:PILLARS[bFrom.pillar]?.color}}>{bFrom.title.slice(0,30)}...</button>}<span style={{color:"#D4C4F0"}}>&harr;</span>{bTo&&<button onClick={()=>onNavigate("post",bTo.id)} className="font-semibold underline text-xs" style={{color:PILLARS[bTo.pillar]?.color}}>{bTo.title.slice(0,30)}...</button>}</div></FadeIn>}
     <FadeIn delay={80}><div className="flex items-center justify-between pb-4 mb-6" style={{borderBottom:"1px solid #E5E7EB"}}><AuthorBadge author={author} size="md"/><span style={{fontSize:12,color:"#CCC"}}>{fmt(post.createdAt)}</span></div></FadeIn>
 
+    {post.tldr&&<FadeIn delay={90}><div className="mb-5 px-4 py-3 rounded-xl" style={{background:pillar?.lightBg||"#F3F4F6",border:`1px solid ${pillar?.color||"#CCC"}20`,fontSize:13,color:pillar?.color||"#666",lineHeight:1.6,fontStyle:"italic"}}><span className="font-bold" style={{fontSize:10,letterSpacing:"0.05em",fontStyle:"normal"}}>TL;DR</span><span style={{margin:"0 6px",opacity:0.3}}>|</span>{post.tldr}</div></FadeIn>}
+
     <div className="mb-6">{post.paragraphs.map((para,i)=>{
       const hc=post.highlights?.[i]||0;const rx=post.reactions?.[i]||{};const notes=(post.marginNotes||[]).filter(n=>n.paragraphIndex===i);
       if(para.startsWith("```")){const lines=para.split("\n");const lang=lines[0].replace("```","");const code=lines.slice(1).join("\n");
@@ -749,7 +758,7 @@ function PostPage({post,allContent,onNavigate,currentUser,onEndorse,onComment,on
       return <FadeIn key={i} delay={100+i*20}><div className="group relative flex gap-2 mb-0.5">
         <div className="flex-shrink-0 flex flex-col justify-center py-1" style={{width:3}}>{hc>0&&<HeatBar count={hc}/>}</div>
         <div className="flex-1 py-1.5 px-1 rounded-lg transition-all" onMouseEnter={e=>e.currentTarget.style.background="rgba(232,115,74,0.02)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-          <p style={{fontSize:"clamp(13.5px,1.7vw,15px)",lineHeight:1.9,color:"#555"}}>{para}</p>
+          <p style={{fontSize:"clamp(13.5px,1.7vw,15px)",lineHeight:1.9,color:"#555"}}>{renderParagraph(para)}</p>
           <div className="flex items-center justify-between mt-0.5"><ParagraphReactions reactions={rx} onReact={onReact} paragraphIndex={i}/>{currentUser&&<button onClick={()=>{setShowNote(showNote===i?null:i);setNoteText("")}} className="opacity-0 group-hover:opacity-100 px-1.5 py-0 rounded transition-all" style={{fontSize:9,color:"#CCC"}}>+ note</button>}</div>
           {notes.length>0&&<div className="mt-1.5 space-y-1">{notes.map(n=>{const na=getAuthor(n.authorId);return <div key={n.id} className="flex items-start gap-1.5 px-2.5 py-1.5 rounded-lg" style={{fontSize:11,background:"#FDF8F5",border:"1px solid #F8E8DD"}}><span className="font-semibold flex-shrink-0" style={{color:"#E8734A"}}>{na?.name}:</span><span style={{color:"#888"}}>{n.text}</span></div>})}</div>}
           {showNote===i&&<div className="mt-1.5 flex gap-1.5"><input value={noteText} onChange={e=>setNoteText(e.target.value)} placeholder="Quick thought..." className="flex-1 px-2.5 py-1 rounded-lg border focus:outline-none text-sm" style={{borderColor:"#E5E7EB",color:"#555"}}/><button onClick={()=>{if(noteText.trim()){onAddMarginNote(post.id,i,noteText.trim());setShowNote(null);setNoteText("")}}} className="px-2.5 py-1 rounded-lg font-semibold text-sm" style={{background:"#9333EA",color:"white"}}>Add</button></div>}
@@ -1260,7 +1269,8 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
       synthesisPrinciple:p.synthesis_principle||null,
       architectureComponents:p.architecture_components||null,
       openThread:p.open_thread||null,
-      artifact:p.artifact||null
+      artifact:p.artifact||null,
+      tldr:p.tldr||null
     };onPostGenerated(post)});
     setStep('published');
     // Auto-batch agent comments
