@@ -555,7 +555,7 @@ function BridgeTransition({from,to,bridgeSentence}){
 }
 
 // ==================== LOOM CYCLE DETAIL PAGE — Journey View ====================
-function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUser}){
+function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUser,forgeSessions}){
   const cycles=getCycles(content);
   const cycle=cycles.find(c=>c.date===cycleDate);
   const[activeAct,setActiveAct]=useState("rethink");
@@ -564,11 +564,23 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
     <button onClick={()=>onNavigate("loom")} className="mt-4 text-sm font-semibold" style={{color:"#9333EA"}}>&larr; Back to The Loom</button>
   </div></div>;
   const pillars=[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean);
-  const synthesisPost=pillars.find(p=>p?.debate?.loom);
-  const allStreams=pillars.flatMap(p=>p?.debate?.streams||[]);
-  const allParticipants=[...new Set(pillars.flatMap(p=>(p?.debate?.panel?.agents||[]).map(a=>a.name)))];
-  const allRounds=pillars.flatMap(p=>p?.debate?.rounds||[]);
-  const debatePanel=pillars.find(p=>p?.debate?.panel)?.debate?.panel;
+  // Try to get debate data from posts first
+  let synthesisPost=pillars.find(p=>p?.debate?.loom);
+  let allStreams=pillars.flatMap(p=>p?.debate?.streams||[]);
+  let allParticipants=[...new Set(pillars.flatMap(p=>(p?.debate?.panel?.agents||[]).map(a=>a.name)))];
+  let allRounds=pillars.flatMap(p=>p?.debate?.rounds||[]);
+  let debatePanel=pillars.find(p=>p?.debate?.panel)?.debate?.panel;
+  // Fallback: check forgeSessions for a cycle debate matching this date
+  if(!synthesisPost&&forgeSessions){
+    const cycleSession=forgeSessions.find(s=>s.mode==="debate"&&(s.topic?.sourceType==="cycle"&&s.topic?.cycleDate===cycleDate));
+    if(cycleSession?.results){
+      synthesisPost={debate:cycleSession.results};
+      allStreams=cycleSession.results.streams||[];
+      allRounds=cycleSession.results.rounds||[];
+      debatePanel=cycleSession.results.panel;
+      allParticipants=[...new Set((debatePanel?.agents||[]).map(a=>a.name))];
+    }
+  }
   const copyShareUrl=()=>{const url=typeof window!=='undefined'?window.location.origin+'/loom/'+cycle.date:'';navigator.clipboard?.writeText(url).then(()=>{})};
   const isJourney=cycle.isJourney;
 
@@ -1618,10 +1630,11 @@ function MiniDebate({agents,onNavigate}){
 function DebateGalleryPage({content,forgeSessions,onNavigate,onForge}){
   const cycles=getCycles(content);
   const[filter,setFilter]=useState("all");
+  const[expanded,setExpanded]=useState(null);
   // Collect all debates from posts
   const allDebates=[];
   content.forEach(post=>{if(post.debate?.loom)allDebates.push({type:"post",id:post.id,title:post.title,pillar:post.pillar,loom:post.debate.loom,streams:post.debate.streams||[],panel:post.debate.panel,rounds:post.debate.rounds||[],date:post.createdAt})});
-  forgeSessions?.forEach(s=>{if(s.mode==="debate"&&s.results?.loom)allDebates.push({type:"session",id:s.id,title:s.topic?.title||s.topic||"Untitled",loom:s.results.loom,streams:s.results.streams||[],panel:s.results.panel,date:s.date})});
+  forgeSessions?.forEach(s=>{if(s.mode==="debate"&&s.results?.loom)allDebates.push({type:"session",id:s.id,title:s.topic?.title||s.topic||"Untitled",loom:s.results.loom,streams:s.results.streams||[],panel:s.results.panel,rounds:s.results.rounds||[],date:s.date})});
   allDebates.sort((a,b)=>(b.date||"").localeCompare(a.date||""));
   const filtered=filter==="all"?allDebates:filter==="sessions"?allDebates.filter(d=>d.type==="session"):allDebates.filter(d=>d.type==="post");
   return <div className="min-h-screen" style={{paddingTop:56,background:"#F9FAFB"}}><div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
@@ -1642,14 +1655,49 @@ function DebateGalleryPage({content,forgeSessions,onNavigate,onForge}){
       <div className="text-xs" style={{color:`${color}90`}}>{label}</div>
     </div>)}</div></FadeIn>
     <div className="space-y-3">{filtered.length>0?filtered.map((d,i)=><FadeIn key={d.id} delay={i*30}>
-      <div className="rounded-xl overflow-hidden transition-all hover:shadow-md cursor-pointer" style={{background:"white",border:"1px solid #E5E7EB"}} onClick={()=>{if(d.type==="post")onNavigate("post",d.id)}}>
+      <div className="rounded-xl overflow-hidden transition-all hover:shadow-md cursor-pointer" style={{background:"white",border:expanded===d.id?"2px solid #E8734A":"1px solid #E5E7EB"}} onClick={()=>{if(d.type==="post"){onNavigate("post",d.id)}else{setExpanded(expanded===d.id?null:d.id)}}}>
         <div className="flex items-center justify-between px-4 py-3" style={{borderBottom:"1px solid #F3F4F6"}}>
           <div className="flex items-center gap-2">{d.pillar&&<PillarTag pillar={d.pillar}/>}<span className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:9,background:d.type==="session"?"#FFF3E0":"#F3E8FF",color:d.type==="session"?"#E8734A":"#9333EA"}}>{d.type==="session"?"Lab Session":"Article Debate"}</span><span className="text-xs" style={{color:"#CCC"}}>{d.date?fmtS(d.date):""}</span></div>
-          {d.panel?.agents&&<div className="flex -space-x-1">{d.panel.agents.slice(0,5).map((a,ai)=><div key={ai} className="w-5 h-5 rounded-full flex items-center justify-center font-bold" style={{background:`${a.color||"#999"}15`,color:a.color||"#999",border:"1px solid white",fontSize:7,zIndex:5-ai}}>{a.avatar||a.name?.charAt(0)}</div>)}</div>}
+          <div className="flex items-center gap-2">
+            {d.panel?.agents&&<div className="flex -space-x-1">{d.panel.agents.slice(0,5).map((a,ai)=><div key={ai} className="w-5 h-5 rounded-full flex items-center justify-center font-bold" style={{background:`${a.color||"#999"}15`,color:a.color||"#999",border:"1px solid white",fontSize:7,zIndex:5-ai}}>{a.avatar||a.name?.charAt(0)}</div>)}</div>}
+            {d.type==="session"&&<span className="text-xs" style={{color:"#CCC"}}>{expanded===d.id?"▲":"▼"}</span>}
+          </div>
         </div>
         <div className="p-4"><h3 className="font-bold text-sm mb-2" style={{color:"#111827"}}>{d.title}</h3>
-          <p className="text-xs mb-2" style={{color:"#888",lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{d.loom?.slice(0,250)}...</p>
-          {d.streams?.length>0&&<div className="flex flex-wrap gap-1.5">{d.streams.slice(0,3).map((s,si)=><span key={si} className="px-2 py-0.5 rounded-full text-xs" style={{background:"#F3F4F6",color:"#666"}}>{s.title}</span>)}{d.streams.length>3&&<span className="text-xs" style={{color:"#CCC"}}>+{d.streams.length-3} more</span>}</div>}
+          {expanded!==d.id&&<><p className="text-xs mb-2" style={{color:"#888",lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{d.loom?.slice(0,250)}...</p>
+          {d.streams?.length>0&&<div className="flex flex-wrap gap-1.5">{d.streams.slice(0,3).map((s,si)=><span key={si} className="px-2 py-0.5 rounded-full text-xs" style={{background:"#F3F4F6",color:"#666"}}>{s.title}</span>)}{d.streams.length>3&&<span className="text-xs" style={{color:"#CCC"}}>+{d.streams.length-3} more</span>}</div>}</>}
+          {expanded===d.id&&<div onClick={e=>e.stopPropagation()}>
+            {/* Panel */}
+            {d.panel?.agents&&<div className="mb-4"><h4 className="font-bold text-xs mb-2" style={{color:"#8B5CF6",letterSpacing:"0.05em"}}>DEBATE PANEL</h4>
+              <div className="flex flex-wrap gap-2 mb-2">{d.panel.agents.map((a,ai)=><span key={ai} className="flex items-center gap-1.5 px-2 py-1 rounded-full" style={{background:`${a.color||"#999"}10`,border:`1px solid ${a.color||"#999"}25`}}>
+                <span className="w-5 h-5 rounded-full flex items-center justify-center font-bold" style={{background:`${a.color||"#999"}15`,color:a.color||"#999",fontSize:8}}>{a.avatar||a.name?.charAt(0)}</span>
+                <span className="text-xs font-semibold" style={{color:a.color||"#666"}}>{a.name}</span>
+              </span>)}</div>
+              {d.panel.rationale&&<p className="text-xs" style={{color:"#888",lineHeight:1.6,fontStyle:"italic"}}>{d.panel.rationale}</p>}
+            </div>}
+            {/* Debate Rounds */}
+            {d.rounds?.length>0&&<div className="mb-4"><h4 className="font-bold text-xs mb-2" style={{color:"#E8734A",letterSpacing:"0.05em"}}>DEBATE ROUNDS ({d.rounds.length})</h4>
+              {d.rounds.map((round,ri)=><div key={ri} className="mb-3"><span className="font-bold text-xs" style={{color:"#8B5CF6"}}>Round {ri+1}</span>
+                <div className="space-y-1.5 mt-1">{(Array.isArray(round)?round:[]).filter(r=>r.status==="success"&&r.response).map((r,idx)=>{
+                  const agent=[...INIT_AGENTS,...Object.values(ORCHESTRATORS)].find(a=>a.id===r.id);
+                  return <div key={idx} className="p-2.5 rounded-lg" style={{background:"#F9FAFB",borderLeft:`3px solid ${agent?.color||"#999"}`}}>
+                    <div className="flex items-center gap-2 mb-1"><span className="font-bold" style={{fontSize:11,color:agent?.color||"#666"}}>{r.name||agent?.name||"Agent"}</span><span style={{fontSize:10,color:"#CCC"}}>{agent?.category||""}</span></div>
+                    <p style={{fontSize:11,color:"#555",lineHeight:1.6}}>{r.response}</p>
+                  </div>})}</div>
+              </div>)}
+            </div>}
+            {/* Argument Streams */}
+            {d.streams?.length>0&&<div className="mb-4"><h4 className="font-bold text-xs mb-2" style={{color:"#2D8A6E",letterSpacing:"0.05em"}}>ARGUMENT STREAMS</h4>
+              {d.streams.map((stream,si)=><div key={si} className="mb-2 p-3 rounded-lg" style={{background:"#F9FAFB"}}>
+                <span className="font-bold text-xs" style={{color:"#111827"}}>{stream.title}</span>
+                <div className="mt-1 space-y-1">{stream.entries?.map((entry,ei)=><div key={ei} className="flex items-start gap-2" style={{fontSize:11}}><span className="font-bold flex-shrink-0" style={{color:"#999"}}>{entry.agent}</span><span style={{color:"#666"}}>{entry.excerpt}</span></div>)}</div>
+              </div>)}
+            </div>}
+            {/* Synthesis */}
+            <div className="mb-2"><h4 className="font-bold text-xs mb-2" style={{color:"#3B6B9B",letterSpacing:"0.05em"}}>SYNTHESIS</h4>
+              <div style={{fontSize:12,color:"#555",lineHeight:1.7}}>{d.loom?.split("\n\n").map((p,pi)=><p key={pi} className="mb-2">{p}</p>)}</div>
+            </div>
+          </div>}
         </div>
       </div>
     </FadeIn>):<FadeIn><div className="p-6 rounded-xl text-center" style={{background:"#FFFFFF",border:"1px solid #E5E7EB"}}><p className="text-sm mb-3" style={{color:"#9CA3AF"}}>No debates yet. Start one in the Debate Lab!</p><button onClick={()=>onNavigate("forge")} className="px-4 py-2 rounded-xl text-sm font-semibold" style={{background:"#9333EA",color:"white"}}>Go to Debate Lab &rarr;</button></div></FadeIn>}</div>
@@ -2081,7 +2129,7 @@ function Re3(){
   const render=()=>{switch(page){
     case"home":return <HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry} currentUser={user} onAddTheme={addTheme} onEditTheme={editTheme} onDeleteTheme={deleteTheme} forgeSessions={forgeSessions} agents={agents} onSubmitTopic={(title)=>addTheme(title)}/>;
     case"loom":return <LoomPage content={content} articles={articles} onNavigate={nav} onForge={navToForge} onArchiveCycle={archiveCycle} currentUser={user}/>;
-    case"loom-cycle":return <LoomCyclePage cycleDate={pageId} content={content} articles={articles} onNavigate={nav} onForge={navToForge} currentUser={user}/>;
+    case"loom-cycle":return <LoomCyclePage cycleDate={pageId} content={content} articles={articles} onNavigate={nav} onForge={navToForge} currentUser={user} forgeSessions={forgeSessions}/>;
     case"forge":return <ForgePage content={content} themes={themes} agents={agents} registry={registry} registryIndex={registryIndex} currentUser={user} onNavigate={nav} forgeSessions={forgeSessions} onSaveForgeSession={saveForgeSession} onDeleteForgeSession={deleteForgeSession} forgePreload={forgePreload} onPostGenerated={addPost} onAutoComment={autoComment} onUpdatePost={updatePost}/>;
     case"studio":return <MyStudioPage currentUser={user} content={content} articles={articles} agents={agents} projects={projects} onNavigate={nav} onSaveArticle={saveArticle} onDeleteArticle={deleteArticle} onSaveProject={saveProject} onDeleteProject={deleteProject}/>;
     case"academy":return <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{paddingTop:56,background:"#F9FAFB"}}><p style={{color:"#9CA3AF",fontSize:13}}>Loading Academy...</p></div>}><LazyAcademy onNavigate={nav} currentUser={user}/></Suspense>;
