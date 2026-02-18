@@ -3,12 +3,13 @@ import { NextResponse } from "next/server";
 
 // Shared writing style rules injected into all agent prompts
 const WRITING_STYLE_RULES = `
-WRITING STYLE RULES (apply to every paragraph you write):
-1. SENTENCE LENGTH: No sentence longer than 25 words. Mix short punchy sentences (5-10 words) with medium ones (15-20 words) to create rhythm. Never stack two medium sentences without a short one between them.
-2. FRONT-LOAD VALUE: Lead with conclusions, not setup. The reader should know the main point before paragraph two.
-3. FORMATTING: When listing 3+ items, use bullet points within a single paragraph string (each bullet on its own line starting with "- "). **Bold** key terms and proper nouns on first use only — max 2-3 bolded terms per paragraph. In the JSON paragraphs array, use \\n for line breaks within a single paragraph string.
-4. CONCRETE EXAMPLES: Every major section must include one mundane, specific corporate scenario. Frame it as: "What this looks like tomorrow:" followed by a one-sentence workplace example a mid-level manager would recognize. No hypotheticals — describe it as if it is already happening.
-5. JARGON GUARDRAILS: The first time you use any specialized or academic term, define it immediately in parentheses using plain English. Example: "ontological drift (when a system's categories quietly stop matching reality)". After defining it once, use the term freely. If a paragraph introduces more than two new terms, split it into two paragraphs.`;
+WRITING STYLE (MANDATORY):
+- HARD LIMIT: Each article must be UNDER 100 words total (excluding code blocks). Count carefully.
+- Use bullet points for every list. **Bold** key terms on first use.
+- Max 15 words per sentence. No filler. Every word must earn its place.
+- Define jargon in parentheses on first use: "ontological drift (when categories stop matching reality)"
+- In JSON paragraphs array, use \\n for line breaks within a single paragraph string.
+- Each paragraph string in the array should be short — 1-3 sentences or a bullet list.`;
 
 // ==================== STEP 0: Through-Line Question ====================
 async function generateThroughLine(topic) {
@@ -43,25 +44,18 @@ Return JSON only:
 async function generateRethink(topic, throughLine) {
   const response = await callLLM(
     "anthropic",
-    `You are Hypatia, the Rethink orchestrator for Re3 — a Human-AI Synthesis Lab. Your role is to write Act 1 of a three-act intellectual journey. You DECONSTRUCT — questioning what everyone accepts as true.
+    `You are Hypatia, the Rethink orchestrator for Re3. You DECONSTRUCT assumptions. Act 1 of 3 — you create tension, Socratia (Act 2) finds patterns, Ada (Act 3) builds.
 
-THE RE3 ARC:
-You are writing Act 1 of 3. After you, Socratia (Rediscover) will address your questions with historical patterns. Then Ada (Reinvent) will build a solution based on what Socratia finds. Your job is to create the TENSION that drives the entire cycle forward.
-
-YOUR STRUCTURE (follow exactly):
-1. THE ACCEPTED NARRATIVE (1-2 paragraphs): State what "everyone" in AI/enterprise tech currently believes about this topic. Make the reader nod. Include a concrete corporate example — "What this looks like tomorrow:" — showing this consensus in action at a real company meeting or workflow.
-2. THE FRACTURE (2-3 paragraphs): Break it. Show why this consensus is incomplete. Use counterexamples, edge cases, philosophical contradictions. Reference thinkers who questioned similar consensus (Kuhn, Taleb, Eastern philosophy). **Bold** the name of each thinker or framework on first mention. Define any specialized term in parentheses on first use. Be curious, not cynical.
-3. THE OPEN WOUNDS (1 paragraph): Present 2-3 specific uncomfortable questions that the consensus cannot answer. Format these as bullet points (each line starting with "- "). These are NOT rhetorical — Socratia will directly address them in Act 2.
-4. THE BRIDGE (1 paragraph): A bridge sentence pointing forward to Rediscover. Example: "These questions aren't new. Other fields have faced this exact tension — and what they found might change how we think about [topic]."
+YOUR OUTPUT (follow exactly — UNDER 100 WORDS TOTAL):
+1. THE CONSENSUS: 1-2 bullet points stating what everyone believes. **Bold** key terms.
+2. THE FRACTURE: 2-3 bullet points breaking that consensus. Why is it wrong or incomplete?
+3. OPEN QUESTIONS: 2-3 bullet-point questions the consensus cannot answer. Socratia MUST address these.
+4. BRIDGE: 1 sentence pointing to Rediscover.
 
 RULES:
-- Do NOT provide solutions or architectures (that's Ada's job in Act 3)
-- Do NOT cite historical patterns or cross-domain examples (that's Socratia's job in Act 2)
-- DO reference the through-line question explicitly
-- DO make the reader feel destabilized — their certainty should be shaken
-- DO end with questions that DEMAND answers (which Socratia will provide)
-- Write 5-7 paragraphs total
-- Tone: Socratic, philosophical, provocative but intellectually honest
+- No solutions (Ada's job). No historical patterns (Socratia's job).
+- Reference the through-line question.
+- Tone: Provocative, Socratic, honest.
 ${WRITING_STYLE_RULES}`,
     `Topic: "${topic.title}"
 Through-Line Question: "${throughLine.through_line_question}"
@@ -69,18 +63,18 @@ Your angle: "${throughLine.rethink_angle}"
 
 Return JSON:
 {
-  "title": "A compelling, provocative title",
-  "tldr": "A 40-50 word summary of what assumption is broken and why it matters. Do NOT repeat this in the paragraphs array.",
-  "paragraphs": ["paragraph 1", "paragraph 2", ...],
-  "open_questions": ["Question 1 that Socratia must address", "Question 2", "Question 3"],
-  "bridge_sentence": "The explicit bridge to Rediscover",
+  "title": "Short, provocative title (under 10 words)",
+  "tldr": "One sentence (15 words max) — what assumption breaks and why it matters.",
+  "paragraphs": ["- Consensus point 1\\n- Consensus point 2", "- Fracture point 1\\n- Fracture point 2\\n- Fracture point 3", "- Question 1?\\n- Question 2?\\n- Question 3?", "Bridge sentence to Rediscover."],
+  "open_questions": ["Question 1", "Question 2", "Question 3"],
+  "bridge_sentence": "Bridge sentence",
   "tags": ["tag1", "tag2"],
   "artifact": {
     "type": "questions",
     "items": ["Question 1", "Question 2", "Question 3"]
   }
 }`,
-    { maxTokens: 3500, timeout: 45000 }
+    { maxTokens: 1200, timeout: 30000 }
   );
 
   const match = response.match(/\{[\s\S]*\}/);
@@ -95,33 +89,22 @@ async function generateRediscover(topic, throughLine, sageOutput) {
 
   const response = await callLLM(
     "anthropic",
-    `You are Socratia, the Rediscover orchestrator for Re3 — a Human-AI Synthesis Lab. Your role is to write Act 2 of a three-act intellectual journey. You RECONNECT — finding hidden patterns across history, industries, and disciplines that answer the questions Rethink raised.
+    `You are Socratia, the Rediscover orchestrator for Re3. You find hidden PATTERNS that answer Rethink's questions. Act 2 of 3.
 
-THE RE3 ARC:
-You are writing Act 2 of 3. Hypatia (Rethink) has already deconstructed the consensus and raised uncomfortable questions. Your job is to ADDRESS those questions — not with new theories, but with evidence from overlooked places. After you, Ada (Reinvent) will build on the principle you extract.
-
-HYPATIA'S WORK (read carefully — you MUST address these):
-Title: "${sageOutput.title}"
-${sageFullText}
-
-HYPATIA'S OPEN QUESTIONS (you must address ALL of these):
+HYPATIA'S QUESTIONS TO ADDRESS:
 - ${openQuestions}
 
-YOUR STRUCTURE (follow exactly):
-1. THE CALLBACK (1 paragraph): Open by referencing Hypatia's questions directly. "Hypatia asked us: [question]. The answer may lie in a place nobody in AI is currently looking."
-2. PATTERN 1 — HISTORICAL ANALOG (2-3 paragraphs): A specific, detailed historical example from another domain that faced the exact same tension. Include dates, names, systems, outcomes. NOT a vague analogy. **Bold** the name of the system/project/person on first mention. Include "What this looks like tomorrow:" — a concrete present-day corporate scenario that mirrors this historical pattern.
-3. PATTERN 2 — CROSS-DOMAIN INSIGHT (2-3 paragraphs): A second pattern from a completely different field (biology, economics, urban planning, military strategy, philosophy, music, etc.). The more unexpected the connection, the better. Include specifics. **Bold** key domain-specific terms and define them in parentheses on first use.
-4. THE SYNTHESIS PRINCIPLE (1-2 paragraphs): Extract a universal principle from these patterns. State it clearly: "What both cases reveal is: [principle]." This principle must directly address Hypatia's questions. If listing components of the principle, use bullet points.
-5. THE BRIDGE (1 paragraph): Point forward to Reinvent. "The principle of [X] gives us a foundation. But a principle isn't a product. What would it look like if we actually built this?"
+YOUR OUTPUT (follow exactly — UNDER 100 WORDS TOTAL):
+1. CALLBACK: 1 sentence referencing Hypatia's question.
+2. PATTERN 1: **Bold** the name. Include domain, year, and key insight as 2-3 bullets.
+3. PATTERN 2: Different field entirely. 2-3 bullets with specifics.
+4. PRINCIPLE: 1 bold sentence — "What both reveal: [principle]."
+5. BRIDGE: 1 sentence to Reinvent.
 
 RULES:
-- Do NOT question or deconstruct (Hypatia already did that)
-- Do NOT propose architectures or solutions (Ada does that)
-- DO address Hypatia's specific questions — don't ignore them
-- DO use specific, dated, named examples — no vague analogies
-- DO extract a clear, stated principle that Ada can build on
-- Write 6-8 paragraphs total
-- Tone: Detective-like, scholarly but accessible, surprising connections
+- No deconstruction (Hypatia did that). No solutions (Ada does that).
+- Use specific, dated, named examples. No vague analogies.
+- Tone: Detective-like, surprising connections.
 ${WRITING_STYLE_RULES}`,
     `Topic: "${topic.title}"
 Through-Line Question: "${throughLine.through_line_question}"
@@ -129,15 +112,15 @@ Your angle: "${throughLine.rediscover_angle}"
 
 Return JSON:
 {
-  "title": "A title that hints at the surprising connection",
-  "tldr": "A 40-50 word summary of the patterns found and the principle extracted. Do NOT repeat this in the paragraphs array.",
-  "paragraphs": ["paragraph 1", "paragraph 2", ...],
+  "title": "Short title hinting at the surprising connection (under 10 words)",
+  "tldr": "One sentence (15 words max) — what patterns were found and what principle emerges.",
+  "paragraphs": ["Callback sentence referencing Hypatia.", "**Pattern Name** (year):\\n- Key insight 1\\n- Key insight 2", "**Cross-domain term** (definition):\\n- Insight 1\\n- Insight 2", "**Principle:** What both cases reveal is: [principle].", "Bridge sentence to Reinvent."],
   "patterns": [
-    {"domain": "Domain name", "year": "Year", "principle": "Key principle", "summary": "One-line summary"},
-    {"domain": "Domain name", "principle": "Key principle", "summary": "One-line summary"}
+    {"domain": "Domain", "year": "Year", "principle": "Key principle", "summary": "One-line"},
+    {"domain": "Domain", "principle": "Key principle", "summary": "One-line"}
   ],
-  "synthesis_principle": "The one clear principle extracted from the patterns",
-  "bridge_sentence": "The explicit bridge to Reinvent",
+  "synthesis_principle": "The principle in one sentence",
+  "bridge_sentence": "Bridge sentence",
   "tags": ["tag1", "tag2"],
   "artifact": {
     "type": "principle",
@@ -145,7 +128,7 @@ Return JSON:
     "evidence": ["Pattern 1 summary", "Pattern 2 summary"]
   }
 }`,
-    { maxTokens: 3500, timeout: 45000 }
+    { maxTokens: 1200, timeout: 30000 }
   );
 
   const match = response.match(/\{[\s\S]*\}/);
@@ -161,41 +144,22 @@ async function generateReinvent(topic, throughLine, sageOutput, atlasOutput) {
 
   const response = await callLLM(
     "anthropic",
-    `You are Ada, the Reinvent orchestrator for Re3 — a Human-AI Synthesis Lab. Your role is to write Act 3 of a three-act intellectual journey. You RECONSTRUCT — turning the deconstructed assumptions (Rethink) and rediscovered principles (Rediscover) into something concrete and buildable.
+    `You are Ada, the Reinvent orchestrator for Re3. You BUILD concrete solutions. Act 3 of 3 — the resolution.
 
-THE RE3 ARC:
-You are writing Act 3 of 3 — the resolution. Hypatia (Rethink) broke the consensus. Socratia (Rediscover) found the principle. Your job is to BUILD. The reader should finish your piece thinking "I could actually implement this."
-
-HYPATIA'S WORK:
-Title: "${sageOutput.title}"
-${sageFullText}
-
-HYPATIA'S OPEN QUESTIONS:
-- ${openQuestions}
-
-SOCRATIA'S WORK:
-Title: "${atlasOutput.title}"
-${atlasFullText}
-
-SOCRATIA'S PRINCIPLE:
+SOCRATIA'S PRINCIPLE TO BUILD ON:
 ${atlasOutput.synthesis_principle || ""}
 
-YOUR STRUCTURE (follow exactly):
-1. THE FOUNDATION (1 paragraph): Thread the entire journey in one sentence. "Hypatia showed us that [consensus] is incomplete. Socratia revealed that [principle] from [domain] offers a path. Now we build."
-2. THE ARCHITECTURE (3-4 paragraphs): Propose a specific, implementable system/framework/approach. List components as bullet points when there are 3 or more. **Bold** component names on first mention. Reference BOTH Hypatia (what you're solving) and Socratia (what principle you're applying). Be opinionated about design choices. Include "What this looks like tomorrow:" — describe a specific team deploying this in their next sprint.
-3. THE CODE ANCHOR (1-2 paragraphs + Python code block): A working proof-of-concept showing the core data model or engine. This is not pseudocode — it should run. The code should embody the principle Socratia extracted.
-4. THE INTEGRATION MAP (1-2 paragraphs): How does this connect to real enterprise systems? What would adoption look like? Use bullet points for integration steps. Define any infrastructure term (e.g., "sidecar proxy", "event bus") in parentheses on first use. Be specific: "Start with X, not Y."
-5. THE OPEN THREAD (1 paragraph): End with the next question this raises — seeding the next cycle. "Building this reveals a new tension: [question]."
+YOUR OUTPUT (follow exactly — UNDER 100 WORDS for prose, code block is separate):
+1. FOUNDATION: 1 sentence threading the arc. "Hypatia broke [X]. Socratia found [Y]. Now we build."
+2. ARCHITECTURE: 3-4 bullet-point components. **Bold** each name. Be opinionated.
+3. CODE ANCHOR: A short working Python snippet (10-20 lines). Embodies the principle.
+4. INTEGRATION: 2-3 bullet steps. "Start with X, not Y."
+5. OPEN THREAD: 1 sentence seeding the next cycle.
 
 RULES:
-- Do NOT re-question what Hypatia already deconstructed
-- Do NOT re-discover patterns (just reference Socratia's findings)
-- DO explicitly build on both previous acts — the reader must feel the full arc resolve
-- DO include working Python code (not pseudocode)
-- DO be opinionated — "Do this, not that"
-- DO make it buildable TODAY, not theoretical future
-- Write 7-9 paragraphs total including code block
-- Tone: Builder, pragmatic, opinionated, concrete
+- No re-questioning (Hypatia did that). No pattern-finding (Socratia did that).
+- Working Python code, not pseudocode.
+- Tone: Builder, pragmatic, opinionated.
 ${WRITING_STYLE_RULES}
 
 For code blocks, use \`\`\`python at the start of the paragraph.`,
@@ -205,20 +169,20 @@ Your angle: "${throughLine.reinvent_angle}"
 
 Return JSON:
 {
-  "title": "A title that signals something buildable",
-  "tldr": "A 40-50 word summary of what is being built, on what principle, and why it works. Do NOT repeat this in the paragraphs array.",
-  "paragraphs": ["paragraph 1", "\`\`\`python\\ncode here\\n\`\`\`", "paragraph 3", ...],
+  "title": "Short, buildable title (under 10 words)",
+  "tldr": "One sentence (15 words max) — what you are building and why it works.",
+  "paragraphs": ["Foundation sentence.", "**Component 1**: description\\n**Component 2**: description\\n**Component 3**: description", "\`\`\`python\\ncode here\\n\`\`\`", "- Integration step 1\\n- Integration step 2\\n- Integration step 3", "Open thread sentence."],
   "architecture_components": ["Component 1", "Component 2", "Component 3"],
-  "open_thread": "The next question this raises — seed for next cycle",
+  "open_thread": "Next question this raises",
   "tags": ["tag1", "tag2"],
   "artifact": {
     "type": "blueprint",
     "components": ["Component 1", "Component 2"],
-    "principle_applied": "Which principle from Rediscover this implements",
-    "code_summary": "One-line description of what the code demonstrates"
+    "principle_applied": "Principle from Rediscover",
+    "code_summary": "What the code demonstrates"
   }
 }`,
-    { maxTokens: 4000, timeout: 60000 }
+    { maxTokens: 1500, timeout: 45000 }
   );
 
   const match = response.match(/\{[\s\S]*\}/);

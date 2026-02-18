@@ -568,6 +568,8 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
   const synthesisPost=pillars.find(p=>p?.debate?.loom);
   const allStreams=pillars.flatMap(p=>p?.debate?.streams||[]);
   const allParticipants=[...new Set(pillars.flatMap(p=>(p?.debate?.panel?.agents||[]).map(a=>a.name)))];
+  const allRounds=pillars.flatMap(p=>p?.debate?.rounds||[]);
+  const debatePanel=pillars.find(p=>p?.debate?.panel)?.debate?.panel;
   const copyShareUrl=()=>{const url=typeof window!=='undefined'?window.location.origin+'/loom/'+cycle.date:'';navigator.clipboard?.writeText(url).then(()=>{})};
   const isJourney=cycle.isJourney;
 
@@ -625,6 +627,7 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
             {cycle.rethink.tldr&&<div className="mb-4 px-4 py-3 rounded-xl" style={{background:"#F0F4F8",border:"1px solid #D5DDE5",fontSize:13,color:"#3B6B9B",lineHeight:1.6,fontStyle:"italic"}}><span className="font-bold" style={{fontSize:10,letterSpacing:"0.05em",color:"#3B6B9B",fontStyle:"normal"}}>TL;DR</span><span style={{margin:"0 6px",color:"#CBD5E0"}}>|</span>{cycle.rethink.tldr}</div>}
             <div style={{fontSize:15,color:"#444",lineHeight:1.9}}>{cycle.rethink.paragraphs?.map((p,i)=>{if(p.startsWith("```"))return <pre key={i} className="my-3 p-4 rounded-xl overflow-x-auto" style={{background:"#1E1E2E",color:"#D4D4D4",fontSize:13,lineHeight:1.5}}><code>{p.replace(/```\w*\n?/g,"").replace(/```$/,"")}</code></pre>;return <div key={i} className="mb-3">{renderParagraph(p)}</div>})}</div>
             <ArtifactBox type="questions" data={cycle.rethink.artifact}/>
+            {cycle.rethink.comments?.length>0&&<div className="mt-4 pt-3" style={{borderTop:"1px solid #E5E7EB"}}><h4 className="font-bold text-xs mb-2" style={{color:"#9CA3AF"}}>Discussion ({cycle.rethink.comments.length})</h4><div className="space-y-1.5">{cycle.rethink.comments.map(c=>{const ca=getAuthor(c.authorId);return <div key={c.id} className="flex items-start gap-2"><AuthorBadge author={ca}/><div className="flex-1 p-2 rounded-lg" style={{background:"#F9FAFB"}}><p style={{color:"#555",lineHeight:1.5,fontSize:12}}>{c.text}</p></div></div>})}</div></div>}
           </div>
         </div></FadeIn>
         {cycle.rediscover&&<BridgeTransition from="rethink" to="rediscover" bridgeSentence={cycle.rethink.bridgeSentence}/>}
@@ -644,6 +647,7 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
               <div className="mt-2 space-y-2">{cycle.rediscover.patterns.map((pat,i)=><div key={i} className="flex items-start gap-2"><span className="font-bold text-xs mt-0.5" style={{color:"#E8734A"}}>{pat.domain}{pat.year?` (${pat.year})`:""}</span><span className="text-sm" style={{color:"#666"}}>{pat.summary}</span></div>)}</div>
             </div>}
             <ArtifactBox type="principle" data={cycle.rediscover.artifact}/>
+            {cycle.rediscover.comments?.length>0&&<div className="mt-4 pt-3" style={{borderTop:"1px solid #E5E7EB"}}><h4 className="font-bold text-xs mb-2" style={{color:"#9CA3AF"}}>Discussion ({cycle.rediscover.comments.length})</h4><div className="space-y-1.5">{cycle.rediscover.comments.map(c=>{const ca=getAuthor(c.authorId);return <div key={c.id} className="flex items-start gap-2"><AuthorBadge author={ca}/><div className="flex-1 p-2 rounded-lg" style={{background:"#F9FAFB"}}><p style={{color:"#555",lineHeight:1.5,fontSize:12}}>{c.text}</p></div></div>})}</div></div>}
           </div>
         </div></FadeIn>
         {cycle.reinvent&&<BridgeTransition from="rediscover" to="reinvent" bridgeSentence={cycle.rediscover.bridgeSentence}/>}
@@ -664,6 +668,7 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
               <p className="text-sm mt-1" style={{color:"#555",lineHeight:1.5}}>{cycle.reinvent.openThread}</p>
               <p className="text-xs mt-1" style={{color:"rgba(0,0,0,0.3)",fontStyle:"italic"}}>This seeds the next cycle...</p>
             </div>}
+            {cycle.reinvent.comments?.length>0&&<div className="mt-4 pt-3" style={{borderTop:"1px solid #E5E7EB"}}><h4 className="font-bold text-xs mb-2" style={{color:"#9CA3AF"}}>Discussion ({cycle.reinvent.comments.length})</h4><div className="space-y-1.5">{cycle.reinvent.comments.map(c=>{const ca=getAuthor(c.authorId);return <div key={c.id} className="flex items-start gap-2"><AuthorBadge author={ca}/><div className="flex-1 p-2 rounded-lg" style={{background:"#F9FAFB"}}><p style={{color:"#555",lineHeight:1.5,fontSize:12}}>{c.text}</p></div></div>})}</div></div>}
           </div>
         </div></FadeIn>
       </div>}
@@ -706,7 +711,12 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
       <h3 className="font-bold mb-2" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:14}}>Debate Participants</h3>
       <div className="flex flex-wrap gap-2">{allParticipants.map(name=><span key={name} className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{background:"#F3F4F6",color:"#4B5563"}}>{name}</span>)}</div>
     </div></FadeIn>}
-    {!isJourney&&onForge&&pillars[0]&&<FadeIn delay={340}><button onClick={()=>onForge({title:pillars[0].title,text:pillars[0].paragraphs?.[0]||"",sourceType:"loom"})} className="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white"}}>Continue in Debate Lab &rarr;</button></FadeIn>}
+    {allRounds.length>0&&<FadeIn delay={320}><div className="mb-8">
+      <h3 className="font-bold mb-3" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:16}}>Debate Rounds ({allRounds.length})</h3>
+      {allRounds.map((round,ri)=><div key={ri} className="mb-4"><h4 className="font-bold text-xs mb-2" style={{color:"#8B5CF6"}}>Round {ri+1}</h4><div className="space-y-2">{(Array.isArray(round)?round:[]).filter(r=>r.status==="success"&&r.response).map((r,idx)=>{const agent=[...INIT_AGENTS,...Object.values(ORCHESTRATORS)].find(a=>a.id===r.id);return <div key={idx} className="p-3 rounded-xl" style={{background:"#F9FAFB",borderLeft:`3px solid ${agent?.color||"#999"}`}}><div className="flex items-center gap-2 mb-1"><span className="font-bold text-xs" style={{color:agent?.color||"#666"}}>{r.name||agent?.name||"Agent"}</span><span className="text-xs" style={{color:"#CCC"}}>{agent?.role||agent?.category||""}</span></div><p className="text-xs" style={{color:"#555",lineHeight:1.6}}>{r.response}</p></div>})}</div></div>)}
+    </div></FadeIn>}
+    {debatePanel?.rationale&&<FadeIn delay={340}><div className="mb-8 p-4 rounded-xl" style={{background:"#FAF5FF",border:"1px solid #E9D5FF"}}><h4 className="font-bold text-xs mb-1" style={{color:"#8B5CF6"}}>Panel Selection Rationale</h4><p className="text-xs" style={{color:"#666",lineHeight:1.6}}>{debatePanel.rationale}</p></div></FadeIn>}
+    {!isJourney&&onForge&&pillars[0]&&<FadeIn delay={360}><button onClick={()=>onForge({title:pillars[0].title,text:pillars[0].paragraphs?.[0]||"",sourceType:"loom"})} className="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white"}}>Continue in Debate Lab &rarr;</button></FadeIn>}
   </div></div>;
 }
 
