@@ -555,7 +555,7 @@ function BridgeTransition({from,to,bridgeSentence}){
 }
 
 // ==================== LOOM CYCLE DETAIL PAGE — Journey View ====================
-function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUser,forgeSessions}){
+function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUser}){
   const cycles=getCycles(content);
   const cycle=cycles.find(c=>c.date===cycleDate);
   const[activeAct,setActiveAct]=useState("rethink");
@@ -564,23 +564,11 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
     <button onClick={()=>onNavigate("loom")} className="mt-4 text-sm font-semibold" style={{color:"#9333EA"}}>&larr; Back to The Loom</button>
   </div></div>;
   const pillars=[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean);
-  // Try to get debate data from posts first
-  let synthesisPost=pillars.find(p=>p?.debate?.loom);
-  let allStreams=pillars.flatMap(p=>p?.debate?.streams||[]);
-  let allParticipants=[...new Set(pillars.flatMap(p=>(p?.debate?.panel?.agents||[]).map(a=>a.name)))];
-  let allRounds=pillars.flatMap(p=>p?.debate?.rounds||[]);
-  let debatePanel=pillars.find(p=>p?.debate?.panel)?.debate?.panel;
-  // Fallback: check forgeSessions for a cycle debate matching this date
-  if(!synthesisPost&&forgeSessions){
-    const cycleSession=forgeSessions.find(s=>s.mode==="debate"&&(s.topic?.sourceType==="cycle"&&s.topic?.cycleDate===cycleDate));
-    if(cycleSession?.results){
-      synthesisPost={debate:cycleSession.results};
-      allStreams=cycleSession.results.streams||[];
-      allRounds=cycleSession.results.rounds||[];
-      debatePanel=cycleSession.results.panel;
-      allParticipants=[...new Set((debatePanel?.agents||[]).map(a=>a.name))];
-    }
-  }
+  const synthesisPost=pillars.find(p=>p?.debate?.loom);
+  const allStreams=pillars.flatMap(p=>p?.debate?.streams||[]);
+  const allParticipants=[...new Set(pillars.flatMap(p=>(p?.debate?.panel?.agents||[]).map(a=>a.name)))];
+  const allRounds=pillars.flatMap(p=>p?.debate?.rounds||[]);
+  const debatePanel=pillars.find(p=>p?.debate?.panel)?.debate?.panel;
   const copyShareUrl=()=>{const url=typeof window!=='undefined'?window.location.origin+'/loom/'+cycle.date:'';navigator.clipboard?.writeText(url).then(()=>{})};
   const isJourney=cycle.isJourney;
 
@@ -2129,7 +2117,7 @@ function Re3(){
   const render=()=>{switch(page){
     case"home":return <HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry} currentUser={user} onAddTheme={addTheme} onEditTheme={editTheme} onDeleteTheme={deleteTheme} forgeSessions={forgeSessions} agents={agents} onSubmitTopic={(title)=>addTheme(title)}/>;
     case"loom":return <LoomPage content={content} articles={articles} onNavigate={nav} onForge={navToForge} onArchiveCycle={archiveCycle} currentUser={user}/>;
-    case"loom-cycle":return <LoomCyclePage cycleDate={pageId} content={content} articles={articles} onNavigate={nav} onForge={navToForge} currentUser={user} forgeSessions={forgeSessions}/>;
+    case"loom-cycle":return <LoomCyclePage cycleDate={pageId} content={content} articles={articles} onNavigate={nav} onForge={navToForge} currentUser={user}/>;
     case"forge":return <ForgePage content={content} themes={themes} agents={agents} registry={registry} registryIndex={registryIndex} currentUser={user} onNavigate={nav} forgeSessions={forgeSessions} onSaveForgeSession={saveForgeSession} onDeleteForgeSession={deleteForgeSession} forgePreload={forgePreload} onPostGenerated={addPost} onAutoComment={autoComment} onUpdatePost={updatePost}/>;
     case"studio":return <MyStudioPage currentUser={user} content={content} articles={articles} agents={agents} projects={projects} onNavigate={nav} onSaveArticle={saveArticle} onDeleteArticle={deleteArticle} onSaveProject={saveProject} onDeleteProject={deleteProject}/>;
     case"academy":return <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{paddingTop:56,background:"#F9FAFB"}}><p style={{color:"#9CA3AF",fontSize:13}}>Loading Academy...</p></div>}><LazyAcademy onNavigate={nav} currentUser={user}/></Suspense>;
