@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from 'next/navigation';
 import { CourseLLMBasics, CoursePromptEng, CourseEmbeddings, CourseRAG, CourseContextEng, CourseAISafety, CourseTokensCosts, CourseJSONMode } from './AcademyTier1';
 import { CourseMCP, CourseA2A, CourseFunctionCalling, CourseGovernance, CourseACP, CourseAgenticPatterns, CourseMemorySystems, CourseHITL } from './AcademyTier2';
 import { CourseMultiAgent, CourseGraphRAG, CourseObservability, CourseLLMGateway, CourseFineTuning, CourseAICodeGen, CourseMultimodal, CourseVoiceAI, CourseRetrievalEng, CourseAITesting } from './AcademyTier3';
@@ -185,7 +186,11 @@ function CourseShell({id,icon,title,timeMinutes,exerciseCount,onBack,onNavigate,
     </FadeIn>
     <div className="flex justify-between mt-8 pt-4" style={{borderTop:`1px solid ${GIM.border}`}}>
       <button onClick={()=>setActiveTab(Math.max(0,activeTab-1))} disabled={activeTab===0} className="px-4 py-2 rounded-lg font-medium text-sm" style={{background:activeTab===0?GIM.borderLight:'white',color:activeTab===0?GIM.mutedText:GIM.bodyText,border:`1px solid ${GIM.border}`}}>{'\u2190'} Previous</button>
-      <button onClick={()=>setActiveTab(Math.min(tabs.length-1,activeTab+1))} disabled={activeTab===tabs.length-1} className="px-4 py-2 rounded-lg font-medium text-sm" style={{background:activeTab===tabs.length-1?GIM.borderLight:GIM.primary,color:activeTab===tabs.length-1?GIM.mutedText:'white'}}>Next {'\u2192'}</button>
+      {activeTab===tabs.length-1?(
+        <button onClick={onBack} className="px-5 py-2 rounded-lg font-semibold text-sm transition-all hover:shadow-md" style={{background:progress>=100?'#2D8A6E':GIM.primary,color:'white'}}>{progress>=100?'\u2713 Finish Course':'Back to Courses'}</button>
+      ):(
+        <button onClick={()=>setActiveTab(activeTab+1)} className="px-4 py-2 rounded-lg font-medium text-sm" style={{background:GIM.primary,color:'white'}}>Next {'\u2192'}</button>
+      )}
     </div>
   </div>;
 }
@@ -376,6 +381,14 @@ function AcademyHub({onStartCourse,progress,currentUser}){
   const overallPercent=availableCourses.length>0?Math.round(availableCourses.reduce((s,c)=>s+(progress[c.id]?.percent||0),0)/availableCourses.length):0;
   const tierKeys=Object.keys(tiers).map(Number).sort((a,b)=>(tiers[a]?.order??a)-(tiers[b]?.order??b));
 
+  // Completion stats
+  const completedCourses=availableCourses.filter(c=>(progress[c.id]?.percent||0)>=100);
+  const inProgressCourses=availableCourses.filter(c=>{const p=progress[c.id]?.percent||0;return p>0&&p<100});
+  const totalExercisesDone=Object.values(progress).reduce((s,c)=>s+Object.keys(c.sections||{}).length,0);
+  const remainingTime=availableCourses.filter(c=>(progress[c.id]?.percent||0)<100).reduce((s,c)=>s+c.timeMinutes,0);
+  const completedByTier={};
+  tierKeys.forEach(tier=>{const tc=availableCourses.filter(c=>c.tier===tier);completedByTier[tier]={done:tc.filter(c=>(progress[c.id]?.percent||0)>=100).length,total:tc.length}});
+
   const statusCycle={'available':'draft','draft':'coming_soon','coming_soon':'available'};
   const statusColors={'available':'#2D8A6E','draft':'#D97706','coming_soon':'#9CA3AF'};
 
@@ -402,7 +415,7 @@ function AcademyHub({onStartCourse,progress,currentUser}){
 
     {/* Quick Stats */}
     <FadeIn delay={50}><div className="flex flex-wrap gap-3 mb-8">
-      {[['\uD83D\uDCDA',`${totalCourses}`,'Courses'],['\u270D\uFE0F',`${totalExercises}`,'Exercises'],['\u23F1\uFE0F',`${totalTime}h+`,'Total Content'],['\uD83D\uDD2D\uD83D\uDD2C','2','Depth Modes']].map(([icon,num,label])=>
+      {[['\uD83D\uDCDA',`${completedCourses.length}/${availableCourses.length}`,'Completed'],['\uD83D\uDD04',`${inProgressCourses.length}`,'In Progress'],['\u23F1\uFE0F',remainingTime>60?`${Math.round(remainingTime/60)}h+`:`${remainingTime}m`,'Remaining'],['\uD83D\uDD25',`${totalExercisesDone}`,'Exercises Done']].map(([icon,num,label])=>
         <div key={label} className="flex items-center gap-2.5 px-4 py-3 rounded-xl border" style={{background:GIM.cardBg,borderColor:GIM.border}}>
           <span style={{fontSize:18}}>{icon}</span>
           <div><div className="font-bold" style={{fontSize:18,color:GIM.headingText,fontFamily:GIM.fontMain}}>{num}</div><div style={{fontSize:11,color:GIM.mutedText}}>{label}</div></div>
@@ -422,7 +435,7 @@ function AcademyHub({onStartCourse,progress,currentUser}){
             <button onClick={()=>setEditingTier(null)} className="px-2 py-1 rounded text-xs" style={{color:GIM.mutedText}}>Cancel</button>
           </div>:<>
             <h2 className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:18,color:tc.accent}}>Tier {tier}: {tc.label}</h2>
-            <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{background:tc.bg,color:tc.accent}}>{tierCourses.length} courses</span>
+            <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{background:tc.bg,color:tc.accent}}>{completedByTier[tier]?.done||0}/{completedByTier[tier]?.total||tierCourses.length} completed</span>
             {adminMode&&<div className="flex items-center gap-1 ml-auto">
               <button onClick={()=>{setEditingTier(tier);setEditTierLabel(tc.label)}} className="p-1 rounded hover:bg-gray-100" title="Rename" style={{fontSize:12}}>{'\u270F\uFE0F'}</button>
               {tierKeys.indexOf(tier)>0&&<button onClick={()=>{const prev=tierKeys[tierKeys.indexOf(tier)-1];const myOrder=tiers[tier]?.order??tier;const prevOrder=tiers[prev]?.order??prev;admin.updateTier(tier,{order:prevOrder});admin.updateTier(prev,{order:myOrder})}} className="p-1 rounded hover:bg-gray-100" title="Move up" style={{fontSize:12}}>{'\u2B06\uFE0F'}</button>}
@@ -486,9 +499,21 @@ function AcademyHub({onStartCourse,progress,currentUser}){
 
 // ==================== MAIN EXPORT ====================
 export default function Academy({onNavigate,currentUser}){
-  const[activeCourse,setActiveCourse]=useState(null);
+  const searchParams=useSearchParams();
+  const[activeCourse,setActiveCourse]=useState(()=>{
+    const courseParam=searchParams.get('course');
+    if(courseParam&&COURSES.find(c=>c.id===courseParam))return courseParam;
+    return null;
+  });
   const[progress,updateProgress]=useAcademyProgress();
   const[getDepth,setDepth]=useDepthPreference();
+
+  // Sync URL when course changes
+  useEffect(()=>{
+    const url=new URL(window.location.href);
+    if(activeCourse){url.searchParams.set('course',activeCourse)}else{url.searchParams.delete('course')}
+    window.history.replaceState({},'',url.toString());
+  },[activeCourse]);
 
   const courseShell=(id,Component)=>{
     if(activeCourse!==id)return null;
