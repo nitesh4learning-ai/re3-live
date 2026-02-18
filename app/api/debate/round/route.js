@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
-    const { user, error, status } = await getAuthUser(req);
+    const { user, error, status } = await getAuthUser(req, { allowGuest: true });
     if (error) return NextResponse.json({ error }, { status });
     const { allowed } = llmRateLimit.check(user.uid);
     if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
