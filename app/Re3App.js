@@ -623,7 +623,7 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
             <div className="flex items-center gap-2 mb-1"><span className="font-bold" style={{fontSize:11,color:"#3B6B9B",letterSpacing:"0.1em"}}>01 &middot; RETHINK</span><OrchestratorAvatar type="hypatia" size={16}/></div>
             <h2 className="font-bold mt-2 mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#111827",fontSize:24,lineHeight:1.2}}>{cycle.rethink.title}</h2>
             {cycle.rethink.tldr&&<div className="mb-4 px-4 py-3 rounded-xl" style={{background:"#F0F4F8",border:"1px solid #D5DDE5",fontSize:13,color:"#3B6B9B",lineHeight:1.6,fontStyle:"italic"}}><span className="font-bold" style={{fontSize:10,letterSpacing:"0.05em",color:"#3B6B9B",fontStyle:"normal"}}>TL;DR</span><span style={{margin:"0 6px",color:"#CBD5E0"}}>|</span>{cycle.rethink.tldr}</div>}
-            <div style={{fontSize:15,color:"#444",lineHeight:1.9}}>{cycle.rethink.paragraphs?.map((p,i)=>{if(p.startsWith("```"))return <pre key={i} className="my-3 p-4 rounded-xl overflow-x-auto" style={{background:"#1E1E2E",color:"#D4D4D4",fontSize:13,lineHeight:1.5}}><code>{p.replace(/```\w*\n?/g,"").replace(/```$/,"")}</code></pre>;return <p key={i} className="mb-3">{renderParagraph(p)}</p>})}</div>
+            <div style={{fontSize:15,color:"#444",lineHeight:1.9}}>{cycle.rethink.paragraphs?.map((p,i)=>{if(p.startsWith("```"))return <pre key={i} className="my-3 p-4 rounded-xl overflow-x-auto" style={{background:"#1E1E2E",color:"#D4D4D4",fontSize:13,lineHeight:1.5}}><code>{p.replace(/```\w*\n?/g,"").replace(/```$/,"")}</code></pre>;return <div key={i} className="mb-3">{renderParagraph(p)}</div>})}</div>
             <ArtifactBox type="questions" data={cycle.rethink.artifact}/>
           </div>
         </div></FadeIn>
@@ -637,7 +637,7 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
             <div className="flex items-center gap-2 mb-1"><span className="font-bold" style={{fontSize:11,color:"#E8734A",letterSpacing:"0.1em"}}>02 &middot; REDISCOVER</span><OrchestratorAvatar type="socratia" size={16}/></div>
             <h2 className="font-bold mt-2 mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#111827",fontSize:24,lineHeight:1.2}}>{cycle.rediscover.title}</h2>
             {cycle.rediscover.tldr&&<div className="mb-4 px-4 py-3 rounded-xl" style={{background:"#FFF8F0",border:"1px solid #F8E8D5",fontSize:13,color:"#E8734A",lineHeight:1.6,fontStyle:"italic"}}><span className="font-bold" style={{fontSize:10,letterSpacing:"0.05em",color:"#E8734A",fontStyle:"normal"}}>TL;DR</span><span style={{margin:"0 6px",color:"#F5D5C0"}}>|</span>{cycle.rediscover.tldr}</div>}
-            <div style={{fontSize:15,color:"#444",lineHeight:1.9}}>{cycle.rediscover.paragraphs?.map((p,i)=>{if(p.startsWith("```"))return <pre key={i} className="my-3 p-4 rounded-xl overflow-x-auto" style={{background:"#1E1E2E",color:"#D4D4D4",fontSize:13,lineHeight:1.5}}><code>{p.replace(/```\w*\n?/g,"").replace(/```$/,"")}</code></pre>;return <p key={i} className="mb-3">{renderParagraph(p)}</p>})}</div>
+            <div style={{fontSize:15,color:"#444",lineHeight:1.9}}>{cycle.rediscover.paragraphs?.map((p,i)=>{if(p.startsWith("```"))return <pre key={i} className="my-3 p-4 rounded-xl overflow-x-auto" style={{background:"#1E1E2E",color:"#D4D4D4",fontSize:13,lineHeight:1.5}}><code>{p.replace(/```\w*\n?/g,"").replace(/```$/,"")}</code></pre>;return <div key={i} className="mb-3">{renderParagraph(p)}</div>})}</div>
             {/* Patterns Discovered */}
             {cycle.rediscover.patterns&&cycle.rediscover.patterns.length>0&&<div className="mt-4 p-3 rounded-xl" style={{background:"#FFF8F0",border:"1px solid #F8E8D5"}}>
               <span className="font-bold text-xs" style={{color:"#E8734A",letterSpacing:"0.05em"}}>PATTERNS DISCOVERED</span>
@@ -656,7 +656,7 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
             <div className="flex items-center gap-2 mb-1"><span className="font-bold" style={{fontSize:11,color:"#2D8A6E",letterSpacing:"0.1em"}}>03 &middot; REINVENT</span><OrchestratorAvatar type="ada" size={16}/></div>
             <h2 className="font-bold mt-2 mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#111827",fontSize:24,lineHeight:1.2}}>{cycle.reinvent.title}</h2>
             {cycle.reinvent.tldr&&<div className="mb-4 px-4 py-3 rounded-xl" style={{background:"#E0F2EC",border:"1px solid #B8DFD0",fontSize:13,color:"#2D8A6E",lineHeight:1.6,fontStyle:"italic"}}><span className="font-bold" style={{fontSize:10,letterSpacing:"0.05em",color:"#2D8A6E",fontStyle:"normal"}}>TL;DR</span><span style={{margin:"0 6px",color:"#A8D5C4"}}>|</span>{cycle.reinvent.tldr}</div>}
-            <div style={{fontSize:15,color:"#444",lineHeight:1.9}}>{cycle.reinvent.paragraphs?.map((p,i)=>{if(p.startsWith("```"))return <pre key={i} className="my-3 p-4 rounded-xl overflow-x-auto" style={{background:"#1E1E2E",color:"#D4D4D4",fontSize:13,lineHeight:1.5}}><code>{p.replace(/```\w*\n?/g,"").replace(/```$/,"")}</code></pre>;return <p key={i} className="mb-3">{renderParagraph(p)}</p>})}</div>
+            <div style={{fontSize:15,color:"#444",lineHeight:1.9}}>{cycle.reinvent.paragraphs?.map((p,i)=>{if(p.startsWith("```"))return <pre key={i} className="my-3 p-4 rounded-xl overflow-x-auto" style={{background:"#1E1E2E",color:"#D4D4D4",fontSize:13,lineHeight:1.5}}><code>{p.replace(/```\w*\n?/g,"").replace(/```$/,"")}</code></pre>;return <div key={i} className="mb-3">{renderParagraph(p)}</div>})}</div>
             <ArtifactBox type="blueprint" data={cycle.reinvent.artifact}/>
             {/* Open Thread */}
             {cycle.reinvent.openThread&&<div className="mt-4 p-3 rounded-xl" style={{background:"#E0F2EC",border:"1px solid #2D8A6E30"}}>
@@ -758,7 +758,7 @@ function PostPage({post,allContent,onNavigate,currentUser,onEndorse,onComment,on
       return <FadeIn key={i} delay={100+i*20}><div className="group relative flex gap-2 mb-0.5">
         <div className="flex-shrink-0 flex flex-col justify-center py-1" style={{width:3}}>{hc>0&&<HeatBar count={hc}/>}</div>
         <div className="flex-1 py-1.5 px-1 rounded-lg transition-all" onMouseEnter={e=>e.currentTarget.style.background="rgba(232,115,74,0.02)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-          <p style={{fontSize:"clamp(13.5px,1.7vw,15px)",lineHeight:1.9,color:"#555"}}>{renderParagraph(para)}</p>
+          <div style={{fontSize:"clamp(13.5px,1.7vw,15px)",lineHeight:1.9,color:"#555"}}>{renderParagraph(para)}</div>
           <div className="flex items-center justify-between mt-0.5"><ParagraphReactions reactions={rx} onReact={onReact} paragraphIndex={i}/>{currentUser&&<button onClick={()=>{setShowNote(showNote===i?null:i);setNoteText("")}} className="opacity-0 group-hover:opacity-100 px-1.5 py-0 rounded transition-all" style={{fontSize:9,color:"#CCC"}}>+ note</button>}</div>
           {notes.length>0&&<div className="mt-1.5 space-y-1">{notes.map(n=>{const na=getAuthor(n.authorId);return <div key={n.id} className="flex items-start gap-1.5 px-2.5 py-1.5 rounded-lg" style={{fontSize:11,background:"#FDF8F5",border:"1px solid #F8E8DD"}}><span className="font-semibold flex-shrink-0" style={{color:"#E8734A"}}>{na?.name}:</span><span style={{color:"#888"}}>{n.text}</span></div>})}</div>}
           {showNote===i&&<div className="mt-1.5 flex gap-1.5"><input value={noteText} onChange={e=>setNoteText(e.target.value)} placeholder="Quick thought..." className="flex-1 px-2.5 py-1 rounded-lg border focus:outline-none text-sm" style={{borderColor:"#E5E7EB",color:"#555"}}/><button onClick={()=>{if(noteText.trim()){onAddMarginNote(post.id,i,noteText.trim());setShowNote(null);setNoteText("")}}} className="px-2.5 py-1 rounded-lg font-semibold text-sm" style={{background:"#9333EA",color:"white"}}>Add</button></div>}
@@ -1281,19 +1281,19 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
         let commentAgents=INIT_AGENTS.slice(0,5);
         if(selRes.ok){const sel=await selRes.json();const matched=INIT_AGENTS.filter(a=>sel.selected?.includes(a.id)||sel.selected?.some(s=>s.toLowerCase()===a.name.toLowerCase()));if(matched.length>=3)commentAgents=matched.slice(0,5)}
         let done=0;const total=publishedIds.length*commentAgents.length;
-        const commentPromises=[];
+        // Process one post at a time (sequential batches of 5 parallel calls)
         for(const postId of publishedIds){
           const postData=posts[publishedIds.indexOf(postId)];
-          for(const agent of commentAgents){
-            commentPromises.push(
-              fetch('/api/agents/comment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({postTitle:postData.title,postContent:postData.paragraphs?.[0]||'',agentName:agent.name,agentPersona:agent.persona,agentModel:agent.model||'anthropic'})})
-              .then(r=>r.ok?r.json():null)
-              .then(data=>{if(data?.comment){onAutoComment(postId,agent.id,data.comment)}done++;setCommentProgress(`Generating agent comments... (${done}/${total})`)})
-              .catch(()=>{done++;setCommentProgress(`Generating agent comments... (${done}/${total})`)})
-            );
-          }
+          const batchPromises=commentAgents.map(agent=>
+            fetch('/api/agents/comment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({postTitle:postData.title,postContent:postData.paragraphs?.[0]||'',agentName:agent.name,agentPersona:agent.persona,agentModel:agent.model||'anthropic'})})
+            .then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json()})
+            .then(data=>{if(data?.comment){onAutoComment(postId,agent.id,data.comment)}done++;setCommentProgress(`Generating agent comments... (${done}/${total})`)})
+            .catch(err=>{console.error('Comment failed for',agent.name,':',err.message||err);done++;setCommentProgress(`Generating agent comments... (${done}/${total})`)})
+          );
+          await Promise.allSettled(batchPromises);
+          // Small delay between batches to avoid rate limits
+          if(publishedIds.indexOf(postId)<publishedIds.length-1)await new Promise(r=>setTimeout(r,500));
         }
-        await Promise.allSettled(commentPromises);
         setCommentProgress('');setStep('published');
       }catch(e){console.error('Auto-comment failed:',e);setCommentProgress('');setStep('published')}
     }
