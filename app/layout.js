@@ -140,6 +140,8 @@ function LoadingSkeleton() {
   );
 }
 
+import ClientWrapper from './ClientWrapper';
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
@@ -154,7 +156,9 @@ export default function RootLayout({ children }) {
       </head>
       <body style={{ margin: 0, padding: 0 }}>
         <LoadingSkeleton />
-        {children}
+        <ClientWrapper>
+          {children}
+        </ClientWrapper>
       </body>
     </html>
   )

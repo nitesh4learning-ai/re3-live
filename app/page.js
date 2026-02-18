@@ -1,5 +1,3 @@
-import Re3App from "./Re3App";
-
-export default function Home() {
-  return <Re3App />;
-}
+"use client";
+import PageRenderer from './PageRenderer';
+export default function Home() { return <PageRenderer page="home" />; }

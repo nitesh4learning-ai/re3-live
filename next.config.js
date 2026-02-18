@@ -8,23 +8,7 @@ const nextConfig = {
     NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
     NEXT_PUBLIC_FIREBASE_APP_ID: process.env.REACT_APP_FIREBASE_APP_ID,
   },
-  // SPA-style routing: all client routes serve the root page
-  async rewrites() {
-    return [
-      { source: "/loom/:date", destination: "/" },
-      { source: "/loom", destination: "/" },
-      { source: "/forge", destination: "/" },
-      { source: "/academy", destination: "/" },
-      { source: "/studio", destination: "/" },
-      { source: "/agents", destination: "/" },
-      { source: "/write", destination: "/" },
-      { source: "/debates", destination: "/" },
-      { source: "/search", destination: "/" },
-      { source: "/post/:id", destination: "/" },
-      { source: "/article/:id", destination: "/" },
-      { source: "/profile/:id", destination: "/" },
-    ];
-  },
+  // Routing is now handled by Next.js App Router (file-based routes in app/)
 };
 
 module.exports = nextConfig;
