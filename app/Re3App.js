@@ -108,8 +108,6 @@ const AGENTS = [
 const HUMANS = [
   { id:"u1", name:"Nitesh", avatar:"NS", role:"Enterprise AI & Data Governance Leader", bio:"20+ years transforming healthcare & financial services through data. Creator of the GIM and Pinwheel frameworks. Builder of Re\u00b3.", expertise:["AI Governance","MDM","Enterprise Architecture"], isAgent:false, thinkingFingerprint:{ rethink:18, rediscover:12, reinvent:24, highlights:56, challenges:11, bridges:5 } },
 ];
-const ALL_USERS = [...HUMANS, ...AGENTS];
-
 const DEFAULT_PROJECTS = [
   { id:"nz1", title:"GIM Framework", subtitle:"Governance Interaction Mesh", status:"Live", statusColor:"#2D8A6E", description:"A mesh-based approach to enterprise AI governance with 58 nodes across 5 pillars.", tags:["AI Governance","Enterprise"], ownerId:"u1", type:"whitepaper", icon:"\u{1F310}" },
   { id:"nz2", title:"Pinwheel Framework", subtitle:"AI Transformation Model", status:"Evolving", statusColor:"#E8734A", description:"Four execution blades powered by business engagement for enterprise AI adoption.", tags:["AI Strategy","Transformation"], ownerId:"u1", type:"whitepaper", icon:"\u{1F3AF}" },
@@ -158,6 +156,7 @@ const INIT_AGENTS = [
   { id:"agent_anchor", name:"Anchor", persona:"The Maritime and Logistics Expert. Global supply chains, shipping, trade routes, port infrastructure. 'The world runs on containers. When logistics break, everything breaks.'", model:"anthropic", color:"#3182CE", avatar:"An", status:"active", category:"Industry" },
   { id:"agent_bedrock", name:"Bedrock", persona:"The Mining and Resources Engineer. Extraction, raw materials, geological timescales, resource scarcity. 'Every chip in every AI server started as rock in someone's ground.'", model:"anthropic", color:"#718096", avatar:"Bd", status:"active", category:"Industry" },
 ];
+const ALL_USERS = [...HUMANS, ...AGENTS, ...INIT_AGENTS.map(a=>({...a, isAgent:true}))];
 const MODEL_PROVIDERS = [
   { id:"anthropic", label:"Claude (Anthropic)", color:"#D4A574" },
   { id:"openai", label:"GPT (OpenAI)", color:"#10A37F" },
@@ -906,7 +905,7 @@ function DebatePanel({article,topic,agents,onDebateComplete,onSaveSession,curren
       showToast("Loom ready! Hypatia has woven the synthesis.");
       scrollToBottom();
       if(onDebateComplete)onDebateComplete({panel:{agents:selectedAgents,rationale:sel.rationale},rounds:allRounds,atlas:modData,loom:loomData.loom,streams:loomData.streams||[]});
-      if(onSaveSession&&admin)onSaveSession({mode:"debate",topic:topicTitle,results:{panel:{agents:selectedAgents.map(a=>({id:a.id,name:a.name,color:a.color,avatar:a.avatar})),rationale:sel.rationale},loom:loomData.loom,streams:loomData.streams||[]}});
+      if(onSaveSession&&admin)onSaveSession({mode:"debate",topic:topicTitle,results:{panel:{agents:selectedAgents.map(a=>({id:a.id,name:a.name,color:a.color,avatar:a.avatar})),rationale:sel.rationale},rounds:allRounds,loom:loomData.loom,streams:loomData.streams||[]}});
     }catch(e){console.error("Debate error:",e);setError(e.message);setStatus("error")}
   };
 
@@ -1763,7 +1762,7 @@ function ShareButton({title,text,url}){
 }
 
 // ==================== THE FORGE — Standalone Collaboration Hub ====================
-function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onNavigate,forgeSessions,onSaveForgeSession,onDeleteForgeSession,forgePreload,onPostGenerated,onAutoComment}){
+function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onNavigate,forgeSessions,onSaveForgeSession,onDeleteForgeSession,forgePreload,onPostGenerated,onAutoComment,onUpdatePost}){
   const[topicSource,setTopicSource]=useState(null);
   const[selectedTopic,setSelectedTopic]=useState(null);
   const[workshopActive,setWorkshopActive]=useState(false);
@@ -1784,6 +1783,14 @@ function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onN
   const handleSaveSession=(sessionData)=>{
     if(!admin||!onSaveForgeSession)return;
     onSaveForgeSession({id:"fs_"+Date.now(),topic:selectedTopic,date:new Date().toISOString(),mode:sessionData.mode,results:sessionData.results,status:"saved"});
+  };
+
+  // When a cycle debate completes, save debate data back to the cycle posts
+  const handleDebateComplete=(debate)=>{
+    if(selectedTopic?.sourceType==="cycle"&&selectedTopic?.cycleDate&&onUpdatePost){
+      const cyclePosts=content.filter(c=>c.sundayCycle===selectedTopic.cycleDate);
+      cyclePosts.forEach(p=>{onUpdatePost({...p,debate})});
+    }
   };
 
   // Viewing a saved session
@@ -1894,7 +1901,7 @@ function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onN
         <div><span className="text-xs font-bold" style={{color:"rgba(0,0,0,0.3)"}}>FORGING</span><h2 className="font-bold" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:18}}>{selectedTopic.title}</h2></div>
         <div className="flex items-center gap-2"><ShareButton title={`Re³ Debate Lab: ${selectedTopic.title}`} text={`Exploring "${selectedTopic.title}" in Debate Lab`}/><button onClick={resetSession} className="px-3 py-1.5 rounded-lg text-xs font-semibold" style={{border:"1px solid rgba(0,0,0,0.1)",color:"rgba(0,0,0,0.4)"}}>New Topic</button></div>
       </div>
-      <AgentWorkshop key={selectedTopic?.title||''} topic={selectedTopic} agents={agents} registry={registry} registryIndex={registryIndex} onSaveSession={handleSaveSession} currentUser={currentUser}/>
+      <AgentWorkshop key={selectedTopic?.title||''} topic={selectedTopic} agents={agents} registry={registry} registryIndex={registryIndex} onDebateComplete={handleDebateComplete} onSaveSession={handleSaveSession} currentUser={currentUser}/>
     </div>}
     </div></FadeIn>
 
@@ -2075,7 +2082,7 @@ function Re3(){
     case"home":return <HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry} currentUser={user} onAddTheme={addTheme} onEditTheme={editTheme} onDeleteTheme={deleteTheme} forgeSessions={forgeSessions} agents={agents} onSubmitTopic={(title)=>addTheme(title)}/>;
     case"loom":return <LoomPage content={content} articles={articles} onNavigate={nav} onForge={navToForge} onArchiveCycle={archiveCycle} currentUser={user}/>;
     case"loom-cycle":return <LoomCyclePage cycleDate={pageId} content={content} articles={articles} onNavigate={nav} onForge={navToForge} currentUser={user}/>;
-    case"forge":return <ForgePage content={content} themes={themes} agents={agents} registry={registry} registryIndex={registryIndex} currentUser={user} onNavigate={nav} forgeSessions={forgeSessions} onSaveForgeSession={saveForgeSession} onDeleteForgeSession={deleteForgeSession} forgePreload={forgePreload} onPostGenerated={addPost} onAutoComment={autoComment}/>;
+    case"forge":return <ForgePage content={content} themes={themes} agents={agents} registry={registry} registryIndex={registryIndex} currentUser={user} onNavigate={nav} forgeSessions={forgeSessions} onSaveForgeSession={saveForgeSession} onDeleteForgeSession={deleteForgeSession} forgePreload={forgePreload} onPostGenerated={addPost} onAutoComment={autoComment} onUpdatePost={updatePost}/>;
     case"studio":return <MyStudioPage currentUser={user} content={content} articles={articles} agents={agents} projects={projects} onNavigate={nav} onSaveArticle={saveArticle} onDeleteArticle={deleteArticle} onSaveProject={saveProject} onDeleteProject={deleteProject}/>;
     case"academy":return <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{paddingTop:56,background:"#F9FAFB"}}><p style={{color:"#9CA3AF",fontSize:13}}>Loading Academy...</p></div>}><LazyAcademy onNavigate={nav} currentUser={user}/></Suspense>;
     case"agent-community":return <AgentAtlasPage agents={agents} registry={registry} registryIndex={registryIndex} currentUser={user} onSaveAgent={saveAgent} onDeleteAgent={deleteAgent} onForge={navToForge}/>;
