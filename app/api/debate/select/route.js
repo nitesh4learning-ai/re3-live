@@ -1,8 +1,17 @@
 import { callLLM } from "../../../../lib/llm-router";
+import { parseLLMResponse } from "../../../../lib/llm-parse";
+import { SelectPanelSchema } from "../../../../lib/schemas";
+import { getAuthUser } from "../../../../lib/auth";
+import { llmRateLimit } from "../../../../lib/rate-limit";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
+    const { user, error, status } = await getAuthUser(req);
+    if (error) return NextResponse.json({ error }, { status });
+    const { allowed } = llmRateLimit.check(user.uid);
+    if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+
     const { articleTitle, articleText, agents, forgePersona, activityType } = await req.json();
     const activeAgents = agents.filter((a) => a.status !== "inactive");
     const agentList = activeAgents
@@ -62,9 +71,8 @@ Respond in JSON only:
       { maxTokens: 500 }
     );
 
-    const match = response.match(/\{[\s\S]*\}/);
-    if (!match) return NextResponse.json({ error: "Failed to parse Ada response" }, { status: 500 });
-    const parsed = JSON.parse(match[0]);
+    const { data: parsed, error: parseError } = parseLLMResponse(response, SelectPanelSchema);
+    if (!parsed) return NextResponse.json({ error: "Failed to parse Ada response: " + parseError }, { status: 500 });
 
     // Validate selected agents exist
     const validIds = activeAgents.map((a) => a.id);

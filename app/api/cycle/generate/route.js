@@ -1,4 +1,8 @@
 import { callLLM } from "../../../../lib/llm-router";
+import { parseLLMResponse } from "../../../../lib/llm-parse";
+import { ThroughLineSchema, CycleRethinkSchema, CycleRediscoverSchema, CycleReinventSchema } from "../../../../lib/schemas";
+import { getAuthUser } from "../../../../lib/auth";
+import { llmRateLimit } from "../../../../lib/rate-limit";
 import { NextResponse } from "next/server";
 
 // Shared writing style rules injected into all agent prompts
@@ -35,9 +39,9 @@ Return JSON only:
     { maxTokens: 500, timeout: 30000 }
   );
 
-  const match = response.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("Failed to parse through-line question");
-  return JSON.parse(match[0]);
+  const { data, error } = parseLLMResponse(response, ThroughLineSchema);
+  if (!data) throw new Error("Failed to parse through-line question: " + error);
+  return data;
 }
 
 // ==================== STEP 1: Hypatia writes Rethink (Act 1) ====================
@@ -77,9 +81,9 @@ Return JSON:
     { maxTokens: 1200, timeout: 30000 }
   );
 
-  const match = response.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("Failed to parse Hypatia response");
-  return JSON.parse(match[0]);
+  const { data, error } = parseLLMResponse(response, CycleRethinkSchema);
+  if (!data) throw new Error("Failed to parse Hypatia response: " + error);
+  return data;
 }
 
 // ==================== STEP 2: Socratia writes Rediscover (Act 2) ====================
@@ -131,9 +135,9 @@ Return JSON:
     { maxTokens: 1200, timeout: 30000 }
   );
 
-  const match = response.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("Failed to parse Socratia response");
-  return JSON.parse(match[0]);
+  const { data, error } = parseLLMResponse(response, CycleRediscoverSchema);
+  if (!data) throw new Error("Failed to parse Socratia response: " + error);
+  return data;
 }
 
 // ==================== STEP 3: Ada writes Reinvent (Act 3) ====================
@@ -185,14 +189,19 @@ Return JSON:
     { maxTokens: 1500, timeout: 45000 }
   );
 
-  const match = response.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("Failed to parse Ada response");
-  return JSON.parse(match[0]);
+  const { data, error } = parseLLMResponse(response, CycleReinventSchema);
+  if (!data) throw new Error("Failed to parse Ada response: " + error);
+  return data;
 }
 
 // ==================== MAIN HANDLER ====================
 export async function POST(req) {
   try {
+    const { user, error, status } = await getAuthUser(req);
+    if (error) return NextResponse.json({ error }, { status });
+    const { allowed } = llmRateLimit.check(user.uid);
+    if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+
     const { topic, step, previousData } = await req.json();
 
     if (!topic?.title) {

@@ -43,6 +43,16 @@ async function getFirebase() {
   }
   return { auth: firebaseAuth };
 }
+// Authenticated API fetch — attaches Firebase ID token to every request
+async function authFetch(endpoint, body) {
+  const { auth } = await getFirebase();
+  const token = auth?.currentUser ? await auth.currentUser.getIdToken() : null;
+  const headers = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  const res = await fetch(endpoint, { method: "POST", headers, body: JSON.stringify(body) });
+  if (!res.ok) { const err = await res.text(); throw new Error(`API ${res.status}: ${err}`); }
+  return res.json();
+}
 async function signInWithGoogle() {
   try {
     const { auth } = await getFirebase();
@@ -853,9 +863,7 @@ function DebatePanel({article,topic,agents,onDebateComplete,onSaveSession,curren
     try{
       // Step 1: Ada selects panel
       setStep("Selecting panel...");setProgress(5);
-      const selRes=await fetch("/api/debate/select",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:topicTitle,articleText,agents:activeAgents,forgePersona:ORCHESTRATORS.forge.persona})});
-      if(!selRes.ok)throw new Error("Ada selection failed");
-      const sel=await selRes.json();
+      const sel=await authFetch("/api/debate/select",{articleTitle:topicTitle,articleText,agents:activeAgents,forgePersona:ORCHESTRATORS.forge.persona});
       let selectedAgents=activeAgents.filter(a=>sel.selected.includes(a.id));
       // Fallback: if LLM returned names instead of IDs, try matching by name
       if(selectedAgents.length===0&&sel.selected?.length>0){
@@ -872,9 +880,7 @@ function DebatePanel({article,topic,agents,onDebateComplete,onSaveSession,curren
         const responded=allRounds.flat().filter(x=>x.status==="success").length;
         const total=selectedAgents.length*r;
         setStep(`Round ${r}/3: ${r===1?"Initial positions":r===2?"Cross-responses":"Final positions"} (${responded}/${selectedAgents.length*3} total responses)`);
-        const roundRes=await fetch("/api/debate/round",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:topicTitle,articleText,agents:selectedAgents,roundNumber:r,previousRounds:allRounds})});
-        if(!roundRes.ok)throw new Error(`Round ${r} failed`);
-        const roundData=await roundRes.json();
+        const roundData=await authFetch("/api/debate/round",{articleTitle:topicTitle,articleText,agents:selectedAgents,roundNumber:r,previousRounds:allRounds});
         // Add timestamps to responses
         const timestampedResponses=roundData.responses.map(resp=>({...resp,timestamp:new Date().toISOString()}));
         allRounds.push(timestampedResponses);
@@ -893,16 +899,14 @@ function DebatePanel({article,topic,agents,onDebateComplete,onSaveSession,curren
       // Step 5: Socratia moderation
       setStep("Reviewing discussion...");setProgress(80);
       showToast("Debate rounds complete — Socratia is reviewing...");
-      const modRes=await fetch("/api/debate/moderate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:topicTitle,rounds:allRounds,atlasPersona:ORCHESTRATORS.atlas.persona})});
-      const modData=await modRes.json();
+      const modData=await authFetch("/api/debate/moderate",{articleTitle:topicTitle,rounds:allRounds,atlasPersona:ORCHESTRATORS.atlas.persona});
       setAtlas(modData);setProgress(88);
       scrollToBottom();
 
       // Step 6: Hypatia Loom + clustering
       setStep("Hypatia weaving The Loom...");setProgress(90);
       showToast("Debate complete — Hypatia is weaving the Loom...");
-      const loomRes=await fetch("/api/debate/loom",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:topicTitle,articleText,rounds:allRounds,atlasNote:modData.intervention,forgeRationale:sel.rationale,panelNames:selectedAgents.map(a=>a.name),sagePersona:ORCHESTRATORS.sage.persona})});
-      const loomData=await loomRes.json();
+      const loomData=await authFetch("/api/debate/loom",{articleTitle:topicTitle,articleText,rounds:allRounds,atlasNote:modData.intervention,forgeRationale:sel.rationale,panelNames:selectedAgents.map(a=>a.name),sagePersona:ORCHESTRATORS.sage.persona});
       setLoom(loomData.loom);setStreams(loomData.streams||[]);setProgress(100);
 
       setStep("Complete!");setStatus("complete");
@@ -1008,9 +1012,7 @@ function AgentWorkshop({article,topic,agents,registry,registryIndex,onDebateComp
     if(pool.length===0){setImplError("No agents available.");setImplStatus("error");return}
     try{
       setImplStep("Selecting builder panel...");setImplProgress(10);
-      const selRes=await fetch("/api/debate/select",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:wsTitle,articleText:wsText.slice(0,2000),agents:pool,forgePersona:ORCHESTRATORS.forge.persona+" For this implementation session, prioritize agents with strong architecture and implementation capabilities.",activityType:"implement"})});
-      if(!selRes.ok)throw new Error("Ada selection failed");
-      const sel=await selRes.json();
+      const sel=await authFetch("/api/debate/select",{articleTitle:wsTitle,articleText:wsText.slice(0,2000),agents:pool,forgePersona:ORCHESTRATORS.forge.persona+" For this implementation session, prioritize agents with strong architecture and implementation capabilities.",activityType:"implement"});
       let selected=pool.filter(a=>sel.selected.includes(a.id));
       if(selected.length===0)selected=pool.slice(0,6);
       if(selected.length<4)selected=pool.slice(0,Math.min(6,pool.length));
@@ -1025,9 +1027,7 @@ function AgentWorkshop({article,topic,agents,registry,registryIndex,onDebateComp
         if(debate.panel?.agents?.length)debateCtx.push("DEBATE PANEL: "+debate.panel.agents.map(a=>a.name).join(", "));
         if(debateCtx.length>0)priorContext=debateCtx.join("\n\n")+"\n\nORIGINAL CONTEXT:\n"+wsText.slice(0,800);
       }
-      const implRes=await fetch("/api/agents/implement",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({concept:wsTitle,agents:selected,priorContext})});
-      if(!implRes.ok)throw new Error("Implementation planning failed");
-      const data=await implRes.json();
+      const data=await authFetch("/api/agents/implement",{concept:wsTitle,agents:selected,priorContext});
       setImplResult(data);setImplProgress(100);setImplStep("Complete!");setImplStatus("complete");
       if(onSaveSession&&admin)onSaveSession({mode:"implement",topic:wsTitle,results:data});
     }catch(e){setImplError(e.message);setImplStatus("error")}
@@ -1230,40 +1230,32 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
   const[loading,setLoading]=useState(false);const[step,setStep]=useState('idle');const[topics,setTopics]=useState([]);const[selectedTopic,setSelectedTopic]=useState(null);const[generating,setGenerating]=useState('');const[posts,setPosts]=useState([]);const[error,setError]=useState('');
   const[customCycleTopic,setCustomCycleTopic]=useState('');const[commentProgress,setCommentProgress]=useState('');
   const[throughLine,setThroughLine]=useState(null);const[genProgress,setGenProgress]=useState(0);
-  const suggestTopics=async()=>{setLoading(true);setError('');try{const r=await fetch('/api/agents/suggest-topics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({currentTopics:INIT_CONTENT.map(c=>c.title),pastCycles:['AI Governance Reimagined','The Death of the Dashboard']})});if(!r.ok){const e=await r.json();throw new Error(e.error||'API returned '+r.status)}const d=await r.json();if(d.topics&&d.topics.length>0){setTopics(d.topics);setStep('topics')}else{setError('No topics returned.')}}catch(e){setError(e.message||'Failed to reach API')}setLoading(false)};
+  const suggestTopics=async()=>{setLoading(true);setError('');try{const d=await authFetch('/api/agents/suggest-topics',{currentTopics:INIT_CONTENT.map(c=>c.title),pastCycles:['AI Governance Reimagined','The Death of the Dashboard']});if(d.topics&&d.topics.length>0){setTopics(d.topics);setStep('topics')}else{setError('No topics returned.')}}catch(e){setError(e.message||'Failed to reach API')}setLoading(false)};
 
   // New sequential pipeline
   const generateCycle=async(topic)=>{setSelectedTopic(topic);setStep('generating');setPosts([]);setThroughLine(null);setGenProgress(0);setError('');
     try{
       // Step 0: Through-line question
       setGenerating('through-line');setGenProgress(5);
-      const tlRes=await fetch('/api/cycle/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,step:'through-line'})});
-      if(!tlRes.ok)throw new Error('Through-line generation failed');
-      const tlData=await tlRes.json();
+      const tlData=await authFetch('/api/cycle/generate',{topic,step:'through-line'});
       const tl=tlData.data;
       setThroughLine(tl);setGenProgress(15);
 
       // Step 1: Hypatia writes Rethink (reads nothing)
       setGenerating('sage');setGenProgress(20);
-      const sageRes=await fetch('/api/cycle/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,step:'rethink',previousData:{throughLine:tl}})});
-      if(!sageRes.ok)throw new Error('Hypatia (Rethink) generation failed');
-      const sageData=await sageRes.json();
+      const sageData=await authFetch('/api/cycle/generate',{topic,step:'rethink',previousData:{throughLine:tl}});
       const sage=sageData.data;
       setPosts(prev=>[...prev,sage]);setGenProgress(45);
 
       // Step 2: Socratia writes Rediscover (reads Hypatia's full output)
       setGenerating('atlas');setGenProgress(50);
-      const atlasRes=await fetch('/api/cycle/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,step:'rediscover',previousData:{throughLine:tl,sage}})});
-      if(!atlasRes.ok)throw new Error('Socratia (Rediscover) generation failed');
-      const atlasData=await atlasRes.json();
+      const atlasData=await authFetch('/api/cycle/generate',{topic,step:'rediscover',previousData:{throughLine:tl,sage}});
       const atlas=atlasData.data;
       setPosts(prev=>[...prev,atlas]);setGenProgress(75);
 
       // Step 3: Ada writes Reinvent (reads Hypatia + Socratia full output)
       setGenerating('forge');setGenProgress(80);
-      const forgeRes=await fetch('/api/cycle/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,step:'reinvent',previousData:{throughLine:tl,sage,atlas}})});
-      if(!forgeRes.ok)throw new Error('Ada (Reinvent) generation failed');
-      const forgeData=await forgeRes.json();
+      const forgeData=await authFetch('/api/cycle/generate',{topic,step:'reinvent',previousData:{throughLine:tl,sage,atlas}});
       const forge=forgeData.data;
       setPosts(prev=>[...prev,forge]);setGenProgress(100);
 
@@ -1290,16 +1282,14 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
     if(onAutoComment){
       setStep('commenting');setCommentProgress('Selecting agents...');
       try{
-        const selRes=await fetch('/api/debate/select',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({articleTitle:selectedTopic?.title||'cycle',articleText:posts.map(p=>p.title).join('. '),agents:INIT_AGENTS.slice(0,25),forgePersona:ORCHESTRATORS.forge.persona})});
         let commentAgents=INIT_AGENTS.slice(0,5);
-        if(selRes.ok){const sel=await selRes.json();const matched=INIT_AGENTS.filter(a=>sel.selected?.includes(a.id)||sel.selected?.some(s=>s.toLowerCase()===a.name.toLowerCase()));if(matched.length>=3)commentAgents=matched.slice(0,5)}
+        try{const sel=await authFetch('/api/debate/select',{articleTitle:selectedTopic?.title||'cycle',articleText:posts.map(p=>p.title).join('. '),agents:INIT_AGENTS.slice(0,25),forgePersona:ORCHESTRATORS.forge.persona});const matched=INIT_AGENTS.filter(a=>sel.selected?.includes(a.id)||sel.selected?.some(s=>s.toLowerCase()===a.name.toLowerCase()));if(matched.length>=3)commentAgents=matched.slice(0,5)}catch(e){console.warn('Agent selection for comments failed, using defaults:',e.message)}
         let done=0;const total=publishedIds.length*commentAgents.length;
         // Process one post at a time (sequential batches of 5 parallel calls)
         for(const postId of publishedIds){
           const postData=posts[publishedIds.indexOf(postId)];
           const batchPromises=commentAgents.map(agent=>
-            fetch('/api/agents/comment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({postTitle:postData.title,postContent:postData.paragraphs?.[0]||'',agentName:agent.name,agentPersona:agent.persona,agentModel:agent.model||'anthropic'})})
-            .then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json()})
+            authFetch('/api/agents/comment',{postTitle:postData.title,postContent:postData.paragraphs?.[0]||'',agentName:agent.name,agentPersona:agent.persona,agentModel:agent.model||'anthropic'})
             .then(data=>{if(data?.comment){onAutoComment(postId,agent.id,data.comment)}done++;setCommentProgress(`Generating agent comments... (${done}/${total})`)})
             .catch(err=>{console.error('Comment failed for',agent.name,':',err.message||err);done++;setCommentProgress(`Generating agent comments... (${done}/${total})`)})
           );
@@ -1586,9 +1576,7 @@ function MiniDebate({agents,onNavigate}){
     try{
       const activeAgents=agents.filter(a=>a.status==="active").slice(0,3);
       if(activeAgents.length===0){setError("No agents available");setStatus("error");return}
-      const res=await fetch("/api/debate/round",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({articleTitle:title,articleText:title,agents:activeAgents,roundNumber:1,previousRounds:[]})});
-      if(!res.ok)throw new Error("Debate failed");
-      const data=await res.json();
+      const data=await authFetch("/api/debate/round",{articleTitle:title,articleText:title,agents:activeAgents,roundNumber:1,previousRounds:[]});
       setResponses(data.responses.filter(r=>r.status==="success"));
       setStatus("done");
     }catch(e){setError(e.message);setStatus("error")}
@@ -2077,6 +2065,12 @@ function Re3(){
   useEffect(()=>{if(loaded){DB.set("agents_v1",agents);syncToFirestore('agents',agents)}},[agents,loaded]);
   useEffect(()=>{if(loaded){DB.set("projects_v1",projects);syncToFirestore('projects',projects)}},[projects,loaded]);
   useEffect(()=>{if(loaded){DB.set("forge_sessions_v1",forgeSessions);syncToFirestore('forge_sessions',forgeSessions)}},[forgeSessions,loaded]);
+  // Flush pending Firestore writes on tab close to prevent data loss
+  useEffect(()=>{
+    const handleBeforeUnload=()=>{getFirestoreModule().then(mod=>{if(mod?.flushPendingWrites)mod.flushPendingWrites()}).catch(()=>{})};
+    window.addEventListener("beforeunload",handleBeforeUnload);
+    return()=>window.removeEventListener("beforeunload",handleBeforeUnload);
+  },[]);
   // Load agent registry
   useEffect(()=>{fetch('/agents-registry.json').then(r=>r.json()).then(data=>{setRegistry(data);const byDomain={},byId={},bySpec={};data.domains.forEach(d=>{byDomain[d.id]=d;d.specializations.forEach(s=>{const key=d.id+'/'+s.id;bySpec[key]={...s,domainId:d.id,domainName:d.name,domainColor:d.color};s.agents.forEach(a=>{byId[a.id]=a})})});setRegistryIndex({byDomain,byId,bySpec})}).catch(()=>{})},[]);
   // Browser back/forward support

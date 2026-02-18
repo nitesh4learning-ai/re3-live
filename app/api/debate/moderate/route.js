@@ -1,8 +1,17 @@
 import { callLLM } from "../../../../lib/llm-router";
+import { parseLLMResponse } from "../../../../lib/llm-parse";
+import { ModerationSchema } from "../../../../lib/schemas";
+import { getAuthUser } from "../../../../lib/auth";
+import { llmRateLimit } from "../../../../lib/rate-limit";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
+    const { user, error, status } = await getAuthUser(req);
+    if (error) return NextResponse.json({ error }, { status });
+    const { allowed } = llmRateLimit.check(user.uid);
+    if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+
     const { articleTitle, rounds, atlasPersona } = await req.json();
 
     let transcript = "";
@@ -35,9 +44,9 @@ Respond in JSON:
       { maxTokens: 500 }
     );
 
-    const match = response.match(/\{[\s\S]*\}/);
-    if (!match) return NextResponse.json({ intervention: "Discussion reviewed.", on_topic: true, missing_perspectives: "" });
-    return NextResponse.json(JSON.parse(match[0]));
+    const { data: parsed } = parseLLMResponse(response, ModerationSchema);
+    if (!parsed) return NextResponse.json({ intervention: "Discussion reviewed.", on_topic: true, missing_perspectives: "" });
+    return NextResponse.json(parsed);
   } catch (e) {
     console.error("Socratia moderation error:", e);
     return NextResponse.json({ intervention: "Moderation unavailable.", on_topic: true, missing_perspectives: "" });

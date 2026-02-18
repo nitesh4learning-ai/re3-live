@@ -1,8 +1,17 @@
 import { callLLM } from "../../../../lib/llm-router";
+import { parseLLMResponse } from "../../../../lib/llm-parse";
+import { ImplementAgentSchema, ImplementSynthesisSchema } from "../../../../lib/schemas";
+import { getAuthUser } from "../../../../lib/auth";
+import { llmRateLimit } from "../../../../lib/rate-limit";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
+    const { user, error, status } = await getAuthUser(req);
+    if (error) return NextResponse.json({ error }, { status });
+    const { allowed } = llmRateLimit.check(user.uid);
+    if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+
     const { concept, agents, priorContext } = await req.json();
 
     if (!agents || agents.length === 0) {
@@ -30,9 +39,8 @@ Respond in JSON only:
           { timeout: 30000, maxTokens: 600 }
         );
 
-        const match = response.match(/\{[\s\S]*\}/);
-        if (!match) return { agent: agent.name, agentId: agent.id, component: null, status: "parse_error" };
-        const parsed = JSON.parse(match[0]);
+        const { data: parsed } = parseLLMResponse(response, ImplementAgentSchema);
+        if (!parsed) return { agent: agent.name, agentId: agent.id, component: null, status: "parse_error" };
         return {
           agent: agent.name,
           agentId: agent.id,
@@ -102,13 +110,12 @@ Respond in JSON only:
     let totalWeeks = 0;
 
     try {
-      const synthMatch = synthResponse.match(/\{[\s\S]*\}/);
-      if (synthMatch) {
-        const parsed = JSON.parse(synthMatch[0]);
-        architecture = parsed.architecture || null;
-        sequence = parsed.sequence || [];
-        risks = parsed.risks || [];
-        totalWeeks = parsed.totalWeeks || 0;
+      const { data: synthData } = parseLLMResponse(synthResponse, ImplementSynthesisSchema);
+      if (synthData) {
+        architecture = synthData.architecture || null;
+        sequence = synthData.sequence || [];
+        risks = synthData.risks || [];
+        totalWeeks = synthData.totalWeeks || 0;
       }
     } catch (e) {
       console.warn("Synthesis parsing failed:", e.message);

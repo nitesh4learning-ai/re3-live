@@ -1,8 +1,17 @@
 import { callLLM } from "../../../../lib/llm-router";
+import { parseLLMResponse } from "../../../../lib/llm-parse";
+import { IdeateAgentSchema, IdeateClusterSchema } from "../../../../lib/schemas";
+import { getAuthUser } from "../../../../lib/auth";
+import { llmRateLimit } from "../../../../lib/rate-limit";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
+    const { user, error, status } = await getAuthUser(req);
+    if (error) return NextResponse.json({ error }, { status });
+    const { allowed } = llmRateLimit.check(user.uid);
+    if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+
     const { topic, agents, context } = await req.json();
 
     if (!agents || agents.length === 0) {
@@ -33,9 +42,8 @@ Respond in JSON only:
           { timeout: 30000, maxTokens: 800 }
         );
 
-        const match = response.match(/\{[\s\S]*\}/);
-        if (!match) return { agent: agent.name, agentId: agent.id, ideas: [], status: "parse_error" };
-        const parsed = JSON.parse(match[0]);
+        const { data: parsed } = parseLLMResponse(response, IdeateAgentSchema);
+        if (!parsed) return { agent: agent.name, agentId: agent.id, ideas: [], status: "parse_error" };
         return {
           agent: agent.name,
           agentId: agent.id,
@@ -97,10 +105,9 @@ Respond in JSON only:
 
     let clusters = [];
     try {
-      const clusterMatch = clusterResponse.match(/\{[\s\S]*\}/);
-      if (clusterMatch) {
-        const parsed = JSON.parse(clusterMatch[0]);
-        clusters = (parsed.clusters || []).map((c) => ({
+      const { data: clusterData } = parseLLMResponse(clusterResponse, IdeateClusterSchema);
+      if (clusterData) {
+        clusters = (clusterData.clusters || []).map((c) => ({
           ...c,
           ideas: (c.ideaIndices || [])
             .filter((idx) => idx >= 1 && idx <= allIdeas.length)

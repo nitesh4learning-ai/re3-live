@@ -1,10 +1,19 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { parseLLMResponse } from "../../../../lib/llm-parse";
+import { SuggestTopicsSchema } from "../../../../lib/schemas";
+import { getAuthUser } from "../../../../lib/auth";
+import { llmRateLimit } from "../../../../lib/rate-limit";
 import { NextResponse } from "next/server";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req) {
   try {
+    const { user, error, status } = await getAuthUser(req);
+    if (error) return NextResponse.json({ error }, { status });
+    const { allowed } = llmRateLimit.check(user.uid);
+    if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+
     const { currentTopics = [], pastCycles = [] } = await req.json();
 
     const msg = await client.messages.create({
@@ -47,12 +56,11 @@ Suggest 3-4 NEW topics that are emerging right now and will peak in relevance ov
     });
 
     const text = msg.content[0]?.text || "";
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return NextResponse.json({ error: "Failed to parse response" }, { status: 500 });
+    const { data: topics, error: parseError } = parseLLMResponse(text, SuggestTopicsSchema);
+    if (!topics) {
+      return NextResponse.json({ error: "Failed to parse response: " + parseError }, { status: 500 });
     }
 
-    const topics = JSON.parse(jsonMatch[0]);
     return NextResponse.json(topics);
   } catch (error) {
     console.error("Agent topic suggestion error:", error);

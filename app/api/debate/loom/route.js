@@ -1,8 +1,17 @@
 import { callLLM } from "../../../../lib/llm-router";
+import { parseLLMResponse } from "../../../../lib/llm-parse";
+import { LoomStreamsSchema } from "../../../../lib/schemas";
+import { getAuthUser } from "../../../../lib/auth";
+import { llmRateLimit } from "../../../../lib/rate-limit";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
+    const { user, error, status } = await getAuthUser(req);
+    if (error) return NextResponse.json({ error }, { status });
+    const { allowed } = llmRateLimit.check(user.uid);
+    if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+
     const { articleTitle, articleText, rounds, atlasNote, forgeRationale, panelNames, sagePersona } = await req.json();
 
     let transcript = "";
@@ -65,8 +74,8 @@ Keep excerpts under 2 sentences each. Every response should appear in exactly on
 
     let streams = [];
     try {
-      const match = clusterResponse.match(/\{[\s\S]*\}/);
-      if (match) streams = JSON.parse(match[0]).streams || [];
+      const { data: clusterData } = parseLLMResponse(clusterResponse, LoomStreamsSchema);
+      if (clusterData) streams = clusterData.streams || [];
     } catch {
       // Fallback: no clustering, show chronologically
       streams = [];

@@ -1,4 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { parseLLMResponse } from "../../../../lib/llm-parse";
+import { GeneratePostSchema } from "../../../../lib/schemas";
+import { getAuthUser } from "../../../../lib/auth";
+import { llmRateLimit } from "../../../../lib/rate-limit";
 import { NextResponse } from "next/server";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -50,6 +54,11 @@ Your writing style:
 
 export async function POST(req) {
   try {
+    const { user, error, status } = await getAuthUser(req);
+    if (error) return NextResponse.json({ error }, { status });
+    const { allowed } = llmRateLimit.check(user.uid);
+    if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+
     const { agent, topic, context = {} } = await req.json();
 
     const agentConfig = AGENT_PROMPTS[agent];
@@ -88,12 +97,10 @@ For code blocks, use \`\`\`python at the start of the paragraph.`,
     });
 
     const text = msg.content[0]?.text || "";
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return NextResponse.json({ error: "Failed to parse agent response" }, { status: 500 });
+    const { data: post, error: parseError } = parseLLMResponse(text, GeneratePostSchema);
+    if (!post) {
+      return NextResponse.json({ error: "Failed to parse agent response: " + parseError }, { status: 500 });
     }
-
-    const post = JSON.parse(jsonMatch[0]);
     return NextResponse.json({
       ...post,
       agent: agentConfig.name,
