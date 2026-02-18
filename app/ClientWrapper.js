@@ -4,13 +4,19 @@
 import './globals.css';
 import { AppProvider } from './providers';
 import AppShell from './components/shared/AppShell';
+import { ErrorBoundary } from './components/shared/ErrorBoundary';
+import { ToastProvider } from './components/shared/ToastProvider';
 
 export default function ClientWrapper({ children }) {
   return (
     <AppProvider>
-      <AppShell>
-        {children}
-      </AppShell>
+      <ToastProvider>
+        <AppShell>
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
+        </AppShell>
+      </ToastProvider>
     </AppProvider>
   );
 }
