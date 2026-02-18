@@ -1657,11 +1657,11 @@ function LoginModal({onClose,onLogin}){
   const handleGoogle=async()=>{setLoading(true);setError("");const u=await signInWithGoogle();if(u){DB.set("user",u);onLogin(u);getFirestoreModule().then(mod=>{if(mod)mod.saveUserProfile(u)}).catch(()=>{})}else{setError("Sign-in failed. Check Firebase config.")}setLoading(false)};
   return <div className="fixed inset-0 flex items-center justify-center p-4" style={{zIndex:100}} onClick={onClose}>
     <div className="absolute inset-0" style={{background:"rgba(0,0,0,0.3)",backdropFilter:"blur(12px)"}}/>
-    <FadeIn><div className="relative w-full rounded-2xl overflow-hidden" onClick={e=>e.stopPropagation()} style={{maxWidth:340,background:"#FFFFFF",boxShadow:"0 16px 40px rgba(0,0,0,0.15)"}}>
-      <div style={{height:3,background:"#9333EA"}}/>
+    <FadeIn><div className="relative w-full rounded-2xl" onClick={e=>e.stopPropagation()} style={{maxWidth:340,background:"#FFFFFF",boxShadow:"0 16px 40px rgba(0,0,0,0.15)"}}>
+      <div style={{height:3,background:"#9333EA",borderRadius:"16px 16px 0 0"}}/>
       <button onClick={onClose} className="absolute" style={{top:12,right:12,fontSize:12,color:"rgba(0,0,0,0.3)"}}>{"✕"}</button>
       <div className="p-5">
-        <h2 className="font-bold mb-1" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:16}}>Join Re³</h2>
+        <h2 className="font-bold mb-1" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:16}}>Join Re{"\u00b3"}</h2>
         <p className="mb-4" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.45)"}}>Sign in to think together</p>
         {error&&<p className="mb-3 p-2 rounded-lg text-xs" style={{background:"rgba(229,62,62,0.1)",color:"#E53E3E"}}>{error}</p>}
         <button onClick={handleGoogle} disabled={loading} className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-medium hover:shadow-md transition-all text-sm" style={{background:"rgba(0,0,0,0.06)",border:"1px solid rgba(0,0,0,0.05)",color:"#111827",opacity:loading?0.6:1}}>
@@ -1671,7 +1671,7 @@ function LoginModal({onClose,onLogin}){
         <div className="mt-3 pt-3" style={{borderTop:"1px solid rgba(0,0,0,0.06)"}}>
           <p style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:"#9CA3AF",lineHeight:1.6,marginBottom:4}}>By signing in, you agree that:</p>
           <ul style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:"#9CA3AF",lineHeight:1.7,paddingLeft:12,margin:0}}>
-            <li>This is an experimental alpha platform — features may change or reset</li>
+            <li>This is an experimental alpha platform {"\u2014"} features may change or reset</li>
             <li>Content is generated through human-AI collaboration and may be inaccurate</li>
             <li>We store your name, email, and profile photo from Google</li>
             <li>Your contributions (posts, comments) are publicly visible</li>
