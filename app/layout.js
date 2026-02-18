@@ -39,7 +39,9 @@ export const metadata = {
     googleBot: { index: true, follow: true, 'max-video-preview': -1, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
   alternates: { canonical: 'https://re3.live' },
-  verification: {},
+  verification: {
+    google: '9uqtakRlP2SndV81dqMjdZhA9LVw-IPkDpHlnbS4FNQ',
+  },
 }
 
 // JSON-LD structured data for the site

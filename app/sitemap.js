@@ -13,7 +13,19 @@ export default function sitemap() {
     { url: `${baseUrl}/academy`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${baseUrl}/agents`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${baseUrl}/studio`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/write`, lastModified: now, changeFrequency: 'monthly', priority: 0.4 },
+    { url: `${baseUrl}/debates`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/search`, lastModified: now, changeFrequency: 'monthly', priority: 0.3 },
   ];
 
-  return staticPages;
+  // Well-known seed content cycles
+  const knownCycles = ['2026-02-02', '2026-02-09'];
+  const cyclePosts = knownCycles.map(date => ({
+    url: `${baseUrl}/loom/${date}`,
+    lastModified: now,
+    changeFrequency: 'monthly',
+    priority: 0.7,
+  }));
+
+  return [...staticPages, ...cyclePosts];
 }
