@@ -23,11 +23,12 @@ const MenuButton = ({ onClick, active, children, title }) => (
 );
 
 function Toolbar({ editor }) {
-  if (!editor) return null;
   const addLink = useCallback(() => {
+    if (!editor) return;
     const url = window.prompt("URL:");
     if (url) editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   }, [editor]);
+  if (!editor) return null;
 
   return (
     <div

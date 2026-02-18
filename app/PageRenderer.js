@@ -329,6 +329,15 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
   const cycles=getCycles(content);
   const cycle=cycles.find(c=>c.id===cycleDate)||cycles.find(c=>c.date===cycleDate);
   const[activeAct,setActiveAct]=useState("rethink");
+  // Hooks must be called before any early return
+  const rethinkRef=useRef(null);const rediscoverRef=useRef(null);const reinventRef=useRef(null);
+  const isJourney=cycle?.isJourney;
+  useEffect(()=>{
+    if(!isJourney)return;
+    const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){setActiveAct(e.target.dataset.act)}})},{rootMargin:"-100px 0px -50% 0px",threshold:0.1});
+    [rethinkRef,rediscoverRef,reinventRef].forEach(ref=>{if(ref.current)observer.observe(ref.current)});
+    return()=>observer.disconnect();
+  },[isJourney]);
   if(!cycle)return <div className="min-h-screen" style={{paddingTop:56,background:"#F9FAFB"}}><div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 text-center">
     <p style={{color:"#9CA3AF",fontSize:14}}>Cycle not found.</p>
     <button onClick={()=>onNavigate("loom")} className="mt-4 text-sm font-semibold" style={{color:"#9333EA"}}>&larr; Back to The Loom</button>
@@ -339,17 +348,7 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
   const allParticipants=[...new Set(pillars.flatMap(p=>(p?.debate?.panel?.agents||[]).map(a=>a.name)))];
   const allRounds=pillars.flatMap(p=>p?.debate?.rounds||[]);
   const debatePanel=pillars.find(p=>p?.debate?.panel)?.debate?.panel;
-  const cycleShareUrl=typeof window!=='undefined'?window.location.origin+'/loom/'+cycle.id:'';;
-  const isJourney=cycle.isJourney;
-
-  // Scroll handlers for act tracking
-  const rethinkRef=useRef(null);const rediscoverRef=useRef(null);const reinventRef=useRef(null);
-  useEffect(()=>{
-    if(!isJourney)return;
-    const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){setActiveAct(e.target.dataset.act)}})},{rootMargin:"-100px 0px -50% 0px",threshold:0.1});
-    [rethinkRef,rediscoverRef,reinventRef].forEach(ref=>{if(ref.current)observer.observe(ref.current)});
-    return()=>observer.disconnect();
-  },[isJourney]);
+  const cycleShareUrl=typeof window!=='undefined'?window.location.origin+'/loom/'+cycle.id:'';
 
   // Journey progress dots
   const ACTS=[["rethink","Rethink","#3B6B9B","01"],["rediscover","Rediscover","#E8734A","02"],["reinvent","Reinvent","#2D8A6E","03"]];
