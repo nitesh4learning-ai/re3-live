@@ -265,9 +265,13 @@ function deriveHeadline(rethink, rediscover, reinvent) {
 // Group content into cycles (filters archived) — includes journey metadata
 function getCycles(content) {
   const active = content.filter(c => c.sundayCycle && !c.archived);
-  const cycleDates = [...new Set(active.map(c=>c.sundayCycle))].sort((a,b)=>b.localeCompare(a));
-  return cycleDates.map((date,i) => {
-    const posts = active.filter(c=>c.sundayCycle===date);
+  const cycleGroups = {};
+  active.forEach(c => { const key = c.cycleId || c.sundayCycle; if (!cycleGroups[key]) cycleGroups[key] = []; cycleGroups[key].push(c); });
+  const keys = Object.keys(cycleGroups).sort((a, b) => b.localeCompare(a));
+  return keys.map((key, i) => {
+    const posts = cycleGroups[key];
+    const date = posts[0]?.sundayCycle || key;
+    const id = posts[0]?.cycleId || key;
     const rethink = posts.find(p=>p.pillar==="rethink");
     const rediscover = posts.find(p=>p.pillar==="rediscover");
     const reinvent = posts.find(p=>p.pillar==="reinvent");
@@ -281,7 +285,7 @@ function getCycles(content) {
       blueprint: reinvent?.artifact?.type==="blueprint" ? reinvent.artifact : null,
     };
     const isJourney = !!(throughLineQuestion || rethink?.bridgeSentence || rediscover?.synthesisPrinciple);
-    return { date, number: cycleDates.length - i, rethink, rediscover, reinvent, extra, posts, headline, endorsements: posts.reduce((s,p)=>s+p.endorsements,0), comments: posts.reduce((s,p)=>s+p.comments.length,0), throughLineQuestion, artifacts, isJourney };
+    return { id, date, number: keys.length - i, rethink, rediscover, reinvent, extra, posts, headline, endorsements: posts.reduce((s,p)=>s+p.endorsements,0), comments: posts.reduce((s,p)=>s+p.comments.length,0), throughLineQuestion, artifacts, isJourney };
   });
 }
 
@@ -314,10 +318,10 @@ function CycleCard({cycle,onNavigate,variant="default"}){
       </div>
       {/* Journey progress dots */}
       {isHero&&<div className="flex items-center justify-center gap-1.5 mb-4">
-        {[["rethink","Rethink","#3B6B9B"],["rediscover","Rediscover","#E8734A"],["reinvent","Reinvent","#2D8A6E"]].map(([key,label,color],i)=>{const post=cycle[key];return <Fragment key={key}>{i>0&&<div style={{width:24,height:2,background:`linear-gradient(90deg,${[["#3B6B9B"],["#E8734A"],["#2D8A6E"]][i-1]},${color})`,borderRadius:4}}/>}<button onClick={()=>post&&onNavigate(cycle.isJourney?"loom-cycle":"post",cycle.isJourney?cycle.date:post.id)} className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-full" style={{background:post?color:"#E5E7EB"}}/><span className="text-xs font-semibold hidden sm:inline" style={{color:post?color:"#CCC"}}>{post?.title?.slice(0,25)||(label+"...")}{post?.title?.length>25?"...":""}</span></button></Fragment>})}
+        {[["rethink","Rethink","#3B6B9B"],["rediscover","Rediscover","#E8734A"],["reinvent","Reinvent","#2D8A6E"]].map(([key,label,color],i)=>{const post=cycle[key];return <Fragment key={key}>{i>0&&<div style={{width:24,height:2,background:`linear-gradient(90deg,${[["#3B6B9B"],["#E8734A"],["#2D8A6E"]][i-1]},${color})`,borderRadius:4}}/>}<button onClick={()=>post&&onNavigate(cycle.isJourney?"loom-cycle":"post",cycle.isJourney?cycle.id:post.id)} className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-full" style={{background:post?color:"#E5E7EB"}}/><span className="text-xs font-semibold hidden sm:inline" style={{color:post?color:"#CCC"}}>{post?.title?.slice(0,25)||(label+"...")}{post?.title?.length>25?"...":""}</span></button></Fragment>})}
       </div>}
       <div className={`grid grid-cols-1 ${isHero?"md:grid-cols-3":""} gap-3`}>
-        {[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean).map(post=>{const author=getAuthor(post.authorId);const pillar=PILLARS[post.pillar];return <button key={post.id} onClick={()=>onNavigate(cycle.isJourney?"loom-cycle":"post",cycle.isJourney?cycle.date:post.id)} className="text-left p-4 rounded-xl transition-all group" style={{background:"#FFFFFF",borderLeft:`4px solid ${pillar.color}`,border:"1px solid #E5E7EB",borderLeftWidth:4,borderLeftColor:pillar.color}} onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,0.08)"}} onMouseLeave={e=>{e.currentTarget.style.boxShadow="none"}}>
+        {[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean).map(post=>{const author=getAuthor(post.authorId);const pillar=PILLARS[post.pillar];return <button key={post.id} onClick={()=>onNavigate(cycle.isJourney?"loom-cycle":"post",cycle.isJourney?cycle.id:post.id)} className="text-left p-4 rounded-xl transition-all group" style={{background:"#FFFFFF",borderLeft:`4px solid ${pillar.color}`,border:"1px solid #E5E7EB",borderLeftWidth:4,borderLeftColor:pillar.color}} onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,0.08)"}} onMouseLeave={e=>{e.currentTarget.style.boxShadow="none"}}>
           <div className="flex items-center gap-1.5 mb-2"><PillarTag pillar={post.pillar}/></div>
           <h3 className="font-bold leading-snug mb-1.5" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:isHero?16:14}}>{post.title}</h3>
           <p className="mb-2" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"#6B7280",lineHeight:1.5,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.paragraphs[0]?.slice(0,isHero?140:100)}...</p>
@@ -473,12 +477,12 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
 function TriptychCard({cycle,onExpand,onArchiveCycle,currentUser}){
   const pillars=[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean);
   const connectionDensity=cycle.posts.reduce((sum,p)=>sum+(p.debate?.streams?.length||0),0);
-  return <div className="cursor-pointer rounded-xl overflow-hidden transition-all hover:shadow-md" style={{background:"#FFFFFF",border:"1px solid #E5E7EB"}} onClick={()=>onExpand(cycle.date)}>
+  return <div className="cursor-pointer rounded-xl overflow-hidden transition-all hover:shadow-md" style={{background:"#FFFFFF",border:"1px solid #E5E7EB"}} onClick={()=>onExpand(cycle.id)}>
     <div className="flex items-center justify-between p-4" style={{borderBottom:"1px solid #E5E7EB"}}>
       <div className="flex items-center gap-2"><span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontSize:11,background:"#F3E8FF",color:"#9333EA"}}>Cycle {cycle.number}{cycle.headline?': '+cycle.headline:''}</span><span style={{fontSize:12,color:"#9CA3AF"}}>{fmtS(cycle.date)}</span></div>
       <div className="flex items-center gap-3" style={{fontSize:11,color:"#9CA3AF"}}><span>{cycle.endorsements} endorsements</span>{connectionDensity>0&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:9,background:"#F3E8FF",color:"#9333EA"}}>{connectionDensity} threads</span>}
-        <span onClick={e=>e.stopPropagation()}><ShareButton title={`Re³ Cycle ${cycle.number}${cycle.headline?': '+cycle.headline:''}`} text="Explore this synthesis cycle on Re³" url={typeof window!=='undefined'?window.location.origin+'/loom':''}/></span>
-        {isAdmin(currentUser)&&onArchiveCycle&&<button onClick={e=>{e.stopPropagation();if(confirm('Archive this cycle? It will be hidden from views.'))onArchiveCycle(cycle.date)}} className="px-2 py-0.5 rounded-full font-semibold transition-all hover:bg-red-50" style={{fontSize:9,color:"rgba(229,62,62,0.6)",border:"1px solid rgba(229,62,62,0.2)"}}>Archive</button>}
+        <span onClick={e=>e.stopPropagation()}><ShareButton title={`Re³ Cycle ${cycle.number}${cycle.headline?': '+cycle.headline:''}`} text="Explore this synthesis cycle on Re³" url={typeof window!=='undefined'?window.location.origin+'/loom/'+cycle.id:''}/></span>
+        {isAdmin(currentUser)&&onArchiveCycle&&<button onClick={e=>{e.stopPropagation();if(confirm('Archive this cycle? It will be hidden from views.'))onArchiveCycle(cycle.id)}} className="px-2 py-0.5 rounded-full font-semibold transition-all hover:bg-red-50" style={{fontSize:9,color:"rgba(229,62,62,0.6)",border:"1px solid rgba(229,62,62,0.2)"}}>Archive</button>}
       </div>
     </div>
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-0">{pillars.map((post,i)=>{const pc=PILLARS[post.pillar]?.color||"#9CA3AF";return <div key={post.id} className="p-4" style={{borderRight:i<pillars.length-1?"1px solid #E5E7EB":"none",borderLeft:`4px solid ${pc}`}}>
@@ -498,8 +502,8 @@ function TriptychExpanded({cycle,onNavigate,onCollapse,onForge,onArchiveCycle,cu
     <div className="flex items-center justify-between p-4" style={{borderBottom:"1px solid #E5E7EB"}}>
       <div className="flex items-center gap-2"><span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontSize:11,background:"#F3E8FF",color:"#9333EA"}}>Cycle {cycle.number}{cycle.headline?': '+cycle.headline:''}</span>{cycle.isJourney&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#E0F2EC",color:"#2D8A6E"}}>Connected Journey</span>}<span style={{fontSize:12,color:"#9CA3AF"}}>{fmtS(cycle.date)}</span></div>
       <div className="flex items-center gap-2">
-        <ShareButton title={`Re³ Cycle ${cycle.number}${cycle.headline?': '+cycle.headline:''}`} text="Explore this synthesis cycle on Re³" url={typeof window!=='undefined'?window.location.origin+'/loom':''}/>
-        {isAdmin(currentUser)&&onArchiveCycle&&<button onClick={()=>{if(confirm('Archive this cycle? It will be hidden from views.'))onArchiveCycle(cycle.date)}} className="px-2 py-1 rounded-lg text-xs font-semibold transition-all hover:bg-red-50" style={{color:"rgba(229,62,62,0.6)",border:"1px solid rgba(229,62,62,0.2)"}}>Archive</button>}
+        <ShareButton title={`Re³ Cycle ${cycle.number}${cycle.headline?': '+cycle.headline:''}`} text="Explore this synthesis cycle on Re³" url={typeof window!=='undefined'?window.location.origin+'/loom/'+cycle.id:''}/>
+        {isAdmin(currentUser)&&onArchiveCycle&&<button onClick={()=>{if(confirm('Archive this cycle? It will be hidden from views.'))onArchiveCycle(cycle.id)}} className="px-2 py-1 rounded-lg text-xs font-semibold transition-all hover:bg-red-50" style={{color:"rgba(229,62,62,0.6)",border:"1px solid rgba(229,62,62,0.2)"}}>Archive</button>}
         <button onClick={onCollapse} className="px-2 py-1 rounded-lg text-xs" style={{color:"rgba(0,0,0,0.3)",border:"1px solid rgba(0,0,0,0.08)"}}>Collapse</button>
       </div>
     </div>
@@ -517,8 +521,8 @@ function TriptychExpanded({cycle,onNavigate,onCollapse,onForge,onArchiveCycle,cu
       </div>})}</div>
     {/* Action bar with full-cycle debate option */}
     <div className="flex items-center gap-3 px-4 py-3" style={{borderTop:"1px solid #E5E7EB",background:"#FAFAFA"}}>
-      {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"Cycle "+cycle.number,text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date})} className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm" style={{background:"#9333EA",color:"white"}}>Debate Full Cycle</button>}
-      <button onClick={()=>onNavigate("loom-cycle",cycle.date)} className="px-3 py-1.5 rounded-lg text-xs font-semibold" style={{border:"1px solid #E9D5FF",color:"#9333EA"}}>View Journey</button>
+      {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"Cycle "+cycle.number,text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date,cycleId:cycle.id})} className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm" style={{background:"#9333EA",color:"white"}}>Debate Full Cycle</button>}
+      <button onClick={()=>onNavigate("loom-cycle",cycle.id)} className="px-3 py-1.5 rounded-lg text-xs font-semibold" style={{border:"1px solid #E9D5FF",color:"#9333EA"}}>View Journey</button>
     </div>
     {synthesisPost?.debate?.loom&&<div className="p-4" style={{background:"#FAF5FF",borderTop:"1px solid #E9D5FF"}}>
       <div className="flex items-center gap-1.5 mb-1"><span style={{fontSize:12}}>&#128296;</span><span className="font-bold text-xs" style={{color:"#9333EA"}}>Hypatia&apos;s Synthesis</span></div>
@@ -557,7 +561,7 @@ function BridgeTransition({from,to,bridgeSentence}){
 // ==================== LOOM CYCLE DETAIL PAGE — Journey View ====================
 function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUser}){
   const cycles=getCycles(content);
-  const cycle=cycles.find(c=>c.date===cycleDate);
+  const cycle=cycles.find(c=>c.id===cycleDate)||cycles.find(c=>c.date===cycleDate);
   const[activeAct,setActiveAct]=useState("rethink");
   if(!cycle)return <div className="min-h-screen" style={{paddingTop:56,background:"#F9FAFB"}}><div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 text-center">
     <p style={{color:"#9CA3AF",fontSize:14}}>Cycle not found.</p>
@@ -569,7 +573,7 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
   const allParticipants=[...new Set(pillars.flatMap(p=>(p?.debate?.panel?.agents||[]).map(a=>a.name)))];
   const allRounds=pillars.flatMap(p=>p?.debate?.rounds||[]);
   const debatePanel=pillars.find(p=>p?.debate?.panel)?.debate?.panel;
-  const copyShareUrl=()=>{const url=typeof window!=='undefined'?window.location.origin+'/loom/'+cycle.date:'';navigator.clipboard?.writeText(url).then(()=>{})};
+  const copyShareUrl=()=>{const url=typeof window!=='undefined'?window.location.origin+'/loom/'+cycle.id:'';navigator.clipboard?.writeText(url).then(()=>{})};
   const isJourney=cycle.isJourney;
 
   // Scroll handlers for act tracking
@@ -604,7 +608,7 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
       <button onClick={()=>onNavigate("loom")} className="text-xs font-semibold px-3 py-1.5 rounded-lg" style={{border:"1px solid rgba(0,0,0,0.1)",color:"rgba(0,0,0,0.5)"}}>&larr; Back to The Loom</button>
       <div className="flex gap-2">
         <button onClick={copyShareUrl} className="text-xs font-semibold px-3 py-1.5 rounded-lg" style={{border:"1px solid #E9D5FF",color:"#9333EA",background:"#FAF5FF"}}>Share</button>
-        {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"",text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date})} className="text-xs font-semibold px-3 py-1.5 rounded-lg" style={{background:"#9333EA",color:"white"}}>Debate Full Cycle</button>}
+        {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"",text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date,cycleId:cycle.id})} className="text-xs font-semibold px-3 py-1.5 rounded-lg" style={{background:"#9333EA",color:"white"}}>Debate Full Cycle</button>}
       </div>
     </div></FadeIn>
 
@@ -677,7 +681,7 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
         <h3 className="font-bold mb-2" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:16}}>Journey Complete</h3>
         <div className="flex items-center justify-center gap-3 mb-4">{["questions","principle","blueprint"].map(type=>{const a=cycle.artifacts[type];return a?<span key={type} className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{background:type==="questions"?"#E8EEF5":type==="principle"?"#FDE8E0":"#E0F2EC",color:type==="questions"?"#3B6B9B":type==="principle"?"#E8734A":"#2D8A6E"}}>{type==="questions"?"🔍 "+(a.items?.length||0)+" Questions":type==="principle"?"💡 1 Principle":"🔧 1 Blueprint"}</span>:null})}</div>
         <div className="flex items-center justify-center gap-3">
-          {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"",text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date})} className="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white"}}>Debate This Cycle</button>}
+          {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"",text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date,cycleId:cycle.id})} className="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white"}}>Debate This Cycle</button>}
           <button onClick={copyShareUrl} className="px-5 py-2.5 rounded-xl font-semibold text-sm" style={{border:"1px solid #E9D5FF",color:"#9333EA"}}>Share</button>
         </div>
       </div></FadeIn>
@@ -737,8 +741,8 @@ function LoomPage({content,articles,onNavigate,onForge,onArchiveCycle,currentUse
     </div></FadeIn>
 
     {/* Cycle grid */}
-    <div className="space-y-4">{filteredCycles.length>0?filteredCycles.map((c,i)=><FadeIn key={c.date} delay={i*50}>
-      <TriptychCard cycle={c} onExpand={(date)=>onNavigate("loom-cycle",date)} onArchiveCycle={onArchiveCycle} currentUser={currentUser}/>
+    <div className="space-y-4">{filteredCycles.length>0?filteredCycles.map((c,i)=><FadeIn key={c.id} delay={i*50}>
+      <TriptychCard cycle={c} onExpand={(id)=>onNavigate("loom-cycle",id)} onArchiveCycle={onArchiveCycle} currentUser={currentUser}/>
     </FadeIn>):<FadeIn><div className="p-6 rounded-xl text-center" style={{background:"#FFFFFF",border:"1px solid #E5E7EB"}}><p style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"#9CA3AF"}}>No cycles match this filter.</p></div></FadeIn>}</div>
   </div></div>
 }
@@ -1267,9 +1271,9 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
     }catch(e){console.error('Cycle generation error:',e);setError(e.message||'Generation failed');setStep('idle');setGenerating('')}
   };
 
-  const publishAll=async()=>{const cycleDate=new Date().toISOString().split('T')[0];const ts=Date.now();
+  const publishAll=async()=>{const cycleDate=new Date().toISOString().split('T')[0];const ts=Date.now();const cycleId='cy_'+ts;
     const publishedIds=[];
-    posts.forEach((p,i)=>{const postId='p_'+ts+'_'+i;publishedIds.push(postId);const post={id:postId,authorId:p.authorId,pillar:p.pillar,type:'post',title:p.title,paragraphs:p.paragraphs,reactions:{},highlights:{},marginNotes:[],tags:p.tags||[],createdAt:cycleDate,sundayCycle:cycleDate,featured:true,endorsements:0,comments:[],challenges:[],
+    posts.forEach((p,i)=>{const postId='p_'+ts+'_'+i;publishedIds.push(postId);const post={id:postId,authorId:p.authorId,pillar:p.pillar,type:'post',title:p.title,paragraphs:p.paragraphs,reactions:{},highlights:{},marginNotes:[],tags:p.tags||[],createdAt:cycleDate,sundayCycle:cycleDate,cycleId:cycleId,featured:true,endorsements:0,comments:[],challenges:[],
       // Journey metadata — new connected fields
       throughLineQuestion:throughLine?.through_line_question||null,
       openQuestions:p.open_questions||null,
@@ -1725,7 +1729,7 @@ function ArtifactSearchPage({content,onNavigate}){
     {/* Results */}
     {query.trim()&&<div className="mb-2 text-xs" style={{color:"#CCC"}}>{results.length} result{results.length!==1?"s":""}</div>}
     <div className="space-y-2">{(query.trim()?results:artifacts.slice(0,30)).map((a,i)=><FadeIn key={i} delay={i*15}>
-      <div className="p-3 rounded-xl cursor-pointer transition-all hover:shadow-sm" style={{background:"white",border:`1px solid ${typeColors[a.type]||"#E5E7EB"}20`}} onClick={()=>{const post=a.cycle[a.pillar==="all"?"rethink":a.pillar];if(post)onNavigate("post",post.id);else onNavigate("loom-cycle",a.cycle.date)}}>
+      <div className="p-3 rounded-xl cursor-pointer transition-all hover:shadow-sm" style={{background:"white",border:`1px solid ${typeColors[a.type]||"#E5E7EB"}20`}} onClick={()=>{const post=a.cycle[a.pillar==="all"?"rethink":a.pillar];if(post)onNavigate("post",post.id);else onNavigate("loom-cycle",a.cycle.id)}}>
         <div className="flex items-center gap-2 mb-1">
           <span className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:9,background:`${typeColors[a.type]}12`,color:typeColors[a.type]}}>{typeLabels[a.type]||a.type}</span>
           <span className="text-xs" style={{color:"#CCC"}}>Cycle {a.cycle.number}</span>
@@ -1823,8 +1827,8 @@ function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onN
 
   // When a cycle debate completes, save debate data back to the cycle posts
   const handleDebateComplete=(debate)=>{
-    if(selectedTopic?.sourceType==="cycle"&&selectedTopic?.cycleDate&&onUpdatePost){
-      const cyclePosts=content.filter(c=>c.sundayCycle===selectedTopic.cycleDate);
+    if(selectedTopic?.sourceType==="cycle"&&(selectedTopic?.cycleId||selectedTopic?.cycleDate)&&onUpdatePost){
+      const cyclePosts=selectedTopic.cycleId?content.filter(c=>c.cycleId===selectedTopic.cycleId):content.filter(c=>c.sundayCycle===selectedTopic.cycleDate);
       cyclePosts.forEach(p=>{onUpdatePost({...p,debate})});
     }
   };
@@ -1887,7 +1891,7 @@ function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onN
         {/* Full cycles first — debate all 3 articles together */}
         {cycles.slice(0,10).map(c=>{
           const fullText=c.posts.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n");
-          return <button key={c.date} onClick={()=>confirmTopic({title:c.throughLineQuestion||c.headline||c.rethink?.title||"Cycle "+c.number,text:fullText,sourceType:"cycle",cycleDate:c.date})} className="w-full text-left p-3 rounded-xl transition-all" style={{background:"rgba(139,92,246,0.03)",border:"1px solid rgba(139,92,246,0.1)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(139,92,246,0.08)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(139,92,246,0.03)"}>
+          return <button key={c.id} onClick={()=>confirmTopic({title:c.throughLineQuestion||c.headline||c.rethink?.title||"Cycle "+c.number,text:fullText,sourceType:"cycle",cycleDate:c.date,cycleId:c.id})} className="w-full text-left p-3 rounded-xl transition-all" style={{background:"rgba(139,92,246,0.03)",border:"1px solid rgba(139,92,246,0.1)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(139,92,246,0.08)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(139,92,246,0.03)"}>
             <div className="flex items-center gap-2 mb-1"><span className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:9,background:"#F3E8FF",color:"#9333EA"}}>Full Cycle {c.number}</span>{c.isJourney&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#E0F2EC",color:"#2D8A6E"}}>Connected Journey</span>}</div>
             <span className="font-semibold text-sm" style={{color:"#111827"}}>{c.throughLineQuestion||c.headline||"Cycle "+c.number}</span>
             <div className="flex items-center gap-2 mt-1">{["rethink","rediscover","reinvent"].map(pil=>{const post=c[pil];return post?<span key={pil} className="text-xs" style={{color:PILLARS[pil]?.color||"#999"}}>{post.title?.slice(0,30)}...</span>:null})}</div>
@@ -2094,7 +2098,7 @@ function Re3(){
   const addCh=(postId,text)=>{if(!user)return;setContent(p=>p.map(c=>c.id===postId?{...c,challenges:[...(c.challenges||[]),{id:"ch_"+Date.now(),authorId:user.id,text,date:new Date().toISOString().split("T")[0],votes:1}]}:c))};
   const addMN=(postId,pi,text)=>{if(!user)return;setContent(p=>p.map(c=>c.id===postId?{...c,marginNotes:[...(c.marginNotes||[]),{id:"mn_"+Date.now(),paragraphIndex:pi,authorId:user.id,text,date:new Date().toISOString().split("T")[0]}]}:c))};
   const updatePost=(updated)=>{const next=content.map(c=>c.id===updated.id?updated:c);setContent(next);DB.set("content_v5",next)};
-  const archiveCycle=(cycleDate)=>setContent(p=>p.map(c=>c.sundayCycle===cycleDate?{...c,archived:true}:c));
+  const archiveCycle=(cycleId)=>setContent(p=>p.map(c=>(c.cycleId===cycleId||c.sundayCycle===cycleId)?{...c,archived:true}:c));
   const autoComment=(postId,agentId,text)=>{setContent(p=>p.map(c=>c.id===postId?{...c,comments:[...c.comments,{id:"cm_"+Date.now()+"_"+Math.random().toString(36).slice(2,6),authorId:agentId,text,date:new Date().toISOString().split("T")[0]}]}:c))};
   const voteTheme=(id)=>setThemes(t=>t.map(th=>th.id===id?{...th,votes:th.votes+(th.voted?0:1),voted:true}:th));
   const addTheme=(title)=>setThemes(t=>[...t,{id:"t_"+Date.now(),title,votes:0,voted:false}]);
