@@ -44,10 +44,19 @@ export function AppProvider({ children }) {
     const sp = DB.get("projects_v1", null);
     const sfs = DB.get("forge_sessions_v1", null);
     if (su) setUser(su);
-    if (sc && sc.length >= INIT_CONTENT.length) setContent(sc);
+    if (sc && Array.isArray(sc) && sc.length > 0) {
+      // Merge: keep all localStorage posts + add any INIT_CONTENT posts not already present
+      const existingIds = new Set(sc.map(p => p.id));
+      const missing = INIT_CONTENT.filter(p => !existingIds.has(p.id));
+      setContent(missing.length > 0 ? [...sc, ...missing] : sc);
+    }
     if (st) setThemes(st);
     if (sa) setArticles(sa);
-    if (sag && sag.length >= INIT_AGENTS.length) setAgents(sag);
+    if (sag && Array.isArray(sag) && sag.length > 0) {
+      const existingAgentIds = new Set(sag.map(a => a.id));
+      const missingAgents = INIT_AGENTS.filter(a => !existingAgentIds.has(a.id));
+      setAgents(missingAgents.length > 0 ? [...sag, ...missingAgents] : sag);
+    }
     if (sp) setProjects(sp);
     if (sfs) setForgeSessions(sfs);
     setLoaded(true);
@@ -64,7 +73,12 @@ export function AppProvider({ children }) {
         mod.loadArticles(null), mod.loadForgeSessions(null)
       ]).then(results => {
         const [fc, ft, fa, ffs] = results.map(r => r.status === 'fulfilled' ? r.value : null);
-        if (fc && fc.length > content.length) setContent(fc);
+        if (fc && fc.length > 0) {
+          // Merge Firestore posts with current state (new posts only, no duplicates)
+          const currentIds = new Set(content.map(p => p.id));
+          const newFromFirestore = fc.filter(p => !currentIds.has(p.id));
+          if (newFromFirestore.length > 0) setContent(prev => [...newFromFirestore, ...prev]);
+        }
         if (ft && ft.length) setThemes(prev => ft.length >= prev.length ? ft : prev);
         if (fa && fa.length > articles.length) setArticles(fa);
         if (ffs && ffs.length > forgeSessions.length) setForgeSessions(ffs);
