@@ -9,6 +9,19 @@ const nextConfig = {
     NEXT_PUBLIC_FIREBASE_APP_ID: process.env.REACT_APP_FIREBASE_APP_ID,
   },
   // Routing is now handled by Next.js App Router (file-based routes in app/)
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin-allow-popups",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
