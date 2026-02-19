@@ -12,31 +12,33 @@ service cloud.firestore {
       return request.auth != null && request.auth.token.email == 'nitesh4learning@gmail.com';
     }
 
-    // Content (posts) — anyone can read, authenticated users can write
+    // Content (posts) — anyone can read, authenticated users can create/update
+    // Note: saveContent() uses setDoc with merge:true (upsert) for all posts
     match /content/{postId} {
       allow read: if true;
-      allow create: if isAuthenticated();
-      allow update, delete: if isAdmin();
+      allow create, update: if isAuthenticated();
+      allow delete: if isAdmin();
     }
 
-    // Articles — anyone can read, authenticated users can create, admin can modify
+    // Articles — anyone can read, authenticated users can create/update
     match /articles/{articleId} {
       allow read: if true;
-      allow create: if isAuthenticated();
-      allow update, delete: if isAdmin();
+      allow create, update: if isAuthenticated();
+      allow delete: if isAdmin();
     }
 
-    // Forge sessions — anyone can read, authenticated users can create
+    // Forge sessions — anyone can read, authenticated users can create/update
     match /forge_sessions/{sessionId} {
       allow read: if true;
-      allow create: if isAuthenticated();
-      allow update, delete: if isAdmin();
+      allow create, update: if isAuthenticated();
+      allow delete: if isAdmin();
     }
 
-    // Config (themes, agents, projects) — anyone can read, admin can write
+    // Config (themes, agents, projects) — anyone can read, authenticated users can write
+    // Note: saveThemes/saveAgents/saveProjects use setDoc which needs create+update
     match /config/{docId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if isAuthenticated();
     }
 
     // User profiles — users can read/write their own, admin can read all
