@@ -194,8 +194,8 @@ export default function OrchestrationCanvas({ boardSnapshot, budget }) {
   return (
     <div style={{ width: "100%", height: "100%", minHeight: 500 }}>
       <ReactFlow
-        nodes={initialNodes}
-        edges={initialEdges}
+        nodes={nodes}
+        edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}

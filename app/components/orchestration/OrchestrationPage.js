@@ -52,7 +52,7 @@ export default function OrchestrationPage({ user, onNavigate }) {
 
       try {
         // Get auth token
-        const { getFirebase } = await import("../../../lib/firebase");
+        const { getFirebase } = await import("../../utils/firebase-client");
         const { auth } = await getFirebase();
         const token = await auth.currentUser?.getIdToken();
 
