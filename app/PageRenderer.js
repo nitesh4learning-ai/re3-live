@@ -13,6 +13,7 @@ import { FadeIn, AuthorBadge, PillarTag, HeatBar, ShareButton, CrossRefLink, Dis
 
 const LazyEditor = lazy(() => import("./Editor"));
 const LazyAcademy = lazy(() => import("./Academy"));
+const LazyOrchestration = lazy(() => import("./components/orchestration/OrchestrationPage"));
 
 // This component renders the appropriate page based on passed props.
 // It pulls all state and actions from the AppContext.
@@ -47,6 +48,8 @@ export default function PageRenderer({ page, pageId }) {
       return <DebateGalleryPage content={content} forgeSessions={forgeSessions} onNavigate={nav} onForge={navToForge} />;
     case "search":
       return <ArtifactSearchPage content={content} onNavigate={nav} />;
+    case "arena":
+      return <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{ paddingTop: 56, background: "#F9FAFB" }}><p style={{ color: "#9CA3AF", fontSize: 13 }}>Loading Arena...</p></div>}><LazyOrchestration user={user} onNavigate={nav} /></Suspense>;
     case "article": {
       const art = articles.find(a => a.id === pageId);
       return art ? <ArticlePage article={art} agents={agents} registry={registry} registryIndex={registryIndex} onNavigate={nav} onUpdateArticle={saveArticle} currentUser={user} /> : <HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry} />;
@@ -106,8 +109,8 @@ function CycleCard({cycle,onNavigate,variant="default"}){
 function Header({onNavigate,currentPage,currentUser,onLogin,onLogout}){
   const[sc,setSc]=useState(false);const[mob,setMob]=useState(false);
   useEffect(()=>{const fn=()=>setSc(window.scrollY>10);window.addEventListener("scroll",fn);return()=>window.removeEventListener("scroll",fn)},[]);
-  const navItems=[["home","Home","🏠"],["loom","The Loom","🧵"],["forge","Debate Lab","⚡"],["academy","Academy","🎓"],["agent-community","Team","🤖"],["studio","My Studio","📝"]];
-  const bottomTabs=[["home","Home","🏠"],["loom","Loom","🧵"],["forge","Debate","⚡"],["academy","Learn","🎓"],["agent-community","Team","🤖"]];
+  const navItems=[["home","Home","🏠"],["loom","The Loom","🧵"],["forge","Debate Lab","⚡"],["arena","Arena","🎯"],["academy","Academy","🎓"],["agent-community","Team","🤖"],["studio","My Studio","📝"]];
+  const bottomTabs=[["home","Home","🏠"],["loom","Loom","🧵"],["forge","Debate","⚡"],["arena","Arena","🎯"],["academy","Learn","🎓"],["agent-community","Team","🤖"]];
   return <><header className="fixed top-0 left-0 right-0 z-50" style={{background:"#FFFFFF",borderBottom:"0.8px solid #E5E7EB"}}>
     <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between" style={{height:56}}>
       <button onClick={()=>{onNavigate("home");setMob(false)}} className="flex items-center gap-2" style={{minHeight:'auto',minWidth:'auto'}}>

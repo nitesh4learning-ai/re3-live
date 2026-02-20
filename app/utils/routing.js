@@ -11,6 +11,7 @@ export function pageToPath(pg, id) {
     case "write": return "/write";
     case "debates": return "/debates";
     case "search": return "/search";
+    case "arena": return "/arena";
     case "loom-cycle": return id ? `/loom/${id}` : "/loom";
     case "post": return id ? `/post/${id}` : "/";
     case "article": return id ? `/article/${id}` : "/";
@@ -31,6 +32,7 @@ export function pathToPage(pathname) {
   if (p === "/write") return { page: "write", pageId: null };
   if (p === "/debates") return { page: "debates", pageId: null };
   if (p === "/search") return { page: "search", pageId: null };
+  if (p === "/arena") return { page: "arena", pageId: null };
   if (p.startsWith("/post/")) return { page: "post", pageId: p.slice(6) };
   if (p.startsWith("/article/")) return { page: "article", pageId: p.slice(9) };
   if (p.startsWith("/profile/")) return { page: "profile", pageId: p.slice(9) };
