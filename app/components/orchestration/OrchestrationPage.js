@@ -16,7 +16,8 @@ import UseCaseLibrary from "./UseCaseLibrary";
 import BlackboardPanel from "./panels/BlackboardPanel";
 import CostTicker from "./panels/CostTicker";
 import TeamRoster from "./panels/TeamRoster";
-import { saveRun, listRuns, getRun } from "../../../lib/orchestration/run-store";
+import { saveRun, listRuns, getRun, getRunCloud, listRunsCloud } from "../../../lib/orchestration/run-store";
+import RunComparison from "./RunComparison";
 
 // Lazy-load the canvas (heavy React Flow dependency)
 const OrchestrationCanvas = lazy(() => import("./OrchestrationCanvas"));
@@ -46,6 +47,9 @@ const PHASE_COLORS = {
 // Map event types to UI phase for the status bar
 const EVENT_TO_PHASE = {
   "phase.intake": "intake",
+  "mcp.enrich.start": "intake",
+  "mcp.enrich.complete": "intake",
+  "mcp.enrich.failed": "intake",
   "phase.decompose.start": "decomposing",
   "phase.decompose.complete": "decomposing",
   "phase.assemble.start": "assembling",
@@ -55,7 +59,17 @@ const EVENT_TO_PHASE = {
   "task.start": "executing",
   "task.complete": "executing",
   "task.failed": "executing",
+  "reflection.start": "executing",
+  "reflection.success": "executing",
+  "reflection.failed": "executing",
+  "reflection.skipped": "executing",
   "layer.complete": "executing",
+  "a2a.start": "executing",
+  "a2a.refine.start": "executing",
+  "a2a.refine.complete": "executing",
+  "a2a.refine.failed": "executing",
+  "a2a.complete": "executing",
+  "a2a.skipped": "executing",
   "phase.synthesize.start": "synthesizing",
   "phase.synthesize.complete": "synthesizing",
   "phase.complete": "completed",
@@ -75,6 +89,8 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
   const [savedRuns, setSavedRuns] = useState([]);
   const [isReplay, setIsReplay] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [shared, setShared] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
   const timelineRef = useRef(null);
   const deliverableRef = useRef(null);
   // Ref to collect events for persistence (closures can't see latest state)
@@ -101,34 +117,15 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
     return active;
   }, [events]);
 
-  // Load library index on mount
+  // Load library index on mount (local + cloud merge)
   useEffect(() => {
     setSavedRuns(listRuns());
+    // Async merge with cloud runs
+    listRunsCloud().then((merged) => setSavedRuns(merged)).catch(() => {});
   }, []);
 
-  // Load a saved run when runId prop changes (replay mode)
-  useEffect(() => {
-    if (!runId) {
-      // Reset to default mode if navigating back
-      if (isReplay) {
-        setIsReplay(false);
-        setDeliverable(null);
-        setBoardSnapshot(null);
-        setBudget(null);
-        setPhase("initialized");
-        setEvents([]);
-        setError(null);
-      }
-      return;
-    }
-
-    const saved = getRun(runId);
-    if (!saved) {
-      setError(`Run "${runId}" not found in library.`);
-      return;
-    }
-
-    // Hydrate all state from the saved record
+  // Hydrate a saved run into the UI state
+  const hydrateRun = useCallback((saved) => {
     setIsReplay(true);
     setPhase("completed");
     setDeliverable({
@@ -155,7 +152,45 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
     setBudget(saved.budget || saved.metrics?.budget || null);
     setError(null);
     setIsRunning(false);
-  }, [runId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Load a saved run when runId prop changes (replay mode)
+  useEffect(() => {
+    if (!runId) {
+      // Reset to default mode if navigating back
+      if (isReplay) {
+        setIsReplay(false);
+        setDeliverable(null);
+        setBoardSnapshot(null);
+        setBudget(null);
+        setPhase("initialized");
+        setEvents([]);
+        setError(null);
+      }
+      return;
+    }
+
+    // Try local first, then cloud
+    const saved = getRun(runId);
+    if (saved) {
+      hydrateRun(saved);
+      return;
+    }
+
+    // Async cloud lookup for shared URLs
+    setPhase("intake"); // Show loading state
+    getRunCloud(runId).then((cloudSaved) => {
+      if (cloudSaved) {
+        hydrateRun(cloudSaved);
+      } else {
+        setError(`Run "${runId}" not found locally or in the cloud.`);
+        setPhase("failed");
+      }
+    }).catch(() => {
+      setError(`Run "${runId}" not found.`);
+      setPhase("failed");
+    });
+  }, [runId, hydrateRun]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Process an incoming SSE event
   const handleSSEEvent = useCallback((event) => {
@@ -383,6 +418,27 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
     if (onNavigate) onNavigate("arena");
   }, [onNavigate]);
 
+  // Copy shareable URL to clipboard
+  const handleShare = useCallback(() => {
+    const runIdToShare = deliverable?.runId;
+    if (!runIdToShare) return;
+    const url = `${window.location.origin}/arena/${runIdToShare}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setShared(true);
+      setTimeout(() => setShared(false), 2000);
+    }).catch(() => {
+      // Fallback
+      const ta = document.createElement("textarea");
+      ta.value = url;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      setShared(true);
+      setTimeout(() => setShared(false), 2000);
+    });
+  }, [deliverable]);
+
   // Navigate to a saved run's replay view
   const handleSelectRun = useCallback(
     (selectedRunId) => {
@@ -515,8 +571,41 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
             <IntakeForm onSubmit={handleSubmit} isRunning={isRunning} />
           </div>
 
-          {/* Use Case Library */}
-          <UseCaseLibrary runs={savedRuns} onSelect={handleSelectRun} />
+          {/* Use Case Library + Compare toggle */}
+          {showComparison ? (
+            <RunComparison
+              runs={savedRuns.map((r) => {
+                // Enrich summaries with full deliverable text for comparison
+                const full = getRun(r.runId);
+                return full ? { ...r, deliverable: full.deliverable, team: full.team || r.team } : r;
+              })}
+              onClose={() => setShowComparison(false)}
+            />
+          ) : (
+            <>
+              <UseCaseLibrary runs={savedRuns} onSelect={handleSelectRun} />
+              {savedRuns.length >= 2 && (
+                <div style={{ textAlign: "center", marginTop: -16 }}>
+                  <button
+                    onClick={() => setShowComparison(true)}
+                    style={{
+                      padding: "8px 20px",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "#8B5CF6",
+                      background: "rgba(139, 92, 246, 0.06)",
+                      border: "1px solid rgba(139, 92, 246, 0.2)",
+                      borderRadius: 10,
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    Compare Runs
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </div>
       ) : (
         /* During/Post-run: Three-column layout */
@@ -681,7 +770,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                 border: "1px solid #E5E7EB",
                 borderRadius: 14,
                 boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-                maxWidth: 420,
+                maxWidth: 520,
                 margin: "0 auto 24px",
                 zIndex: 10,
               }}
@@ -704,6 +793,26 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                 }}
               >
                 {copied ? "\u2713 Copied" : "Copy to Clipboard"}
+              </button>
+
+              <button
+                onClick={handleShare}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "8px 16px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: shared ? "#0EA5E9" : "#374151",
+                  background: shared ? "rgba(14, 165, 233, 0.08)" : "#F9FAFB",
+                  border: `1px solid ${shared ? "#0EA5E9" : "#E5E7EB"}`,
+                  borderRadius: 10,
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}
+              >
+                {shared ? "\u2713 Link Copied" : "Share"}
               </button>
 
               <button
