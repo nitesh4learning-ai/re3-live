@@ -1,8 +1,9 @@
 "use client";
 // Orchestration Canvas — Real-time visual flow diagram showing the orchestration pipeline.
 // Uses React Flow to render use case → agents → synthesis as a live DAG.
+// Supports live updates via boardSnapshot changes and linked highlighting.
 
-import { useMemo } from "react";
+import { useEffect, useCallback } from "react";
 import {
   ReactFlow,
   Background,
@@ -37,9 +38,10 @@ const ANIMATED_EDGE_STYLE = {
  *
  * @param {object} boardSnapshot - From blackboard.snapshot()
  * @param {object} budget - From budget.toJSON()
+ * @param {string|null} highlightedNodeId - Node to highlight for linked interaction
  * @returns {{ nodes: object[], edges: object[] }}
  */
-function buildGraph(boardSnapshot, budget) {
+function buildGraph(boardSnapshot, budget, highlightedNodeId) {
   if (!boardSnapshot) return { nodes: [], edges: [] };
 
   const nodes = [];
@@ -54,7 +56,7 @@ function buildGraph(boardSnapshot, budget) {
     id: "usecase",
     type: "useCase",
     position: { x: 300, y: 0 },
-    data: { title: uc.title, description: uc.description, type: uc.type },
+    data: { title: uc.title, description: uc.description, type: uc.type, highlighted: highlightedNodeId === "usecase" },
     draggable: true,
   });
 
@@ -117,8 +119,9 @@ function buildGraph(boardSnapshot, budget) {
         displayStatus = "idle";
       }
 
+      const nodeId = `agent_${member.agentId}`;
       nodes.push({
-        id: `agent_${member.agentId}`,
+        id: nodeId,
         type: "agent",
         position: { x: startX + i * agentSpacing, y: startY },
         data: {
@@ -130,6 +133,7 @@ function buildGraph(boardSnapshot, budget) {
           taskTitle: member.taskTitle || member.assignedTask,
           model: member.model,
           status: displayStatus,
+          highlighted: highlightedNodeId === nodeId,
         },
         draggable: true,
       });
@@ -175,6 +179,7 @@ function buildGraph(boardSnapshot, budget) {
       totalTasks: totalTasks || team.length,
       successRate:
         totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0,
+      highlighted: highlightedNodeId === "synthesis",
     },
     draggable: true,
   });
@@ -182,22 +187,47 @@ function buildGraph(boardSnapshot, budget) {
   return { nodes, edges };
 }
 
-export default function OrchestrationCanvas({ boardSnapshot, budget }) {
-  const { nodes: initialNodes, edges: initialEdges } = useMemo(
-    () => buildGraph(boardSnapshot, budget),
-    [boardSnapshot, budget]
+export default function OrchestrationCanvas({
+  boardSnapshot,
+  budget,
+  highlightedNodeId = null,
+  onNodeClick,
+}) {
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  // Re-build graph when snapshot, budget, or highlight changes.
+  // Preserves user-dragged positions by merging with existing node positions.
+  useEffect(() => {
+    const { nodes: newNodes, edges: newEdges } = buildGraph(boardSnapshot, budget, highlightedNodeId);
+
+    setNodes((currentNodes) => {
+      if (currentNodes.length === 0) return newNodes;
+      const posMap = new Map(currentNodes.map((n) => [n.id, n.position]));
+      return newNodes.map((n) => ({
+        ...n,
+        position: posMap.get(n.id) || n.position,
+      }));
+    });
+
+    setEdges(newEdges);
+  }, [boardSnapshot, budget, highlightedNodeId, setNodes, setEdges]);
+
+  const handleNodeClick = useCallback(
+    (_, node) => {
+      if (onNodeClick) onNodeClick(node.id);
+    },
+    [onNodeClick]
   );
 
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
-  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
-
   return (
-    <div style={{ width: "100%", height: "100%", minHeight: 500 }}>
+    <div style={{ width: "100%", height: "100%", minHeight: 400 }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onNodeClick={handleNodeClick}
         nodeTypes={nodeTypes}
         fitView
         fitViewOptions={{ padding: 0.3 }}

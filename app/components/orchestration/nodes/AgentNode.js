@@ -45,12 +45,14 @@ export default function AgentNode({ data }) {
     <div
       style={{
         background: s.bgColor,
-        border: `2px solid ${s.borderColor}`,
+        border: `2px solid ${data.highlighted ? "#9333EA" : s.borderColor}`,
         borderRadius: 12,
         padding: "12px 16px",
         minWidth: 200,
         maxWidth: 240,
-        boxShadow: `0 2px 12px ${s.borderColor}20`,
+        boxShadow: data.highlighted
+          ? "0 0 0 3px rgba(147, 51, 234, 0.35), 0 0 20px rgba(147, 51, 234, 0.15)"
+          : `0 2px 12px ${s.borderColor}20`,
         transition: "all 0.3s ease",
         animation: s.pulse ? "pulse 2s infinite" : "none",
       }}

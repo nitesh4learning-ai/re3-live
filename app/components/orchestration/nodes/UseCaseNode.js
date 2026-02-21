@@ -21,7 +21,10 @@ export default function UseCaseNode({ data }) {
         padding: "16px 20px",
         minWidth: 260,
         maxWidth: 320,
-        boxShadow: "0 4px 20px rgba(147, 51, 234, 0.12)",
+        boxShadow: data.highlighted
+          ? "0 0 0 3px rgba(147, 51, 234, 0.35), 0 0 20px rgba(147, 51, 234, 0.15)"
+          : "0 4px 20px rgba(147, 51, 234, 0.12)",
+        transition: "box-shadow 0.3s ease",
       }}
     >
       <div
