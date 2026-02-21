@@ -50,7 +50,7 @@ export default function PageRenderer({ page, pageId }) {
       return <ArtifactSearchPage content={content} onNavigate={nav} />;
     case "arena":
       if (user?.email !== "nitesh4learning@gmail.com") return <HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry} />;
-      return <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{ paddingTop: 56, background: "#F9FAFB" }}><p style={{ color: "#9CA3AF", fontSize: 13 }}>Loading Arena...</p></div>}><LazyOrchestration user={user} onNavigate={nav} /></Suspense>;
+      return <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{ paddingTop: 56, background: "#F9FAFB" }}><p style={{ color: "#9CA3AF", fontSize: 13 }}>Loading Arena...</p></div>}><LazyOrchestration user={user} onNavigate={nav} runId={pageId} /></Suspense>;
     case "article": {
       const art = articles.find(a => a.id === pageId);
       return art ? <ArticlePage article={art} agents={agents} registry={registry} registryIndex={registryIndex} onNavigate={nav} onUpdateArticle={saveArticle} currentUser={user} /> : <HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry} />;
