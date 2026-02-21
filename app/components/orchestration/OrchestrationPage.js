@@ -79,6 +79,8 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
   const deliverableRef = useRef(null);
   // Ref to collect events for persistence (closures can't see latest state)
   const eventsRef = useRef([]);
+  // Ref to preserve last snapshot with real stateEntries (before result event clears them)
+  const lastRealSnapshotRef = useRef(null);
 
   // Compute active agent IDs from events (agents that have started but not completed)
   const activeAgentIds = useMemo(() => {
@@ -161,13 +163,15 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
     if (event.type === "result") {
       const result = event.data?.deliverable;
       if (result) {
+        // Preserve stateEntries from last real snapshot so Common Consciousness Board stays visible
+        const lastReal = lastRealSnapshotRef.current;
         const finalSnapshot = {
           runId: result.runId,
           useCase: result.useCase,
           team: result.team || [],
           status: "completed",
-          stateEntries: {},
-          episodicLog: [],
+          stateEntries: lastReal?.stateEntries || {},
+          episodicLog: lastReal?.episodicLog || [],
           elapsedMs: result.metrics?.elapsedMs || 0,
         };
         setDeliverable(result);
@@ -209,7 +213,14 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
     if (newPhase) setPhase(newPhase);
 
     // Update snapshot and budget from event data
-    if (event.data?.snapshot) setBoardSnapshot(event.data.snapshot);
+    if (event.data?.snapshot) {
+      setBoardSnapshot(event.data.snapshot);
+      // Preserve the last snapshot that has real stateEntries
+      const se = event.data.snapshot.stateEntries;
+      if (se && Object.keys(se).length > 0) {
+        lastRealSnapshotRef.current = event.data.snapshot;
+      }
+    }
     if (event.data?.budget) setBudget(event.data.budget);
 
     // If this is the completion event with deliverable, set it
@@ -229,6 +240,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
       setBudget(null);
       setEvents([]);
       eventsRef.current = [];
+      lastRealSnapshotRef.current = null;
       setHighlightedNodeId(null);
       setHighlightedEventId(null);
       setPhase("intake");
@@ -509,7 +521,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
       ) : (
         /* During/Post-run: Three-column layout */
         <>
-          <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginBottom: 24 }}>
+          <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginBottom: 16 }}>
             {/* Left: Timeline */}
             <div
               ref={timelineRef}
@@ -559,7 +571,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
 
             {/* Right: Sticky sidebar with panels */}
             <div style={{
-              flex: "0 0 260px",
+              flex: "0 0 280px",
               display: "flex",
               flexDirection: "column",
               gap: 16,

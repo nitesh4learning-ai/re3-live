@@ -1,7 +1,7 @@
 "use client";
 // Team Roster — Shows the assembled agent team with role assignments.
-// v2: Solid color avatars, colored left-border accent per agent,
-//     active agent highlighting with soft glow when working.
+// v3: Compact stacked layout — name on top, task title as subtitle.
+//     Solid color avatars, colored left-border accent, active glow.
 
 export default function TeamRoster({ team = [], activeAgentIds = [] }) {
   if (team.length === 0) return null;
@@ -14,7 +14,7 @@ export default function TeamRoster({ team = [], activeAgentIds = [] }) {
         background: "#FFFFFF",
         border: "1px solid #E5E7EB",
         borderRadius: 12,
-        padding: 16,
+        padding: "12px 14px",
         width: "100%",
         boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
       }}
@@ -25,14 +25,14 @@ export default function TeamRoster({ team = [], activeAgentIds = [] }) {
           fontWeight: 700,
           letterSpacing: "0.1em",
           color: "#6B7280",
-          marginBottom: 12,
+          marginBottom: 8,
           textTransform: "uppercase",
         }}
       >
         Team ({team.length} agents)
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         {team.map((member) => {
           const isActive = activeSet.has(member.agentId);
           const color = member.color || "#6B7280";
@@ -43,9 +43,9 @@ export default function TeamRoster({ team = [], activeAgentIds = [] }) {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 10,
-                padding: "8px 10px",
-                borderRadius: 10,
+                gap: 8,
+                padding: "6px 8px",
+                borderRadius: 8,
                 borderLeft: `3px solid ${color}`,
                 background: isActive ? `${color}08` : "#FAFAFA",
                 boxShadow: isActive ? `0 0 12px ${color}20, 0 0 0 1px ${color}25` : "none",
@@ -53,17 +53,17 @@ export default function TeamRoster({ team = [], activeAgentIds = [] }) {
                 animation: isActive ? "agentActiveGlow 2s infinite" : "none",
               }}
             >
-              {/* Avatar — solid background */}
+              {/* Avatar — solid background, compact */}
               <div
                 style={{
-                  width: 28,
-                  height: 28,
+                  width: 24,
+                  height: 24,
                   borderRadius: "50%",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   fontWeight: 800,
-                  fontSize: 10,
+                  fontSize: 9,
                   color: "#FFFFFF",
                   background: color,
                   flexShrink: 0,
@@ -73,37 +73,59 @@ export default function TeamRoster({ team = [], activeAgentIds = [] }) {
                 {member.avatar || "?"}
               </div>
 
-              {/* Info */}
+              {/* Name + task stacked vertically */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div
                   style={{
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: 600,
                     color: "#111827",
-                  }}
-                >
-                  {member.name}
-                </div>
-                <div
-                  style={{
-                    fontSize: 9,
-                    color: "#9CA3AF",
+                    lineHeight: 1.2,
                     whiteSpace: "nowrap",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                   }}
                 >
-                  {member.domain}
-                  {member.specialization ? ` / ${member.specialization}` : ""}
+                  {member.name}
                 </div>
+                {member.taskTitle && (
+                  <div
+                    style={{
+                      fontSize: 9,
+                      color: "#9CA3AF",
+                      lineHeight: 1.3,
+                      marginTop: 1,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {member.taskTitle}
+                  </div>
+                )}
+                {!member.taskTitle && member.domain && (
+                  <div
+                    style={{
+                      fontSize: 9,
+                      color: "#9CA3AF",
+                      lineHeight: 1.3,
+                      marginTop: 1,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {member.domain}
+                  </div>
+                )}
               </div>
 
               {/* Status indicator for active agents */}
               {isActive && (
                 <div
                   style={{
-                    width: 8,
-                    height: 8,
+                    width: 7,
+                    height: 7,
                     borderRadius: "50%",
                     background: "#3B82F6",
                     flexShrink: 0,
@@ -111,24 +133,6 @@ export default function TeamRoster({ team = [], activeAgentIds = [] }) {
                     boxShadow: "0 0 6px rgba(59, 130, 246, 0.5)",
                   }}
                 />
-              )}
-
-              {/* Task badge */}
-              {member.taskTitle && !isActive && (
-                <div
-                  style={{
-                    fontSize: 9,
-                    fontWeight: 600,
-                    color: "#4B5563",
-                    background: "#F3F4F6",
-                    padding: "2px 8px",
-                    borderRadius: 6,
-                    whiteSpace: "nowrap",
-                    flexShrink: 0,
-                  }}
-                >
-                  {member.taskTitle}
-                </div>
               )}
             </div>
           );
