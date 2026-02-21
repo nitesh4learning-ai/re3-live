@@ -211,6 +211,18 @@ function formatRelativeTime(ts, startTs) {
   return `${delta.toFixed(1)}s`;
 }
 
+// Derive a short summary label from task titles for layer headers
+function deriveLayerSummary(taskTitles) {
+  if (!taskTitles || taskTitles.length === 0) return "";
+  const short = taskTitles.map((t) => {
+    // Take first 3 meaningful words, drop filler like "the", "a", "and"
+    const words = t.split(/\s+/).filter((w) => w.length > 2).slice(0, 3).join(" ");
+    return words || t.split(/\s+/).slice(0, 2).join(" ");
+  });
+  if (short.length <= 3) return short.join(", ");
+  return short.slice(0, 2).join(", ") + ` +${short.length - 2} more`;
+}
+
 // ── Compute phase statuses from events ────────────────────────────────
 
 function computePhaseStatuses(events) {
@@ -693,6 +705,11 @@ function LayerSubGroup({ layer, startTime, highlightedEventId, onEventClick, all
         }} />
         <span style={{ fontSize: 10, fontWeight: 700, color: "#374151", flex: 1, textAlign: "left" }}>
           Layer {layer.layerIndex}
+          {layer.header?.data?.taskTitles && (
+            <span style={{ fontWeight: 400, color: "#9CA3AF", fontSize: 9, marginLeft: 4 }}>
+              ({deriveLayerSummary(layer.header.data.taskTitles)})
+            </span>
+          )}
         </span>
         <span style={{
           fontSize: 8,
