@@ -1,8 +1,10 @@
 // POST /api/orchestration/run
 // Submit a use case and run the full orchestration pipeline.
 // Returns the final deliverable when complete.
+// Phase 1: Includes server-side guardrails to enforce light-use-case limits.
 
 import { runOrchestration } from "../../../../lib/orchestration/engine.js";
+import { analyzeUseCase } from "../../../../lib/orchestration/intake-analyzer.js";
 import { getAuthUser } from "../../../../lib/auth.js";
 import { llmRateLimit } from "../../../../lib/rate-limit.js";
 import { NextResponse } from "next/server";
@@ -30,6 +32,18 @@ export async function POST(req) {
       return NextResponse.json(
         { error: "Missing required fields: title, description, type" },
         { status: 400 }
+      );
+    }
+
+    // Server-side guardrails — enforce light-use-case limits
+    const { guardrails } = analyzeUseCase(title, description);
+    if (!guardrails.passed) {
+      return NextResponse.json(
+        {
+          error: "Use case rejected by guardrails: " + guardrails.blocks.join("; "),
+          guardrails,
+        },
+        { status: 422 }
       );
     }
 
