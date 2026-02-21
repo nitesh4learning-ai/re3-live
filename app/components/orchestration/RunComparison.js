@@ -5,9 +5,17 @@
 
 import { useState } from "react";
 
+function extractNumber(val) {
+  if (typeof val === "number") return val;
+  if (typeof val !== "string") return 0;
+  const cleaned = val.replace(/[$,]/g, "");
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? 0 : num;
+}
+
 function MetricRow({ label, left, right }) {
-  const leftVal = typeof left === "number" ? left : 0;
-  const rightVal = typeof right === "number" ? right : 0;
+  const leftVal = extractNumber(left);
+  const rightVal = extractNumber(right);
   const better = leftVal < rightVal ? "left" : leftVal > rightVal ? "right" : "equal";
 
   // For success rate, higher is better; for cost/time, lower is better
