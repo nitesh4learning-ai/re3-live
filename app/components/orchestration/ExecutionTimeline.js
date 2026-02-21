@@ -89,6 +89,80 @@ const EVENT_CONFIG = {
     color: "#EF4444",
     title: (d) => `Orchestration failed: ${d.error}`,
   },
+
+  // Reflection events
+  "reflection.start": {
+    icon: "\u21BB",
+    color: "#F59E0B",
+    title: (d) => `${d.agentName} self-correcting after failure\u2026`,
+    isRunning: true,
+  },
+  "reflection.success": {
+    icon: "\u2713",
+    color: "#10B981",
+    title: (d) => `${d.agentName} recovered via reflection ($${(d.cost || 0).toFixed(4)})`,
+  },
+  "reflection.failed": {
+    icon: "\u2717",
+    color: "#EF4444",
+    title: (d) => `${d.agentName} reflection failed: ${d.error}`,
+  },
+  "reflection.skipped": {
+    icon: "\u23ED",
+    color: "#9CA3AF",
+    title: (d) => `Reflection skipped for ${d.agentName}: ${d.reason}`,
+  },
+
+  // A2A events
+  "a2a.start": {
+    icon: "\u21C4",
+    color: "#8B5CF6",
+    title: (d) => `Cross-pollination: ${d.agentCount} agents sharing insights\u2026`,
+    isRunning: true,
+  },
+  "a2a.refine.start": {
+    icon: "\u2192",
+    color: "#8B5CF6",
+    title: (d) => `${d.agentName} refining with ${d.peerCount} peer outputs\u2026`,
+    isRunning: true,
+  },
+  "a2a.refine.complete": {
+    icon: "\u2713",
+    color: "#8B5CF6",
+    title: (d) => `${d.agentName} refined output ($${(d.cost || 0).toFixed(4)})`,
+  },
+  "a2a.refine.failed": {
+    icon: "\u2717",
+    color: "#D97706",
+    title: (d) => `${d.agentName} A2A refinement failed (keeping original)`,
+  },
+  "a2a.complete": {
+    icon: "\u25C9",
+    color: "#8B5CF6",
+    title: (d) => `Cross-pollination done \u2014 ${d.refinedCount}/${d.totalAgents} agents refined`,
+  },
+  "a2a.skipped": {
+    icon: "\u23ED",
+    color: "#9CA3AF",
+    title: (d) => `Cross-pollination skipped: ${d.reason}`,
+  },
+
+  // MCP events
+  "mcp.enrich.start": {
+    icon: "\u26A1",
+    color: "#0EA5E9",
+    title: (d) => `Fetching external context from ${d.urlCount} URL${d.urlCount > 1 ? "s" : ""}\u2026`,
+  },
+  "mcp.enrich.complete": {
+    icon: "\u2713",
+    color: "#0EA5E9",
+    title: (d) => `External context loaded for ${d.agentName}`,
+  },
+  "mcp.enrich.failed": {
+    icon: "\u2717",
+    color: "#9CA3AF",
+    title: () => "External data fetch failed (continuing without)",
+  },
 };
 
 // ── Helpers ────────────────────────────────────────────────────────────
@@ -130,7 +204,8 @@ function groupEventsByLayer(events) {
       // Flush pre-exec group
       if (currentGroup.events.length > 0) groups.push(currentGroup);
       currentGroup = { type: "pre-exec", label: "Setup", events: [event], status: "completed" };
-    } else if (event.type === "phase.synthesize.start" || event.type === "phase.synthesize.complete" ||
+    } else if (event.type.startsWith("a2a.") || event.type.startsWith("mcp.enrich.") ||
+               event.type === "phase.synthesize.start" || event.type === "phase.synthesize.complete" ||
                event.type === "phase.complete" || event.type === "phase.failed") {
       // These go into post-exec
       if (currentGroup.type !== "post-exec") {
@@ -385,6 +460,9 @@ function LayerGroup({ group, startTime, highlightedEventId, onEventClick, defaul
         {group.events.map((event, i) => {
           const isRunningEvt = (event.type === "task.start" && runningTaskIds.has(event.data?.taskId || event.id))
             || event.type === "phase.synthesize.start"
+            || event.type === "reflection.start"
+            || event.type === "a2a.start"
+            || event.type === "a2a.refine.start"
             || (event.type === "phase.decompose.start" && !allEvents.some(e => e.type === "phase.decompose.complete"))
             || (event.type === "phase.assemble.start" && !allEvents.some(e => e.type === "phase.assemble.complete"));
           return (
