@@ -1,13 +1,19 @@
 "use client";
 // Orchestration Page — Full page layout combining intake, canvas, timeline, and panels.
-// Consumes SSE stream for real-time updates. Links timeline clicks to canvas highlights.
+// Three modes:
+//   1. Default (no runId, not running): Intake form + Use Case Library tiles
+//   2. Running (live SSE): Three-column layout with real-time updates
+//   3. Replay (runId prop set): Loads saved run, renders full UI read-only
+// Completed runs are persisted to localStorage for the library.
 
-import { useState, useCallback, useRef, lazy, Suspense } from "react";
+import { useState, useCallback, useRef, useEffect, lazy, Suspense } from "react";
 import IntakeForm from "./IntakeForm";
 import ExecutionTimeline from "./ExecutionTimeline";
+import UseCaseLibrary from "./UseCaseLibrary";
 import BlackboardPanel from "./panels/BlackboardPanel";
 import CostTicker from "./panels/CostTicker";
 import TeamRoster from "./panels/TeamRoster";
+import { saveRun, listRuns, getRun } from "../../../lib/orchestration/run-store";
 
 // Lazy-load the canvas (heavy React Flow dependency)
 const OrchestrationCanvas = lazy(() => import("./OrchestrationCanvas"));
@@ -53,7 +59,7 @@ const EVENT_TO_PHASE = {
   "phase.failed": "failed",
 };
 
-export default function OrchestrationPage({ user, onNavigate }) {
+export default function OrchestrationPage({ user, onNavigate, runId }) {
   const [isRunning, setIsRunning] = useState(false);
   const [boardSnapshot, setBoardSnapshot] = useState(null);
   const [budget, setBudget] = useState(null);
@@ -63,17 +69,75 @@ export default function OrchestrationPage({ user, onNavigate }) {
   const [events, setEvents] = useState([]);
   const [highlightedNodeId, setHighlightedNodeId] = useState(null);
   const [highlightedEventId, setHighlightedEventId] = useState(null);
+  const [savedRuns, setSavedRuns] = useState([]);
+  const [isReplay, setIsReplay] = useState(false);
   const timelineRef = useRef(null);
+  // Ref to collect events for persistence (closures can't see latest state)
+  const eventsRef = useRef([]);
+
+  // Load library index on mount
+  useEffect(() => {
+    setSavedRuns(listRuns());
+  }, []);
+
+  // Load a saved run when runId prop changes (replay mode)
+  useEffect(() => {
+    if (!runId) {
+      // Reset to default mode if navigating back
+      if (isReplay) {
+        setIsReplay(false);
+        setDeliverable(null);
+        setBoardSnapshot(null);
+        setBudget(null);
+        setPhase("initialized");
+        setEvents([]);
+        setError(null);
+      }
+      return;
+    }
+
+    const saved = getRun(runId);
+    if (!saved) {
+      setError(`Run "${runId}" not found in library.`);
+      return;
+    }
+
+    // Hydrate all state from the saved record
+    setIsReplay(true);
+    setPhase("completed");
+    setDeliverable({
+      runId: saved.runId,
+      useCase: saved.useCase,
+      deliverable: saved.deliverable,
+      team: saved.team,
+      taskResults: saved.taskResults,
+      metrics: saved.metrics,
+      completedAt: saved.completedAt,
+    });
+    setEvents(saved.events || []);
+    setBoardSnapshot(
+      saved.boardSnapshot || {
+        runId: saved.runId,
+        useCase: saved.useCase,
+        team: saved.team || [],
+        status: "completed",
+        stateEntries: {},
+        episodicLog: [],
+        elapsedMs: saved.metrics?.elapsedMs || 0,
+      }
+    );
+    setBudget(saved.budget || saved.metrics?.budget || null);
+    setError(null);
+    setIsRunning(false);
+  }, [runId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Process an incoming SSE event
   const handleSSEEvent = useCallback((event) => {
-    // Handle final result
+    // Handle final result — persist to library
     if (event.type === "result") {
       const result = event.data?.deliverable;
       if (result) {
-        setDeliverable(result);
-        setPhase("completed");
-        setBoardSnapshot({
+        const finalSnapshot = {
           runId: result.runId,
           useCase: result.useCase,
           team: result.team || [],
@@ -81,8 +145,24 @@ export default function OrchestrationPage({ user, onNavigate }) {
           stateEntries: {},
           episodicLog: [],
           elapsedMs: result.metrics?.elapsedMs || 0,
-        });
+        };
+        setDeliverable(result);
+        setPhase("completed");
+        setBoardSnapshot(finalSnapshot);
         setBudget(result.metrics?.budget || null);
+
+        // Persist to localStorage
+        try {
+          saveRun({
+            deliverable: result,
+            events: eventsRef.current,
+            boardSnapshot: finalSnapshot,
+            budget: result.metrics?.budget || null,
+          });
+          setSavedRuns(listRuns());
+        } catch {
+          // Storage full or unavailable — non-fatal
+        }
       }
       setIsRunning(false);
       return;
@@ -96,7 +176,8 @@ export default function OrchestrationPage({ user, onNavigate }) {
       return;
     }
 
-    // Normal orchestration event — add to timeline
+    // Normal orchestration event — add to timeline + ref
+    eventsRef.current.push(event);
     setEvents((prev) => [...prev, event]);
 
     // Update phase from event type
@@ -117,11 +198,13 @@ export default function OrchestrationPage({ user, onNavigate }) {
   const handleSubmit = useCallback(
     async (useCase) => {
       setIsRunning(true);
+      setIsReplay(false);
       setError(null);
       setDeliverable(null);
       setBoardSnapshot(null);
       setBudget(null);
       setEvents([]);
+      eventsRef.current = [];
       setHighlightedNodeId(null);
       setHighlightedEventId(null);
       setPhase("intake");
@@ -247,7 +330,7 @@ export default function OrchestrationPage({ user, onNavigate }) {
     }, 3000);
   }, [events]);
 
-  // Reset all state
+  // Reset all state and go back to library/intake view
   const handleReset = useCallback(() => {
     setDeliverable(null);
     setBoardSnapshot(null);
@@ -255,9 +338,22 @@ export default function OrchestrationPage({ user, onNavigate }) {
     setPhase("initialized");
     setError(null);
     setEvents([]);
+    eventsRef.current = [];
     setHighlightedNodeId(null);
     setHighlightedEventId(null);
-  }, []);
+    setIsReplay(false);
+    setSavedRuns(listRuns());
+    // Navigate back to /arena (no runId)
+    if (onNavigate) onNavigate("arena");
+  }, [onNavigate]);
+
+  // Navigate to a saved run's replay view
+  const handleSelectRun = useCallback(
+    (selectedRunId) => {
+      if (onNavigate) onNavigate("arena", selectedRunId);
+    },
+    [onNavigate]
+  );
 
   const hasStarted = phase !== "initialized";
   const showResults = hasStarted && (isRunning || deliverable || events.length > 0);
@@ -358,13 +454,40 @@ export default function OrchestrationPage({ user, onNavigate }) {
 
       {/* Main layout */}
       {!showResults ? (
-        /* Pre-run: Show intake form centered */
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
-          <IntakeForm onSubmit={handleSubmit} isRunning={isRunning} />
+        /* Pre-run: Show intake form centered + library below */
+        <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
+            <IntakeForm onSubmit={handleSubmit} isRunning={isRunning} />
+          </div>
+
+          {/* Use Case Library */}
+          <UseCaseLibrary runs={savedRuns} onSelect={handleSelectRun} />
         </div>
       ) : (
         /* During/Post-run: Three-column layout */
         <>
+          {/* Back to library link */}
+          {(isReplay || deliverable) && !isRunning && (
+            <button
+              onClick={handleReset}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 12,
+                fontWeight: 600,
+                color: "#9333EA",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                marginBottom: 16,
+              }}
+            >
+              ← Back to Library
+            </button>
+          )}
+
           <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginBottom: 24 }}>
             {/* Left: Timeline */}
             <div
@@ -491,8 +614,8 @@ export default function OrchestrationPage({ user, onNavigate }) {
             </div>
           )}
 
-          {/* Run again button */}
-          {deliverable && (
+          {/* Run again / back to library button */}
+          {deliverable && !isRunning && (
             <div style={{ textAlign: "center", marginBottom: 32 }}>
               <button
                 onClick={handleReset}
@@ -507,7 +630,7 @@ export default function OrchestrationPage({ user, onNavigate }) {
                   cursor: "pointer",
                 }}
               >
-                Run Another Orchestration
+                {isReplay ? "Back to Library" : "Run Another Orchestration"}
               </button>
             </div>
           )}
