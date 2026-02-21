@@ -6,16 +6,14 @@
 //   3. Replay (runId prop set): Loads saved run, renders full UI read-only
 // Completed runs are persisted to localStorage for the library.
 //
-// v2: Sticky sidebar, paper-effect deliverable, floating action bar,
-//     activeAgentIds wiring to TeamRoster.
+// v3: Stacked full-width layout, pipeline timeline, collapsible sections,
+//     sticky cost+action bar, Common Consciousness with agent desks.
 
 import { useState, useCallback, useRef, useEffect, useMemo, lazy, Suspense } from "react";
 import IntakeForm from "./IntakeForm";
 import ExecutionTimeline from "./ExecutionTimeline";
 import UseCaseLibrary from "./UseCaseLibrary";
 import BlackboardPanel from "./panels/BlackboardPanel";
-import CostTicker from "./panels/CostTicker";
-import TeamRoster from "./panels/TeamRoster";
 import { saveRun, listRuns, getRun, getRunCloud, listRunsCloud } from "../../../lib/orchestration/run-store";
 import RunComparison from "./RunComparison";
 
@@ -97,25 +95,6 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
   const eventsRef = useRef([]);
   // Ref to preserve last snapshot with real stateEntries (before result event clears them)
   const lastRealSnapshotRef = useRef(null);
-
-  // Compute active agent IDs from events (agents that have started but not completed)
-  const activeAgentIds = useMemo(() => {
-    const started = new Map(); // agentId -> taskId
-    const finished = new Set(); // taskIds
-    for (const e of events) {
-      if (e.type === "task.start" && e.data?.agentId) {
-        started.set(e.data.agentId, e.data.taskId || e.id);
-      }
-      if ((e.type === "task.complete" || e.type === "task.failed") && e.data?.agentId) {
-        finished.add(e.data.taskId || e.id);
-      }
-    }
-    const active = [];
-    for (const [agentId, taskId] of started) {
-      if (!finished.has(taskId)) active.push(agentId);
-    }
-    return active;
-  }, [events]);
 
   // Load library index on mount (local + cloud merge)
   useEffect(() => {
@@ -608,14 +587,11 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
           )}
         </div>
       ) : (
-        /* During/Post-run: Three-column layout */
+        /* During/Post-run: Stacked horizontal layers (full width) */
         <>
-          <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginBottom: 16 }}>
-            {/* Left: Timeline */}
-            <div
-              ref={timelineRef}
-              style={{ flex: "1 1 340px", minWidth: 280 }}
-            >
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 16 }}>
+            {/* Execution Pipeline — full width */}
+            <div ref={timelineRef}>
               <ExecutionTimeline
                 events={events}
                 highlightedEventId={highlightedEventId}
@@ -623,22 +599,22 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
               />
             </div>
 
-            {/* Center: Canvas */}
-            <div style={{ flex: "2 1 500px", minWidth: 0 }}>
+            {/* Agent Map — full width */}
+            <CollapsibleSection title="Agent Map" color="#3B82F6" defaultExpanded>
               <div
                 style={{
                   background: "#FFFFFF",
                   border: "1px solid #E5E7EB",
-                  borderRadius: 12,
+                  borderRadius: "0 0 12px 12px",
                   overflow: "hidden",
-                  height: 420,
+                  height: 480,
                   boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
                 }}
               >
                 <Suspense
                   fallback={
                     <div style={{
-                      height: 420,
+                      height: 480,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -656,33 +632,17 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                   />
                 </Suspense>
               </div>
-            </div>
+            </CollapsibleSection>
 
-            {/* Right: Sticky sidebar with panels */}
-            <div style={{
-              flex: "0 0 280px",
-              display: "flex",
-              flexDirection: "column",
-              gap: 16,
-              position: "sticky",
-              top: 72,
-              alignSelf: "flex-start",
-              maxHeight: "calc(100vh - 96px)",
-              overflowY: "auto",
-            }}>
-              <TeamRoster
-                team={boardSnapshot?.team || deliverable?.team || []}
-                activeAgentIds={activeAgentIds}
-              />
-              <CostTicker budget={budget || deliverable?.metrics?.budget} />
-              <BlackboardPanel
-                stateEntries={boardSnapshot?.stateEntries || {}}
-                episodicLog={boardSnapshot?.episodicLog || []}
-              />
-            </div>
+            {/* Common Consciousness Board — full width */}
+            <BlackboardPanel
+              stateEntries={boardSnapshot?.stateEntries || {}}
+              episodicLog={boardSnapshot?.episodicLog || []}
+              team={boardSnapshot?.team || deliverable?.team || []}
+            />
           </div>
 
-          {/* Deliverable (full width below, shown after completion) — Paper effect */}
+          {/* Deliverable (full width, shown after completion) — Paper effect */}
           {deliverable && (
             <div
               ref={deliverableRef}
@@ -753,89 +713,125 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
             </div>
           )}
 
-          {/* Sticky bottom action bar — appears when deliverable is visible */}
-          {deliverable && !isRunning && (
-            <div
-              style={{
-                position: "sticky",
-                bottom: 16,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 12,
-                padding: "10px 20px",
-                background: "rgba(255, 255, 255, 0.92)",
-                backdropFilter: "blur(8px)",
-                WebkitBackdropFilter: "blur(8px)",
-                border: "1px solid #E5E7EB",
-                borderRadius: 14,
-                boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-                maxWidth: 520,
-                margin: "0 auto 24px",
-                zIndex: 10,
-              }}
-            >
-              <button
-                onClick={handleCopyDeliverable}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "8px 16px",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: copied ? "#10B981" : "#374151",
-                  background: copied ? "rgba(16, 185, 129, 0.08)" : "#F9FAFB",
-                  border: `1px solid ${copied ? "#10B981" : "#E5E7EB"}`,
-                  borderRadius: 10,
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                }}
-              >
-                {copied ? "\u2713 Copied" : "Copy to Clipboard"}
-              </button>
+          {/* Sticky bottom bar — cost tracker + action buttons */}
+          <div
+            style={{
+              position: "sticky",
+              bottom: 16,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 10,
+              padding: "8px 16px",
+              background: "rgba(255, 255, 255, 0.94)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+              border: "1px solid #E5E7EB",
+              borderRadius: 14,
+              boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+              maxWidth: 700,
+              margin: "0 auto 24px",
+              zIndex: 10,
+              flexWrap: "wrap",
+            }}
+          >
+            {/* Compact cost info */}
+            {(budget || deliverable?.metrics?.budget) && (() => {
+              const b = budget || deliverable.metrics.budget;
+              return (
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: 4 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#111827" }}>
+                    ${(b.costAccumulated || 0).toFixed(4)}
+                  </span>
+                  <span style={{ fontSize: 9, color: "#D1D5DB" }}>{"\u00B7"}</span>
+                  <span style={{ fontSize: 10, color: "#6B7280" }}>
+                    {(b.tokensUsed || 0).toLocaleString()} tok
+                  </span>
+                  <span style={{ fontSize: 9, color: "#D1D5DB" }}>{"\u00B7"}</span>
+                  <span style={{ fontSize: 10, color: "#6B7280" }}>
+                    {b.callCount || 0} calls
+                  </span>
+                </div>
+              );
+            })()}
 
-              <button
-                onClick={handleShare}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "8px 16px",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: shared ? "#0EA5E9" : "#374151",
-                  background: shared ? "rgba(14, 165, 233, 0.08)" : "#F9FAFB",
-                  border: `1px solid ${shared ? "#0EA5E9" : "#E5E7EB"}`,
-                  borderRadius: 10,
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                }}
-              >
-                {shared ? "\u2713 Link Copied" : "Share"}
-              </button>
+            {/* Elapsed time */}
+            {boardSnapshot?.elapsedMs > 0 && (
+              <span style={{ fontSize: 10, color: "#9CA3AF" }}>
+                {(boardSnapshot.elapsedMs / 1000).toFixed(1)}s
+              </span>
+            )}
 
-              <button
-                onClick={handleReset}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "8px 16px",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: "#9333EA",
-                  background: "rgba(147, 51, 234, 0.06)",
-                  border: "1px solid rgba(147, 51, 234, 0.2)",
-                  borderRadius: 10,
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                }}
-              >
-                {isReplay ? "\u2190 Back to Library" : "\u2190 Run Another"}
-              </button>
-            </div>
-          )}
+            {/* Separator before actions */}
+            {deliverable && !isRunning && (budget || deliverable?.metrics?.budget) && (
+              <div style={{ width: 1, height: 16, background: "#E5E7EB" }} />
+            )}
+
+            {/* Action buttons — after completion */}
+            {deliverable && !isRunning && (
+              <>
+                <button
+                  onClick={handleCopyDeliverable}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    padding: "6px 12px",
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: copied ? "#10B981" : "#374151",
+                    background: copied ? "rgba(16, 185, 129, 0.08)" : "#F9FAFB",
+                    border: `1px solid ${copied ? "#10B981" : "#E5E7EB"}`,
+                    borderRadius: 8,
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  {copied ? "\u2713 Copied" : "Copy"}
+                </button>
+
+                <button
+                  onClick={handleShare}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    padding: "6px 12px",
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: shared ? "#0EA5E9" : "#374151",
+                    background: shared ? "rgba(14, 165, 233, 0.08)" : "#F9FAFB",
+                    border: `1px solid ${shared ? "#0EA5E9" : "#E5E7EB"}`,
+                    borderRadius: 8,
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  {shared ? "\u2713 Link Copied" : "Share"}
+                </button>
+
+                <button
+                  onClick={handleReset}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    padding: "6px 12px",
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: "#9333EA",
+                    background: "rgba(147, 51, 234, 0.06)",
+                    border: "1px solid rgba(147, 51, 234, 0.2)",
+                    borderRadius: 8,
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  {isReplay ? "\u2190 Back" : "\u2190 New Run"}
+                </button>
+              </>
+            )}
+          </div>
         </>
       )}
 
@@ -846,6 +842,45 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
           50% { opacity: 0.4; }
         }
       `}</style>
+    </div>
+  );
+}
+
+function CollapsibleSection({ title, color, children, defaultExpanded = true }) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
+
+  return (
+    <div>
+      <button
+        onClick={() => setExpanded(!expanded)}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          width: "100%",
+          padding: "7px 14px",
+          background: "#FAFAFA",
+          border: "1px solid #E5E7EB",
+          borderBottom: expanded ? "none" : "1px solid #E5E7EB",
+          borderRadius: expanded ? "12px 12px 0 0" : 12,
+          cursor: "pointer",
+          transition: "all 0.2s",
+        }}
+      >
+        <span style={{ fontSize: 8, color: "#9CA3AF" }}>
+          {expanded ? "\u25BC" : "\u25B6"}
+        </span>
+        <span style={{
+          fontSize: 10,
+          fontWeight: 700,
+          letterSpacing: "0.08em",
+          color: color || "#6B7280",
+          textTransform: "uppercase",
+        }}>
+          {title}
+        </span>
+      </button>
+      {expanded && children}
     </div>
   );
 }
