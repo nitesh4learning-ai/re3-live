@@ -7,6 +7,9 @@ export default function BlackboardPanel({ stateEntries = {}, episodicLog = [] })
   const [expandedKey, setExpandedKey] = useState(null);
   const entries = Object.entries(stateEntries);
 
+  // Hide entirely when empty — no need to show "No entries yet"
+  if (entries.length === 0 && episodicLog.length === 0) return null;
+
   return (
     <div
       style={{
@@ -17,6 +20,7 @@ export default function BlackboardPanel({ stateEntries = {}, episodicLog = [] })
         width: "100%",
         maxHeight: 400,
         overflow: "auto",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
       }}
     >
       <div

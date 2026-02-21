@@ -3,12 +3,13 @@
 // Shows what happened, when, and WHY (educational annotations).
 // Linked to canvas: click a step to highlight the corresponding node.
 // Extensible: Phase 2+ event types auto-render via the type registry.
+//
+// v2: Layer accordion (auto-collapse completed layers), running glow,
+//     hover tooltips for "How this works" annotations.
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 
 // ── Event display config ──────────────────────────────────────────────
-// Maps event types to visual properties and human-readable titles.
-// Phase 2+: add new types here (a2a.requested, reflection.started, etc.)
 
 const EVENT_CONFIG = {
   "phase.intake": {
@@ -50,6 +51,7 @@ const EVENT_CONFIG = {
     icon: "\u2192",
     color: "#3B82F6",
     title: (d) => `${d.agentName} starting: "${d.taskTitle}"`,
+    isRunning: true,
   },
   "task.complete": {
     icon: "\u2713",
@@ -70,6 +72,7 @@ const EVENT_CONFIG = {
     icon: "\u25CE",
     color: "#9333EA",
     title: (d) => `Synthesis agent weaving ${d.inputCount || 0} outputs\u2026`,
+    isRunning: true,
   },
   "phase.synthesize.complete": {
     icon: "\u25C9",
@@ -97,6 +100,53 @@ function getConfig(type) {
 function formatRelativeTime(ts, startTs) {
   const delta = (ts - startTs) / 1000;
   return `${delta.toFixed(1)}s`;
+}
+
+// ── Group events into phases/layers ───────────────────────────────────
+// Returns: [{ type: "pre-exec" | "layer" | "post-exec", label, events, status, layerIndex }]
+
+function groupEventsByLayer(events) {
+  const groups = [];
+  let currentGroup = { type: "pre-exec", label: "Setup", events: [], status: "completed" };
+
+  for (const event of events) {
+    if (event.type === "layer.start") {
+      // Flush current group
+      if (currentGroup.events.length > 0) groups.push(currentGroup);
+      const layerIdx = (event.data?.layerIndex || 0) + 1;
+      currentGroup = {
+        type: "layer",
+        label: `Layer ${layerIdx}`,
+        layerIndex: layerIdx,
+        events: [event],
+        status: "running",
+      };
+    } else if (event.type === "layer.complete") {
+      currentGroup.events.push(event);
+      currentGroup.status = "completed";
+      groups.push(currentGroup);
+      currentGroup = { type: "post-exec", label: "Post-execution", events: [], status: "running" };
+    } else if (event.type === "phase.execute.start") {
+      // Flush pre-exec group
+      if (currentGroup.events.length > 0) groups.push(currentGroup);
+      currentGroup = { type: "pre-exec", label: "Setup", events: [event], status: "completed" };
+    } else if (event.type === "phase.synthesize.start" || event.type === "phase.synthesize.complete" ||
+               event.type === "phase.complete" || event.type === "phase.failed") {
+      // These go into post-exec
+      if (currentGroup.type !== "post-exec") {
+        if (currentGroup.events.length > 0) groups.push(currentGroup);
+        currentGroup = { type: "post-exec", label: "Synthesis & Delivery", events: [], status: "running" };
+      }
+      currentGroup.events.push(event);
+      if (event.type === "phase.complete") currentGroup.status = "completed";
+      if (event.type === "phase.failed") currentGroup.status = "failed";
+    } else {
+      currentGroup.events.push(event);
+    }
+  }
+
+  if (currentGroup.events.length > 0) groups.push(currentGroup);
+  return groups;
 }
 
 // ── Data snippets for expandable detail ───────────────────────────────
@@ -131,29 +181,31 @@ function getDataSnippet(event) {
 
 // ── Timeline Event Component ──────────────────────────────────────────
 
-function TimelineEvent({ event, isLast, startTime, isHighlighted, onClick }) {
-  const [showAnnotation, setShowAnnotation] = useState(false);
+function TimelineEvent({ event, isLast, startTime, isHighlighted, onClick, isRunningEvent }) {
   const [showDetail, setShowDetail] = useState(false);
   const cfg = getConfig(event.type);
   const title = typeof cfg.title === "function" ? cfg.title(event.data || {}) : cfg.title;
   const snippet = getDataSnippet(event);
   const hasAnnotation = !!event.annotation;
-  const ref = useRef(null);
 
   return (
     <div
-      ref={ref}
       data-event-id={event.id}
       onClick={() => onClick?.(event)}
       style={{
         display: "flex",
         gap: 12,
         cursor: event.nodeId ? "pointer" : "default",
-        background: isHighlighted ? "rgba(147, 51, 234, 0.06)" : "transparent",
+        background: isHighlighted
+          ? "rgba(147, 51, 234, 0.06)"
+          : isRunningEvent
+            ? "rgba(59, 130, 246, 0.04)"
+            : "transparent",
         borderRadius: 8,
         padding: "2px 4px",
         marginLeft: -4,
         transition: "background 0.2s",
+        boxShadow: isRunningEvent ? "0 0 0 1px rgba(59, 130, 246, 0.15)" : "none",
       }}
     >
       {/* Timeline rail */}
@@ -172,6 +224,8 @@ function TimelineEvent({ event, isLast, startTime, isHighlighted, onClick }) {
             fontWeight: 700,
             flexShrink: 0,
             marginTop: 2,
+            boxShadow: isRunningEvent ? `0 0 8px ${cfg.color}60` : "none",
+            animation: isRunningEvent ? "timelinePulse 2s infinite" : "none",
           }}
         >
           {cfg.icon}
@@ -188,7 +242,12 @@ function TimelineEvent({ event, isLast, startTime, isHighlighted, onClick }) {
           <span style={{ fontSize: 10, color: "#9CA3AF", fontFamily: "monospace", flexShrink: 0 }}>
             {formatRelativeTime(event.timestamp, startTime)}
           </span>
-          <span style={{ fontSize: 12, fontWeight: 600, color: "#111827", lineHeight: 1.3 }}>
+          <span style={{
+            fontSize: 12,
+            fontWeight: 600,
+            color: isRunningEvent ? "#2563EB" : "#111827",
+            lineHeight: 1.3,
+          }}>
             {title}
           </span>
         </div>
@@ -236,40 +295,201 @@ function TimelineEvent({ event, isLast, startTime, isHighlighted, onClick }) {
           </div>
         )}
 
-        {/* Educational annotation */}
+        {/* Educational annotation — hover tooltip */}
         {hasAnnotation && (
-          <div style={{ marginTop: 4 }}>
-            <button
-              onClick={(e) => { e.stopPropagation(); setShowAnnotation(!showAnnotation); }}
+          <span className="timeline-annotation-wrapper" style={{ position: "relative", display: "inline-block", marginTop: 4 }}>
+            <span
+              className="timeline-annotation-trigger"
               style={{
-                fontSize: 10,
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 16,
+                height: 16,
+                borderRadius: "50%",
+                background: "#F5F3FF",
+                border: "1px solid #EDE9FE",
+                fontSize: 9,
+                fontWeight: 700,
                 color: "#8B5CF6",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: 0,
-                fontWeight: 600,
+                cursor: "help",
               }}
             >
-              {showAnnotation ? "\u25BC" : "\u25B6"} How this works
-            </button>
-            {showAnnotation && (
-              <div style={{
+              i
+            </span>
+            <span
+              className="timeline-annotation-tooltip"
+              style={{
+                display: "none",
+                position: "absolute",
+                left: 24,
+                top: -4,
+                zIndex: 20,
+                width: 240,
                 fontSize: 11,
                 color: "#6D28D9",
                 background: "#F5F3FF",
                 padding: "8px 10px",
                 borderRadius: 8,
-                marginTop: 4,
                 lineHeight: 1.6,
                 border: "1px solid #EDE9FE",
-              }}>
-                {event.annotation}
-              </div>
-            )}
-          </div>
+                boxShadow: "0 4px 12px rgba(109, 40, 217, 0.1)",
+                pointerEvents: "none",
+              }}
+            >
+              {event.annotation}
+            </span>
+          </span>
         )}
       </div>
+    </div>
+  );
+}
+
+// ── Layer Accordion Group ─────────────────────────────────────────────
+
+function LayerGroup({ group, startTime, highlightedEventId, onEventClick, defaultExpanded, allEvents }) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
+
+  // Auto-expand when group becomes active
+  useEffect(() => {
+    if (group.status === "running") setExpanded(true);
+  }, [group.status]);
+
+  const isCompleted = group.status === "completed";
+  const isRunning = group.status === "running";
+  const isFailed = group.status === "failed";
+
+  const statusColor = isCompleted ? "#10B981" : isRunning ? "#3B82F6" : isFailed ? "#EF4444" : "#9CA3AF";
+  const statusLabel = isCompleted ? "Done" : isRunning ? "Active" : isFailed ? "Failed" : "";
+
+  // Determine which task.start events don't have a matching task.complete yet
+  const runningTaskIds = useMemo(() => {
+    const started = new Set();
+    const finished = new Set();
+    for (const e of allEvents) {
+      if (e.type === "task.start") started.add(e.data?.taskId || e.id);
+      if (e.type === "task.complete" || e.type === "task.failed") finished.add(e.data?.taskId || e.id);
+    }
+    const running = new Set();
+    for (const id of started) {
+      if (!finished.has(id)) running.add(id);
+    }
+    return running;
+  }, [allEvents]);
+
+  // For pre-exec / post-exec, don't show accordion header, just render flat
+  if (group.type === "pre-exec" || group.type === "post-exec") {
+    return (
+      <>
+        {group.events.map((event, i) => {
+          const isRunningEvt = (event.type === "task.start" && runningTaskIds.has(event.data?.taskId || event.id))
+            || event.type === "phase.synthesize.start"
+            || (event.type === "phase.decompose.start" && !allEvents.some(e => e.type === "phase.decompose.complete"))
+            || (event.type === "phase.assemble.start" && !allEvents.some(e => e.type === "phase.assemble.complete"));
+          return (
+            <TimelineEvent
+              key={event.id}
+              event={event}
+              isLast={group.type === "post-exec" && i === group.events.length - 1}
+              startTime={startTime}
+              isHighlighted={highlightedEventId === event.id}
+              onClick={onEventClick}
+              isRunningEvent={isRunningEvt}
+            />
+          );
+        })}
+      </>
+    );
+  }
+
+  // Layer group with collapsible accordion
+  return (
+    <div style={{ marginBottom: expanded ? 0 : 4 }}>
+      {/* Accordion header */}
+      <button
+        onClick={() => setExpanded(!expanded)}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          width: "100%",
+          padding: "6px 4px",
+          marginLeft: -4,
+          background: isRunning ? "rgba(59, 130, 246, 0.04)" : "transparent",
+          border: "none",
+          borderRadius: 8,
+          cursor: "pointer",
+          transition: "background 0.2s",
+          boxShadow: isRunning ? "0 0 0 1px rgba(59, 130, 246, 0.12)" : "none",
+        }}
+      >
+        {/* Collapse indicator */}
+        <span style={{ fontSize: 9, color: "#9CA3AF", width: 12, textAlign: "center", flexShrink: 0 }}>
+          {expanded ? "\u25BC" : "\u25B6"}
+        </span>
+
+        {/* Layer dot */}
+        <div
+          style={{
+            width: 10,
+            height: 10,
+            borderRadius: "50%",
+            background: statusColor,
+            flexShrink: 0,
+            boxShadow: isRunning ? `0 0 8px ${statusColor}50` : "none",
+            animation: isRunning ? "timelinePulse 2s infinite" : "none",
+          }}
+        />
+
+        <span style={{
+          fontSize: 11,
+          fontWeight: 700,
+          color: isRunning ? "#2563EB" : "#374151",
+          flex: 1,
+          textAlign: "left",
+        }}>
+          {group.label}
+        </span>
+
+        {/* Status pill */}
+        <span style={{
+          fontSize: 9,
+          fontWeight: 700,
+          color: statusColor,
+          background: `${statusColor}10`,
+          padding: "2px 8px",
+          borderRadius: 6,
+          flexShrink: 0,
+        }}>
+          {statusLabel}
+        </span>
+
+        {/* Event count */}
+        <span style={{ fontSize: 9, color: "#9CA3AF", flexShrink: 0 }}>
+          {group.events.length} events
+        </span>
+      </button>
+
+      {/* Expanded content */}
+      {expanded && (
+        <div style={{ paddingLeft: 4, marginTop: 4 }}>
+          {group.events.map((event, i) => {
+            const isRunningEvt = event.type === "task.start" && runningTaskIds.has(event.data?.taskId || event.id);
+            return (
+              <TimelineEvent
+                key={event.id}
+                event={event}
+                isLast={i === group.events.length - 1}
+                startTime={startTime}
+                isHighlighted={highlightedEventId === event.id}
+                onClick={onEventClick}
+                isRunningEvent={isRunningEvt}
+              />
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -283,6 +503,8 @@ export default function ExecutionTimeline({
 }) {
   const containerRef = useRef(null);
   const startTime = events.length > 0 ? events[0].timestamp : Date.now();
+
+  const groups = useMemo(() => groupEventsByLayer(events), [events]);
 
   // Auto-scroll to latest event
   useEffect(() => {
@@ -320,6 +542,7 @@ export default function ExecutionTimeline({
       border: "1px solid #E5E7EB",
       borderRadius: 12,
       overflow: "hidden",
+      boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
     }}>
       {/* Header */}
       <div style={{
@@ -343,7 +566,7 @@ export default function ExecutionTimeline({
         </div>
       </div>
 
-      {/* Scrollable event list */}
+      {/* Scrollable event list — grouped by layer */}
       <div
         ref={containerRef}
         style={{
@@ -352,17 +575,29 @@ export default function ExecutionTimeline({
           overflowY: "auto",
         }}
       >
-        {events.map((event, i) => (
-          <TimelineEvent
-            key={event.id}
-            event={event}
-            isLast={i === events.length - 1}
+        {groups.map((group, gi) => (
+          <LayerGroup
+            key={`${group.type}-${group.layerIndex || gi}`}
+            group={group}
             startTime={startTime}
-            isHighlighted={highlightedEventId === event.id}
-            onClick={onEventClick}
+            highlightedEventId={highlightedEventId}
+            onEventClick={onEventClick}
+            defaultExpanded={group.status !== "completed" || gi === groups.length - 1}
+            allEvents={events}
           />
         ))}
       </div>
+
+      {/* CSS for hover tooltips, running glow */}
+      <style>{`
+        @keyframes timelinePulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+        .timeline-annotation-wrapper:hover .timeline-annotation-tooltip {
+          display: block !important;
+        }
+      `}</style>
     </div>
   );
 }
