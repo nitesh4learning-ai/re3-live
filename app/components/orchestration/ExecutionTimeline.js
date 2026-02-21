@@ -204,7 +204,7 @@ function groupEventsByLayer(events) {
       // Flush pre-exec group
       if (currentGroup.events.length > 0) groups.push(currentGroup);
       currentGroup = { type: "pre-exec", label: "Setup", events: [event], status: "completed" };
-    } else if (event.type.startsWith("a2a.") || event.type.startsWith("mcp.enrich.") ||
+    } else if (event.type.startsWith("a2a.") ||
                event.type === "phase.synthesize.start" || event.type === "phase.synthesize.complete" ||
                event.type === "phase.complete" || event.type === "phase.failed") {
       // These go into post-exec

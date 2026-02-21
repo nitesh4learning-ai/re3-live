@@ -48,8 +48,8 @@ const PHASE_COLORS = {
 const EVENT_TO_PHASE = {
   "phase.intake": "intake",
   "mcp.enrich.start": "intake",
-  "mcp.enrich.complete": "intake",
-  "mcp.enrich.failed": "intake",
+  "mcp.enrich.complete": "executing",
+  "mcp.enrich.failed": "executing",
   "phase.decompose.start": "decomposing",
   "phase.decompose.complete": "decomposing",
   "phase.assemble.start": "assembling",
