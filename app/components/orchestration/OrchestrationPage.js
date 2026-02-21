@@ -5,8 +5,11 @@
 //   2. Running (live SSE): Three-column layout with real-time updates
 //   3. Replay (runId prop set): Loads saved run, renders full UI read-only
 // Completed runs are persisted to localStorage for the library.
+//
+// v2: Sticky sidebar, paper-effect deliverable, floating action bar,
+//     activeAgentIds wiring to TeamRoster.
 
-import { useState, useCallback, useRef, useEffect, lazy, Suspense } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo, lazy, Suspense } from "react";
 import IntakeForm from "./IntakeForm";
 import ExecutionTimeline from "./ExecutionTimeline";
 import UseCaseLibrary from "./UseCaseLibrary";
@@ -71,9 +74,30 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
   const [highlightedEventId, setHighlightedEventId] = useState(null);
   const [savedRuns, setSavedRuns] = useState([]);
   const [isReplay, setIsReplay] = useState(false);
+  const [copied, setCopied] = useState(false);
   const timelineRef = useRef(null);
+  const deliverableRef = useRef(null);
   // Ref to collect events for persistence (closures can't see latest state)
   const eventsRef = useRef([]);
+
+  // Compute active agent IDs from events (agents that have started but not completed)
+  const activeAgentIds = useMemo(() => {
+    const started = new Map(); // agentId -> taskId
+    const finished = new Set(); // taskIds
+    for (const e of events) {
+      if (e.type === "task.start" && e.data?.agentId) {
+        started.set(e.data.agentId, e.data.taskId || e.id);
+      }
+      if ((e.type === "task.complete" || e.type === "task.failed") && e.data?.agentId) {
+        finished.add(e.data.taskId || e.id);
+      }
+    }
+    const active = [];
+    for (const [agentId, taskId] of started) {
+      if (!finished.has(taskId)) active.push(agentId);
+    }
+    return active;
+  }, [events]);
 
   // Load library index on mount
   useEffect(() => {
@@ -355,6 +379,25 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
     [onNavigate]
   );
 
+  // Copy deliverable text to clipboard
+  const handleCopyDeliverable = useCallback(() => {
+    if (!deliverable?.deliverable) return;
+    navigator.clipboard.writeText(deliverable.deliverable).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      // Fallback for older browsers
+      const ta = document.createElement("textarea");
+      ta.value = deliverable.deliverable;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [deliverable]);
+
   const hasStarted = phase !== "initialized";
   const showResults = hasStarted && (isRunning || deliverable || events.length > 0);
 
@@ -466,33 +509,11 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
       ) : (
         /* During/Post-run: Three-column layout */
         <>
-          {/* Back to library link */}
-          {(isReplay || deliverable) && !isRunning && (
-            <button
-              onClick={handleReset}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                fontSize: 12,
-                fontWeight: 600,
-                color: "#9333EA",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: 0,
-                marginBottom: 16,
-              }}
-            >
-              ← Back to Library
-            </button>
-          )}
-
           <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginBottom: 24 }}>
             {/* Left: Timeline */}
             <div
               ref={timelineRef}
-              style={{ flex: "0 0 340px", minWidth: 280 }}
+              style={{ flex: "1 1 340px", minWidth: 280 }}
             >
               <ExecutionTimeline
                 events={events}
@@ -502,7 +523,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
             </div>
 
             {/* Center: Canvas */}
-            <div style={{ flex: "1 1 500px", minWidth: 0 }}>
+            <div style={{ flex: "2 1 500px", minWidth: 0 }}>
               <div
                 style={{
                   background: "#FFFFFF",
@@ -510,6 +531,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                   borderRadius: 12,
                   overflow: "hidden",
                   height: 420,
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
                 }}
               >
                 <Suspense
@@ -535,9 +557,22 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
               </div>
             </div>
 
-            {/* Right: Panels */}
-            <div style={{ flex: "0 0 260px", display: "flex", flexDirection: "column", gap: 16 }}>
-              <TeamRoster team={boardSnapshot?.team || deliverable?.team || []} />
+            {/* Right: Sticky sidebar with panels */}
+            <div style={{
+              flex: "0 0 260px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+              position: "sticky",
+              top: 72,
+              alignSelf: "flex-start",
+              maxHeight: "calc(100vh - 96px)",
+              overflowY: "auto",
+            }}>
+              <TeamRoster
+                team={boardSnapshot?.team || deliverable?.team || []}
+                activeAgentIds={activeAgentIds}
+              />
               <CostTicker budget={budget || deliverable?.metrics?.budget} />
               <BlackboardPanel
                 stateEntries={boardSnapshot?.stateEntries || {}}
@@ -546,15 +581,18 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
             </div>
           </div>
 
-          {/* Deliverable (full width below, shown after completion) */}
+          {/* Deliverable (full width below, shown after completion) — Paper effect */}
           {deliverable && (
             <div
+              ref={deliverableRef}
               style={{
-                background: "#FFFFFF",
+                background: "#FDFCFA",
                 border: "1px solid #E5E7EB",
+                borderLeft: "4px solid #10B981",
                 borderRadius: 12,
-                padding: 24,
+                padding: 28,
                 marginBottom: 24,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
               }}
             >
               <div
@@ -589,7 +627,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                   flexWrap: "wrap",
                   marginBottom: 16,
                   paddingBottom: 16,
-                  borderBottom: "1px solid #F3F4F6",
+                  borderBottom: "1px solid #E8E6E1",
                 }}
               >
                 <MetricPill label="Tasks" value={`${deliverable.metrics?.completedTasks}/${deliverable.metrics?.totalTasks}`} />
@@ -614,23 +652,66 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
             </div>
           )}
 
-          {/* Run again / back to library button */}
+          {/* Sticky bottom action bar — appears when deliverable is visible */}
           {deliverable && !isRunning && (
-            <div style={{ textAlign: "center", marginBottom: 32 }}>
+            <div
+              style={{
+                position: "sticky",
+                bottom: 16,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 12,
+                padding: "10px 20px",
+                background: "rgba(255, 255, 255, 0.92)",
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+                border: "1px solid #E5E7EB",
+                borderRadius: 14,
+                boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                maxWidth: 420,
+                margin: "0 auto 24px",
+                zIndex: 10,
+              }}
+            >
+              <button
+                onClick={handleCopyDeliverable}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "8px 16px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: copied ? "#10B981" : "#374151",
+                  background: copied ? "rgba(16, 185, 129, 0.08)" : "#F9FAFB",
+                  border: `1px solid ${copied ? "#10B981" : "#E5E7EB"}`,
+                  borderRadius: 10,
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}
+              >
+                {copied ? "\u2713 Copied" : "Copy to Clipboard"}
+              </button>
+
               <button
                 onClick={handleReset}
                 style={{
-                  padding: "10px 24px",
-                  fontSize: 13,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "8px 16px",
+                  fontSize: 12,
                   fontWeight: 600,
                   color: "#9333EA",
                   background: "rgba(147, 51, 234, 0.06)",
                   border: "1px solid rgba(147, 51, 234, 0.2)",
                   borderRadius: 10,
                   cursor: "pointer",
+                  transition: "all 0.2s",
                 }}
               >
-                {isReplay ? "Back to Library" : "Run Another Orchestration"}
+                {isReplay ? "\u2190 Back to Library" : "\u2190 Run Another"}
               </button>
             </div>
           )}

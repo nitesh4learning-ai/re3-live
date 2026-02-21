@@ -18,6 +18,7 @@ export default function CostTicker({ budget }) {
         borderRadius: 12,
         padding: 16,
         width: "100%",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
       }}
     >
       <div
