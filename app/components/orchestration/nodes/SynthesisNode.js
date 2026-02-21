@@ -18,13 +18,16 @@ export default function SynthesisNode({ data }) {
     <div
       style={{
         background: c.bg,
-        border: `2px solid ${c.border}`,
+        border: `2px solid ${data.highlighted ? "#9333EA" : c.border}`,
         borderRadius: 16,
         padding: "14px 20px",
         minWidth: 240,
         maxWidth: 300,
-        boxShadow: `0 4px 20px ${c.border}15`,
+        boxShadow: data.highlighted
+          ? "0 0 0 3px rgba(147, 51, 234, 0.35), 0 0 20px rgba(147, 51, 234, 0.15)"
+          : `0 4px 20px ${c.border}15`,
         textAlign: "center",
+        transition: "box-shadow 0.3s ease",
       }}
     >
       <div
