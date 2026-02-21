@@ -4,11 +4,11 @@
 import { Handle, Position } from "@xyflow/react";
 
 const TYPE_LABELS = {
-  "competitive-analysis": "Competitive Analysis",
-  "communication-plan": "Communication Plan",
-  "decision-matrix": "Decision Matrix",
-  "process-recommendation": "Process Recommendation",
-  "meeting-brief": "Meeting Brief",
+  "micro-saas-validator": "Micro-SaaS Validator",
+  "ai-workflow-blueprint": "AI Workflow Blueprint",
+  "creator-monetization": "Creator Monetization",
+  "vertical-agent-design": "Vertical Agent Design",
+  "growth-experiment": "Growth Experiment",
 };
 
 export default function UseCaseNode({ data }) {
