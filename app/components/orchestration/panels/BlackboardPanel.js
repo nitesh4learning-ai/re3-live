@@ -1,5 +1,7 @@
 "use client";
-// Blackboard Panel — Live shared state viewer alongside the canvas.
+// Common Consciousness Board — Live shared state viewer alongside the canvas.
+// Agents write intermediate outputs here during execution.
+// Persists after completion so users can inspect agent reasoning.
 
 import { useState } from "react";
 
@@ -7,7 +9,7 @@ export default function BlackboardPanel({ stateEntries = {}, episodicLog = [] })
   const [expandedKey, setExpandedKey] = useState(null);
   const entries = Object.entries(stateEntries);
 
-  // Hide entirely when empty — no need to show "No entries yet"
+  // Hide only when truly empty (pre-run, before any events)
   if (entries.length === 0 && episodicLog.length === 0) return null;
 
   return (
@@ -16,7 +18,7 @@ export default function BlackboardPanel({ stateEntries = {}, episodicLog = [] })
         background: "#FFFFFF",
         border: "1px solid #E5E7EB",
         borderRadius: 12,
-        padding: 16,
+        padding: "12px 14px",
         width: "100%",
         maxHeight: 400,
         overflow: "auto",
@@ -29,19 +31,19 @@ export default function BlackboardPanel({ stateEntries = {}, episodicLog = [] })
           fontWeight: 700,
           letterSpacing: "0.1em",
           color: "#9333EA",
-          marginBottom: 12,
+          marginBottom: 10,
           textTransform: "uppercase",
         }}
       >
-        Blackboard
+        Common Consciousness Board
       </div>
 
       {entries.length === 0 ? (
-        <div style={{ fontSize: 12, color: "#9CA3AF", fontStyle: "italic" }}>
-          No entries yet — agents will write here as they work.
+        <div style={{ fontSize: 11, color: "#9CA3AF", fontStyle: "italic" }}>
+          Agents will write here as they work...
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           {entries.map(([key, entry]) => (
             <div
               key={key}
@@ -50,7 +52,7 @@ export default function BlackboardPanel({ stateEntries = {}, episodicLog = [] })
                 background: entry.hasValue ? "#F9FAFB" : "#FEF2F2",
                 border: `1px solid ${entry.hasValue ? "#E5E7EB" : "#FECACA"}`,
                 borderRadius: 8,
-                padding: "8px 10px",
+                padding: "6px 8px",
                 cursor: "pointer",
                 transition: "all 0.2s ease",
               }}
@@ -58,7 +60,7 @@ export default function BlackboardPanel({ stateEntries = {}, episodicLog = [] })
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: 600,
                     color: "#374151",
                     fontFamily: "monospace",
@@ -76,14 +78,14 @@ export default function BlackboardPanel({ stateEntries = {}, episodicLog = [] })
                   {entry.hasValue ? "v" + entry.version : "empty"}
                 </span>
               </div>
-              <div style={{ fontSize: 9, color: "#9CA3AF", marginTop: 2 }}>
+              <div style={{ fontSize: 9, color: "#9CA3AF", marginTop: 1 }}>
                 by {entry.writtenBy}
               </div>
               {expandedKey === key && entry.valuePreview && (
                 <div
                   style={{
-                    marginTop: 8,
-                    paddingTop: 8,
+                    marginTop: 6,
+                    paddingTop: 6,
                     borderTop: "1px solid #E5E7EB",
                     fontSize: 11,
                     color: "#4B5563",
@@ -102,20 +104,20 @@ export default function BlackboardPanel({ stateEntries = {}, episodicLog = [] })
 
       {/* Recent episodic log */}
       {episodicLog.length > 0 && (
-        <div style={{ marginTop: 16 }}>
+        <div style={{ marginTop: 12 }}>
           <div
             style={{
               fontSize: 9,
               fontWeight: 700,
               letterSpacing: "0.1em",
               color: "#6B7280",
-              marginBottom: 8,
+              marginBottom: 6,
               textTransform: "uppercase",
             }}
           >
             Activity Log
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
             {episodicLog.slice(-8).reverse().map((event, i) => (
               <div
                 key={i}

@@ -141,7 +141,7 @@ export default function CostTicker({ budget }) {
                 {model}
               </span>
               <span>
-                {stats.calls} calls \u00B7 {stats.tokens.toLocaleString()} tokens
+                {stats.calls} calls {"\u00B7"} {stats.tokens.toLocaleString()} tokens
               </span>
             </div>
           ))}
