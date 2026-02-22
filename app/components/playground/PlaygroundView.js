@@ -1,7 +1,7 @@
 "use client";
 // PlaygroundView — Main composition of the 3 playground sections.
 // Section order: Agent Map → Execution Pipeline → Common Consciousness
-// Dark theme container with the redesigned UI.
+// Light theme container with the redesigned UI.
 
 import { THEME } from "./shared";
 import AgentMap from "./AgentMap";

@@ -458,8 +458,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
         margin: "0 auto",
         padding: "24px 16px",
         minHeight: "100vh",
-        background: showResults ? "#1E293B" : "transparent",
-        transition: "background 0.3s",
+        background: "transparent",
       }}
     >
       {/* Header */}
@@ -480,15 +479,15 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
           style={{
             fontSize: 28,
             fontWeight: 700,
-            color: showResults ? "#F1F5F9" : "#111827",
-            fontFamily: showResults ? "'DM Sans', 'Inter', sans-serif" : "'Instrument Serif', Georgia, serif",
+            color: "#111827",
+            fontFamily: "'DM Sans', 'Inter', sans-serif",
             marginBottom: 4,
             transition: "color 0.3s",
           }}
         >
           Agentic Orchestration
         </h1>
-        <p style={{ fontSize: 15, color: showResults ? "#94A3B8" : "#6B7280", lineHeight: 1.5, transition: "color 0.3s" }}>
+        <p style={{ fontSize: 15, color: "#6B7280", lineHeight: 1.5 }}>
           Submit a use case. Watch a team of specialist agents assemble, coordinate, and deliver.
         </p>
       </div>
@@ -501,7 +500,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
             alignItems: "center",
             gap: 10,
             padding: "10px 16px",
-            background: showResults ? `${PHASE_COLORS[phase]}12` : `${PHASE_COLORS[phase]}08`,
+            background: `${PHASE_COLORS[phase]}08`,
             border: `1px solid ${PHASE_COLORS[phase]}30`,
             borderRadius: 10,
             marginBottom: 24,
@@ -523,7 +522,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
             {PHASE_LABELS[phase]}
           </span>
           {boardSnapshot?.elapsedMs > 0 && (
-            <span style={{ fontSize: 13, color: showResults ? "#64748B" : "#9CA3AF", marginLeft: "auto", fontFamily: "'JetBrains Mono', monospace" }}>
+            <span style={{ fontSize: 13, color: "#9CA3AF", marginLeft: "auto", fontFamily: "'JetBrains Mono', monospace" }}>
               {(boardSnapshot.elapsedMs / 1000).toFixed(1)}s elapsed
             </span>
           )}
@@ -536,8 +535,8 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
           style={{
             padding: "12px 16px",
             borderRadius: 10,
-            background: showResults ? "rgba(239, 68, 68, 0.1)" : "#FEF2F2",
-            border: `1px solid ${showResults ? "rgba(239, 68, 68, 0.3)" : "#FECACA"}`,
+            background: "#FEF2F2",
+            border: "1px solid #FECACA",
             color: "#EF4444",
             fontSize: 15,
             marginBottom: 24,
@@ -600,13 +599,13 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
           <Suspense
             fallback={
               <div style={{
-                background: "#273549",
+                background: "#F9FAFB",
                 borderRadius: 20,
                 padding: 40,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "#94A3B8",
+                color: "#9CA3AF",
                 fontFamily: "'DM Sans', 'Inter', sans-serif",
                 fontSize: 15,
                 minHeight: 300,
@@ -628,14 +627,14 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
             <div
               ref={deliverableRef}
               style={{
-                background: "#273549",
-                border: "1px solid #475569",
+                background: "#FDFCFA",
+                border: "1px solid #E5E7EB",
                 borderLeft: "4px solid #10B981",
                 borderRadius: 12,
                 padding: 28,
                 marginTop: 8,
                 marginBottom: 24,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
               }}
             >
               <div
@@ -646,7 +645,6 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                   color: "#10B981",
                   marginBottom: 8,
                   textTransform: "uppercase",
-                  fontFamily: "'DM Sans', 'Inter', sans-serif",
                 }}
               >
                 DELIVERABLE
@@ -655,9 +653,9 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                 style={{
                   fontSize: 22,
                   fontWeight: 700,
-                  color: "#F1F5F9",
+                  color: "#111827",
                   marginBottom: 4,
-                  fontFamily: "'DM Sans', 'Inter', sans-serif",
+                  fontFamily: "'Instrument Serif', Georgia, serif",
                 }}
               >
                 {deliverable.useCase?.title}
@@ -671,7 +669,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                   flexWrap: "wrap",
                   marginBottom: 16,
                   paddingBottom: 16,
-                  borderBottom: "1px solid #475569",
+                  borderBottom: "1px solid #E8E6E1",
                 }}
               >
                 <MetricPill label="Tasks" value={`${deliverable.metrics?.completedTasks}/${deliverable.metrics?.totalTasks}`} />
@@ -685,10 +683,10 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
               <div
                 style={{
                   fontSize: 15,
-                  color: "#94A3B8",
+                  color: "#374151",
                   lineHeight: 1.8,
                   whiteSpace: "pre-wrap",
-                  fontFamily: "'DM Sans', 'Inter', sans-serif",
+                  fontFamily: "'Source Sans 3', 'Inter', sans-serif",
                 }}
               >
                 {deliverable.deliverable}
@@ -706,12 +704,12 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
               justifyContent: "center",
               gap: 10,
               padding: "8px 16px",
-              background: "rgba(39, 53, 73, 0.94)",
+              background: "rgba(255, 255, 255, 0.94)",
               backdropFilter: "blur(10px)",
               WebkitBackdropFilter: "blur(10px)",
-              border: "1px solid #475569",
+              border: "1px solid #E5E7EB",
               borderRadius: 14,
-              boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
               maxWidth: 700,
               margin: "0 auto 24px",
               zIndex: 10,
@@ -723,15 +721,15 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
               const b = budget || deliverable.metrics.budget;
               return (
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: 4 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#F1F5F9", fontFamily: "'JetBrains Mono', monospace" }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#111827", fontFamily: "'JetBrains Mono', monospace" }}>
                     ${(b.costAccumulated || 0).toFixed(4)}
                   </span>
-                  <span style={{ fontSize: 11, color: "#64748B" }}>{"\u00B7"}</span>
-                  <span style={{ fontSize: 13, color: "#94A3B8", fontFamily: "'JetBrains Mono', monospace" }}>
+                  <span style={{ fontSize: 11, color: "#D1D5DB" }}>{"\u00B7"}</span>
+                  <span style={{ fontSize: 13, color: "#6B7280", fontFamily: "'JetBrains Mono', monospace" }}>
                     {(b.tokensUsed || 0).toLocaleString()} tok
                   </span>
-                  <span style={{ fontSize: 11, color: "#64748B" }}>{"\u00B7"}</span>
-                  <span style={{ fontSize: 13, color: "#94A3B8", fontFamily: "'JetBrains Mono', monospace" }}>
+                  <span style={{ fontSize: 11, color: "#D1D5DB" }}>{"\u00B7"}</span>
+                  <span style={{ fontSize: 13, color: "#6B7280", fontFamily: "'JetBrains Mono', monospace" }}>
                     {b.callCount || 0} calls
                   </span>
                 </div>
@@ -740,14 +738,14 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
 
             {/* Elapsed time */}
             {boardSnapshot?.elapsedMs > 0 && (
-              <span style={{ fontSize: 13, color: "#64748B", fontFamily: "'JetBrains Mono', monospace" }}>
+              <span style={{ fontSize: 13, color: "#9CA3AF", fontFamily: "'JetBrains Mono', monospace" }}>
                 {(boardSnapshot.elapsedMs / 1000).toFixed(1)}s
               </span>
             )}
 
             {/* Separator before actions */}
             {deliverable && !isRunning && (budget || deliverable?.metrics?.budget) && (
-              <div style={{ width: 1, height: 16, background: "#334155" }} />
+              <div style={{ width: 1, height: 16, background: "#E5E7EB" }} />
             )}
 
             {/* Action buttons — after completion */}
@@ -762,9 +760,9 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                     padding: "6px 14px",
                     fontSize: 13,
                     fontWeight: 600,
-                    color: copied ? "#10B981" : "#F1F5F9",
-                    background: copied ? "rgba(16, 185, 129, 0.12)" : "#334155",
-                    border: `1px solid ${copied ? "#10B981" : "#475569"}`,
+                    color: copied ? "#10B981" : "#374151",
+                    background: copied ? "rgba(16, 185, 129, 0.08)" : "#F9FAFB",
+                    border: `1px solid ${copied ? "#10B981" : "#E5E7EB"}`,
                     borderRadius: 8,
                     cursor: "pointer",
                     transition: "all 0.2s",
@@ -783,9 +781,9 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                     padding: "6px 14px",
                     fontSize: 13,
                     fontWeight: 600,
-                    color: shared ? "#0EA5E9" : "#F1F5F9",
-                    background: shared ? "rgba(14, 165, 233, 0.12)" : "#334155",
-                    border: `1px solid ${shared ? "#0EA5E9" : "#475569"}`,
+                    color: shared ? "#0EA5E9" : "#374151",
+                    background: shared ? "rgba(14, 165, 233, 0.08)" : "#F9FAFB",
+                    border: `1px solid ${shared ? "#0EA5E9" : "#E5E7EB"}`,
                     borderRadius: 8,
                     cursor: "pointer",
                     transition: "all 0.2s",
@@ -874,8 +872,8 @@ function CollapsibleSection({ title, color, children, defaultExpanded = true }) 
 function MetricPill({ label, value }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-      <span style={{ fontSize: 13, color: "#64748B", fontFamily: "'DM Sans', 'Inter', sans-serif" }}>{label}:</span>
-      <span style={{ fontSize: 13, fontWeight: 700, color: "#94A3B8", fontFamily: "'JetBrains Mono', monospace" }}>
+      <span style={{ fontSize: 13, color: "#9CA3AF" }}>{label}:</span>
+      <span style={{ fontSize: 13, fontWeight: 700, color: "#374151", fontFamily: "'JetBrains Mono', monospace" }}>
         {value}
       </span>
     </div>
