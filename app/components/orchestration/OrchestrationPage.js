@@ -20,6 +20,9 @@ import RunComparison from "./RunComparison";
 // Lazy-load the canvas (heavy React Flow dependency)
 const OrchestrationCanvas = lazy(() => import("./OrchestrationCanvas"));
 
+// Lazy-load the new Playground UI
+const PlaygroundView = lazy(() => import("../playground/PlaygroundView"));
+
 const PHASE_LABELS = {
   initialized: "Ready",
   intake: "Validating use case...",
@@ -455,13 +458,15 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
         margin: "0 auto",
         padding: "24px 16px",
         minHeight: "100vh",
+        background: showResults ? "#0B0F1A" : "transparent",
+        transition: "background 0.3s",
       }}
     >
       {/* Header */}
       <div style={{ marginBottom: 32 }}>
         <div
           style={{
-            fontSize: 10,
+            fontSize: 12,
             fontWeight: 700,
             letterSpacing: "0.12em",
             color: "#9333EA",
@@ -475,14 +480,15 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
           style={{
             fontSize: 28,
             fontWeight: 700,
-            color: "#111827",
-            fontFamily: "'Instrument Serif', Georgia, serif",
+            color: showResults ? "#F1F5F9" : "#111827",
+            fontFamily: showResults ? "'DM Sans', 'Inter', sans-serif" : "'Instrument Serif', Georgia, serif",
             marginBottom: 4,
+            transition: "color 0.3s",
           }}
         >
           Agentic Orchestration
         </h1>
-        <p style={{ fontSize: 14, color: "#6B7280", lineHeight: 1.5 }}>
+        <p style={{ fontSize: 15, color: showResults ? "#94A3B8" : "#6B7280", lineHeight: 1.5, transition: "color 0.3s" }}>
           Submit a use case. Watch a team of specialist agents assemble, coordinate, and deliver.
         </p>
       </div>
@@ -495,7 +501,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
             alignItems: "center",
             gap: 10,
             padding: "10px 16px",
-            background: `${PHASE_COLORS[phase]}08`,
+            background: showResults ? `${PHASE_COLORS[phase]}12` : `${PHASE_COLORS[phase]}08`,
             border: `1px solid ${PHASE_COLORS[phase]}30`,
             borderRadius: 10,
             marginBottom: 24,
@@ -503,8 +509,8 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
         >
           <div
             style={{
-              width: 8,
-              height: 8,
+              width: 10,
+              height: 10,
               borderRadius: "50%",
               background: PHASE_COLORS[phase],
               animation:
@@ -513,11 +519,11 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                   : "none",
             }}
           />
-          <span style={{ fontSize: 13, fontWeight: 600, color: PHASE_COLORS[phase] }}>
+          <span style={{ fontSize: 15, fontWeight: 600, color: PHASE_COLORS[phase], fontFamily: "'DM Sans', 'Inter', sans-serif" }}>
             {PHASE_LABELS[phase]}
           </span>
           {boardSnapshot?.elapsedMs > 0 && (
-            <span style={{ fontSize: 11, color: "#9CA3AF", marginLeft: "auto" }}>
+            <span style={{ fontSize: 13, color: showResults ? "#64748B" : "#9CA3AF", marginLeft: "auto", fontFamily: "'JetBrains Mono', monospace" }}>
               {(boardSnapshot.elapsedMs / 1000).toFixed(1)}s elapsed
             </span>
           )}
@@ -530,12 +536,13 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
           style={{
             padding: "12px 16px",
             borderRadius: 10,
-            background: "#FEF2F2",
-            border: "1px solid #FECACA",
-            color: "#DC2626",
-            fontSize: 13,
+            background: showResults ? "rgba(239, 68, 68, 0.1)" : "#FEF2F2",
+            border: `1px solid ${showResults ? "rgba(239, 68, 68, 0.3)" : "#FECACA"}`,
+            color: "#EF4444",
+            fontSize: 15,
             marginBottom: 24,
             lineHeight: 1.5,
+            fontFamily: "'DM Sans', 'Inter', sans-serif",
           }}
         >
           <strong>Error:</strong> {error}
@@ -587,94 +594,70 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
           )}
         </div>
       ) : (
-        /* During/Post-run: Stacked horizontal layers (full width) */
+        /* During/Post-run: New Playground UI (dark theme) */
         <>
-          <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 16 }}>
-            {/* Execution Pipeline — full width */}
-            <div ref={timelineRef}>
-              <ExecutionTimeline
-                events={events}
-                highlightedEventId={highlightedEventId}
-                onEventClick={handleTimelineEventClick}
-              />
-            </div>
-
-            {/* Agent Map — full width */}
-            <CollapsibleSection title="Agent Map" color="#3B82F6" defaultExpanded>
-              <div
-                style={{
-                  background: "#FFFFFF",
-                  border: "1px solid #E5E7EB",
-                  borderRadius: "0 0 12px 12px",
-                  overflow: "hidden",
-                  height: 480,
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-                }}
-              >
-                <Suspense
-                  fallback={
-                    <div style={{
-                      height: 480,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "#9CA3AF",
-                    }}>
-                      Loading canvas...
-                    </div>
-                  }
-                >
-                  <OrchestrationCanvas
-                    boardSnapshot={boardSnapshot}
-                    budget={budget}
-                    highlightedNodeId={highlightedNodeId}
-                    onNodeClick={handleCanvasNodeClick}
-                  />
-                </Suspense>
+          {/* Playground View — Agent Map, Execution Pipeline, Common Consciousness */}
+          <Suspense
+            fallback={
+              <div style={{
+                background: "#0B0F1A",
+                borderRadius: 20,
+                padding: 40,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#94A3B8",
+                fontFamily: "'DM Sans', 'Inter', sans-serif",
+                fontSize: 15,
+                minHeight: 300,
+              }}>
+                Loading playground view...
               </div>
-            </CollapsibleSection>
-
-            {/* Common Consciousness Board — full width */}
-            <BlackboardPanel
-              stateEntries={boardSnapshot?.stateEntries || {}}
-              episodicLog={boardSnapshot?.episodicLog || []}
-              team={boardSnapshot?.team || deliverable?.team || []}
+            }
+          >
+            <PlaygroundView
+              events={events}
+              boardSnapshot={boardSnapshot}
+              deliverable={deliverable}
+              budget={budget}
             />
-          </div>
+          </Suspense>
 
-          {/* Deliverable (full width, shown after completion) — Paper effect */}
+          {/* Deliverable (full width, shown after completion) — Dark paper effect */}
           {deliverable && (
             <div
               ref={deliverableRef}
               style={{
-                background: "#FDFCFA",
-                border: "1px solid #E5E7EB",
+                background: "#111827",
+                border: "1px solid #334155",
                 borderLeft: "4px solid #10B981",
                 borderRadius: 12,
                 padding: 28,
+                marginTop: 8,
                 marginBottom: 24,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
               }}
             >
               <div
                 style={{
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: 700,
                   letterSpacing: "0.1em",
                   color: "#10B981",
                   marginBottom: 8,
                   textTransform: "uppercase",
+                  fontFamily: "'DM Sans', 'Inter', sans-serif",
                 }}
               >
                 DELIVERABLE
               </div>
               <h3
                 style={{
-                  fontSize: 18,
+                  fontSize: 22,
                   fontWeight: 700,
-                  color: "#111827",
+                  color: "#F1F5F9",
                   marginBottom: 4,
-                  fontFamily: "'Instrument Serif', Georgia, serif",
+                  fontFamily: "'DM Sans', 'Inter', sans-serif",
                 }}
               >
                 {deliverable.useCase?.title}
@@ -688,7 +671,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                   flexWrap: "wrap",
                   marginBottom: 16,
                   paddingBottom: 16,
-                  borderBottom: "1px solid #E8E6E1",
+                  borderBottom: "1px solid #334155",
                 }}
               >
                 <MetricPill label="Tasks" value={`${deliverable.metrics?.completedTasks}/${deliverable.metrics?.totalTasks}`} />
@@ -701,11 +684,11 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
               {/* Output text */}
               <div
                 style={{
-                  fontSize: 14,
-                  color: "#374151",
+                  fontSize: 15,
+                  color: "#94A3B8",
                   lineHeight: 1.8,
                   whiteSpace: "pre-wrap",
-                  fontFamily: "'Source Sans 3', 'Inter', sans-serif",
+                  fontFamily: "'DM Sans', 'Inter', sans-serif",
                 }}
               >
                 {deliverable.deliverable}
@@ -713,7 +696,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
             </div>
           )}
 
-          {/* Sticky bottom bar — cost tracker + action buttons */}
+          {/* Sticky bottom bar — cost tracker + action buttons (dark theme) */}
           <div
             style={{
               position: "sticky",
@@ -723,12 +706,12 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
               justifyContent: "center",
               gap: 10,
               padding: "8px 16px",
-              background: "rgba(255, 255, 255, 0.94)",
+              background: "rgba(17, 24, 39, 0.94)",
               backdropFilter: "blur(10px)",
               WebkitBackdropFilter: "blur(10px)",
-              border: "1px solid #E5E7EB",
+              border: "1px solid #334155",
               borderRadius: 14,
-              boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
               maxWidth: 700,
               margin: "0 auto 24px",
               zIndex: 10,
@@ -740,15 +723,15 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
               const b = budget || deliverable.metrics.budget;
               return (
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: 4 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#111827" }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#F1F5F9", fontFamily: "'JetBrains Mono', monospace" }}>
                     ${(b.costAccumulated || 0).toFixed(4)}
                   </span>
-                  <span style={{ fontSize: 9, color: "#D1D5DB" }}>{"\u00B7"}</span>
-                  <span style={{ fontSize: 10, color: "#6B7280" }}>
+                  <span style={{ fontSize: 11, color: "#64748B" }}>{"\u00B7"}</span>
+                  <span style={{ fontSize: 13, color: "#94A3B8", fontFamily: "'JetBrains Mono', monospace" }}>
                     {(b.tokensUsed || 0).toLocaleString()} tok
                   </span>
-                  <span style={{ fontSize: 9, color: "#D1D5DB" }}>{"\u00B7"}</span>
-                  <span style={{ fontSize: 10, color: "#6B7280" }}>
+                  <span style={{ fontSize: 11, color: "#64748B" }}>{"\u00B7"}</span>
+                  <span style={{ fontSize: 13, color: "#94A3B8", fontFamily: "'JetBrains Mono', monospace" }}>
                     {b.callCount || 0} calls
                   </span>
                 </div>
@@ -757,14 +740,14 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
 
             {/* Elapsed time */}
             {boardSnapshot?.elapsedMs > 0 && (
-              <span style={{ fontSize: 10, color: "#9CA3AF" }}>
+              <span style={{ fontSize: 13, color: "#64748B", fontFamily: "'JetBrains Mono', monospace" }}>
                 {(boardSnapshot.elapsedMs / 1000).toFixed(1)}s
               </span>
             )}
 
             {/* Separator before actions */}
             {deliverable && !isRunning && (budget || deliverable?.metrics?.budget) && (
-              <div style={{ width: 1, height: 16, background: "#E5E7EB" }} />
+              <div style={{ width: 1, height: 16, background: "#334155" }} />
             )}
 
             {/* Action buttons — after completion */}
@@ -776,15 +759,16 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                     display: "inline-flex",
                     alignItems: "center",
                     gap: 4,
-                    padding: "6px 12px",
-                    fontSize: 11,
+                    padding: "6px 14px",
+                    fontSize: 13,
                     fontWeight: 600,
-                    color: copied ? "#10B981" : "#374151",
-                    background: copied ? "rgba(16, 185, 129, 0.08)" : "#F9FAFB",
-                    border: `1px solid ${copied ? "#10B981" : "#E5E7EB"}`,
+                    color: copied ? "#10B981" : "#F1F5F9",
+                    background: copied ? "rgba(16, 185, 129, 0.12)" : "#1E293B",
+                    border: `1px solid ${copied ? "#10B981" : "#334155"}`,
                     borderRadius: 8,
                     cursor: "pointer",
                     transition: "all 0.2s",
+                    fontFamily: "'DM Sans', 'Inter', sans-serif",
                   }}
                 >
                   {copied ? "\u2713 Copied" : "Copy"}
@@ -796,15 +780,16 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                     display: "inline-flex",
                     alignItems: "center",
                     gap: 4,
-                    padding: "6px 12px",
-                    fontSize: 11,
+                    padding: "6px 14px",
+                    fontSize: 13,
                     fontWeight: 600,
-                    color: shared ? "#0EA5E9" : "#374151",
-                    background: shared ? "rgba(14, 165, 233, 0.08)" : "#F9FAFB",
-                    border: `1px solid ${shared ? "#0EA5E9" : "#E5E7EB"}`,
+                    color: shared ? "#0EA5E9" : "#F1F5F9",
+                    background: shared ? "rgba(14, 165, 233, 0.12)" : "#1E293B",
+                    border: `1px solid ${shared ? "#0EA5E9" : "#334155"}`,
                     borderRadius: 8,
                     cursor: "pointer",
                     transition: "all 0.2s",
+                    fontFamily: "'DM Sans', 'Inter', sans-serif",
                   }}
                 >
                   {shared ? "\u2713 Link Copied" : "Share"}
@@ -816,15 +801,16 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                     display: "inline-flex",
                     alignItems: "center",
                     gap: 4,
-                    padding: "6px 12px",
-                    fontSize: 11,
+                    padding: "6px 14px",
+                    fontSize: 13,
                     fontWeight: 600,
-                    color: "#9333EA",
-                    background: "rgba(147, 51, 234, 0.06)",
-                    border: "1px solid rgba(147, 51, 234, 0.2)",
+                    color: "#A855F7",
+                    background: "rgba(147, 51, 234, 0.10)",
+                    border: "1px solid rgba(147, 51, 234, 0.3)",
                     borderRadius: 8,
                     cursor: "pointer",
                     transition: "all 0.2s",
+                    fontFamily: "'DM Sans', 'Inter', sans-serif",
                   }}
                 >
                   {isReplay ? "\u2190 Back" : "\u2190 New Run"}
@@ -887,9 +873,9 @@ function CollapsibleSection({ title, color, children, defaultExpanded = true }) 
 
 function MetricPill({ label, value }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-      <span style={{ fontSize: 10, color: "#9CA3AF" }}>{label}:</span>
-      <span style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <span style={{ fontSize: 13, color: "#64748B", fontFamily: "'DM Sans', 'Inter', sans-serif" }}>{label}:</span>
+      <span style={{ fontSize: 13, fontWeight: 700, color: "#94A3B8", fontFamily: "'JetBrains Mono', monospace" }}>
         {value}
       </span>
     </div>
