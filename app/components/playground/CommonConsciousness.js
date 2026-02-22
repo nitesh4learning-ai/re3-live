@@ -165,7 +165,7 @@ function BoardContent({ entries, team }) {
                     background: `${THEME.info}15`, padding: "2px 6px", borderRadius: 4,
                     fontFamily: THEME.fontMono,
                   }}>
-                    {entry.readers.length} read{entry.readers.length !== 1 ? "s" : ""}
+                    {entry.readers?.length} read{entry.readers?.length !== 1 ? "s" : ""}
                   </span>
                 )}
                 <span style={{
@@ -217,9 +217,9 @@ function BoardContent({ entries, team }) {
                     fontSize: 13, fontWeight: 600, color: THEME.textMuted,
                     fontFamily: THEME.fontUI, marginBottom: 4,
                   }}>
-                    Version History ({entry.versionHistory.length} versions)
+                    Version History ({entry.versionHistory?.length} versions)
                   </div>
-                  {entry.versionHistory.map((vh) => (
+                  {(entry.versionHistory || []).map((vh) => (
                     <div key={vh.version} style={{
                       fontSize: 13, color: THEME.textMuted, fontFamily: THEME.fontUI,
                       padding: "4px 8px", background: THEME.bg, borderRadius: 4,

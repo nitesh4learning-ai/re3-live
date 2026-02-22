@@ -2,7 +2,9 @@
 // AppShell: wraps all pages with Header, Footer, LoginModal, and Disclaimer.
 // Used by the root layout once the provider is active.
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useApp } from "../../providers";
+import { pathToPage } from "../../utils/routing";
 import { Re3Logo } from './Icons';
 import { FadeIn, Disclaimer } from './UIComponents';
 import { DB, getFirestoreModule, signInWithGoogle } from '../../utils/firebase-client';
@@ -14,27 +16,8 @@ export function Header() {
   const { nav, user, showLogin, setShowLogin, logout } = useApp();
   const [sc, setSc] = useState(false);
   const [mob, setMob] = useState(false);
-  const [currentPage, setCurrentPage] = useState("home");
-
-  // Track current page from URL
-  useEffect(() => {
-    const updatePage = () => {
-      const p = window.location.pathname;
-      if (p === "/") setCurrentPage("home");
-      else if (p.startsWith("/loom")) setCurrentPage("loom");
-      else if (p === "/forge" || p.startsWith("/forge/")) setCurrentPage("forge");
-      else if (p === "/academy") setCurrentPage("academy");
-      else if (p === "/agents") setCurrentPage("agent-community");
-      else if (p === "/studio") setCurrentPage("studio");
-      else if (p === "/write") setCurrentPage("write");
-      else if (p === "/debates") setCurrentPage("debates");
-      else if (p === "/search") setCurrentPage("search");
-      else if (p === "/arena" || p.startsWith("/arena/")) setCurrentPage("arena");
-    };
-    updatePage();
-    window.addEventListener("popstate", updatePage);
-    return () => window.removeEventListener("popstate", updatePage);
-  }, []);
+  const pathname = usePathname();
+  const currentPage = pathToPage(pathname).page;
 
   useEffect(() => {
     const fn = () => setSc(window.scrollY > 10);
