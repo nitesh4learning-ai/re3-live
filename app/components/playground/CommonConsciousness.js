@@ -440,6 +440,10 @@ function FlowContent({ events, team }) {
           description = `Team assembled with ${e.data?.teamSize || 0} specialist agents`;
           type = "complete";
           break;
+        case "phase.execute.start":
+          description = `Execution started: ${e.data?.totalTasks || "multiple"} tasks across ${e.data?.layerCount || "multiple"} layers`;
+          type = "start";
+          break;
         case "layer.start":
           description = `Layer ${(e.data?.layerIndex || 0) + 1} started with ${e.data?.taskCount || 0} parallel tasks`;
           type = "start";
@@ -529,7 +533,7 @@ function FlowContent({ events, team }) {
           type = "error";
           break;
         default:
-          return;
+          continue;
       }
 
       if (description) {
