@@ -630,7 +630,7 @@ export default function CommonConsciousness({ stateEntries = {}, episodicLog = [
     >
       <SectionHeader
         title="Common Consciousness"
-        subtitle="Shared Awareness \u2014 every agent sees what every other agent knows"
+        subtitle={"Shared Awareness \u2014 every agent sees what every other agent knows"}
       />
 
       {/* Three large block tabs */}

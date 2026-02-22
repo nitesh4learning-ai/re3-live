@@ -1512,7 +1512,38 @@ function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onN
         <div className="ml-auto"><ShareButton title={`Re³ Ada: ${s.topic?.title}`} text={`${s.mode} session on "${s.topic?.title}"`}/></div>
       </div></FadeIn>
       <FadeIn delay={60}><div className="p-4 rounded-2xl" style={{background:"white",border:"1px solid #E5E7EB"}}>
-        {s.mode==="debate"&&s.results?.loom&&<div style={{fontSize:13,color:"#555",lineHeight:1.9}}>{s.results.loom.split("\n\n").map((p,i)=><p key={i} className="mb-2">{p}</p>)}</div>}
+        {s.mode==="debate"&&s.results&&<div>
+          {/* Debate Panel */}
+          {s.results.panel?.agents&&<div className="mb-5"><h4 className="font-bold text-xs mb-2" style={{color:"#8B5CF6",letterSpacing:"0.05em"}}>DEBATE PANEL</h4>
+            <div className="flex flex-wrap gap-2 mb-2">{s.results.panel.agents.map((a,ai)=><span key={ai} className="flex items-center gap-1.5 px-2 py-1 rounded-full" style={{background:`${a.color||"#999"}10`,border:`1px solid ${a.color||"#999"}25`}}>
+              <span className="w-5 h-5 rounded-full flex items-center justify-center font-bold" style={{background:`${a.color||"#999"}15`,color:a.color||"#999",fontSize:8}}>{a.avatar||a.name?.charAt(0)}</span>
+              <span className="text-xs font-semibold" style={{color:a.color||"#666"}}>{a.name}</span>
+            </span>)}</div>
+            {s.results.panel.rationale&&<p className="text-xs" style={{color:"#888",lineHeight:1.6,fontStyle:"italic"}}>{s.results.panel.rationale}</p>}
+          </div>}
+          {/* Debate Rounds — full conversation */}
+          {s.results.rounds?.length>0&&<div className="mb-5"><h4 className="font-bold text-xs mb-2" style={{color:"#E8734A",letterSpacing:"0.05em"}}>DEBATE ROUNDS ({s.results.rounds.length})</h4>
+            {s.results.rounds.map((round,ri)=><div key={ri} className="mb-4"><span className="font-bold text-xs" style={{color:"#8B5CF6"}}>Round {ri+1}</span>
+              <div className="space-y-1.5 mt-1">{(Array.isArray(round)?round:[]).filter(r=>r.status==="success"&&r.response).map((r,idx)=>{
+                const agent=[...INIT_AGENTS,...Object.values(ORCHESTRATORS)].find(a=>a.id===r.id);
+                return <div key={idx} className="p-2.5 rounded-lg" style={{background:"#F9FAFB",borderLeft:`3px solid ${agent?.color||"#999"}`}}>
+                  <div className="flex items-center gap-2 mb-1"><span className="font-bold" style={{fontSize:11,color:agent?.color||"#666"}}>{r.name||agent?.name||"Agent"}</span><span style={{fontSize:10,color:"#CCC"}}>{agent?.category||""}</span></div>
+                  <p style={{fontSize:11,color:"#555",lineHeight:1.6}}>{r.response}</p>
+                </div>})}</div>
+            </div>)}
+          </div>}
+          {/* Argument Streams */}
+          {s.results.streams?.length>0&&<div className="mb-5"><h4 className="font-bold text-xs mb-2" style={{color:"#2D8A6E",letterSpacing:"0.05em"}}>ARGUMENT STREAMS</h4>
+            {s.results.streams.map((stream,si)=><div key={si} className="mb-2 p-3 rounded-lg" style={{background:"#F9FAFB"}}>
+              <span className="font-bold text-xs" style={{color:"#111827"}}>{stream.title}</span>
+              <div className="mt-1 space-y-1">{stream.entries?.map((entry,ei)=><div key={ei} className="flex items-start gap-2" style={{fontSize:11}}><span className="font-bold flex-shrink-0" style={{color:"#999"}}>{entry.agent}</span><span style={{color:"#666"}}>{entry.excerpt}</span></div>)}</div>
+            </div>)}
+          </div>}
+          {/* Synthesis (Loom) */}
+          {s.results.loom&&<div><h4 className="font-bold text-xs mb-2" style={{color:"#3B6B9B",letterSpacing:"0.05em"}}>SYNTHESIS</h4>
+            <div style={{fontSize:13,color:"#555",lineHeight:1.9}}>{s.results.loom.split("\n\n").map((p,i)=><p key={i} className="mb-2">{p}</p>)}</div>
+          </div>}
+        </div>}
         {s.mode==="ideate"&&s.results?.clusters?.map((cl,ci)=><div key={ci} className="mb-3"><h4 className="font-bold text-sm mb-1" style={{color:"#3B6B9B"}}>{cl.theme}</h4><div className="space-y-1">{(cl.ideas||[]).map((idea,ii)=><div key={ii} className="p-2 rounded-lg text-xs" style={{background:"rgba(0,0,0,0.02)"}}><span className="font-bold" style={{color:idea.color||"#999"}}>{idea.agent}: </span>{idea.concept}</div>)}</div></div>)}
         {s.mode==="implement"&&s.results?.architecture&&<div><p className="mb-3" style={{fontSize:13,color:"#555",lineHeight:1.7}}>{s.results.architecture}</p>{s.results.components?.filter(c=>c.status==="success").map((comp,i)=><div key={i} className="p-2 rounded-lg mb-1 text-xs" style={{background:"rgba(0,0,0,0.02)"}}><span className="font-bold" style={{color:comp.color||"#999"}}>{comp.agent}: </span>{comp.component} — {comp.approach?.slice(0,150)}</div>)}</div>}
         {!s.results&&<p style={{fontSize:13,color:"rgba(0,0,0,0.3)"}}>Session data not available.</p>}
