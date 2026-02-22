@@ -77,7 +77,10 @@ const EVENT_TO_PHASE = {
   "phase.failed": "failed",
 };
 
+const ADMIN_EMAIL = "nitesh4learning@gmail.com";
+
 export default function OrchestrationPage({ user, onNavigate, runId }) {
+  const isAdmin = user?.email === ADMIN_EMAIL;
   const [isRunning, setIsRunning] = useState(false);
   const [boardSnapshot, setBoardSnapshot] = useState(null);
   const [budget, setBudget] = useState(null);
@@ -553,7 +556,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
         /* Pre-run: Show intake form centered + library below */
         <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
-            <IntakeForm onSubmit={handleSubmit} isRunning={isRunning} />
+            <IntakeForm onSubmit={handleSubmit} isRunning={isRunning} isAdmin={isAdmin} />
           </div>
 
           {/* Use Case Library + Compare toggle */}

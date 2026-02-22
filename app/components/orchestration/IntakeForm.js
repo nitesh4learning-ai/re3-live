@@ -51,7 +51,7 @@ const COMPLEXITY_LABELS = {
   "exceeds-limit": "Exceeds Limit",
 };
 
-export default function IntakeForm({ onSubmit, isRunning }) {
+export default function IntakeForm({ onSubmit, isRunning, isAdmin = false }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState("");
@@ -434,35 +434,54 @@ export default function IntakeForm({ onSubmit, isRunning }) {
       )}
 
       {/* Submit */}
-      <button
-        onClick={handleSubmit}
-        disabled={isRunning || isBlocked}
-        style={{
-          width: "100%",
-          padding: "12px 24px",
-          fontSize: 14,
-          fontWeight: 700,
-          color: "#FFFFFF",
-          background:
-            isRunning || isBlocked
-              ? "#D1D5DB"
-              : "linear-gradient(135deg, #9333EA, #7C3AED)",
-          border: "none",
-          borderRadius: 12,
-          cursor: isRunning || isBlocked ? "not-allowed" : "pointer",
-          transition: "all 0.2s",
-          boxShadow:
-            isRunning || isBlocked
-              ? "none"
-              : "0 4px 12px rgba(147, 51, 234, 0.3)",
-        }}
-      >
-        {isRunning
-          ? "Orchestration Running..."
-          : isBlocked
-            ? "Blocked by Guardrails"
-            : "Launch Orchestration"}
-      </button>
+      {isAdmin ? (
+        <button
+          onClick={handleSubmit}
+          disabled={isRunning || isBlocked}
+          style={{
+            width: "100%",
+            padding: "12px 24px",
+            fontSize: 14,
+            fontWeight: 700,
+            color: "#FFFFFF",
+            background:
+              isRunning || isBlocked
+                ? "#D1D5DB"
+                : "linear-gradient(135deg, #9333EA, #7C3AED)",
+            border: "none",
+            borderRadius: 12,
+            cursor: isRunning || isBlocked ? "not-allowed" : "pointer",
+            transition: "all 0.2s",
+            boxShadow:
+              isRunning || isBlocked
+                ? "none"
+                : "0 4px 12px rgba(147, 51, 234, 0.3)",
+          }}
+        >
+          {isRunning
+            ? "Orchestration Running..."
+            : isBlocked
+              ? "Blocked by Guardrails"
+              : "Launch Orchestration"}
+        </button>
+      ) : (
+        <div
+          style={{
+            width: "100%",
+            padding: "14px 24px",
+            fontSize: 14,
+            fontWeight: 600,
+            color: "#6B7280",
+            background: "#F3F4F6",
+            border: "1px solid #E5E7EB",
+            borderRadius: 12,
+            textAlign: "center",
+            lineHeight: 1.5,
+          }}
+        >
+          Orchestration runs are currently admin-only. Browse the completed runs below to see what the Arena can do!
+        </div>
+      )}
     </div>
   );
 }
