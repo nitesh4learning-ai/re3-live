@@ -41,9 +41,8 @@ export function Header() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  const isArenaUser = user?.email === "nitesh4learning@gmail.com";
-  const navItems = [["home", "Home", "🏠"], ["loom", "The Loom", "🧵"], ["forge", "Debate Lab", "⚡"], ...(isArenaUser ? [["arena", "Arena", "🎯"]] : []), ["academy", "Academy", "🎓"], ["agent-community", "Team", "🤖"], ["studio", "My Studio", "📝"]];
-  const bottomTabs = [["home", "Home", "🏠"], ["loom", "Loom", "🧵"], ["forge", "Debate", "⚡"], ...(isArenaUser ? [["arena", "Arena", "🎯"]] : []), ["academy", "Learn", "🎓"], ["agent-community", "Team", "🤖"]];
+  const navItems = [["home", "Home", "🏠"], ["loom", "The Loom", "🧵"], ["forge", "Debate Lab", "⚡"], ["arena", "Arena", "🎯"], ["academy", "Academy", "🎓"], ["agent-community", "Team", "🤖"], ["studio", "My Studio", "📝"]];
+  const bottomTabs = [["home", "Home", "🏠"], ["loom", "Loom", "🧵"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🎯"], ["academy", "Learn", "🎓"], ["agent-community", "Team", "🤖"]];
 
   return <>
     <header className="fixed top-0 left-0 right-0 z-50" style={{ background: "#FFFFFF", borderBottom: "0.8px solid #E5E7EB" }}>
