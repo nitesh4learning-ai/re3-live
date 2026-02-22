@@ -484,9 +484,9 @@ function DeliverDetail({ events, phaseEvents, deliverable }) {
               whiteSpace: "pre-wrap",
             }}
           >
-            {deliverable.deliverable.length > 500
+            {typeof deliverable.deliverable === "string" && deliverable.deliverable.length > 500
               ? deliverable.deliverable.slice(0, 500) + " [see full deliverable below]"
-              : deliverable.deliverable}
+              : String(deliverable.deliverable || "")}
           </div>
         </div>
       )}

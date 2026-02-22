@@ -183,7 +183,7 @@ function BoardContent({ entries, team }) {
               by {agentLabel(entry.writtenBy)}
               {entry.readers?.length > 0 && (
                 <span style={{ color: THEME.textMuted }}>
-                  {" \u2192 "}{entry.readers.map((r) => agentLabel(r)).join(", ")}
+                  {" \u2192 "}{(entry.readers || []).map((r) => agentLabel(r)).join(", ")}
                 </span>
               )}
             </div>
@@ -662,19 +662,9 @@ export default function CommonConsciousness({ stateEntries, episodicLog, team, e
           overflowY: "auto",
         }}
       >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.15 }}
-          >
-            {activeTab === "board" && <BoardContent entries={entries} team={safeTeam} />}
-            {activeTab === "desk" && <DeskContent entries={entries} team={safeTeam} events={safeEvents} />}
-            {activeTab === "flow" && <FlowContent events={safeEvents} team={safeTeam} />}
-          </motion.div>
-        </AnimatePresence>
+        {activeTab === "board" && <BoardContent entries={entries} team={safeTeam} />}
+        {activeTab === "desk" && <DeskContent entries={entries} team={safeTeam} events={safeEvents} />}
+        {activeTab === "flow" && <FlowContent events={safeEvents} team={safeTeam} />}
       </div>
     </div>
   );
