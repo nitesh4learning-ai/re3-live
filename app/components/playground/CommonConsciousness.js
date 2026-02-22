@@ -613,11 +613,15 @@ function FlowContent({ events, team }) {
 
 // ── Main Common Consciousness Section ────────────────────────────────
 
-export default function CommonConsciousness({ stateEntries = {}, episodicLog = [], team = [], events = [] }) {
+export default function CommonConsciousness({ stateEntries, episodicLog, team, events }) {
+  const safeEvents = events || [];
+  const safeTeam = team || [];
+  const safeEpisodicLog = episodicLog || [];
+  const safeStateEntries = stateEntries || {};
   const [activeTab, setActiveTab] = useState("board");
-  const entries = Object.entries(stateEntries);
+  const entries = Object.entries(safeStateEntries);
 
-  if (entries.length === 0 && episodicLog.length === 0 && events.length === 0) return null;
+  if (entries.length === 0 && safeEpisodicLog.length === 0 && safeEvents.length === 0) return null;
 
   return (
     <div
@@ -666,9 +670,9 @@ export default function CommonConsciousness({ stateEntries = {}, episodicLog = [
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.15 }}
           >
-            {activeTab === "board" && <BoardContent entries={entries} team={team} />}
-            {activeTab === "desk" && <DeskContent entries={entries} team={team} events={events} />}
-            {activeTab === "flow" && <FlowContent events={events} team={team} />}
+            {activeTab === "board" && <BoardContent entries={entries} team={safeTeam} />}
+            {activeTab === "desk" && <DeskContent entries={entries} team={safeTeam} events={safeEvents} />}
+            {activeTab === "flow" && <FlowContent events={safeEvents} team={safeTeam} />}
           </motion.div>
         </AnimatePresence>
       </div>
