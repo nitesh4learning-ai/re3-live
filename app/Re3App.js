@@ -660,10 +660,10 @@ function DebatePanel({article,topic,agents,onDebateComplete,onSaveSession,curren
         </div>
       </div>)}
     </div>:rounds.length>0&&<div className="p-4">
-      {rounds.map((round,ri)=><div key={ri} className="mb-3"><h4 className="font-bold text-xs mb-1.5" style={{color:"#CCC"}}>Round {ri+1}</h4>
-        <div className="space-y-1.5">{round.map(r=><div key={r.id} className="flex items-start gap-2 p-2 rounded-lg" style={{background:r.status==="failed"?"#FFF5F5":"#F9FAFB"}}>
-          <div className="w-5 h-5 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{background:`${getAgentColor(r.name)}15`,color:getAgentColor(r.name),fontSize:7}}>{getAgentAvatar(r.name)}</div>
-          <div className="flex-1"><div className="flex items-center gap-1.5"><span className="font-bold" style={{fontSize:10,color:getAgentColor(r.name)}}>{r.name}</span>{r.model&&<span className="px-1 py-0 rounded" style={{fontSize:7,background:"#F3F4F6",color:"#BBB"}}>{r.model}</span>}{r.timestamp&&<span style={{fontSize:8,color:"#DDD"}}>{new Date(r.timestamp).toLocaleTimeString()}</span>}</div>{r.status==="failed"?<span className="text-xs" style={{color:"#E53E3E"}}>Response unavailable — {r.error||"agent timed out"}</span>:<p className="text-xs mt-0.5" style={{color:"#666",lineHeight:1.5}}>{r.response?.slice(0,200)}...</p>}</div>
+      {rounds.map((round,ri)=><div key={ri} className="mb-3"><h4 className="font-bold mb-1.5" style={{fontSize:13,color:"#999"}}>Round {ri+1}</h4>
+        <div className="space-y-2">{round.map(r=><div key={r.id} className="flex items-start gap-2.5 p-2.5 rounded-lg" style={{background:r.status==="failed"?"#FFF5F5":"#F9FAFB"}}>
+          <div className="w-6 h-6 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{background:`${getAgentColor(r.name)}15`,color:getAgentColor(r.name),fontSize:9}}>{getAgentAvatar(r.name)}</div>
+          <div className="flex-1"><div className="flex items-center gap-1.5"><span className="font-bold" style={{fontSize:13,color:getAgentColor(r.name)}}>{r.name}</span>{r.model&&<span className="px-1 py-0 rounded" style={{fontSize:8,background:"#F3F4F6",color:"#AAA"}}>{r.model}</span>}{r.timestamp&&<span style={{fontSize:9,color:"#BBB"}}>{new Date(r.timestamp).toLocaleTimeString()}</span>}</div>{r.status==="failed"?<span style={{fontSize:13,color:"#E53E3E"}}>Response unavailable — {r.error||"agent timed out"}</span>:<p className="mt-1" style={{fontSize:14,color:"#333",lineHeight:1.7}}>{renderInline(r.response?.length>300?r.response.slice(0,300)+"...":r.response)}</p>}</div>
         </div>)}</div>
       </div>)}
     </div>}
@@ -1345,26 +1345,27 @@ function DebateGalleryPage({content,forgeSessions,onNavigate,onForge}){
               {d.panel.rationale&&<p className="text-xs" style={{color:"#888",lineHeight:1.6,fontStyle:"italic"}}>{d.panel.rationale}</p>}
             </div>}
             {/* Debate Rounds */}
-            {d.rounds?.length>0&&<div className="mb-4"><h4 className="font-bold text-xs mb-2" style={{color:"#E8734A",letterSpacing:"0.05em"}}>DEBATE ROUNDS ({d.rounds.length})</h4>
-              {d.rounds.map((round,ri)=><div key={ri} className="mb-3"><span className="font-bold text-xs" style={{color:"#8B5CF6"}}>Round {ri+1}</span>
-                <div className="space-y-1.5 mt-1">{(Array.isArray(round)?round:[]).filter(r=>r.status==="success"&&r.response).map((r,idx)=>{
+            {d.rounds?.length>0&&<div className="mb-4"><h4 className="font-bold mb-2" style={{fontSize:13,color:"#E8734A",letterSpacing:"0.05em"}}>DEBATE ROUNDS ({d.rounds.length})</h4>
+              {d.rounds.map((round,ri)=><div key={ri} className="mb-3"><span className="font-bold" style={{fontSize:13,color:"#8B5CF6"}}>Round {ri+1}</span>
+                <div className="space-y-2 mt-1.5">{(Array.isArray(round)?round:[]).filter(r=>r.status==="success"&&r.response).map((r,idx)=>{
                   const agent=[...INIT_AGENTS,...Object.values(ORCHESTRATORS)].find(a=>a.id===r.id);
-                  return <div key={idx} className="p-2.5 rounded-lg" style={{background:"#F9FAFB",borderLeft:`3px solid ${agent?.color||"#999"}`}}>
-                    <div className="flex items-center gap-2 mb-1"><span className="font-bold" style={{fontSize:11,color:agent?.color||"#666"}}>{r.name||agent?.name||"Agent"}</span><span style={{fontSize:10,color:"#CCC"}}>{agent?.category||""}</span></div>
-                    <p style={{fontSize:11,color:"#555",lineHeight:1.6}}>{r.response}</p>
+                  const truncated=r.response.length>300?r.response.slice(0,300)+"...":r.response;
+                  return <div key={idx} className="p-3 rounded-lg" style={{background:"#F9FAFB",borderLeft:`3px solid ${agent?.color||"#999"}`}}>
+                    <div className="flex items-center gap-2 mb-1.5"><span className="font-bold" style={{fontSize:14,color:agent?.color||"#444"}}>{r.name||agent?.name||"Agent"}</span><span style={{fontSize:11,color:"#999"}}>{agent?.category||""}</span></div>
+                    <p style={{fontSize:14,color:"#333",lineHeight:1.7}}>{renderInline(truncated)}</p>
                   </div>})}</div>
               </div>)}
             </div>}
             {/* Argument Streams */}
-            {d.streams?.length>0&&<div className="mb-4"><h4 className="font-bold text-xs mb-2" style={{color:"#2D8A6E",letterSpacing:"0.05em"}}>ARGUMENT STREAMS</h4>
+            {d.streams?.length>0&&<div className="mb-4"><h4 className="font-bold mb-2" style={{fontSize:13,color:"#2D8A6E",letterSpacing:"0.05em"}}>ARGUMENT STREAMS</h4>
               {d.streams.map((stream,si)=><div key={si} className="mb-2 p-3 rounded-lg" style={{background:"#F9FAFB"}}>
-                <span className="font-bold text-xs" style={{color:"#111827"}}>{stream.title}</span>
-                <div className="mt-1 space-y-1">{stream.entries?.map((entry,ei)=><div key={ei} className="flex items-start gap-2" style={{fontSize:11}}><span className="font-bold flex-shrink-0" style={{color:"#999"}}>{entry.agent}</span><span style={{color:"#666"}}>{entry.excerpt}</span></div>)}</div>
+                <span className="font-bold" style={{fontSize:14,color:"#111827"}}>{stream.title}</span>
+                <div className="mt-1 space-y-1">{stream.entries?.map((entry,ei)=><div key={ei} className="flex items-start gap-2" style={{fontSize:13}}><span className="font-bold flex-shrink-0" style={{color:"#666"}}>{entry.agent}</span><span style={{color:"#444"}}>{entry.excerpt}</span></div>)}</div>
               </div>)}
             </div>}
             {/* Synthesis */}
-            <div className="mb-2"><h4 className="font-bold text-xs mb-2" style={{color:"#3B6B9B",letterSpacing:"0.05em"}}>SYNTHESIS</h4>
-              <div style={{fontSize:12,color:"#555",lineHeight:1.7}}>{d.loom?.split("\n\n").map((p,pi)=><p key={pi} className="mb-2">{p}</p>)}</div>
+            <div className="mb-2"><h4 className="font-bold mb-2" style={{fontSize:13,color:"#3B6B9B",letterSpacing:"0.05em"}}>SYNTHESIS</h4>
+              <div style={{fontSize:14,color:"#333",lineHeight:1.7}}>{d.loom?.split("\n\n").map((p,pi)=><p key={pi} className="mb-2">{renderInline(p)}</p>)}</div>
             </div>
           </div>}
         </div>
@@ -1525,26 +1526,27 @@ function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onN
             {s.results.panel.rationale&&<p className="text-xs" style={{color:"#888",lineHeight:1.6,fontStyle:"italic"}}>{s.results.panel.rationale}</p>}
           </div>}
           {/* Debate Rounds — full conversation */}
-          {s.results.rounds?.length>0&&<div className="mb-5"><h4 className="font-bold text-xs mb-2" style={{color:"#E8734A",letterSpacing:"0.05em"}}>DEBATE ROUNDS ({s.results.rounds.length})</h4>
-            {s.results.rounds.map((round,ri)=><div key={ri} className="mb-4"><span className="font-bold text-xs" style={{color:"#8B5CF6"}}>Round {ri+1}</span>
-              <div className="space-y-1.5 mt-1">{(Array.isArray(round)?round:[]).filter(r=>r.status==="success"&&r.response).map((r,idx)=>{
+          {s.results.rounds?.length>0&&<div className="mb-5"><h4 className="font-bold mb-2" style={{fontSize:13,color:"#E8734A",letterSpacing:"0.05em"}}>DEBATE ROUNDS ({s.results.rounds.length})</h4>
+            {s.results.rounds.map((round,ri)=><div key={ri} className="mb-4"><span className="font-bold" style={{fontSize:13,color:"#8B5CF6"}}>Round {ri+1}</span>
+              <div className="space-y-2 mt-1.5">{(Array.isArray(round)?round:[]).filter(r=>r.status==="success"&&r.response).map((r,idx)=>{
                 const agent=[...INIT_AGENTS,...Object.values(ORCHESTRATORS)].find(a=>a.id===r.id);
-                return <div key={idx} className="p-2.5 rounded-lg" style={{background:"#F9FAFB",borderLeft:`3px solid ${agent?.color||"#999"}`}}>
-                  <div className="flex items-center gap-2 mb-1"><span className="font-bold" style={{fontSize:11,color:agent?.color||"#666"}}>{r.name||agent?.name||"Agent"}</span><span style={{fontSize:10,color:"#CCC"}}>{agent?.category||""}</span></div>
-                  <p style={{fontSize:11,color:"#555",lineHeight:1.6}}>{r.response}</p>
+                const truncated=r.response.length>300?r.response.slice(0,300)+"...":r.response;
+                return <div key={idx} className="p-3 rounded-lg" style={{background:"#F9FAFB",borderLeft:`3px solid ${agent?.color||"#999"}`}}>
+                  <div className="flex items-center gap-2 mb-1.5"><span className="font-bold" style={{fontSize:14,color:agent?.color||"#444"}}>{r.name||agent?.name||"Agent"}</span><span style={{fontSize:11,color:"#999"}}>{agent?.category||""}</span></div>
+                  <p style={{fontSize:14,color:"#333",lineHeight:1.7}}>{renderInline(truncated)}</p>
                 </div>})}</div>
             </div>)}
           </div>}
           {/* Argument Streams */}
-          {s.results.streams?.length>0&&<div className="mb-5"><h4 className="font-bold text-xs mb-2" style={{color:"#2D8A6E",letterSpacing:"0.05em"}}>ARGUMENT STREAMS</h4>
+          {s.results.streams?.length>0&&<div className="mb-5"><h4 className="font-bold mb-2" style={{fontSize:13,color:"#2D8A6E",letterSpacing:"0.05em"}}>ARGUMENT STREAMS</h4>
             {s.results.streams.map((stream,si)=><div key={si} className="mb-2 p-3 rounded-lg" style={{background:"#F9FAFB"}}>
-              <span className="font-bold text-xs" style={{color:"#111827"}}>{stream.title}</span>
-              <div className="mt-1 space-y-1">{stream.entries?.map((entry,ei)=><div key={ei} className="flex items-start gap-2" style={{fontSize:11}}><span className="font-bold flex-shrink-0" style={{color:"#999"}}>{entry.agent}</span><span style={{color:"#666"}}>{entry.excerpt}</span></div>)}</div>
+              <span className="font-bold" style={{fontSize:14,color:"#111827"}}>{stream.title}</span>
+              <div className="mt-1 space-y-1">{stream.entries?.map((entry,ei)=><div key={ei} className="flex items-start gap-2" style={{fontSize:13}}><span className="font-bold flex-shrink-0" style={{color:"#666"}}>{entry.agent}</span><span style={{color:"#444"}}>{entry.excerpt}</span></div>)}</div>
             </div>)}
           </div>}
           {/* Synthesis (Loom) */}
-          {s.results.loom&&<div><h4 className="font-bold text-xs mb-2" style={{color:"#3B6B9B",letterSpacing:"0.05em"}}>SYNTHESIS</h4>
-            <div style={{fontSize:13,color:"#555",lineHeight:1.9}}>{s.results.loom.split("\n\n").map((p,i)=><p key={i} className="mb-2">{p}</p>)}</div>
+          {s.results.loom&&<div><h4 className="font-bold mb-2" style={{fontSize:13,color:"#3B6B9B",letterSpacing:"0.05em"}}>SYNTHESIS</h4>
+            <div style={{fontSize:14,color:"#333",lineHeight:1.8}}>{s.results.loom.split("\n\n").map((p,i)=><p key={i} className="mb-2">{renderInline(p)}</p>)}</div>
           </div>}
         </div>}
         {s.mode==="ideate"&&s.results?.clusters?.map((cl,ci)=><div key={ci} className="mb-3"><h4 className="font-bold text-sm mb-1" style={{color:"#3B6B9B"}}>{cl.theme}</h4><div className="space-y-1">{(cl.ideas||[]).map((idea,ii)=><div key={ii} className="p-2 rounded-lg text-xs" style={{background:"rgba(0,0,0,0.02)"}}><span className="font-bold" style={{color:idea.color||"#999"}}>{idea.agent}: </span>{idea.concept}</div>)}</div></div>)}

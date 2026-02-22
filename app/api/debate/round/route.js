@@ -29,11 +29,11 @@ export async function POST(req) {
 
     const roundPrompts = {
       1: (agent) =>
-        `Read this ${contentLabel} and give your initial position from your unique perspective. Address the full intellectual arc — the questions raised, patterns discovered, and architecture proposed.\n\n${contentLabel}: "${articleTitle}"\n${contentSlice1}\n\nRespond in 2-3 paragraphs. Be direct, opinionated, and true to your role.`,
+        `Read this ${contentLabel} and give your initial position from your unique perspective. Address the full intellectual arc — the questions raised, patterns discovered, and architecture proposed.\n\n${contentLabel}: "${articleTitle}"\n${contentSlice1}\n\nRespond in 1-2 short paragraphs (max 120 words). Be direct, opinionated, and true to your role.`,
       2: (agent) =>
-        `Read this ${contentLabel} and the Round 1 responses from other agents. Now respond to the most compelling or problematic points. Reference specific agents by name. Agree, challenge, or build on their ideas.\n\n${contentLabel}: "${articleTitle}"\n${contentSlice2}\n${context}\n\nRespond in 2-3 paragraphs. Engage directly with what others said.`,
+        `Read this ${contentLabel} and the Round 1 responses from other agents. Now respond to the most compelling or problematic points. Reference specific agents by name. Agree, challenge, or build on their ideas.\n\n${contentLabel}: "${articleTitle}"\n${contentSlice2}\n${context}\n\nRespond in 1-2 short paragraphs (max 120 words). Engage directly with what others said.`,
       3: (agent) =>
-        `This is the final round. You have seen the ${contentLabel.toLowerCase()} and two rounds of debate. Give your refined final position. What is the one thing this discussion must not lose sight of?\n\n${contentLabel}: "${articleTitle}"\n${context}\n\nRespond in 1-2 paragraphs. Be sharp and conclusive.`,
+        `This is the final round. You have seen the ${contentLabel.toLowerCase()} and two rounds of debate. Give your refined final position. What is the one thing this discussion must not lose sight of?\n\n${contentLabel}: "${articleTitle}"\n${context}\n\nRespond in 1 short paragraph (max 80 words). Be sharp and conclusive.`,
     };
 
     const getPrompt = roundPrompts[roundNumber] || roundPrompts[1];
@@ -43,9 +43,9 @@ export async function POST(req) {
       agents.map(async (agent) => {
         const text = await callLLM(
           agent.model || "anthropic",
-          `You are ${agent.name}. ${agent.persona} You are participating in a structured debate on the Re³ platform. Keep responses focused and under 200 words.`,
+          `You are ${agent.name}. ${agent.persona} You are participating in a structured debate on the Re³ platform. Keep responses crisp and under 120 words. No filler — every sentence must earn its place.`,
           getPrompt(agent),
-          { timeout: 30000, maxTokens: 800 }
+          { timeout: 30000, maxTokens: 500 }
         );
         return { id: agent.id, name: agent.name, response: text, model: agent.model, status: "success" };
       })
