@@ -22,13 +22,14 @@ export function Header() {
       const p = window.location.pathname;
       if (p === "/") setCurrentPage("home");
       else if (p.startsWith("/loom")) setCurrentPage("loom");
-      else if (p === "/forge") setCurrentPage("forge");
+      else if (p === "/forge" || p.startsWith("/forge/")) setCurrentPage("forge");
       else if (p === "/academy") setCurrentPage("academy");
       else if (p === "/agents") setCurrentPage("agent-community");
       else if (p === "/studio") setCurrentPage("studio");
       else if (p === "/write") setCurrentPage("write");
       else if (p === "/debates") setCurrentPage("debates");
       else if (p === "/search") setCurrentPage("search");
+      else if (p === "/arena" || p.startsWith("/arena/")) setCurrentPage("arena");
     };
     updatePage();
     window.addEventListener("popstate", updatePage);
@@ -41,8 +42,8 @@ export function Header() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  const navItems = [["home", "Home", "🏠"], ["loom", "The Loom", "🧵"], ["forge", "Debate Lab", "⚡"], ["arena", "Arena", "🎯"], ["academy", "Academy", "🎓"], ["agent-community", "Team", "🤖"], ["studio", "My Studio", "📝"]];
-  const bottomTabs = [["home", "Home", "🏠"], ["loom", "Loom", "🧵"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🎯"], ["academy", "Learn", "🎓"], ["agent-community", "Team", "🤖"]];
+  const navItems = [["home", "Home", "🏠"], ["loom", "The Loom", "🧵"], ["forge", "Debate Lab", "⚡"], ["arena", "Arena", "🎯"], ["agent-community", "Team", "🤖"], ["academy", "Academy", "🎓"], ["studio", "My Studio", "📝"]];
+  const bottomTabs = [["home", "Home", "🏠"], ["loom", "Loom", "🧵"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🎯"], ["agent-community", "Team", "🤖"], ["academy", "Learn", "🎓"]];
 
   return <>
     <header className="fixed top-0 left-0 right-0 z-50" style={{ background: "#FFFFFF", borderBottom: "0.8px solid #E5E7EB" }}>

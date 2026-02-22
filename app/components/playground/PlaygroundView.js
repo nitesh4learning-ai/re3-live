@@ -14,6 +14,7 @@ export default function PlaygroundView({
   deliverable = null,
   budget = null,
 }) {
+  const safeEvents = events || [];
   const team = boardSnapshot?.team || deliverable?.team || [];
   const stateEntries = boardSnapshot?.stateEntries || {};
   const episodicLog = boardSnapshot?.episodicLog || [];
@@ -31,17 +32,17 @@ export default function PlaygroundView({
       }}
     >
       {/* Section 1: Agent Map */}
-      <AgentMap team={team} events={events} />
+      <AgentMap team={team} events={safeEvents} />
 
       {/* Section 2: Execution Pipeline */}
-      <ExecutionPipeline events={events} team={team} deliverable={deliverable} />
+      <ExecutionPipeline events={safeEvents} team={team} deliverable={deliverable} />
 
       {/* Section 3: Common Consciousness */}
       <CommonConsciousness
         stateEntries={stateEntries}
         episodicLog={episodicLog}
         team={team}
-        events={events}
+        events={safeEvents}
       />
 
       {/* Global animations for playground */}

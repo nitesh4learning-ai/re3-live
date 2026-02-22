@@ -54,8 +54,8 @@ function CycleCard({cycle,onNavigate,variant="default"}){
 function Header({onNavigate,currentPage,currentUser,onLogin,onLogout}){
   const[sc,setSc]=useState(false);const[mob,setMob]=useState(false);
   useEffect(()=>{const fn=()=>setSc(window.scrollY>10);window.addEventListener("scroll",fn);return()=>window.removeEventListener("scroll",fn)},[]);
-  const navItems=[["home","Home","🏠"],["loom","The Loom","🧵"],["forge","Debate Lab","⚡"],["arena","Arena","🎯"],["academy","Academy","🎓"],["agent-community","Team","🤖"],["studio","My Studio","📝"]];
-  const bottomTabs=[["home","Home","🏠"],["loom","Loom","🧵"],["forge","Debate","⚡"],["arena","Arena","🎯"],["academy","Learn","🎓"],["agent-community","Team","🤖"]];
+  const navItems=[["home","Home","🏠"],["loom","The Loom","🧵"],["forge","Debate Lab","⚡"],["arena","Arena","🎯"],["agent-community","Team","🤖"],["academy","Academy","🎓"],["studio","My Studio","📝"]];
+  const bottomTabs=[["home","Home","🏠"],["loom","Loom","🧵"],["forge","Debate","⚡"],["arena","Arena","🎯"],["agent-community","Team","🤖"],["academy","Learn","🎓"]];
   return <><header className="fixed top-0 left-0 right-0 z-50" style={{background:"#FFFFFF",borderBottom:"0.8px solid #E5E7EB"}}>
     <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between" style={{height:56}}>
       <button onClick={()=>{onNavigate("home");setMob(false)}} className="flex items-center gap-2" style={{minHeight:'auto',minWidth:'auto'}}>
@@ -136,7 +136,7 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">{forgeSessions.slice(0,6).map((s,i)=>{
         const modeColors={debate:"#E8734A",ideate:"#3B6B9B",implement:"#2D8A6E"};
         const modeIcons={debate:"⚔️",ideate:"💡",implement:"🔨"};
-        return <FadeIn key={s.id} delay={i*40}><div onClick={()=>onNavigate("forge")} className="p-3 rounded-xl cursor-pointer transition-all hover:shadow-sm" style={{background:"white",border:"1px solid #E5E7EB"}}>
+        return <FadeIn key={s.id} delay={i*40}><div onClick={()=>onNavigate("forge",s.id)} className="p-3 rounded-xl cursor-pointer transition-all hover:shadow-sm" style={{background:"white",border:"1px solid #E5E7EB"}}>
           <div className="flex items-center gap-2 mb-1"><span style={{fontSize:12}}>{modeIcons[s.mode]||"📝"}</span><span className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:9,background:`${modeColors[s.mode]||"#999"}15`,color:modeColors[s.mode]||"#999"}}>{s.mode}</span><span style={{fontSize:9,color:"rgba(0,0,0,0.3)"}}>{new Date(s.date).toLocaleDateString()}</span></div>
           <h4 className="font-semibold text-sm" style={{color:"#111827",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{s.topic?.title||"Untitled"}</h4>
         </div></FadeIn>
@@ -1324,7 +1324,7 @@ function DebateGalleryPage({content,forgeSessions,onNavigate,onForge}){
       <div className="text-xs" style={{color:`${color}90`}}>{label}</div>
     </div>)}</div></FadeIn>
     <div className="space-y-3">{filtered.length>0?filtered.map((d,i)=><FadeIn key={d.id} delay={i*30}>
-      <div className="rounded-xl overflow-hidden transition-all hover:shadow-md cursor-pointer" style={{background:"white",border:expanded===d.id?"2px solid #E8734A":"1px solid #E5E7EB"}} onClick={()=>{if(d.type==="post"){onNavigate("post",d.id)}else{setExpanded(expanded===d.id?null:d.id)}}}>
+      <div className="rounded-xl overflow-hidden transition-all hover:shadow-md cursor-pointer" style={{background:"white",border:expanded===d.id?"2px solid #E8734A":"1px solid #E5E7EB"}} onClick={()=>{if(d.type==="post"){onNavigate("post",d.id)}else{onNavigate("forge",d.id)}}}>
         <div className="flex items-center justify-between px-4 py-3" style={{borderBottom:"1px solid #F3F4F6"}}>
           <div className="flex items-center gap-2">{d.pillar&&<PillarTag pillar={d.pillar}/>}<span className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:9,background:d.type==="session"?"#FFF3E0":"#F3E8FF",color:d.type==="session"?"#E8734A":"#9333EA"}}>{d.type==="session"?"Lab Session":"Article Debate"}</span><span className="text-xs" style={{color:"#CCC"}}>{d.date?fmtS(d.date):""}</span></div>
           <div className="flex items-center gap-2">
@@ -1468,7 +1468,7 @@ function DebateInsightsPanel({content,forgeSessions}){
 }
 
 // ==================== THE FORGE — Standalone Collaboration Hub ====================
-function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onNavigate,forgeSessions,onSaveForgeSession,onDeleteForgeSession,forgePreload,onPostGenerated,onAutoComment,onUpdatePost}){
+function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onNavigate,forgeSessions,onSaveForgeSession,onDeleteForgeSession,forgePreload,onPostGenerated,onAutoComment,onUpdatePost,sessionId}){
   const[topicSource,setTopicSource]=useState(null);
   const[selectedTopic,setSelectedTopic]=useState(null);
   const[workshopActive,setWorkshopActive]=useState(false);
@@ -1481,6 +1481,9 @@ function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onN
 
   // Consume forgePreload
   useEffect(()=>{if(forgePreload){setSelectedTopic(forgePreload);setWorkshopActive(true)}},[forgePreload]);
+
+  // Deep link: auto-open session by ID
+  useEffect(()=>{if(sessionId&&forgeSessions?.length>0){const s=forgeSessions.find(fs=>fs.id===sessionId);if(s)setViewingSession(s)}},[sessionId,forgeSessions]);
 
   const confirmTopic=(topic)=>{setSelectedTopic(topic);setTopicSource(null)};
   const startSession=()=>{if(selectedTopic)setWorkshopActive(true)};
@@ -1785,7 +1788,7 @@ function Re3(){
     case"home":return <HomePage content={content} themes={themes} articles={articles} onNavigate={nav} onVoteTheme={voteTheme} registry={registry} currentUser={user} onAddTheme={addTheme} onEditTheme={editTheme} onDeleteTheme={deleteTheme} forgeSessions={forgeSessions} agents={agents} onSubmitTopic={(title)=>addTheme(title)}/>;
     case"loom":return <LoomPage content={content} articles={articles} onNavigate={nav} onForge={navToForge} onArchiveCycle={archiveCycle} currentUser={user}/>;
     case"loom-cycle":return <LoomCyclePage cycleDate={pageId} content={content} articles={articles} onNavigate={nav} onForge={navToForge} currentUser={user}/>;
-    case"forge":return <ForgePage content={content} themes={themes} agents={agents} registry={registry} registryIndex={registryIndex} currentUser={user} onNavigate={nav} forgeSessions={forgeSessions} onSaveForgeSession={saveForgeSession} onDeleteForgeSession={deleteForgeSession} forgePreload={forgePreload} onPostGenerated={addPost} onAutoComment={autoComment} onUpdatePost={updatePost}/>;
+    case"forge":return <ForgePage content={content} themes={themes} agents={agents} registry={registry} registryIndex={registryIndex} currentUser={user} onNavigate={nav} forgeSessions={forgeSessions} onSaveForgeSession={saveForgeSession} onDeleteForgeSession={deleteForgeSession} forgePreload={forgePreload} onPostGenerated={addPost} onAutoComment={autoComment} onUpdatePost={updatePost} sessionId={pageId}/>;
     case"studio":return <MyStudioPage currentUser={user} content={content} articles={articles} agents={agents} projects={projects} onNavigate={nav} onSaveArticle={saveArticle} onDeleteArticle={deleteArticle} onSaveProject={saveProject} onDeleteProject={deleteProject}/>;
     case"academy":return <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{paddingTop:56,background:"#F9FAFB"}}><p style={{color:"#9CA3AF",fontSize:13}}>Loading Academy...</p></div>}><LazyAcademy onNavigate={nav} currentUser={user}/></Suspense>;
     case"agent-community":return <AgentAtlasPage agents={agents} registry={registry} registryIndex={registryIndex} currentUser={user} onSaveAgent={saveAgent} onDeleteAgent={deleteAgent} onForge={navToForge}/>;
