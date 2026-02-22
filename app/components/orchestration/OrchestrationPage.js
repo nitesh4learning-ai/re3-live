@@ -458,7 +458,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
         margin: "0 auto",
         padding: "24px 16px",
         minHeight: "100vh",
-        background: showResults ? "#0B0F1A" : "transparent",
+        background: showResults ? "#1E293B" : "transparent",
         transition: "background 0.3s",
       }}
     >
@@ -600,7 +600,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
           <Suspense
             fallback={
               <div style={{
-                background: "#0B0F1A",
+                background: "#273549",
                 borderRadius: 20,
                 padding: 40,
                 display: "flex",
@@ -628,8 +628,8 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
             <div
               ref={deliverableRef}
               style={{
-                background: "#111827",
-                border: "1px solid #334155",
+                background: "#273549",
+                border: "1px solid #475569",
                 borderLeft: "4px solid #10B981",
                 borderRadius: 12,
                 padding: 28,
@@ -671,7 +671,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                   flexWrap: "wrap",
                   marginBottom: 16,
                   paddingBottom: 16,
-                  borderBottom: "1px solid #334155",
+                  borderBottom: "1px solid #475569",
                 }}
               >
                 <MetricPill label="Tasks" value={`${deliverable.metrics?.completedTasks}/${deliverable.metrics?.totalTasks}`} />
@@ -706,12 +706,12 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
               justifyContent: "center",
               gap: 10,
               padding: "8px 16px",
-              background: "rgba(17, 24, 39, 0.94)",
+              background: "rgba(39, 53, 73, 0.94)",
               backdropFilter: "blur(10px)",
               WebkitBackdropFilter: "blur(10px)",
-              border: "1px solid #334155",
+              border: "1px solid #475569",
               borderRadius: 14,
-              boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
               maxWidth: 700,
               margin: "0 auto 24px",
               zIndex: 10,
@@ -763,8 +763,8 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                     fontSize: 13,
                     fontWeight: 600,
                     color: copied ? "#10B981" : "#F1F5F9",
-                    background: copied ? "rgba(16, 185, 129, 0.12)" : "#1E293B",
-                    border: `1px solid ${copied ? "#10B981" : "#334155"}`,
+                    background: copied ? "rgba(16, 185, 129, 0.12)" : "#334155",
+                    border: `1px solid ${copied ? "#10B981" : "#475569"}`,
                     borderRadius: 8,
                     cursor: "pointer",
                     transition: "all 0.2s",
@@ -784,8 +784,8 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
                     fontSize: 13,
                     fontWeight: 600,
                     color: shared ? "#0EA5E9" : "#F1F5F9",
-                    background: shared ? "rgba(14, 165, 233, 0.12)" : "#1E293B",
-                    border: `1px solid ${shared ? "#0EA5E9" : "#334155"}`,
+                    background: shared ? "rgba(14, 165, 233, 0.12)" : "#334155",
+                    border: `1px solid ${shared ? "#0EA5E9" : "#475569"}`,
                     borderRadius: 8,
                     cursor: "pointer",
                     transition: "all 0.2s",

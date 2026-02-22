@@ -2,12 +2,12 @@
 // Shared theme, constants, and reusable components for the Playground UI.
 
 export const THEME = {
-  bg: "#0B0F1A",
-  bgSection: "#111827",
-  bgSurface: "#1E293B",
-  bgHover: "#243047",
-  border: "#334155",
-  borderLight: "#1E293B",
+  bg: "#1E293B",
+  bgSection: "#273549",
+  bgSurface: "#334155",
+  bgHover: "#3B4D66",
+  border: "#475569",
+  borderLight: "#334155",
   text: "#F1F5F9",
   textSecondary: "#94A3B8",
   textMuted: "#64748B",
