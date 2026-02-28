@@ -12,7 +12,7 @@ export async function POST(req) {
     const { allowed } = llmRateLimit.check(user.uid);
     if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
 
-    const { articleTitle, articleText, rounds, atlasNote, forgeRationale, panelNames, sagePersona } = await req.json();
+    const { articleTitle, articleText, rounds, atlasNote, forgeRationale, panelNames, sagePersona, pillarNames } = await req.json();
 
     let transcript = "";
     rounds.forEach((round, i) => {
@@ -25,7 +25,8 @@ export async function POST(req) {
     // Detect cycle debate
     const isCycleDebate = articleText.length > 3000 || articleText.includes("---\n\n");
     const contentSlice = isCycleDebate ? articleText.slice(0, 4000) : articleText.slice(0, 1500);
-    const contentLabel = isCycleDebate ? "Re3 Cycle (3 connected articles — Rethink, Rediscover, Reinvent)" : "Article";
+    const pillarLabel = pillarNames?.length ? pillarNames.join(", ") : "Rethink, Rediscover, Reinvent";
+    const contentLabel = isCycleDebate ? `Re3 Cycle (connected articles — ${pillarLabel})` : "Article";
 
     // Step 1: Hypatia weaves The Loom
     const loomText = await callLLM(
@@ -42,7 +43,7 @@ ${transcript.slice(0, 5000)}
 
 Socratia's moderation note: ${atlasNote || "None"}
 
-Now weave The Loom. This is not a summary — it is a synthesis. ${isCycleDebate ? "This debate covered an entire Re³ cycle — the deconstruction (Rethink), the hidden patterns (Rediscover), and the proposed architecture (Reinvent). Your synthesis should address how the debate enriched or challenged the full intellectual arc." : "Find the deeper threads, the tensions that reveal something neither side saw alone, and the emergent insight."} Write 3-4 paragraphs. End with one open question for the community.`,
+Now weave The Loom. This is not a summary — it is a synthesis. ${isCycleDebate ? `This debate covered an entire Re³ cycle across these lenses: ${pillarLabel}. Your synthesis should address how the debate enriched or challenged the full intellectual arc across all perspectives.` : "Find the deeper threads, the tensions that reveal something neither side saw alone, and the emergent insight."} Write 3-4 paragraphs. End with one open question for the community.`,
       { maxTokens: 1500, timeout: 45000 }
     );
 

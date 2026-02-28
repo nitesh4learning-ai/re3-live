@@ -10,7 +10,7 @@ export async function POST(req) {
     const { allowed } = llmRateLimit.check(user.uid);
     if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
 
-    const { articleTitle, articleText, agents, roundNumber, previousRounds = [] } = await req.json();
+    const { articleTitle, articleText, agents, roundNumber, previousRounds = [], pillarNames } = await req.json();
 
     // Build context from previous rounds
     let context = "";
@@ -25,7 +25,8 @@ export async function POST(req) {
     const isCycleDebate = articleText.length > 3000 || articleText.includes("---\n\n");
     const contentSlice1 = isCycleDebate ? articleText.slice(0, 5000) : articleText.slice(0, 2500);
     const contentSlice2 = isCycleDebate ? articleText.slice(0, 3000) : articleText.slice(0, 1500);
-    const contentLabel = isCycleDebate ? "Re3 Cycle (3 connected articles — Rethink, Rediscover, Reinvent)" : "Article";
+    const pillarLabel = pillarNames?.length ? pillarNames.join(", ") : "Rethink, Rediscover, Reinvent";
+    const contentLabel = isCycleDebate ? `Re3 Cycle (${pillarNames?.length || 3} connected articles — ${pillarLabel})` : "Article";
 
     const roundPrompts = {
       1: (agent) =>
