@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from 'next/navigation';
 import { CourseLLMBasics, CoursePromptEng, CourseEmbeddings, CourseRAG, CourseContextEng, CourseAISafety, CourseTokensCosts, CourseJSONMode } from './AcademyTier1';
 import { CourseMCP, CourseA2A, CourseFunctionCalling, CourseGovernance, CourseACP, CourseAgenticPatterns, CourseMemorySystems, CourseHITL } from './AcademyTier2';
-import { CourseMultiAgent, CourseGraphRAG, CourseObservability, CourseLLMGateway, CourseFineTuning, CourseAICodeGen, CourseMultimodal, CourseVoiceAI, CourseRetrievalEng, CourseAITesting } from './AcademyTier3';
+import { CourseMultiAgent, CourseGraphRAG, CourseObservability, CourseLLMGateway, CourseFineTuning, CourseAICodeGen, CourseMultimodal, CourseVoiceAI, CourseRetrievalEng, CourseAITesting, CourseAgenticScale, CourseMCPAdvanced, CourseEvalObservability, CourseGraphRAGAdvanced, CourseFineTuningDistillation } from './AcademyTier3';
 import { CourseAIRegulatory, CourseResponsibleAI, CourseEnterpriseStrategy, CourseAIEconomics, CourseComputerUse, CoursePhysicalAI } from './AcademyTier4';
 
 // ==================== DESIGN TOKENS ====================
@@ -61,6 +61,11 @@ const COURSES = [
   {id:'voice-ai',tier:3,icon:'\uD83C\uDF99\uFE0F',title:'Voice AI & Conversational Agents',description:'STT, TTS, real-time conversation, contact center AI. Building voice-first experiences.',difficulty:'Advanced',timeMinutes:40,exerciseCount:6,tabCount:4,status:'available'},
   {id:'retrieval-eng',tier:3,icon:'\uD83D\uDD0E',title:'Retrieval Engineering',description:'Advanced chunking, hybrid search, reranking, RAPTOR. Going beyond basic RAG.',difficulty:'Advanced',timeMinutes:45,exerciseCount:8,tabCount:4,status:'available'},
   {id:'ai-testing',tier:3,icon:'\uD83E\uDDEA',title:'AI Testing & Red-Teaming',description:'Adversarial testing, prompt injection defense, safety benchmarks. Hardening AI systems.',difficulty:'Advanced',timeMinutes:40,exerciseCount:7,tabCount:4,status:'available'},
+  {id:'agentic-scale',tier:3,icon:'\uD83E\uDD16',title:'Agentic AI Patterns & Tool Use at Scale',description:'ReAct loops, multi-tool orchestration, agent memory architectures, reliability & error recovery for production agents.',difficulty:'Advanced',timeMinutes:55,exerciseCount:10,tabCount:5,status:'available'},
+  {id:'mcp-advanced',tier:3,icon:'\uD83D\uDD0C',title:'MCP — Advanced Patterns',description:'Multi-server composition, custom tool design, resource & sampling patterns, OAuth security for production MCP.',difficulty:'Advanced',timeMinutes:50,exerciseCount:9,tabCount:5,status:'available'},
+  {id:'eval-observability',tier:3,icon:'\uD83D\uDCCA',title:'AI Evaluation & Observability',description:'Systematic evaluation, LLM-as-judge, tracing & observability pipelines, drift detection & quality monitoring.',difficulty:'Advanced',timeMinutes:45,exerciseCount:8,tabCount:5,status:'available'},
+  {id:'graphrag-advanced',tier:3,icon:'\uD83C\uDF10',title:'GraphRAG & Knowledge Graphs',description:'Beyond vector search — knowledge graph construction, Microsoft GraphRAG, hybrid retrieval strategies.',difficulty:'Advanced',timeMinutes:50,exerciseCount:9,tabCount:5,status:'available'},
+  {id:'fine-tuning-distillation',tier:3,icon:'\uD83D\uDD27',title:'Fine-Tuning & Model Distillation',description:'When to fine-tune, LoRA/QLoRA techniques, teacher-student distillation, evaluation & deployment at scale.',difficulty:'Advanced',timeMinutes:50,exerciseCount:8,tabCount:5,status:'available'},
   // Tier 4: Strategic & Frontier (6 courses)
   {id:'ai-regulatory',tier:4,icon:'\u2696\uFE0F',title:'AI Governance & Regulatory Landscape',description:'NIST AI RMF, EU AI Act, model risk management. Navigating the regulatory maze.',difficulty:'Expert',timeMinutes:50,exerciseCount:7,tabCount:4,status:'available'},
   {id:'responsible-ai',tier:4,icon:'\uD83E\uDD1D',title:'Responsible AI in Practice',description:'Fairness, explainability, Fairlearn, AI Fairness 360. Ethical AI at production scale.',difficulty:'Expert',timeMinutes:45,exerciseCount:6,tabCount:4,status:'available'},
@@ -534,6 +539,7 @@ export default function Academy({onNavigate,currentUser}){
     // Tier 3
     ['multi-agent',CourseMultiAgent],['graph-rag',CourseGraphRAG],['ai-observability',CourseObservability],['llm-gateway',CourseLLMGateway],
     ['fine-tuning',CourseFineTuning],['ai-code-gen',CourseAICodeGen],['multimodal',CourseMultimodal],['voice-ai',CourseVoiceAI],['retrieval-eng',CourseRetrievalEng],['ai-testing',CourseAITesting],
+    ['agentic-scale',CourseAgenticScale],['mcp-advanced',CourseMCPAdvanced],['eval-observability',CourseEvalObservability],['graphrag-advanced',CourseGraphRAGAdvanced],['fine-tuning-distillation',CourseFineTuningDistillation],
     // Tier 4
     ['ai-regulatory',CourseAIRegulatory],['responsible-ai',CourseResponsibleAI],['enterprise-strategy',CourseEnterpriseStrategy],
     ['ai-economics',CourseAIEconomics],['computer-use',CourseComputerUse],['physical-ai',CoursePhysicalAI],
