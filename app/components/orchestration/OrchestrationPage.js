@@ -16,6 +16,8 @@ import UseCaseLibrary from "./UseCaseLibrary";
 import BlackboardPanel from "./panels/BlackboardPanel";
 import { saveRun, listRuns, getRun, getRunCloud, listRunsCloud } from "../../../lib/orchestration/run-store";
 import RunComparison from "./RunComparison";
+import MermaidDiagram from "./panels/MermaidDiagram";
+import PrototypeSandbox from "./panels/PrototypeSandbox";
 
 // Lazy-load the canvas (heavy React Flow dependency)
 const OrchestrationCanvas = lazy(() => import("./OrchestrationCanvas"));
@@ -625,77 +627,8 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
             />
           </Suspense>
 
-          {/* Deliverable (full width, shown after completion) — Dark paper effect */}
-          {deliverable && (
-            <div
-              ref={deliverableRef}
-              style={{
-                background: "#FDFCFA",
-                border: "1px solid #E5E7EB",
-                borderLeft: "4px solid #10B981",
-                borderRadius: 12,
-                padding: 28,
-                marginTop: 8,
-                marginBottom: 24,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  letterSpacing: "0.1em",
-                  color: "#10B981",
-                  marginBottom: 8,
-                  textTransform: "uppercase",
-                }}
-              >
-                DELIVERABLE
-              </div>
-              <h3
-                style={{
-                  fontSize: 22,
-                  fontWeight: 700,
-                  color: "#111827",
-                  marginBottom: 4,
-                  fontFamily: "'Instrument Serif', Georgia, serif",
-                }}
-              >
-                {deliverable.useCase?.title}
-              </h3>
-
-              {/* Metrics bar */}
-              <div
-                style={{
-                  display: "flex",
-                  gap: 16,
-                  flexWrap: "wrap",
-                  marginBottom: 16,
-                  paddingBottom: 16,
-                  borderBottom: "1px solid #E8E6E1",
-                }}
-              >
-                <MetricPill label="Tasks" value={`${deliverable.metrics?.completedTasks}/${deliverable.metrics?.totalTasks}`} />
-                <MetricPill label="Success" value={`${deliverable.metrics?.successRate}%`} />
-                <MetricPill label="Time" value={`${((deliverable.metrics?.elapsedMs || 0) / 1000).toFixed(1)}s`} />
-                <MetricPill label="Cost" value={`$${(deliverable.metrics?.budget?.costAccumulated || 0).toFixed(4)}`} />
-                <MetricPill label="Tokens" value={(deliverable.metrics?.budget?.tokensUsed || 0).toLocaleString()} />
-              </div>
-
-              {/* Output text */}
-              <div
-                style={{
-                  fontSize: 15,
-                  color: "#374151",
-                  lineHeight: 1.8,
-                  whiteSpace: "pre-wrap",
-                  fontFamily: "'Source Sans 3', 'Inter', sans-serif",
-                }}
-              >
-                {deliverable.deliverable}
-              </div>
-            </div>
-          )}
+          {/* Deliverable (full width, shown after completion) — Tabbed Blueprint/Prototype/Report */}
+          {deliverable && <DeliverablePanel deliverable={deliverable} deliverableRef={deliverableRef} />}
 
           {/* Sticky bottom bar — cost tracker + action buttons (dark theme) */}
           <div
@@ -868,6 +801,174 @@ function CollapsibleSection({ title, color, children, defaultExpanded = true }) 
         </span>
       </button>
       {expanded && children}
+    </div>
+  );
+}
+
+// ==================== DELIVERABLE PANEL — Tabbed Blueprint / Prototype / Report ====================
+function DeliverablePanel({ deliverable, deliverableRef }) {
+  const [activeTab, setActiveTab] = useState("blueprint");
+  const hasBP = !!deliverable.blueprint;
+  const hasPT = !!deliverable.prototype;
+
+  // Default to report if no structured sections
+  const defaultTab = hasBP ? "blueprint" : hasPT ? "prototype" : "report";
+  useEffect(() => { setActiveTab(defaultTab); }, [defaultTab]);
+
+  const tabs = [
+    hasBP && { id: "blueprint", label: "System Blueprint", icon: "\uD83D\uDCCD" },
+    hasPT && { id: "prototype", label: "Prototype", icon: "\uD83D\uDEE0\uFE0F" },
+    { id: "report", label: "Full Report", icon: "\uD83D\uDCCB" },
+  ].filter(Boolean);
+
+  return (
+    <div
+      ref={deliverableRef}
+      style={{
+        background: "#FDFCFA",
+        border: "1px solid #E5E7EB",
+        borderLeft: "4px solid #10B981",
+        borderRadius: 12,
+        padding: 28,
+        marginTop: 8,
+        marginBottom: 24,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+      }}
+    >
+      <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", color: "#10B981", marginBottom: 8, textTransform: "uppercase" }}>
+        DELIVERABLE
+      </div>
+      <h3 style={{ fontSize: 22, fontWeight: 700, color: "#111827", marginBottom: 4, fontFamily: "'Instrument Serif', Georgia, serif" }}>
+        {deliverable.useCase?.title}
+      </h3>
+
+      {/* Executive summary */}
+      {deliverable.executiveSummary && (
+        <p style={{ fontSize: 14, color: "#6B7280", lineHeight: 1.7, marginBottom: 12, fontStyle: "italic" }}>
+          {deliverable.executiveSummary}
+        </p>
+      )}
+
+      {/* Metrics bar */}
+      <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 16, paddingBottom: 16, borderBottom: "1px solid #E8E6E1" }}>
+        <MetricPill label="Tasks" value={`${deliverable.metrics?.completedTasks}/${deliverable.metrics?.totalTasks}`} />
+        <MetricPill label="Success" value={`${deliverable.metrics?.successRate}%`} />
+        <MetricPill label="Time" value={`${((deliverable.metrics?.elapsedMs || 0) / 1000).toFixed(1)}s`} />
+        <MetricPill label="Cost" value={`$${(deliverable.metrics?.budget?.costAccumulated || 0).toFixed(4)}`} />
+        <MetricPill label="Tokens" value={(deliverable.metrics?.budget?.tokensUsed || 0).toLocaleString()} />
+      </div>
+
+      {/* Tab bar */}
+      {tabs.length > 1 && (
+        <div style={{ display: "flex", gap: 4, marginBottom: 20, padding: 3, background: "#F3F4F6", borderRadius: 10 }}>
+          {tabs.map(t => (
+            <button
+              key={t.id}
+              onClick={() => setActiveTab(t.id)}
+              style={{
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6,
+                padding: "8px 12px",
+                fontSize: 13,
+                fontWeight: 600,
+                borderRadius: 8,
+                border: "none",
+                cursor: "pointer",
+                background: activeTab === t.id ? "#FFFFFF" : "transparent",
+                color: activeTab === t.id ? "#9333EA" : "#6B7280",
+                boxShadow: activeTab === t.id ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
+                transition: "all 0.15s",
+                fontFamily: "'DM Sans', 'Inter', sans-serif",
+              }}
+            >
+              <span>{t.icon}</span> {t.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* ===== BLUEPRINT TAB ===== */}
+      {activeTab === "blueprint" && deliverable.blueprint && (
+        <div>
+          {/* Sequence Diagram */}
+          {deliverable.blueprint.sequence_diagram && (
+            <MermaidDiagram code={deliverable.blueprint.sequence_diagram} title="Sequence Diagram" />
+          )}
+
+          {/* ERD */}
+          {deliverable.blueprint.erd && (
+            <MermaidDiagram code={deliverable.blueprint.erd} title="Entity Relationship Diagram" />
+          )}
+
+          {/* Technical Constraints */}
+          {deliverable.blueprint.technical_constraints?.length > 0 && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: "#6B7280", marginBottom: 8, textTransform: "uppercase" }}>
+                Technical Constraints
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {deliverable.blueprint.technical_constraints.map((c, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 14, color: "#374151", lineHeight: 1.6 }}>
+                    <span style={{ color: "#F59E0B", fontWeight: 700, flexShrink: 0 }}>{"\u26A0"}</span>
+                    {c}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* API Integrations */}
+          {deliverable.blueprint.api_integrations?.length > 0 && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: "#6B7280", marginBottom: 8, textTransform: "uppercase" }}>
+                Recommended API Integrations
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {deliverable.blueprint.api_integrations.map((api, i) => (
+                  <span key={i} style={{ padding: "6px 12px", fontSize: 12, fontWeight: 600, borderRadius: 8, background: "#EFF6FF", color: "#3B82F6", border: "1px solid #BFDBFE" }}>
+                    {api}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ===== PROTOTYPE TAB ===== */}
+      {activeTab === "prototype" && deliverable.prototype && (
+        <PrototypeSandbox
+          code={deliverable.prototype.code}
+          componentName={deliverable.prototype.component_name}
+          description={deliverable.prototype.description}
+        />
+      )}
+
+      {/* ===== REPORT TAB ===== */}
+      {activeTab === "report" && (
+        <div>
+          <div style={{ fontSize: 15, color: "#374151", lineHeight: 1.8, whiteSpace: "pre-wrap", fontFamily: "'Source Sans 3', 'Inter', sans-serif" }}>
+            {deliverable.deliverable}
+          </div>
+          {/* Recommendations */}
+          {deliverable.recommendations?.length > 0 && (
+            <div style={{ marginTop: 20, padding: 16, background: "#F0FDF4", borderRadius: 10, border: "1px solid #BBF7D0" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: "#16A34A", marginBottom: 8, textTransform: "uppercase" }}>
+                Key Recommendations
+              </div>
+              {deliverable.recommendations.map((r, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 14, color: "#374151", lineHeight: 1.6, marginBottom: 4 }}>
+                  <span style={{ color: "#16A34A", fontWeight: 700, flexShrink: 0 }}>{"\u2713"}</span>
+                  {r}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
