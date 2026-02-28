@@ -15,61 +15,119 @@ WRITING STYLE (MANDATORY):
 - In JSON paragraphs array, use \\n for line breaks within a single paragraph string.
 - Each paragraph string in the array should be short — 1-3 sentences or a bullet list.`;
 
-// ==================== STEP 0: Through-Line Question ====================
+// Default color palette for dynamic pillars
+const PILLAR_COLORS = [
+  { color: "#3B6B9B", gradient: "linear-gradient(135deg,#3B6B9B,#6B9FCE)", lightBg: "#E3F2FD" },
+  { color: "#E8734A", gradient: "linear-gradient(135deg,#E8734A,#F4A261)", lightBg: "#FFF3E0" },
+  { color: "#2D8A6E", gradient: "linear-gradient(135deg,#2D8A6E,#5CC4A0)", lightBg: "#E8F5E9" },
+];
+
+// Orchestrator assignments for each act position
+const ORCHESTRATORS = [
+  { name: "Hypatia", id: "agent_sage", role: "deconstructs and questions" },
+  { name: "Socratia", id: "agent_atlas", role: "finds hidden patterns and connections" },
+  { name: "Ada", id: "agent_forge", role: "builds concrete solutions and architectures" },
+];
+
+// ==================== STEP 0: Through-Line + Dynamic Pillars ====================
 async function generateThroughLine(topic) {
   const response = await callLLM(
     "anthropic",
-    `You are the Re3 Cycle Architect. Your job is to take a topic and produce a single through-line question that will drive an entire intellectual cycle across three acts: Rethink (deconstruct), Rediscover (reconnect), and Reinvent (reconstruct).
+    `You are the Re3 Cycle Architect. Given a topic, you produce:
+1. A through-line question driving the entire cycle
+2. Three DYNAMIC PILLARS — topic-specific intellectual lenses (NOT always Rethink/Rediscover/Reinvent)
 
-The through-line question must:
-- Be specific enough that each act can address it directly
-- Be provocative enough that the "obvious" answer is wrong or incomplete
-- Be AI-relevant and meaningful to enterprise technology leaders
-- Not be answerable with a simple yes/no — it should require genuine exploration`,
+Each pillar should:
+- Be a genuinely distinct dimension of the topic (not just relabeling)
+- Create productive tension with the other pillars
+- Have a short, memorable label (1-2 words)
+- Have a tagline (under 10 words)
+- Have an angle describing what the agent should explore`,
     `Topic: "${topic.title}"
 Context: "${topic.rationale || ""}"
 
 Return JSON only:
 {
   "through_line_question": "The single question driving this cycle",
-  "rethink_angle": "What assumption should Hypatia challenge?",
-  "rediscover_angle": "What domains/history should Socratia explore?",
-  "reinvent_angle": "What should Ada build?"
+  "pillars": [
+    { "label": "Pillar 1 Name", "tagline": "Brief description", "angle": "What should the first agent explore?" },
+    { "label": "Pillar 2 Name", "tagline": "Brief description", "angle": "What should the second agent explore?" },
+    { "label": "Pillar 3 Name", "tagline": "Brief description", "angle": "What should the third agent explore?" }
+  ],
+  "rethink_angle": "Same as pillars[0].angle (for backward compat)",
+  "rediscover_angle": "Same as pillars[1].angle (for backward compat)",
+  "reinvent_angle": "Same as pillars[2].angle (for backward compat)"
 }`,
-    { maxTokens: 500, timeout: 30000 }
+    { maxTokens: 600, timeout: 30000 }
   );
 
   const { data, error } = parseLLMResponse(response, ThroughLineSchema);
   if (!data) throw new Error("Failed to parse through-line question: " + error);
+
+  // Ensure backward compat: if pillars not returned, build from classic angles
+  if (!data.pillars || data.pillars.length < 3) {
+    data.pillars = [
+      { label: "Rethink", tagline: "Deconstruct assumptions", angle: data.rethink_angle },
+      { label: "Rediscover", tagline: "Find hidden patterns", angle: data.rediscover_angle },
+      { label: "Reinvent", tagline: "Build what's next", angle: data.reinvent_angle },
+    ];
+  }
+
+  // Backfill classic angles from dynamic pillars
+  if (!data.rethink_angle && data.pillars[0]) data.rethink_angle = data.pillars[0].angle;
+  if (!data.rediscover_angle && data.pillars[1]) data.rediscover_angle = data.pillars[1].angle;
+  if (!data.reinvent_angle && data.pillars[2]) data.reinvent_angle = data.pillars[2].angle;
+
   return data;
 }
 
-// ==================== STEP 1: Hypatia writes Rethink (Act 1) ====================
-async function generateRethink(topic, throughLine) {
-  const response = await callLLM(
-    "anthropic",
-    `You are Hypatia, the Rethink orchestrator for Re3. You DECONSTRUCT assumptions. Act 1 of 3 — you create tension, Socratia (Act 2) finds patterns, Ada (Act 3) builds.
+// ==================== GENERIC ACT GENERATOR ====================
+// Generates content for any pillar position (1st, 2nd, or 3rd act)
+async function generateAct(actIndex, topic, throughLine, previousActs) {
+  const pillar = throughLine.pillars[actIndex];
+  const orch = ORCHESTRATORS[actIndex];
+  const pillarLabel = pillar.label;
+  const allPillarLabels = throughLine.pillars.map(p => p.label);
+
+  // Build context from previous acts
+  let previousContext = "";
+  let previousQuestions = "";
+  let previousPrinciple = "";
+  previousActs.forEach((act, i) => {
+    const prevPillar = throughLine.pillars[i];
+    previousContext += `\n--- ${prevPillar.label} (by ${ORCHESTRATORS[i].name}) ---\n`;
+    previousContext += act.paragraphs.join("\n\n") + "\n";
+    if (act.open_questions?.length) previousQuestions = act.open_questions.join("\n- ");
+    if (act.synthesis_principle) previousPrinciple = act.synthesis_principle;
+  });
+
+  // Different prompts per act position
+  const actPrompts = {
+    0: {
+      // First act: deconstruct/question
+      system: `You are ${orch.name}, writing the "${pillarLabel}" lens for a Re3 cycle. You ${orch.role}. Act 1 of 3 — you create tension for the next two acts (${allPillarLabels[1]}, ${allPillarLabels[2]}).
 
 YOUR OUTPUT (follow exactly — UNDER 100 WORDS TOTAL):
 1. THE CONSENSUS: 1-2 bullet points stating what everyone believes. **Bold** key terms.
 2. THE FRACTURE: 2-3 bullet points breaking that consensus. Why is it wrong or incomplete?
-3. OPEN QUESTIONS: 2-3 bullet-point questions the consensus cannot answer. Socratia MUST address these.
-4. BRIDGE: 1 sentence pointing to Rediscover.
+3. OPEN QUESTIONS: 2-3 bullet-point questions the consensus cannot answer.
+4. BRIDGE: 1 sentence pointing to ${allPillarLabels[1]}.
 
 RULES:
-- No solutions (Ada's job). No historical patterns (Socratia's job).
 - Reference the through-line question.
+- Leave room for ${allPillarLabels[1]} and ${allPillarLabels[2]}.
 - Tone: Provocative, Socratic, honest.
 ${WRITING_STYLE_RULES}`,
-    `Topic: "${topic.title}"
+      user: `Topic: "${topic.title}"
 Through-Line Question: "${throughLine.through_line_question}"
-Your angle: "${throughLine.rethink_angle}"
+Your lens: "${pillarLabel}" — ${pillar.tagline}
+Your angle: "${pillar.angle}"
 
 Return JSON:
 {
   "title": "Short, provocative title (under 10 words)",
-  "tldr": "One sentence (15 words max) — what assumption breaks and why it matters.",
-  "paragraphs": ["- Consensus point 1\\n- Consensus point 2", "- Fracture point 1\\n- Fracture point 2\\n- Fracture point 3", "- Question 1?\\n- Question 2?\\n- Question 3?", "Bridge sentence to Rediscover."],
+  "tldr": "One sentence (15 words max).",
+  "paragraphs": ["- Consensus point 1\\n- Consensus point 2", "- Fracture point 1\\n- Fracture point 2\\n- Fracture point 3", "- Question 1?\\n- Question 2?\\n- Question 3?", "Bridge sentence to ${allPillarLabels[1]}."],
   "open_questions": ["Question 1", "Question 2", "Question 3"],
   "bridge_sentence": "Bridge sentence",
   "tags": ["tag1", "tag2"],
@@ -78,47 +136,37 @@ Return JSON:
     "items": ["Question 1", "Question 2", "Question 3"]
   }
 }`,
-    { maxTokens: 1200, timeout: 30000 }
-  );
+      schema: CycleRethinkSchema,
+    },
+    1: {
+      // Second act: discover/connect
+      system: `You are ${orch.name}, writing the "${pillarLabel}" lens for a Re3 cycle. You ${orch.role}. Act 2 of 3.
 
-  const { data, error } = parseLLMResponse(response, CycleRethinkSchema);
-  if (!data) throw new Error("Failed to parse Hypatia response: " + error);
-  return data;
-}
-
-// ==================== STEP 2: Socratia writes Rediscover (Act 2) ====================
-async function generateRediscover(topic, throughLine, sageOutput) {
-  const sageFullText = sageOutput.paragraphs.join("\n\n");
-  const openQuestions = sageOutput.open_questions?.join("\n- ") || "";
-
-  const response = await callLLM(
-    "anthropic",
-    `You are Socratia, the Rediscover orchestrator for Re3. You find hidden PATTERNS that answer Rethink's questions. Act 2 of 3.
-
-HYPATIA'S QUESTIONS TO ADDRESS:
-- ${openQuestions}
+${previousQuestions ? `QUESTIONS FROM ${allPillarLabels[0].toUpperCase()} TO ADDRESS:\n- ${previousQuestions}` : ""}
 
 YOUR OUTPUT (follow exactly — UNDER 100 WORDS TOTAL):
-1. CALLBACK: 1 sentence referencing Hypatia's question.
+1. CALLBACK: 1 sentence referencing ${allPillarLabels[0]}'s question.
 2. PATTERN 1: **Bold** the name. Include domain, year, and key insight as 2-3 bullets.
 3. PATTERN 2: Different field entirely. 2-3 bullets with specifics.
 4. PRINCIPLE: 1 bold sentence — "What both reveal: [principle]."
-5. BRIDGE: 1 sentence to Reinvent.
+5. BRIDGE: 1 sentence to ${allPillarLabels[2]}.
 
 RULES:
-- No deconstruction (Hypatia did that). No solutions (Ada does that).
+- Build on ${allPillarLabels[0]}'s work. Do not repeat it.
 - Use specific, dated, named examples. No vague analogies.
 - Tone: Detective-like, surprising connections.
 ${WRITING_STYLE_RULES}`,
-    `Topic: "${topic.title}"
+      user: `Topic: "${topic.title}"
 Through-Line Question: "${throughLine.through_line_question}"
-Your angle: "${throughLine.rediscover_angle}"
+Your lens: "${pillarLabel}" — ${pillar.tagline}
+Your angle: "${pillar.angle}"
+${previousContext}
 
 Return JSON:
 {
   "title": "Short title hinting at the surprising connection (under 10 words)",
-  "tldr": "One sentence (15 words max) — what patterns were found and what principle emerges.",
-  "paragraphs": ["Callback sentence referencing Hypatia.", "**Pattern Name** (year):\\n- Key insight 1\\n- Key insight 2", "**Cross-domain term** (definition):\\n- Insight 1\\n- Insight 2", "**Principle:** What both cases reveal is: [principle].", "Bridge sentence to Reinvent."],
+  "tldr": "One sentence (15 words max).",
+  "paragraphs": ["Callback sentence.", "**Pattern Name** (year):\\n- Key insight 1\\n- Key insight 2", "**Cross-domain term**:\\n- Insight 1\\n- Insight 2", "**Principle:** What both cases reveal is: [principle].", "Bridge sentence to ${allPillarLabels[2]}."],
   "patterns": [
     {"domain": "Domain", "year": "Year", "principle": "Key principle", "summary": "One-line"},
     {"domain": "Domain", "principle": "Key principle", "summary": "One-line"}
@@ -132,49 +180,38 @@ Return JSON:
     "evidence": ["Pattern 1 summary", "Pattern 2 summary"]
   }
 }`,
-    { maxTokens: 1200, timeout: 30000 }
-  );
+      schema: CycleRediscoverSchema,
+    },
+    2: {
+      // Third act: build/synthesize
+      system: `You are ${orch.name}, writing the "${pillarLabel}" lens for a Re3 cycle. You ${orch.role}. Act 3 of 3 — the resolution.
 
-  const { data, error } = parseLLMResponse(response, CycleRediscoverSchema);
-  if (!data) throw new Error("Failed to parse Socratia response: " + error);
-  return data;
-}
-
-// ==================== STEP 3: Ada writes Reinvent (Act 3) ====================
-async function generateReinvent(topic, throughLine, sageOutput, atlasOutput) {
-  const sageFullText = sageOutput.paragraphs.join("\n\n");
-  const atlasFullText = atlasOutput.paragraphs.join("\n\n");
-  const openQuestions = sageOutput.open_questions?.join("\n- ") || "";
-
-  const response = await callLLM(
-    "anthropic",
-    `You are Ada, the Reinvent orchestrator for Re3. You BUILD concrete solutions. Act 3 of 3 — the resolution.
-
-SOCRATIA'S PRINCIPLE TO BUILD ON:
-${atlasOutput.synthesis_principle || ""}
+${previousPrinciple ? `PRINCIPLE FROM ${allPillarLabels[1].toUpperCase()} TO BUILD ON:\n${previousPrinciple}` : ""}
 
 YOUR OUTPUT (follow exactly — UNDER 100 WORDS for prose, code block is separate):
-1. FOUNDATION: 1 sentence threading the arc. "Hypatia broke [X]. Socratia found [Y]. Now we build."
+1. FOUNDATION: 1 sentence threading the arc. "${allPillarLabels[0]} broke [X]. ${allPillarLabels[1]} found [Y]. Now we build."
 2. ARCHITECTURE: 3-4 bullet-point components. **Bold** each name. Be opinionated.
 3. CODE ANCHOR: A short working Python snippet (10-20 lines). Embodies the principle.
 4. INTEGRATION: 2-3 bullet steps. "Start with X, not Y."
 5. OPEN THREAD: 1 sentence seeding the next cycle.
 
 RULES:
-- No re-questioning (Hypatia did that). No pattern-finding (Socratia did that).
+- Build on both previous acts. Do not repeat them.
 - Working Python code, not pseudocode.
 - Tone: Builder, pragmatic, opinionated.
 ${WRITING_STYLE_RULES}
 
 For code blocks, use \`\`\`python at the start of the paragraph.`,
-    `Topic: "${topic.title}"
+      user: `Topic: "${topic.title}"
 Through-Line Question: "${throughLine.through_line_question}"
-Your angle: "${throughLine.reinvent_angle}"
+Your lens: "${pillarLabel}" — ${pillar.tagline}
+Your angle: "${pillar.angle}"
+${previousContext}
 
 Return JSON:
 {
   "title": "Short, buildable title (under 10 words)",
-  "tldr": "One sentence (15 words max) — what you are building and why it works.",
+  "tldr": "One sentence (15 words max).",
   "paragraphs": ["Foundation sentence.", "**Component 1**: description\\n**Component 2**: description\\n**Component 3**: description", "\`\`\`python\\ncode here\\n\`\`\`", "- Integration step 1\\n- Integration step 2\\n- Integration step 3", "Open thread sentence."],
   "architecture_components": ["Component 1", "Component 2", "Component 3"],
   "open_thread": "Next question this raises",
@@ -182,16 +219,33 @@ Return JSON:
   "artifact": {
     "type": "blueprint",
     "components": ["Component 1", "Component 2"],
-    "principle_applied": "Principle from Rediscover",
+    "principle_applied": "Principle from ${allPillarLabels[1]}",
     "code_summary": "What the code demonstrates"
   }
 }`,
-    { maxTokens: 1500, timeout: 45000 }
-  );
+      schema: CycleReinventSchema,
+    },
+  };
 
-  const { data, error } = parseLLMResponse(response, CycleReinventSchema);
-  if (!data) throw new Error("Failed to parse Ada response: " + error);
+  const prompt = actPrompts[actIndex];
+  const maxTokens = actIndex === 2 ? 1500 : 1200;
+  const timeout = actIndex === 2 ? 45000 : 30000;
+
+  const response = await callLLM("anthropic", prompt.system, prompt.user, { maxTokens, timeout });
+  const { data, error } = parseLLMResponse(response, prompt.schema);
+  if (!data) throw new Error(`Failed to parse ${orch.name} response for "${pillarLabel}": ` + error);
   return data;
+}
+
+// Legacy wrappers for backward compatibility
+async function generateRethink(topic, throughLine) {
+  return generateAct(0, topic, throughLine, []);
+}
+async function generateRediscover(topic, throughLine, sageOutput) {
+  return generateAct(1, topic, throughLine, [sageOutput]);
+}
+async function generateReinvent(topic, throughLine, sageOutput, atlasOutput) {
+  return generateAct(2, topic, throughLine, [sageOutput, atlasOutput]);
 }
 
 // ==================== MAIN HANDLER ====================
@@ -211,42 +265,60 @@ export async function POST(req) {
     // Support step-by-step streaming for UI progress updates
     if (step === "through-line") {
       const throughLine = await generateThroughLine(topic);
-      return NextResponse.json({ step: "through-line", data: throughLine });
+      // Attach resolved pillar metadata (colors, keys)
+      const pillarsWithMeta = throughLine.pillars.map((p, i) => ({
+        ...p,
+        key: `pillar_${i + 1}`,
+        ...PILLAR_COLORS[i % PILLAR_COLORS.length],
+        number: String(i + 1).padStart(2, "0"),
+      }));
+      return NextResponse.json({ step: "through-line", data: { ...throughLine, pillars: pillarsWithMeta } });
     }
 
-    if (step === "rethink") {
+    if (step === "rethink" || step === "act_0") {
       const throughLine = previousData?.throughLine;
       if (!throughLine) return NextResponse.json({ error: "throughLine required" }, { status: 400 });
-      const sage = await generateRethink(topic, throughLine);
-      return NextResponse.json({ step: "rethink", data: { ...sage, agent: "Hypatia", pillar: "rethink", authorId: "agent_sage" } });
+      const pillarKey = throughLine.pillars?.[0]?.key || "rethink";
+      const sage = await generateAct(0, topic, throughLine, []);
+      return NextResponse.json({ step: "act_0", data: { ...sage, agent: ORCHESTRATORS[0].name, pillar: pillarKey, authorId: ORCHESTRATORS[0].id } });
     }
 
-    if (step === "rediscover") {
+    if (step === "rediscover" || step === "act_1") {
       const { throughLine, sage } = previousData || {};
       if (!throughLine || !sage) return NextResponse.json({ error: "throughLine and sage required" }, { status: 400 });
-      const atlas = await generateRediscover(topic, throughLine, sage);
-      return NextResponse.json({ step: "rediscover", data: { ...atlas, agent: "Socratia", pillar: "rediscover", authorId: "agent_atlas" } });
+      const pillarKey = throughLine.pillars?.[1]?.key || "rediscover";
+      const atlas = await generateAct(1, topic, throughLine, [sage]);
+      return NextResponse.json({ step: "act_1", data: { ...atlas, agent: ORCHESTRATORS[1].name, pillar: pillarKey, authorId: ORCHESTRATORS[1].id } });
     }
 
-    if (step === "reinvent") {
+    if (step === "reinvent" || step === "act_2") {
       const { throughLine, sage, atlas } = previousData || {};
       if (!throughLine || !sage || !atlas) return NextResponse.json({ error: "throughLine, sage, and atlas required" }, { status: 400 });
-      const forge = await generateReinvent(topic, throughLine, sage, atlas);
-      return NextResponse.json({ step: "reinvent", data: { ...forge, agent: "Ada", pillar: "reinvent", authorId: "agent_forge" } });
+      const pillarKey = throughLine.pillars?.[2]?.key || "reinvent";
+      const forge = await generateAct(2, topic, throughLine, [sage, atlas]);
+      return NextResponse.json({ step: "act_2", data: { ...forge, agent: ORCHESTRATORS[2].name, pillar: pillarKey, authorId: ORCHESTRATORS[2].id } });
     }
 
     // Full pipeline (all steps sequentially)
     const throughLine = await generateThroughLine(topic);
-    const sage = await generateRethink(topic, throughLine);
-    const atlas = await generateRediscover(topic, throughLine, sage);
-    const forge = await generateReinvent(topic, throughLine, sage, atlas);
+    const pillarsWithMeta = throughLine.pillars.map((p, i) => ({
+      ...p,
+      key: `pillar_${i + 1}`,
+      ...PILLAR_COLORS[i % PILLAR_COLORS.length],
+      number: String(i + 1).padStart(2, "0"),
+    }));
+    const tlWithMeta = { ...throughLine, pillars: pillarsWithMeta };
+
+    const sage = await generateAct(0, topic, tlWithMeta, []);
+    const atlas = await generateAct(1, topic, tlWithMeta, [sage]);
+    const forge = await generateAct(2, topic, tlWithMeta, [sage, atlas]);
 
     return NextResponse.json({
-      throughLine,
+      throughLine: tlWithMeta,
       posts: [
-        { ...sage, agent: "Hypatia", pillar: "rethink", authorId: "agent_sage" },
-        { ...atlas, agent: "Socratia", pillar: "rediscover", authorId: "agent_atlas" },
-        { ...forge, agent: "Ada", pillar: "reinvent", authorId: "agent_forge" },
+        { ...sage, agent: ORCHESTRATORS[0].name, pillar: pillarsWithMeta[0]?.key || "rethink", authorId: ORCHESTRATORS[0].id },
+        { ...atlas, agent: ORCHESTRATORS[1].name, pillar: pillarsWithMeta[1]?.key || "rediscover", authorId: ORCHESTRATORS[1].id },
+        { ...forge, agent: ORCHESTRATORS[2].name, pillar: pillarsWithMeta[2]?.key || "reinvent", authorId: ORCHESTRATORS[2].id },
       ],
     });
   } catch (error) {
