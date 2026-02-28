@@ -1161,41 +1161,47 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
   const[throughLine,setThroughLine]=useState(null);const[genProgress,setGenProgress]=useState(0);
   const suggestTopics=async()=>{setLoading(true);setError('');try{const d=await authFetch('/api/agents/suggest-topics',{currentTopics:INIT_CONTENT.map(c=>c.title),pastCycles:['AI Governance Reimagined','The Death of the Dashboard']});if(d.topics&&d.topics.length>0){setTopics(d.topics);setStep('topics')}else{setError('No topics returned.')}}catch(e){setError(e.message||'Failed to reach API')}setLoading(false)};
 
-  // New sequential pipeline
+  // New sequential pipeline with dynamic pillars
   const generateCycle=async(topic)=>{setSelectedTopic(topic);setStep('generating');setPosts([]);setThroughLine(null);setGenProgress(0);setError('');
     try{
-      // Step 0: Through-line question
+      // Step 0: Through-line question + dynamic pillars
       setGenerating('through-line');setGenProgress(5);
       const tlData=await authFetch('/api/cycle/generate',{topic,step:'through-line'});
       const tl=tlData.data;
       setThroughLine(tl);setGenProgress(15);
 
-      // Step 1: Hypatia writes Rethink (reads nothing)
-      setGenerating('sage');setGenProgress(20);
-      const sageData=await authFetch('/api/cycle/generate',{topic,step:'rethink',previousData:{throughLine:tl}});
-      const sage=sageData.data;
-      setPosts(prev=>[...prev,sage]);setGenProgress(45);
+      // Step 1: First pillar (reads nothing)
+      setGenerating('act_0');setGenProgress(20);
+      const act0Data=await authFetch('/api/cycle/generate',{topic,step:'act_0',previousData:{throughLine:tl}});
+      const act0=act0Data.data;
+      setPosts(prev=>[...prev,act0]);setGenProgress(45);
 
-      // Step 2: Socratia writes Rediscover (reads Hypatia's full output)
-      setGenerating('atlas');setGenProgress(50);
-      const atlasData=await authFetch('/api/cycle/generate',{topic,step:'rediscover',previousData:{throughLine:tl,sage}});
-      const atlas=atlasData.data;
-      setPosts(prev=>[...prev,atlas]);setGenProgress(75);
+      // Step 2: Second pillar (reads first)
+      setGenerating('act_1');setGenProgress(50);
+      const act1Data=await authFetch('/api/cycle/generate',{topic,step:'act_1',previousData:{throughLine:tl,sage:act0}});
+      const act1=act1Data.data;
+      setPosts(prev=>[...prev,act1]);setGenProgress(75);
 
-      // Step 3: Ada writes Reinvent (reads Hypatia + Socratia full output)
-      setGenerating('forge');setGenProgress(80);
-      const forgeData=await authFetch('/api/cycle/generate',{topic,step:'reinvent',previousData:{throughLine:tl,sage,atlas}});
-      const forge=forgeData.data;
-      setPosts(prev=>[...prev,forge]);setGenProgress(100);
+      // Step 3: Third pillar (reads first + second)
+      setGenerating('act_2');setGenProgress(80);
+      const act2Data=await authFetch('/api/cycle/generate',{topic,step:'act_2',previousData:{throughLine:tl,sage:act0,atlas:act1}});
+      const act2=act2Data.data;
+      setPosts(prev=>[...prev,act2]);setGenProgress(100);
 
       setGenerating('');setStep('done');
     }catch(e){console.error('Cycle generation error:',e);setError(e.message||'Generation failed');setStep('idle');setGenerating('')}
   };
 
+  // Derive dynamic pillar labels/colors from throughLine
+  const dynPillars=throughLine?.pillars||[];
+  const orchNames=['Hypatia','Socratia','Ada'];
+
   const publishAll=async()=>{const cycleDate=new Date().toISOString().split('T')[0];const ts=Date.now();const cycleId='cy_'+ts;
     const publishedIds=[];
+    // Build dynamicPillars metadata to store on each post
+    const pillarsMeta=dynPillars.length>=3?dynPillars.map((p,i)=>({key:p.key||`pillar_${i+1}`,label:p.label,tagline:p.tagline||'',color:p.color||['#3B6B9B','#E8734A','#2D8A6E'][i],number:p.number||String(i+1).padStart(2,'0')})):null;
     posts.forEach((p,i)=>{const postId='p_'+ts+'_'+i;publishedIds.push(postId);const post={id:postId,authorId:p.authorId,pillar:p.pillar,type:'post',title:p.title,paragraphs:p.paragraphs,reactions:{},highlights:{},marginNotes:[],tags:p.tags||[],createdAt:cycleDate,sundayCycle:cycleDate,cycleId:cycleId,featured:true,endorsements:0,comments:[],challenges:[],
-      // Journey metadata — new connected fields
+      // Journey metadata
       throughLineQuestion:throughLine?.through_line_question||null,
       openQuestions:p.open_questions||null,
       bridgeSentence:p.bridge_sentence||null,
@@ -1204,7 +1210,9 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
       architectureComponents:p.architecture_components||null,
       openThread:p.open_thread||null,
       artifact:p.artifact||null,
-      tldr:p.tldr||null
+      tldr:p.tldr||null,
+      // Dynamic pillars metadata — stored on each post so getCycles can find it
+      dynamicPillars:pillarsMeta
     };onPostGenerated(post)});
     setStep('published');
     // Auto-batch agent comments
@@ -1214,7 +1222,6 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
         let commentAgents=INIT_AGENTS.slice(0,5);
         try{const sel=await authFetch('/api/debate/select',{articleTitle:selectedTopic?.title||'cycle',articleText:posts.map(p=>p.title).join('. '),agents:INIT_AGENTS.slice(0,25),forgePersona:ORCHESTRATORS.forge.persona});const matched=INIT_AGENTS.filter(a=>sel.selected?.includes(a.id)||sel.selected?.some(s=>s.toLowerCase()===a.name.toLowerCase()));if(matched.length>=3)commentAgents=matched.slice(0,5)}catch(e){console.warn('Agent selection for comments failed, using defaults:',e.message)}
         let done=0;const total=publishedIds.length*commentAgents.length;
-        // Process one post at a time (sequential batches of 5 parallel calls)
         for(const postId of publishedIds){
           const postData=posts[publishedIds.indexOf(postId)];
           const batchPromises=commentAgents.map(agent=>
@@ -1223,7 +1230,6 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
             .catch(err=>{console.error('Comment failed for',agent.name,':',err.message||err);done++;setCommentProgress(`Generating agent comments... (${done}/${total})`)})
           );
           await Promise.allSettled(batchPromises);
-          // Small delay between batches to avoid rate limits
           if(publishedIds.indexOf(postId)<publishedIds.length-1)await new Promise(r=>setTimeout(r,500));
         }
         setCommentProgress('');setStep('published');
@@ -1231,11 +1237,23 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
     }
   };
 
-  const STEP_LABELS=[['through-line','Crafting the through-line question...','#8B5CF6'],['sage','Hypatia is rethinking assumptions...','#3B6B9B'],['atlas','Socratia is rediscovering hidden patterns...','#E8734A'],['forge','Ada is reinventing the architecture...','#2D8A6E']];
+  // Dynamic step labels from throughLine pillars
+  const STEP_LABELS=dynPillars.length>=3?[
+    ['through-line','Crafting the through-line + dynamic lenses...','#8B5CF6'],
+    ['act_0',`${orchNames[0]} is exploring "${dynPillars[0].label}"...`,dynPillars[0].color||'#3B6B9B'],
+    ['act_1',`${orchNames[1]} is exploring "${dynPillars[1].label}"...`,dynPillars[1].color||'#E8734A'],
+    ['act_2',`${orchNames[2]} is exploring "${dynPillars[2].label}"...`,dynPillars[2].color||'#2D8A6E'],
+  ]:[
+    ['through-line','Crafting the through-line + dynamic lenses...','#8B5CF6'],
+    ['act_0','Hypatia is writing Act 1...','#3B6B9B'],
+    ['act_1','Socratia is writing Act 2...','#E8734A'],
+    ['act_2','Ada is writing Act 3...','#2D8A6E'],
+  ];
   const currentStepIdx=STEP_LABELS.findIndex(s=>s[0]===generating);
+  const progressGradient=dynPillars.length>=3?`linear-gradient(90deg,${dynPillars.map(p=>p.color||'#999').join(',')})`:'linear-gradient(90deg,#3B6B9B,#E8734A,#2D8A6E)';
 
   return <div className="p-5 rounded-2xl" style={{background:"white",border:"1px solid #E5E7EB"}}>
-    <p className="mb-3" style={{fontSize:12,color:"rgba(0,0,0,0.4)"}}>Generate a connected 3-act synthesis cycle. Each agent reads the previous agent&apos;s work to build one cohesive intellectual journey.</p>
+    <p className="mb-3" style={{fontSize:12,color:"rgba(0,0,0,0.4)"}}>Generate a connected 3-act synthesis cycle with dynamic topic-specific lenses. Each agent reads the previous agent&apos;s work.</p>
     {(step==='idle'||loading)&&<><div className="flex flex-wrap gap-3 items-end">
       <button onClick={suggestTopics} disabled={loading} className="px-4 py-2 rounded-full font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white",opacity:loading?0.7:1}}>{loading?'Analyzing trends with Claude...':'Suggest Topics'}</button>
       <div className="flex items-center gap-2"><span className="text-xs font-bold" style={{color:"rgba(0,0,0,0.2)"}}>OR</span></div>
@@ -1250,12 +1268,13 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
       {throughLine&&<div className="mb-3 p-3 rounded-xl" style={{background:"#FAF5FF",border:"1px solid #E9D5FF"}}>
         <span className="font-bold text-xs" style={{color:"#8B5CF6"}}>Through-Line Question</span>
         <p className="text-sm mt-1" style={{color:"#555",fontStyle:"italic"}}>{throughLine.through_line_question}</p>
+        {dynPillars.length>=3&&<div className="flex flex-wrap gap-2 mt-2">{dynPillars.map((dp,di)=><span key={di} className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:10,background:`${dp.color||'#999'}15`,color:dp.color||'#999'}}>{dp.label}: {dp.tagline}</span>)}</div>}
       </div>}
-      <div className="w-full rounded-full overflow-hidden mb-3" style={{height:4,background:"#E5E7EB"}}><div className="rounded-full transition-all" style={{height:"100%",width:`${genProgress}%`,background:"linear-gradient(90deg,#3B6B9B,#E8734A,#2D8A6E)",transition:"width 0.8s ease"}}/></div>
-      {STEP_LABELS.map(([key,label,color],i)=>{const isDone=i<currentStepIdx||(i===currentStepIdx&&false);const isActive=key===generating;const completed=posts.find(p=>p.authorId==='agent_'+key)||(key==='through-line'&&throughLine);
+      <div className="w-full rounded-full overflow-hidden mb-3" style={{height:4,background:"#E5E7EB"}}><div className="rounded-full transition-all" style={{height:"100%",width:`${genProgress}%`,background:progressGradient,transition:"width 0.8s ease"}}/></div>
+      {STEP_LABELS.map(([key,label,color],i)=>{const isActive=key===generating;const completed=(key==='through-line'&&throughLine)||(key.startsWith('act_')&&posts.length>parseInt(key.split('_')[1]));
         return <div key={key} className="flex items-center gap-2 p-2 rounded-lg mb-1" style={{background:isActive?`${color}08`:completed?'#EBF5F1':'#FAFAFA',border:isActive?`1px solid ${color}25`:'1px solid transparent'}}>
           <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{background:completed?'#2D8A6E':isActive?color:'#E5E7EB'}}>{completed?<span style={{color:'white',fontSize:10}}>&#10003;</span>:isActive?<span className="animate-pulse w-2 h-2 rounded-full" style={{background:'white'}}/>:<span style={{color:'#CCC',fontSize:10}}>{i+1}</span>}</div>
-          <span className="font-semibold text-xs" style={{color:isActive?color:completed?'#2D8A6E':'#CCC'}}>{isActive?label:completed?(key==='through-line'?'Through-line ready':posts.find(p=>p.pillar===(key==='sage'?'rethink':key==='atlas'?'rediscover':'reinvent'))?.title||'Done'):'Waiting'}</span>
+          <span className="font-semibold text-xs" style={{color:isActive?color:completed?'#2D8A6E':'#CCC'}}>{isActive?label:completed?(key==='through-line'?'Through-line + lenses ready':posts[parseInt(key.split('_')[1])]?.title||'Done'):'Waiting'}</span>
         </div>})}
     </div>}
     {step==='done'&&<div>
@@ -1264,10 +1283,10 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
         <p className="text-sm mt-1" style={{color:"#555",fontStyle:"italic"}}>{throughLine.through_line_question}</p>
       </div>}
       <p className="text-sm mb-2 font-semibold" style={{color:"#2D8A6E"}}>Journey complete! All 3 acts are connected.</p>
-      <div className="space-y-1 mb-3">{posts.map((p,i)=>{const colors=['#3B6B9B','#E8734A','#2D8A6E'];const labels=['Act 1: Rethink','Act 2: Rediscover','Act 3: Reinvent'];
-        return <div key={i} className="text-xs p-2.5 rounded-lg" style={{background:"#F9FAFB",borderLeft:`3px solid ${colors[i]}`}}><span className="font-bold" style={{color:colors[i]}}>{labels[i]}</span> &mdash; {p.title}</div>})}</div>
+      <div className="space-y-1 mb-3">{posts.map((p,i)=>{const dp=dynPillars[i];const color=dp?.color||['#3B6B9B','#E8734A','#2D8A6E'][i];const label=dp?`Act ${i+1}: ${dp.label}`:['Act 1: Rethink','Act 2: Rediscover','Act 3: Reinvent'][i];
+        return <div key={i} className="text-xs p-2.5 rounded-lg" style={{background:"#F9FAFB",borderLeft:`3px solid ${color}`}}><span className="font-bold" style={{color}}>{label}</span> &mdash; {p.title}</div>})}</div>
       <button onClick={publishAll} className="px-4 py-2 rounded-full font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white"}}>Publish Journey & Generate Comments</button></div>}
-    {step==='commenting'&&<div><p className="text-sm mb-2 font-semibold" style={{color:"#8B5CF6"}}>Published! Now generating agent comments...</p><div className="w-full rounded-full overflow-hidden mb-2" style={{height:3,background:"#E5E7EB"}}><div className="rounded-full animate-pulse" style={{height:"100%",width:"60%",background:"linear-gradient(90deg,#3B6B9B,#8B5CF6,#2D8A6E)"}}/></div><p className="text-xs" style={{color:"#8B5CF6"}}>{commentProgress}</p></div>}
+    {step==='commenting'&&<div><p className="text-sm mb-2 font-semibold" style={{color:"#8B5CF6"}}>Published! Now generating agent comments...</p><div className="w-full rounded-full overflow-hidden mb-2" style={{height:3,background:"#E5E7EB"}}><div className="rounded-full animate-pulse" style={{height:"100%",width:"60%",background:progressGradient}}/></div><p className="text-xs" style={{color:"#8B5CF6"}}>{commentProgress}</p></div>}
     {step==='published'&&<div><p className="text-sm font-semibold" style={{color:"#2D8A6E"}}>Published! {onAutoComment?'Agent comments generated.':'Go to home to see the new cycle.'}</p><button onClick={()=>{setStep('idle');setPosts([]);setCustomCycleTopic('');setThroughLine(null);setGenProgress(0)}} className="mt-1 text-xs underline" style={{color:"#CCC"}}>Generate another</button></div>}
   </div>
 }
