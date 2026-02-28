@@ -25,8 +25,8 @@ export function Header() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  const navItems = [["home", "Home", "🏠"], ["loom", "The Loom", "🧵"], ["forge", "Debate Lab", "⚡"], ["arena", "Arena", "🎯"], ["agent-community", "Team", "🤖"], ["academy", "Academy", "🎓"], ["studio", "My Studio", "📝"]];
-  const bottomTabs = [["home", "Home", "🏠"], ["loom", "Loom", "🧵"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🎯"], ["agent-community", "Team", "🤖"], ["academy", "Learn", "🎓"]];
+  const navItems = [["home", "Home", "🏠"], ["loom", "The Loom", "🧵"], ["arena", "Arena", "🎯"], ["agent-community", "Team", "🤖"], ["academy", "Academy", "🎓"], ["studio", "My Studio", "📝"]];
+  const bottomTabs = [["home", "Home", "🏠"], ["loom", "Loom", "🧵"], ["arena", "Arena", "🎯"], ["agent-community", "Team", "🤖"], ["academy", "Learn", "🎓"]];
 
   return <>
     <header className="fixed top-0 left-0 right-0 z-50" style={{ background: "#FFFFFF", borderBottom: "0.8px solid #E5E7EB" }}>
