@@ -16,6 +16,22 @@ export default function PrototypeSandbox({ code, componentName, description }) {
     let clean = code.trim();
     if (clean.startsWith("```")) clean = clean.replace(/^```\w*\n?/, "").replace(/\n?```$/, "").trim();
 
+    // Strip ES module syntax — Babel standalone parses as script, not module,
+    // so export/import statements cause a SyntaxError that silently kills the iframe.
+    // React & hooks are already injected via CDN globals above.
+    clean = clean.replace(/^import\s+.*?from\s+['"][^'"]*['"];?\s*$/gm, "");
+    clean = clean.replace(/^import\s+['"][^'"]*['"];?\s*$/gm, "");
+    // Convert "export default function X()" → "function X()"
+    clean = clean.replace(/export\s+default\s+function\s+/g, "function ");
+    clean = clean.replace(/export\s+default\s+class\s+/g, "class ");
+    // Handle anonymous: "export default () => ..." → "const _ExportedComponent = () => ..."
+    clean = clean.replace(/export\s+default\s+/, "const _ExportedComponent = ");
+    // Strip named exports: "export function X" → "function X"
+    clean = clean.replace(/export\s+function\s+/g, "function ");
+    clean = clean.replace(/export\s+class\s+/g, "class ");
+    clean = clean.replace(/export\s+const\s+/g, "const ");
+    clean = clean.replace(/export\s+let\s+/g, "let ");
+
     // Ensure we have a valid component name
     const name = componentName || "Prototype";
 
@@ -41,8 +57,8 @@ export default function PrototypeSandbox({ code, componentName, description }) {
     try {
       ${clean}
 
-      // Try to find the component — check default export or named export
-      const Component = typeof ${name} !== 'undefined' ? ${name} : (typeof App !== 'undefined' ? App : (typeof Prototype !== 'undefined' ? Prototype : null));
+      // Try to find the component — check named, common defaults, and anonymous export fallback
+      const Component = typeof ${name} !== 'undefined' ? ${name} : (typeof App !== 'undefined' ? App : (typeof Prototype !== 'undefined' ? Prototype : (typeof _ExportedComponent !== 'undefined' ? _ExportedComponent : null)));
 
       if (Component) {
         ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(Component));
