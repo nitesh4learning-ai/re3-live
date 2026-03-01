@@ -84,7 +84,7 @@ function CycleCard({cycle,onNavigate,variant="default"}){
     </div>}
     <div className={isHero?"p-5 sm:p-6":"p-4"}>
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2"><span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontFamily:"'Inter',sans-serif",fontSize:11,background:"#F3E8FF",color:"#9333EA"}}>Cycle {cycle.number}{cycle.headline?': '+cycle.headline:''}</span>{cycle.isJourney&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#E0F2EC",color:"#2D8A6E",fontWeight:700}}>Journey</span>}<span style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"#9CA3AF"}}>{fmtS(cycle.date)}</span></div>
+        <div className="flex items-center gap-2"><span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontFamily:"'Inter',sans-serif",fontSize:11,background:"#F3E8FF",color:"#9333EA"}}>Edition {cycle.number}{cycle.headline?': '+cycle.headline:''}</span>{cycle.isJourney&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#E0F2EC",color:"#2D8A6E",fontWeight:700}}>Journey</span>}<span style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"#9CA3AF"}}>{fmtS(cycle.date)}</span></div>
         <div className="flex items-center gap-3" style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"#9CA3AF"}}><span>{cycle.endorsements} endorsements</span><span>{cycle.comments} replies</span></div>
       </div>
       {/* Journey progress dots */}
@@ -317,10 +317,10 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
             <button onClick={()=>onNavigate("loom")} className="text-xs font-semibold" style={{color:GIM.primary}}>All &rarr;</button>
           </div>
           {hero?<div className="p-4 cursor-pointer transition-all hover:bg-gray-50" onClick={()=>onNavigate(hero.isJourney?"loom-cycle":"post",hero.isJourney?hero.id:hero.posts[0]?.id)}>
-            <div className="font-bold mb-1" style={{fontSize:14,color:GIM.headingText,fontFamily:GIM.fontMain}}>{hero.label||"Latest Cycle"}</div>
+            <div className="font-bold mb-1" style={{fontSize:14,color:GIM.headingText,fontFamily:GIM.fontMain}}>{hero.label||"Latest Edition"}</div>
             <div className="flex flex-wrap gap-1.5 mb-2">{hero.posts.slice(0,3).map(p=><span key={p.id} className="px-2 py-0.5 rounded-full" style={{fontSize:9,fontWeight:600,background:`${PILLARS[p.pillar]?.color||GIM.primary}10`,color:PILLARS[p.pillar]?.color||GIM.primary}}>{p.title?.slice(0,30)}{p.title?.length>30?"...":""}</span>)}</div>
             <div className="flex items-center gap-3" style={{fontSize:11,color:GIM.mutedText}}><span>{hero.posts.length} posts</span>{hero.posts.some(p=>p.debate?.loom)&&<span className="font-semibold" style={{color:"#2D8A6E"}}>Loom woven</span>}</div>
-          </div>:<div className="p-4 text-center"><p style={{fontSize:12,color:GIM.mutedText}}>No cycles yet</p></div>}
+          </div>:<div className="p-4 text-center"><p style={{fontSize:12,color:GIM.mutedText}}>No editions yet</p></div>}
           {/* Recent debates */}
           <div style={{borderTop:`1px solid ${GIM.border}`}}>
             {(forgeSessions||[]).slice(0,3).map(s=>{
@@ -385,29 +385,23 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
       </div>
     </section>
 
-    {/* ===== ON THE HORIZON ===== */}
-    <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-12"><div className="rounded-2xl p-5" style={{background:"linear-gradient(135deg,rgba(59,107,155,0.06),rgba(139,92,246,0.06),rgba(45,138,110,0.06))",border:`1px solid ${GIM.border}`}}>
-      <div className="flex items-center justify-between mb-3">
-        <div><h3 className="font-bold" style={{fontFamily:GIM.fontMain,color:GIM.headingText,fontSize:18}}>On the Horizon</h3>
-          <p style={{fontFamily:GIM.fontMain,fontSize:12,color:GIM.mutedText,marginTop:2}}>Upcoming topics the community wants to explore</p>
-        </div>
-      </div>
-      {isAdmin(currentUser)&&<div className="mb-3 flex gap-2"><input value={newThemeTxt} onChange={e=>setNewThemeTxt(e.target.value)} placeholder="Add a new topic..." className="flex-1 px-3 py-2 rounded-xl text-sm border focus:outline-none" style={{borderColor:GIM.border,fontFamily:GIM.fontMain}} onKeyDown={e=>{if(e.key==="Enter"&&newThemeTxt.trim()){onAddTheme(newThemeTxt.trim());setNewThemeTxt("")}}}/><button onClick={()=>{if(newThemeTxt.trim()){onAddTheme(newThemeTxt.trim());setNewThemeTxt("")}}} className="px-4 py-2 rounded-xl font-semibold text-sm" style={{background:"#2D8A6E",color:"white"}}>Add</button></div>}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">{themes.map(th=><div key={th.id} className="flex items-center gap-2">
-        {editingTheme===th.id?<div className="flex-1 flex gap-2"><input value={editThemeTxt} onChange={e=>setEditThemeTxt(e.target.value)} className="flex-1 px-3 py-2 rounded-xl text-sm border focus:outline-none" style={{borderColor:GIM.border,fontFamily:GIM.fontMain}} onKeyDown={e=>{if(e.key==="Enter"&&editThemeTxt.trim()){onEditTheme(th.id,editThemeTxt.trim());setEditingTheme(null)}}}/><button onClick={()=>{if(editThemeTxt.trim()){onEditTheme(th.id,editThemeTxt.trim());setEditingTheme(null)}}} className="px-3 py-1 rounded-lg text-xs font-semibold" style={{background:"#2D8A6E",color:"white"}}>Save</button><button onClick={()=>setEditingTheme(null)} className="px-3 py-1 rounded-lg text-xs" style={{color:GIM.mutedText}}>Cancel</button></div>
-        :<button onClick={()=>onVoteTheme(th.id)} className="flex-1 flex items-center justify-between p-3 rounded-xl transition-all" style={{background:th.voted?"rgba(232,115,74,0.08)":"rgba(0,0,0,0.015)",border:`1px solid ${th.voted?"rgba(232,115,74,0.2)":"rgba(0,0,0,0.05)"}`}} onMouseEnter={e=>{if(!th.voted)e.currentTarget.style.background="rgba(0,0,0,0.04)"}} onMouseLeave={e=>{if(!th.voted)e.currentTarget.style.background=th.voted?"rgba(232,115,74,0.08)":"rgba(0,0,0,0.015)"}}>
-          <span className="font-medium text-sm" style={{fontFamily:GIM.fontMain,color:GIM.headingText}}>{th.title}</span>
-          <span className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:12,color:th.voted?"#E8734A":GIM.mutedText}}>{th.votes}</span>
-        </button>}
-        {isAdmin(currentUser)&&editingTheme!==th.id&&<><button onClick={()=>{setEditingTheme(th.id);setEditThemeTxt(th.title)}} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors" style={{fontSize:12,color:GIM.mutedText}} title="Edit">&#9998;</button><button onClick={()=>onDeleteTheme(th.id)} className="p-1.5 rounded-lg hover:bg-red-50 transition-colors" style={{fontSize:12,color:GIM.mutedText}} title="Delete">&#128465;</button></>}
-      </div>)}</div>
-      {currentUser&&<div className="mt-4 pt-3" style={{borderTop:"1px solid rgba(0,0,0,0.05)"}}>
-        <p className="text-xs font-semibold mb-2" style={{color:GIM.mutedText,letterSpacing:"0.05em"}}>SUGGEST A TOPIC</p>
-        {topicSubmitted?<p className="text-xs font-semibold" style={{color:"#2D8A6E"}}>Thanks! Your topic has been submitted.</p>
-        :<div className="flex gap-2"><input value={communityTopic} onChange={e=>setCommunityTopic(e.target.value)} placeholder="What should we explore next?" className="flex-1 px-3 py-2 rounded-xl text-sm border focus:outline-none" style={{borderColor:GIM.border,fontFamily:GIM.fontMain}} onKeyDown={e=>{if(e.key==="Enter"&&communityTopic.trim()){if(onSubmitTopic)onSubmitTopic(communityTopic.trim());setCommunityTopic("");setTopicSubmitted(true);setTimeout(()=>setTopicSubmitted(false),3000)}}}/><button onClick={()=>{if(communityTopic.trim()){if(onSubmitTopic)onSubmitTopic(communityTopic.trim());setCommunityTopic("");setTopicSubmitted(true);setTimeout(()=>setTopicSubmitted(false),3000)}}} className="px-4 py-2 rounded-xl font-semibold text-sm" style={{background:communityTopic.trim()?"#E8734A":"rgba(0,0,0,0.06)",color:communityTopic.trim()?"white":GIM.mutedText}}>Submit</button></div>}
-      </div>}
-      {!currentUser&&<div className="mt-4 pt-3 text-center" style={{borderTop:"1px solid rgba(0,0,0,0.05)"}}><p className="text-xs" style={{color:GIM.mutedText}}>Sign in to suggest topics and vote</p></div>}
-    </div></section>
+    {/* ===== ON THE HORIZON (compact) ===== */}
+    <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-10">
+      <FadeIn><div className="flex items-center justify-between mb-2"><h3 className="font-bold" style={{fontFamily:GIM.fontMain,color:GIM.headingText,fontSize:16}}>Trending Topics</h3><p style={{fontSize:11,color:GIM.mutedText}}>Vote on what we explore next</p></div></FadeIn>
+      <FadeIn delay={20}><div className="flex flex-wrap gap-2">
+        {themes.slice(0,6).map(th=><button key={th.id} onClick={()=>onVoteTheme(th.id)} className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-all" style={{background:th.voted?"rgba(232,115,74,0.08)":"#FFFFFF",border:`1px solid ${th.voted?"rgba(232,115,74,0.25)":"#E5E7EB"}`}} onMouseEnter={e=>{if(!th.voted)e.currentTarget.style.background="rgba(0,0,0,0.03)"}} onMouseLeave={e=>{if(!th.voted)e.currentTarget.style.background=th.voted?"rgba(232,115,74,0.08)":"#FFFFFF"}}>
+          <span className="font-medium" style={{fontFamily:GIM.fontMain,color:GIM.headingText,fontSize:13}}>{th.title}</span>
+          <span className="font-bold px-1.5 py-0.5 rounded-full" style={{fontSize:10,background:th.voted?"rgba(232,115,74,0.15)":"#F3F4F6",color:th.voted?"#E8734A":GIM.mutedText}}>{th.votes}</span>
+        </button>)}
+        {themes.length>6&&<span className="self-center text-xs" style={{color:GIM.mutedText}}>+{themes.length-6} more</span>}
+      </div></FadeIn>
+      {currentUser&&<FadeIn delay={40}><div className="mt-3 flex gap-2">
+        <input value={communityTopic} onChange={e=>setCommunityTopic(e.target.value)} placeholder="Suggest a topic..." className="flex-1 px-3 py-2 rounded-xl text-sm border focus:outline-none" style={{borderColor:GIM.border,fontFamily:GIM.fontMain,maxWidth:320}} onKeyDown={e=>{if(e.key==="Enter"&&communityTopic.trim()){if(onSubmitTopic)onSubmitTopic(communityTopic.trim());setCommunityTopic("");setTopicSubmitted(true);setTimeout(()=>setTopicSubmitted(false),3000)}}}/>
+        {topicSubmitted?<span className="self-center text-xs font-semibold" style={{color:"#2D8A6E"}}>Submitted!</span>
+        :<button onClick={()=>{if(communityTopic.trim()){if(onSubmitTopic)onSubmitTopic(communityTopic.trim());setCommunityTopic("");setTopicSubmitted(true);setTimeout(()=>setTopicSubmitted(false),3000)}}} className="px-4 py-2 rounded-xl font-semibold text-xs" style={{background:communityTopic.trim()?"#E8734A":"rgba(0,0,0,0.06)",color:communityTopic.trim()?"white":GIM.mutedText}}>Submit</button>}
+      </div></FadeIn>}
+      {isAdmin(currentUser)&&<div className="mt-2 flex gap-2"><input value={newThemeTxt} onChange={e=>setNewThemeTxt(e.target.value)} placeholder="Add topic (admin)..." className="flex-1 px-3 py-2 rounded-xl text-sm border focus:outline-none" style={{borderColor:GIM.border,fontFamily:GIM.fontMain,maxWidth:320}} onKeyDown={e=>{if(e.key==="Enter"&&newThemeTxt.trim()){onAddTheme(newThemeTxt.trim());setNewThemeTxt("")}}}/><button onClick={()=>{if(newThemeTxt.trim()){onAddTheme(newThemeTxt.trim());setNewThemeTxt("")}}} className="px-4 py-2 rounded-xl font-semibold text-xs" style={{background:"#2D8A6E",color:"white"}}>Add</button></div>}
+    </section>
 
     {/* ===== WHY NOT CHATGPT? ===== */}
     <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-10">
@@ -436,9 +430,9 @@ function TriptychCard({cycle,onExpand,onArchiveCycle,currentUser}){
   const connectionDensity=cycle.posts.reduce((sum,p)=>sum+(p.debate?.streams?.length||0),0);
   return <div className="cursor-pointer rounded-xl overflow-hidden transition-all hover:shadow-md" style={{background:"#FFFFFF",border:"1px solid #E5E7EB"}} onClick={()=>onExpand(cycle.id)}>
     <div className="flex items-center justify-between p-4" style={{borderBottom:"1px solid #E5E7EB"}}>
-      <div className="flex items-center gap-2"><span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontSize:11,background:"#F3E8FF",color:"#9333EA"}}>Cycle {cycle.number}{cycle.headline?': '+cycle.headline:''}</span><span style={{fontSize:12,color:"#9CA3AF"}}>{fmtS(cycle.date)}</span></div>
+      <div className="flex items-center gap-2"><span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontSize:11,background:"#F3E8FF",color:"#9333EA"}}>Edition {cycle.number}{cycle.headline?': '+cycle.headline:''}</span><span style={{fontSize:12,color:"#9CA3AF"}}>{fmtS(cycle.date)}</span></div>
       <div className="flex items-center gap-3" style={{fontSize:11,color:"#9CA3AF"}}><span>{cycle.endorsements} endorsements</span>{connectionDensity>0&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:9,background:"#F3E8FF",color:"#9333EA"}}>{connectionDensity} threads</span>}
-        <span onClick={e=>e.stopPropagation()}><ShareButton title={`Re³ Cycle ${cycle.number}${cycle.headline?': '+cycle.headline:''}`} text="Explore this synthesis cycle on Re³" url={typeof window!=='undefined'?window.location.origin+'/loom/'+cycle.id:''}/></span>
+        <span onClick={e=>e.stopPropagation()}><ShareButton title={`Re³ Edition ${cycle.number}${cycle.headline?': '+cycle.headline:''}`} text="Explore this edition on Re³" url={typeof window!=='undefined'?window.location.origin+'/loom/'+cycle.id:''}/></span>
         {isAdmin(currentUser)&&onArchiveCycle&&<button onClick={e=>{e.stopPropagation();if(confirm('Archive this cycle? It will be hidden from views.'))onArchiveCycle(cycle.id)}} className="px-2 py-0.5 rounded-full font-semibold transition-all hover:bg-red-50" style={{fontSize:9,color:"rgba(229,62,62,0.6)",border:"1px solid rgba(229,62,62,0.2)"}}>Archive</button>}
       </div>
     </div>
@@ -457,9 +451,9 @@ function TriptychExpanded({cycle,onNavigate,onCollapse,onForge,onArchiveCycle,cu
   const synthesisPost=pillars.find(p=>p?.debate?.loom);
   return <div className="rounded-xl overflow-hidden mb-2" style={{background:"#FFFFFF",border:"1px solid #E5E7EB",boxShadow:"0 4px 24px rgba(0,0,0,0.08)"}}>
     <div className="flex items-center justify-between p-4" style={{borderBottom:"1px solid #E5E7EB"}}>
-      <div className="flex items-center gap-2"><span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontSize:11,background:"#F3E8FF",color:"#9333EA"}}>Cycle {cycle.number}{cycle.headline?': '+cycle.headline:''}</span>{cycle.isJourney&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#E0F2EC",color:"#2D8A6E"}}>Connected Journey</span>}<span style={{fontSize:12,color:"#9CA3AF"}}>{fmtS(cycle.date)}</span></div>
+      <div className="flex items-center gap-2"><span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontSize:11,background:"#F3E8FF",color:"#9333EA"}}>Edition {cycle.number}{cycle.headline?': '+cycle.headline:''}</span>{cycle.isJourney&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#E0F2EC",color:"#2D8A6E"}}>Connected Journey</span>}<span style={{fontSize:12,color:"#9CA3AF"}}>{fmtS(cycle.date)}</span></div>
       <div className="flex items-center gap-2">
-        <ShareButton title={`Re³ Cycle ${cycle.number}${cycle.headline?': '+cycle.headline:''}`} text="Explore this synthesis cycle on Re³" url={typeof window!=='undefined'?window.location.origin+'/loom/'+cycle.id:''}/>
+        <ShareButton title={`Re³ Edition ${cycle.number}${cycle.headline?': '+cycle.headline:''}`} text="Explore this edition on Re³" url={typeof window!=='undefined'?window.location.origin+'/loom/'+cycle.id:''}/>
         {isAdmin(currentUser)&&onArchiveCycle&&<button onClick={()=>{if(confirm('Archive this cycle? It will be hidden from views.'))onArchiveCycle(cycle.id)}} className="px-2 py-1 rounded-lg text-xs font-semibold transition-all hover:bg-red-50" style={{color:"rgba(229,62,62,0.6)",border:"1px solid rgba(229,62,62,0.2)"}}>Archive</button>}
         <button onClick={onCollapse} className="px-2 py-1 rounded-lg text-xs" style={{color:"rgba(0,0,0,0.3)",border:"1px solid rgba(0,0,0,0.08)"}}>Collapse</button>
       </div>
@@ -478,7 +472,7 @@ function TriptychExpanded({cycle,onNavigate,onCollapse,onForge,onArchiveCycle,cu
       </div>})}</div>
     {/* Action bar with full-cycle debate option */}
     <div className="flex items-center gap-3 px-4 py-3" style={{borderTop:"1px solid #E5E7EB",background:"#FAFAFA"}}>
-      {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"Cycle "+cycle.number,text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date,cycleId:cycle.id})} className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm" style={{background:"#9333EA",color:"white"}}>Debate Full Cycle</button>}
+      {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"Edition "+cycle.number,text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date,cycleId:cycle.id})} className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm" style={{background:"#9333EA",color:"white"}}>Debate Full Edition</button>}
       <button onClick={()=>onNavigate("loom-cycle",cycle.id)} className="px-3 py-1.5 rounded-lg text-xs font-semibold" style={{border:"1px solid #E9D5FF",color:"#9333EA"}}>View Journey</button>
     </div>
     {synthesisPost?.debate?.loom&&<div className="p-4" style={{background:"#FAF5FF",borderTop:"1px solid #E9D5FF"}}>
@@ -530,7 +524,7 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
     return()=>observer.disconnect();
   },[isJourney]);
   if(!cycle)return <div className="min-h-screen" style={{paddingTop:56,background:"#F9FAFB"}}><div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 text-center">
-    <p style={{color:"#9CA3AF",fontSize:14}}>Cycle not found.</p>
+    <p style={{color:"#9CA3AF",fontSize:14}}>Edition not found.</p>
     <button onClick={()=>onNavigate("loom")} className="mt-4 text-sm font-semibold" style={{color:"#9333EA"}}>&larr; Back to The Loom</button>
   </div></div>;
   const classicPillars=[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean);
@@ -570,14 +564,14 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
     <FadeIn><div className="flex items-center justify-between mb-6">
       <button onClick={()=>onNavigate("loom")} className="text-xs font-semibold px-3 py-1.5 rounded-lg" style={{border:"1px solid rgba(0,0,0,0.1)",color:"rgba(0,0,0,0.5)"}}>&larr; Back to The Loom</button>
       <div className="flex gap-2">
-        <ShareButton title={`Re³ Cycle ${cycle.number}${cycle.headline?': '+cycle.headline:''}`} text="Explore this synthesis cycle on Re³" url={cycleShareUrl}/>
-        {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"",text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date,cycleId:cycle.id})} className="text-xs font-semibold px-3 py-1.5 rounded-lg" style={{background:"#9333EA",color:"white"}}>Debate Full Cycle</button>}
+        <ShareButton title={`Re³ Edition ${cycle.number}${cycle.headline?': '+cycle.headline:''}`} text="Explore this edition on Re³" url={cycleShareUrl}/>
+        {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"",text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date,cycleId:cycle.id})} className="text-xs font-semibold px-3 py-1.5 rounded-lg" style={{background:"#9333EA",color:"white"}}>Debate Full Edition</button>}
       </div>
     </div></FadeIn>
 
     {/* Cycle Header */}
     <FadeIn delay={40}><div className="mb-8 text-center">
-      <span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontSize:11,background:"#F3E8FF",color:"#9333EA"}}>Cycle {cycle.number}{cycle.headline?': '+cycle.headline:''}</span>
+      <span className="font-bold px-2.5 py-0.5 rounded-full" style={{fontSize:11,background:"#F3E8FF",color:"#9333EA"}}>Edition {cycle.number}{cycle.headline?': '+cycle.headline:''}</span>
       <span className="ml-2" style={{fontSize:12,color:"#9CA3AF"}}>{fmtS(cycle.date)}</span>
       {isJourney&&<div className="flex items-center justify-center gap-1.5 mt-2">{["questions","principle","blueprint"].map(type=>{const a=cycle.artifacts[type];return a?<span key={type} className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{background:type==="questions"?"#E8EEF5":type==="principle"?"#FDE8E0":"#E0F2EC",color:type==="questions"?"#3B6B9B":type==="principle"?"#E8734A":"#2D8A6E"}}>{type==="questions"?"🔍 "+(a.items?.length||0)+" Questions":type==="principle"?"💡 1 Principle":"🔧 1 Blueprint"}</span>:null})}</div>}
     </div></FadeIn>
@@ -675,7 +669,7 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
         <div className="flex items-center justify-center gap-3 mb-4">{["questions","principle","blueprint"].map(type=>{const a=cycle.artifacts?.[type];return a?<span key={type} className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{background:type==="questions"?"#E8EEF5":type==="principle"?"#FDE8E0":"#E0F2EC",color:type==="questions"?"#3B6B9B":type==="principle"?"#E8734A":"#2D8A6E"}}>{type==="questions"?"🔍 "+(a.items?.length||0)+" Questions":type==="principle"?"💡 1 Principle":"🔧 1 Blueprint"}</span>:null})}</div>
         <div className="flex items-center justify-center gap-3">
           {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"",text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date,cycleId:cycle.id})} className="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white"}}>Debate This Cycle</button>}
-          <ShareButton title={`Re³ Cycle ${cycle.number}${cycle.headline?': '+cycle.headline:''}`} text="Explore this synthesis cycle on Re³" url={cycleShareUrl}/>
+          <ShareButton title={`Re³ Edition ${cycle.number}${cycle.headline?': '+cycle.headline:''}`} text="Explore this edition on Re³" url={cycleShareUrl}/>
         </div>
       </div></FadeIn>
     </> : <>
@@ -697,7 +691,7 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
       <div style={{fontSize:14,color:"#555",lineHeight:1.9}}>{synthesisPost.debate.loom.split("\n\n").map((p,i)=><p key={i} className="mb-3">{p}</p>)}</div>
     </div></FadeIn>}
     {allStreams.length>0&&<FadeIn delay={260}><div className="mb-8">
-      <h3 className="font-bold mb-3" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:16}}>Argument Streams</h3>
+      <h3 className="font-bold mb-3" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:16}}>Key Themes</h3>
       {allStreams.map((stream,si)=><div key={si} className="mb-4 p-4 rounded-xl" style={{background:"white",border:"1px solid #E5E7EB"}}>
         <h4 className="font-bold text-sm mb-2" style={{color:"#111827"}}>{stream.title}</h4>
         <div className="space-y-1.5">{stream.entries?.map((entry,ei)=><div key={ei} className="flex items-start gap-2 text-xs"><span className="font-bold" style={{color:"#999"}}>{entry.agent}</span><span style={{color:"#666"}}>{entry.excerpt}</span></div>)}</div>
@@ -723,13 +717,6 @@ function LoomPage({content,articles,onNavigate,onForge,onArchiveCycle,currentUse
   const[activeTab,setActiveTab]=useState('cycles');
   const[debateFilter,setDebateFilter]=useState('all');
   const[expanded,setExpanded]=useState(null);
-  // Inline debate state
-  const[topicSource,setTopicSource]=useState(null);
-  const[selectedTopic,setSelectedTopic]=useState(null);
-  const[workshopActive,setWorkshopActive]=useState(false);
-  const[customTitle,setCustomTitle]=useState('');
-  const[customText,setCustomText]=useState('');
-  const[urlInput,setUrlInput]=useState('');
   const admin=isAdmin(currentUser);
 
   const filteredCycles=loomFilter==='all'?cycles:cycles.filter(c=>{if(loomFilter==='rethink')return c.rethink;if(loomFilter==='rediscover')return c.rediscover;if(loomFilter==='reinvent')return c.reinvent;return true});
@@ -741,30 +728,13 @@ function LoomPage({content,articles,onNavigate,onForge,onArchiveCycle,currentUse
   allDebates.sort((a,b)=>(b.date||"").localeCompare(a.date||""));
   const filteredDebates=debateFilter==="all"?allDebates:debateFilter==="sessions"?allDebates.filter(d=>d.type==="session"):allDebates.filter(d=>d.type==="post");
 
-  // Topic picker helpers
-  const confirmTopic=(topic)=>{setSelectedTopic(topic);setTopicSource(null)};
-  const startSession=()=>{if(selectedTopic)setWorkshopActive(true)};
-  const resetSession=()=>{setSelectedTopic(null);setWorkshopActive(false);setTopicSource(null);setCustomTitle('');setCustomText('');setUrlInput('')};
-
-  const handleSaveSession=(sessionData)=>{
-    if(!admin||!onSaveForgeSession)return;
-    onSaveForgeSession({id:"fs_"+Date.now(),topic:selectedTopic,date:new Date().toISOString(),mode:sessionData.mode,results:sessionData.results,status:"saved"});
-  };
-  const handleDebateComplete=(debate)=>{
-    if(selectedTopic?.sourceType==="cycle"&&(selectedTopic?.cycleId||selectedTopic?.cycleDate)&&onUpdatePost){
-      const cyclePosts=selectedTopic.cycleId?content.filter(c=>c.cycleId===selectedTopic.cycleId):content.filter(c=>c.sundayCycle===selectedTopic.cycleDate);
-      cyclePosts.forEach(p=>{onUpdatePost({...p,debate})});
-    }
-  };
-
   const tabs=[
-    {id:'cycles',label:'Cycles',icon:'🧵',count:cycles.length},
-    {id:'debate',label:'Debate',icon:'⚡',count:null},
-    {id:'gallery',label:'Gallery',icon:'📜',count:allDebates.length},
+    {id:'cycles',label:'Editions',icon:'🧵',count:cycles.length},
+    {id:'gallery',label:'Debate Gallery',icon:'📜',count:allDebates.length},
   ];
 
   return <div className="min-h-screen" style={{paddingTop:56,background:"#F9FAFB"}}><div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:"clamp(22px,3.5vw,32px)"}}>Debate Archive</h1><p className="mb-4" style={{fontFamily:"'Inter',sans-serif",fontSize:14,color:"#6B7280"}}>Browse past debate cycles and their AI-synthesized insights.</p></FadeIn>
+    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:"clamp(22px,3.5vw,32px)"}}>Debate Archive</h1><p className="mb-4" style={{fontFamily:"'Inter',sans-serif",fontSize:14,color:"#6B7280"}}>Browse past editions and their AI-synthesized debate insights.</p></FadeIn>
 
     {/* Main tab bar */}
     <FadeIn delay={20}><div className="flex gap-1 mb-6 p-1 rounded-xl" style={{background:"#F3F4F6"}}>
@@ -774,106 +744,14 @@ function LoomPage({content,articles,onNavigate,onForge,onArchiveCycle,currentUse
     {/* ===== TAB: CYCLES ===== */}
     {activeTab==='cycles'&&<>
       <FadeIn delay={30}><div className="flex flex-wrap items-center gap-2 mb-6">
-        {[['all','All Cycles',cycles.length],['rethink','Rethink',cycles.filter(c=>c.rethink).length],['rediscover','Rediscover',cycles.filter(c=>c.rediscover).length],['reinvent','Reinvent',cycles.filter(c=>c.reinvent).length]].map(([key,label,count])=>
+        {[['all','All Editions',cycles.length],['rethink','Rethink',cycles.filter(c=>c.rethink).length],['rediscover','Rediscover',cycles.filter(c=>c.rediscover).length],['reinvent','Reinvent',cycles.filter(c=>c.reinvent).length]].map(([key,label,count])=>
           <button key={key} onClick={()=>setLoomFilter(key)} className="px-3 py-1.5 rounded-full font-medium text-sm transition-all" style={{background:loomFilter===key?'#9333EA':'#FFFFFF',color:loomFilter===key?'white':'#4B5563',border:loomFilter===key?'1px solid #9333EA':'1px solid #E5E7EB'}}>{key!=='all'&&<span style={{marginRight:4}}>{key==='rethink'?'△':key==='rediscover'?'◇':'▢'}</span>}{label} ({count})</button>
         )}
-        <span className="ml-auto text-sm" style={{color:'#6B7280'}}>Showing <b>{filteredCycles.length}</b> of {cycles.length} cycles</span>
+        <span className="ml-auto text-sm" style={{color:'#6B7280'}}>Showing <b>{filteredCycles.length}</b> of {cycles.length} editions</span>
       </div></FadeIn>
       <div className="space-y-4">{filteredCycles.length>0?filteredCycles.map((c,i)=><FadeIn key={c.id} delay={i*50}>
         <TriptychCard cycle={c} onExpand={(id)=>onNavigate("loom-cycle",id)} onArchiveCycle={onArchiveCycle} currentUser={currentUser}/>
-      </FadeIn>):<FadeIn><div className="p-6 rounded-xl text-center" style={{background:"#FFFFFF",border:"1px solid #E5E7EB"}}><p style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"#9CA3AF"}}>No cycles match this filter.</p></div></FadeIn>}</div>
-    </>}
-
-    {/* ===== TAB: DEBATE (inline from Forge) ===== */}
-    {activeTab==='debate'&&<>
-      {/* Cycle Creator (admin only) */}
-      {admin&&onPostGenerated&&<FadeIn delay={40}><div className="mb-8">
-        <div className="flex items-center gap-2 mb-4"><span style={{fontSize:18}}>⚡</span><div><h2 className="font-bold" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#9333EA",fontSize:20}}>Cycle Creator</h2><p style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.4)"}}>Generate a new synthesis cycle with dynamically generated lenses</p></div></div>
-        <AgentPanel onPostGenerated={onPostGenerated} onAutoComment={onAutoComment} agents={agents} registry={registry}/>
-      </div></FadeIn>}
-
-      {admin&&onPostGenerated&&<div className="mb-8 flex items-center gap-3"><div className="flex-1" style={{height:1,background:"#E5E7EB"}}/><span className="text-xs font-bold px-3 py-1" style={{color:"#9CA3AF"}}>OR</span><div className="flex-1" style={{height:1,background:"#E5E7EB"}}/></div>}
-
-      <FadeIn delay={60}><div className="mb-8">
-        <div className="flex items-center gap-2 mb-4"><span style={{fontSize:18}}>🧠</span><div><h2 className="font-bold" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#9333EA",fontSize:20}}>Brainstorm Workshop</h2><p style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.4)"}}>Pick any topic and run Debate or Implement sessions with AI agents</p></div></div>
-
-        {/* Topic Picker */}
-        {!workshopActive&&<div className="rounded-2xl p-5 mb-6" style={{background:"white",border:"1px solid #E5E7EB"}}>
-          <h3 className="font-bold mb-3" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:16}}>Pick a Topic</h3>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {[["loom","\uD83D\uDCD6 From Loom"],["horizon","\uD83D\uDD2E From Horizon"],["custom","\u270F\uFE0F Custom Topic"],["url","\uD83D\uDD17 From URL"]].map(([key,label])=>
-              <button key={key} onClick={()=>setTopicSource(topicSource===key?null:key)} className="px-3 py-2 rounded-xl text-xs font-semibold transition-all" style={{background:topicSource===key?"#F3E8FF":"#FFFFFF",color:topicSource===key?"#9333EA":"#4B5563",border:`1px solid ${topicSource===key?"rgba(147,51,234,0.3)":"#E5E7EB"}`}}>{label}</button>
-            )}
-          </div>
-
-          {topicSource==="loom"&&<div className="space-y-1.5 mb-4" style={{maxHeight:300,overflowY:"auto"}}>
-            {cycles.slice(0,10).map(c=>{
-              const fullText=c.posts.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n");
-              return <button key={c.id} onClick={()=>confirmTopic({title:c.throughLineQuestion||c.headline||c.rethink?.title||"Cycle "+c.number,text:fullText,sourceType:"cycle",cycleDate:c.date,cycleId:c.id})} className="w-full text-left p-3 rounded-xl transition-all" style={{background:"rgba(139,92,246,0.03)",border:"1px solid rgba(139,92,246,0.1)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(139,92,246,0.08)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(139,92,246,0.03)"}>
-                <div className="flex items-center gap-2 mb-1"><span className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:9,background:"#F3E8FF",color:"#9333EA"}}>Full Cycle {c.number}</span>{c.isJourney&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#E0F2EC",color:"#2D8A6E"}}>Connected Journey</span>}</div>
-                <span className="font-semibold text-sm" style={{color:"#111827"}}>{c.throughLineQuestion||c.headline||"Cycle "+c.number}</span>
-                <div className="flex items-center gap-2 mt-1">{["rethink","rediscover","reinvent"].map(pil=>{const post=c[pil];return post?<span key={pil} className="text-xs" style={{color:PILLARS[pil]?.color||"#999"}}>{post.title?.slice(0,30)}...</span>:null})}</div>
-              </button>})}
-            <div className="my-2 flex items-center gap-2"><div className="flex-1" style={{height:1,background:"#E5E7EB"}}/><span className="text-xs" style={{color:"#CCC"}}>or pick a single article</span><div className="flex-1" style={{height:1,background:"#E5E7EB"}}/></div>
-            {cycles.flatMap(c=>c.posts).slice(0,15).map(post=>
-              <button key={post.id} onClick={()=>confirmTopic({title:post.title,text:post.paragraphs?.[0]||"",sourceType:"loom"})} className="w-full text-left p-3 rounded-xl transition-all" style={{background:"rgba(0,0,0,0.02)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(139,92,246,0.06)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(0,0,0,0.02)"}>
-                <div className="flex items-center gap-2"><PillarTag pillar={post.pillar}/><span className="font-semibold text-sm" style={{color:"#111827"}}>{post.title}</span></div>
-              </button>
-            )}</div>}
-
-          {topicSource==="horizon"&&themes&&<div className="space-y-1.5 mb-4">{themes.map(th=>
-            <button key={th.id} onClick={()=>confirmTopic({title:th.title,text:"",sourceType:"horizon"})} className="w-full text-left p-3 rounded-xl transition-all" style={{background:"rgba(0,0,0,0.02)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(232,115,74,0.06)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(0,0,0,0.02)"}>
-              <span className="font-semibold text-sm" style={{color:"#111827"}}>{th.title}</span>
-              <span className="ml-2 text-xs" style={{color:"rgba(0,0,0,0.3)"}}>{th.votes} votes</span>
-            </button>
-          )}</div>}
-
-          {topicSource==="custom"&&<div className="mb-4 space-y-2">
-            <input value={customTitle} onChange={e=>setCustomTitle(e.target.value)} placeholder="Topic title..." className="w-full px-3 py-2 rounded-xl text-sm border focus:outline-none" style={{borderColor:"rgba(0,0,0,0.1)"}}/>
-            <textarea value={customText} onChange={e=>setCustomText(e.target.value)} placeholder="Context or description (optional)..." className="w-full px-3 py-2 rounded-xl text-sm border focus:outline-none" style={{borderColor:"rgba(0,0,0,0.1)",minHeight:80,resize:"vertical"}}/>
-            <button onClick={()=>{if(customTitle.trim())confirmTopic({title:customTitle.trim(),text:customText.trim(),sourceType:"custom"})}} className="px-4 py-2 rounded-xl text-sm font-semibold" style={{background:"#9333EA",color:"white"}} disabled={!customTitle.trim()}>Set Topic</button>
-          </div>}
-
-          {topicSource==="url"&&<div className="mb-4 space-y-2">
-            <input value={urlInput} onChange={e=>setUrlInput(e.target.value)} placeholder="https://..." className="w-full px-3 py-2 rounded-xl text-sm border focus:outline-none" style={{borderColor:"rgba(0,0,0,0.1)"}}/>
-            <button onClick={()=>{if(urlInput.trim())confirmTopic({title:urlInput.trim(),text:"Discuss content from: "+urlInput.trim(),sourceType:"url"})}} className="px-4 py-2 rounded-xl text-sm font-semibold" style={{background:"#9333EA",color:"white"}} disabled={!urlInput.trim()}>Set URL Topic</button>
-          </div>}
-
-          {selectedTopic&&<div className="p-3 rounded-xl mb-4" style={{background:"#FAF5FF",border:"1px solid rgba(45,138,110,0.15)"}}>
-            <div className="flex items-center justify-between"><div>
-              <span className="text-xs font-bold" style={{color:"rgba(0,0,0,0.3)"}}>SELECTED TOPIC</span>
-              <h4 className="font-bold text-sm mt-0.5" style={{color:"#111827"}}>{selectedTopic.title}</h4>
-              {selectedTopic.text&&<p className="text-xs mt-1" style={{color:"rgba(0,0,0,0.4)",lineHeight:1.5}}>{selectedTopic.text.slice(0,200)}{selectedTopic.text.length>200?"...":""}</p>}
-            </div><button onClick={()=>setSelectedTopic(null)} className="text-xs" style={{color:"rgba(0,0,0,0.3)"}}>✕</button></div>
-          </div>}
-
-          {selectedTopic&&<button onClick={startSession} className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white"}}>Start Session →</button>}
-        </div>}
-
-        {/* Active Workshop */}
-        {workshopActive&&selectedTopic&&<div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div><span className="text-xs font-bold" style={{color:"rgba(0,0,0,0.3)"}}>WEAVING</span><h2 className="font-bold" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:18}}>{selectedTopic.title}</h2></div>
-            <div className="flex items-center gap-2"><ShareButton title={`Re³ Loom: ${selectedTopic.title}`} text={`Exploring "${selectedTopic.title}" on The Loom`}/><button onClick={resetSession} className="px-3 py-1.5 rounded-lg text-xs font-semibold" style={{border:"1px solid rgba(0,0,0,0.1)",color:"rgba(0,0,0,0.4)"}}>New Topic</button></div>
-          </div>
-          <AgentWorkshop key={selectedTopic?.title||''} topic={selectedTopic} agents={agents} registry={registry} registryIndex={registryIndex} onDebateComplete={handleDebateComplete} onSaveSession={handleSaveSession} currentUser={currentUser}/>
-        </div>}
-      </div></FadeIn>
-
-      {/* Saved Sessions */}
-      {forgeSessions&&forgeSessions.length>0&&<FadeIn delay={120}><div className="rounded-2xl p-5 mb-6" style={{background:"white",border:"1px solid #E5E7EB"}}>
-        <h3 className="font-bold mb-3" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:16}}>Saved Sessions</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{forgeSessions.map(s=>{
-          const modeColors={debate:"#E8734A",ideate:"#3B6B9B",implement:"#2D8A6E"};
-          const modeIcons={debate:"\u2694\uFE0F",ideate:"\uD83D\uDCA1",implement:"\uD83D\uDD28"};
-          return <div key={s.id} className="p-3 rounded-xl cursor-pointer transition-all hover:shadow-sm" style={{background:"rgba(0,0,0,0.02)",border:"1px solid #E5E7EB"}} onClick={()=>onNavigate("forge",s.id)}>
-            <div className="flex items-center gap-2 mb-1"><span style={{fontSize:14}}>{modeIcons[s.mode]||"\uD83D\uDCDD"}</span><span className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:9,background:`${modeColors[s.mode]||"#999"}15`,color:modeColors[s.mode]||"#999"}}>{s.mode}</span><span style={{fontSize:10,color:"rgba(0,0,0,0.3)"}}>{new Date(s.date).toLocaleDateString()}</span></div>
-            <h4 className="font-semibold text-sm" style={{color:"#111827"}}>{s.topic?.title||"Untitled"}</h4>
-          </div>
-        })}</div>
-      </div></FadeIn>}
-
-      <FadeIn delay={140}><DebateInsightsPanel content={content} forgeSessions={forgeSessions}/></FadeIn>
+      </FadeIn>):<FadeIn><div className="p-6 rounded-xl text-center" style={{background:"#FFFFFF",border:"1px solid #E5E7EB"}}><p style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"#9CA3AF"}}>No editions match this filter.</p></div></FadeIn>}</div>
     </>}
 
     {/* ===== TAB: GALLERY ===== */}
@@ -885,7 +763,7 @@ function LoomPage({content,articles,onNavigate,onForge,onArchiveCycle,currentUse
       <FadeIn delay={50}><div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">{[
         ["Total Debates",allDebates.length,"#E8734A"],
         ["Unique Agents",new Set(allDebates.flatMap(d=>d.panel?.agents?.map(a=>a.name)||[])).size,"#3B6B9B"],
-        ["Argument Streams",allDebates.reduce((s,d)=>s+(d.streams?.length||0),0),"#2D8A6E"],
+        ["Key Themes",allDebates.reduce((s,d)=>s+(d.streams?.length||0),0),"#2D8A6E"],
         ["Total Rounds",allDebates.reduce((s,d)=>s+(d.rounds?.length||3),0),"#8B5CF6"]
       ].map(([label,val,color],i)=><div key={i} className="p-3 rounded-xl text-center" style={{background:`${color}08`,border:`1px solid ${color}15`}}>
         <div className="font-bold text-lg" style={{color}}>{val}</div>
@@ -1093,13 +971,16 @@ function DebatePanel({article,topic,agents,onDebateComplete,onSaveSession,curren
     {error&&<div className="p-3 m-3 rounded-xl" style={{background:"#FFF5F5"}}><p className="text-xs" style={{color:"#E53E3E"}}>Error: {error}</p><button onClick={()=>{setStatus("idle");setError("")}} className="text-xs font-semibold mt-1" style={{color:"#3B6B9B"}}>Retry</button></div>}
 
     {panel&&<div className="p-4" style={{borderBottom:"1px solid #E5E7EB"}}>
-      <div className="flex items-center gap-2 mb-2"><div className="w-6 h-6 rounded-full flex items-center justify-center" style={{border:"1.5px dashed #2D8A6E40"}}><OrchestratorAvatar type="ada" size={18}/></div><span className="font-bold text-xs" style={{color:"#2D8A6E"}}>Panel selected</span></div>
-      <div className="flex flex-wrap gap-1.5 mb-2">{panel.agents.map(a=><span key={a.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full" style={{background:`${a.color}10`,border:`1px solid ${a.color}25`}}><span className="w-4 h-4 rounded-full flex items-center justify-center font-bold" style={{background:`${a.color}20`,color:a.color,fontSize:7}}>{a.avatar}</span><span className="font-semibold" style={{fontSize:10,color:a.color}}>{a.name}</span></span>)}</div>
-      <p className="text-xs" style={{color:"#999",lineHeight:1.5}}>{panel.rationale}</p>
+      <div className="flex items-center gap-2 mb-3"><div className="w-6 h-6 rounded-full flex items-center justify-center" style={{border:"1.5px dashed #2D8A6E40"}}><OrchestratorAvatar type="ada" size={18}/></div><span className="font-bold text-xs" style={{color:"#2D8A6E"}}>Panel selected by Forge</span></div>
+      <div className="flex flex-wrap gap-2 mb-3">{panel.agents.map(a=><div key={a.id} className="group relative inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg cursor-default transition-all" style={{background:`${a.color}08`,border:`1px solid ${a.color}20`}} onMouseEnter={e=>{e.currentTarget.style.background=`${a.color}15`;e.currentTarget.style.borderColor=`${a.color}40`}} onMouseLeave={e=>{e.currentTarget.style.background=`${a.color}08`;e.currentTarget.style.borderColor=`${a.color}20`}}>
+        <span className="w-5 h-5 rounded-full flex items-center justify-center font-bold" style={{background:`${a.color}20`,color:a.color,fontSize:9}}>{a.avatar}</span>
+        <div><span className="font-semibold block" style={{fontSize:11,color:a.color,lineHeight:1.2}}>{a.name}</span><span style={{fontSize:9,color:`${a.color}90`,lineHeight:1}}>{a.category||a.role||''}</span></div>
+      </div>)}</div>
+      <div className="p-2.5 rounded-lg" style={{background:"#F0FDF4",border:"1px solid #D1FAE520"}}><p className="text-xs" style={{color:"#2D8A6E",lineHeight:1.5,fontStyle:"italic"}}><b>Why this panel:</b> {panel.rationale}</p></div>
     </div>}
 
     {streams.length>0?<div className="p-4">
-      <h3 className="font-bold mb-3" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:15}}>Argument Streams</h3>
+      <h3 className="font-bold mb-3" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:15}}>Key Themes</h3>
       {streams.map((stream,si)=><div key={si} className="mb-4">
         <div className="flex items-center gap-2 mb-2"><div className="w-1.5 rounded-full" style={{height:14,background:"linear-gradient(180deg,#E8734A,#3B6B9B)"}}/><h4 className="font-bold text-xs" style={{color:"#111827"}}>{stream.title}</h4></div>
         <div className="ml-3 space-y-1.5" style={{borderLeft:"2px solid #F3F4F6",paddingLeft:12}}>
@@ -1464,12 +1345,12 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
 
   // Dynamic step labels from throughLine pillars
   const STEP_LABELS=dynPillars.length>=3?[
-    ['through-line','Crafting the through-line + dynamic lenses...','#8B5CF6'],
+    ['through-line','Crafting the guiding question + dynamic lenses...','#8B5CF6'],
     ['act_0',`${orchNames[0]} is exploring "${dynPillars[0].label}"...`,dynPillars[0].color||'#3B6B9B'],
     ['act_1',`${orchNames[1]} is exploring "${dynPillars[1].label}"...`,dynPillars[1].color||'#E8734A'],
     ['act_2',`${orchNames[2]} is exploring "${dynPillars[2].label}"...`,dynPillars[2].color||'#2D8A6E'],
   ]:[
-    ['through-line','Crafting the through-line + dynamic lenses...','#8B5CF6'],
+    ['through-line','Crafting the guiding question + dynamic lenses...','#8B5CF6'],
     ['act_0','Hypatia is writing Act 1...','#3B6B9B'],
     ['act_1','Socratia is writing Act 2...','#E8734A'],
     ['act_2','Ada is writing Act 3...','#2D8A6E'],
@@ -1478,7 +1359,7 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
   const progressGradient=dynPillars.length>=3?`linear-gradient(90deg,${dynPillars.map(p=>p.color||'#999').join(',')})`:'linear-gradient(90deg,#3B6B9B,#E8734A,#2D8A6E)';
 
   return <div className="p-5 rounded-2xl" style={{background:"white",border:"1px solid #E5E7EB"}}>
-    <p className="mb-3" style={{fontSize:12,color:"rgba(0,0,0,0.4)"}}>Generate a connected 3-act synthesis cycle with dynamic topic-specific lenses. Each agent reads the previous agent&apos;s work.</p>
+    <p className="mb-3" style={{fontSize:12,color:"rgba(0,0,0,0.4)"}}>Generate a connected 3-part edition with dynamic topic-specific lenses. Each agent reads the previous agent&apos;s work.</p>
     {(step==='idle'||loading)&&<><div className="flex flex-wrap gap-3 items-end">
       <button onClick={suggestTopics} disabled={loading} className="px-4 py-2 rounded-full font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white",opacity:loading?0.7:1}}>{loading?'Analyzing trends with Claude...':'Suggest Topics'}</button>
       <div className="flex items-center gap-2"><span className="text-xs font-bold" style={{color:"rgba(0,0,0,0.2)"}}>OR</span></div>
@@ -1491,7 +1372,7 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
     {step==='generating'&&<div>
       <p className="text-sm mb-3 font-semibold" style={{color:"#111827"}}>Generating: <b>{selectedTopic?.title}</b></p>
       {throughLine&&<div className="mb-3 p-3 rounded-xl" style={{background:"#FAF5FF",border:"1px solid #E9D5FF"}}>
-        <span className="font-bold text-xs" style={{color:"#8B5CF6"}}>Through-Line Question</span>
+        <span className="font-bold text-xs" style={{color:"#8B5CF6"}}>Guiding Question</span>
         <p className="text-sm mt-1" style={{color:"#555",fontStyle:"italic"}}>{throughLine.through_line_question}</p>
         {dynPillars.length>=3&&<div className="flex flex-wrap gap-2 mt-2">{dynPillars.map((dp,di)=><span key={di} className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:10,background:`${dp.color||'#999'}15`,color:dp.color||'#999'}}>{dp.label}: {dp.tagline}</span>)}</div>}
       </div>}
@@ -1499,12 +1380,12 @@ function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,registry}){
       {STEP_LABELS.map(([key,label,color],i)=>{const isActive=key===generating;const completed=(key==='through-line'&&throughLine)||(key.startsWith('act_')&&posts.length>parseInt(key.split('_')[1]));
         return <div key={key} className="flex items-center gap-2 p-2 rounded-lg mb-1" style={{background:isActive?`${color}08`:completed?'#EBF5F1':'#FAFAFA',border:isActive?`1px solid ${color}25`:'1px solid transparent'}}>
           <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{background:completed?'#2D8A6E':isActive?color:'#E5E7EB'}}>{completed?<span style={{color:'white',fontSize:10}}>&#10003;</span>:isActive?<span className="animate-pulse w-2 h-2 rounded-full" style={{background:'white'}}/>:<span style={{color:'#CCC',fontSize:10}}>{i+1}</span>}</div>
-          <span className="font-semibold text-xs" style={{color:isActive?color:completed?'#2D8A6E':'#CCC'}}>{isActive?label:completed?(key==='through-line'?'Through-line + lenses ready':posts[parseInt(key.split('_')[1])]?.title||'Done'):'Waiting'}</span>
+          <span className="font-semibold text-xs" style={{color:isActive?color:completed?'#2D8A6E':'#CCC'}}>{isActive?label:completed?(key==='through-line'?'Guiding question + lenses ready':posts[parseInt(key.split('_')[1])]?.title||'Done'):'Waiting'}</span>
         </div>})}
     </div>}
     {step==='done'&&<div>
       {throughLine&&<div className="mb-3 p-3 rounded-xl" style={{background:"#FAF5FF",border:"1px solid #E9D5FF"}}>
-        <span className="font-bold text-xs" style={{color:"#8B5CF6"}}>Through-Line Question</span>
+        <span className="font-bold text-xs" style={{color:"#8B5CF6"}}>Guiding Question</span>
         <p className="text-sm mt-1" style={{color:"#555",fontStyle:"italic"}}>{throughLine.through_line_question}</p>
       </div>}
       <p className="text-sm mb-2 font-semibold" style={{color:"#2D8A6E"}}>Journey complete! All 3 acts are connected.</p>
@@ -1703,7 +1584,7 @@ function DebateExport({panel,rounds,loom,streams,atlas,topicTitle}){
     if(rounds?.length){rounds.forEach((round,ri)=>{md+=`## Round ${ri+1}\n\n`;round.forEach(r=>{if(r.status==="success"&&r.response)md+=`### ${r.name}\n${r.response}\n\n`})});md+=`---\n\n`}
     if(atlas?.intervention)md+=`## Moderation Note\n${atlas.intervention}\n\n`;
     if(loom){md+=`## The Loom — Synthesis\n\n${loom}\n\n`}
-    if(streams?.length){md+=`## Argument Streams\n\n`;streams.forEach(s=>{md+=`### ${s.title}\n`;s.entries?.forEach(e=>{md+=`- **${e.agent}** (R${e.round}): ${e.excerpt}\n`});md+=`\n`})}
+    if(streams?.length){md+=`## Key Themes\n\n`;streams.forEach(s=>{md+=`### ${s.title}\n`;s.entries?.forEach(e=>{md+=`- **${e.agent}** (R${e.round}): ${e.excerpt}\n`});md+=`\n`})}
     md+=`---\n*Generated on Re³ | re3.live*`;
     return md;
   };
@@ -1786,7 +1667,7 @@ function DebateGalleryPage({content,forgeSessions,onNavigate,onForge}){
     <FadeIn delay={50}><div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">{[
       ["Total Debates",allDebates.length,"#E8734A"],
       ["Unique Agents",new Set(allDebates.flatMap(d=>d.panel?.agents?.map(a=>a.name)||[])).size,"#3B6B9B"],
-      ["Argument Streams",allDebates.reduce((s,d)=>s+(d.streams?.length||0),0),"#2D8A6E"],
+      ["Key Themes",allDebates.reduce((s,d)=>s+(d.streams?.length||0),0),"#2D8A6E"],
       ["Total Rounds",allDebates.reduce((s,d)=>s+(d.rounds?.length||3),0),"#8B5CF6"]
     ].map(([label,val,color],i)=><div key={i} className="p-3 rounded-xl text-center" style={{background:`${color}08`,border:`1px solid ${color}15`}}>
       <div className="font-bold text-lg" style={{color}}>{val}</div>
@@ -1825,8 +1706,8 @@ function DebateGalleryPage({content,forgeSessions,onNavigate,onForge}){
                   </div>})}</div>
               </div>)}
             </div>}
-            {/* Argument Streams */}
-            {d.streams?.length>0&&<div className="mb-4"><h4 className="font-bold mb-2" style={{fontSize:13,color:"#2D8A6E",letterSpacing:"0.05em"}}>ARGUMENT STREAMS</h4>
+            {/* Key Themes */}
+            {d.streams?.length>0&&<div className="mb-4"><h4 className="font-bold mb-2" style={{fontSize:13,color:"#2D8A6E",letterSpacing:"0.05em"}}>KEY THEMES</h4>
               {d.streams.map((stream,si)=><div key={si} className="mb-2 p-3 rounded-lg" style={{background:"#F9FAFB"}}>
                 <span className="font-bold" style={{fontSize:14,color:"#111827"}}>{stream.title}</span>
                 <div className="mt-1 space-y-1">{stream.entries?.map((entry,ei)=><div key={ei} className="flex items-start gap-2" style={{fontSize:13}}><span className="font-bold flex-shrink-0" style={{color:"#666"}}>{entry.agent}</span><span style={{color:"#444"}}>{entry.excerpt}</span></div>)}</div>
@@ -1852,7 +1733,7 @@ function ArtifactSearchPage({content,onNavigate}){
     if(c.artifacts?.questions?.items)c.artifacts.questions.items.forEach(q=>artifacts.push({type:"question",text:q,cycle:c,pillar:"rethink",source:c.rethink?.title}));
     if(c.artifacts?.principle?.statement)artifacts.push({type:"principle",text:c.artifacts.principle.statement,cycle:c,pillar:"rediscover",source:c.rediscover?.title,evidence:c.artifacts.principle.evidence});
     if(c.artifacts?.blueprint?.components)c.artifacts.blueprint.components.forEach(comp=>artifacts.push({type:"component",text:comp,cycle:c,pillar:"reinvent",source:c.reinvent?.title}));
-    if(c.throughLineQuestion)artifacts.push({type:"through-line",text:c.throughLineQuestion,cycle:c,pillar:"all",source:`Cycle ${c.number}`});
+    if(c.throughLineQuestion)artifacts.push({type:"through-line",text:c.throughLineQuestion,cycle:c,pillar:"all",source:`Edition ${c.number}`});
     // Also index patterns from rediscover posts
     if(c.rediscover?.patterns)c.rediscover.patterns.forEach(p=>artifacts.push({type:"pattern",text:`${p.domain}: ${p.principle||p.summary}`,cycle:c,pillar:"rediscover",source:c.rediscover.title}));
     // Index open thread from reinvent
@@ -1860,10 +1741,10 @@ function ArtifactSearchPage({content,onNavigate}){
   });
   const doSearch=(q)=>{setQuery(q);if(!q.trim()){setResults([]);return}const lower=q.toLowerCase();setResults(artifacts.filter(a=>a.text.toLowerCase().includes(lower)))};
   const typeColors={"question":"#3B6B9B","principle":"#E8734A","component":"#2D8A6E","through-line":"#8B5CF6","pattern":"#E8734A","open-thread":"#2D8A6E"};
-  const typeLabels={"question":"Open Question","principle":"Principle","component":"Blueprint Component","through-line":"Through-Line","pattern":"Pattern","open-thread":"Open Thread"};
+  const typeLabels={"question":"Open Question","principle":"Principle","component":"Blueprint Component","through-line":"Guiding Question","pattern":"Pattern","open-thread":"Open Thread"};
   return <div className="min-h-screen" style={{paddingTop:56,background:"#F9FAFB"}}><div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
     <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:"clamp(22px,3.5vw,32px)"}}>Artifact Search</h1>
-      <p className="mb-4" style={{fontFamily:"'Inter',sans-serif",fontSize:14,color:"#6B7280"}}>Search across all cycle artifacts — questions, principles, blueprints, patterns. {artifacts.length} artifacts indexed.</p></FadeIn>
+      <p className="mb-4" style={{fontFamily:"'Inter',sans-serif",fontSize:14,color:"#6B7280"}}>Search across all edition artifacts — questions, principles, blueprints, patterns. {artifacts.length} artifacts indexed.</p></FadeIn>
     <FadeIn delay={30}><div className="mb-6"><input value={query} onChange={e=>doSearch(e.target.value)} placeholder="Search artifacts... (e.g. 'governance', 'architecture', 'trust')" className="w-full px-4 py-3 rounded-xl text-sm border focus:outline-none" style={{borderColor:"#E5E7EB",background:"white",fontSize:14}} autoFocus/></div></FadeIn>
     {/* Show all artifacts when no query */}
     {!query.trim()&&<FadeIn delay={50}><div className="mb-4">
@@ -1879,7 +1760,7 @@ function ArtifactSearchPage({content,onNavigate}){
       <div className="p-3 rounded-xl cursor-pointer transition-all hover:shadow-sm" style={{background:"white",border:`1px solid ${typeColors[a.type]||"#E5E7EB"}20`}} onClick={()=>{const post=a.cycle[a.pillar==="all"?"rethink":a.pillar];if(post)onNavigate("post",post.id);else onNavigate("loom-cycle",a.cycle.id)}}>
         <div className="flex items-center gap-2 mb-1">
           <span className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:9,background:`${typeColors[a.type]}12`,color:typeColors[a.type]}}>{typeLabels[a.type]||a.type}</span>
-          <span className="text-xs" style={{color:"#CCC"}}>Cycle {a.cycle.number}</span>
+          <span className="text-xs" style={{color:"#CCC"}}>Edition {a.cycle.number}</span>
           {a.source&&<span className="text-xs" style={{color:"#BBB"}}>from: {a.source}</span>}
         </div>
         <p className="text-sm" style={{color:"#333",lineHeight:1.5}}>{a.text}</p>
@@ -2004,7 +1885,7 @@ function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onN
                 </div>})}</div>
             </div>)}
           </div>}
-          {s.results.streams?.length>0&&<div className="mb-5"><h4 className="font-bold mb-2" style={{fontSize:13,color:"#2D8A6E",letterSpacing:"0.05em"}}>ARGUMENT STREAMS</h4>
+          {s.results.streams?.length>0&&<div className="mb-5"><h4 className="font-bold mb-2" style={{fontSize:13,color:"#2D8A6E",letterSpacing:"0.05em"}}>KEY THEMES</h4>
             {s.results.streams.map((stream,si)=><div key={si} className="mb-2 p-3 rounded-lg" style={{background:"#F9FAFB"}}>
               <span className="font-bold" style={{fontSize:14,color:"#111827"}}>{stream.title}</span>
               <div className="mt-1 space-y-1">{stream.entries?.map((entry,ei)=><div key={ei} className="flex items-start gap-2" style={{fontSize:13}}><span className="font-bold flex-shrink-0" style={{color:"#666"}}>{entry.agent}</span><span style={{color:"#444"}}>{entry.excerpt}</span></div>)}</div>
@@ -2031,7 +1912,7 @@ function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onN
 
     {/* SECTION A: Cycle Creator (admin only) */}
     {admin&&onPostGenerated&&<FadeIn delay={40}><div className="mb-8">
-      <div className="flex items-center gap-2 mb-4"><span style={{fontSize:18}}>⚡</span><div><h2 className="font-bold" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#9333EA",fontSize:20}}>Cycle Creator</h2><p style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.4)"}}>Generate a new synthesis cycle — 3 articles across Rethink, Rediscover, Reinvent</p></div></div>
+      <div className="flex items-center gap-2 mb-4"><span style={{fontSize:18}}>⚡</span><div><h2 className="font-bold" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#9333EA",fontSize:20}}>Edition Creator</h2><p style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.4)"}}>Generate a new edition — 3 articles across Rethink, Rediscover, Reinvent</p></div></div>
       <AgentPanel onPostGenerated={onPostGenerated} onAutoComment={onAutoComment} agents={agents} registry={registry}/>
     </div></FadeIn>}
 
@@ -2058,9 +1939,9 @@ function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onN
         {/* Full cycles first — debate all 3 articles together */}
         {cycles.slice(0,10).map(c=>{
           const fullText=c.posts.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n");
-          return <button key={c.id} onClick={()=>confirmTopic({title:c.throughLineQuestion||c.headline||c.rethink?.title||"Cycle "+c.number,text:fullText,sourceType:"cycle",cycleDate:c.date,cycleId:c.id})} className="w-full text-left p-3 rounded-xl transition-all" style={{background:"rgba(139,92,246,0.03)",border:"1px solid rgba(139,92,246,0.1)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(139,92,246,0.08)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(139,92,246,0.03)"}>
-            <div className="flex items-center gap-2 mb-1"><span className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:9,background:"#F3E8FF",color:"#9333EA"}}>Full Cycle {c.number}</span>{c.isJourney&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#E0F2EC",color:"#2D8A6E"}}>Connected Journey</span>}</div>
-            <span className="font-semibold text-sm" style={{color:"#111827"}}>{c.throughLineQuestion||c.headline||"Cycle "+c.number}</span>
+          return <button key={c.id} onClick={()=>confirmTopic({title:c.throughLineQuestion||c.headline||c.rethink?.title||"Edition "+c.number,text:fullText,sourceType:"cycle",cycleDate:c.date,cycleId:c.id})} className="w-full text-left p-3 rounded-xl transition-all" style={{background:"rgba(139,92,246,0.03)",border:"1px solid rgba(139,92,246,0.1)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(139,92,246,0.08)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(139,92,246,0.03)"}>
+            <div className="flex items-center gap-2 mb-1"><span className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:9,background:"#F3E8FF",color:"#9333EA"}}>Full Edition {c.number}</span>{c.isJourney&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"#E0F2EC",color:"#2D8A6E"}}>Connected Journey</span>}</div>
+            <span className="font-semibold text-sm" style={{color:"#111827"}}>{c.throughLineQuestion||c.headline||"Edition "+c.number}</span>
             <div className="flex items-center gap-2 mt-1">{["rethink","rediscover","reinvent"].map(pil=>{const post=c[pil];return post?<span key={pil} className="text-xs" style={{color:PILLARS[pil]?.color||"#999"}}>{post.title?.slice(0,30)}...</span>:null})}</div>
           </button>})}
         <div className="my-2 flex items-center gap-2"><div className="flex-1" style={{height:1,background:"#E5E7EB"}}/><span className="text-xs" style={{color:"#CCC"}}>or pick a single article</span><div className="flex-1" style={{height:1,background:"#E5E7EB"}}/></div>
