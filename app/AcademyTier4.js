@@ -1,5 +1,6 @@
 "use client";
 import { GIM, ExpandableSection, CodeBlock, Quiz, AnalogyBox, CourseShell, ArchitectureDecision, ComparisonTable } from "./Academy";
+import { JargonTip } from "./AcademyReviews";
 
 // ==================== TIER 4: STRATEGIC & FRONTIER ====================
 
@@ -290,7 +291,7 @@ export function CourseAIRegulatory({onBack,onNavigate,progress,onComplete,depth,
     if(i===4)return <RegDeepAuditTab/>;
     return <RegStrategyTab/>;
   };
-  return <CourseShell id="ai-regulatory" icon={'\u2696\uFE0F'} title="AI Governance & Regulatory Landscape" timeMinutes={50} exerciseCount={7} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={vTabs} deepTabs={dTabs} renderTab={renderTab}/>;
+  return <CourseShell id="ai-regulatory" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={vTabs} deepTabs={dTabs} renderTab={renderTab}/>;
 }
 
 // ==================== COURSE 2: RESPONSIBLE AI IN PRACTICE ====================
@@ -511,7 +512,7 @@ export function CourseResponsibleAI({onBack,onNavigate,progress,onComplete,depth
     if(i===4)return <RAIPracticeTab/>;
     return <RAIToolsTab/>;
   };
-  return <CourseShell id="responsible-ai" icon={'\uD83E\uDD1D'} title="Responsible AI in Practice" timeMinutes={45} exerciseCount={6} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={vTabs} deepTabs={dTabs} renderTab={renderTab}/>;
+  return <CourseShell id="responsible-ai" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={vTabs} deepTabs={dTabs} renderTab={renderTab}/>;
 }
 
 // ==================== COURSE 3: ENTERPRISE AI STRATEGY ====================
@@ -730,7 +731,7 @@ export function CourseEnterpriseStrategy({onBack,onNavigate,progress,onComplete,
     if(i===4)return <EntDeepRoadmapTab/>;
     return <EntChangeTab/>;
   };
-  return <CourseShell id="enterprise-strategy" icon={'\uD83D\uDCCA'} title="Enterprise AI Strategy" timeMinutes={40} exerciseCount={5} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={vTabs} deepTabs={dTabs} renderTab={renderTab}/>;
+  return <CourseShell id="enterprise-strategy" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={vTabs} deepTabs={dTabs} renderTab={renderTab}/>;
 }
 
 // ==================== COURSE 4: AI ECONOMICS & ROI ====================
@@ -953,7 +954,7 @@ export function CourseAIEconomics({onBack,onNavigate,progress,onComplete,depth,o
     if(i===3)return <ROITab/>;
     return <EconDeepBizCaseTab/>;
   };
-  return <CourseShell id="ai-economics" icon={'\uD83D\uDCC8'} title="AI Economics & ROI" timeMinutes={35} exerciseCount={5} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={vTabs} deepTabs={dTabs} renderTab={renderTab}/>;
+  return <CourseShell id="ai-economics" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={vTabs} deepTabs={dTabs} renderTab={renderTab}/>;
 }
 
 // ==================== COURSE 5: COMPUTER USE & BROWSER AGENTS ====================
@@ -1240,7 +1241,7 @@ export function CourseComputerUse({onBack,onNavigate,progress,onComplete,depth,o
     if(i===4)return <CompUseDeepSafetyTab/>;
     return <CompUseFutureTab/>;
   };
-  return <CourseShell id="computer-use" icon={'\uD83D\uDDA5\uFE0F'} title="Computer Use & Browser Agents" timeMinutes={45} exerciseCount={7} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={vTabs} deepTabs={dTabs} renderTab={renderTab}/>;
+  return <CourseShell id="computer-use" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={vTabs} deepTabs={dTabs} renderTab={renderTab}/>;
 }
 
 // ==================== COURSE 6: PHYSICAL AI & ROBOTICS FOUNDATIONS ====================
@@ -1509,5 +1510,14 @@ export function CoursePhysicalAI({onBack,onNavigate,progress,onComplete,depth,on
     if(i===4)return <PhysDeepSafetyTab/>;
     return <PhysAIFutureTab/>;
   };
-  return <CourseShell id="physical-ai" icon={'\uD83E\uDD16'} title="Physical AI & Robotics Foundations" timeMinutes={40} exerciseCount={5} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={vTabs} deepTabs={dTabs} renderTab={renderTab}/>;
+  return <CourseShell id="physical-ai" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={vTabs} deepTabs={dTabs} renderTab={renderTab}/>;
 }
+
+export const TIER4_REGISTRY = {
+  'ai-regulatory': CourseAIRegulatory,
+  'responsible-ai': CourseResponsibleAI,
+  'enterprise-strategy': CourseEnterpriseStrategy,
+  'ai-economics': CourseAIEconomics,
+  'computer-use': CourseComputerUse,
+  'physical-ai': CoursePhysicalAI,
+};

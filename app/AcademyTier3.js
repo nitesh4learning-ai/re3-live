@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { GIM, CODE_BG, CODE_TEXT, FadeIn, ProgressBar, ExpandableSection, CodeBlock, Quiz, MessageSimulator, AnalogyBox, SeeItInRe3, CourseShell, ArchitectureDecision, ComparisonTable } from "./Academy";
+import { JargonTip } from "./AcademyReviews";
 
 // ==================== COURSE 9: MULTI-AGENT ORCHESTRATION ====================
 function PatternMatcher(){
@@ -745,7 +746,7 @@ function TabDeepMAPlayground({onNavigate,onComplete}){return <div>
 export function CourseMultiAgent({onBack,onNavigate,progress,onComplete,depth,onChangeDepth}){
   const visionaryTabs=[{id:'why-multi',label:'Why Multi-Agent',icon:'\uD83E\uDD16'},{id:'roles-patterns',label:'Roles & Patterns',icon:'\uD83C\uDFAD'},{id:'state-memory',label:'State & Memory',icon:'\uD83E\uDDE0'},{id:'frameworks',label:'Frameworks',icon:'\uD83D\uDD27'},{id:'ma-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
   const deepTabs=[{id:'deep-orchestration',label:'Orchestration Patterns',icon:'\uD83C\uDFD7\uFE0F'},{id:'deep-communication',label:'Agent Communication',icon:'\uD83D\uDCE1'},{id:'deep-consensus',label:'Consensus Mechanisms',icon:'\u2696\uFE0F'},{id:'deep-memory',label:'Agent Memory',icon:'\uD83E\uDDE0'},{id:'deep-langgraph',label:'LangGraph Implementation',icon:'\uD83D\uDD17'},{id:'deep-crewai',label:'CrewAI & AutoGen',icon:'\uD83E\uDD16'},{id:'deep-prod-multiagent',label:'Production Multi-Agent',icon:'\u2699\uFE0F'},{id:'deep-ma-playground',label:'Deep Playground',icon:'\uD83C\uDFAE'}];
-  return <CourseShell title="Multi-Agent Orchestration" icon={'\uD83E\uDD16'} onBack={onBack} progress={progress} time="55 min" exercises="10 exercises" visionaryTabs={visionaryTabs} deepTabs={deepTabs} depth={depth} onChangeDepth={onChangeDepth} renderTab={(tab,i,d)=>{
+  return <CourseShell id="multi-agent" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
     if(d==='deep'){
       if(i===0)return <TabDeepOrchestration onNavigate={onNavigate} onComplete={onComplete}/>;
       if(i===1)return <TabDeepCommunication onNavigate={onNavigate} onComplete={onComplete}/>;
@@ -1430,7 +1431,7 @@ async def global_search(query, summaries, llm, level=0):
 export function CourseGraphRAG({onBack,onNavigate,progress,onComplete,depth,onChangeDepth}){
   const visionaryTabs=[{id:'knowledge-graphs',label:'Knowledge Graphs',icon:'\uD83C\uDF10'},{id:'building-graphs',label:'Building Graphs',icon:'\uD83D\uDD28'},{id:'graph-retrieval',label:'Graph Retrieval',icon:'\uD83D\uDD0D'},{id:'hybrid-strat',label:'Hybrid Strategies',icon:'\uD83D\uDD00'},{id:'gr-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
   const deepTabs=[{id:'deep-kg-construction',label:'KG Construction',icon:'🏗️'},{id:'deep-graph-dbs',label:'Graph Databases',icon:'🗄️'},{id:'deep-ms-graphrag',label:'Microsoft GraphRAG',icon:'🔷'},{id:'deep-query-patterns',label:'Query Patterns',icon:'🔍'},{id:'deep-prod-graph',label:'Production Pipeline',icon:'⚙️'},{id:'deep-gr-playground',label:'Deep Playground',icon:'🎮'}];
-  return <CourseShell title="Graph RAG & Knowledge Graphs" icon={'\uD83C\uDF10'} onBack={onBack} progress={progress} time="50 min" exercises="8 exercises" visionaryTabs={visionaryTabs} deepTabs={deepTabs} depth={depth} onChangeDepth={onChangeDepth} renderTab={(tab,i,d)=>{
+  return <CourseShell id="graph-rag" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
     if(d==='deep'){
       if(i===0)return <TabDeepKGConstruction onNavigate={onNavigate} onComplete={onComplete}/>;
       if(i===1)return <TabDeepGraphDatabases onNavigate={onNavigate} onComplete={onComplete}/>;
@@ -1768,7 +1769,7 @@ function TabDeepObsPlayground({onNavigate,onComplete}){return <div>
 export function CourseObservability({onBack,onNavigate,progress,onComplete,depth,onChangeDepth}){
   const visionaryTabs=[{id:'why-observe',label:'Why Observe AI',icon:'\uD83D\uDCCA'},{id:'tracing',label:'Tracing & Logging',icon:'\uD83D\uDD0D'},{id:'eval-frameworks',label:'Evaluation Frameworks',icon:'\u2705'},{id:'obs-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
   const deepTabs=[{id:'deep-tracing-arch',label:'Tracing Architecture',icon:'📡'},{id:'deep-llm-eval',label:'LLM Evaluation',icon:'⚖️'},{id:'deep-drift',label:'Drift Detection',icon:'📉'},{id:'deep-platforms',label:'Langfuse & LangSmith',icon:'🔧'},{id:'deep-metrics',label:'Custom Metrics',icon:'📋'},{id:'deep-obs-playground',label:'Deep Playground',icon:'🎮'}];
-  return <CourseShell title="AI Observability & Evaluation" icon={'\uD83D\uDCCA'} onBack={onBack} progress={progress} time="45 min" exercises="7 exercises" visionaryTabs={visionaryTabs} deepTabs={deepTabs} depth={depth} onChangeDepth={onChangeDepth} renderTab={(tab,i,d)=>{
+  return <CourseShell id="ai-observability" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
     if(d==='deep'){
       if(i===0)return <TabDeepTracingArch onNavigate={onNavigate} onComplete={onComplete}/>;
       if(i===1)return <TabDeepLLMEval onNavigate={onNavigate} onComplete={onComplete}/>;
@@ -2255,7 +2256,7 @@ function TabDeepGWPlayground({onNavigate,onComplete}){return <div>
 export function CourseLLMGateway({onBack,onNavigate,progress,onComplete,depth,onChangeDepth}){
   const visionaryTabs=[{id:'what-gateway',label:'What is a Gateway',icon:'\uD83D\uDE80'},{id:'routing',label:'Routing Strategies',icon:'\uD83D\uDD00'},{id:'cost-rate',label:'Cost & Rate Limiting',icon:'\uD83D\uDCB0'},{id:'gw-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
   const deepTabs=[{id:'deep-gateway-arch',label:'Gateway Architecture',icon:'🏗️'},{id:'deep-routing-algo',label:'Routing Algorithms',icon:'🛤️'},{id:'deep-caching',label:'Semantic Caching',icon:'⚡'},{id:'deep-rate-limiting',label:'Rate Limiting',icon:'🚦'},{id:'deep-failover',label:'Failover & Circuit Breakers',icon:'🛡️'},{id:'deep-gw-playground',label:'Deep Playground',icon:'🎮'}];
-  return <CourseShell title="LLM Gateway Patterns" icon={'\uD83D\uDE80'} onBack={onBack} progress={progress} time="40 min" exercises="6 exercises" visionaryTabs={visionaryTabs} deepTabs={deepTabs} depth={depth} onChangeDepth={onChangeDepth} renderTab={(tab,i,d)=>{
+  return <CourseShell id="llm-gateway" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
     if(d==='deep'){
       if(i===0)return <TabDeepGatewayArch onNavigate={onNavigate} onComplete={onComplete}/>;
       if(i===1)return <TabDeepRoutingAlgo onNavigate={onNavigate} onComplete={onComplete}/>;
@@ -2475,7 +2476,7 @@ trainer.train()
 export function CourseFineTuning({onBack,onNavigate,progress,onComplete,depth,onChangeDepth}){
   const visionaryTabs=[{id:'ft-overview',label:'What Is Fine-Tuning?',icon:'\uD83D\uDD27'},{id:'ft-methods',label:'Methods',icon:'\u26A1'},{id:'ft-data',label:'Data Preparation',icon:'\uD83D\uDCCA'},{id:'ft-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
   const deepTabs=[{id:'d-overview',label:'Overview',icon:'\uD83D\uDD27'},{id:'d-methods',label:'LoRA & QLoRA',icon:'\u26A1'},{id:'d-lora',label:'LoRA Deep Dive',icon:'\uD83E\uDDEC'},{id:'d-synthetic',label:'Synthetic Data',icon:'\uD83E\uDD16'},{id:'d-domain',label:'Domain Adaptation',icon:'\uD83C\uDFAF'},{id:'d-eval',label:'Eval & Deploy',icon:'\uD83D\uDE80'},{id:'d-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
-  return <CourseShell id="fine-tuning" icon={'\uD83D\uDD27'} title="Fine-Tuning & Model Customization" timeMinutes={50} exerciseCount={8} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
+  return <CourseShell id="fine-tuning" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
     if(d==='visionary'){if(i===0)return <TabFTOverview onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabFTMethods onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabFTData onNavigate={onNavigate} onComplete={onComplete}/>;return <TabFTPlayground onNavigate={onNavigate} onComplete={onComplete}/>;}
     if(i===0)return <TabFTOverview onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabFTMethods onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabDeepFTLoRA onNavigate={onNavigate} onComplete={onComplete}/>;if(i===3)return <TabDeepFTSyntheticData onNavigate={onNavigate} onComplete={onComplete}/>;if(i===4)return <TabDeepFTDomain onNavigate={onNavigate} onComplete={onComplete}/>;if(i===5)return <TabDeepFTEval onNavigate={onNavigate} onComplete={onComplete}/>;return <TabFTPlayground onNavigate={onNavigate} onComplete={onComplete}/>;
   }}/>;
@@ -2643,7 +2644,7 @@ parent component passing undefined during loading.
 export function CourseAICodeGen({onBack,onNavigate,progress,onComplete,depth,onChangeDepth}){
   const visionaryTabs=[{id:'codegen-overview',label:'AI Code Gen',icon:'\uD83D\uDCBB'},{id:'codegen-tools',label:'Tools',icon:'\uD83D\uDD27'},{id:'codegen-patterns',label:'Patterns',icon:'\uD83D\uDCCB'},{id:'codegen-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
   const deepTabs=[{id:'d-overview',label:'Overview',icon:'\uD83D\uDCBB'},{id:'d-tools',label:'Tools',icon:'\uD83D\uDD27'},{id:'d-context',label:'Context Loading',icon:'\uD83D\uDCDA'},{id:'d-patterns',label:'Patterns',icon:'\uD83D\uDCCB'},{id:'d-review',label:'Code Review',icon:'\uD83D\uDD0D'},{id:'d-debug',label:'Debugging',icon:'\uD83D\uDC1B'},{id:'d-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
-  return <CourseShell id="ai-code-gen" icon={'\uD83D\uDCBB'} title="AI-Powered Code Generation" timeMinutes={45} exerciseCount={9} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
+  return <CourseShell id="ai-code-gen" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
     if(d==='visionary'){if(i===0)return <TabCodeGenOverview onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabCodeGenTools onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabCodeGenPatterns onNavigate={onNavigate} onComplete={onComplete}/>;return <TabCodeGenPlayground onNavigate={onNavigate} onComplete={onComplete}/>;}
     if(i===0)return <TabCodeGenOverview onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabCodeGenTools onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabDeepCodeContext onNavigate={onNavigate} onComplete={onComplete}/>;if(i===3)return <TabCodeGenPatterns onNavigate={onNavigate} onComplete={onComplete}/>;if(i===4)return <TabDeepCodeReview onNavigate={onNavigate} onComplete={onComplete}/>;if(i===5)return <TabDeepCodeDebug onNavigate={onNavigate} onComplete={onComplete}/>;return <TabCodeGenPlayground onNavigate={onNavigate} onComplete={onComplete}/>;
   }}/>;
@@ -2754,7 +2755,7 @@ function TabDeepMMCrossModal({onNavigate,onComplete}){return <FadeIn><div classN
 export function CourseMultimodal({onBack,onNavigate,progress,onComplete,depth,onChangeDepth}){
   const visionaryTabs=[{id:'mm-overview',label:'What Is Multimodal?',icon:'\uD83D\uDDBC\uFE0F'},{id:'mm-vision',label:'Vision Pipelines',icon:'\uD83D\uDC41\uFE0F'},{id:'mm-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
   const deepTabs=[{id:'d-overview',label:'Multimodal',icon:'\uD83D\uDDBC\uFE0F'},{id:'d-vision',label:'Vision',icon:'\uD83D\uDC41\uFE0F'},{id:'d-audio',label:'Audio & Video',icon:'\uD83C\uDF99\uFE0F'},{id:'d-cross',label:'Cross-Modal',icon:'\uD83E\uDDE0'},{id:'d-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
-  return <CourseShell id="multimodal" icon={'\uD83D\uDDBC\uFE0F'} title="Multimodal AI Pipelines" timeMinutes={45} exerciseCount={7} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
+  return <CourseShell id="multimodal" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
     if(d==='visionary'){if(i===0)return <TabMMOverview onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabMMVision onNavigate={onNavigate} onComplete={onComplete}/>;return <TabMMPlayground onNavigate={onNavigate} onComplete={onComplete}/>;}
     if(i===0)return <TabMMOverview onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabMMVision onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabDeepMMAudio onNavigate={onNavigate} onComplete={onComplete}/>;if(i===3)return <TabDeepMMCrossModal onNavigate={onNavigate} onComplete={onComplete}/>;return <TabMMPlayground onNavigate={onNavigate} onComplete={onComplete}/>;
   }}/>;
@@ -2862,7 +2863,7 @@ function TabDeepVoiceContact({onNavigate,onComplete}){return <FadeIn><div classN
 export function CourseVoiceAI({onBack,onNavigate,progress,onComplete,depth,onChangeDepth}){
   const visionaryTabs=[{id:'voice-overview',label:'Voice AI',icon:'\uD83C\uDF99\uFE0F'},{id:'voice-pipeline',label:'Pipeline',icon:'\uD83D\uDD27'},{id:'voice-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
   const deepTabs=[{id:'d-overview',label:'Voice AI',icon:'\uD83C\uDF99\uFE0F'},{id:'d-pipeline',label:'Pipeline',icon:'\uD83D\uDD27'},{id:'d-latency',label:'Latency',icon:'\u26A1'},{id:'d-contact',label:'Contact Center',icon:'\uD83D\uDCDE'},{id:'d-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
-  return <CourseShell id="voice-ai" icon={'\uD83C\uDF99\uFE0F'} title="Voice AI & Conversational Agents" timeMinutes={40} exerciseCount={6} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
+  return <CourseShell id="voice-ai" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
     if(d==='visionary'){if(i===0)return <TabVoiceOverview onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabVoicePipeline onNavigate={onNavigate} onComplete={onComplete}/>;return <TabVoicePlayground onNavigate={onNavigate} onComplete={onComplete}/>;}
     if(i===0)return <TabVoiceOverview onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabVoicePipeline onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabDeepVoiceLatency onNavigate={onNavigate} onComplete={onComplete}/>;if(i===3)return <TabDeepVoiceContact onNavigate={onNavigate} onComplete={onComplete}/>;return <TabVoicePlayground onNavigate={onNavigate} onComplete={onComplete}/>;
   }}/>;
@@ -2975,7 +2976,7 @@ class Reranker:
 export function CourseRetrievalEng({onBack,onNavigate,progress,onComplete,depth,onChangeDepth}){
   const visionaryTabs=[{id:'reteng-overview',label:'Beyond Basic RAG',icon:'\uD83D\uDD0E'},{id:'reteng-hybrid',label:'Hybrid Search',icon:'\uD83D\uDD00'},{id:'reteng-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
   const deepTabs=[{id:'d-overview',label:'Overview',icon:'\uD83D\uDD0E'},{id:'d-chunking',label:'Chunking',icon:'\uD83D\uDD2A'},{id:'d-hybrid',label:'Hybrid Search',icon:'\uD83D\uDD00'},{id:'d-reranking',label:'Reranking & RAPTOR',icon:'\uD83C\uDFAF'},{id:'d-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
-  return <CourseShell id="retrieval-eng" icon={'\uD83D\uDD0E'} title="Retrieval Engineering" timeMinutes={45} exerciseCount={8} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
+  return <CourseShell id="retrieval-eng" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
     if(d==='visionary'){if(i===0)return <TabRetEngOverview onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabRetEngHybrid onNavigate={onNavigate} onComplete={onComplete}/>;return <TabRetEngPlayground onNavigate={onNavigate} onComplete={onComplete}/>;}
     if(i===0)return <TabRetEngOverview onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabDeepChunking onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabRetEngHybrid onNavigate={onNavigate} onComplete={onComplete}/>;if(i===3)return <TabDeepReranking onNavigate={onNavigate} onComplete={onComplete}/>;return <TabRetEngPlayground onNavigate={onNavigate} onComplete={onComplete}/>;
   }}/>;
@@ -3166,7 +3167,7 @@ function TabDeepEvalPipeline({onNavigate,onComplete}){return <FadeIn><div classN
 export function CourseAITesting({onBack,onNavigate,progress,onComplete,depth,onChangeDepth}){
   const visionaryTabs=[{id:'test-overview',label:'AI Testing',icon:'\uD83E\uDDEA'},{id:'test-eval',label:'Evaluation',icon:'\uD83D\uDCCA'},{id:'test-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
   const deepTabs=[{id:'d-overview',label:'Testing Overview',icon:'\uD83E\uDDEA'},{id:'d-eval',label:'Evaluation',icon:'\uD83D\uDCCA'},{id:'d-redteam',label:'Red-Teaming',icon:'\uD83D\uDD34'},{id:'d-injection',label:'Injection Defense',icon:'\uD83D\uDEE1\uFE0F'},{id:'d-pipeline',label:'Eval Pipeline',icon:'\u2699\uFE0F'},{id:'d-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
-  return <CourseShell id="ai-testing" icon={'\uD83E\uDDEA'} title="AI Testing & Red-Teaming" timeMinutes={40} exerciseCount={7} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
+  return <CourseShell id="ai-testing" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
     if(d==='visionary'){if(i===0)return <TabTestOverview onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabTestEval onNavigate={onNavigate} onComplete={onComplete}/>;return <TabTestPlayground onNavigate={onNavigate} onComplete={onComplete}/>;}
     if(i===0)return <TabTestOverview onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabTestEval onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabDeepRedTeam onNavigate={onNavigate} onComplete={onComplete}/>;if(i===3)return <TabDeepInjection onNavigate={onNavigate} onComplete={onComplete}/>;if(i===4)return <TabDeepEvalPipeline onNavigate={onNavigate} onComplete={onComplete}/>;return <TabTestPlayground onNavigate={onNavigate} onComplete={onComplete}/>;
   }}/>;
@@ -3716,7 +3717,7 @@ function TabBuildAgent({onNavigate,onComplete}){return <FadeIn><div className="m
 export function CourseAgenticScale({onBack,onNavigate,progress,onComplete,depth,onChangeDepth}){
   const visionaryTabs=[{id:'agent-arch',label:'Agent Architecture',icon:'\uD83E\uDD16'},{id:'tool-design',label:'Tool Design',icon:'\uD83D\uDD27'},{id:'multi-step',label:'Multi-Step Reasoning',icon:'\uD83E\uDDE0'},{id:'scaling',label:'Scaling Agents',icon:'\uD83D\uDCC8'},{id:'build-agent',label:'Build an Agent',icon:'\uD83C\uDFAE'}];
   const deepTabs=[{id:'d-arch',label:'Agent Architecture',icon:'\uD83E\uDD16'},{id:'d-tools',label:'Tool Design',icon:'\uD83D\uDD27'},{id:'d-reasoning',label:'Multi-Step Reasoning',icon:'\uD83E\uDDE0'},{id:'d-scaling',label:'Scaling Agents',icon:'\uD83D\uDCC8'},{id:'d-build',label:'Build an Agent',icon:'\uD83C\uDFAE'}];
-  return <CourseShell id="agentic-scale" icon={'\uD83E\uDD16'} title="Agentic AI Patterns & Tool Use at Scale" timeMinutes={55} exerciseCount={14} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
+  return <CourseShell id="agentic-scale" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
     if(d==='visionary'){if(i===0)return <TabAgentArchitecture onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabToolDesign onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabMultiStepReasoning onNavigate={onNavigate} onComplete={onComplete}/>;if(i===3)return <TabScalingAgents onNavigate={onNavigate} onComplete={onComplete}/>;return <TabBuildAgent onNavigate={onNavigate} onComplete={onComplete}/>;}
     if(i===0)return <TabAgentArchitecture onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabToolDesign onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabMultiStepReasoning onNavigate={onNavigate} onComplete={onComplete}/>;if(i===3)return <TabScalingAgents onNavigate={onNavigate} onComplete={onComplete}/>;return <TabBuildAgent onNavigate={onNavigate} onComplete={onComplete}/>;
   }}/>;
@@ -5800,12 +5801,6 @@ export function CourseMCPAdvanced({onBack, onNavigate, progress, onComplete, dep
   return (
     <CourseShell
       id="mcp-advanced"
-      title="MCP — Advanced Patterns"
-      icon="🔌"
-      tier={3}
-      difficulty="Advanced"
-      timeMinutes={50}
-      exerciseCount={9}
       onBack={onBack}
       onNavigate={onNavigate}
       progress={progress}
@@ -6550,7 +6545,7 @@ jobs:
 export function CourseEvalObservability({onBack,onNavigate,progress,onComplete,depth,onChangeDepth}){
   const visionaryTabs=[{id:'eo-why-evaluate',label:'Why Evaluate?',icon:'\uD83C\uDFAF'},{id:'eo-eval-frameworks',label:'Eval Frameworks',icon:'\u2696\uFE0F'},{id:'eo-metrics-scoring',label:'Metrics & Scoring',icon:'\uD83D\uDCCA'},{id:'eo-observability',label:'Observability',icon:'\uD83D\uDD0D'},{id:'eo-build-pipeline',label:'Build a Pipeline',icon:'\u2699\uFE0F'}];
   const deepTabs=[{id:'d-why-evaluate',label:'Why Evaluate?',icon:'\uD83C\uDFAF'},{id:'d-eval-frameworks',label:'Eval Frameworks',icon:'\u2696\uFE0F'},{id:'d-metrics-scoring',label:'Metrics & Scoring',icon:'\uD83D\uDCCA'},{id:'d-observability',label:'Observability',icon:'\uD83D\uDD0D'},{id:'d-build-pipeline',label:'Build a Pipeline',icon:'\u2699\uFE0F'}];
-  return <CourseShell id="eval-observability" icon={'\uD83D\uDCCA'} title="AI Evaluation & Observability" timeMinutes={50} exerciseCount={12} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
+  return <CourseShell id="eval-observability" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
     if(d==='visionary'){if(i===0)return <TabEOWhyEvaluate onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabEOEvalFrameworks onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabEOMetricsScoring onNavigate={onNavigate} onComplete={onComplete}/>;if(i===3)return <TabEOObservability onNavigate={onNavigate} onComplete={onComplete}/>;return <TabEOBuildPipeline onNavigate={onNavigate} onComplete={onComplete}/>;}
     if(i===0)return <TabEOWhyEvaluate onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabEOEvalFrameworks onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabEOMetricsScoring onNavigate={onNavigate} onComplete={onComplete}/>;if(i===3)return <TabEOObservability onNavigate={onNavigate} onComplete={onComplete}/>;return <TabEOBuildPipeline onNavigate={onNavigate} onComplete={onComplete}/>;
   }}/>;
@@ -8945,16 +8940,15 @@ export function CourseGraphRAGAdvanced({onBack, onNavigate, progress, onComplete
 
   return (
     <CourseShell
-      title="GraphRAG & Knowledge Graphs"
-      icon="\uD83D\uDD77\uFE0F"
+      id="graphrag-advanced"
       onBack={onBack}
+      onNavigate={onNavigate}
       progress={progress}
-      time="50 min"
-      exercises="9 exercises"
-      visionaryTabs={visionaryTabs}
-      deepTabs={deepTabs}
+      onComplete={onComplete}
       depth={depth}
       onChangeDepth={onChangeDepth}
+      visionaryTabs={visionaryTabs}
+      deepTabs={deepTabs}
       renderTab={(tab, i, d) => {
         if (d === 'deep') {
           if (i === 0) return <TabDeepGraphConstruction onNavigate={onNavigate} onComplete={onComplete} />;
@@ -9437,7 +9431,25 @@ print(f"Eval loss: {results['eval_loss']:.4f}")`}/>
 export function CourseFineTuningDistillation({onBack,onNavigate,progress,onComplete,depth,onChangeDepth}){
   const visionaryTabs=[{id:'ft-when',label:'When to Fine-Tune',icon:'\uD83C\uDFAF'},{id:'ft-data',label:'Data Prep',icon:'\uD83D\uDCCA'},{id:'ft-techniques',label:'Techniques',icon:'\u2699\uFE0F'},{id:'ft-distill',label:'Distillation',icon:'\uD83C\uDF93'},{id:'ft-pipeline',label:'Build Pipeline',icon:'\uD83D\uDE80'}];
   const deepTabs=[{id:'d-when',label:'When to Fine-Tune',icon:'\uD83C\uDFAF'},{id:'d-data',label:'Data Prep',icon:'\uD83D\uDCCA'},{id:'d-techniques',label:'Techniques',icon:'\u2699\uFE0F'},{id:'d-distill',label:'Distillation',icon:'\uD83C\uDF93'},{id:'d-pipeline',label:'Build Pipeline',icon:'\uD83D\uDE80'}];
-  return <CourseShell id="fine-tuning-distillation" icon={'\uD83C\uDFAF'} title="Fine-Tuning & Model Distillation" timeMinutes={45} exerciseCount={8} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
+  return <CourseShell id="fine-tuning-distillation" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
     if(i===0)return <TabFTWhenToFineTune onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabFTDataPrep onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabFTTechniques onNavigate={onNavigate} onComplete={onComplete}/>;if(i===3)return <TabFTDistillation onNavigate={onNavigate} onComplete={onComplete}/>;return <TabFTBuildPipeline onNavigate={onNavigate} onComplete={onComplete}/>;
   }}/>;
 }
+
+export const TIER3_REGISTRY = {
+  'multi-agent': CourseMultiAgent,
+  'graph-rag': CourseGraphRAG,
+  'ai-observability': CourseObservability,
+  'llm-gateway': CourseLLMGateway,
+  'fine-tuning': CourseFineTuning,
+  'ai-code-gen': CourseAICodeGen,
+  'multimodal': CourseMultimodal,
+  'voice-ai': CourseVoiceAI,
+  'retrieval-eng': CourseRetrievalEng,
+  'ai-testing': CourseAITesting,
+  'agentic-scale': CourseAgenticScale,
+  'mcp-advanced': CourseMCPAdvanced,
+  'eval-observability': CourseEvalObservability,
+  'graphrag-advanced': CourseGraphRAGAdvanced,
+  'fine-tuning-distillation': CourseFineTuningDistillation,
+};
