@@ -8,6 +8,8 @@ import {
   classifyWithLLM,
 } from "../../../../lib/orchestration/intake-analyzer.js";
 import { getAuthUser } from "../../../../lib/auth.js";
+import { OrchestrationAnalyzeInputSchema, validateInput } from "../../../../lib/schemas.js";
+import { sanitizeShort, sanitizeForLLM } from "../../../../lib/sanitize.js";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
@@ -16,7 +18,11 @@ export async function POST(req) {
     const { user, error, status } = await getAuthUser(req);
     if (error) return NextResponse.json({ error }, { status });
 
-    const { title, description } = await req.json();
+    const { data: body, error: inputError, status: inputStatus } = validateInput(await req.json(), OrchestrationAnalyzeInputSchema);
+    if (inputError) return NextResponse.json({ error: inputError }, { status: inputStatus });
+
+    const title = body.title ? sanitizeShort(body.title) : "";
+    const description = body.description ? sanitizeForLLM(body.description, 10000) : "";
 
     if (!title && !description) {
       return NextResponse.json(
@@ -26,7 +32,7 @@ export async function POST(req) {
     }
 
     // Run heuristic analysis (instant, no LLM cost)
-    const analysis = analyzeUseCase(title || "", description || "");
+    const analysis = analyzeUseCase(title, description);
 
     // If heuristic classification is low confidence and description is substantial,
     // use cheapest LLM for deeper intent analysis

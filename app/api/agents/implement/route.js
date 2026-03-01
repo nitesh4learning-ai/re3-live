@@ -1,8 +1,9 @@
 import { callLLM } from "../../../../lib/llm-router";
 import { parseLLMResponse } from "../../../../lib/llm-parse";
-import { ImplementAgentSchema, ImplementSynthesisSchema } from "../../../../lib/schemas";
+import { ImplementAgentSchema, ImplementSynthesisSchema, ImplementInputSchema, validateInput } from "../../../../lib/schemas";
 import { getAuthUser } from "../../../../lib/auth";
 import { llmRateLimit } from "../../../../lib/rate-limit";
+import { sanitizeShort } from "../../../../lib/sanitize";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
@@ -12,11 +13,11 @@ export async function POST(req) {
     const { allowed } = llmRateLimit.check(user.uid);
     if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
 
-    const { concept, agents, priorContext } = await req.json();
+    const { data: body, error: inputError, status: inputStatus } = validateInput(await req.json(), ImplementInputSchema);
+    if (inputError) return NextResponse.json({ error: inputError }, { status: inputStatus });
 
-    if (!agents || agents.length === 0) {
-      return NextResponse.json({ error: "No agents provided" }, { status: 400 });
-    }
+    const concept = sanitizeShort(body.concept);
+    const { agents, priorContext } = body;
 
     // Step 1: Each builder agent contributes their implementation perspective
     const results = await Promise.allSettled(

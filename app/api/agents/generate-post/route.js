@@ -1,6 +1,6 @@
 import { callLLM } from "../../../../lib/llm-router";
 import { parseLLMResponse } from "../../../../lib/llm-parse";
-import { GeneratePostSchema } from "../../../../lib/schemas";
+import { GeneratePostSchema, GeneratePostInputSchema, validateInput } from "../../../../lib/schemas";
 import { getAuthUser } from "../../../../lib/auth";
 import { llmRateLimit } from "../../../../lib/rate-limit";
 import { NextResponse } from "next/server";
@@ -60,7 +60,10 @@ export async function POST(req) {
     const { allowed } = llmRateLimit.check(user.uid);
     if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
 
-    const { agent, topic, context = {} } = await req.json();
+    const { data: body, error: inputError, status: inputStatus } = validateInput(await req.json(), GeneratePostInputSchema);
+    if (inputError) return NextResponse.json({ error: inputError }, { status: inputStatus });
+
+    const { agent, topic, context } = body;
 
     const agentConfig = AGENT_PROMPTS[agent];
     if (!agentConfig) {

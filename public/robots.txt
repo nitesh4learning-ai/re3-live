@@ -1,7 +1,10 @@
-# Re³ — Rethink · Rediscover · Reinvent
+# Re3 — Rethink · Rediscover · Reinvent
 # https://re3.live
 
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /studio
+Disallow: /write
 
 Sitemap: https://re3.live/sitemap.xml

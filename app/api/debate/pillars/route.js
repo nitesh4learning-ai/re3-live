@@ -1,7 +1,9 @@
 import { callLLM } from "../../../../lib/llm-router";
 import { parseLLMResponse } from "../../../../lib/llm-parse";
+import { PillarsInputSchema, validateInput } from "../../../../lib/schemas";
 import { getAuthUser } from "../../../../lib/auth";
 import { llmRateLimit } from "../../../../lib/rate-limit";
+import { sanitizeShort, sanitizeForLLM } from "../../../../lib/sanitize";
 import { NextResponse } from "next/server";
 
 // Default color palette for dynamic pillars (up to 4)
@@ -19,8 +21,11 @@ export async function POST(req) {
     const { allowed } = llmRateLimit.check(user.uid);
     if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
 
-    const { topic, context } = await req.json();
-    if (!topic) return NextResponse.json({ error: "Topic is required" }, { status: 400 });
+    const { data: body, error: inputError, status: inputStatus } = validateInput(await req.json(), PillarsInputSchema);
+    if (inputError) return NextResponse.json({ error: inputError }, { status: inputStatus });
+
+    const topic = sanitizeShort(body.topic);
+    const context = body.context ? sanitizeForLLM(body.context, 5000) : undefined;
 
     const response = await callLLM(
       "anthropic",

@@ -7,6 +7,8 @@ import { runOrchestration } from "../../../../lib/orchestration/engine.js";
 import { analyzeUseCase } from "../../../../lib/orchestration/intake-analyzer.js";
 import { getAuthUser } from "../../../../lib/auth.js";
 import { llmRateLimit } from "../../../../lib/rate-limit.js";
+import { OrchestrationRunInputSchema, validateInput } from "../../../../lib/schemas.js";
+import { sanitizeShort, sanitizeForLLM } from "../../../../lib/sanitize.js";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
@@ -22,21 +24,19 @@ export async function POST(req) {
     );
   }
 
-  let body;
+  let rawBody;
   try {
-    body = await req.json();
+    rawBody = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { title, description, type, options = {} } = body;
+  const { data: body, error: inputError, status: inputStatus } = validateInput(rawBody, OrchestrationRunInputSchema);
+  if (inputError) return NextResponse.json({ error: inputError }, { status: inputStatus });
 
-  if (!title || !description || !type) {
-    return NextResponse.json(
-      { error: "Missing required fields: title, description, type" },
-      { status: 400 }
-    );
-  }
+  const title = sanitizeShort(body.title);
+  const description = sanitizeForLLM(body.description, 10000);
+  const { type, options } = body;
 
   const { guardrails } = analyzeUseCase(title, description);
   if (!guardrails.passed) {

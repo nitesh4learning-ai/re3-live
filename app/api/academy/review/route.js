@@ -4,6 +4,8 @@
 
 import { NextResponse } from "next/server";
 import { callLLM } from "../../../../lib/llm-router";
+import { AcademyReviewInputSchema, validateInput } from "../../../../lib/schemas";
+import { sanitizeShort } from "../../../../lib/sanitize";
 import registryData from "../../../../public/agents-registry.json";
 
 /**
@@ -77,10 +79,11 @@ function selectReviewers(courseId, courseTitle) {
 
 export async function POST(req) {
   try {
-    const { courseId, courseTitle } = await req.json();
-    if (!courseId || !courseTitle) {
-      return NextResponse.json({ error: "Missing courseId or courseTitle" }, { status: 400 });
-    }
+    const { data: body, error: inputError, status: inputStatus } = validateInput(await req.json(), AcademyReviewInputSchema);
+    if (inputError) return NextResponse.json({ error: inputError }, { status: inputStatus });
+
+    const courseId = sanitizeShort(body.courseId, 200);
+    const courseTitle = sanitizeShort(body.courseTitle);
 
     // Ada selects the review board
     const reviewers = selectReviewers(courseId, courseTitle);
