@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { GIM, ADB, FadeIn, ExpandableSection } from "./Academy";
 
 // ==================== JARGON GLOSSARY ====================
@@ -59,7 +60,6 @@ function JargonTip({ term, children }) {
   const [show, setShow] = useState(false);
   const [pos, setPos] = useState({ top: 0, left: 0 });
   const ref = useRef(null);
-  const tipRef = useRef(null);
 
   const definition = GLOSSARY[term?.toLowerCase()] || GLOSSARY[term] || null;
   if (!definition) return <>{children}</>;
@@ -74,6 +74,34 @@ function JargonTip({ term, children }) {
 
   const handleLeave = () => setShow(false);
 
+  const tooltip = show && typeof document !== "undefined" ? createPortal(
+    <span
+      style={{
+        position: "fixed",
+        top: pos.top,
+        left: Math.min(pos.left, window.innerWidth - 260),
+        transform: "translateX(-50%)",
+        zIndex: 9999,
+        maxWidth: 240,
+        padding: "8px 12px",
+        borderRadius: 8,
+        background: "#1E293B",
+        color: "#E2E8F0",
+        fontSize: 12,
+        lineHeight: 1.5,
+        fontFamily: GIM.fontMain,
+        boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
+        pointerEvents: "none",
+      }}
+    >
+      <span style={{ fontWeight: 700, color: "#A78BFA", display: "block", marginBottom: 2, fontSize: 11, letterSpacing: "0.03em" }}>
+        {term}
+      </span>
+      {definition}
+    </span>,
+    document.body
+  ) : null;
+
   return (
     <>
       <span
@@ -82,7 +110,7 @@ function JargonTip({ term, children }) {
         onMouseLeave={handleLeave}
         onClick={() => setShow(!show)}
         style={{
-          borderBottom: `1.5px dotted ${GIM.primary}`,
+          borderBottom: `2px dotted ${GIM.primary}`,
           color: GIM.primary,
           cursor: "help",
           fontWeight: 600,
@@ -90,33 +118,7 @@ function JargonTip({ term, children }) {
       >
         {children || term}
       </span>
-      {show && (
-        <span
-          ref={tipRef}
-          style={{
-            position: "fixed",
-            top: pos.top,
-            left: Math.min(pos.left, typeof window !== "undefined" ? window.innerWidth - 260 : pos.left),
-            transform: "translateX(-50%)",
-            zIndex: 9999,
-            maxWidth: 240,
-            padding: "8px 12px",
-            borderRadius: 8,
-            background: "#1E293B",
-            color: "#E2E8F0",
-            fontSize: 12,
-            lineHeight: 1.5,
-            fontFamily: GIM.fontMain,
-            boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
-            pointerEvents: "none",
-          }}
-        >
-          <span style={{ fontWeight: 700, color: "#A78BFA", display: "block", marginBottom: 2, fontSize: 11, letterSpacing: "0.03em" }}>
-            {term}
-          </span>
-          {definition}
-        </span>
-      )}
+      {tooltip}
     </>
   );
 }
