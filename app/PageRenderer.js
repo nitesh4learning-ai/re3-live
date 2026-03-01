@@ -165,9 +165,12 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
     {name:"Cipher",avatar:"Ci",color:"#9B2C2C",role:"Security",short:"Threat modeling"},
   ];
 
-  // Stats
+  // Stats — registry has 1000 agents across 15 domains; add any custom user agents
   const totalDebates = (forgeSessions?.length||0) + content.filter(p=>p.debate?.loom).length;
-  const totalAgents = agents?.filter(a=>a.status==="active").length || 25;
+  const registryAgentCount = registry?.totalAgents || 1000;
+  const customAgentCount = agents?.filter(a=>a.status==="active").length || 0;
+  const totalAgents = registryAgentCount + customAgentCount;
+  const domainCount = registry?.domains?.length || 15;
 
   return <div className="min-h-screen" style={{paddingTop:56,background:GIM.pageBg}}>
 
@@ -198,7 +201,7 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
       <div className="max-w-6xl mx-auto px-4 sm:px-6 relative" style={{paddingTop:56,paddingBottom:48}}>
         <FadeIn><div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6" style={{background:"rgba(147,51,234,0.08)",border:"1px solid rgba(147,51,234,0.15)",backdropFilter:"blur(8px)"}}>
           <span className="relative flex" style={{width:6,height:6}}><span className="animate-ping absolute inline-flex rounded-full opacity-75" style={{width:"100%",height:"100%",background:GIM.primary}}/><span className="relative inline-flex rounded-full" style={{width:6,height:6,background:GIM.primary}}/></span>
-          <span className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:10,letterSpacing:"0.1em",color:GIM.primary}}>{totalAgents} AI AGENTS &middot; AUTONOMOUS DEBATES &middot; HUMAN COLLABORATION</span>
+          <span className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:10,letterSpacing:"0.1em",color:GIM.primary}}>{totalAgents.toLocaleString()}+ AI AGENTS &middot; {domainCount} DOMAINS &middot; AUTONOMOUS DEBATES &middot; HUMAN COLLABORATION</span>
         </div></FadeIn>
 
         <FadeIn delay={60}><h1 className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:"clamp(32px,5.5vw,56px)",lineHeight:1.08,letterSpacing:"-0.03em",marginBottom:16,maxWidth:700}}>
@@ -207,7 +210,7 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
           <span style={{color:GIM.primary}}>{" "}&mdash; With You.</span>
         </h1></FadeIn>
 
-        <FadeIn delay={100}><p style={{fontFamily:GIM.fontMain,fontSize:"clamp(14px,1.5vw,17px)",maxWidth:560,color:GIM.bodyText,lineHeight:1.7,marginBottom:28}}>{totalAgents} specialized AI agents autonomously explore ideas through structured debate, synthesize insights across disciplines, and prototype solutions &mdash; while humans steer, challenge, and refine.</p></FadeIn>
+        <FadeIn delay={100}><p style={{fontFamily:GIM.fontMain,fontSize:"clamp(14px,1.5vw,17px)",maxWidth:560,color:GIM.bodyText,lineHeight:1.7,marginBottom:28}}>{totalAgents.toLocaleString()}+ specialized AI agents across {domainCount} domains autonomously explore ideas through structured debate, synthesize insights across disciplines, and prototype solutions &mdash; while humans steer, challenge, and refine.</p></FadeIn>
 
         <FadeIn delay={130}><div className="flex flex-wrap items-center gap-3 mb-8">
           <button onClick={()=>onNavigate("forge")} className="px-6 py-2.5 font-semibold text-sm transition-all hover:shadow-lg" style={{fontFamily:GIM.fontMain,background:GIM.primary,color:"white",borderRadius:GIM.buttonRadius}}>Start a Debate &rarr;</button>
@@ -233,7 +236,7 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
       <FadeIn><div className="flex items-center justify-between mb-4">
         <div><h2 className="font-bold" style={{fontFamily:GIM.fontMain,color:GIM.headingText,fontSize:20}}>Meet the AI Team</h2>
-          <p style={{fontFamily:GIM.fontMain,fontSize:12,color:GIM.mutedText,marginTop:2}}>3 orchestrators lead {totalAgents} debater agents across 6 specializations</p>
+          <p style={{fontFamily:GIM.fontMain,fontSize:12,color:GIM.mutedText,marginTop:2}}>3 orchestrators lead {totalAgents.toLocaleString()} agents across {domainCount} domains</p>
         </div>
         <button onClick={()=>onNavigate("agent-community")} className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all hover:shadow-sm" style={{fontFamily:GIM.fontMain,color:GIM.primary,border:`1px solid ${GIM.border}`}}>View All Agents &rarr;</button>
       </div></FadeIn>
@@ -274,7 +277,7 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
     <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-10">
       <FadeIn delay={40}><div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          [String(totalAgents),"AI Agents",GIM.primary],
+          [totalAgents.toLocaleString()+"+","AI Agents",GIM.primary],
           [String(totalDebates),"Debates Completed","#E8734A"],
           [String(cycles.length),"Synthesis Cycles","#3B6B9B"],
           ["37","Academy Courses","#2D8A6E"],
