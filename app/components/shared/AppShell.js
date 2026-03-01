@@ -25,8 +25,10 @@ export function Header() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  const navItems = [["home", "Home", "🏠"], ["loom", "The Loom", "🧵"], ["arena", "Arena", "🎯"], ["agent-community", "Team", "🤖"], ["academy", "Academy", "🎓"], ["studio", "My Studio", "📝"]];
-  const bottomTabs = [["home", "Home", "🏠"], ["loom", "Loom", "🧵"], ["arena", "Arena", "🎯"], ["agent-community", "Team", "🤖"], ["academy", "Learn", "🎓"]];
+  const [moreOpen, setMoreOpen] = useState(false);
+  const navItems = [["home", "Home", "🏠"], ["forge", "Debate Lab", "⚡"], ["loom", "Archive", "🧵"], ["academy", "Academy", "🎓"]];
+  const moreItems = [["arena", "Arena", "🏗️"], ["agent-community", "Team", "🤖"], ["search", "Search", "🔍"], ["studio", "My Studio", "📝"]];
+  const bottomTabs = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["loom", "Archive", "🧵"], ["academy", "Learn", "🎓"]];
 
   return <>
     <header className="fixed top-0 left-0 right-0 z-50" style={{ background: "#FFFFFF", borderBottom: "0.8px solid #E5E7EB" }}>
@@ -37,7 +39,17 @@ export function Header() {
         <nav className="re3-desktop-nav hidden md:flex items-center gap-0.5">{navItems.map(([pg, label, icon]) => {
           const a = currentPage === pg;
           return <button key={pg} onClick={() => nav(pg)} className="px-3 py-1.5 rounded-lg transition-all" style={{ fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: a ? 600 : 500, color: a ? "#9333EA" : "#4B5563", background: a ? "#FAF5FF" : "transparent", minHeight: 'auto', minWidth: 'auto' }}><span style={{ marginRight: 4 }}>{icon}</span>{label}</button>;
-        })}</nav>
+        })}
+          <div className="relative" onMouseLeave={() => setMoreOpen(false)}>
+            <button onClick={() => setMoreOpen(!moreOpen)} onMouseEnter={() => setMoreOpen(true)} className="px-3 py-1.5 rounded-lg transition-all" style={{ fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: moreItems.some(([pg]) => currentPage === pg) ? 600 : 500, color: moreItems.some(([pg]) => currentPage === pg) ? "#9333EA" : "#4B5563", background: moreItems.some(([pg]) => currentPage === pg) ? "#FAF5FF" : "transparent", minHeight: 'auto', minWidth: 'auto' }}>More ▾</button>
+            {moreOpen && <div className="absolute top-full right-0 mt-1 py-1 rounded-xl" style={{ background: "#FFFFFF", border: "1px solid #E5E7EB", boxShadow: "0 8px 24px rgba(0,0,0,0.1)", minWidth: 160, zIndex: 100 }}>
+              {moreItems.map(([pg, label, icon]) => {
+                const a = currentPage === pg;
+                return <button key={pg} onClick={() => { nav(pg); setMoreOpen(false); }} className="w-full text-left px-4 py-2 transition-all" style={{ fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: a ? 600 : 400, color: a ? "#9333EA" : "#4B5563", background: a ? "#FAF5FF" : "transparent", display: "block" }} onMouseEnter={e => { e.currentTarget.style.background = "#FAF5FF"; }} onMouseLeave={e => { if (!a) e.currentTarget.style.background = "transparent"; }}><span style={{ marginRight: 6 }}>{icon}</span>{label}</button>;
+              })}
+            </div>}
+          </div>
+        </nav>
         <div className="flex items-center gap-2">
           {user ? <>
             <button onClick={() => nav("write")} className="hidden sm:block px-3 py-1.5 font-medium transition-all hover:shadow-md" style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, background: "#9333EA", color: "white", borderRadius: 8, minHeight: 'auto', minWidth: 'auto' }}>✏️ Write</button>
@@ -51,8 +63,9 @@ export function Header() {
     {/* Mobile fullscreen menu */}
     {mob && <div className="fixed inset-0 z-40 pt-14" style={{ background: "#FFFFFF" }}><div className="flex flex-col p-6 gap-1">
       {navItems.map(([pg, label, icon]) => <button key={pg} onClick={() => { nav(pg); setMob(false); }} className="text-left p-3 rounded-xl text-base font-medium" style={{ fontFamily: "'Inter',sans-serif", color: currentPage === pg ? "#9333EA" : "#4B5563", background: currentPage === pg ? "#FAF5FF" : "transparent" }}>{icon} {label}</button>)}
-      {user && <><div className="my-2" style={{ height: 1, background: "#E5E7EB" }} /><button onClick={() => { nav("write"); setMob(false); }} className="text-left p-3 rounded-xl text-base font-medium" style={{ color: "#9333EA" }}>✏️ Write</button>
-        <button onClick={() => { nav("studio"); setMob(false); }} className="text-left p-3 rounded-xl text-base font-medium" style={{ color: "#4B5563" }}>📝 My Studio</button></>}
+      <div className="my-1" style={{ height: 1, background: "#E5E7EB" }} />
+      {moreItems.map(([pg, label, icon]) => <button key={pg} onClick={() => { nav(pg); setMob(false); }} className="text-left p-3 rounded-xl text-base font-medium" style={{ fontFamily: "'Inter',sans-serif", color: currentPage === pg ? "#9333EA" : "#6B7280", background: currentPage === pg ? "#FAF5FF" : "transparent" }}>{icon} {label}</button>)}
+      {user && <><div className="my-1" style={{ height: 1, background: "#E5E7EB" }} /><button onClick={() => { nav("write"); setMob(false); }} className="text-left p-3 rounded-xl text-base font-medium" style={{ color: "#9333EA" }}>✏️ Write</button></>}
     </div></div>}
     {/* Mobile bottom tab bar */}
     <nav className="re3-bottom-tabs">{bottomTabs.map(([pg, label, icon]) => {
@@ -117,10 +130,41 @@ export default function AppShell({ children }) {
     <Header />
     {children}
     <LoginModal />
-    <footer className="py-5" style={{ borderTop: "1px solid #E5E7EB", background: "#F3F4F6" }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-        <div className="flex items-center gap-2"><Re3Logo variant="full" size={20} /><span className="ml-1 hidden sm:inline" style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: "rgba(0,0,0,0.35)" }}>Knowledge isn't created. It's uncovered.</span></div>
-        <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 10, color: "rgba(0,0,0,0.1)" }}>A Nitesh Srivastava project</span>
+    <footer className="py-8" style={{ borderTop: "1px solid #E5E7EB", background: "#F9FAFB" }}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-6 mb-6">
+          {/* Brand column */}
+          <div style={{ maxWidth: 280 }}>
+            <Re3Logo variant="full" size={22} />
+            <p className="mt-2" style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, color: "#6B7280", lineHeight: 1.6 }}>AI agents debate your ideas from every angle, then synthesize the insights nobody saw.</p>
+            <div className="inline-flex items-center gap-1.5 mt-2 px-2 py-1 rounded-full" style={{ background: "#F3E8FF", border: "1px solid rgba(147,51,234,0.15)" }}>
+              <span className="relative flex" style={{ width: 5, height: 5 }}><span className="animate-ping absolute inline-flex rounded-full opacity-75" style={{ width: "100%", height: "100%", background: "#9333EA" }} /><span className="relative inline-flex rounded-full" style={{ width: 5, height: 5, background: "#9333EA" }} /></span>
+              <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 9, fontWeight: 700, color: "#9333EA", letterSpacing: "0.06em" }}>FREE DURING ALPHA</span>
+            </div>
+          </div>
+          {/* Nav columns */}
+          <div className="flex gap-12">
+            <div>
+              <div className="font-bold mb-2" style={{ fontFamily: "'Inter',sans-serif", fontSize: 10, color: "#9CA3AF", letterSpacing: "0.08em" }}>PLATFORM</div>
+              {[["forge","Debate Lab"],["loom","Archive"],["academy","Academy"],["agent-community","Agent Team"]].map(([pg,label]) =>
+                <button key={pg} onClick={() => nav(pg)} className="block mb-1.5 transition-colors" style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, color: "#6B7280" }} onMouseEnter={e => { e.currentTarget.style.color = "#9333EA"; }} onMouseLeave={e => { e.currentTarget.style.color = "#6B7280"; }}>{label}</button>
+              )}
+            </div>
+            <div>
+              <div className="font-bold mb-2" style={{ fontFamily: "'Inter',sans-serif", fontSize: 10, color: "#9CA3AF", letterSpacing: "0.08em" }}>MORE</div>
+              {[["arena","Arena"],["search","Search"],["debates","Debate Gallery"]].map(([pg,label]) =>
+                <button key={pg} onClick={() => nav(pg)} className="block mb-1.5 transition-colors" style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, color: "#6B7280" }} onMouseEnter={e => { e.currentTarget.style.color = "#9333EA"; }} onMouseLeave={e => { e.currentTarget.style.color = "#6B7280"; }}>{label}</button>
+              )}
+            </div>
+          </div>
+        </div>
+        {/* Bottom bar */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-4" style={{ borderTop: "1px solid #E5E7EB" }}>
+          <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: "#9CA3AF" }}>&copy; {new Date().getFullYear()} Re{'\u00b3'} &mdash; Built by Nitesh Srivastava</span>
+          <div className="flex items-center gap-4">
+            <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 10, color: "#D1D5DB" }}>Next.js + Firebase + Anthropic Claude</span>
+          </div>
+        </div>
       </div>
     </footer>
     <Disclaimer />
