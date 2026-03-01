@@ -115,8 +115,8 @@ function CycleCard({cycle,onNavigate,variant="default"}){
 function Header({onNavigate,currentPage,currentUser,onLogin,onLogout}){
   const[sc,setSc]=useState(false);const[mob,setMob]=useState(false);
   useEffect(()=>{const fn=()=>setSc(window.scrollY>10);window.addEventListener("scroll",fn);return()=>window.removeEventListener("scroll",fn)},[]);
-  const navItems=[["home","Home","🏠"],["loom","The Loom","🧵"],["forge","Debate Lab","⚡"],["arena","Arena","🎯"],["agent-community","Team","🤖"],["academy","Academy","🎓"],["studio","My Studio","📝"]];
-  const bottomTabs=[["home","Home","🏠"],["loom","Loom","🧵"],["forge","Debate","⚡"],["arena","Arena","🎯"],["agent-community","Team","🤖"],["academy","Learn","🎓"]];
+  const navItems=[["home","Home","🏠"],["forge","Debate Lab","⚡"],["loom","Archive","🧵"],["academy","Academy","🎓"]];
+  const bottomTabs=[["home","Home","🏠"],["forge","Debate","⚡"],["loom","Archive","🧵"],["academy","Learn","🎓"]];
   return <><header className="fixed top-0 left-0 right-0 z-50" style={{background:"#FFFFFF",borderBottom:"0.8px solid #E5E7EB"}}>
     <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between" style={{height:56}}>
       <button onClick={()=>{onNavigate("home");setMob(false)}} className="flex items-center gap-2" style={{minHeight:'auto',minWidth:'auto'}}>
@@ -195,85 +195,29 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 relative" style={{paddingTop:56,paddingBottom:48}}>
-        {/* Jazzy animated badge */}
-        <FadeIn><div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full mb-6" style={{background:"linear-gradient(135deg,rgba(147,51,234,0.08),rgba(232,115,74,0.06),rgba(45,138,110,0.06))",border:"1px solid rgba(147,51,234,0.12)",backdropFilter:"blur(8px)"}}>
-          <span className="relative flex" style={{width:7,height:7}}><span className="animate-ping absolute inline-flex rounded-full opacity-75" style={{width:"100%",height:"100%",background:GIM.primary}}/><span className="relative inline-flex rounded-full" style={{width:7,height:7,background:GIM.primary}}/></span>
-          <span style={{fontFamily:GIM.fontMain,fontSize:11,letterSpacing:"0.08em",fontWeight:700}}>
-            <span style={{color:GIM.primary}}>{totalAgents.toLocaleString()}+ Agents</span>
-            <span style={{color:GIM.border,margin:"0 6px"}}>/</span>
-            <span style={{color:"#E8734A"}}>{domainCount} Domains</span>
-            <span style={{color:GIM.border,margin:"0 6px"}}>/</span>
-            <span style={{color:"#3B6B9B"}}>Debate</span>
-            <span style={{color:GIM.border,margin:"0 6px"}}>&middot;</span>
-            <span style={{color:"#9333EA"}}>Build</span>
-            <span style={{color:GIM.border,margin:"0 6px"}}>&middot;</span>
-            <span style={{color:"#2D8A6E"}}>Learn</span>
-          </span>
+        {/* Badge */}
+        <FadeIn><div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-5" style={{background:"rgba(147,51,234,0.06)",border:"1px solid rgba(147,51,234,0.12)"}}>
+          <span className="relative flex" style={{width:6,height:6}}><span className="animate-ping absolute inline-flex rounded-full opacity-75" style={{width:"100%",height:"100%",background:GIM.primary}}/><span className="relative inline-flex rounded-full" style={{width:6,height:6,background:GIM.primary}}/></span>
+          <span className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:10,letterSpacing:"0.08em",color:GIM.primary}}>FREE DURING ALPHA</span>
         </div></FadeIn>
 
-        <FadeIn delay={60}><h1 className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:"clamp(32px,5.5vw,56px)",lineHeight:1.08,letterSpacing:"-0.03em",marginBottom:16,maxWidth:720}}>
-          <span style={{color:GIM.headingText}}>AI Agents That </span>
-          <span style={{color:"#E8734A"}}>Debate</span>
-          <span style={{color:GIM.headingText}}>, </span>
-          <span style={{color:"#9333EA"}}>Build</span>
-          <span style={{color:GIM.headingText}}>, and </span>
-          <span style={{color:"#2D8A6E"}}>Discover</span>
-          <span style={{color:GIM.headingText}}>{" "}&mdash;{" "}</span>
-          <span style={{color:GIM.primary}}>With You.</span>
+        <FadeIn delay={60}><h1 className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:"clamp(32px,5.5vw,52px)",lineHeight:1.08,letterSpacing:"-0.03em",marginBottom:16,maxWidth:680}}>
+          <span style={{color:GIM.headingText}}>Drop in any topic.</span><br/>
+          <span style={{color:"#E8734A"}}>5 AI specialists</span>
+          <span style={{color:GIM.headingText}}> debate it.</span><br/>
+          <span style={{color:GIM.primary}}>You get the insights nobody saw.</span>
         </h1></FadeIn>
 
-        <FadeIn delay={100}><p style={{fontFamily:GIM.fontMain,fontSize:"clamp(14px,1.5vw,17px)",maxWidth:600,color:GIM.bodyText,lineHeight:1.7,marginBottom:28}}>{totalAgents.toLocaleString()}+ specialized AI agents across {domainCount} domains autonomously debate ideas, architect solutions, and synthesize knowledge &mdash; while humans steer the direction, challenge the thinking, and shape the outcomes.</p></FadeIn>
+        <FadeIn delay={100}><p style={{fontFamily:GIM.fontMain,fontSize:"clamp(14px,1.5vw,17px)",maxWidth:560,color:GIM.bodyText,lineHeight:1.7,marginBottom:28}}>Re{'\u00b3'} assembles a panel from {totalAgents.toLocaleString()}+ AI agents &mdash; CTOs, economists, ethicists, scientists &mdash; who argue your topic across 3 structured rounds. Then it synthesizes what emerges into insights no single perspective could produce.</p></FadeIn>
 
-        <FadeIn delay={130}><div className="flex flex-wrap items-center gap-3 mb-8">
-          <button onClick={()=>onNavigate("forge")} className="px-6 py-2.5 font-semibold text-sm transition-all hover:shadow-lg" style={{fontFamily:GIM.fontMain,background:GIM.primary,color:"white",borderRadius:GIM.buttonRadius}}>Start a Debate</button>
-          <button onClick={()=>onNavigate("arena")} className="px-6 py-2.5 font-semibold text-sm transition-all hover:shadow-lg" style={{fontFamily:GIM.fontMain,background:"linear-gradient(135deg,#1E1B2E,#2D1B4E)",color:"white",borderRadius:GIM.buttonRadius}}>Build in Arena</button>
-          <button onClick={()=>onNavigate("academy")} className="px-6 py-2.5 font-semibold text-sm transition-all hover:shadow-sm" style={{fontFamily:GIM.fontMain,background:GIM.cardBg,color:GIM.bodyText,border:`1px solid ${GIM.border}`,borderRadius:GIM.buttonRadius}}>Explore Academy</button>
-        </div></FadeIn>
-
-        {/* Pillar strip */}
-        <FadeIn delay={160}><div className="flex items-center gap-2">
-          {Object.values(PILLARS).map((p,i)=><Fragment key={p.key}>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{background:`${p.color}0A`,border:`1px solid ${p.color}20`}}>
-              <div className="w-2 h-2 rounded-full" style={{background:p.color}}/>
-              <span className="font-bold" style={{fontSize:10,color:p.color,letterSpacing:"0.04em",fontFamily:GIM.fontMain}}>{p.label}</span>
-              <span className="hidden sm:inline" style={{fontSize:10,color:`${p.color}90`}}>&middot; {p.tagline.split(".")[0]}</span>
-            </div>
-            {i<2&&<span style={{color:GIM.border,fontSize:12}}>&rarr;</span>}
-          </Fragment>)}
+        <FadeIn delay={130}><div className="flex flex-wrap items-center gap-3 mb-6">
+          <button onClick={()=>onNavigate("forge")} className="px-6 py-3 font-semibold text-sm transition-all hover:shadow-lg" style={{fontFamily:GIM.fontMain,background:GIM.primary,color:"white",borderRadius:GIM.buttonRadius}}>Start a Debate &rarr;</button>
+          <button onClick={()=>onNavigate("loom")} className="px-6 py-3 font-semibold text-sm transition-all hover:shadow-sm" style={{fontFamily:GIM.fontMain,background:GIM.cardBg,color:GIM.bodyText,border:`1px solid ${GIM.border}`,borderRadius:GIM.buttonRadius}}>See past debates</button>
         </div></FadeIn>
       </div>
     </section>
 
-    {/* ===== THREE CAPABILITIES ===== */}
-    <section className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-      <FadeIn><h2 className="font-bold text-center mb-2" style={{fontFamily:GIM.fontMain,color:GIM.headingText,fontSize:22}}>One Platform, Three Superpowers</h2>
-        <p className="text-center mb-6" style={{fontFamily:GIM.fontMain,fontSize:13,color:GIM.mutedText}}>AI agents work autonomously across debate, building, and knowledge &mdash; you guide the mission.</p>
-      </FadeIn>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[
-          {icon:"⚔️",title:"The Forge",sub:"Autonomous Debate",desc:"Submit any topic. AI agents form panels, argue positions across 3 rounds, then synthesize emergent insights into The Loom.",color:"#E8734A",bg:"linear-gradient(135deg,#FDF2F0,#FFFFFF)",cta:"Start Debating",page:"forge",stat:`${totalDebates} debates`},
-          {icon:"🏗️",title:"The Arena",sub:"Multi-Agent Building",desc:"Describe a challenge. Agent teams auto-assemble, decompose the problem, architect blueprints, and deliver prototypes.",color:"#9333EA",bg:"linear-gradient(135deg,#FAF5FF,#FFFFFF)",cta:"Launch a Build",page:"arena",stat:`${arenaRuns.length} runs`},
-          {icon:"🎓",title:"The Academy",sub:"AI-Powered Courses",desc:`${courseCount} interactive courses from LLM basics to frontier AI. Agent review boards, hands-on exercises, two depth modes.`,color:"#2D8A6E",bg:"linear-gradient(135deg,#EBF5F1,#FFFFFF)",cta:"Browse Courses",page:"academy",stat:`${courseCount} courses`},
-        ].map((cap,i)=><FadeIn key={cap.title} delay={i*60}>
-          <div className="rounded-2xl p-5 h-full flex flex-col transition-all cursor-pointer" style={{background:cap.bg,border:`1px solid ${cap.color}18`}} onClick={()=>onNavigate(cap.page)} onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-4px)";e.currentTarget.style.boxShadow=`0 12px 32px ${cap.color}15`}} onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="none"}}>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{background:`${cap.color}12`,fontSize:22}}>{cap.icon}</div>
-              <div>
-                <div className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:16,color:GIM.headingText}}>{cap.title}</div>
-                <div className="font-semibold" style={{fontFamily:GIM.fontMain,fontSize:10,color:cap.color,letterSpacing:"0.06em"}}>{cap.sub.toUpperCase()}</div>
-              </div>
-            </div>
-            <p className="flex-1" style={{fontFamily:GIM.fontMain,fontSize:13,color:GIM.bodyText,lineHeight:1.65,marginBottom:12}}>{cap.desc}</p>
-            <div className="flex items-center justify-between">
-              <span className="font-semibold text-xs" style={{color:cap.color}}>{cap.cta} &rarr;</span>
-              <span className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:10,background:`${cap.color}10`,color:cap.color}}>{cap.stat}</span>
-            </div>
-          </div>
-        </FadeIn>)}
-      </div>
-    </section>
-
-    {/* ===== HOW THE CYCLE WORKS (compact dark) ===== */}
+    {/* ===== HOW IT WORKS ===== */}
     <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-10">
       <FadeIn><div className="rounded-2xl overflow-hidden" style={{background:"linear-gradient(135deg,#1E1B2E 0%,#2D1B4E 50%,#1B2E3E 100%)",border:"1px solid rgba(147,51,234,0.2)"}}>
         <div className="p-6 pb-3">
@@ -296,25 +240,74 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
       </div></FadeIn>
     </section>
 
-    {/* ===== STATS BAR ===== */}
-    <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-10">
-      <FadeIn delay={40}><div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        {[
-          [totalAgents.toLocaleString()+"+","AI Agents",GIM.primary],
-          [String(domainCount),"Domains","#6B46C1"],
-          [String(totalDebates),"Debates","#E8734A"],
-          [String(arenaRuns.length),"Arena Builds","#9333EA"],
-          [String(courseCount),"Courses","#2D8A6E"],
-        ].map(([val,label,color])=><div key={label} className="p-3 rounded-xl text-center" style={{background:GIM.cardBg,border:`1px solid ${GIM.border}`}}>
-          <div className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:24,color,letterSpacing:"-0.02em"}}>{val}</div>
-          <div className="font-semibold" style={{fontFamily:GIM.fontMain,fontSize:10,color:GIM.mutedText,marginTop:1}}>{label}</div>
-        </div>)}
-      </div></FadeIn>
-    </section>
+    {/* ===== DEBATE SAMPLE — Prove the value ===== */}
+    {(()=>{
+      // Find the best completed debate to showcase
+      const sampleDebate = forgeSessions?.find(s=>s.mode==="debate"&&s.results?.rounds?.length>=2&&s.results?.loom&&s.results?.panel?.agents?.length>=3)
+        || content.find(p=>p.debate?.rounds?.length>=2&&p.debate?.loom&&p.debate?.panel?.agents?.length>=3);
+      if(!sampleDebate) return null;
+      const isSession = !!sampleDebate.results;
+      const debate = isSession ? sampleDebate.results : sampleDebate.debate;
+      const title = isSession ? (sampleDebate.topic?.title||"") : sampleDebate.title;
+      const panelAgents = debate.panel?.agents?.slice(0,4) || [];
+      // Get one compelling quote from each of the first 3 agents in round 1
+      const round1 = Array.isArray(debate.rounds?.[0]) ? debate.rounds[0] : [];
+      const quotes = round1.filter(r=>r.status==="success"&&r.response).slice(0,3);
+      const loomText = debate.loom || "";
+      const loomPreview = loomText.split("\n\n")[0]?.slice(0,300) || loomText.slice(0,300);
 
-    {/* ===== LATEST ACROSS PLATFORM ===== */}
+      return <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-10">
+        <FadeIn><div className="rounded-2xl overflow-hidden" style={{background:GIM.cardBg,border:`1px solid ${GIM.border}`,boxShadow:"0 2px 12px rgba(0,0,0,0.04)"}}>
+          <div className="p-5 pb-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-bold px-2 py-0.5 rounded-full" style={{fontSize:10,background:"#F3E8FF",color:GIM.primary}}>LIVE EXAMPLE</span>
+              <span style={{fontFamily:GIM.fontMain,fontSize:11,color:GIM.mutedText}}>A real debate from this platform</span>
+            </div>
+            <h3 className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:18,color:GIM.headingText}}>{title}</h3>
+            <div className="flex items-center gap-2 mt-2 mb-3">
+              {panelAgents.map((a,i)=><div key={i} className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{background:`${a.color||"#999"}10`,border:`1px solid ${a.color||"#999"}20`}}>
+                <span className="w-4 h-4 rounded-full flex items-center justify-center font-bold" style={{background:`${a.color||"#999"}20`,color:a.color||"#999",fontSize:7}}>{a.avatar||a.name?.charAt(0)}</span>
+                <span className="font-semibold" style={{fontSize:10,color:a.color||"#666"}}>{a.name}</span>
+              </div>)}
+              {panelAgents.length<(debate.panel?.agents?.length||0)&&<span style={{fontSize:10,color:GIM.mutedText}}>+{(debate.panel?.agents?.length||0)-panelAgents.length} more</span>}
+            </div>
+          </div>
+
+          {/* Agent perspectives — Round 1 snippets */}
+          {quotes.length>0&&<div className="px-5 pb-3">
+            <div className="font-bold mb-2" style={{fontSize:10,letterSpacing:"0.08em",color:"#E8734A"}}>ROUND 1 POSITIONS</div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {quotes.map((q,i)=>{
+                const agent = panelAgents.find(a=>a.name===q.name) || {color:"#999",name:q.name};
+                return <div key={i} className="p-3 rounded-xl" style={{background:"#F9FAFB",borderLeft:`3px solid ${agent.color||"#999"}`}}>
+                  <div className="font-bold mb-1" style={{fontSize:12,color:agent.color||"#444"}}>{agent.name}</div>
+                  <p style={{fontSize:12,color:GIM.bodyText,lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{q.response?.replace(/\*\*/g,"").slice(0,180)}...</p>
+                </div>;
+              })}
+            </div>
+          </div>}
+
+          {/* Synthesis — the money shot */}
+          {loomPreview&&<div className="mx-5 mb-5 p-4 rounded-xl" style={{background:"linear-gradient(135deg,rgba(147,51,234,0.04),rgba(45,138,110,0.04))",border:"1px solid rgba(147,51,234,0.1)"}}>
+            <div className="flex items-center gap-1.5 mb-2">
+              <span style={{fontSize:12}}>&#10024;</span>
+              <span className="font-bold" style={{fontSize:10,letterSpacing:"0.08em",color:GIM.primary}}>EMERGENT SYNTHESIS</span>
+              <span style={{fontSize:10,color:GIM.mutedText}}>&mdash; insights no single agent produced</span>
+            </div>
+            <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.7,fontStyle:"italic"}}>{renderInline(loomPreview)}{loomPreview.length>=300?"...":""}</p>
+          </div>}
+
+          <div className="px-5 pb-5 flex items-center gap-3">
+            <button onClick={()=>onNavigate(isSession?"forge":"post",sampleDebate.id)} className="px-4 py-2 rounded-lg font-semibold text-sm transition-all hover:shadow-md" style={{background:GIM.primary,color:"white"}}>Read full debate &rarr;</button>
+            <button onClick={()=>onNavigate("forge")} className="px-4 py-2 rounded-lg font-semibold text-sm" style={{border:`1px solid ${GIM.border}`,color:GIM.bodyText}}>Start your own</button>
+          </div>
+        </div></FadeIn>
+      </section>;
+    })()}
+
+    {/* ===== LATEST ACTIVITY ===== */}
     <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-10">
-      <FadeIn><h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,color:GIM.headingText,fontSize:20}}>Latest Activity</h2></FadeIn>
+      <FadeIn><h2 className="font-bold mb-1" style={{fontFamily:GIM.fontMain,color:GIM.headingText,fontSize:20}}>Recent Debates &amp; Builds</h2><p className="mb-4" style={{fontFamily:GIM.fontMain,fontSize:12,color:GIM.mutedText}}>The latest from the community</p></FadeIn>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         {/* Col 1: Latest Cycle / Loom */}
@@ -416,20 +409,24 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
       {!currentUser&&<div className="mt-4 pt-3 text-center" style={{borderTop:"1px solid rgba(0,0,0,0.05)"}}><p className="text-xs" style={{color:GIM.mutedText}}>Sign in to suggest topics and vote</p></div>}
     </div></section>
 
-    {/* ===== FOOTER ===== */}
-    <footer className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
-      <div className="flex flex-wrap items-center justify-between gap-4 pt-6" style={{borderTop:`1px solid ${GIM.border}`}}>
-        <div className="flex items-center gap-3">
-          <Re3Logo size={20}/>
-          <span style={{fontFamily:GIM.fontMain,fontSize:12,color:GIM.mutedText}}>Re{'\u00b3'} &mdash; Where AI Agents Debate, Build, and Discover With You</span>
+    {/* ===== WHY NOT CHATGPT? ===== */}
+    <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-10">
+      <FadeIn><div className="rounded-2xl p-6" style={{background:"linear-gradient(135deg,rgba(147,51,234,0.03),rgba(45,138,110,0.03))",border:`1px solid ${GIM.border}`}}>
+        <h3 className="font-bold mb-3" style={{fontFamily:GIM.fontMain,color:GIM.headingText,fontSize:16}}>Why not just ask ChatGPT?</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="p-4 rounded-xl" style={{background:"#FFFFFF",border:`1px solid ${GIM.border}`}}>
+            <div className="font-bold mb-2" style={{fontSize:11,color:GIM.mutedText,letterSpacing:"0.05em"}}>SINGLE LLM</div>
+            <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>&ldquo;Here are some perspectives on your topic...&rdquo;</p>
+            <p className="mt-2" style={{fontSize:11,color:GIM.mutedText}}>One voice, listed bullet points. No tension, no discovery.</p>
+          </div>
+          <div className="p-4 rounded-xl" style={{background:"#FAF5FF",border:"1px solid rgba(147,51,234,0.15)"}}>
+            <div className="font-bold mb-2" style={{fontSize:11,color:GIM.primary,letterSpacing:"0.05em"}}>RE{'\u00b3'} DEBATE</div>
+            <p style={{fontSize:13,color:GIM.headingText,lineHeight:1.6}}>5 specialists with competing worldviews argue across 3 rounds, reference each other, and a synthesizer extracts what nobody individually saw.</p>
+            <p className="mt-2 font-semibold" style={{fontSize:11,color:GIM.primary}}>Structured disagreement produces emergent insight.</p>
+          </div>
         </div>
-        <div className="flex items-center gap-4">
-          {[["Loom","loom"],["Forge","forge"],["Arena","arena"],["Academy","academy"],["Agents","agent-community"],["Search","search"]].map(([label,page])=>
-            <button key={page} onClick={()=>onNavigate(page)} className="transition-colors" style={{fontFamily:GIM.fontMain,fontSize:11,color:GIM.mutedText,fontWeight:500}} onMouseEnter={e=>{e.currentTarget.style.color=GIM.primary}} onMouseLeave={e=>{e.currentTarget.style.color=GIM.mutedText}}>{label}</button>
-          )}
-        </div>
-      </div>
-    </footer>
+      </div></FadeIn>
+    </section>
   </div>
 }
 
@@ -767,7 +764,7 @@ function LoomPage({content,articles,onNavigate,onForge,onArchiveCycle,currentUse
   ];
 
   return <div className="min-h-screen" style={{paddingTop:56,background:"#F9FAFB"}}><div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:"clamp(22px,3.5vw,32px)"}}>The Loom</h1><p className="mb-4" style={{fontFamily:"'Inter',sans-serif",fontSize:14,color:"#6B7280"}}>Where ideas are woven, debated, and synthesized.</p></FadeIn>
+    <FadeIn><h1 className="font-bold mb-1" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:"clamp(22px,3.5vw,32px)"}}>Debate Archive</h1><p className="mb-4" style={{fontFamily:"'Inter',sans-serif",fontSize:14,color:"#6B7280"}}>Browse past debate cycles and their AI-synthesized insights.</p></FadeIn>
 
     {/* Main tab bar */}
     <FadeIn delay={20}><div className="flex gap-1 mb-6 p-1 rounded-xl" style={{background:"#F3F4F6"}}>
@@ -1570,7 +1567,7 @@ function AgentAtlasPage({agents,registry,registryIndex,currentUser,onSaveAgent,o
     </div>};
 
   return <div className="min-h-screen" style={{paddingTop:56,background:"#F9FAFB"}}><div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-    <FadeIn><div className="flex items-start justify-between"><div><h1 className="font-bold mb-1" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:"clamp(22px,3.5vw,32px)"}}>Team</h1><p className="mb-4" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>{totalAgents} agents across {domains.length} domains + 3 orchestrators. AI selects the best team per task.</p></div>
+    <FadeIn><div className="flex items-start justify-between"><div><h1 className="font-bold mb-1" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:"clamp(22px,3.5vw,32px)"}}>Agent Team</h1><p className="mb-4" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>Meet the {totalAgents}+ AI specialists that power Re{'\u00b3'} debates &mdash; from CTOs to ethicists to economists.</p></div>
     {onForge&&<button onClick={()=>onForge({title:"",text:"",sourceType:"custom"})} className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-sm transition-all hover:shadow-md flex-shrink-0" style={{background:"#9333EA",color:"white"}}>🔨 Collaborate in Debate Lab</button>}</div></FadeIn>
 
     {/* Breadcrumb */}
@@ -2029,7 +2026,7 @@ function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onN
     <FadeIn><div className="text-center mb-8">
       <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style={{background:"#F3E8FF"}}><span style={{fontSize:24}}>🔨</span></div>
       <h1 className="font-bold mb-1" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:"clamp(24px,4vw,36px)"}}>Debate Lab</h1>
-      <p style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>Where agents and humans shape ideas together</p>
+      <p style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>Submit any topic. 5 AI specialists debate it from every angle. You get the synthesis.</p>
     </div></FadeIn>
 
     {/* SECTION A: Cycle Creator (admin only) */}
