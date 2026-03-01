@@ -1,11 +1,14 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from 'next/navigation';
-import { CourseLLMBasics, CoursePromptEng, CourseEmbeddings, CourseRAG, CourseContextEng, CourseAISafety, CourseTokensCosts, CourseJSONMode } from './AcademyTier1';
-import { CourseMCP, CourseA2A, CourseFunctionCalling, CourseGovernance, CourseACP, CourseAgenticPatterns, CourseMemorySystems, CourseHITL } from './AcademyTier2';
-import { CourseMultiAgent, CourseGraphRAG, CourseObservability, CourseLLMGateway, CourseFineTuning, CourseAICodeGen, CourseMultimodal, CourseVoiceAI, CourseRetrievalEng, CourseAITesting, CourseAgenticScale, CourseMCPAdvanced, CourseEvalObservability, CourseGraphRAGAdvanced, CourseFineTuningDistillation } from './AcademyTier3';
-import { CourseAIRegulatory, CourseResponsibleAI, CourseEnterpriseStrategy, CourseAIEconomics, CourseComputerUse, CoursePhysicalAI } from './AcademyTier4';
+import { TIER1_REGISTRY } from './AcademyTier1';
+import { TIER2_REGISTRY } from './AcademyTier2';
+import { TIER3_REGISTRY } from './AcademyTier3';
+import { TIER4_REGISTRY } from './AcademyTier4';
 import { ReviewBoard, AttributionBadge } from './AcademyReviews';
+
+// Auto-generated course component registry (merged from all tiers)
+const COURSE_REGISTRY = { ...TIER1_REGISTRY, ...TIER2_REGISTRY, ...TIER3_REGISTRY, ...TIER4_REGISTRY };
 
 // ==================== DESIGN TOKENS ====================
 const GIM = {
@@ -169,13 +172,17 @@ function DepthSelector({depth,onChangeDepth}){
 }
 
 // ==================== COURSE SHELL ====================
-function CourseShell({id,icon,title,timeMinutes,exerciseCount,onBack,onNavigate,progress,onComplete,depth,onChangeDepth,visionaryTabs,deepTabs,renderTab}){
+function CourseShell({id,onBack,onNavigate,progress,onComplete,depth,onChangeDepth,visionaryTabs,deepTabs,renderTab}){
   const[activeTab,setActiveTab]=useState(0);
   const tabs=depth==='deep'?deepTabs:visionaryTabs;
   // Reset tab when switching depth if current tab exceeds new tab count
   const safeTab=Math.min(activeTab,tabs.length-1);
   if(safeTab!==activeTab)setActiveTab(safeTab);
   const courseData=COURSES.find(c=>c.id===id);
+  const icon=courseData?.icon||'';
+  const title=courseData?.title||id;
+  const timeMinutes=courseData?.timeMinutes||0;
+  const exerciseCount=courseData?.exerciseCount||0;
 
   return <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
     <FadeIn>
@@ -549,22 +556,11 @@ export default function Academy({onNavigate,currentUser}){
     </div>;
   };
 
-  const routes=[
-    // Tier 1
-    ['llm-basics',CourseLLMBasics],['prompt-engineering',CoursePromptEng],['embeddings',CourseEmbeddings],['rag-fundamentals',CourseRAG],
-    ['context-engineering',CourseContextEng],['ai-safety',CourseAISafety],['tokens-costs',CourseTokensCosts],['json-mode',CourseJSONMode],
-    // Tier 2
-    ['mcp-protocol',CourseMCP],['a2a-protocol',CourseA2A],['function-calling',CourseFunctionCalling],['ai-governance',CourseGovernance],
-    ['acp-protocol',CourseACP],['agentic-patterns',CourseAgenticPatterns],['memory-systems',CourseMemorySystems],['human-in-loop',CourseHITL],
-    // Tier 3
-    ['multi-agent',CourseMultiAgent],['graph-rag',CourseGraphRAG],['ai-observability',CourseObservability],['llm-gateway',CourseLLMGateway],
-    ['fine-tuning',CourseFineTuning],['ai-code-gen',CourseAICodeGen],['multimodal',CourseMultimodal],['voice-ai',CourseVoiceAI],['retrieval-eng',CourseRetrievalEng],['ai-testing',CourseAITesting],
-    ['agentic-scale',CourseAgenticScale],['mcp-advanced',CourseMCPAdvanced],['eval-observability',CourseEvalObservability],['graphrag-advanced',CourseGraphRAGAdvanced],['fine-tuning-distillation',CourseFineTuningDistillation],
-    // Tier 4
-    ['ai-regulatory',CourseAIRegulatory],['responsible-ai',CourseResponsibleAI],['enterprise-strategy',CourseEnterpriseStrategy],
-    ['ai-economics',CourseAIEconomics],['computer-use',CourseComputerUse],['physical-ai',CoursePhysicalAI],
-  ];
-  for(const[id,Comp]of routes){const r=courseShell(id,Comp);if(r)return r;}
+  // Auto-route: look up course component from registry
+  if(activeCourse&&COURSE_REGISTRY[activeCourse]){
+    const r=courseShell(activeCourse,COURSE_REGISTRY[activeCourse]);
+    if(r)return r;
+  }
 
   return <div className="min-h-screen" style={{paddingTop:56,background:GIM.pageBg}}>
     <AcademyHub onStartCourse={(id)=>setActiveCourse(id)} progress={progress} currentUser={currentUser}/>

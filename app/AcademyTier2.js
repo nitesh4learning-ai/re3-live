@@ -6,49 +6,8 @@ import {
   MessageSimulator, AnalogyBox, SeeItInRe3, CourseShell,
   ArchitectureDecision, ComparisonTable
 } from "./Academy";
-
-// ==================== INTERACTIVE WIDGETS ====================
-
-function ToolDefinitionBuilder(){
-  const[name,setName]=useState('get_weather');const[desc,setDesc]=useState('Get current weather for a city');const[p1Name,setP1Name]=useState('city');const[p1Type,setP1Type]=useState('string');const[p2Name,setP2Name]=useState('units');const[p2Type,setP2Type]=useState('string');
-  const schema={name,description:desc,inputSchema:{type:'object',properties:{[p1Name]:{type:p1Type,description:`The ${p1Name} parameter`},[p2Name]:{type:p2Type,description:`The ${p2Name} parameter`}},required:[p1Name]}};
-  return <div className="rounded-xl border p-4 mb-4" style={{borderColor:GIM.border,background:GIM.cardBg}}>
-    <h4 className="font-semibold mb-2" style={{fontSize:14,color:GIM.headingText,fontFamily:GIM.fontMain}}>{'\uD83D\uDD27'} Try It: Tool Definition Builder</h4>
-    <p className="mb-3" style={{fontSize:12,color:GIM.mutedText}}>Design an MCP tool and see the JSON Schema generated in real-time.</p>
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
-      <div><label style={{fontSize:11,color:GIM.mutedText}}>Tool Name</label><input value={name} onChange={e=>setName(e.target.value)} className="w-full px-2 py-1.5 rounded border text-xs mt-1" style={{borderColor:GIM.border,fontFamily:'monospace'}}/></div>
-      <div><label style={{fontSize:11,color:GIM.mutedText}}>Description</label><input value={desc} onChange={e=>setDesc(e.target.value)} className="w-full px-2 py-1.5 rounded border text-xs mt-1" style={{borderColor:GIM.border}}/></div>
-      <div><label style={{fontSize:11,color:GIM.mutedText}}>Param 1 Name</label><input value={p1Name} onChange={e=>setP1Name(e.target.value)} className="w-full px-2 py-1.5 rounded border text-xs mt-1" style={{borderColor:GIM.border,fontFamily:'monospace'}}/></div>
-      <div><label style={{fontSize:11,color:GIM.mutedText}}>Param 1 Type</label><select value={p1Type} onChange={e=>setP1Type(e.target.value)} className="w-full px-2 py-1.5 rounded border text-xs mt-1" style={{borderColor:GIM.border}}><option>string</option><option>number</option><option>boolean</option></select></div>
-      <div><label style={{fontSize:11,color:GIM.mutedText}}>Param 2 Name</label><input value={p2Name} onChange={e=>setP2Name(e.target.value)} className="w-full px-2 py-1.5 rounded border text-xs mt-1" style={{borderColor:GIM.border,fontFamily:'monospace'}}/></div>
-      <div><label style={{fontSize:11,color:GIM.mutedText}}>Param 2 Type</label><select value={p2Type} onChange={e=>setP2Type(e.target.value)} className="w-full px-2 py-1.5 rounded border text-xs mt-1" style={{borderColor:GIM.border}}><option>string</option><option>number</option><option>boolean</option></select></div>
-    </div>
-    <div className="rounded-lg p-3" style={{background:CODE_BG}}><span style={{fontSize:10,color:'#64748B',fontFamily:'monospace'}}>GENERATED MCP TOOL SCHEMA</span><pre style={{fontSize:11,color:CODE_TEXT,fontFamily:'monospace',marginTop:8,whiteSpace:'pre-wrap'}}>{JSON.stringify(schema,null,2)}</pre></div>
-  </div>;
-}
-
-function RiskClassifier(){
-  const cases=[
-    {scenario:'Social media content recommendation algorithm',correct:1,explanation:'Content recommendation can influence opinions and behavior at scale. EU AI Act classifies this as limited risk requiring transparency.'},
-    {scenario:'AI-powered medical diagnosis system',correct:2,explanation:'Medical diagnosis is high-risk under the EU AI Act. Errors can directly impact patient health and safety.'},
-    {scenario:'Email spam filter',correct:0,explanation:'Spam filtering is minimal risk -- it has low impact on individuals and well-understood error boundaries.'},
-    {scenario:'AI system for hiring and recruitment screening',correct:2,explanation:'Hiring decisions directly affect livelihoods. EU AI Act classifies employment-related AI as high-risk requiring strict compliance.'},
-    {scenario:'AI chatbot for customer FAQ',correct:0,explanation:'A FAQ chatbot has minimal risk -- it provides general information and users can easily verify answers or reach a human.'},
-    {scenario:'Real-time biometric identification in public spaces',correct:3,explanation:'Mass surveillance through biometric identification in public spaces is generally classified as unacceptable risk under the EU AI Act.'},
-  ];
-  const labels=['Minimal','Limited','High','Unacceptable'];const colors=['#2D8A6E','#3B82F6','#F59E0B','#EF4444'];
-  const[current,setCurrent]=useState(0);const[selected,setSelected]=useState(null);const[score,setScore]=useState(0);
-  const c=cases[current];const answered=selected!==null;const correct=selected===c.correct;
-  return <div className="rounded-xl border p-4 mb-4" style={{borderColor:GIM.border,background:GIM.cardBg}}>
-    <h4 className="font-semibold mb-2" style={{fontSize:14,color:GIM.headingText,fontFamily:GIM.fontMain}}>{'\uD83C\uDFDB\uFE0F'} Try It: Risk Level Classifier</h4>
-    <p className="mb-3" style={{fontSize:12,color:GIM.mutedText}}>Classify each AI use case by its risk level under the EU AI Act. ({current+1}/{cases.length})</p>
-    <div className="p-3 rounded-lg mb-3" style={{background:GIM.borderLight}}><p style={{fontSize:14,color:GIM.headingText,fontWeight:600}}>{c.scenario}</p></div>
-    <div className="flex flex-wrap gap-2 mb-3">{labels.map((l,i)=><button key={l} onClick={()=>!answered&&(()=>{setSelected(i);if(i===c.correct)setScore(s=>s+1)})()}  className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" style={{background:answered?(i===c.correct?colors[i]+'20':i===selected?'#FEF2F2':'white'):'white',color:answered?(i===c.correct?colors[i]:i===selected?'#EF4444':GIM.mutedText):colors[i],border:`1px solid ${answered?(i===c.correct?colors[i]:GIM.border):colors[i]}`,cursor:answered?'default':'pointer'}}>{l}{answered&&i===c.correct&&' \u2713'}</button>)}</div>
-    {answered&&<div className="p-3 rounded-lg mb-3" style={{background:correct?'#EBF5F1':'#FEF2F2'}}><p style={{fontSize:12,color:correct?'#166534':'#991B1B'}}>{c.explanation}</p></div>}
-    {answered&&current<cases.length-1&&<button onClick={()=>{setCurrent(i=>i+1);setSelected(null)}} className="px-4 py-1.5 rounded-lg text-xs font-semibold" style={{background:GIM.primary,color:'white'}}>Next Case</button>}
-    {answered&&current===cases.length-1&&<span className="text-sm font-semibold" style={{color:'#2D8A6E'}}>Done! {score}/{cases.length} correct</span>}
-  </div>;
-}
+import { JargonTip } from "./AcademyReviews";
+import { ToolDefinitionBuilder, RiskClassifier } from "./AcademyWidgets";
 
 // ==================== COURSE 5: MODEL CONTEXT PROTOCOL (MCP) ====================
 
@@ -779,12 +738,11 @@ export function CourseMCP({onBack,onNavigate,progress,onComplete,depth,onChangeD
     {id:'deep-mcp-playground',label:'Deep Playground',icon:'\uD83C\uDFAE'},
   ];
   return <CourseShell
-    title="Model Context Protocol (MCP)"
-    icon={'\uD83D\uDD0C'}
+    id="mcp-protocol"
     progress={progress}
-    timeLabel="60 min"
-    exerciseLabel="12 exercises"
     onBack={onBack}
+    onNavigate={onNavigate}
+    onComplete={onComplete}
     depth={depth}
     onChangeDepth={onChangeDepth}
     visionaryTabs={visionaryTabs}
@@ -1341,12 +1299,11 @@ export function CourseA2A({onBack,onNavigate,progress,onComplete,depth,onChangeD
     {id:'deep-a2a-playground',label:'Deep Playground',icon:'\uD83C\uDFAE'},
   ];
   return <CourseShell
-    title="Agent-to-Agent (A2A)"
-    icon={'\uD83E\uDD1D'}
+    id="a2a-protocol"
     progress={progress}
-    timeLabel="45 min"
-    exerciseLabel="8 exercises"
     onBack={onBack}
+    onNavigate={onNavigate}
+    onComplete={onComplete}
     depth={depth}
     onChangeDepth={onChangeDepth}
     visionaryTabs={visionaryTabs}
@@ -1740,12 +1697,11 @@ export function CourseFunctionCalling({onBack,onNavigate,progress,onComplete,dep
     {id:"deep-fc-playground",label:"Deep Playground",icon:"🎯"},
   ];
   return <CourseShell
-    title="Function Calling & Tool Use"
-    icon={'\u2699\uFE0F'}
+    id="function-calling"
     progress={progress}
-    timeLabel="35 min"
-    exerciseLabel="7 exercises"
     onBack={onBack}
+    onNavigate={onNavigate}
+    onComplete={onComplete}
     depth={depth}
     onChangeDepth={onChangeDepth}
     visionaryTabs={visionaryTabs}
@@ -2015,12 +1971,11 @@ export function CourseGovernance({onBack,onNavigate,progress,onComplete,depth,on
     {id:"deep-gov-playground",label:"Deep Playground",icon:"🎯"},
   ];
   return <CourseShell
-    title="AI Governance Essentials"
-    icon={'\uD83C\uDFDB\uFE0F'}
+    id="ai-governance"
     progress={progress}
-    timeLabel="40 min"
-    exerciseLabel="6 exercises"
     onBack={onBack}
+    onNavigate={onNavigate}
+    onComplete={onComplete}
     depth={depth}
     onChangeDepth={onChangeDepth}
     visionaryTabs={visionaryTabs}
@@ -2177,7 +2132,7 @@ function TabDeepACPLab({onNavigate,onComplete}){return <FadeIn><div className="m
 export function CourseACP({onBack,onNavigate,progress,onComplete,depth,onChangeDepth}){
   const visionaryTabs=[{id:'acp-overview',label:'What Is ACP?',icon:'\uD83D\uDCE1'},{id:'acp-architecture',label:'Architecture',icon:'\uD83C\uDFD7\uFE0F'},{id:'acp-patterns',label:'Messaging Patterns',icon:'\uD83D\uDD04'},{id:'acp-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
   const deepTabs=[{id:'deep-acp-events',label:'Event Schema',icon:'\uD83D\uDCC3'},{id:'deep-acp-saga',label:'Saga Orchestration',icon:'\uD83D\uDD04'},{id:'deep-acp-enterprise',label:'Enterprise Integration',icon:'\uD83C\uDFE2'},{id:'deep-acp-lab',label:'Architecture Lab',icon:'\uD83C\uDFD7\uFE0F'}];
-  return <CourseShell id="acp-protocol" icon={'\uD83D\uDCE1'} title="Agent Communication Protocol" timeMinutes={40} exerciseCount={6} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
+  return <CourseShell id="acp-protocol" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
     if(d==='visionary'){if(i===0)return <TabACPOverview onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabACPArchitecture onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabACPPatterns onNavigate={onNavigate} onComplete={onComplete}/>;if(i===3)return <TabACPPlayground onNavigate={onNavigate} onComplete={onComplete}/>;}
     else{if(i===0)return <TabDeepACPEvents onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabDeepACPSaga onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabDeepACPEnterprise onNavigate={onNavigate} onComplete={onComplete}/>;if(i===3)return <TabDeepACPLab onNavigate={onNavigate} onComplete={onComplete}/>;}
     return null;
@@ -2360,7 +2315,7 @@ function TabDeepAgenticLab({onNavigate,onComplete}){return <FadeIn><div classNam
 export function CourseAgenticPatterns({onBack,onNavigate,progress,onComplete,depth,onChangeDepth}){
   const visionaryTabs=[{id:'agentic-overview',label:'What Are Agents?',icon:'\uD83D\uDD04'},{id:'agentic-react',label:'ReAct',icon:'\uD83E\uDDE0'},{id:'agentic-plan-execute',label:'Plan & Execute',icon:'\uD83D\uDCCB'},{id:'agentic-playground',label:'Pattern Selection',icon:'\uD83C\uDFAE'}];
   const deepTabs=[{id:'deep-react',label:'ReAct Deep Dive',icon:'\uD83D\uDD04'},{id:'deep-reflection',label:'Reflection',icon:'\uD83E\uDE9E'},{id:'deep-agentic-patterns',label:'Advanced Patterns',icon:'\u26A1'},{id:'deep-agentic-lab',label:'Pattern Lab',icon:'\uD83C\uDFD7\uFE0F'}];
-  return <CourseShell id="agentic-patterns" icon={'\uD83D\uDD04'} title="Agentic Design Patterns" timeMinutes={45} exerciseCount={8} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
+  return <CourseShell id="agentic-patterns" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
     if(d==='visionary'){if(i===0)return <TabAgenticOverview onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabReAct onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabPlanExecute onNavigate={onNavigate} onComplete={onComplete}/>;if(i===3)return <TabAgenticPlayground onNavigate={onNavigate} onComplete={onComplete}/>;}
     else{if(i===0)return <TabDeepReAct onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabDeepReflection onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabDeepAgenticPatterns onNavigate={onNavigate} onComplete={onComplete}/>;if(i===3)return <TabDeepAgenticLab onNavigate={onNavigate} onComplete={onComplete}/>;}
     return null;
@@ -2517,7 +2472,7 @@ function TabDeepMemoryLab({onNavigate,onComplete}){return <FadeIn><div className
 export function CourseMemorySystems({onBack,onNavigate,progress,onComplete,depth,onChangeDepth}){
   const visionaryTabs=[{id:'memory-overview',label:'Why Memory?',icon:'\uD83E\uDDE0'},{id:'memory-types',label:'Memory Types',icon:'\uD83D\uDCBE'},{id:'memory-patterns',label:'Patterns',icon:'\uD83D\uDD04'},{id:'memory-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
   const deepTabs=[{id:'deep-memory-impl',label:'Implementation',icon:'\uD83D\uDD27'},{id:'deep-memory-cross',label:'Cross-Session',icon:'\uD83D\uDD17'},{id:'deep-memory-lab',label:'Memory Lab',icon:'\uD83C\uDFD7\uFE0F'}];
-  return <CourseShell id="memory-systems" icon={'\uD83E\uDDE0'} title="Memory Systems for AI" timeMinutes={40} exerciseCount={7} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
+  return <CourseShell id="memory-systems" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
     if(d==='visionary'){if(i===0)return <TabMemoryOverview onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabMemoryTypes onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabMemoryPatterns onNavigate={onNavigate} onComplete={onComplete}/>;if(i===3)return <TabMemoryPlayground onNavigate={onNavigate} onComplete={onComplete}/>;}
     else{if(i===0)return <TabDeepMemoryImpl onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabDeepMemoryCross onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabDeepMemoryLab onNavigate={onNavigate} onComplete={onComplete}/>;}
     return null;
@@ -2664,9 +2619,20 @@ function TabDeepHITLLab({onNavigate,onComplete}){return <FadeIn><div className="
 export function CourseHITL({onBack,onNavigate,progress,onComplete,depth,onChangeDepth}){
   const visionaryTabs=[{id:'hitl-overview',label:'Why HITL?',icon:'\uD83D\uDC64'},{id:'hitl-patterns',label:'HITL Patterns',icon:'\uD83D\uDD04'},{id:'hitl-design',label:'Interface Design',icon:'\uD83C\uDFA8'},{id:'hitl-playground',label:'Playground',icon:'\uD83C\uDFAE'}];
   const deepTabs=[{id:'deep-hitl-confidence',label:'Confidence Calibration',icon:'\uD83D\uDCCA'},{id:'deep-hitl-active',label:'Active Learning',icon:'\uD83E\uDDE0'},{id:'deep-hitl-lab',label:'HITL Lab',icon:'\uD83C\uDFD7\uFE0F'}];
-  return <CourseShell id="human-in-loop" icon={'\uD83D\uDC64'} title="Human-in-the-Loop Patterns" timeMinutes={35} exerciseCount={6} onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
+  return <CourseShell id="human-in-loop" onBack={onBack} onNavigate={onNavigate} progress={progress} onComplete={onComplete} depth={depth} onChangeDepth={onChangeDepth} visionaryTabs={visionaryTabs} deepTabs={deepTabs} renderTab={(tab,i,d)=>{
     if(d==='visionary'){if(i===0)return <TabHITLOverview onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabHITLPatterns onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabHITLDesign onNavigate={onNavigate} onComplete={onComplete}/>;if(i===3)return <TabHITLPlayground onNavigate={onNavigate} onComplete={onComplete}/>;}
     else{if(i===0)return <TabDeepHITLConfidence onNavigate={onNavigate} onComplete={onComplete}/>;if(i===1)return <TabDeepHITLActive onNavigate={onNavigate} onComplete={onComplete}/>;if(i===2)return <TabDeepHITLLab onNavigate={onNavigate} onComplete={onComplete}/>;}
     return null;
   }}/>;
 }
+
+export const TIER2_REGISTRY = {
+  'mcp-protocol': CourseMCP,
+  'a2a-protocol': CourseA2A,
+  'function-calling': CourseFunctionCalling,
+  'ai-governance': CourseGovernance,
+  'acp-protocol': CourseACP,
+  'agentic-patterns': CourseAgenticPatterns,
+  'memory-systems': CourseMemorySystems,
+  'human-in-loop': CourseHITL,
+};
