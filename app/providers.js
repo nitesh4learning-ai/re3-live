@@ -137,7 +137,7 @@ export function AppProvider({ children }) {
       const sk = document.getElementById("re3-loading-skeleton");
       if (sk) { sk.style.opacity = "0"; setTimeout(() => sk.remove(), 400); }
       const ssr = document.getElementById("ssr-content");
-      if (ssr) ssr.remove();
+      if (ssr) { ssr.style.display = "none"; ssr.setAttribute("aria-hidden", "true"); }
     }
   }, [loaded]);
 
