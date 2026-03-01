@@ -174,9 +174,9 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1"><span className="font-bold px-2 py-0.5 rounded-full" style={{fontSize:9,background:"rgba(147,51,234,0.2)",color:"#C4B5FD"}}>FEATURED CYCLE</span>{hero.isJourney&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"rgba(45,138,110,0.2)",color:"#6EE7B7"}}>Journey</span>}</div>
               <h3 className="font-bold" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#F9FAFB",fontSize:15}}>Cycle {hero.number}{hero.headline?': '+hero.headline:''}</h3>
-              <p style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(255,255,255,0.4)",marginTop:2}}>{hero.rethink?.paragraphs?.[0]?.slice(0,120)||hero.rediscover?.paragraphs?.[0]?.slice(0,120)||""}...</p>
+              <p style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(255,255,255,0.4)",marginTop:2}}>{hero.rethink?.paragraphs?.[0]?.slice(0,120)||hero.rediscover?.paragraphs?.[0]?.slice(0,120)||hero.posts?.[0]?.paragraphs?.[0]?.slice(0,120)||"Explore this cycle"}...</p>
             </div>
-            <div className="flex gap-1">{[hero.rethink,hero.rediscover,hero.reinvent].filter(Boolean).map(p=><div key={p.id} className="w-1.5 rounded-full" style={{height:32,background:PILLARS[p.pillar]?.color||"#999"}}/>)}</div>
+            <div className="flex gap-1">{(hero.dynamicPillars?hero.posts:([hero.rethink,hero.rediscover,hero.reinvent].filter(Boolean))).map((p,i)=><div key={p.id||i} className="w-1.5 rounded-full" style={{height:32,background:hero.dynamicPillars?.[i]?.color||PILLARS[p.pillar]?.color||"#999"}}/>)}</div>
           </div>
         </div>}
       </div></FadeIn>
@@ -334,12 +334,13 @@ function BridgeTransition({from,to,bridgeSentence}){
 function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUser}){
   const cycles=getCycles(content);
   const cycle=cycles.find(c=>c.id===cycleDate)||cycles.find(c=>c.date===cycleDate);
-  const[activeAct,setActiveAct]=useState("rethink");
+  const[activeAct,setActiveAct]=useState(()=>cycle?.dynamicPillars?.[0]?.key||"rethink");
   if(!cycle)return <div className="min-h-screen" style={{paddingTop:56,background:"#F9FAFB"}}><div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 text-center">
     <p style={{color:"#9CA3AF",fontSize:14}}>Cycle not found.</p>
     <button onClick={()=>onNavigate("loom")} className="mt-4 text-sm font-semibold" style={{color:"#9333EA"}}>&larr; Back to The Loom</button>
   </div></div>;
-  const pillars=[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean);
+  const classicPillars=[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean);
+  const pillars=classicPillars.length>0?classicPillars:cycle.posts||[];
   const synthesisPost=pillars.find(p=>p?.debate?.loom);
   const allStreams=pillars.flatMap(p=>p?.debate?.streams||[]);
   const allParticipants=[...new Set(pillars.flatMap(p=>(p?.debate?.panel?.agents||[]).map(a=>a.name)))];
@@ -357,9 +358,14 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
     return()=>observer.disconnect();
   },[isJourney]);
 
-  // Journey progress dots
-  const ACTS=[["rethink","Rethink","#3B6B9B","01"],["rediscover","Rediscover","#E8734A","02"],["reinvent","Reinvent","#2D8A6E","03"]];
-  const scrollToAct=(act)=>{const refs={rethink:rethinkRef,rediscover:rediscoverRef,reinvent:reinventRef};refs[act]?.current?.scrollIntoView({behavior:"smooth",block:"start"})};
+  // Journey progress dots — use dynamic pillars if available, else classic
+  const dp=cycle.dynamicPillars;
+  const ACTS=dp?dp.map((p,i)=>[p.key,p.label,p.color,p.number||String(i+1).padStart(2,"0")]):[["rethink","Rethink","#3B6B9B","01"],["rediscover","Rediscover","#E8734A","02"],["reinvent","Reinvent","#2D8A6E","03"]];
+  const scrollToAct=(act)=>{
+    const refs={rethink:rethinkRef,rediscover:rediscoverRef,reinvent:reinventRef};
+    if(dp){dp.forEach((p,i)=>{if(i===0)refs[p.key]=rethinkRef;if(i===1)refs[p.key]=rediscoverRef;if(i===2)refs[p.key]=reinventRef;});}
+    refs[act]?.current?.scrollIntoView({behavior:"smooth",block:"start"});
+  };
 
   return <div className="min-h-screen" style={{paddingTop:56,background:"#F9FAFB"}}>
     {/* Sticky Journey Header */}
@@ -448,10 +454,44 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
         </div></FadeIn>
       </div>}
 
+      {/* Dynamic pillar acts — for cycles with non-standard pillars */}
+      {!cycle.rethink&&!cycle.rediscover&&!cycle.reinvent&&cycle.dynamicPillars&&cycle.posts?.map((post,idx)=>{
+        const dpInfo=cycle.dynamicPillars[idx]||{};
+        const color=dpInfo.color||"#6B7280";
+        const num=dpInfo.number||String(idx+1).padStart(2,"0");
+        const label=(dpInfo.label||post.pillar||"").toUpperCase();
+        const actRef=idx===0?rethinkRef:idx===1?rediscoverRef:idx===2?reinventRef:null;
+        const actKey=dpInfo.key||post.pillar||`act-${idx}`;
+        const tldrBg=`${color}10`;const tldrBorder=`${color}25`;
+        const nextPost=cycle.posts[idx+1];
+        return <div key={post.id||idx} ref={actRef} data-act={actKey} className={idx<cycle.posts.length-1?"mb-2":"mb-8"}>
+          <FadeIn delay={80+idx*40}><div className="rounded-2xl overflow-hidden" style={{background:"white",border:"1px solid #E5E7EB",borderLeft:`5px solid ${color}`}}>
+            <div className="p-6">
+              <div className="flex items-center gap-2 mb-1"><span className="font-bold" style={{fontSize:11,color,letterSpacing:"0.1em"}}>{num} &middot; {label}</span></div>
+              <h2 className="font-bold mt-2 mb-4" style={{fontFamily:"'Instrument Serif',Georgia,serif",color:"#111827",fontSize:24,lineHeight:1.2}}>{post.title}</h2>
+              {post.tldr&&<div className="mb-4 px-4 py-3 rounded-xl" style={{background:tldrBg,border:`1px solid ${tldrBorder}`,fontSize:13,color,lineHeight:1.6,fontStyle:"italic"}}><span className="font-bold" style={{fontSize:10,letterSpacing:"0.05em",color,fontStyle:"normal"}}>TL;DR</span><span style={{margin:"0 6px",color:`${color}50`}}>|</span>{post.tldr}</div>}
+              <div style={{fontSize:15,color:"#444",lineHeight:1.9}}>{post.paragraphs?.map((p,i)=>{if(p.startsWith("```"))return <pre key={i} className="my-3 p-4 rounded-xl overflow-x-auto" style={{background:"#1E1E2E",color:"#D4D4D4",fontSize:13,lineHeight:1.5}}><code>{p.replace(/```\w*\n?/g,"").replace(/```$/,"")}</code></pre>;return <div key={i} className="mb-3">{renderParagraph(p)}</div>})}</div>
+              {post.patterns&&post.patterns.length>0&&<div className="mt-4 p-3 rounded-xl" style={{background:tldrBg,border:`1px solid ${tldrBorder}`}}>
+                <span className="font-bold text-xs" style={{color,letterSpacing:"0.05em"}}>PATTERNS DISCOVERED</span>
+                <div className="mt-2 space-y-2">{post.patterns.map((pat,i)=><div key={i} className="flex items-start gap-2"><span className="font-bold text-xs mt-0.5" style={{color}}>{pat.domain}{pat.year?` (${pat.year})`:""}</span><span className="text-sm" style={{color:"#666"}}>{pat.summary}</span></div>)}</div>
+              </div>}
+              {post.artifact&&<ArtifactBox type={post.artifact.type} data={post.artifact}/>}
+              {post.openThread&&<div className="mt-4 p-3 rounded-xl" style={{background:tldrBg,border:`1px solid ${color}30`}}>
+                <span className="font-bold text-xs" style={{color}}>🌀 OPEN THREAD</span>
+                <p className="text-sm mt-1" style={{color:"#555",lineHeight:1.5}}>{post.openThread}</p>
+                <p className="text-xs mt-1" style={{color:"rgba(0,0,0,0.3)",fontStyle:"italic"}}>This seeds the next cycle...</p>
+              </div>}
+              {post.comments?.length>0&&<div className="mt-4 pt-3" style={{borderTop:"1px solid #E5E7EB"}}><h4 className="font-bold text-xs mb-2" style={{color:"#9CA3AF"}}>Discussion ({post.comments.length})</h4><div className="space-y-1.5">{post.comments.map(c=>{const ca=getAuthor(c.authorId);return <div key={c.id} className="flex items-start gap-2"><AuthorBadge author={ca}/><div className="flex-1 p-2 rounded-lg" style={{background:"#F9FAFB"}}><p style={{color:"#555",lineHeight:1.5,fontSize:12}}>{c.text}</p></div></div>})}</div></div>}
+            </div>
+          </div></FadeIn>
+          {nextPost&&post.bridgeSentence&&<BridgeTransition from={actKey} to={cycle.dynamicPillars[idx+1]?.key||"next"} bridgeSentence={post.bridgeSentence}/>}
+        </div>;
+      })}
+
       {/* Journey Complete Footer */}
       <FadeIn delay={200}><div className="p-6 rounded-2xl text-center" style={{background:"white",border:"1px solid #E5E7EB"}}>
         <h3 className="font-bold mb-2" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:16}}>Journey Complete</h3>
-        <div className="flex items-center justify-center gap-3 mb-4">{["questions","principle","blueprint"].map(type=>{const a=cycle.artifacts[type];return a?<span key={type} className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{background:type==="questions"?"#E8EEF5":type==="principle"?"#FDE8E0":"#E0F2EC",color:type==="questions"?"#3B6B9B":type==="principle"?"#E8734A":"#2D8A6E"}}>{type==="questions"?"🔍 "+(a.items?.length||0)+" Questions":type==="principle"?"💡 1 Principle":"🔧 1 Blueprint"}</span>:null})}</div>
+        <div className="flex items-center justify-center gap-3 mb-4">{["questions","principle","blueprint"].map(type=>{const a=cycle.artifacts?.[type];return a?<span key={type} className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{background:type==="questions"?"#E8EEF5":type==="principle"?"#FDE8E0":"#E0F2EC",color:type==="questions"?"#3B6B9B":type==="principle"?"#E8734A":"#2D8A6E"}}>{type==="questions"?"🔍 "+(a.items?.length||0)+" Questions":type==="principle"?"💡 1 Principle":"🔧 1 Blueprint"}</span>:null})}</div>
         <div className="flex items-center justify-center gap-3">
           {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"",text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date,cycleId:cycle.id})} className="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white"}}>Debate This Cycle</button>}
           <ShareButton title={`Re³ Cycle ${cycle.number}${cycle.headline?': '+cycle.headline:''}`} text="Explore this synthesis cycle on Re³" url={cycleShareUrl}/>
