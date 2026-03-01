@@ -1,15 +1,20 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from 'next/navigation';
-import { TIER1_REGISTRY } from './AcademyTier1';
-import { TIER2_REGISTRY } from './AcademyTier2';
-import { TIER3_REGISTRY } from './AcademyTier3';
-import { TIER4_REGISTRY } from './AcademyTier4';
 import { ReviewBoard, AttributionBadge } from './AcademyReviews';
 import { COURSES, COURSE_AUTHOR } from './constants/courses';
 
-// Auto-generated course component registry (merged from all tiers)
-const COURSE_REGISTRY = { ...TIER1_REGISTRY, ...TIER2_REGISTRY, ...TIER3_REGISTRY, ...TIER4_REGISTRY };
+// Lazy tier loaders — only the selected tier is downloaded
+const TIER_LOADERS = {
+  1: () => import('./AcademyTier1').then(m => m.TIER1_REGISTRY),
+  2: () => import('./AcademyTier2').then(m => m.TIER2_REGISTRY),
+  3: () => import('./AcademyTier3').then(m => m.TIER3_REGISTRY),
+  4: () => import('./AcademyTier4').then(m => m.TIER4_REGISTRY),
+};
+
+// Map course ID → tier number for quick lookup
+const COURSE_TIER_MAP = {};
+COURSES.forEach(c => { COURSE_TIER_MAP[c.id] = c.tier; });
 
 // ==================== DESIGN TOKENS ====================
 const GIM = {
@@ -490,6 +495,21 @@ export default function Academy({onNavigate,currentUser}){
   });
   const[progress,updateProgress]=useAcademyProgress();
   const[getDepth,setDepth]=useDepthPreference();
+  const[loadedRegistries,setLoadedRegistries]=useState({});
+  const[loading,setLoading]=useState(false);
+
+  // Lazy-load the tier registry when a course is selected
+  useEffect(()=>{
+    if(!activeCourse)return;
+    const tier=COURSE_TIER_MAP[activeCourse];
+    if(!tier||loadedRegistries[tier])return;
+    let cancelled=false;
+    setLoading(true);
+    TIER_LOADERS[tier]().then(registry=>{
+      if(!cancelled){setLoadedRegistries(prev=>({...prev,[tier]:registry}));setLoading(false)}
+    }).catch(()=>{if(!cancelled)setLoading(false)});
+    return()=>{cancelled=true};
+  },[activeCourse,loadedRegistries]);
 
   // Sync URL when course changes
   useEffect(()=>{
@@ -507,10 +527,17 @@ export default function Academy({onNavigate,currentUser}){
     </div>;
   };
 
-  // Auto-route: look up course component from registry
-  if(activeCourse&&COURSE_REGISTRY[activeCourse]){
-    const r=courseShell(activeCourse,COURSE_REGISTRY[activeCourse]);
-    if(r)return r;
+  // Auto-route: look up course component from the lazily-loaded registry
+  if(activeCourse){
+    const tier=COURSE_TIER_MAP[activeCourse];
+    const registry=tier&&loadedRegistries[tier];
+    if(registry&&registry[activeCourse]){
+      const r=courseShell(activeCourse,registry[activeCourse]);
+      if(r)return r;
+    }
+    if(loading){
+      return <div className="min-h-screen flex items-center justify-center" style={{paddingTop:56,background:GIM.pageBg}}><p style={{color:GIM.mutedText,fontSize:13}}>Loading course...</p></div>;
+    }
   }
 
   return <div className="min-h-screen" style={{paddingTop:56,background:GIM.pageBg}}>
