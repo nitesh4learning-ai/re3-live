@@ -31,7 +31,7 @@ export async function POST(req) {
     // Step 1: Hypatia weaves The Loom
     const loomText = await callLLM(
       "anthropic",
-      sagePersona || "You are Hypatia, the synthesizer for Re³. You read entire debates and weave them into a reflective conclusion called The Loom. You find unity beneath contradictions, honor perspectives that disagreed, identify emergent insights no individual stated, and end with an open question.",
+      sagePersona || "You are Hypatia, the synthesizer for Re³. You read entire debates and weave them into a reflective conclusion called The Loom. You find unity beneath contradictions, honor perspectives that disagreed, identify emergent insights no individual stated, and end with an open question. Write in simple, clear language that anyone can follow. Avoid fancy words and academic jargon — use plain English. If you must use a technical term, explain it in simple words.",
       `${contentLabel}: "${articleTitle}"
 ${contentSlice}
 

@@ -5,9 +5,13 @@ export const getAuthor = (id) => ALL_USERS.find(u => u.id === id);
 export const fmt = (d) => new Date(d + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 export const fmtS = (d) => new Date(d + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
-// Derive a headline from cycle post titles
-export function deriveHeadline(rethink, rediscover, reinvent) {
+// Derive a headline from cycle post titles — supports both classic and dynamic pillars
+export function deriveHeadline(rethink, rediscover, reinvent, posts) {
   const titles = [rethink?.title, rediscover?.title, reinvent?.title].filter(Boolean);
+  // Fallback to dynamic pillar post titles if no classic pillars
+  if (!titles.length && posts?.length) {
+    posts.forEach(p => { if (p?.title) titles.push(p.title); });
+  }
   if (!titles.length) return '';
   const first = titles[0].replace(/^(Rethinking|Re-examining|Rediscovering|Reinventing|Building|The)\s+/i, '').replace(/[?:]+$/, '').trim();
   return first.length > 50 ? first.slice(0, 47) + '...' : first;
@@ -28,7 +32,7 @@ export function getCycles(content) {
     const rediscover = posts.find(p => p.pillar === "rediscover");
     const reinvent = posts.find(p => p.pillar === "reinvent");
     const extra = posts.filter(p => !["rethink", "rediscover", "reinvent"].includes(p.pillar));
-    const headline = deriveHeadline(rethink, rediscover, reinvent);
+    const headline = deriveHeadline(rethink, rediscover, reinvent, posts);
     // Journey metadata (from connected cycle generation)
     const throughLineQuestion = rethink?.throughLineQuestion || rediscover?.throughLineQuestion || reinvent?.throughLineQuestion || posts[0]?.throughLineQuestion || null;
     const artifacts = {

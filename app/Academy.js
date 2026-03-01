@@ -35,6 +35,9 @@ const ADB = {
 // Default author for all Academy courses (shown as "Created By")
 const COURSE_AUTHOR = { name: 'Nitesh', avatar: 'NP', color: '#9333EA' };
 
+// Module-level ref for current user (set by Academy component, read by CourseShell)
+let _academyCurrentUser = null;
+
 // ==================== COURSE CATALOG (32 COURSES) ====================
 const COURSES = [
   // Tier 1: Foundations (8 courses)
@@ -202,7 +205,7 @@ function CourseShell({id,icon,title,timeMinutes,exerciseCount,onBack,onNavigate,
     {/* Review Board — collapsible footer panel */}
     <FadeIn delay={60}>
       <div className="mt-6">
-        <ReviewBoard courseId={id} courseTitle={title} />
+        <ReviewBoard courseId={id} courseTitle={title} currentUser={_academyCurrentUser} />
       </div>
     </FadeIn>
     <div className="flex justify-between mt-8 pt-4" style={{borderTop:`1px solid ${GIM.border}`}}>
@@ -520,6 +523,7 @@ function AcademyHub({onStartCourse,progress,currentUser}){
 
 // ==================== MAIN EXPORT ====================
 export default function Academy({onNavigate,currentUser}){
+  _academyCurrentUser=currentUser;
   const searchParams=useSearchParams();
   const[activeCourse,setActiveCourse]=useState(()=>{
     const courseParam=searchParams.get('course');

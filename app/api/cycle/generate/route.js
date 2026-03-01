@@ -11,7 +11,8 @@ WRITING STYLE (MANDATORY):
 - HARD LIMIT: Each article must be UNDER 100 words total (excluding code blocks). Count carefully.
 - Use bullet points for every list. **Bold** key terms on first use.
 - Max 15 words per sentence. No filler. Every word must earn its place.
-- Define jargon in parentheses on first use: "ontological drift (when categories stop matching reality)"
+- Use simple, everyday words. Write like you are explaining to a smart 15-year-old. Avoid jargon unless absolutely necessary — when you must use a technical term, define it in plain English in parentheses.
+- Prefer short, clear sentences over complex ones. Replace fancy words with common ones (e.g. "use" not "utilize", "start" not "initiate", "show" not "demonstrate").
 - In JSON paragraphs array, use \\n for line breaks within a single paragraph string.
 - Each paragraph string in the array should be short — 1-3 sentences or a bullet list.`;
 
