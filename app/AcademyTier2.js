@@ -2000,7 +2000,7 @@ export function CourseGovernance({onBack,onNavigate,progress,onComplete,depth,on
 // ==================== COURSE 5: ACP PROTOCOL ====================
 function TabACPOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>What Is ACP?</h2>
-  <AnalogyBox title="Enterprise Message Bus">{`If A2A is agents exchanging business cards and having conversations, ACP is like a corporate event-driven message bus \u2014 agents publish events, subscribe to topics, and communicate asynchronously at enterprise scale.`}</AnalogyBox>
+  <AnalogyBox emoji={'D83DDCE1'} title="Enterprise Message Bus">{`If A2A is agents exchanging business cards and having conversations, ACP is like a corporate event-driven message bus \u2014 agents publish events, subscribe to topics, and communicate asynchronously at enterprise scale.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>The <JargonTip term="ACP">Agent Communication Protocol (ACP)</JargonTip> by IBM focuses on <b>event-driven, async-first messaging</b> for enterprise <JargonTip term="agent">agent</JargonTip> ecosystems. While <JargonTip term="A2A">A2A</JargonTip> handles bilateral agent conversations, ACP handles <JargonTip term="multi-agent">multi-agent</JargonTip> event streams.</p>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">{[
     {icon:'\uD83D\uDCE1',title:'Event-Driven',desc:'Agents publish events, others subscribe \u2014 loose coupling at scale'},
@@ -2080,7 +2080,7 @@ function TabDeepACPEvents({onNavigate,onComplete}){return <FadeIn><div className
     "agentversion": "2.1.0"
 }`}/>
   <ExpandableSection title="Event Design Best Practices" icon={'\uD83D\uDCA1'}>
-    <div className="space-y-1">{['Use past tense for event types (document.classified, not classify.document)','Include correlation IDs for <JargonTip term="tracing">tracing</JargonTip> across agent chains','Keep event payloads small \u2014 include references, not full data','Version your event schemas for backward compatibility','Include processing metadata (time, confidence, model used)'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
+    <div className="space-y-1">{['Use past tense for event types (document.classified, not classify.document)','Include correlation IDs for tracing across agent chains','Keep event payloads small \u2014 include references, not full data','Version your event schemas for backward compatibility','Include processing metadata (time, confidence, model used)'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
   </ExpandableSection>
 </div></FadeIn>}
 
@@ -2142,7 +2142,7 @@ export function CourseACP({onBack,onNavigate,progress,onComplete,depth,onChangeD
 // ==================== COURSE 6: AGENTIC DESIGN PATTERNS ====================
 function TabAgenticOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>What Are Agentic Patterns?</h2>
-  <AnalogyBox title="Recipes for AI Agents">{`Agentic patterns are like recipes in a cookbook \u2014 proven step-by-step approaches for building AI agents that can think, act, and iterate. Just as a chef picks the right recipe for the occasion, you pick the right pattern for your use case.`}</AnalogyBox>
+  <AnalogyBox emoji={'D83DDCD6'} title="Recipes for AI Agents">{`Agentic patterns are like recipes in a cookbook \u2014 proven step-by-step approaches for building AI agents that can think, act, and iterate. Just as a chef picks the right recipe for the occasion, you pick the right pattern for your use case.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Agentic AI goes beyond single-shot prompting. An <JargonTip term="agent">agent</JargonTip> <b>observes</b>, <b>reasons</b>, <b>acts</b>, and <b>iterates</b> \u2014 using tools, checking results, and adjusting its approach.</p>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">{[
     {icon:'\uD83D\uDD04',title:'ReAct',desc:'Reason + Act: think step-by-step, call tools, observe results, repeat'},
@@ -2325,7 +2325,7 @@ export function CourseAgenticPatterns({onBack,onNavigate,progress,onComplete,dep
 // ==================== COURSE 7: MEMORY SYSTEMS ====================
 function TabMemoryOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Why Memory Matters</h2>
-  <AnalogyBox title="The Goldfish Problem">{`Without memory, every conversation with an AI is like talking to a goldfish \u2014 it forgets everything after each interaction. Memory systems give AI persistent context, making it actually useful for ongoing tasks.`}</AnalogyBox>
+  <AnalogyBox emoji={'D83DDC20'} title="The Goldfish Problem">{`Without memory, every conversation with an AI is like talking to a goldfish \u2014 it forgets everything after each interaction. Memory systems give AI persistent context, making it actually useful for ongoing tasks.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Memory systems let AI <JargonTip term="agent">agents</JargonTip> remember past interactions, learn preferences, and maintain context across sessions. There are several types:</p>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">{[
     {icon:'\u23F1\uFE0F',title:'Short-Term (Buffer)',desc:'Recent conversation turns kept in context window. Ephemeral.'},
@@ -2482,7 +2482,7 @@ export function CourseMemorySystems({onBack,onNavigate,progress,onComplete,depth
 // ==================== COURSE 8: HUMAN-IN-THE-LOOP ====================
 function TabHITLOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Why Human-in-the-Loop?</h2>
-  <AnalogyBox title="The Autopilot Analogy">{`AI with human-in-the-loop is like a plane on autopilot \u2014 it handles routine operations automatically, but the pilot takes over for takeoff, landing, and turbulence. The key is knowing when to hand off control.`}</AnalogyBox>
+  <AnalogyBox emoji={'2708FE0F'} title="The Autopilot Analogy">{`AI with human-in-the-loop is like a plane on autopilot \u2014 it handles routine operations automatically, but the pilot takes over for takeoff, landing, and turbulence. The key is knowing when to hand off control.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Not every AI decision should be automated. <JargonTip term="HITL">Human-in-the-loop (HITL)</JargonTip> patterns keep humans in control of <b>high-stakes</b>, <b>ambiguous</b>, or <b>novel</b> decisions while automating the routine.</p>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">{[
     {icon:'\u2705',title:'Approval Gates',desc:'AI proposes, human approves before action is taken'},
@@ -2525,7 +2525,7 @@ function TabHITLPatterns({onNavigate,onComplete}){return <FadeIn><div className=
 function TabHITLDesign({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Designing HITL Interfaces</h2>
   <ExpandableSection title="Good HITL Design Principles" icon={'\uD83D\uDCA1'} defaultOpen>
-    <div className="space-y-1">{['Show AI reasoning — humans need <JargonTip term="explainability">explainability</JargonTip> to understand WHY the AI made a decision','Make approval fast \u2014 one-click approve/reject with editable drafts','Provide context \u2014 show relevant history, similar past decisions, confidence level','Track overrides — log when humans change AI decisions for future improvement via <JargonTip term="guardrails">guardrails</JargonTip>','Set SLAs \u2014 escalated items need response time targets to avoid bottlenecks'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
+    <div className="space-y-1">{['Show AI reasoning — humans need explainability to understand WHY the AI made a decision','Make approval fast \u2014 one-click approve/reject with editable drafts','Provide context \u2014 show relevant history, similar past decisions, confidence level','Track overrides — log when humans change AI decisions for future improvement via guardrails','Set SLAs \u2014 escalated items need response time targets to avoid bottlenecks'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
   </ExpandableSection>
   <Quiz question="What is the biggest risk of poorly designed human-in-the-loop systems?" options={["Too slow","Too many false escalations lead to 'alert fatigue' \u2014 humans start rubber-stamping approvals","Too expensive","Humans always disagree with the AI"]} correctIndex={1} explanation="Alert fatigue is the #1 killer of HITL systems. If 95% of escalations are unnecessary, humans stop reviewing carefully and start auto-approving. This defeats the entire purpose of human oversight." onAnswer={()=>onComplete&&onComplete('hitl-design','quiz1')}/>
 </div></FadeIn>}

@@ -2275,7 +2275,7 @@ export function CourseLLMGateway({onBack,onNavigate,progress,onComplete,depth,on
 // ==================== COURSE 5: FINE-TUNING ====================
 function TabFTOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>What Is Fine-Tuning?</h2>
-  <AnalogyBox title="Teaching a Specialist">{`Fine-tuning is like sending a general practitioner to a residency \u2014 the base model already knows medicine, but fine-tuning specializes it in cardiology. You don't teach it language from scratch; you teach it domain expertise.`}</AnalogyBox>
+  <AnalogyBox emoji={'D83CDF93'} title="Teaching a Specialist">{`Fine-tuning is like sending a general practitioner to a residency \u2014 the base model already knows medicine, but fine-tuning specializes it in cardiology. You don't teach it language from scratch; you teach it domain expertise.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}><JargonTip term="fine-tuning">Fine-tuning</JargonTip> adapts a pre-trained model to your specific domain by training it on your data. It changes the model's <b>weights</b>, unlike prompting which only changes the model's <b>input</b>.</p>
   <ComparisonTable title="When to Fine-Tune vs RAG vs Prompt Engineering" headers={['Approach','Best For','Data Needed','Cost','Flexibility']} rows={[['Prompt Engineering','Behavior/format changes','None','Lowest','Highest'],['RAG','External knowledge, citations','Documents','Medium','High'],['Fine-Tuning','Style, domain expertise, consistent behavior','100s-1000s examples','Higher','Lower']]}/>
   <Quiz question="Your company wants the AI to always respond in a specific technical writing style with domain-specific terminology. Best approach?" options={["Longer system prompts with examples","RAG with company style guide","Fine-tuning on 500 examples of desired style","Just tell the model to be technical"]} correctIndex={2} explanation="Consistent style and domain terminology are ideal fine-tuning use cases. Few-shot prompting works but uses tokens every call. Fine-tuning bakes the style into the model weights, giving consistent behavior at lower inference cost." onAnswer={()=>onComplete&&onComplete('ft-overview','quiz1')}/>
@@ -2485,7 +2485,7 @@ export function CourseFineTuning({onBack,onNavigate,progress,onComplete,depth,on
 // ==================== COURSE 6: AI CODE GENERATION ====================
 function TabCodeGenOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>AI-Powered Code Generation</h2>
-  <AnalogyBox title="The Pair Programmer">{`AI code generation is like having an expert pair programmer who never gets tired, knows every framework, and can write boilerplate at superhuman speed \u2014 but still needs you to drive the architecture and review the output.`}</AnalogyBox>
+  <AnalogyBox emoji={'D83DDC65'} title="The Pair Programmer">{`AI code generation is like having an expert pair programmer who never gets tired, knows every framework, and can write boilerplate at superhuman speed \u2014 but still needs you to drive the architecture and review the output.`}</AnalogyBox>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">{[
     {icon:'\uD83D\uDCAC',title:'Agentic Coding',desc:'AI tools like Claude Code and Cursor that understand your entire codebase and make multi-file changes'},
     {icon:'\uD83C\uDFA8',title:'Vibe Coding',desc:'Describe what you want in natural language, AI generates the implementation'},
@@ -2653,7 +2653,7 @@ export function CourseAICodeGen({onBack,onNavigate,progress,onComplete,depth,onC
 // ==================== COURSE 7: MULTIMODAL AI ====================
 function TabMMOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>What Is Multimodal AI?</h2>
-  <AnalogyBox title="The Five Senses">{`Multimodal AI gives models multiple senses \u2014 text is like hearing, vision is like seeing, audio is like listening. Combining modalities lets AI understand the world more like humans do.`}</AnalogyBox>
+  <AnalogyBox emoji={'D83EDDE0'} title="The Five Senses">{`Multimodal AI gives models multiple senses \u2014 text is like hearing, vision is like seeing, audio is like listening. Combining modalities lets AI understand the world more like humans do.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}><JargonTip term="multimodal">Multimodal</JargonTip> AI systems built on <JargonTip term="transformer">transformer</JargonTip> architectures use <JargonTip term="attention">attention</JargonTip> mechanisms to process inputs across vision, audio, and text. Key capabilities include <JargonTip term="STT">speech-to-text</JargonTip> and <JargonTip term="TTS">text-to-speech</JargonTip> conversion.</p>
   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">{[
     {icon:'\uD83D\uDDBC\uFE0F',title:'Vision',desc:'Image understanding, document OCR, chart analysis'},{icon:'\uD83C\uDF99\uFE0F',title:'Audio',desc:'Speech-to-text, sound classification, music analysis'},{icon:'\uD83C\uDFA5',title:'Video',desc:'Scene understanding, action recognition, temporal reasoning'},
@@ -2873,7 +2873,7 @@ export function CourseVoiceAI({onBack,onNavigate,progress,onComplete,depth,onCha
 // ==================== COURSE 9: RETRIEVAL ENGINEERING ====================
 function TabRetEngOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Beyond Basic RAG</h2>
-  <AnalogyBox title="The Research Librarian">{`Basic RAG is like using a library catalog \u2014 you search by keyword and get results. Retrieval engineering is like having an expert research librarian who understands your question, knows where to look, cross-references sources, and gives you exactly what you need.`}</AnalogyBox>
+  <AnalogyBox emoji={'D83DDCDA'} title="The Research Librarian">{`Basic RAG is like using a library catalog \u2014 you search by keyword and get results. Retrieval engineering is like having an expert research librarian who understands your question, knows where to look, cross-references sources, and gives you exactly what you need.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}><JargonTip term="RAG">Retrieval</JargonTip> engineering goes beyond simple vector search to build production-grade retrieval systems using <JargonTip term="chunking">chunking</JargonTip>, <JargonTip term="hybrid search">hybrid search</JargonTip>, and <JargonTip term="reranking">reranking</JargonTip>.</p>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">{[
     {icon:'\uD83D\uDD2A',title:'Advanced Chunking',desc:'Semantic, agentic, and hierarchical chunking strategies'},{icon:'\uD83D\uDD0D',title:'Hybrid Search',desc:'Combine vector similarity with keyword (BM25) search'},{icon:'\uD83C\uDFAF',title:'Reranking',desc:'Cross-encoder models reorder search results by true relevance'},{icon:'\uD83C\uDF33',title:'RAPTOR',desc:'Recursive summarization for hierarchical document retrieval'},
@@ -2986,7 +2986,7 @@ export function CourseRetrievalEng({onBack,onNavigate,progress,onComplete,depth,
 // ==================== COURSE 10: AI TESTING ====================
 function TabTestOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>AI Testing & Red-Teaming</h2>
-  <AnalogyBox title="Crash Testing for AI">{`AI testing is like crash testing cars \u2014 you intentionally try to break the system in controlled conditions so you can fix vulnerabilities before real users encounter them.`}</AnalogyBox>
+  <AnalogyBox emoji={'D83DDCA5'} title="Crash Testing for AI">{`AI testing is like crash testing cars \u2014 you intentionally try to break the system in controlled conditions so you can fix vulnerabilities before real users encounter them.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>A robust AI testing strategy combines <JargonTip term="eval">evaluation</JargonTip> frameworks, <JargonTip term="LLM-as-judge">LLM-as-judge</JargonTip> scoring, <JargonTip term="guardrails">guardrails</JargonTip> testing, and <JargonTip term="drift detection">drift detection</JargonTip> to ensure quality over time.</p>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">{[
     {icon:'\uD83D\uDD34',title:'Red-Teaming',desc:'Adversarial testing: intentionally try to make the AI misbehave'},{icon:'\uD83E\uDDEA',title:'Eval Frameworks',desc:'Systematic measurement of quality, safety, and reliability'},{icon:'\uD83D\uDEE1\uFE0F',title:'Injection Defense',desc:'Testing prompt injection resistance and safety boundaries'},{icon:'\uD83D\uDCCA',title:'Regression Testing',desc:'Ensure updates don\'t break existing behavior'},
@@ -9022,7 +9022,7 @@ function TabFTWhenToFineTune({onNavigate,onComplete}){return <div>
     ['Fine-Tuning','High (training + hosting)','Lower (smaller model)','Consistent style, specialized behavior'],
   ]}/>
   <DecisionTreeExplorer/>
-  <ExpandableSection title="Cost-Benefit Analysis" emoji={'\uD83D\uDCB0'}>
+  <ExpandableSection title="Cost-Benefit Analysis" icon={'\uD83D\uDCB0'}>
     <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Fine-tuning costs include: <b>data preparation</b> (10-50 hours), <b>training compute</b> ($5-500+ depending on model size), <b>evaluation</b> (ongoing), and <b>hosting</b> (dedicated endpoint). The payoff comes from: reduced prompt tokens (no few-shot examples needed), lower <JargonTip term="inference">inference</JargonTip> latency, and more consistent outputs.</p>
     <CodeBlock title="Cost comparison calculator" language="python" code={`# Cost comparison: prompting vs fine-tuning
 prompt_tokens_per_call = 2000  # With few-shot examples
@@ -9084,7 +9084,7 @@ function TabFTDataPrep({onNavigate,onComplete}){return <div>
   {"role": "assistant", "content": "ICD-10: E11.40 - Type 2 diabetes with neuropathy, unspecified"}
 ]}`}/>
   <DataQualityChecker/>
-  <ExpandableSection title="Dataset Size Guidelines" emoji={'\uD83D\uDCCA'}>
+  <ExpandableSection title="Dataset Size Guidelines" icon={'\uD83D\uDCCA'}>
     <ComparisonTable title="How much data do you need?" columns={['Goal','Min Examples','Recommended','Notes']} rows={[
       ['Style/tone','50','200-500','Consistent style is learnable from fewer examples'],
       ['Classification','100','500-1000','Need balanced classes, edge cases'],
@@ -9092,7 +9092,7 @@ function TabFTDataPrep({onNavigate,onComplete}){return <div>
       ['Code generation','1000','5000-10000','Diverse patterns, edge cases critical'],
     ]}/>
   </ExpandableSection>
-  <ExpandableSection title="Synthetic Data Generation" emoji={'\uD83E\uDDEC'}>
+  <ExpandableSection title="Synthetic Data Generation" icon={'\uD83E\uDDEC'}>
     <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>When you lack enough real data, use a larger model to generate synthetic training data for a smaller model. This is a form of <JargonTip term="distillation">distillation</JargonTip>.</p>
     <CodeBlock title="Generating synthetic training data" language="python" code={`import openai
 
@@ -9188,7 +9188,7 @@ trainer = SFTTrainer(
     )
 )
 trainer.train()`}/>
-  <ExpandableSection title="Hyperparameter Guide" emoji={'\u2699\uFE0F'}>
+  <ExpandableSection title="Hyperparameter Guide" icon={'\u2699\uFE0F'}>
     <ComparisonTable title="Key Hyperparameters" columns={['Parameter','Typical Range','Effect of Too High','Effect of Too Low']} rows={[
       ['Learning Rate','1e-5 to 5e-4','Catastrophic forgetting, instability','Slow convergence, wasted compute'],
       ['Epochs','1-5','Overfitting to training data','Underfitting, poor pattern learning'],
@@ -9197,7 +9197,7 @@ trainer.train()`}/>
       ['LoRA Alpha','2× rank','Amplifies adapter too much','Adapter effect too subtle'],
     ]}/>
   </ExpandableSection>
-  <ExpandableSection title="Catastrophic Forgetting" emoji={'\uD83E\uDDE0'}>
+  <ExpandableSection title="Catastrophic Forgetting" icon={'\uD83E\uDDE0'}>
     <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>When fine-tuning overwrites the model's general capabilities with your specialized data, it "forgets" what it knew. Mitigations include: <b>LoRA</b> (doesn't modify original weights), <b>low learning rates</b>, <b>short training</b> (1-3 epochs), and <b>mixing general data</b> into your training set.</p>
   </ExpandableSection>
   <Quiz question="What does LoRA's 'rank' parameter (r) control?" options={["The number of training epochs","The size of the low-rank adapter matrices","The learning rate schedule","The batch size"]} correctIndex={1} explanation="The rank r determines the dimensionality of the low-rank decomposition matrices A and B. Higher rank = more expressiveness (more trainable parameters) but diminishing returns past r=16-32 for most tasks." onAnswer={()=>onComplete&&onComplete('ft-techniques','quiz1')}/>
@@ -9264,7 +9264,7 @@ def distillation_loss(student_logits, teacher_logits, labels,
 
     # Weighted combination
     return alpha * soft_loss + (1 - alpha) * hard_loss`}/>
-  <ExpandableSection title="Distilling Chain-of-Thought" emoji={'\uD83D\uDCAD'}>
+  <ExpandableSection title="Distilling Chain-of-Thought" icon={'\uD83D\uDCAD'}>
     <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>You can distill not just final answers but reasoning chains. Have the teacher generate step-by-step explanations, then train the student to produce similar reasoning. This is how smaller models learn to "think" like larger ones.</p>
     <CodeBlock title="CoT distillation data generation" language="python" code={`# Generate reasoning chains from teacher
 def create_cot_training_data(teacher_model, problems):
@@ -9417,7 +9417,7 @@ model.save_pretrained("./ft-adapter")
 from evaluate import load
 results = trainer.evaluate(dataset["test"])
 print(f"Eval loss: {results['eval_loss']:.4f}")`}/>
-  <ExpandableSection title="Post-Training Checklist" emoji={'\u2705'}>
+  <ExpandableSection title="Post-Training Checklist" icon={'\u2705'}>
     <div style={{fontSize:13,color:GIM.bodyText,lineHeight:1.8}}>
       <p><b>1. Evaluate on held-out test set</b> -- never evaluate on training data</p>
       <p><b>2. Compare against baseline</b> -- is the fine-tuned model actually better than prompting?</p>
