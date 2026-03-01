@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import { FadeIn } from '../shared/UIComponents';
 
 const GIM = {
@@ -9,8 +8,6 @@ const GIM = {
 };
 
 export default function LandingPage({ onSignIn, onNavigate }) {
-  const [email, setEmail] = useState("");
-
   return <div className="min-h-screen" style={{ background: '#FAFAFA' }}>
 
     {/* ===== NAV ===== */}
@@ -30,17 +27,10 @@ export default function LandingPage({ onSignIn, onNavigate }) {
     <section className="relative overflow-hidden" style={{ paddingTop: 120, paddingBottom: 80 }}>
       <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(147,51,234,0.06) 0%, transparent 70%)' }} />
       <div className="max-w-4xl mx-auto px-6 text-center relative">
-        <FadeIn>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6" style={{ background: 'rgba(147,51,234,0.06)', border: '1px solid rgba(147,51,234,0.12)' }}>
-            <span className="relative flex" style={{ width: 6, height: 6 }}><span className="animate-ping absolute inline-flex rounded-full opacity-75" style={{ width: '100%', height: '100%', background: GIM.primary }} /><span className="relative inline-flex rounded-full" style={{ width: 6, height: 6, background: GIM.primary }} /></span>
-            <span className="font-bold" style={{ fontSize: 11, letterSpacing: '0.08em', color: GIM.primary }}>FREE DURING ALPHA</span>
-          </div>
-        </FadeIn>
-
         <FadeIn delay={60}>
           <h1 className="font-bold" style={{ fontFamily: GIM.fontMain, fontSize: 'clamp(36px, 6vw, 60px)', lineHeight: 1.08, letterSpacing: '-0.03em', color: GIM.headingText, marginBottom: 20 }}>
             Drop in any topic.<br/>
-            <span style={{ color: '#E8734A' }}>AI specialists debate it.</span><br/>
+            <span style={{ color: '#E8734A' }}>AI specialists debate and build it.</span><br/>
             <span style={{ color: GIM.primary }}>You get the insights nobody saw.</span>
           </h1>
         </FadeIn>
@@ -52,11 +42,11 @@ export default function LandingPage({ onSignIn, onNavigate }) {
         </FadeIn>
 
         <FadeIn delay={130}>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
-            <button onClick={onSignIn} className="px-8 py-3.5 font-semibold text-base transition-all hover:shadow-xl rounded-xl" style={{ background: GIM.primary, color: 'white' }}>Start a Debate &mdash; Free &rarr;</button>
-            <button onClick={() => onNavigate?.("loom")} className="px-6 py-3.5 font-semibold text-sm transition-all hover:bg-gray-100 rounded-xl" style={{ border: `1px solid ${GIM.border}`, color: GIM.bodyText }}>See real debates</button>
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
+            <button onClick={() => onNavigate?.("forge")} className="px-6 py-3 font-semibold text-sm transition-all hover:shadow-md rounded-xl" style={{ background: '#E8734A', color: 'white' }}>Debate Lab</button>
+            <button onClick={() => onNavigate?.("arena")} className="px-6 py-3 font-semibold text-sm transition-all hover:shadow-md rounded-xl" style={{ background: GIM.primary, color: 'white' }}>Arena</button>
+            <button onClick={() => onNavigate?.("academy")} className="px-6 py-3 font-semibold text-sm transition-all hover:shadow-md rounded-xl" style={{ background: '#2D8A6E', color: 'white' }}>Academy</button>
           </div>
-          <p className="text-xs" style={{ color: GIM.mutedText }}>Google sign-in. No credit card. No setup.</p>
         </FadeIn>
       </div>
     </section>
@@ -88,40 +78,6 @@ export default function LandingPage({ onSignIn, onNavigate }) {
       </FadeIn>
     </section>
 
-    {/* ===== WHY NOT CHATGPT ===== */}
-    <section className="max-w-5xl mx-auto px-6 pb-20">
-      <FadeIn>
-        <div className="text-center mb-8">
-          <h2 className="font-bold" style={{ fontFamily: GIM.fontMain, fontSize: 26, color: GIM.headingText, letterSpacing: '-0.02em' }}>Why not just ask ChatGPT?</h2>
-          <p className="mt-2" style={{ fontSize: 14, color: GIM.mutedText }}>One voice gives you a list. Structured disagreement gives you discovery.</p>
-        </div>
-      </FadeIn>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-        <FadeIn delay={40}>
-          <div className="p-6 rounded-2xl h-full" style={{ background: '#FFFFFF', border: `1px solid ${GIM.border}` }}>
-            <div className="font-bold mb-3" style={{ fontSize: 12, color: GIM.mutedText, letterSpacing: '0.06em' }}>SINGLE LLM</div>
-            <p className="text-lg font-medium mb-2" style={{ color: GIM.headingText }}>&ldquo;Here are some perspectives...&rdquo;</p>
-            <p style={{ fontSize: 14, color: GIM.bodyText, lineHeight: 1.7 }}>One model, one voice. It gives you a balanced-sounding list of bullet points. No tension, no surprise, no discovery.</p>
-            <div className="mt-4 flex gap-2 flex-wrap">
-              {["Surface-level", "No pushback", "Echo chamber"].map(t => <span key={t} className="px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: '#FEE2E2', color: '#991B1B' }}>{t}</span>)}
-            </div>
-          </div>
-        </FadeIn>
-
-        <FadeIn delay={80}>
-          <div className="p-6 rounded-2xl h-full" style={{ background: '#FAF5FF', border: '1px solid rgba(147,51,234,0.15)' }}>
-            <div className="font-bold mb-3" style={{ fontSize: 12, color: GIM.primary, letterSpacing: '0.06em' }}>RE&#179; DEBATE</div>
-            <p className="text-lg font-medium mb-2" style={{ color: GIM.headingText }}>5 specialists argue across 3 rounds</p>
-            <p style={{ fontSize: 14, color: GIM.bodyText, lineHeight: 1.7 }}>They reference each other by name, challenge assumptions, and build on disagreements. A synthesizer then extracts what nobody individually saw.</p>
-            <div className="mt-4 flex gap-2 flex-wrap">
-              {["Emergent insight", "Real tension", "Structured discovery"].map(t => <span key={t} className="px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: '#F3E8FF', color: '#7C3AED' }}>{t}</span>)}
-            </div>
-          </div>
-        </FadeIn>
-      </div>
-    </section>
-
     {/* ===== WHAT YOU CAN DO ===== */}
     <section className="max-w-5xl mx-auto px-6 pb-20">
       <FadeIn>
@@ -129,16 +85,16 @@ export default function LandingPage({ onSignIn, onNavigate }) {
       </FadeIn>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { icon: "\u2694\uFE0F", title: "Debate Lab", desc: "Submit any topic. 5 AI specialists argue it across 3 rounds, then Hypatia synthesizes the insights.", color: "#E8734A", cta: "Start debating" },
-          { icon: "\uD83C\uDFD7\uFE0F", title: "Arena", desc: "Agent teams auto-assemble, architect solutions, and deliver working prototypes from your use case.", color: "#9333EA", cta: "Launch a build" },
-          { icon: "\uD83C\uDF93", title: "Academy", desc: "37 courses across 4 tiers &mdash; from AI governance foundations to frontier research.", color: "#2D8A6E", cta: "Browse courses" },
+          { icon: "\u2694\uFE0F", title: "Debate Lab", desc: "Submit any topic. 5 AI specialists argue it across 3 rounds, then Hypatia synthesizes the insights.", color: "#E8734A", cta: "Explore debates", page: "forge" },
+          { icon: "\uD83C\uDFD7\uFE0F", title: "Arena", desc: "Agent teams auto-assemble, architect solutions, and deliver working prototypes from your use case.", color: "#9333EA", cta: "Browse arena", page: "arena" },
+          { icon: "\uD83C\uDF93", title: "Academy", desc: "37 courses across 4 tiers &mdash; from AI governance foundations to frontier research.", color: "#2D8A6E", cta: "Browse courses", page: "academy" },
         ].map((item, i) =>
           <FadeIn key={item.title} delay={i * 60}>
             <div className="p-6 rounded-2xl h-full flex flex-col" style={{ background: GIM.cardBg, border: `1px solid ${GIM.border}` }}>
               <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: `${item.color}10`, fontSize: 24 }}>{item.icon}</div>
               <h3 className="font-bold text-lg mb-2" style={{ color: GIM.headingText }}>{item.title}</h3>
               <p className="flex-1 mb-4" style={{ fontSize: 14, color: GIM.bodyText, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: item.desc }} />
-              <button onClick={onSignIn} className="self-start px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:shadow-sm" style={{ background: `${item.color}10`, color: item.color }}>{item.cta} &rarr;</button>
+              <button onClick={() => onNavigate?.(item.page)} className="self-start px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:shadow-sm" style={{ background: `${item.color}10`, color: item.color }}>{item.cta} &rarr;</button>
             </div>
           </FadeIn>
         )}
@@ -165,8 +121,11 @@ export default function LandingPage({ onSignIn, onNavigate }) {
     <section className="max-w-3xl mx-auto px-6 pb-24 text-center">
       <FadeIn>
         <h2 className="font-bold mb-3" style={{ fontSize: 28, color: GIM.headingText, letterSpacing: '-0.02em' }}>Ready to think differently?</h2>
-        <p className="mb-6" style={{ fontSize: 15, color: GIM.bodyText, lineHeight: 1.7 }}>Join the alpha. Every debate makes the platform smarter.</p>
-        <button onClick={onSignIn} className="px-10 py-4 rounded-xl font-semibold text-base transition-all hover:shadow-xl" style={{ background: GIM.primary, color: 'white' }}>Get started &mdash; it&apos;s free &rarr;</button>
+        <p className="mb-6" style={{ fontSize: 15, color: GIM.bodyText, lineHeight: 1.7 }}>Explore debates, builds, and courses &mdash; or sign in to create your own.</p>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <button onClick={() => onNavigate?.("loom")} className="px-8 py-3.5 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{ background: GIM.primary, color: 'white' }}>Browse The Loom &rarr;</button>
+          <button onClick={onSignIn} className="px-6 py-3.5 rounded-xl font-semibold text-sm transition-all hover:bg-gray-100" style={{ border: `1px solid ${GIM.border}`, color: GIM.bodyText }}>Sign in</button>
+        </div>
       </FadeIn>
     </section>
 
