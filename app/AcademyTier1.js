@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { GIM, CODE_BG, CODE_TEXT, FadeIn, ProgressBar, ExpandableSection, CodeBlock, Quiz, MessageSimulator, AnalogyBox, SeeItInRe3, CourseShell, ArchitectureDecision, ComparisonTable } from "./Academy";
+import { JargonTip } from "./AcademyReviews";
 
 // ==================== INTERACTIVE: TOKEN COUNTER ====================
 function TokenCounter(){
@@ -273,8 +274,8 @@ function PipelineOrderGame(){
 // ==================== COURSE: HOW LLMs WORK ====================
 function TabTokens({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>From Text to Tokens</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Large Language Models don't read words the way you do. Before processing any text, they break it into smaller pieces called <b>tokens</b>. A token might be a whole word, part of a word, or even a single character.</p>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Understanding tokens is fundamental because they affect everything: how much text a model can process, how much API calls cost, and even how the model "thinks" about language.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Large Language Models don't read words the way you do. Before processing any text, they break it into smaller pieces called <JargonTip term="token">tokens</JargonTip>. A token might be a whole word, part of a word, or even a single character.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Understanding tokens is fundamental because they affect everything: how much text a model can process, how much API calls cost, and even how the model "thinks" about language. This process is called <JargonTip term="inference">inference</JargonTip>.</p>
   <AnalogyBox emoji={'\uD83E\uDDE9'} title="Think of it like LEGO bricks">Just as LEGO structures are built from a fixed set of standard bricks, all text is built from a fixed vocabulary of token pieces. The model learned which combinations make meaningful structures during training.</AnalogyBox>
   <CodeBlock language="tokenization" label="How text becomes tokens" code={`Input:  "Tokenization is fascinating"\nTokens: ["Token", "ization", " is", " fascin", "ating"]\nCount:  5 tokens\n\nInput:  "AI"\nTokens: ["AI"]\nCount:  1 token\n\nInput:  "ChatGPT"\nTokens: ["Chat", "G", "PT"]\nCount:  3 tokens`}/>
   <ExpandableSection title="What is Byte-Pair Encoding (BPE)?" icon={'\uD83D\uDD0D'}>
@@ -299,8 +300,8 @@ function TabTokens({onNavigate,onComplete}){return <div>
 
 function TabContext({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>The Context Window</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The context window is the model's <b>working memory</b> -- everything it can "see" at once when generating a response. It includes the system prompt, your conversation history, any tool results, and the response itself.</p>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Different models have different context window sizes, ranging from 4,096 tokens to over 1 million. But bigger isn't always better -- managing what goes into the context window is a critical skill.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The <JargonTip term="context window">context window</JargonTip> is the model's <b>working memory</b> -- everything it can "see" at once when generating a response. It includes the <JargonTip term="system prompt">system prompt</JargonTip>, your conversation history, any tool results, and the response itself.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Different models have different context window sizes, ranging from 4,096 <JargonTip term="token">tokens</JargonTip> to over 1 million. But bigger isn't always better -- managing what goes into the context window is a critical skill.</p>
   <AnalogyBox emoji={'\uD83D\uDCCB'} title="Think of it like a whiteboard">The context window is a whiteboard of fixed size. Everything the model needs to reference must fit on this board. When you run out of space, the oldest content gets erased to make room for new content.</AnalogyBox>
   <div className="rounded-xl border overflow-hidden mb-4" style={{borderColor:GIM.border}}>
     <table className="w-full" style={{fontSize:13,fontFamily:GIM.fontMain}}>
@@ -325,7 +326,7 @@ function TabContext({onNavigate,onComplete}){return <div>
 
 function TabTemperature({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Temperature & Sampling</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Temperature controls how "creative" versus "focused" an LLM's responses are. It affects the probability distribution the model uses when choosing the next token.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><JargonTip term="temperature">Temperature</JargonTip> controls how "creative" versus "focused" an LLM's responses are. It affects the probability distribution the model uses when choosing the next <JargonTip term="token">token</JargonTip>.</p>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>At <b>temperature 0</b>, the model always picks the most probable next token (deterministic). At <b>temperature 1</b>, it samples more broadly. Above 1, outputs become increasingly random and potentially incoherent.</p>
   <AnalogyBox emoji={'\uD83D\uDDFA\uFE0F'} title="Think of it like navigation">Temperature 0 = following GPS turn-by-turn. Temperature 0.7 = exploring some side streets. Temperature 1 = taking a scenic detour. Temperature 2 = random road trip with no map.</AnalogyBox>
   <TemperaturePlayground/>
@@ -847,7 +848,7 @@ export function CourseLLMBasics({onBack,onNavigate,progress,onComplete,depth,onC
 // ==================== COURSE: PROMPT ENGINEERING ====================
 function TabSystemPrompts({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>System Prompts</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>A system prompt is a hidden instruction given to the AI before any user input. It defines the AI's <b>role</b>, <b>personality</b>, <b>constraints</b>, and <b>output format</b>. Think of it as the "job description" the AI reads before starting work.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>A <JargonTip term="system prompt">system prompt</JargonTip> is a hidden instruction given to the AI before any user input. It defines the AI's <b>role</b>, <b>personality</b>, <b>constraints</b>, and <b>output format</b>. Think of it as the "job description" the AI reads before starting work.</p>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Well-crafted system prompts are the single most impactful way to control AI behavior consistently across all interactions.</p>
   <AnalogyBox emoji={'\uD83C\uDFAC'} title="Think of it like a director's brief">A director gives actors their role, motivation, and boundaries before filming begins. The system prompt does the same for the AI -- setting expectations before any user interaction.</AnalogyBox>
   <CodeBlock language="text" label="Anatomy of a System Prompt" code={`Role:        "You are a senior financial analyst..."\nConstraints: "Never provide specific investment advice."\nFormat:      "Respond in bullet points with citations."\nTone:        "Be professional but approachable."\nExamples:    "When asked about trends, structure as..."\n\nFull example:\n"You are a senior financial analyst specializing in market trends.\nProvide data-driven insights in bullet-point format.\nAlways cite your reasoning. Never give specific buy/sell advice.\nIf uncertain, say 'I don't have enough data to assess this.'"`}/>
@@ -859,7 +860,7 @@ function TabSystemPrompts({onNavigate,onComplete}){return <div>
 
 function TabFewShot({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Few-Shot Learning</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Few-shot prompting means giving the AI <b>examples</b> of the desired input-output pattern before asking your actual question. The model learns the pattern from the examples and applies it.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><JargonTip term="few-shot">Few-shot</JargonTip> prompting means giving the AI <b>examples</b> of the desired input-output pattern before asking your actual question. The model learns the pattern from the examples and applies it.</p>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><b>Zero-shot</b> = no examples (just the instruction). <b>One-shot</b> = one example. <b>Few-shot</b> = 2-5 examples. More examples generally improve consistency but cost more tokens.</p>
   <AnalogyBox emoji={'\uD83C\uDFA8'} title="Think of it like teaching by example">Instead of explaining the rules of a card game in words, you play a few rounds while narrating. The learner picks up the pattern faster from seeing examples than from reading rules.</AnalogyBox>
   <CodeBlock language="text" label="Zero-shot vs Few-shot" code={`ZERO-SHOT:\n"Classify this review as positive or negative: 'The food was amazing!'"\n\nFEW-SHOT (2 examples):\n"Classify reviews as positive or negative.\n\nReview: 'Loved the atmosphere!' -> positive\nReview: 'Terrible service, waited 2 hours' -> negative\nReview: 'The food was amazing!' -> "`}/>
@@ -875,7 +876,7 @@ function TabFewShot({onNavigate,onComplete}){return <div>
 
 function TabChainOfThought({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Chain-of-Thought Reasoning</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Chain-of-Thought (CoT) prompting asks the model to <b>show its reasoning step-by-step</b> before giving a final answer. This dramatically improves accuracy on complex tasks like math, logic, and multi-step analysis.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><JargonTip term="chain-of-thought">Chain-of-Thought</JargonTip> (CoT) prompting asks the model to <b>show its reasoning step-by-step</b> before giving a final answer. This dramatically improves accuracy on complex tasks like math, logic, and multi-step analysis.</p>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The magic phrase? Simply adding <b>"Let's think step by step"</b> to your prompt can improve accuracy by 20-40% on reasoning tasks.</p>
   <AnalogyBox emoji={'\uD83E\uDDE9'} title="Think of it like showing your work">In math class, showing your work helps catch errors. CoT does the same for AI -- by reasoning step-by-step, the model is less likely to jump to an incorrect conclusion.</AnalogyBox>
   <MessageSimulator title="Direct vs Chain-of-Thought" messages={[
@@ -1906,8 +1907,8 @@ export function CourseEmbeddings({onBack,onNavigate,progress,onComplete,depth,on
 // ==================== COURSE: RAG FUNDAMENTALS ====================
 function TabRAGProblem({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>The Problem RAG Solves</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>LLMs have a fundamental limitation: they can only use knowledge from their training data. They don't know about events after their training cutoff, your company's internal documents, or real-time data. When they lack knowledge, they <b>hallucinate</b> -- generating plausible-sounding but incorrect information.</p>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><b>Retrieval-Augmented Generation (RAG)</b> solves this by fetching relevant information from external sources and injecting it into the prompt before the LLM generates a response.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>LLMs have a fundamental limitation: they can only use knowledge from their training data. They don't know about events after their training cutoff, your company's internal documents, or real-time data. When they lack knowledge, they <JargonTip term="hallucination">hallucinate</JargonTip> -- generating plausible-sounding but incorrect information.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><JargonTip term="RAG"><b>Retrieval-Augmented Generation (RAG)</b></JargonTip> solves this by fetching relevant information from external sources and injecting it into the prompt before the LLM generates a response.</p>
   <AnalogyBox emoji={'\uD83D\uDCDA'} title="Think of it like an open-book exam">An LLM without RAG is a student taking an exam from memory -- they might mix up facts. An LLM with RAG is a student with the textbook open -- they can look up the right answers.</AnalogyBox>
   <HallucinationDetector/>
   <Quiz question="What is the primary problem that RAG addresses?" options={["LLMs are too slow","LLMs hallucinate when they lack knowledge","LLMs can't process images","LLMs use too many tokens"]} correctIndex={1} explanation="RAG directly addresses hallucination by providing the LLM with relevant, factual information retrieved from trusted sources before it generates a response." onAnswer={()=>onComplete&&onComplete('rag-problem','quiz1')}/>
@@ -1915,7 +1916,7 @@ function TabRAGProblem({onNavigate,onComplete}){return <div>
 
 function TabRAGEmbeddings({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Embeddings in RAG</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>RAG uses embeddings to find relevant documents. Both the user's query and all stored documents are converted into vectors. The system then finds documents whose vectors are closest to the query vector.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>RAG uses <JargonTip term="embedding">embeddings</JargonTip> to find relevant documents. Both the user's query and all stored documents are converted into vectors. The system then finds documents whose vectors are closest to the query vector using <JargonTip term="vector search">vector search</JargonTip>.</p>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>This is called <b>semantic search</b> -- finding documents by meaning, not just keywords. "How do I fix a flat tire?" will match a document about "tire puncture repair" even though the words are different.</p>
   <CodeBlock language="text" label="Semantic vs Keyword Search" code={`QUERY: "How to fix a flat tire?"\n\nKEYWORD SEARCH finds: Documents containing "fix", "flat", "tire"\n  \u2717 Misses: "Puncture repair guide" (no matching keywords!)\n\nSEMANTIC SEARCH finds: Documents with similar MEANING\n  \u2713 "Puncture repair guide" (similar concept)\n  \u2713 "Changing a tire step-by-step" (related topic)\n  \u2713 "Roadside emergency tire fix" (synonymous intent)`}/>
   <Quiz question="Why is semantic search better than keyword search for RAG?" options={["It's faster","It finds documents by meaning, not just matching words","It uses less storage","It doesn't need embeddings"]} correctIndex={1} explanation="Semantic search understands meaning, so 'fix a flat tire' matches 'puncture repair guide' even without shared keywords. This dramatically improves retrieval quality." onAnswer={()=>onComplete&&onComplete('rag-embeddings','quiz1')}/>
