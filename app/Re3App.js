@@ -54,8 +54,8 @@ function CycleCard({cycle,onNavigate,variant="default"}){
 function Header({onNavigate,currentPage,currentUser,onLogin,onLogout}){
   const[sc,setSc]=useState(false);const[mob,setMob]=useState(false);
   useEffect(()=>{const fn=()=>setSc(window.scrollY>10);window.addEventListener("scroll",fn);return()=>window.removeEventListener("scroll",fn)},[]);
-  const navItems=[["home","Home","🏠"],["loom","The Loom","🧵"],["forge","Debate Lab","⚡"],["arena","Arena","🎯"],["agent-community","Team","🤖"],["academy","Academy","🎓"],["studio","My Studio","📝"]];
-  const bottomTabs=[["home","Home","🏠"],["loom","Loom","🧵"],["forge","Debate","⚡"],["arena","Arena","🎯"],["agent-community","Team","🤖"],["academy","Learn","🎓"]];
+  const navItems=[["home","Home","🏠"],["forge","Debate","⚡"],["arena","Arena","🏗️"],["academy","Academy","🎓"],["loom","Archive","🧵"],["studio","My Studio","📝"]];
+  const bottomTabs=[["home","Home","🏠"],["forge","Debate","⚡"],["arena","Arena","🏗️"],["academy","Learn","🎓"],["studio","Studio","📝"]];
   return <><header className="fixed top-0 left-0 right-0 z-50" style={{background:"#FFFFFF",borderBottom:"0.8px solid #E5E7EB"}}>
     <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between" style={{height:56}}>
       <button onClick={()=>{onNavigate("home");setMob(false)}} className="flex items-center gap-2" style={{minHeight:'auto',minWidth:'auto'}}>
