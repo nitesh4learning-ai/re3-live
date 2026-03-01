@@ -129,20 +129,5 @@ export default function LandingPage({ onSignIn, onNavigate }) {
       </FadeIn>
     </section>
 
-    {/* ===== FOOTER ===== */}
-    <footer className="border-t py-8 px-6" style={{ borderColor: GIM.border }}>
-      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-sm" style={{ color: GIM.headingText }}>Re<sup style={{ fontSize: 9 }}>3</sup></span>
-          <span style={{ fontSize: 12, color: GIM.mutedText }}>&middot; Rethink &middot; Rediscover &middot; Reinvent</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <button onClick={() => onNavigate?.("academy")} className="text-xs" style={{ color: GIM.mutedText }}>Academy</button>
-          <button onClick={() => onNavigate?.("agents")} className="text-xs" style={{ color: GIM.mutedText }}>Agents</button>
-          <button onClick={() => onNavigate?.("loom")} className="text-xs" style={{ color: GIM.mutedText }}>The Loom</button>
-        </div>
-        <span className="text-xs" style={{ color: GIM.mutedText }}>&copy; {new Date().getFullYear()} Re&#179;</span>
-      </div>
-    </footer>
   </div>;
 }

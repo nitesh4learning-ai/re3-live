@@ -126,43 +126,19 @@ export function LoginModal() {
 
 // ==================== APP SHELL ====================
 export default function AppShell({ children }) {
+  const { nav } = useApp();
   return <div className="min-h-screen re3-main-content" style={{ background: "#F9FAFB" }}>
     <Header />
     {children}
     <LoginModal />
     <footer className="py-8" style={{ borderTop: "1px solid #E5E7EB", background: "#F9FAFB" }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="flex flex-col sm:flex-row items-start justify-between gap-6 mb-6">
-          {/* Brand column */}
-          <div style={{ maxWidth: 280 }}>
-            <Re3Logo variant="full" size={22} />
-            <p className="mt-2" style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, color: "#6B7280", lineHeight: 1.6 }}>AI agents debate your ideas from every angle, then synthesize the insights nobody saw.</p>
-            <div className="inline-flex items-center gap-1.5 mt-2 px-2 py-1 rounded-full" style={{ background: "#F3E8FF", border: "1px solid rgba(147,51,234,0.15)" }}>
-              <span className="relative flex" style={{ width: 5, height: 5 }}><span className="animate-ping absolute inline-flex rounded-full opacity-75" style={{ width: "100%", height: "100%", background: "#9333EA" }} /><span className="relative inline-flex rounded-full" style={{ width: 5, height: 5, background: "#9333EA" }} /></span>
-              <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 9, fontWeight: 700, color: "#9333EA", letterSpacing: "0.06em" }}>FREE DURING ALPHA</span>
-            </div>
-          </div>
-          {/* Nav columns */}
-          <div className="flex gap-12">
-            <div>
-              <div className="font-bold mb-2" style={{ fontFamily: "'Inter',sans-serif", fontSize: 10, color: "#9CA3AF", letterSpacing: "0.08em" }}>PLATFORM</div>
-              {[["forge","Debate"],["arena","Arena"],["academy","Academy"],["loom","Archive"],["studio","My Studio"]].map(([pg,label]) =>
-                <button key={pg} onClick={() => nav(pg)} className="block mb-1.5 transition-colors" style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, color: "#6B7280" }} onMouseEnter={e => { e.currentTarget.style.color = "#9333EA"; }} onMouseLeave={e => { e.currentTarget.style.color = "#6B7280"; }}>{label}</button>
-              )}
-            </div>
-            <div>
-              <div className="font-bold mb-2" style={{ fontFamily: "'Inter',sans-serif", fontSize: 10, color: "#9CA3AF", letterSpacing: "0.08em" }}>MORE</div>
-              {[["arena","Arena"],["search","Search"],["debates","Debate Gallery"]].map(([pg,label]) =>
-                <button key={pg} onClick={() => nav(pg)} className="block mb-1.5 transition-colors" style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, color: "#6B7280" }} onMouseEnter={e => { e.currentTarget.style.color = "#9333EA"; }} onMouseLeave={e => { e.currentTarget.style.color = "#6B7280"; }}>{label}</button>
-              )}
-            </div>
-          </div>
-        </div>
-        {/* Bottom bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-4" style={{ borderTop: "1px solid #E5E7EB" }}>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-4">
           <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: "#9CA3AF" }}>&copy; {new Date().getFullYear()} Re{'\u00b3'} &mdash; Built by Nitesh Srivastava</span>
           <div className="flex items-center gap-4">
-            <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 10, color: "#D1D5DB" }}>Next.js + Firebase + Anthropic Claude</span>
+            {[["forge","Debate"],["arena","Arena"],["academy","Academy"],["loom","Archive"],["agent-community","Agents"]].map(([pg,label]) =>
+              <button key={pg} onClick={() => nav(pg)} className="transition-colors" style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: "#9CA3AF" }} onMouseEnter={e => { e.currentTarget.style.color = "#9333EA"; }} onMouseLeave={e => { e.currentTarget.style.color = "#9CA3AF"; }}>{label}</button>
+            )}
           </div>
         </div>
       </div>
