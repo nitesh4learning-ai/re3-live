@@ -81,6 +81,26 @@ const GLOSSARY = {
   "fairness": "Ensuring AI systems don't discriminate against protected groups \u2014 measured through statistical parity and other metrics.",
   "ROI": "Return on Investment \u2014 measuring whether an AI project's benefits outweigh its costs.",
   "embodied AI": "AI that exists in a physical body (robot) and must interact with the real world through sensors and actuators.",
+  // Cross-tier terms
+  "RLHF": "Reinforcement Learning from Human Feedback — training AI to align with human preferences by learning from human ratings of model outputs.",
+  "DPO": "Direct Preference Optimization — a simpler alternative to RLHF that fine-tunes a model directly on human preference pairs without a separate reward model.",
+  "transformer": "The neural network architecture behind all modern LLMs — uses attention to process text in parallel rather than sequentially.",
+  "attention": "The mechanism that lets each token look at every other token to understand relationships and context — the core innovation of transformers.",
+  "latency": "The time delay between sending a request to an AI model and receiving the full response — critical for user experience.",
+  "TTFT": "Time-to-First-Token — how quickly the AI starts responding, the key metric for perceived speed in streaming applications.",
+  "streaming": "Sending AI output token-by-token as it's generated, so users see results immediately instead of waiting for the full response.",
+  "KV cache": "Key-Value cache — a memory structure that stores previously computed attention data so the model doesn't recompute it for each new token.",
+  "model cascading": "Routing simple queries to cheap/fast models and only sending complex ones to expensive models — cutting costs 60–80%.",
+  "prompt caching": "Reusing computed representations of repeated prompt prefixes across requests, saving up to 90% on identical system prompts.",
+  "sycophancy": "When an AI agrees with or flatters the user instead of giving an honest, accurate answer — a common alignment failure.",
+  "RPA": "Robotic Process Automation — software bots that automate repetitive tasks by mimicking human actions on a computer screen.",
+  "sim-to-real": "Transferring skills an AI learned in a virtual simulation into real-world physical environments — bridging the reality gap.",
+  "sensor fusion": "Combining data from multiple sensors (cameras, lidar, touch) to build a richer understanding of the physical environment.",
+  "NER": "Named Entity Recognition — automatically identifying and classifying proper nouns (people, places, organizations) in text.",
+  "cross-encoder": "A model that takes two texts together and directly scores their relevance — slower but more accurate than embedding comparison.",
+  "constrained decoding": "Forcing the model to only generate tokens that form valid output (like valid JSON), guaranteeing format compliance.",
+  "circuit breaker": "A pattern that stops sending requests to a failing AI provider after repeated errors, preventing cascading failures.",
+  "orchestration": "Coordinating multiple AI agents or steps in a pipeline — deciding who does what, in what order, and how results combine.",
 };
 
 // ==================== JARGON TIP COMPONENT ====================
