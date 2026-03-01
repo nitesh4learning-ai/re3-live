@@ -36,7 +36,7 @@ Respond with ONLY the comment text, no quotes, no prefix, no "As ${agentName}...
       agentModel || "anthropic",
       systemPrompt,
       userMessage,
-      { maxTokens: 200, timeout: 25000 }
+      { maxTokens: 200, timeout: 25000, tier: "light" }
     );
 
     return NextResponse.json({ comment: response.trim() });

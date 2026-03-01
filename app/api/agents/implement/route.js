@@ -36,7 +36,7 @@ Respond in JSON only:
   "risks": ["Key risks from your perspective (1-2 items)"],
   "timelineWeeks": 1-12
 }`,
-          { timeout: 30000, maxTokens: 600 }
+          { timeout: 30000, maxTokens: 600, tier: "light" }
         );
 
         const { data: parsed } = parseLLMResponse(response, ImplementAgentSchema);
@@ -101,7 +101,7 @@ Respond in JSON only:
   ],
   "totalWeeks": 8
 }`,
-      { maxTokens: 800 }
+      { maxTokens: 800, tier: "standard" }
     );
 
     let architecture = null;

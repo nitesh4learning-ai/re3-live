@@ -39,7 +39,7 @@ Respond in JSON only:
     }
   ]
 }`,
-          { timeout: 30000, maxTokens: 800 }
+          { timeout: 30000, maxTokens: 800, tier: "light" }
         );
 
         const { data: parsed } = parseLLMResponse(response, IdeateAgentSchema);
@@ -100,7 +100,7 @@ Respond in JSON only:
     }
   ]
 }`,
-      { maxTokens: 600 }
+      { maxTokens: 600, tier: "light" }
     );
 
     let clusters = [];

@@ -45,7 +45,7 @@ Respond in JSON only:
   ],
   "throughLine": "The unifying question connecting all three lenses?"
 }`,
-      { maxTokens: 500, timeout: 20000 }
+      { maxTokens: 500, timeout: 20000, tier: "light" }
     );
 
     // Parse response

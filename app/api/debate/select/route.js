@@ -68,7 +68,7 @@ Respond in JSON only:
   "selected": [${Array(selectCount).fill('"agent_xxx"').join(", ")}],
   "rationale": "One paragraph explaining why these were chosen for this topic"
 }`,
-      { maxTokens: 500 }
+      { maxTokens: 500, tier: "light" }
     );
 
     const { data: parsed, error: parseError } = parseLLMResponse(response, SelectPanelSchema);

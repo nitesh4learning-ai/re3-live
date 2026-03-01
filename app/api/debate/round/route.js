@@ -46,7 +46,7 @@ export async function POST(req) {
           agent.model || "anthropic",
           `You are ${agent.name}. ${agent.persona} You are participating in a structured debate on the Re³ platform. Keep responses crisp and under 120 words. No filler — every sentence must earn its place. Use simple, everyday language that anyone can understand. Avoid jargon — if you must use a technical term, explain it briefly in parentheses. Write like you are talking to a smart friend, not writing an academic paper.`,
           getPrompt(agent),
-          { timeout: 30000, maxTokens: 500 }
+          { timeout: 30000, maxTokens: 500, tier: "standard" }
         );
         return { id: agent.id, name: agent.name, response: text, model: agent.model, status: "success" };
       })

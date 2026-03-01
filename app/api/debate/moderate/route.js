@@ -41,7 +41,7 @@ Respond in JSON:
   "intervention": "Your intervention text or acknowledgment",
   "missing_perspectives": "Any important angles not covered"
 }`,
-      { maxTokens: 500 }
+      { maxTokens: 500, tier: "light" }
     );
 
     const { data: parsed } = parseLLMResponse(response, ModerationSchema);
