@@ -8,6 +8,8 @@ import { AGENTS, HUMANS, ORCHESTRATORS, INIT_AGENTS, ALL_USERS, MODEL_PROVIDERS,
 import { getAuthor, fmt, fmtS, getCycles } from './utils/helpers';
 import { pageToPath, pathToPage } from './utils/routing';
 import { DB, getFirestoreModule, syncToFirestore, getFirebase, authFetch } from './utils/firebase-client';
+import { listRuns as listArenaRuns } from '../lib/orchestration/run-store';
+import { COURSES as ACADEMY_COURSES } from './constants/courses';
 import { PillarIcon, Re3Logo, OrchestratorAvatar } from './components/shared/Icons';
 import { FadeIn, AuthorBadge, PillarTag, HeatBar, ShareButton, CrossRefLink, Disclaimer, renderInline, renderParagraph, ParagraphReactions } from './components/shared/UIComponents';
 
@@ -153,72 +155,82 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
   const[editingTheme,setEditingTheme]=useState(null);
   const[editThemeTxt,setEditThemeTxt]=useState("");
 
-  // Showcase agents: 3 orchestrators + 5 featured debaters
-  const showcaseAgents = [
-    {name:"Hypatia",avatar:"Hy",color:"#3B6B9B",role:"Orchestrator",short:"Deconstructs assumptions"},
-    {name:"Socratia",avatar:"So",color:"#E8734A",role:"Orchestrator",short:"Finds hidden patterns"},
-    {name:"Ada",avatar:"Ad",color:"#2D8A6E",role:"Orchestrator",short:"Builds architectures"},
-    {name:"Ledger",avatar:"Le",color:"#1A365D",role:"CEO",short:"Bottom-line thinker"},
-    {name:"Prism",avatar:"Pr",color:"#6B46C1",role:"Data Scientist",short:"Statistical rigor"},
-    {name:"Torch",avatar:"To",color:"#C05621",role:"Activist",short:"Equity & access"},
-    {name:"Flint",avatar:"Fl",color:"#C53030",role:"Contrarian",short:"Devil's advocate"},
-    {name:"Cipher",avatar:"Ci",color:"#9B2C2C",role:"Security",short:"Threat modeling"},
-  ];
-
-  // Stats — registry has 1000 agents across 15 domains; add any custom user agents
-  const totalDebates = (forgeSessions?.length||0) + content.filter(p=>p.debate?.loom).length;
+  // Platform-wide stats
   const registryAgentCount = registry?.totalAgents || 1000;
   const customAgentCount = agents?.filter(a=>a.status==="active").length || 0;
   const totalAgents = registryAgentCount + customAgentCount;
   const domainCount = registry?.domains?.length || 15;
+  const totalDebates = (forgeSessions?.length||0) + content.filter(p=>p.debate?.loom).length;
+  const arenaRuns = listArenaRuns();
+  const courseCount = ACADEMY_COURSES?.length || 37;
+  const availableCourses = ACADEMY_COURSES?.filter(c=>c.status==="available") || [];
 
   return <div className="min-h-screen" style={{paddingTop:56,background:GIM.pageBg}}>
 
     {/* ===== HERO ===== */}
     <section style={{background:"linear-gradient(180deg,#FAF5FF 0%,#F9FAFB 100%)",overflow:"hidden",position:"relative"}}>
       {/* Background node animation */}
-      <div className="absolute inset-0 overflow-hidden" style={{opacity:0.12}}>
+      <div className="absolute inset-0 overflow-hidden" style={{opacity:0.10}}>
         <svg width="100%" height="100%" viewBox="0 0 800 400" style={{position:"absolute",top:0,right:0,width:"60%",height:"100%"}}>
-          <circle cx="400" cy="180" r="4" fill="#3B6B9B"><animate attributeName="r" values="3;6;3" dur="3s" repeatCount="indefinite"/></circle>
-          <circle cx="500" cy="120" r="4" fill="#E8734A"><animate attributeName="r" values="4;7;4" dur="4s" repeatCount="indefinite"/></circle>
-          <circle cx="550" cy="220" r="4" fill="#2D8A6E"><animate attributeName="r" values="3;5;3" dur="3.5s" repeatCount="indefinite"/></circle>
-          <circle cx="350" cy="100" r="3" fill="#9333EA"><animate attributeName="r" values="2;5;2" dur="2.8s" repeatCount="indefinite"/></circle>
-          <circle cx="600" cy="160" r="3" fill="#3B6B9B"><animate attributeName="r" values="3;6;3" dur="3.2s" repeatCount="indefinite"/></circle>
-          <circle cx="450" cy="260" r="3" fill="#E8734A"><animate attributeName="r" values="2;4;2" dur="2.5s" repeatCount="indefinite"/></circle>
-          <circle cx="300" cy="200" r="3" fill="#2D8A6E"><animate attributeName="r" values="3;5;3" dur="3.8s" repeatCount="indefinite"/></circle>
-          <circle cx="650" cy="280" r="3" fill="#9333EA"><animate attributeName="r" values="2;4;2" dur="2.6s" repeatCount="indefinite"/></circle>
-          <line x1="400" y1="180" x2="500" y2="120" stroke="#3B6B9B" strokeWidth="0.5" opacity="0.5"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="3s" repeatCount="indefinite"/></line>
-          <line x1="500" y1="120" x2="550" y2="220" stroke="#E8734A" strokeWidth="0.5" opacity="0.5"><animate attributeName="opacity" values="0.5;0.8;0.5" dur="4s" repeatCount="indefinite"/></line>
-          <line x1="550" y1="220" x2="400" y2="180" stroke="#2D8A6E" strokeWidth="0.5" opacity="0.5"><animate attributeName="opacity" values="0.4;0.7;0.4" dur="3.5s" repeatCount="indefinite"/></line>
-          <line x1="350" y1="100" x2="400" y2="180" stroke="#9333EA" strokeWidth="0.5" opacity="0.4"/>
-          <line x1="600" y1="160" x2="500" y2="120" stroke="#3B6B9B" strokeWidth="0.5" opacity="0.3"/>
-          <line x1="450" y1="260" x2="550" y2="220" stroke="#E8734A" strokeWidth="0.5" opacity="0.3"/>
-          <line x1="300" y1="200" x2="350" y2="100" stroke="#2D8A6E" strokeWidth="0.5" opacity="0.3"/>
-          <line x1="650" y1="280" x2="600" y2="160" stroke="#9333EA" strokeWidth="0.5" opacity="0.3"/>
+          {/* Debate cluster */}
+          <circle cx="200" cy="140" r="4" fill="#E8734A"><animate attributeName="r" values="3;6;3" dur="3s" repeatCount="indefinite"/></circle>
+          <circle cx="280" cy="100" r="3" fill="#E8734A"><animate attributeName="r" values="2;5;2" dur="2.8s" repeatCount="indefinite"/></circle>
+          <circle cx="240" cy="200" r="3" fill="#E8734A"><animate attributeName="r" values="3;5;3" dur="3.5s" repeatCount="indefinite"/></circle>
+          {/* Build cluster */}
+          <circle cx="450" cy="160" r="5" fill="#9333EA"><animate attributeName="r" values="4;7;4" dur="4s" repeatCount="indefinite"/></circle>
+          <circle cx="520" cy="120" r="3" fill="#9333EA"><animate attributeName="r" values="2;5;2" dur="3.2s" repeatCount="indefinite"/></circle>
+          <circle cx="500" cy="220" r="3" fill="#9333EA"><animate attributeName="r" values="3;5;3" dur="2.6s" repeatCount="indefinite"/></circle>
+          {/* Learn cluster */}
+          <circle cx="680" cy="180" r="4" fill="#2D8A6E"><animate attributeName="r" values="3;6;3" dur="3.8s" repeatCount="indefinite"/></circle>
+          <circle cx="720" cy="120" r="3" fill="#2D8A6E"><animate attributeName="r" values="2;4;2" dur="2.5s" repeatCount="indefinite"/></circle>
+          <circle cx="650" cy="260" r="3" fill="#3B6B9B"><animate attributeName="r" values="3;5;3" dur="3s" repeatCount="indefinite"/></circle>
+          {/* Cross-cluster connections */}
+          <line x1="280" y1="100" x2="450" y2="160" stroke="#A78BFA" strokeWidth="0.6" opacity="0.4"><animate attributeName="opacity" values="0.2;0.5;0.2" dur="4s" repeatCount="indefinite"/></line>
+          <line x1="450" y1="160" x2="680" y2="180" stroke="#A78BFA" strokeWidth="0.6" opacity="0.4"><animate attributeName="opacity" values="0.3;0.6;0.3" dur="3.5s" repeatCount="indefinite"/></line>
+          <line x1="200" y1="140" x2="240" y2="200" stroke="#E8734A" strokeWidth="0.5" opacity="0.3"/>
+          <line x1="520" y1="120" x2="500" y2="220" stroke="#9333EA" strokeWidth="0.5" opacity="0.3"/>
+          <line x1="680" y1="180" x2="650" y2="260" stroke="#2D8A6E" strokeWidth="0.5" opacity="0.3"/>
+          <line x1="240" y1="200" x2="500" y2="220" stroke="rgba(147,51,234,0.3)" strokeWidth="0.4" strokeDasharray="4 4"><animate attributeName="opacity" values="0.1;0.4;0.1" dur="5s" repeatCount="indefinite"/></line>
         </svg>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 relative" style={{paddingTop:56,paddingBottom:48}}>
-        <FadeIn><div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6" style={{background:"rgba(147,51,234,0.08)",border:"1px solid rgba(147,51,234,0.15)",backdropFilter:"blur(8px)"}}>
-          <span className="relative flex" style={{width:6,height:6}}><span className="animate-ping absolute inline-flex rounded-full opacity-75" style={{width:"100%",height:"100%",background:GIM.primary}}/><span className="relative inline-flex rounded-full" style={{width:6,height:6,background:GIM.primary}}/></span>
-          <span className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:10,letterSpacing:"0.1em",color:GIM.primary}}>{totalAgents.toLocaleString()}+ AI AGENTS &middot; {domainCount} DOMAINS &middot; AUTONOMOUS DEBATES &middot; HUMAN COLLABORATION</span>
+        {/* Jazzy animated badge */}
+        <FadeIn><div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full mb-6" style={{background:"linear-gradient(135deg,rgba(147,51,234,0.08),rgba(232,115,74,0.06),rgba(45,138,110,0.06))",border:"1px solid rgba(147,51,234,0.12)",backdropFilter:"blur(8px)"}}>
+          <span className="relative flex" style={{width:7,height:7}}><span className="animate-ping absolute inline-flex rounded-full opacity-75" style={{width:"100%",height:"100%",background:GIM.primary}}/><span className="relative inline-flex rounded-full" style={{width:7,height:7,background:GIM.primary}}/></span>
+          <span style={{fontFamily:GIM.fontMain,fontSize:11,letterSpacing:"0.08em",fontWeight:700}}>
+            <span style={{color:GIM.primary}}>{totalAgents.toLocaleString()}+ Agents</span>
+            <span style={{color:GIM.border,margin:"0 6px"}}>/</span>
+            <span style={{color:"#E8734A"}}>{domainCount} Domains</span>
+            <span style={{color:GIM.border,margin:"0 6px"}}>/</span>
+            <span style={{color:"#3B6B9B"}}>Debate</span>
+            <span style={{color:GIM.border,margin:"0 6px"}}>&middot;</span>
+            <span style={{color:"#9333EA"}}>Build</span>
+            <span style={{color:GIM.border,margin:"0 6px"}}>&middot;</span>
+            <span style={{color:"#2D8A6E"}}>Learn</span>
+          </span>
         </div></FadeIn>
 
-        <FadeIn delay={60}><h1 className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:"clamp(32px,5.5vw,56px)",lineHeight:1.08,letterSpacing:"-0.03em",marginBottom:16,maxWidth:700}}>
-          <span style={{color:GIM.headingText}}>Where AI Agents Think,{" "}</span>
-          <span style={{color:GIM.headingText}}>Debate, and Build</span>
-          <span style={{color:GIM.primary}}>{" "}&mdash; With You.</span>
+        <FadeIn delay={60}><h1 className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:"clamp(32px,5.5vw,56px)",lineHeight:1.08,letterSpacing:"-0.03em",marginBottom:16,maxWidth:720}}>
+          <span style={{color:GIM.headingText}}>AI Agents That </span>
+          <span style={{color:"#E8734A"}}>Debate</span>
+          <span style={{color:GIM.headingText}}>, </span>
+          <span style={{color:"#9333EA"}}>Build</span>
+          <span style={{color:GIM.headingText}}>, and </span>
+          <span style={{color:"#2D8A6E"}}>Discover</span>
+          <span style={{color:GIM.headingText}}>{" "}&mdash;{" "}</span>
+          <span style={{color:GIM.primary}}>With You.</span>
         </h1></FadeIn>
 
-        <FadeIn delay={100}><p style={{fontFamily:GIM.fontMain,fontSize:"clamp(14px,1.5vw,17px)",maxWidth:560,color:GIM.bodyText,lineHeight:1.7,marginBottom:28}}>{totalAgents.toLocaleString()}+ specialized AI agents across {domainCount} domains autonomously explore ideas through structured debate, synthesize insights across disciplines, and prototype solutions &mdash; while humans steer, challenge, and refine.</p></FadeIn>
+        <FadeIn delay={100}><p style={{fontFamily:GIM.fontMain,fontSize:"clamp(14px,1.5vw,17px)",maxWidth:600,color:GIM.bodyText,lineHeight:1.7,marginBottom:28}}>{totalAgents.toLocaleString()}+ specialized AI agents across {domainCount} domains autonomously debate ideas, architect solutions, and synthesize knowledge &mdash; while humans steer the direction, challenge the thinking, and shape the outcomes.</p></FadeIn>
 
         <FadeIn delay={130}><div className="flex flex-wrap items-center gap-3 mb-8">
-          <button onClick={()=>onNavigate("forge")} className="px-6 py-2.5 font-semibold text-sm transition-all hover:shadow-lg" style={{fontFamily:GIM.fontMain,background:GIM.primary,color:"white",borderRadius:GIM.buttonRadius}}>Start a Debate &rarr;</button>
-          <button onClick={()=>hero?onNavigate(hero.isJourney?"loom-cycle":"post",hero.isJourney?hero.id:hero.posts[0]?.id):onNavigate("loom")} className="px-6 py-2.5 font-semibold text-sm transition-all hover:shadow-sm" style={{fontFamily:GIM.fontMain,background:GIM.cardBg,color:GIM.bodyText,border:`1px solid ${GIM.border}`,borderRadius:GIM.buttonRadius}}>Explore Latest Cycle</button>
-          <button onClick={()=>onNavigate("academy")} className="px-6 py-2.5 font-semibold text-sm transition-all hover:shadow-sm" style={{fontFamily:GIM.fontMain,background:GIM.cardBg,color:GIM.bodyText,border:`1px solid ${GIM.border}`,borderRadius:GIM.buttonRadius}}>Academy</button>
+          <button onClick={()=>onNavigate("forge")} className="px-6 py-2.5 font-semibold text-sm transition-all hover:shadow-lg" style={{fontFamily:GIM.fontMain,background:GIM.primary,color:"white",borderRadius:GIM.buttonRadius}}>Start a Debate</button>
+          <button onClick={()=>onNavigate("arena")} className="px-6 py-2.5 font-semibold text-sm transition-all hover:shadow-lg" style={{fontFamily:GIM.fontMain,background:"linear-gradient(135deg,#1E1B2E,#2D1B4E)",color:"white",borderRadius:GIM.buttonRadius}}>Build in Arena</button>
+          <button onClick={()=>onNavigate("academy")} className="px-6 py-2.5 font-semibold text-sm transition-all hover:shadow-sm" style={{fontFamily:GIM.fontMain,background:GIM.cardBg,color:GIM.bodyText,border:`1px solid ${GIM.border}`,borderRadius:GIM.buttonRadius}}>Explore Academy</button>
         </div></FadeIn>
 
-        {/* Pillar strip — compact version */}
+        {/* Pillar strip */}
         <FadeIn delay={160}><div className="flex items-center gap-2">
           {Object.values(PILLARS).map((p,i)=><Fragment key={p.key}>
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{background:`${p.color}0A`,border:`1px solid ${p.color}20`}}>
@@ -232,40 +244,51 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
       </div>
     </section>
 
-    {/* ===== AGENT SHOWCASE ===== */}
+    {/* ===== THREE CAPABILITIES ===== */}
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-      <FadeIn><div className="flex items-center justify-between mb-4">
-        <div><h2 className="font-bold" style={{fontFamily:GIM.fontMain,color:GIM.headingText,fontSize:20}}>Meet the AI Team</h2>
-          <p style={{fontFamily:GIM.fontMain,fontSize:12,color:GIM.mutedText,marginTop:2}}>3 orchestrators lead {totalAgents.toLocaleString()} agents across {domainCount} domains</p>
-        </div>
-        <button onClick={()=>onNavigate("agent-community")} className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all hover:shadow-sm" style={{fontFamily:GIM.fontMain,color:GIM.primary,border:`1px solid ${GIM.border}`}}>View All Agents &rarr;</button>
-      </div></FadeIn>
-      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
-        {showcaseAgents.map((a,i)=><FadeIn key={a.name} delay={i*40}><div className="text-center p-3 rounded-xl transition-all cursor-pointer" style={{background:GIM.cardBg,border:`1px solid ${GIM.border}`}} onClick={()=>onNavigate("agent-community")} onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-3px)";e.currentTarget.style.boxShadow=`0 6px 20px ${a.color}20`}} onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="none"}}>
-          <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto mb-2" style={{background:`${a.color}15`,color:a.color,fontSize:12,border:`2px solid ${a.color}30`}}>{a.avatar}</div>
-          <div className="font-bold" style={{fontSize:11,color:GIM.headingText,fontFamily:GIM.fontMain}}>{a.name}</div>
-          <div style={{fontSize:9,color:a.color,fontWeight:600}}>{a.role}</div>
-          <div style={{fontSize:9,color:GIM.mutedText,marginTop:2,lineHeight:1.3}}>{a.short}</div>
-        </div></FadeIn>)}
+      <FadeIn><h2 className="font-bold text-center mb-2" style={{fontFamily:GIM.fontMain,color:GIM.headingText,fontSize:22}}>One Platform, Three Superpowers</h2>
+        <p className="text-center mb-6" style={{fontFamily:GIM.fontMain,fontSize:13,color:GIM.mutedText}}>AI agents work autonomously across debate, building, and knowledge &mdash; you guide the mission.</p>
+      </FadeIn>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[
+          {icon:"⚔️",title:"The Forge",sub:"Autonomous Debate",desc:"Submit any topic. AI agents form panels, argue positions across 3 rounds, then synthesize emergent insights into The Loom.",color:"#E8734A",bg:"linear-gradient(135deg,#FDF2F0,#FFFFFF)",cta:"Start Debating",page:"forge",stat:`${totalDebates} debates`},
+          {icon:"🏗️",title:"The Arena",sub:"Multi-Agent Building",desc:"Describe a challenge. Agent teams auto-assemble, decompose the problem, architect blueprints, and deliver prototypes.",color:"#9333EA",bg:"linear-gradient(135deg,#FAF5FF,#FFFFFF)",cta:"Launch a Build",page:"arena",stat:`${arenaRuns.length} runs`},
+          {icon:"🎓",title:"The Academy",sub:"AI-Powered Courses",desc:`${courseCount} interactive courses from LLM basics to frontier AI. Agent review boards, hands-on exercises, two depth modes.`,color:"#2D8A6E",bg:"linear-gradient(135deg,#EBF5F1,#FFFFFF)",cta:"Browse Courses",page:"academy",stat:`${courseCount} courses`},
+        ].map((cap,i)=><FadeIn key={cap.title} delay={i*60}>
+          <div className="rounded-2xl p-5 h-full flex flex-col transition-all cursor-pointer" style={{background:cap.bg,border:`1px solid ${cap.color}18`}} onClick={()=>onNavigate(cap.page)} onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-4px)";e.currentTarget.style.boxShadow=`0 12px 32px ${cap.color}15`}} onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="none"}}>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{background:`${cap.color}12`,fontSize:22}}>{cap.icon}</div>
+              <div>
+                <div className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:16,color:GIM.headingText}}>{cap.title}</div>
+                <div className="font-semibold" style={{fontFamily:GIM.fontMain,fontSize:10,color:cap.color,letterSpacing:"0.06em"}}>{cap.sub.toUpperCase()}</div>
+              </div>
+            </div>
+            <p className="flex-1" style={{fontFamily:GIM.fontMain,fontSize:13,color:GIM.bodyText,lineHeight:1.65,marginBottom:12}}>{cap.desc}</p>
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-xs" style={{color:cap.color}}>{cap.cta} &rarr;</span>
+              <span className="px-2 py-0.5 rounded-full font-bold" style={{fontSize:10,background:`${cap.color}10`,color:cap.color}}>{cap.stat}</span>
+            </div>
+          </div>
+        </FadeIn>)}
       </div>
     </section>
 
-    {/* ===== HOW IT WORKS ===== */}
+    {/* ===== HOW THE CYCLE WORKS (compact dark) ===== */}
     <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-10">
       <FadeIn><div className="rounded-2xl overflow-hidden" style={{background:"linear-gradient(135deg,#1E1B2E 0%,#2D1B4E 50%,#1B2E3E 100%)",border:"1px solid rgba(147,51,234,0.2)"}}>
         <div className="p-6 pb-3">
           <div className="flex items-center gap-2 mb-1"><span className="w-1.5 h-1.5 rounded-full" style={{background:"#A78BFA"}}/><span className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:10,letterSpacing:"0.12em",color:"#A78BFA"}}>THE DEBATE-SYNTHESIS CYCLE</span></div>
-          <h2 className="font-bold" style={{fontFamily:GIM.fontMain,color:"#F9FAFB",fontSize:20}}>How It Works</h2>
+          <h2 className="font-bold" style={{fontFamily:GIM.fontMain,color:"#F9FAFB",fontSize:18}}>From Question to Insight in 4 Steps</h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-0">
           {[
             {num:"1",label:"Submit",desc:"Drop any topic, article, or question",icon:"📝",color:"#A78BFA"},
-            {num:"2",label:"Curate",desc:"Ada selects 5 ideal debaters from the team",icon:"🎯",color:"#E8734A"},
-            {num:"3",label:"Debate",desc:"3 structured rounds: position, response, synthesis",icon:"⚔️",color:"#3B6B9B"},
-            {num:"4",label:"Synthesize",desc:"Hypatia weaves emergent insights into The Loom",icon:"🧵",color:"#2D8A6E"},
-          ].map((step,i)=><FadeIn key={step.num} delay={i*60}><div className="p-5 text-center relative" style={{borderRight:i<3?"1px solid rgba(255,255,255,0.06)":"none"}}>
+            {num:"2",label:"Curate",desc:"AI selects the ideal panel from 1,000+ agents",icon:"🎯",color:"#E8734A"},
+            {num:"3",label:"Debate",desc:"3 rounds: position, challenge, synthesis",icon:"⚔️",color:"#3B6B9B"},
+            {num:"4",label:"Synthesize",desc:"Emergent insights woven into The Loom",icon:"🧵",color:"#2D8A6E"},
+          ].map((step,i)=><FadeIn key={step.num} delay={i*60}><div className="p-4 sm:p-5 text-center relative" style={{borderRight:i<3?"1px solid rgba(255,255,255,0.06)":"none"}}>
             {i<3&&<div className="hidden sm:block absolute top-1/2 -right-2 z-10" style={{transform:"translateY(-50%)",color:"rgba(255,255,255,0.2)",fontSize:12}}>&rarr;</div>}
-            <div className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3" style={{background:`${step.color}25`,fontSize:20}}>{step.icon}</div>
+            <div className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3" style={{background:`${step.color}25`,fontSize:18}}>{step.icon}</div>
             <div className="font-bold mb-0.5" style={{fontFamily:GIM.fontMain,fontSize:10,letterSpacing:"0.08em",color:step.color}}>{step.num}. {step.label.toUpperCase()}</div>
             <p style={{fontFamily:GIM.fontMain,fontSize:11,color:"rgba(255,255,255,0.5)",lineHeight:1.5,marginTop:4}}>{step.desc}</p>
           </div></FadeIn>)}
@@ -275,59 +298,99 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
 
     {/* ===== STATS BAR ===== */}
     <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-10">
-      <FadeIn delay={40}><div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <FadeIn delay={40}><div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         {[
           [totalAgents.toLocaleString()+"+","AI Agents",GIM.primary],
-          [String(totalDebates),"Debates Completed","#E8734A"],
-          [String(cycles.length),"Synthesis Cycles","#3B6B9B"],
-          ["37","Academy Courses","#2D8A6E"],
-        ].map(([val,label,color],i)=><div key={label} className="p-4 rounded-xl text-center" style={{background:GIM.cardBg,border:`1px solid ${GIM.border}`}}>
-          <div className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:28,color,letterSpacing:"-0.02em"}}>{val}</div>
-          <div className="font-semibold" style={{fontFamily:GIM.fontMain,fontSize:11,color:GIM.mutedText,marginTop:2}}>{label}</div>
+          [String(domainCount),"Domains","#6B46C1"],
+          [String(totalDebates),"Debates","#E8734A"],
+          [String(arenaRuns.length),"Arena Builds","#9333EA"],
+          [String(courseCount),"Courses","#2D8A6E"],
+        ].map(([val,label,color])=><div key={label} className="p-3 rounded-xl text-center" style={{background:GIM.cardBg,border:`1px solid ${GIM.border}`}}>
+          <div className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:24,color,letterSpacing:"-0.02em"}}>{val}</div>
+          <div className="font-semibold" style={{fontFamily:GIM.fontMain,fontSize:10,color:GIM.mutedText,marginTop:1}}>{label}</div>
         </div>)}
       </div></FadeIn>
     </section>
 
-    {/* ===== LIVE ACTIVITY ===== */}
+    {/* ===== LATEST ACROSS PLATFORM ===== */}
     <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-10">
-      <FadeIn><div className="flex items-center justify-between mb-4">
-        <h2 className="font-bold" style={{fontFamily:GIM.fontMain,color:GIM.headingText,fontSize:22}}>Live Activity</h2>
-        <button onClick={()=>onNavigate("loom")} className="text-xs font-semibold" style={{fontFamily:GIM.fontMain,color:GIM.primary}}>View The Loom &rarr;</button>
-      </div></FadeIn>
+      <FadeIn><h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,color:GIM.headingText,fontSize:20}}>Latest Activity</h2></FadeIn>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Latest Cycle — takes 2 cols */}
-        {hero&&<div className="md:col-span-2">
-          <FadeIn delay={30}><CycleCard cycle={hero} onNavigate={onNavigate} variant="hero"/></FadeIn>
-        </div>}
-        {/* Recent Sessions sidebar */}
-        <div>
-          <FadeIn delay={60}><div className="rounded-xl overflow-hidden" style={{background:GIM.cardBg,border:`1px solid ${GIM.border}`}}>
-            <div className="px-4 py-3" style={{borderBottom:`1px solid ${GIM.border}`}}>
-              <div className="flex items-center justify-between">
-                <span className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:13,color:GIM.headingText}}>Recent Debates</span>
-                <button onClick={()=>onNavigate("debates")} className="text-xs font-semibold" style={{color:GIM.primary}}>All &rarr;</button>
+
+        {/* Col 1: Latest Cycle / Loom */}
+        <FadeIn delay={20}><div className="rounded-xl overflow-hidden" style={{background:GIM.cardBg,border:`1px solid ${GIM.border}`}}>
+          <div className="px-4 py-3 flex items-center justify-between" style={{borderBottom:`1px solid ${GIM.border}`}}>
+            <div className="flex items-center gap-2"><span style={{fontSize:14}}>🧵</span><span className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:13,color:GIM.headingText}}>The Loom</span></div>
+            <button onClick={()=>onNavigate("loom")} className="text-xs font-semibold" style={{color:GIM.primary}}>All &rarr;</button>
+          </div>
+          {hero?<div className="p-4 cursor-pointer transition-all hover:bg-gray-50" onClick={()=>onNavigate(hero.isJourney?"loom-cycle":"post",hero.isJourney?hero.id:hero.posts[0]?.id)}>
+            <div className="font-bold mb-1" style={{fontSize:14,color:GIM.headingText,fontFamily:GIM.fontMain}}>{hero.label||"Latest Cycle"}</div>
+            <div className="flex flex-wrap gap-1.5 mb-2">{hero.posts.slice(0,3).map(p=><span key={p.id} className="px-2 py-0.5 rounded-full" style={{fontSize:9,fontWeight:600,background:`${PILLARS[p.pillar]?.color||GIM.primary}10`,color:PILLARS[p.pillar]?.color||GIM.primary}}>{p.title?.slice(0,30)}{p.title?.length>30?"...":""}</span>)}</div>
+            <div className="flex items-center gap-3" style={{fontSize:11,color:GIM.mutedText}}><span>{hero.posts.length} posts</span>{hero.posts.some(p=>p.debate?.loom)&&<span className="font-semibold" style={{color:"#2D8A6E"}}>Loom woven</span>}</div>
+          </div>:<div className="p-4 text-center"><p style={{fontSize:12,color:GIM.mutedText}}>No cycles yet</p></div>}
+          {/* Recent debates */}
+          <div style={{borderTop:`1px solid ${GIM.border}`}}>
+            {(forgeSessions||[]).slice(0,3).map(s=>{
+              const modeColors={debate:"#E8734A",ideate:"#3B6B9B",implement:"#2D8A6E"};
+              return <div key={s.id} onClick={()=>onNavigate("forge",s.id)} className="px-4 py-2.5 cursor-pointer transition-all hover:bg-gray-50" style={{borderBottom:`1px solid ${GIM.borderLight}`}}>
+                <div className="flex items-center gap-2"><span className="font-bold" style={{fontSize:9,color:modeColors[s.mode]||GIM.mutedText,textTransform:"uppercase"}}>{s.mode}</span><span style={{fontSize:9,color:GIM.mutedText}}>{new Date(s.date).toLocaleDateString()}</span></div>
+                <div className="font-medium" style={{fontSize:11,color:GIM.headingText,display:"-webkit-box",WebkitLineClamp:1,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{s.topic?.title||"Untitled"}</div>
+              </div>})}
+            {(!forgeSessions||forgeSessions.length===0)&&<div className="px-4 py-4 text-center"><button onClick={()=>onNavigate("forge")} className="text-xs font-semibold" style={{color:GIM.primary}}>Start a debate &rarr;</button></div>}
+          </div>
+        </div></FadeIn>
+
+        {/* Col 2: Arena Runs */}
+        <FadeIn delay={40}><div className="rounded-xl overflow-hidden" style={{background:GIM.cardBg,border:`1px solid ${GIM.border}`}}>
+          <div className="px-4 py-3 flex items-center justify-between" style={{borderBottom:`1px solid ${GIM.border}`}}>
+            <div className="flex items-center gap-2"><span style={{fontSize:14}}>🏗️</span><span className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:13,color:GIM.headingText}}>Arena</span></div>
+            <button onClick={()=>onNavigate("arena")} className="text-xs font-semibold" style={{color:"#9333EA"}}>All &rarr;</button>
+          </div>
+          {arenaRuns.length>0?arenaRuns.slice(0,4).map(run=><div key={run.runId} onClick={()=>onNavigate("arena",run.runId)} className="px-4 py-3 cursor-pointer transition-all hover:bg-gray-50" style={{borderBottom:`1px solid ${GIM.borderLight}`}}>
+            <div className="font-medium mb-1" style={{fontSize:12,color:GIM.headingText,fontFamily:GIM.fontMain,display:"-webkit-box",WebkitLineClamp:1,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{run.useCase?.title||"Untitled Build"}</div>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1" style={{fontSize:10,color:GIM.mutedText}}>
+                <span style={{fontSize:8}}>👥</span> {run.team?.length||0} agents
+              </span>
+              {run.metrics?.elapsedMs&&<span style={{fontSize:10,color:GIM.mutedText}}>{Math.round(run.metrics.elapsedMs/1000)}s</span>}
+              {run.completedAt&&<span style={{fontSize:10,color:GIM.mutedText}}>{new Date(run.completedAt).toLocaleDateString()}</span>}
+            </div>
+          </div>)
+          :<div className="p-6 text-center">
+            <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{background:"rgba(147,51,234,0.08)",fontSize:20}}>🏗️</div>
+            <p className="font-medium mb-1" style={{fontSize:13,color:GIM.headingText,fontFamily:GIM.fontMain}}>Multi-Agent Building</p>
+            <p className="mb-3" style={{fontSize:11,color:GIM.mutedText,lineHeight:1.5}}>Agent teams auto-assemble, architect, and deliver prototypes.</p>
+            <button onClick={()=>onNavigate("arena")} className="px-4 py-1.5 rounded-lg font-semibold text-xs transition-all hover:shadow-sm" style={{background:"rgba(147,51,234,0.08)",color:"#9333EA"}}>Launch a Build &rarr;</button>
+          </div>}
+        </div></FadeIn>
+
+        {/* Col 3: Academy Featured */}
+        <FadeIn delay={60}><div className="rounded-xl overflow-hidden" style={{background:GIM.cardBg,border:`1px solid ${GIM.border}`}}>
+          <div className="px-4 py-3 flex items-center justify-between" style={{borderBottom:`1px solid ${GIM.border}`}}>
+            <div className="flex items-center gap-2"><span style={{fontSize:14}}>🎓</span><span className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:13,color:GIM.headingText}}>Academy</span></div>
+            <button onClick={()=>onNavigate("academy")} className="text-xs font-semibold" style={{color:"#2D8A6E"}}>All Courses &rarr;</button>
+          </div>
+          {/* Featured courses — one from each tier */}
+          {[1,2,3,4].map(tier=>{
+            const tierCourse = availableCourses.find(c=>c.tier===tier);
+            if(!tierCourse) return null;
+            const tierLabels={1:"Foundations",2:"Protocols",3:"Production",4:"Frontier"};
+            const tierColors={1:"#3B6B9B",2:"#E8734A",3:"#9333EA",4:"#2D8A6E"};
+            return <div key={tier} onClick={()=>onNavigate("academy")} className="px-4 py-2.5 cursor-pointer transition-all hover:bg-gray-50" style={{borderBottom:`1px solid ${GIM.borderLight}`}}>
+              <div className="flex items-center gap-2 mb-0.5">
+                <span style={{fontSize:12}}>{tierCourse.icon}</span>
+                <span className="font-bold" style={{fontSize:9,color:tierColors[tier],letterSpacing:"0.04em"}}>TIER {tier}: {tierLabels[tier]?.toUpperCase()}</span>
               </div>
+              <div className="font-medium" style={{fontSize:12,color:GIM.headingText,fontFamily:GIM.fontMain}}>{tierCourse.title}</div>
+              <div style={{fontSize:10,color:GIM.mutedText}}>{tierCourse.timeMinutes}min &middot; {tierCourse.difficulty}</div>
             </div>
-            <div className="divide-y" style={{borderColor:GIM.borderLight}}>
-              {(forgeSessions||[]).slice(0,5).map((s,i)=>{
-                const modeColors={debate:"#E8734A",ideate:"#3B6B9B",implement:"#2D8A6E"};
-                const modeIcons={debate:"⚔️",ideate:"💡",implement:"🔨"};
-                return <div key={s.id} onClick={()=>onNavigate("forge",s.id)} className="px-4 py-3 cursor-pointer transition-all hover:bg-gray-50">
-                  <div className="flex items-center gap-2 mb-0.5"><span style={{fontSize:10}}>{modeIcons[s.mode]||"📝"}</span><span className="font-bold" style={{fontSize:9,color:modeColors[s.mode]||GIM.mutedText}}>{s.mode}</span><span style={{fontSize:9,color:GIM.mutedText}}>{new Date(s.date).toLocaleDateString()}</span></div>
-                  <div className="font-medium" style={{fontSize:12,color:GIM.headingText,display:"-webkit-box",WebkitLineClamp:1,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{s.topic?.title||"Untitled"}</div>
-                </div>
-              })}
-              {(!forgeSessions||forgeSessions.length===0)&&<div className="px-4 py-6 text-center"><p style={{fontSize:12,color:GIM.mutedText}}>No debates yet.</p><button onClick={()=>onNavigate("forge")} className="text-xs font-semibold mt-1" style={{color:GIM.primary}}>Start one &rarr;</button></div>}
-            </div>
-          </div></FadeIn>
-        </div>
+          })}
+          <div className="p-3 text-center" style={{background:"rgba(45,138,110,0.03)"}}>
+            <span style={{fontSize:11,color:GIM.mutedText,fontFamily:GIM.fontMain}}>{courseCount} courses across 4 tiers</span>
+          </div>
+        </div></FadeIn>
       </div>
     </section>
-
-    {/* ===== TRY IT — MINI DEBATE ===== */}
-    {agents&&agents.filter(a=>a.status==="active").length>0&&<section className="max-w-6xl mx-auto px-4 sm:px-6 pb-10">
-      <FadeIn delay={80}><MiniDebate agents={agents} onNavigate={onNavigate}/></FadeIn>
-    </section>}
 
     {/* ===== ON THE HORIZON ===== */}
     <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-12"><div className="rounded-2xl p-5" style={{background:"linear-gradient(135deg,rgba(59,107,155,0.06),rgba(139,92,246,0.06),rgba(45,138,110,0.06))",border:`1px solid ${GIM.border}`}}>
@@ -358,10 +421,10 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
       <div className="flex flex-wrap items-center justify-between gap-4 pt-6" style={{borderTop:`1px solid ${GIM.border}`}}>
         <div className="flex items-center gap-3">
           <Re3Logo size={20}/>
-          <span style={{fontFamily:GIM.fontMain,fontSize:12,color:GIM.mutedText}}>Re{'\u00b3'} &mdash; Collaborative Human-AI Intelligence</span>
+          <span style={{fontFamily:GIM.fontMain,fontSize:12,color:GIM.mutedText}}>Re{'\u00b3'} &mdash; Where AI Agents Debate, Build, and Discover With You</span>
         </div>
         <div className="flex items-center gap-4">
-          {[["Loom","loom"],["Debates","debates"],["Academy","academy"],["Arena","arena"],["Search","search"]].map(([label,page])=>
+          {[["Loom","loom"],["Forge","forge"],["Arena","arena"],["Academy","academy"],["Agents","agent-community"],["Search","search"]].map(([label,page])=>
             <button key={page} onClick={()=>onNavigate(page)} className="transition-colors" style={{fontFamily:GIM.fontMain,fontSize:11,color:GIM.mutedText,fontWeight:500}} onMouseEnter={e=>{e.currentTarget.style.color=GIM.primary}} onMouseLeave={e=>{e.currentTarget.style.color=GIM.mutedText}}>{label}</button>
           )}
         </div>
