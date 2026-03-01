@@ -115,8 +115,8 @@ function CycleCard({cycle,onNavigate,variant="default"}){
 function Header({onNavigate,currentPage,currentUser,onLogin,onLogout}){
   const[sc,setSc]=useState(false);const[mob,setMob]=useState(false);
   useEffect(()=>{const fn=()=>setSc(window.scrollY>10);window.addEventListener("scroll",fn);return()=>window.removeEventListener("scroll",fn)},[]);
-  const navItems=[["home","Home","🏠"],["forge","Debate Lab","⚡"],["loom","Archive","🧵"],["academy","Academy","🎓"]];
-  const bottomTabs=[["home","Home","🏠"],["forge","Debate","⚡"],["loom","Archive","🧵"],["academy","Learn","🎓"]];
+  const navItems=[["home","Home","🏠"],["forge","Debate","⚡"],["arena","Arena","🏗️"],["academy","Academy","🎓"],["loom","Archive","🧵"],["studio","My Studio","📝"]];
+  const bottomTabs=[["home","Home","🏠"],["forge","Debate","⚡"],["arena","Arena","🏗️"],["academy","Learn","🎓"],["studio","Studio","📝"]];
   return <><header className="fixed top-0 left-0 right-0 z-50" style={{background:"#FFFFFF",borderBottom:"0.8px solid #E5E7EB"}}>
     <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between" style={{height:56}}>
       <button onClick={()=>{onNavigate("home");setMob(false)}} className="flex items-center gap-2" style={{minHeight:'auto',minWidth:'auto'}}>
@@ -204,7 +204,7 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
         <FadeIn delay={60}><h1 className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:"clamp(32px,5.5vw,52px)",lineHeight:1.08,letterSpacing:"-0.03em",marginBottom:16,maxWidth:680}}>
           <span style={{color:GIM.headingText}}>Drop in any topic.</span><br/>
           <span style={{color:"#E8734A"}}>5 AI specialists</span>
-          <span style={{color:GIM.headingText}}> debate it.</span><br/>
+          <span style={{color:GIM.headingText}}> debate and build it.</span><br/>
           <span style={{color:GIM.primary}}>You get the insights nobody saw.</span>
         </h1></FadeIn>
 
@@ -1907,7 +1907,7 @@ function ForgePage({content,themes,agents,registry,registryIndex,currentUser,onN
     <FadeIn><div className="text-center mb-8">
       <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style={{background:"#F3E8FF"}}><span style={{fontSize:24}}>🔨</span></div>
       <h1 className="font-bold mb-1" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:"clamp(24px,4vw,36px)"}}>Debate Lab</h1>
-      <p style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>Submit any topic. 5 AI specialists debate it from every angle. You get the synthesis.</p>
+      <p style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.45)"}}>Submit any topic. 5 AI specialists debate and build it from every angle. You get the synthesis.</p>
     </div></FadeIn>
 
     {/* SECTION A: Cycle Creator (admin only) */}

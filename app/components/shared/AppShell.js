@@ -26,9 +26,9 @@ export function Header() {
   }, []);
 
   const [moreOpen, setMoreOpen] = useState(false);
-  const navItems = [["home", "Home", "🏠"], ["forge", "Debate Lab", "⚡"], ["loom", "Archive", "🧵"], ["academy", "Academy", "🎓"]];
-  const moreItems = [["arena", "Arena", "🏗️"], ["agent-community", "Team", "🤖"], ["search", "Search", "🔍"], ["studio", "My Studio", "📝"]];
-  const bottomTabs = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["loom", "Archive", "🧵"], ["academy", "Learn", "🎓"]];
+  const navItems = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🏗️"], ["academy", "Academy", "🎓"], ["loom", "Archive", "🧵"], ["studio", "My Studio", "📝"]];
+  const moreItems = [["agent-community", "Team", "🤖"], ["search", "Search", "🔍"]];
+  const bottomTabs = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🏗️"], ["academy", "Learn", "🎓"], ["studio", "Studio", "📝"]];
 
   return <>
     <header className="fixed top-0 left-0 right-0 z-50" style={{ background: "#FFFFFF", borderBottom: "0.8px solid #E5E7EB" }}>
@@ -36,9 +36,9 @@ export function Header() {
         <button onClick={() => { nav("home"); setMob(false); }} className="flex items-center gap-2" style={{ minHeight: 'auto', minWidth: 'auto' }}>
           <Re3Logo variant="full" size={24} />
         </button>
-        <nav className="re3-desktop-nav hidden md:flex items-center gap-0.5">{navItems.map(([pg, label, icon]) => {
+        <nav className="re3-desktop-nav hidden md:flex items-center gap-0">{navItems.map(([pg, label, icon]) => {
           const a = currentPage === pg;
-          return <button key={pg} onClick={() => nav(pg)} className="px-3 py-1.5 rounded-lg transition-all" style={{ fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: a ? 600 : 500, color: a ? "#9333EA" : "#4B5563", background: a ? "#FAF5FF" : "transparent", minHeight: 'auto', minWidth: 'auto' }}><span style={{ marginRight: 4 }}>{icon}</span>{label}</button>;
+          return <button key={pg} onClick={() => nav(pg)} className="px-2.5 py-1.5 rounded-lg transition-all" style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, fontWeight: a ? 600 : 500, color: a ? "#9333EA" : "#4B5563", background: a ? "#FAF5FF" : "transparent", minHeight: 'auto', minWidth: 'auto' }}><span style={{ marginRight: 3 }}>{icon}</span>{label}</button>;
         })}
           <div className="relative" onMouseLeave={() => setMoreOpen(false)}>
             <button onClick={() => setMoreOpen(!moreOpen)} onMouseEnter={() => setMoreOpen(true)} className="px-3 py-1.5 rounded-lg transition-all" style={{ fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: moreItems.some(([pg]) => currentPage === pg) ? 600 : 500, color: moreItems.some(([pg]) => currentPage === pg) ? "#9333EA" : "#4B5563", background: moreItems.some(([pg]) => currentPage === pg) ? "#FAF5FF" : "transparent", minHeight: 'auto', minWidth: 'auto' }}>More ▾</button>
@@ -146,7 +146,7 @@ export default function AppShell({ children }) {
           <div className="flex gap-12">
             <div>
               <div className="font-bold mb-2" style={{ fontFamily: "'Inter',sans-serif", fontSize: 10, color: "#9CA3AF", letterSpacing: "0.08em" }}>PLATFORM</div>
-              {[["forge","Debate Lab"],["loom","Archive"],["academy","Academy"],["agent-community","Agent Team"]].map(([pg,label]) =>
+              {[["forge","Debate"],["arena","Arena"],["academy","Academy"],["loom","Archive"],["studio","My Studio"]].map(([pg,label]) =>
                 <button key={pg} onClick={() => nav(pg)} className="block mb-1.5 transition-colors" style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, color: "#6B7280" }} onMouseEnter={e => { e.currentTarget.style.color = "#9333EA"; }} onMouseLeave={e => { e.currentTarget.style.color = "#6B7280"; }}>{label}</button>
               )}
             </div>
