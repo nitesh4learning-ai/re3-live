@@ -9,9 +9,9 @@ function RegFrameworkTab(){
   return <div>
     <h2 className="text-xl font-bold mb-4" style={{color:GIM.headingText}}>The AI Regulatory Landscape</h2>
     <AnalogyBox emoji={'\uD83C\uDF0D'} title="Think of it like city zoning laws">AI regulation is like urban planning -- different jurisdictions have different rules about what you can build, where, and how. Some zones are strict (healthcare, finance), others are permissive. Your job is to know which zone your AI operates in.</AnalogyBox>
-    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The global AI regulatory landscape is evolving rapidly. Three major frameworks are shaping how organizations deploy AI systems worldwide.</p>
+    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The global <JargonTip term="AI governance">AI regulatory</JargonTip> landscape is evolving rapidly. Three major frameworks are shaping how organizations deploy AI systems worldwide.</p>
     <ExpandableSection title="EU AI Act" icon={'\uD83C\uDDEA\uD83C\uDDFA'} defaultOpen>
-      <p>The world{"'"}s first comprehensive AI law. Classifies AI systems by risk level:</p>
+      <p>The <JargonTip term="EU AI Act">EU AI Act</JargonTip> is the world{"'"}s first comprehensive AI law. Classifies AI systems by risk level:</p>
       <ul className="list-disc ml-5 mt-2 space-y-1">
         <li><strong>Unacceptable Risk:</strong> Banned (social scoring, real-time biometric surveillance)</li>
         <li><strong>High Risk:</strong> Strict requirements (hiring tools, credit scoring, medical devices)</li>
@@ -20,7 +20,7 @@ function RegFrameworkTab(){
       </ul>
     </ExpandableSection>
     <ExpandableSection title="NIST AI Risk Management Framework" icon={'\uD83C\uDDFA\uD83C\uDDF8'}>
-      <p>Voluntary US framework organized around four functions:</p>
+      <p>The <JargonTip term="NIST AI RMF">NIST AI Risk Management Framework</JargonTip> is a voluntary US framework organized around four functions:</p>
       <ul className="list-disc ml-5 mt-2 space-y-1">
         <li><strong>Govern:</strong> Establish policies, roles, and accountability structures</li>
         <li><strong>Map:</strong> Understand the context and risks of your AI system</li>
@@ -29,7 +29,7 @@ function RegFrameworkTab(){
       </ul>
     </ExpandableSection>
     <ExpandableSection title="ISO/IEC 42001" icon={'\uD83C\uDF10'}>
-      <p>The first international standard for AI Management Systems (AIMS). Provides a certifiable framework for organizations to demonstrate responsible AI practices through systematic governance, risk management, and continuous improvement.</p>
+      <p>The first international standard for AI Management Systems (AIMS). Provides a certifiable framework for organizations to demonstrate responsible AI practices through systematic governance, risk management, <JargonTip term="fairness">fairness</JargonTip>, and continuous improvement.</p>
     </ExpandableSection>
     <Quiz question="Under the EU AI Act, which risk category would a hiring/recruitment AI tool fall into?" options={["Minimal Risk","Limited Risk","High Risk","Unacceptable Risk"]} correctIndex={2} explanation="Hiring and recruitment AI tools are classified as High Risk under the EU AI Act because they significantly impact people's access to employment and livelihoods."/>
   </div>;
@@ -59,7 +59,7 @@ function RiskClassTab(){
 function ComplianceTab(){
   return <div>
     <h2 className="text-xl font-bold mb-4" style={{color:GIM.headingText}}>Building a Compliance Program</h2>
-    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>A compliance program isn{"'"}t just paperwork -- it{"'"}s an operational system that ensures your AI deployments meet regulatory requirements continuously.</p>
+    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>A compliance program isn{"'"}t just paperwork -- it{"'"}s an operational system that ensures your AI deployments meet regulatory requirements continuously, including <JargonTip term="red-teaming">red-teaming</JargonTip> and ongoing audits.</p>
     <CodeBlock language="yaml" label="AI Governance Checklist" code={`ai_compliance_checklist:
   pre_deployment:
     - risk_assessment: "Classify system by EU AI Act tier"
@@ -98,7 +98,7 @@ function RegStrategyTab(){
       <p>Regulatory trends to prepare for:</p>
       <ul className="list-disc ml-5 mt-2 space-y-1">
         <li>Mandatory AI impact assessments before deployment</li>
-        <li>Right to explanation for AI-affected decisions</li>
+        <li>Right to <JargonTip term="explainability">explanation</JargonTip> for AI-affected decisions</li>
         <li>AI liability frameworks (who pays when AI causes harm?)</li>
         <li>Foundation model regulation (upstream obligations)</li>
         <li>Cross-border data governance for AI training sets</li>
@@ -160,7 +160,7 @@ function RegDeepFrameworksTab(){
 function RegDeepDocTab(){
   return <div>
     <h2 className="text-xl font-bold mb-4" style={{color:GIM.headingText}}>Documentation & Model Cards</h2>
-    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>High-risk AI systems require comprehensive technical documentation. Model cards and system cards are the industry standard for transparency.</p>
+    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>High-risk AI systems require comprehensive technical documentation. <JargonTip term="model card">Model cards</JargonTip> and system cards are the industry standard for transparency.</p>
     <CodeBlock language="yaml" label="Model Card Template (EU AI Act Compliant)" code={`model_card:
   model_details:
     name: "ResumeScreener-v2.1"
@@ -322,7 +322,7 @@ function FairnessTab(){
 function ExplainTab(){
   return <div>
     <h2 className="text-xl font-bold mb-4" style={{color:GIM.headingText}}>Explainability & Transparency</h2>
-    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Explainability is the ability to describe an AI system{"'"}s decision process in human-understandable terms. It{"'"}s both a regulatory requirement and a trust-building tool.</p>
+    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><JargonTip term="explainability">Explainability</JargonTip> is the ability to describe an AI system{"'"}s decision process in human-understandable terms. It{"'"}s both a regulatory requirement and a trust-building tool.</p>
     <ComparisonTable title="Explainability Methods" columns={['Method','Type','How It Works','Best For']} rows={[
       ['SHAP Values','Post-hoc, global/local','Assigns contribution scores to each feature','Tabular data, feature importance'],
       ['LIME','Post-hoc, local','Fits simple model around a single prediction','Any model, individual explanations'],
@@ -345,7 +345,7 @@ function ExplainTab(){
 function RAIPracticeTab(){
   return <div>
     <h2 className="text-xl font-bold mb-4" style={{color:GIM.headingText}}>Responsible AI in Practice</h2>
-    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Implementing responsible AI requires tooling, processes, and culture. Here are the practical building blocks.</p>
+    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Implementing responsible AI requires tooling, processes, and culture -- from <JargonTip term="fairness">fairness</JargonTip> audits to <JargonTip term="guardrails">guardrails</JargonTip> that prevent <JargonTip term="hallucination">hallucinations</JargonTip>. Here are the practical building blocks.</p>
     <CodeBlock language="python" label="Fairness Assessment Pipeline" code={`# Using Fairlearn for bias detection
 from fairlearn.metrics import MetricFrame
 from sklearn.metrics import accuracy_score, selection_rate
@@ -395,7 +395,7 @@ function RAIToolsTab(){
       ['LIT (Language Interp.)','Google','NLP model interpretability','Python/Web'],
     ]}/>
     <ExpandableSection title="Building an AI Ethics Board" icon={'\uD83E\uDDD1\u200D\u2696\uFE0F'} defaultOpen>
-      <p>An effective AI ethics board should include:</p>
+      <p>An effective <JargonTip term="AI governance">AI governance</JargonTip> ethics board should include:</p>
       <ul className="list-disc ml-5 mt-2 space-y-1">
         <li><strong>Diverse membership:</strong> Engineers, ethicists, legal, domain experts, affected community reps</li>
         <li><strong>Clear mandate:</strong> Review new AI use cases, audit existing systems, handle escalations</li>
@@ -410,7 +410,7 @@ function RAIToolsTab(){
 function RAIDeepFairnessTab(){
   return <div>
     <h2 className="text-xl font-bold mb-4" style={{color:GIM.headingText}}>Advanced Fairness: Mitigation Strategies</h2>
-    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Once you{"'"}ve detected bias, you need to mitigate it. There are three intervention points:</p>
+    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Once you{"'"}ve detected bias through <JargonTip term="red-teaming">red-teaming</JargonTip> or automated testing, you need to mitigate it. There are three intervention points:</p>
     <ComparisonTable title="Bias Mitigation Approaches" columns={['Stage','Technique','Pros','Cons']} rows={[
       ['Pre-processing','Resampling, reweighting data','Model-agnostic, intuitive','May lose signal, privacy concerns'],
       ['In-processing','Fairness constraints during training','Direct optimization','Model-specific, harder to implement'],
@@ -533,7 +533,7 @@ function EntStrategyTab(){
 function ValueRealizationTab(){
   return <div>
     <h2 className="text-xl font-bold mb-4" style={{color:GIM.headingText}}>Value Realization</h2>
-    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The graveyard of enterprise AI is full of brilliant proofs of concept that never reached production. Value realization is the discipline of turning AI experiments into measurable business outcomes.</p>
+    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The graveyard of enterprise AI is full of brilliant proofs of concept that never reached production. Value realization is the discipline of turning AI experiments into measurable business outcomes with clear <JargonTip term="ROI">ROI</JargonTip>.</p>
     <ExpandableSection title="The AI Value Chain" icon={'\uD83D\uDD17'} defaultOpen>
       <ul className="list-disc ml-5 space-y-1">
         <li><strong>Identify:</strong> Map high-impact use cases to business KPIs</li>
@@ -561,7 +561,7 @@ function WorkflowRedesignTab(){
       <ul className="list-disc ml-5 space-y-2">
         <li><strong>Level 1 - Assist:</strong> AI helps humans do existing tasks faster (autocomplete, summarization). Low risk, quick wins, modest impact.</li>
         <li><strong>Level 2 - Augment:</strong> AI handles routine cases, humans handle exceptions (triage, pre-screening). Medium risk, significant efficiency gains.</li>
-        <li><strong>Level 3 - Automate:</strong> AI handles end-to-end with human oversight (autonomous agents, decision systems). High risk, transformative impact.</li>
+        <li><strong>Level 3 - Automate:</strong> AI handles end-to-end with human oversight (autonomous <JargonTip term="agent">agents</JargonTip>, decision systems). High risk, transformative impact.</li>
       </ul>
     </ExpandableSection>
     <CodeBlock language="yaml" label="AI Integration Assessment" code={`workflow_assessment:
@@ -594,7 +594,7 @@ function EntChangeTab(){
   return <div>
     <h2 className="text-xl font-bold mb-4" style={{color:GIM.headingText}}>Change Management & AI Culture</h2>
     <ExpandableSection title="The AI Adoption Curve" icon={'\uD83D\uDCC8'} defaultOpen>
-      <p>Successful AI transformation requires managing people, not just technology:</p>
+      <p>Successful AI transformation requires managing people, not just technology. Whether you{"'"}re deploying <JargonTip term="RAG">RAG</JargonTip> pipelines or <JargonTip term="fine-tuning">fine-tuning</JargonTip> models, adoption depends on culture:</p>
       <ul className="list-disc ml-5 mt-2 space-y-1">
         <li><strong>Champions (10%):</strong> Early adopters who evangelize and prototype</li>
         <li><strong>Curious (30%):</strong> Open to AI but need training and clear use cases</li>
@@ -603,7 +603,7 @@ function EntChangeTab(){
       </ul>
     </ExpandableSection>
     <ExpandableSection title="Building an AI Center of Excellence" icon={'\uD83C\uDFE2'}>
-      <p>A CoE serves as the central hub for AI expertise, governance, and enablement:</p>
+      <p>A CoE serves as the central hub for AI expertise, governance, and enablement -- managing shared infrastructure like an <JargonTip term="LLM gateway">LLM gateway</JargonTip> with <JargonTip term="prompt caching">prompt caching</JargonTip> and <JargonTip term="model cascading">model cascading</JargonTip>:</p>
       <ul className="list-disc ml-5 mt-2 space-y-1">
         <li><strong>Platform team:</strong> Shared infrastructure (MLOps, data pipelines, model registry)</li>
         <li><strong>Advisory team:</strong> Use case evaluation, architecture review, vendor assessment</li>
@@ -747,12 +747,12 @@ function CostModelTab(){
       ['Governance','5-10%','Compliance, audits, documentation, legal review'],
     ]}/>
     <ExpandableSection title="Inference Cost Drivers" icon={'\u26A1'} defaultOpen>
-      <p>For production AI, inference cost usually dominates over time:</p>
+      <p>For production AI, <JargonTip term="inference">inference</JargonTip> cost usually dominates over time:</p>
       <ul className="list-disc ml-5 mt-2 space-y-1">
-        <li><strong>Token volume:</strong> Input + output tokens per request x requests per day</li>
+        <li><strong><JargonTip term="token">Token</JargonTip> volume:</strong> Input + output tokens per request x requests per day</li>
         <li><strong>Model size:</strong> GPT-4 class = 10-30x cost of GPT-4o-mini class</li>
-        <li><strong>Latency requirements:</strong> Real-time needs more expensive provisioned capacity</li>
-        <li><strong>Caching:</strong> Prompt caching can reduce costs 50-90% for repeated patterns</li>
+        <li><strong><JargonTip term="latency">Latency</JargonTip> requirements:</strong> Real-time needs more expensive provisioned capacity</li>
+        <li><strong>Caching:</strong> <JargonTip term="prompt caching">Prompt caching</JargonTip> can reduce costs 50-90% for repeated patterns</li>
       </ul>
     </ExpandableSection>
     <Quiz question="Which cost category typically represents the largest share of an enterprise AI project's total cost?" options={["GPU/compute infrastructure","API call costs","Data preparation and engineering","Model training compute"]} correctIndex={2} explanation="Data preparation and engineering (collection, cleaning, labeling, pipeline building) typically accounts for 25-35% of total AI project costs -- more than any other single category. The popular focus on GPU costs and API pricing misses the bigger picture."/>
@@ -770,9 +770,9 @@ function BuildVsBuyTab(){
       ['Best For','Core differentiator','Domain adaptation','Commodity capabilities'],
     ]}/>
     <ExpandableSection title="Decision Framework" icon={'\uD83E\uDD14'} defaultOpen>
-      <p>Ask these questions to choose the right approach:</p>
+      <p>Ask these questions to choose the right approach and maximize <JargonTip term="ROI">ROI</JargonTip>:</p>
       <ul className="list-disc ml-5 mt-2 space-y-1">
-        <li><strong>Is this a competitive differentiator?</strong> Yes = Build or Fine-tune. No = Buy.</li>
+        <li><strong>Is this a competitive differentiator?</strong> Yes = Build or <JargonTip term="fine-tuning">Fine-tune</JargonTip>. No = Buy.</li>
         <li><strong>Do you have proprietary data that matters?</strong> Yes = Fine-tune. No = Buy.</li>
         <li><strong>Can you afford 6+ months to deploy?</strong> No = Buy or Fine-tune. Yes = Build is an option.</li>
         <li><strong>Does your data leave your premises?</strong> Can{"'"}t = Build or Fine-tune locally. Can = Buy is fine.</li>
@@ -843,7 +843,7 @@ function EconDeepGPUTab(){
     <p className="mb-4 text-xs italic" style={{color:GIM.mutedText}}>* Self-hosted costs vary significantly based on GPU utilization and hardware amortization.</p>
     <ExpandableSection title="Cost Optimization Strategies" icon={'\uD83D\uDCB8'} defaultOpen>
       <ul className="list-disc ml-5 space-y-2">
-        <li><strong>Model routing:</strong> Use cheap models for simple tasks, expensive models only when needed (save 60-80%)</li>
+        <li><strong><JargonTip term="model cascading">Model routing</JargonTip>:</strong> Use cheap models for simple tasks, expensive models only when needed (save 60-80%)</li>
         <li><strong>Prompt caching:</strong> Cache system prompts and repeated context (save 50-90% on cached tokens)</li>
         <li><strong>Batching:</strong> Batch non-urgent requests for off-peak pricing</li>
         <li><strong>Output length control:</strong> Set max_tokens aggressively -- output tokens cost 3-5x input</li>
@@ -963,10 +963,10 @@ function CompUseIntroTab(){
     <h2 className="text-xl font-bold mb-4" style={{color:GIM.headingText}}>AI That Operates Your Computer</h2>
     <AnalogyBox emoji={'\uD83D\uDDA5\uFE0F'} title="From chatbot to co-pilot to operator">Traditional AI answers questions. Agentic AI takes actions. Computer-use AI actually operates your software -- clicking buttons, filling forms, navigating websites -- like a remote colleague sharing your screen.</AnalogyBox>
     <ExpandableSection title="How Computer Use Works" icon={'\u2699\uFE0F'} defaultOpen>
-      <p>Computer use AI combines several capabilities:</p>
+      <p><JargonTip term="computer use">Computer use</JargonTip> AI combines several <JargonTip term="multimodal">multimodal</JargonTip> capabilities:</p>
       <ul className="list-disc ml-5 mt-2 space-y-1">
         <li><strong>Screen understanding:</strong> AI sees screenshots and understands UI elements</li>
-        <li><strong>Action generation:</strong> Converts intent into mouse clicks, keyboard input, scrolling</li>
+        <li><strong>Action generation:</strong> Converts intent into mouse clicks, keyboard input, and scrolling with minimal <JargonTip term="latency">latency</JargonTip></li>
         <li><strong>State tracking:</strong> Remembers what it{"'"}s done and what{"'"}s changed</li>
         <li><strong>Error recovery:</strong> Detects when something went wrong and tries alternatives</li>
       </ul>
@@ -983,7 +983,7 @@ function CompUseIntroTab(){
 function BrowserAgentsTab(){
   return <div>
     <h2 className="text-xl font-bold mb-4" style={{color:GIM.headingText}}>Browser Agents</h2>
-    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Browser agents are AI systems that can navigate the web, interact with websites, and complete tasks autonomously. They represent the intersection of LLMs, browser automation, and agentic reasoning.</p>
+    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Browser <JargonTip term="agent">agents</JargonTip> are AI systems that can navigate the web, interact with websites, and complete tasks autonomously -- a leap beyond traditional <JargonTip term="RPA">RPA</JargonTip>. They represent the intersection of LLMs, browser automation, and agentic reasoning.</p>
     <ExpandableSection title="Browser Agent Architecture" icon={'\uD83C\uDFD7\uFE0F'} defaultOpen>
       <ul className="list-disc ml-5 space-y-2">
         <li><strong>Perception:</strong> Read DOM, take screenshots, extract accessibility tree</li>
@@ -1044,7 +1044,7 @@ function RPA2Tab(){
       ['Setup Time','Weeks of scripting','Natural language instructions'],
     ]}/>
     <ExpandableSection title="Safety & Guardrails" icon={'\uD83D\uDEE1\uFE0F'} defaultOpen>
-      <p>Computer-use AI needs careful safety controls:</p>
+      <p>Computer-use AI needs careful <JargonTip term="guardrails">guardrails</JargonTip> and safety controls:</p>
       <ul className="list-disc ml-5 mt-2 space-y-1">
         <li><strong>Action sandboxing:</strong> Limit which applications and sites the agent can access</li>
         <li><strong>Confirmation gates:</strong> Require human approval for irreversible actions (purchases, deletions, sends)</li>
@@ -1253,7 +1253,7 @@ function EmbodiedAITab(){
       <ul className="list-disc ml-5 space-y-2">
         <li><strong>Real-world consequences:</strong> A wrong API call can be retried; a robot arm that moves wrong can break things or hurt people</li>
         <li><strong>Continuous state:</strong> Digital systems have discrete states; physical world is continuous and noisy</li>
-        <li><strong>Latency matters:</strong> A self-driving car needs decisions in milliseconds, not seconds</li>
+        <li><strong><JargonTip term="latency">Latency</JargonTip> matters:</strong> A self-driving car needs decisions in milliseconds, not seconds</li>
         <li><strong>Sensor noise:</strong> Cameras blur, LiDAR has artifacts, GPS drifts -- real data is messy</li>
         <li><strong>Physics constraints:</strong> Gravity, friction, momentum -- you can{"'"}t ctrl+Z in the real world</li>
       </ul>
@@ -1272,12 +1272,12 @@ function EmbodiedAITab(){
 function SimToRealTab(){
   return <div>
     <h2 className="text-xl font-bold mb-4" style={{color:GIM.headingText}}>Simulation-to-Real Transfer</h2>
-    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Training robots in the real world is slow, expensive, and dangerous. The breakthrough: train in simulation, then transfer to reality. This is called sim-to-real transfer.</p>
+    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Training robots in the real world is slow, expensive, and dangerous. The breakthrough: train in simulation, then transfer to reality. This is called <JargonTip term="sim-to-real">sim-to-real transfer</JargonTip>.</p>
     <ExpandableSection title="The Sim-to-Real Pipeline" icon={'\uD83C\uDFAE'} defaultOpen>
       <ul className="list-disc ml-5 space-y-2">
         <li><strong>Build simulation:</strong> Create virtual environment mimicking real-world physics (Isaac Sim, MuJoCo, PyBullet)</li>
         <li><strong>Domain randomization:</strong> Vary lighting, textures, physics parameters so the model generalizes</li>
-        <li><strong>Train policy:</strong> Use reinforcement learning to learn tasks in simulation (millions of trials in hours)</li>
+        <li><strong>Train policy:</strong> Use <JargonTip term="RLHF">reinforcement learning</JargonTip> to learn tasks in simulation (millions of trials in hours)</li>
         <li><strong>Transfer:</strong> Deploy trained policy on real robot</li>
         <li><strong>Fine-tune:</strong> Adapt with small amounts of real-world data to close the "reality gap"</li>
       </ul>
@@ -1333,7 +1333,7 @@ function SensorFusionTab(){
       ['GPS/RTK','Global position','Absolute positioning','Poor indoors, cm-level accuracy'],
     ]}/>
     <ExpandableSection title="Why Fuse Sensors?" icon={'\uD83E\uDDE9'} defaultOpen>
-      <p>No single sensor is perfect. Sensor fusion combines multiple sensor streams to get a more reliable picture:</p>
+      <p>No single sensor is perfect. <JargonTip term="sensor fusion">Sensor fusion</JargonTip> combines multiple sensor streams to get a more reliable picture:</p>
       <ul className="list-disc ml-5 mt-2 space-y-1">
         <li><strong>Camera + LiDAR:</strong> Rich visual context + accurate depth (self-driving standard)</li>
         <li><strong>IMU + GPS:</strong> Fast local tracking + absolute global position (drones)</li>
@@ -1348,7 +1348,7 @@ function PhysAIFutureTab(){
   return <div>
     <h2 className="text-xl font-bold mb-4" style={{color:GIM.headingText}}>The Frontier of Physical AI</h2>
     <ExpandableSection title="Foundation Models for Robotics" icon={'\uD83E\uDDE0'} defaultOpen>
-      <p>Just as GPT transformed NLP, foundation models are coming to robotics:</p>
+      <p>Just as <JargonTip term="transformer">transformer</JargonTip>-based models like GPT transformed NLP, foundation models are coming to robotics:</p>
       <ul className="list-disc ml-5 mt-2 space-y-2">
         <li><strong>RT-2 (Google):</strong> Vision-Language-Action model that can reason about tasks and execute robot actions from natural language instructions</li>
         <li><strong>NVIDIA GR00T:</strong> Foundation model for humanoid robots, trained on massive simulation data</li>
@@ -1362,7 +1362,7 @@ function PhysAIFutureTab(){
         <li>Autonomous construction and manufacturing</li>
         <li>Surgical robots with AI-assisted precision</li>
         <li>Agricultural robots for planting, monitoring, and harvesting</li>
-        <li>Last-mile delivery robots and autonomous vehicles</li>
+        <li>Last-mile delivery robots and autonomous <JargonTip term="agent">agent</JargonTip>-driven vehicles</li>
         <li>Space exploration with AI-driven rovers and probes</li>
       </ul>
     </ExpandableSection>
@@ -1427,7 +1427,7 @@ function PhysDeepControlTab(){
 function PhysDeepSafetyTab(){
   return <div>
     <h2 className="text-xl font-bold mb-4" style={{color:GIM.headingText}}>Physical AI Safety</h2>
-    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Physical AI safety is literally life-and-death. Unlike software bugs, robot failures can cause physical injury, property damage, or worse.</p>
+    <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><JargonTip term="embodied AI">Embodied AI</JargonTip> safety is literally life-and-death. Unlike software bugs, robot failures can cause physical injury, property damage, or worse.</p>
     <ExpandableSection title="Safety Standards" icon={'\uD83D\uDCCB'} defaultOpen>
       <ul className="list-disc ml-5 space-y-2">
         <li><strong>ISO 10218:</strong> Industrial robot safety -- workspace separation, speed limits, force limits</li>

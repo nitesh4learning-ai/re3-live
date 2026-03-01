@@ -13,7 +13,7 @@ import { ToolDefinitionBuilder, RiskClassifier } from "./AcademyWidgets";
 
 function TabWhatMCP({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>What is MCP?</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The <b>Model Context Protocol (MCP)</b> is an open standard that provides a universal way for AI models to connect to external tools, data sources, and services. Instead of building custom integrations for every tool, MCP provides one protocol that works everywhere.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The <b><JargonTip term="MCP">Model Context Protocol (MCP)</JargonTip></b> is an open standard that provides a universal way for AI models to connect to external <JargonTip term="tool use">tools</JargonTip>, data sources, and services. Instead of building custom integrations for every tool, MCP provides one protocol that works everywhere.</p>
   <AnalogyBox emoji={'\uD83D\uDD0C'} title="Think of it like USB-C">Before USB-C, every device had its own charger. MCP is the USB-C of AI -- one standard connector that lets any AI model talk to any tool or data source.</AnalogyBox>
   <CodeBlock language="text" label="Before vs After MCP" code={`BEFORE MCP: N models \u00d7 M tools = N\u00d7M custom integrations
   GPT-4  \u2500\u2500custom\u2500\u2500> Slack, GitHub, Database, Calendar
@@ -51,7 +51,7 @@ function TabMCPArch({onNavigate,onComplete}){return <div>
 
 function TabMCPTools({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>The Tools Primitive</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Tools are the most commonly used MCP primitive. A tool is a <b>function the AI can call</b> -- like searching a database, sending an email, or creating a file. Tools have a name, description, and an input schema that defines what parameters they accept.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Tools are the most commonly used MCP primitive. A tool is a <b>function the AI can call</b> — this is called <JargonTip term="function calling">function calling</JargonTip> -- like searching a database, sending an email, or creating a file. Tools have a name, description, and an input <JargonTip term="tool schema">schema</JargonTip> that defines what parameters they accept.</p>
   <CodeBlock language="json" label="MCP Tool Definition" code={`{
   "name": "search_documents",
   "description": "Search internal documents by query",
@@ -138,7 +138,7 @@ function TabMCPPlayground({onNavigate,onComplete}){return <div>
 
 function TabDeepMCPProtocolArch({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Protocol Architecture</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>MCP uses <b>JSON-RPC 2.0</b> as its wire protocol. Every message is a JSON object with a method, params, and an id for request-response correlation. The protocol supports three transport layers, each suited to different deployment scenarios.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><JargonTip term="MCP">MCP</JargonTip> uses <b>JSON-RPC 2.0</b> as its wire protocol. Every message is a JSON object with a method, params, and an id for request-response correlation. The protocol supports three transport layers, each suited to different deployment scenarios.</p>
   <ComparisonTable title="MCP Transport Layers" columns={['Transport','Mechanism','Best For','Limitations']} rows={[
     ['stdio','Standard input/output streams','Local tools, CLI integrations, desktop apps','Single machine only, no network'],
     ['SSE (Server-Sent Events)','HTTP POST + SSE stream','Web-hosted servers, cloud deployments','Unidirectional streaming, HTTP overhead'],
@@ -532,7 +532,7 @@ async def summarize_pr_prompt(pr_number: int) -> list:
 
 function TabDeepMCPSecurity({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Security & Auth</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>MCP servers often access sensitive systems -- databases, APIs, internal tools. Security is not optional. The protocol supports <b>OAuth 2.0</b> for authentication, and servers must implement input sanitization, rate limiting, and trust verification.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>MCP servers often access sensitive systems — databases, APIs, internal tools. Security is not optional. The protocol supports <b>OAuth 2.0</b> for authentication, and servers must implement input sanitization, rate limiting, and <JargonTip term="guardrails">trust verification</JargonTip>.</p>
   <CodeBlock language="python" label="Input Sanitization and Rate Limiting" code={`import time
 from collections import defaultdict
 
@@ -772,7 +772,7 @@ export function CourseMCP({onBack,onNavigate,progress,onComplete,depth,onChangeD
 
 function TabWhyA2A({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Why A2A?</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>MCP connects AI to <b>tools</b>. But what about connecting AI to <b>other AI agents</b>? The <b>Agent-to-Agent (A2A)</b> protocol enables AI agents to discover each other, negotiate capabilities, and collaborate on tasks.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><JargonTip term="MCP">MCP</JargonTip> connects AI to <b>tools</b>. But what about connecting AI to <b>other AI <JargonTip term="agent">agents</JargonTip></b>? The <b><JargonTip term="A2A">Agent-to-Agent (A2A)</JargonTip></b> protocol enables AI agents to discover each other, negotiate capabilities, and collaborate on tasks.</p>
   <AnalogyBox emoji={'\uD83D\uDCDE'} title="MCP vs A2A: Phone analogy">MCP is like calling a service (pizza delivery, bank). A2A is like calling a colleague to collaborate on a project. Different relationship, different protocol.</AnalogyBox>
   <div className="rounded-xl border overflow-hidden mb-4" style={{borderColor:GIM.border}}>
     <table className="w-full" style={{fontSize:13,fontFamily:GIM.fontMain}}>
@@ -788,7 +788,7 @@ function TabWhyA2A({onNavigate,onComplete}){return <div>
 
 function TabAgentCards({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Agent Cards</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>An <b>Agent Card</b> is a JSON document that describes what an AI agent can do. It's like a LinkedIn profile for AI agents -- advertising capabilities so other agents know who to collaborate with.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>An <b><JargonTip term="agent card">Agent Card</JargonTip></b> is a JSON document that describes what an AI agent can do. It's like a LinkedIn profile for AI agents -- advertising capabilities so other agents know who to collaborate with.</p>
   <AnalogyBox emoji={'\uD83D\uDCBC'} title="Think of it like a business card + resume">An Agent Card tells other agents: "Here's my name, what I specialize in, how to reach me, and what I can help with." It enables discovery and capability negotiation.</AnalogyBox>
   <CodeBlock language="json" label="Example Agent Card (Re\u00b3 Debate Lab)" code={`{
   "name": "Re\u00b3 Debate Lab Agent",
@@ -817,7 +817,7 @@ function TabAgentCards({onNavigate,onComplete}){return <div>
 
 function TabTaskLifecycle({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Task Lifecycle</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>When one agent delegates work to another, the task goes through a defined lifecycle. This ensures both agents understand the current state and can handle failures gracefully.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>When one <JargonTip term="agent">agent</JargonTip> delegates work to another, the task goes through a defined lifecycle. This ensures both agents understand the current state and can handle failures gracefully.</p>
   <MessageSimulator title="A2A Task Flow" messages={[
     {role:'user',label:'1. Submitted',text:'Agent A sends a task to Agent B: "Research recent AI governance frameworks and summarize the top 3."'},
     {role:'ai',label:'2. Working',text:'Agent B acknowledges the task and begins working. It can send progress updates: "Found 7 frameworks, analyzing..."'},
@@ -853,7 +853,7 @@ function TabA2APlayground({onNavigate,onComplete}){return <div>
 
 function TabDeepA2AProtocol({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Protocol Deep Dive</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>A2A uses <b>Agent Cards</b> for discovery and <b>JSON-RPC 2.0</b> for communication. Agent Cards are served at a well-known URL (<code>/.well-known/agent.json</code>), enabling automatic discovery. The protocol defines specific JSON-RPC methods for task management.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><JargonTip term="A2A">A2A</JargonTip> uses <b>Agent Cards</b> for discovery and <b>JSON-RPC 2.0</b> for communication. Agent Cards are served at a well-known URL (<code>/.well-known/agent.json</code>), enabling automatic <JargonTip term="orchestration">orchestration</JargonTip> and discovery. The protocol defines specific JSON-RPC methods for task management.</p>
   <CodeBlock language="json" label="Complete Agent Card Specification" code={`{
   "name": "Research Agent",
   "description": "Deep research and analysis on any topic",
@@ -1330,7 +1330,7 @@ export function CourseA2A({onBack,onNavigate,progress,onComplete,depth,onChangeD
 
 function TabWhatFC({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>What is Function Calling?</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Function calling lets an LLM <b>decide when to use external tools</b> and generate the structured arguments needed to call them. The LLM doesn't execute the function directly -- it outputs a JSON request that your code then executes.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><JargonTip term="function calling">Function calling</JargonTip> lets an LLM <b>decide when to use external <JargonTip term="tool use">tools</JargonTip></b> and generate the structured arguments needed to call them. The LLM doesn't execute the function directly -- it outputs a JSON request that your code then executes.</p>
   <AnalogyBox emoji={'\uD83C\uDF7D\uFE0F'} title="Think of it like a restaurant waiter">The waiter (LLM) takes your order and decides which kitchen station (function) should prepare it. The waiter doesn't cook -- they route the request to the right place with the right instructions.</AnalogyBox>
   <MessageSimulator title="Function Calling Flow" messages={[
     {role:'user',label:'1. User Message',text:'"What\'s the weather in San Francisco?"'},
@@ -1343,7 +1343,7 @@ function TabWhatFC({onNavigate,onComplete}){return <div>
 
 function TabToolDefs({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Tool Definitions (JSON Schema)</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>To use function calling, you define your tools using <b>JSON Schema</b>. The schema tells the LLM what functions are available, what parameters they accept, and what each parameter means.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>To use function calling, you define your tools using <b>JSON Schema</b>. This <JargonTip term="tool schema">tool schema</JargonTip> tells the LLM what functions are available, what parameters they accept, and what each parameter means.</p>
   <CodeBlock language="json" label="OpenAI Tool Definition Format" code={`{
   "type": "function",
   "function": {
@@ -1376,7 +1376,7 @@ function TabToolDefs({onNavigate,onComplete}){return <div>
 
 function TabMultiProvider({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Multi-Provider Patterns</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Different LLM providers implement function calling slightly differently. Re\u00b3 handles this with a unified <b>LLM Router</b> that translates between formats.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Different LLM providers implement function calling slightly differently. Re³ handles this with a unified <b><JargonTip term="LLM gateway">LLM Router</JargonTip></b> that translates between formats.</p>
   <div className="rounded-xl border overflow-hidden mb-4" style={{borderColor:GIM.border}}>
     <table className="w-full" style={{fontSize:13,fontFamily:GIM.fontMain}}>
       <thead><tr style={{background:GIM.borderLight}}><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>Provider</th><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>Format Name</th><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>Key Difference</th></tr></thead>
@@ -1410,7 +1410,7 @@ function TabFCPlayground({onNavigate,onComplete}){return <div>
 
 function TabDeepToolSchema({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Tool Schema Design</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>JSON Schema is the foundation of every tool definition. A well-designed schema tells the LLM exactly what parameters are available, their types, constraints, and when they are required. Poor schema design leads to hallucinated parameters, wrong types, and failed tool calls.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>JSON Schema is the foundation of every <JargonTip term="tool schema">tool definition</JargonTip>. A well-designed schema tells the LLM exactly what parameters are available, their types, constraints, and when they are required. Poor schema design leads to <JargonTip term="hallucination">hallucinated</JargonTip> parameters, wrong types, and failed tool calls.</p>
   <CodeBlock language="json" label="Advanced Tool Schema with Nested Objects" code={`{
   "name": "search_database",
   "description": "Search a structured database with filters and sorting.",
@@ -1493,7 +1493,7 @@ function TabDeepMultiProvider({onNavigate,onComplete}){return <div>
     return [];
   }
 }`}/>
-  <Quiz question="What is the main challenge of multi-provider function calling?" options={["Different pricing","Each provider has different schema formats and response structures","Some providers are faster","They use different languages"]} correctIndex={1} explanation="Each provider wraps tool definitions and tool call responses in different JSON structures. A unified abstraction normalizes these differences." onAnswer={()=>onComplete&&onComplete("deep-multi-provider","quiz1")}/>
+  <Quiz question="What is the main challenge of multi-provider function calling?" options={["Different pricing","Each provider has different schema formats and response structures","Some providers are faster","They use different languages"]} correctIndex={1} explanation="Each provider wraps <JargonTip term="tool schema">tool definitions</JargonTip> and tool call responses in different JSON structures. A unified <JargonTip term="LLM gateway">abstraction</JargonTip> normalizes these differences." onAnswer={()=>onComplete&&onComplete("deep-multi-provider","quiz1")}/>
   <SeeItInRe3 text="Re³'s lib/llm-router.js implements this pattern, routing tool calls across Anthropic, OpenAI, Gemini, and Groq with automatic fallback." targetPage="forge" onNavigate={onNavigate}/>
 </div>}
 
@@ -1727,7 +1727,7 @@ export function CourseFunctionCalling({onBack,onNavigate,progress,onComplete,dep
 
 function TabWhyGov({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Why AI Governance?</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>AI systems make decisions that affect people's lives -- hiring, lending, healthcare, criminal justice. Without governance, these systems can perpetuate bias, lack transparency, and cause real harm.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>AI systems make decisions that affect people's lives — hiring, lending, healthcare, criminal justice. Without <JargonTip term="AI governance">governance</JargonTip>, these systems can perpetuate bias, lack transparency, and cause real harm.</p>
   <AnalogyBox emoji={'\uD83D\uDEA6'} title="Think of it like traffic laws">Roads without traffic laws would be dangerous chaos. AI without governance is similar -- powerful technology that needs guardrails to ensure it benefits everyone safely.</AnalogyBox>
   <Quiz question="Why is AI governance necessary even for well-intentioned AI systems?" options={["Legal compliance only","Even good-faith AI can have biased training data and unintended consequences","Governance is just bureaucracy","It's only needed for military AI"]} correctIndex={1} explanation="Even well-designed AI systems can produce biased or harmful outcomes due to biased training data, edge cases, or unintended interactions. Governance provides systematic checks." onAnswer={()=>onComplete&&onComplete('why-gov','quiz1')}/>
 </div>}
@@ -1739,7 +1739,7 @@ function TabFivePillars({onNavigate,onComplete}){return <div>
     <p>AI systems should treat all people equitably. This means testing for bias across demographics, ensuring training data is representative, and monitoring outcomes for discriminatory patterns. Example: A lending model should not approve loans at different rates based on race or gender when all other factors are equal.</p>
   </ExpandableSection>
   <ExpandableSection title="2. Transparency & Explainability" icon={'\uD83D\uDD0D'}>
-    <p>People affected by AI decisions should understand how those decisions were made. This includes clear documentation of what data was used, how the model works, and why specific decisions were made. Example: If an AI denies a loan, the applicant should receive a clear explanation.</p>
+    <p>People affected by AI decisions should understand how those decisions were made. This is called <JargonTip term="explainability">explainability</JargonTip>. This includes clear documentation of what data was used, how the model works, and why specific decisions were made. Example: If an AI denies a loan, the applicant should receive a clear explanation.</p>
   </ExpandableSection>
   <ExpandableSection title="3. Accountability" icon={'\uD83D\uDCCB'}>
     <p>There must be clear ownership of AI systems and their outcomes. Someone must be responsible when things go wrong. This includes audit trails, incident response procedures, and clear lines of responsibility.</p>
@@ -1755,7 +1755,7 @@ function TabFivePillars({onNavigate,onComplete}){return <div>
 
 function TabRiskAssess({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Risk Assessment</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The EU AI Act establishes a <b>risk-based framework</b> that classifies AI systems into four tiers based on potential harm.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The <JargonTip term="EU AI Act">EU AI Act</JargonTip> establishes a <b>risk-based framework</b> that classifies AI systems into four tiers based on potential harm.</p>
   <div className="rounded-xl border overflow-hidden mb-4" style={{borderColor:GIM.border}}>
     <table className="w-full" style={{fontSize:13,fontFamily:GIM.fontMain}}>
       <thead><tr style={{background:GIM.borderLight}}><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>Risk Level</th><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>Requirements</th><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>Examples</th></tr></thead>
@@ -1782,7 +1782,7 @@ function TabGovPlayground({onNavigate,onComplete}){return <div>
 
 function TabDeepFrameworks({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Governance Frameworks</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Three major governance frameworks are shaping AI regulation worldwide: the NIST AI Risk Management Framework, the EU AI Act, and ISO/IEC 42001. Each takes a different approach to managing AI risks.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Three major governance frameworks are shaping AI regulation worldwide: the <JargonTip term="NIST AI RMF">NIST AI Risk Management Framework</JargonTip>, the EU AI Act, and ISO/IEC 42001. Each takes a different approach to managing AI risks.</p>
   <ComparisonTable title="Framework Comparison" columns={["Framework","Scope","Approach","Enforcement"]} rows={[
     ["NIST AI RMF","Voluntary US framework","Risk-based, four functions: Govern, Map, Measure, Manage","Voluntary adoption, no penalties"],
     ["EU AI Act","Mandatory EU regulation","Risk classification: Unacceptable, High, Limited, Minimal","Fines up to 35M EUR or 7% global revenue"],
@@ -1835,7 +1835,7 @@ function calculateRiskScore(risk) {
 
 function TabDeepModelCards({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Model Cards & Documentation</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Model cards are standardized documents that describe an AI model's intended use, performance characteristics, limitations, and ethical considerations. They serve as the primary accountability artifact for AI systems.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><JargonTip term="model card">Model cards</JargonTip> are standardized documents that describe an AI model's intended use, performance characteristics, limitations, and ethical considerations. They serve as the primary accountability artifact for AI systems.</p>
   <CodeBlock language="json" label="Model Card Template" code={`{
   "model_name": "Customer Churn Predictor v2.1",
   "model_type": "Binary classification (gradient boosting)",
@@ -1882,7 +1882,7 @@ function TabDeepModelCards({onNavigate,onComplete}){return <div>
 
 function TabDeepBiasFairness({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Bias & Fairness</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Fairness in AI is not a single metric -- there are multiple, sometimes conflicting, mathematical definitions. Choosing the right fairness criteria depends on the context and the type of harm you want to prevent.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><JargonTip term="fairness">Fairness</JargonTip> in AI is not a single metric — there are multiple, sometimes conflicting, mathematical definitions. Choosing the right fairness criteria depends on the context and the type of harm you want to prevent.</p>
   <ComparisonTable title="Statistical Fairness Definitions" columns={["Definition","Formula","Best For","Limitation"]} rows={[
     ["Demographic Parity","P(Y=1|A=0) = P(Y=1|A=1)","Equal selection rates across groups","Ignores actual qualification rates"],
     ["Equal Opportunity","P(Y=1|A=0,Y*=1) = P(Y=1|A=1,Y*=1)","Equal true positive rates","Only considers positive outcomes"],
@@ -1902,7 +1902,7 @@ function TabDeepBiasFairness({onNavigate,onComplete}){return <div>
 
 function TabDeepCompliance({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Continuous Compliance</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>AI governance is not a one-time audit -- it requires continuous monitoring, drift detection, and audit trails. Models degrade as data distributions shift.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>AI governance is not a one-time audit — it requires continuous monitoring, <JargonTip term="drift detection">drift detection</JargonTip>, and audit trails. Models degrade as data distributions shift.</p>
   <CodeBlock language="javascript" label="Compliance Monitor" code={`class ComplianceMonitor {
   constructor(model, config) {
     this.model = model;
@@ -2001,7 +2001,7 @@ export function CourseGovernance({onBack,onNavigate,progress,onComplete,depth,on
 function TabACPOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>What Is ACP?</h2>
   <AnalogyBox title="Enterprise Message Bus">{`If A2A is agents exchanging business cards and having conversations, ACP is like a corporate event-driven message bus \u2014 agents publish events, subscribe to topics, and communicate asynchronously at enterprise scale.`}</AnalogyBox>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>The Agent Communication Protocol (ACP) by IBM focuses on <b>event-driven, async-first messaging</b> for enterprise agent ecosystems. While A2A handles bilateral agent conversations, ACP handles multi-agent event streams.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>The <JargonTip term="ACP">Agent Communication Protocol (ACP)</JargonTip> by IBM focuses on <b>event-driven, async-first messaging</b> for enterprise <JargonTip term="agent">agent</JargonTip> ecosystems. While <JargonTip term="A2A">A2A</JargonTip> handles bilateral agent conversations, ACP handles <JargonTip term="multi-agent">multi-agent</JargonTip> event streams.</p>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">{[
     {icon:'\uD83D\uDCE1',title:'Event-Driven',desc:'Agents publish events, others subscribe \u2014 loose coupling at scale'},
     {icon:'\u23F0',title:'Async-First',desc:'Non-blocking message passing, agents process at their own pace'},
@@ -2080,7 +2080,7 @@ function TabDeepACPEvents({onNavigate,onComplete}){return <FadeIn><div className
     "agentversion": "2.1.0"
 }`}/>
   <ExpandableSection title="Event Design Best Practices" icon={'\uD83D\uDCA1'}>
-    <div className="space-y-1">{['Use past tense for event types (document.classified, not classify.document)','Include correlation IDs for tracing across agent chains','Keep event payloads small \u2014 include references, not full data','Version your event schemas for backward compatibility','Include processing metadata (time, confidence, model used)'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
+    <div className="space-y-1">{['Use past tense for event types (document.classified, not classify.document)','Include correlation IDs for <JargonTip term="tracing">tracing</JargonTip> across agent chains','Keep event payloads small \u2014 include references, not full data','Version your event schemas for backward compatibility','Include processing metadata (time, confidence, model used)'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
   </ExpandableSection>
 </div></FadeIn>}
 
@@ -2143,7 +2143,7 @@ export function CourseACP({onBack,onNavigate,progress,onComplete,depth,onChangeD
 function TabAgenticOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>What Are Agentic Patterns?</h2>
   <AnalogyBox title="Recipes for AI Agents">{`Agentic patterns are like recipes in a cookbook \u2014 proven step-by-step approaches for building AI agents that can think, act, and iterate. Just as a chef picks the right recipe for the occasion, you pick the right pattern for your use case.`}</AnalogyBox>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Agentic AI goes beyond single-shot prompting. An agent <b>observes</b>, <b>reasons</b>, <b>acts</b>, and <b>iterates</b> \u2014 using tools, checking results, and adjusting its approach.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Agentic AI goes beyond single-shot prompting. An <JargonTip term="agent">agent</JargonTip> <b>observes</b>, <b>reasons</b>, <b>acts</b>, and <b>iterates</b> \u2014 using tools, checking results, and adjusting its approach.</p>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">{[
     {icon:'\uD83D\uDD04',title:'ReAct',desc:'Reason + Act: think step-by-step, call tools, observe results, repeat'},
     {icon:'\uD83D\uDCCB',title:'Plan-and-Execute',desc:'Create a plan upfront, then execute each step systematically'},
@@ -2155,7 +2155,7 @@ function TabAgenticOverview({onNavigate,onComplete}){return <FadeIn><div classNa
 
 function TabReAct({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>ReAct: Reason + Act</h2>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>The most fundamental agentic pattern. The model <b>thinks</b> about what to do, <b>acts</b> (calls a tool), <b>observes</b> the result, then <b>thinks</b> again.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>The most fundamental agentic pattern. The <JargonTip term="ReAct">ReAct</JargonTip> loop: the model <b>thinks</b> about what to do, <b>acts</b> (calls a tool), <b>observes</b> the result, then <b>thinks</b> again.</p>
   <CodeBlock title="ReAct Loop" code={`def react_loop(query, tools, max_steps=5):
     messages = [{"role": "user", "content": query}]
 
@@ -2182,7 +2182,7 @@ function TabReAct({onNavigate,onComplete}){return <FadeIn><div className="max-w-
 
 function TabPlanExecute({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Plan-and-Execute</h2>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>For complex tasks, plan first, then execute step by step. Separating planning from execution improves reliability.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>For complex tasks, <JargonTip term="plan-and-execute">plan first, then execute</JargonTip> step by step. Separating planning from execution improves reliability.</p>
   <CodeBlock title="Plan-and-Execute Pattern" code={`def plan_and_execute(task, tools, max_replans=2):
     # PLAN: Create a step-by-step plan
     plan = call_llm(
@@ -2296,13 +2296,13 @@ function TabDeepReflection({onNavigate,onComplete}){return <FadeIn><div classNam
 function TabDeepAgenticPatterns({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Advanced Patterns</h2>
   <ExpandableSection title="Router Pattern" icon={'\uD83D\uDD00'} defaultOpen>
-    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>A lightweight model classifies the query and routes to a specialized agent or tool chain. Different queries take different paths through the system.</p>
+    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>A lightweight model classifies the query and routes to a specialized <JargonTip term="agent">agent</JargonTip> or tool chain. Different queries take different paths through the system — this is the <JargonTip term="agentic loop">agentic loop</JargonTip> in action.</p>
   </ExpandableSection>
   <ExpandableSection title="Parallelization" icon={'\u26A1'}>
     <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>When multiple sub-tasks are independent, run them in parallel. Fan-out to multiple agents, fan-in results. Dramatically reduces latency for complex tasks.</p>
   </ExpandableSection>
   <ExpandableSection title="Orchestrator-Worker" icon={'\uD83D\uDC68\u200D\uD83D\uDCBB'}>
-    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>An orchestrator agent breaks the task into sub-tasks, assigns them to worker agents, monitors progress, and synthesizes results. The orchestrator is the brain, workers are the hands.</p>
+    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>An <JargonTip term="orchestration">orchestrator</JargonTip> agent breaks the task into sub-tasks, assigns them to worker agents, monitors progress, and synthesizes results. The orchestrator is the brain, workers are the hands.</p>
   </ExpandableSection>
   <ComparisonTable title="Pattern Complexity Matrix" headers={['Pattern','Setup Effort','Runtime Cost','Reliability','Best Use']} rows={[['Single prompt','Minimal','Lowest','Lowest','Simple Q&A'],['ReAct','Low','Medium','Good','Tool-using tasks'],['Plan+Execute','Medium','Medium','Very good','Research, analysis'],['Reflection','Medium','Higher','Excellent','Quality-critical output'],['Multi-agent','High','Highest','Variable','Complex problems']]}/>
 </div></FadeIn>}
@@ -2326,14 +2326,14 @@ export function CourseAgenticPatterns({onBack,onNavigate,progress,onComplete,dep
 function TabMemoryOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Why Memory Matters</h2>
   <AnalogyBox title="The Goldfish Problem">{`Without memory, every conversation with an AI is like talking to a goldfish \u2014 it forgets everything after each interaction. Memory systems give AI persistent context, making it actually useful for ongoing tasks.`}</AnalogyBox>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Memory systems let AI agents remember past interactions, learn preferences, and maintain context across sessions. There are several types:</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Memory systems let AI <JargonTip term="agent">agents</JargonTip> remember past interactions, learn preferences, and maintain context across sessions. There are several types:</p>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">{[
     {icon:'\u23F1\uFE0F',title:'Short-Term (Buffer)',desc:'Recent conversation turns kept in context window. Ephemeral.'},
     {icon:'\uD83D\uDCBE',title:'Long-Term (Persistent)',desc:'Facts, preferences, entities stored in a database across sessions.'},
-    {icon:'\uD83E\uDDE0',title:'Semantic Memory',desc:'General knowledge extracted from interactions \u2014 facts, concepts.'},
-    {icon:'\uD83D\uDCF8',title:'Episodic Memory',desc:'Specific past events and interactions \u2014 "last Tuesday\'s conversation about X".'},
+    {icon:'\uD83E\uDDE0',title:'Semantic Memory',desc:'General knowledge extracted from interactions — facts, concepts. Also called semantic memory.'},
+    {icon:'\uD83D\uDCF8',title:'Episodic Memory',desc:'Specific past events and interactions — what episodic memory captures.'},
   ].map((m,i)=><div key={i} className="p-3 rounded-xl border" style={{borderColor:GIM.border}}><div className="flex items-center gap-2 mb-1"><span>{m.icon}</span><span className="font-semibold" style={{fontSize:13,color:GIM.headingText}}>{m.title}</span></div><p style={{fontSize:12,color:GIM.bodyText}}>{m.desc}</p></div>)}</div>
-  <Quiz question="Why can't you just keep all conversation history in the context window?" options={["You can \u2014 modern models have huge context windows","Context windows have limits, old messages get expensive, and retrieval quality degrades","The model will refuse to process long conversations","There's no benefit to keeping old messages"]} correctIndex={1} explanation="Even with large context windows, keeping everything is impractical: costs grow linearly, the 'lost-in-the-middle' problem reduces quality, and most old messages aren't relevant to the current query. Smart memory systems extract and retrieve only what's needed." onAnswer={()=>onComplete&&onComplete('memory-overview','quiz1')}/>
+  <Quiz question="Why can't you just keep all conversation history in the context window?" options={["You can \u2014 modern models have huge context windows","Context windows have limits, old messages get expensive, and retrieval quality degrades","The model will refuse to process long conversations","There's no benefit to keeping old messages"]} correctIndex={1} explanation="Even with large <JargonTip term="context window">context windows</JargonTip>, keeping everything is impractical: costs grow linearly, the 'lost-in-the-middle' problem reduces quality, and most old messages aren't relevant to the current query. Smart memory systems extract and retrieve only what's needed." onAnswer={()=>onComplete&&onComplete('memory-overview','quiz1')}/>
 </div></FadeIn>}
 
 function TabMemoryTypes({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
@@ -2348,7 +2348,7 @@ function TabMemoryTypes({onNavigate,onComplete}){return <FadeIn><div className="
     <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Periodically summarize older conversation turns. The summary replaces the raw messages in context, preserving meaning while saving tokens. Good for long-running conversations.</p>
   </ExpandableSection>
   <ExpandableSection title="Vector Store Memory" icon={'\uD83D\uDD0E'}>
-    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Embed past messages and store in a vector database. When a relevant topic comes up, retrieve similar past messages. Best for cross-session recall \u2014 "What did we discuss about authentication last month?"</p>
+    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}><JargonTip term="embedding">Embed</JargonTip> past messages and store in a <JargonTip term="vector search">vector database</JargonTip>. When a relevant topic comes up, retrieve similar past messages. Best for cross-session recall \u2014 "What did we discuss about authentication last month?"</p>
   </ExpandableSection>
   <SeeItInRe3 text="Re\u00b3 uses localStorage-based memory for Academy progress and user preferences, keeping learning state persistent across sessions."/>
 </div></FadeIn>}
@@ -2483,10 +2483,10 @@ export function CourseMemorySystems({onBack,onNavigate,progress,onComplete,depth
 function TabHITLOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Why Human-in-the-Loop?</h2>
   <AnalogyBox title="The Autopilot Analogy">{`AI with human-in-the-loop is like a plane on autopilot \u2014 it handles routine operations automatically, but the pilot takes over for takeoff, landing, and turbulence. The key is knowing when to hand off control.`}</AnalogyBox>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Not every AI decision should be automated. Human-in-the-loop (HITL) patterns keep humans in control of <b>high-stakes</b>, <b>ambiguous</b>, or <b>novel</b> decisions while automating the routine.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Not every AI decision should be automated. <JargonTip term="HITL">Human-in-the-loop (HITL)</JargonTip> patterns keep humans in control of <b>high-stakes</b>, <b>ambiguous</b>, or <b>novel</b> decisions while automating the routine.</p>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">{[
     {icon:'\u2705',title:'Approval Gates',desc:'AI proposes, human approves before action is taken'},
-    {icon:'\uD83D\uDEA8',title:'Escalation',desc:'AI handles routine cases, escalates edge cases to humans'},
+    {icon:'\uD83D\uDEA8',title:'Escalation',desc:'AI handles routine cases, uses escalation for edge cases to humans'},
     {icon:'\uD83D\uDCCA',title:'Confidence Thresholds',desc:'Auto-act when confident, ask for help when uncertain'},
     {icon:'\uD83D\uDD04',title:'Feedback Loops',desc:'Human corrections improve the AI over time'},
   ].map((p,i)=><div key={i} className="p-3 rounded-xl border" style={{borderColor:GIM.border}}><div className="flex items-center gap-2 mb-1"><span>{p.icon}</span><span className="font-semibold" style={{fontSize:13,color:GIM.headingText}}>{p.title}</span></div><p style={{fontSize:12,color:GIM.bodyText}}>{p.desc}</p></div>)}</div>
@@ -2525,7 +2525,7 @@ function TabHITLPatterns({onNavigate,onComplete}){return <FadeIn><div className=
 function TabHITLDesign({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Designing HITL Interfaces</h2>
   <ExpandableSection title="Good HITL Design Principles" icon={'\uD83D\uDCA1'} defaultOpen>
-    <div className="space-y-1">{['Show AI reasoning \u2014 humans need to understand WHY the AI made a decision','Make approval fast \u2014 one-click approve/reject with editable drafts','Provide context \u2014 show relevant history, similar past decisions, confidence level','Track overrides \u2014 log when humans change AI decisions for future improvement','Set SLAs \u2014 escalated items need response time targets to avoid bottlenecks'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
+    <div className="space-y-1">{['Show AI reasoning — humans need <JargonTip term="explainability">explainability</JargonTip> to understand WHY the AI made a decision','Make approval fast \u2014 one-click approve/reject with editable drafts','Provide context \u2014 show relevant history, similar past decisions, confidence level','Track overrides — log when humans change AI decisions for future improvement via <JargonTip term="guardrails">guardrails</JargonTip>','Set SLAs \u2014 escalated items need response time targets to avoid bottlenecks'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
   </ExpandableSection>
   <Quiz question="What is the biggest risk of poorly designed human-in-the-loop systems?" options={["Too slow","Too many false escalations lead to 'alert fatigue' \u2014 humans start rubber-stamping approvals","Too expensive","Humans always disagree with the AI"]} correctIndex={1} explanation="Alert fatigue is the #1 killer of HITL systems. If 95% of escalations are unnecessary, humans stop reviewing carefully and start auto-approving. This defeats the entire purpose of human oversight." onAnswer={()=>onComplete&&onComplete('hitl-design','quiz1')}/>
 </div></FadeIn>}

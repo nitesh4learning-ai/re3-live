@@ -26,7 +26,7 @@ function PatternMatcher(){
 
 function TabWhyMulti({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Why Multi-Agent?</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>A single AI agent can handle simple tasks. But for complex problems requiring diverse expertise, multiple perspectives, or sequential workflows, <b>multi-agent systems</b> dramatically outperform single agents.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>A single AI <JargonTip term="agent">agent</JargonTip> can handle simple tasks. But for complex problems requiring diverse expertise, multiple perspectives, or sequential workflows, <b><JargonTip term="multi-agent">multi-agent</JargonTip> systems</b> dramatically outperform single agents.</p>
   <AnalogyBox emoji={'\uD83D\uDC65'} title="Think of it like a specialized team">One person doing research, writing, editing, and fact-checking will produce lower quality than a team with a researcher, writer, editor, and fact-checker -- each focused on what they do best.</AnalogyBox>
   <Quiz question="When is a multi-agent system better than a single agent?" options={["Always -- more agents is always better","Never -- single agents are simpler","When the task benefits from diverse expertise or structured workflows","Only for customer service"]} correctIndex={2} explanation="Multi-agent systems excel when tasks need diverse expertise, multiple perspectives, or structured workflows. For simple tasks, a single agent is more efficient." onAnswer={()=>onComplete&&onComplete('why-multi','quiz1')}/>
   <Quiz question="What is 'emergence' in multi-agent systems?" options={["When an agent crashes","When simple agent interactions produce complex, intelligent behavior","When a new agent is added","When the system runs out of memory"]} correctIndex={1} explanation="Emergence is when simple individual agents, following simple rules, produce collectively intelligent behavior that no single agent could achieve alone. Re\u00b3's debates demonstrate this." onAnswer={()=>onComplete&&onComplete('why-multi','quiz2')}/>
@@ -34,7 +34,7 @@ function TabWhyMulti({onNavigate,onComplete}){return <div>
 
 function TabRolesPatterns({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Agent Roles & Patterns</h2>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Multi-agent systems follow established orchestration patterns. Each pattern suits different types of problems.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Multi-agent systems follow established <JargonTip term="orchestration">orchestration</JargonTip> patterns. Each pattern suits different types of problems.</p>
   <div className="rounded-xl border overflow-hidden mb-4" style={{borderColor:GIM.border}}>
     <table className="w-full" style={{fontSize:13,fontFamily:GIM.fontMain}}>
       <thead><tr style={{background:GIM.borderLight}}><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>Pattern</th><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>How It Works</th><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>Best For</th></tr></thead>
@@ -68,7 +68,7 @@ function TabStateMemory({onNavigate,onComplete}){return <div>
   "moderator_notes": "Quality score: 8.5/10"
 }`}/>
   <ExpandableSection title="Memory Strategies" icon={'\uD83E\uDDE0'}>
-    <p className="mb-2"><b>Full history:</b> Every agent sees all previous messages. Simple but uses lots of tokens.</p>
+    <p className="mb-2"><b>Full history:</b> Every agent sees all previous messages. Simple but uses lots of <JargonTip term="token">tokens</JargonTip>.</p>
     <p className="mb-2"><b>Summary memory:</b> Older conversations are summarized. Saves tokens but loses detail.</p>
     <p className="mb-2"><b>Scoped memory:</b> Each agent only sees relevant context. Efficient but requires careful design.</p>
     <p className="mb-2"><b>External memory:</b> State stored in a database. Agents query what they need on demand.</p>
@@ -108,7 +108,7 @@ function TabMAPlayground({onNavigate,onComplete}){return <div>
 // ==================== COURSE 9 DEEP TABS ====================
 function TabDeepOrchestration({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Orchestration Patterns</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Production multi-agent systems use four core orchestration topologies. Each pattern encodes a different control flow, failure boundary, and communication model. Choosing the wrong pattern leads to fragile, expensive systems that are impossible to debug.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Production <JargonTip term="multi-agent">multi-agent</JargonTip> systems use four core <JargonTip term="orchestration">orchestration</JargonTip> topologies. Each pattern encodes a different control flow, failure boundary, and communication model. Choosing the wrong pattern leads to fragile, expensive systems that are impossible to debug.</p>
   <ComparisonTable title="Orchestration Topology Comparison" columns={['Pattern','Control Flow','Failure Blast Radius','Latency Profile','Best For']} rows={[
     ['Supervisor','Central coordinator dispatches and collects','Supervisor is SPOF; worker failures are isolated','Sequential bottleneck at supervisor','Task decomposition, dynamic routing'],
     ['Hierarchical','Tree of supervisors with delegation','Subtree failures contained','Parallel subtrees, sequential depth','Large-scale systems, org-chart workflows'],
@@ -376,7 +376,7 @@ result = weighted_consensus(votes, agent_weights)`}/>
 
 function TabDeepMemory({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Agent Memory Systems</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Effective multi-agent memory goes beyond simple chat history. Production systems need shared memory stores with access control, episodic recall for learning from past interactions, and working memory management to stay within context limits.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Effective multi-agent memory goes beyond simple chat history. Production systems need shared memory stores with access control, <JargonTip term="episodic memory">episodic recall</JargonTip> for learning from past interactions, and working memory management to stay within context limits.</p>
   <ComparisonTable title="Memory Architecture Comparison" columns={['Memory Type','Scope','Persistence','Use Case']} rows={[
     ['Conversation Buffer','Single agent session','Ephemeral','Chat context, immediate task'],
     ['Shared State Store','All agents in a workflow','Workflow lifetime','Debate state, pipeline data'],
@@ -606,7 +606,7 @@ result = crew.kickoff(inputs={"topic": "Multi-agent AI systems"})`}/>
 
 function TabDeepProdMultiAgent({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Production Multi-Agent</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Moving multi-agent systems from prototype to production requires solving error handling, cost control, observability, and graceful degradation. Most multi-agent failures in production come from cascading errors and unbounded token usage.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Moving multi-agent systems from prototype to production requires solving error handling, cost control, <JargonTip term="observability">observability</JargonTip>, and graceful degradation. Most multi-agent failures in production come from cascading errors and unbounded token usage.</p>
   <CodeBlock language="python" label="Production Error Handling & Cost Control" code={`import asyncio
 import time
 from dataclasses import dataclass
@@ -796,7 +796,7 @@ function TripleBuilder(){
 
 function TabKnowledgeGraphs({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>What Are Knowledge Graphs?</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>A knowledge graph represents information as a network of <b>entities</b> (nodes) connected by <b>relationships</b> (edges). Each fact is stored as a triple: <b>(Subject, Predicate, Object)</b>.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>A <JargonTip term="knowledge graph">knowledge graph</JargonTip> represents information as a network of <b>entities</b> (nodes) connected by <b>relationships</b> (edges). Each fact is stored as a triple: <b>(Subject, Predicate, Object)</b>.</p>
   <AnalogyBox emoji={'\uD83D\uDDFA\uFE0F'} title="Think of it like a map of knowledge">A road map shows cities (entities) connected by roads (relationships). A knowledge graph shows concepts connected by their relationships: "Einstein" {'\u2192'} developed {'\u2192'} "Theory of Relativity".</AnalogyBox>
   <CodeBlock language="text" label="Knowledge Graph Triples" code={`(Einstein,       developed,    Theory of Relativity)
 (Einstein,       born in,      Ulm, Germany)
@@ -811,7 +811,7 @@ Following connections: Einstein \u2192 Nobel Prize \u2192 Royal Swedish Academy
 
 function TabBuildingGraphs({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Building Graphs from Text</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Building a knowledge graph from unstructured text requires two steps: <b>Named Entity Recognition (NER)</b> to find entities, and <b>Relation Extraction</b> to find how they connect.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Building a knowledge graph from unstructured text requires two steps: <b><JargonTip term="NER">Named Entity Recognition (NER)</JargonTip></b> to find entities, and <b>Relation Extraction</b> to find how they connect.</p>
   <CodeBlock language="text" label="NER + Relation Extraction" code={`Input: "Apple CEO Tim Cook announced the new iPhone at WWDC 2024."
 
 NER Results:
@@ -831,7 +831,7 @@ Extracted Relations:
 
 function TabGraphRetrieval({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Graph-Enhanced Retrieval</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Standard RAG finds documents similar to your query. <b>Graph RAG</b> enhances this by following relationships in the knowledge graph to find connected information that pure vector search would miss.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Standard <JargonTip term="RAG">RAG</JargonTip> finds documents similar to your query. <b><JargonTip term="GraphRAG">Graph RAG</JargonTip></b> enhances this by following relationships in the knowledge graph to find connected information that pure vector search would miss.</p>
   <AnalogyBox emoji={'\uD83D\uDD0D'} title="Vector search vs Graph search">Vector search: "Find documents about Einstein" {'\u2192'} finds articles mentioning Einstein. Graph search: Start at Einstein node, follow relationships {'\u2192'} discovers connected concepts like Relativity, Nobel Prize, Quantum Mechanics.</AnalogyBox>
   <Quiz question="What can Graph RAG find that vector search alone cannot?" options={["Faster results","Multi-hop connections between entities","More documents","Cheaper processing"]} correctIndex={1} explanation="Graph RAG can traverse relationships across multiple hops -- finding connections like 'Einstein \u2192 won Nobel Prize \u2192 awarded by Royal Swedish Academy' that wouldn't appear in a single document search." onAnswer={()=>onComplete&&onComplete('graph-retrieval','quiz1')}/>
   <SeeItInRe3 text="Re\u00b3's Loom creates thematic connections between debate insights -- these connections form a knowledge graph of ideas, linking arguments across different debates." targetPage="loom" onNavigate={onNavigate}/>
@@ -839,7 +839,7 @@ function TabGraphRetrieval({onNavigate,onComplete}){return <div>
 
 function TabHybridStrat({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Hybrid Search Strategies</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The most powerful retrieval systems combine multiple strategies: <b>vector search</b> for semantic similarity, <b>keyword search</b> for exact matches, and <b>graph traversal</b> for relationship discovery.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The most powerful retrieval systems combine multiple strategies: <b>vector search</b> for semantic similarity, <b>keyword search</b> for exact matches, and <b>graph traversal</b> for relationship discovery. This combination is known as <JargonTip term="hybrid search">hybrid search</JargonTip>.</p>
   <div className="rounded-xl border overflow-hidden mb-4" style={{borderColor:GIM.border}}>
     <table className="w-full" style={{fontSize:13,fontFamily:GIM.fontMain}}>
       <thead><tr style={{background:GIM.borderLight}}><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>Method</th><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>Finds</th><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>Misses</th></tr></thead>
@@ -865,7 +865,7 @@ function TabGRPlayground({onNavigate,onComplete}){return <div>
 // ==================== COURSE 10 DEEP TABS ====================
 function TabDeepKGConstruction({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Knowledge Graph Construction</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Building production knowledge graphs from unstructured text requires LLM-powered entity extraction, relation extraction, and ontology design. The quality of your graph directly determines retrieval accuracy.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Building production knowledge graphs from unstructured text requires LLM-powered entity extraction, relation extraction, and ontology design. The quality of your graph directly determines retrieval accuracy. Entity nodes are often enriched with <JargonTip term="embedding">embedding</JargonTip> vectors to enable semantic matching.</p>
   <CodeBlock language="python" label="LLM-Powered Entity & Relation Extraction" code={`from pydantic import BaseModel
 from typing import List, Optional
 
@@ -1451,7 +1451,7 @@ export function CourseGraphRAG({onBack,onNavigate,progress,onComplete,depth,onCh
 // ==================== COURSE 11: AI OBSERVABILITY ====================
 function TabWhyObserve({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Why Observe AI?</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Unlike traditional software with deterministic outputs, AI systems are <b>non-deterministic</b>. The same input can produce different outputs. This makes monitoring, debugging, and quality assurance fundamentally different.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Unlike traditional software with deterministic outputs, AI systems are <b>non-deterministic</b>. The same input can produce different outputs. This makes monitoring, debugging, and quality assurance fundamentally different. <JargonTip term="observability">Observability</JargonTip> is essential for understanding what your AI system is actually doing.</p>
   <AnalogyBox emoji={'\uD83D\uDE97'} title="Think of it like a car dashboard">You wouldn't drive without a speedometer, fuel gauge, and warning lights. AI observability gives you the same visibility into your AI system -- speed (latency), fuel (tokens/cost), and warning lights (quality issues).</AnalogyBox>
   <div className="rounded-xl border overflow-hidden mb-4" style={{borderColor:GIM.border}}>
     <table className="w-full" style={{fontSize:13,fontFamily:GIM.fontMain}}>
@@ -1466,7 +1466,7 @@ function TabWhyObserve({onNavigate,onComplete}){return <div>
 
 function TabTracing({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Tracing & Logging</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>An AI trace captures the complete journey of a request: from user input through retrieval, LLM calls, tool use, and final response. Each step is a <b>span</b> with timing, token counts, and metadata.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>An AI <JargonTip term="tracing">trace</JargonTip> captures the complete journey of a request: from user input through retrieval, LLM calls, tool use, and final response. Each step is a <b>span</b> with timing, token counts, and metadata.</p>
   <CodeBlock language="json" label="Example Trace Span" code={`{
   "trace_id": "tr_abc123",
   "span_name": "llm_completion",
@@ -1490,7 +1490,7 @@ function TabTracing({onNavigate,onComplete}){return <div>
 
 function TabEvalFrameworks({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Evaluation Frameworks</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>How do you measure if your AI system is "good"? Evaluation frameworks provide standardized metrics to assess AI output quality across multiple dimensions.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>How do you measure if your AI system is "good"? <JargonTip term="eval">Evaluation</JargonTip> frameworks provide standardized metrics to assess AI output quality across multiple dimensions.</p>
   <div className="rounded-xl border overflow-hidden mb-4" style={{borderColor:GIM.border}}>
     <table className="w-full" style={{fontSize:13,fontFamily:GIM.fontMain}}>
       <thead><tr style={{background:GIM.borderLight}}><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>Metric</th><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>Question It Answers</th><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>Score Range</th></tr></thead>
@@ -1518,7 +1518,7 @@ function TabObsPlayground({onNavigate,onComplete}){return <div>
 function TabDeepTracingArch({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Tracing Architecture</h2>
   <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>OpenTelemetry provides a vendor-neutral standard for distributed tracing. In LLM applications, traces capture the full lifecycle of a request: from user input through retrieval, prompt construction, LLM inference, tool calls, and response generation. Each step becomes a <b>span</b> in a hierarchical trace tree.</p>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Span hierarchies are critical: a parent <b>rag_pipeline</b> span contains child spans for <b>embedding</b>, <b>retrieval</b>, <b>reranking</b>, and <b>llm_completion</b>. This lets you pinpoint exactly where latency or failures occur.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Span hierarchies are critical: a parent <b>rag_pipeline</b> span contains child spans for <b>embedding</b>, <b>retrieval</b>, <b>reranking</b>, and <b>llm_completion</b>. This lets you pinpoint exactly where <JargonTip term="latency">latency</JargonTip> or failures occur.</p>
   <CodeBlock language="python" label="OpenTelemetry Tracing for LLM Pipelines" code={`from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -1558,7 +1558,7 @@ async def rag_pipeline(query: str):
 
 function TabDeepLLMEval({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>LLM Evaluation Methods</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Evaluating LLM outputs requires multiple complementary approaches. No single method captures all quality dimensions. Production systems typically combine automated metrics, LLM-as-judge evaluation, and periodic human review in a layered evaluation pipeline.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Evaluating LLM outputs requires multiple complementary approaches. No single method captures all quality dimensions. Production systems typically combine automated metrics, <JargonTip term="LLM-as-judge">LLM-as-judge</JargonTip> evaluation, and periodic human review in a layered evaluation pipeline.</p>
   <ComparisonTable title="Evaluation Method Comparison" columns={['Method','How It Works','Strengths','Weaknesses']} rows={[
     ['Reference-Based','Compare to gold-standard answers (BLEU, ROUGE)','Objective, reproducible','Requires labeled data, penalizes valid alternatives'],
     ['LLM-as-Judge','A separate LLM scores the output on criteria','Scalable, captures nuance','Judge bias, cost of evaluator LLM'],
@@ -1605,7 +1605,7 @@ async def batch_evaluate(test_cases, judge_llm):
 
 function TabDeepDrift({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Drift Detection</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>AI systems degrade silently. Unlike traditional software that crashes visibly, LLM applications experience <b>drift</b> -- gradual quality degradation that users notice before your metrics do. Three types of drift threaten production AI systems.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>AI systems degrade silently. Unlike traditional software that crashes visibly, LLM applications experience <b><JargonTip term="drift detection">drift</JargonTip></b> -- gradual quality degradation that users notice before your metrics do. Three types of drift threaten production AI systems.</p>
   <ComparisonTable title="Types of Drift" columns={['Type','What Changes','Detection Method','Example']} rows={[
     ['Distribution Drift','Input data patterns shift','Monitor embedding cluster distributions','Users ask about topics your docs do not cover'],
     ['Concept Drift','Meaning of terms changes','Track eval scores on rolling windows','Legal terminology changes after new regulations'],
@@ -1829,7 +1829,7 @@ function CostCalculator(){
 
 function TabWhatGateway({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>What is an LLM Gateway?</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>An LLM Gateway is a <b>middleware layer</b> between your application and LLM providers. It handles routing, failover, rate limiting, cost management, and logging -- so your application code stays simple.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>An <JargonTip term="LLM gateway">LLM Gateway</JargonTip> is a <b>middleware layer</b> between your application and LLM providers. It handles routing, failover, rate limiting, cost management, and logging -- so your application code stays simple.</p>
   <AnalogyBox emoji={'\u2708\uFE0F'} title="Think of it like air traffic control">Air traffic control routes planes to the right runway, manages congestion, handles emergencies, and tracks all flights. An LLM gateway does the same for AI requests -- routing them to the right provider efficiently.</AnalogyBox>
   <CodeBlock language="text" label="Gateway Architecture" code={`Your App \u2500\u2500request\u2500\u2500> [LLM Gateway]
                          \u2502
@@ -1848,7 +1848,7 @@ Gateway handles:
 
 function TabRouting({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Routing Strategies</h2>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Different routing strategies optimize for different goals. The best strategy depends on your priorities.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Different routing strategies optimize for different goals. The gateway also manages <JargonTip term="streaming">streaming</JargonTip> connections to reduce perceived latency. The best strategy depends on your priorities.</p>
   <div className="rounded-xl border overflow-hidden mb-4" style={{borderColor:GIM.border}}>
     <table className="w-full" style={{fontSize:13,fontFamily:GIM.fontMain}}>
       <thead><tr style={{background:GIM.borderLight}}><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>Strategy</th><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>How It Works</th><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>Best For</th></tr></thead>
@@ -1891,7 +1891,7 @@ function TabGWPlayground({onNavigate,onComplete}){return <div>
 
 function TabDeepGatewayArch({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Gateway Architecture</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>An LLM gateway can be deployed in three architectural patterns: <b>reverse proxy</b>, <b>sidecar</b>, or <b>embedded SDK</b>. Each pattern has different implications for latency, operational complexity, and feature richness.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>An LLM gateway can be deployed in three architectural patterns: <b>reverse proxy</b>, <b>sidecar</b>, or <b>embedded SDK</b>. Each pattern has different implications for <JargonTip term="latency">latency</JargonTip>, operational complexity, and feature richness.</p>
   <ComparisonTable title="Gateway Deployment Patterns" columns={['Pattern','How It Works','Latency Impact','Best For']} rows={[
     ['Reverse Proxy','Standalone service between app and LLM providers','Adds network hop (1-5ms)','Multi-service architectures, centralized control'],
     ['Sidecar','Co-located process alongside each app instance','Minimal (~0.5ms)','Kubernetes deployments, per-service policies'],
@@ -1948,7 +1948,7 @@ class GatewayMiddleware:
 
 function TabDeepRoutingAlgo({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Advanced Routing Algorithms</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Beyond simple cost or latency routing, production gateways use sophisticated algorithms. <b>Semantic routing</b> analyzes request content to select the best model, while <b>canary deployments</b> gradually shift traffic to test new models safely.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Beyond simple cost or latency routing, production gateways use sophisticated algorithms. <b>Semantic routing</b> analyzes request content to select the best model via <JargonTip term="model cascading">model cascading</JargonTip>, while <b>canary deployments</b> gradually shift traffic to test new models safely.</p>
   <CodeBlock language="python" label="Semantic Router with Model-Task Matching" code={`from dataclasses import dataclass
 from typing import List
 
@@ -2038,7 +2038,7 @@ class CanaryRouter:
 
 function TabDeepCaching({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Semantic Caching</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Semantic caching goes beyond exact string matching. By comparing <b>embeddings</b> of incoming queries against cached queries, the gateway can return cached responses for semantically similar questions, dramatically reducing LLM costs for repetitive workloads.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><JargonTip term="prompt caching">Semantic caching</JargonTip> goes beyond exact string matching. By comparing <b>embeddings</b> of incoming queries against cached queries, the gateway can return cached responses for semantically similar questions, dramatically reducing LLM costs for repetitive workloads.</p>
   <CodeBlock language="python" label="Semantic Cache Implementation" code={`import numpy as np
 from datetime import datetime, timedelta
 
@@ -2163,7 +2163,7 @@ class UserBudgetManager:
 
 function TabDeepFailover({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Failover & Circuit Breakers</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>LLM providers experience outages and degraded performance. A production gateway needs <b>circuit breakers</b> to detect unhealthy providers, <b>automatic failover</b> to alternatives, and <b>graceful degradation</b> when all providers struggle.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>LLM providers experience outages and degraded performance. A production gateway needs <b><JargonTip term="circuit breaker">circuit breakers</JargonTip></b> to detect unhealthy providers, <b>automatic failover</b> to alternatives, and <b>graceful degradation</b> when all providers struggle.</p>
   <CodeBlock language="python" label="Circuit Breaker Pattern" code={`from enum import Enum
 from datetime import datetime, timedelta
 
@@ -2276,15 +2276,15 @@ export function CourseLLMGateway({onBack,onNavigate,progress,onComplete,depth,on
 function TabFTOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>What Is Fine-Tuning?</h2>
   <AnalogyBox title="Teaching a Specialist">{`Fine-tuning is like sending a general practitioner to a residency \u2014 the base model already knows medicine, but fine-tuning specializes it in cardiology. You don't teach it language from scratch; you teach it domain expertise.`}</AnalogyBox>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Fine-tuning adapts a pre-trained model to your specific domain by training it on your data. It changes the model's <b>weights</b>, unlike prompting which only changes the model's <b>input</b>.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}><JargonTip term="fine-tuning">Fine-tuning</JargonTip> adapts a pre-trained model to your specific domain by training it on your data. It changes the model's <b>weights</b>, unlike prompting which only changes the model's <b>input</b>.</p>
   <ComparisonTable title="When to Fine-Tune vs RAG vs Prompt Engineering" headers={['Approach','Best For','Data Needed','Cost','Flexibility']} rows={[['Prompt Engineering','Behavior/format changes','None','Lowest','Highest'],['RAG','External knowledge, citations','Documents','Medium','High'],['Fine-Tuning','Style, domain expertise, consistent behavior','100s-1000s examples','Higher','Lower']]}/>
   <Quiz question="Your company wants the AI to always respond in a specific technical writing style with domain-specific terminology. Best approach?" options={["Longer system prompts with examples","RAG with company style guide","Fine-tuning on 500 examples of desired style","Just tell the model to be technical"]} correctIndex={2} explanation="Consistent style and domain terminology are ideal fine-tuning use cases. Few-shot prompting works but uses tokens every call. Fine-tuning bakes the style into the model weights, giving consistent behavior at lower inference cost." onAnswer={()=>onComplete&&onComplete('ft-overview','quiz1')}/>
 </div></FadeIn>}
 function TabFTMethods({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Fine-Tuning Methods</h2>
   <ExpandableSection title="Full Fine-Tuning" icon={'\uD83D\uDD27'} defaultOpen><p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Update all model weights. Highest quality but requires significant compute (GPUs) and risks catastrophic forgetting. Best for small models or when you have abundant data.</p></ExpandableSection>
-  <ExpandableSection title="LoRA (Low-Rank Adaptation)" icon={'\u26A1'}><p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Only train small adapter matrices (0.1-1% of total parameters). Fast, cheap, and preserves base model knowledge. The most popular fine-tuning method in 2025.</p></ExpandableSection>
-  <ExpandableSection title="QLoRA" icon={'\uD83D\uDCBE'}><p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>LoRA + 4-bit quantization. Fine-tune a 70B model on a single GPU. Slight quality trade-off for massive compute savings.</p></ExpandableSection>
+  <ExpandableSection title="LoRA (Low-Rank Adaptation)" icon={'\u26A1'}><p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Only train small <JargonTip term="LoRA">adapter matrices</JargonTip> (0.1-1% of total parameters). Fast, cheap, and preserves base model knowledge. The most popular fine-tuning method in 2025.</p></ExpandableSection>
+  <ExpandableSection title="QLoRA" icon={'\uD83D\uDCBE'}><p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}><JargonTip term="QLoRA">QLoRA</JargonTip> combines LoRA with 4-bit quantization. Fine-tune a 70B model on a single GPU. Slight quality trade-off for massive compute savings.</p></ExpandableSection>
   <CodeBlock title="LoRA Fine-Tuning with Hugging Face" code={`from peft import LoraConfig, get_peft_model
 from transformers import AutoModelForCausalLM
 
@@ -2305,7 +2305,7 @@ model.print_trainable_parameters()
 function TabFTData({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Data Preparation</h2>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Quality {'>'} quantity. 500 high-quality examples often beat 5000 mediocre ones.</p>
-  <ExpandableSection title="Synthetic Data Generation" icon={'\uD83E\uDD16'} defaultOpen><p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Use a powerful model (GPT-4, Claude) to generate training data for a smaller model. This "distillation" approach is standard practice: have Claude write 500 examples of your desired output format, then fine-tune Llama on those examples.</p></ExpandableSection>
+  <ExpandableSection title="Synthetic Data Generation" icon={'\uD83E\uDD16'} defaultOpen><p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Use a powerful model (GPT-4, Claude) to generate training data for a smaller model. This "<JargonTip term="distillation">distillation</JargonTip>" approach is standard practice: have Claude write 500 examples of your desired output format, then fine-tune Llama on those examples.</p></ExpandableSection>
   <Quiz question="You have 50 real examples of the desired output style. Is this enough for fine-tuning?" options={["No, you need at least 10,000","Yes, 50 is plenty for LoRA","Use the 50 to generate 500 synthetic examples, then fine-tune on the combined set","Fine-tuning always needs millions of examples"]} correctIndex={2} explanation="50 real examples establish the pattern. Use a powerful model to generate 450-950 more synthetic examples following the same pattern. Fine-tune on the combined dataset. This 'human seed + synthetic expansion' approach is highly effective." onAnswer={()=>onComplete&&onComplete('ft-data','quiz1')}/>
 </div></FadeIn>}
 function TabFTPlayground({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
@@ -2436,7 +2436,7 @@ save_jsonl(filtered, "training_data.jsonl")`}/>
 </div></FadeIn>}
 function TabDeepFTDomain({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Domain Adaptation Strategies</h2>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Domain adaptation goes beyond simple fine-tuning. It covers the full spectrum from continued pre-training on domain text to task-specific instruction tuning.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Domain adaptation goes beyond simple fine-tuning. It covers the full spectrum from continued pre-training on domain text to <JargonTip term="RLHF">RLHF</JargonTip>-based alignment and task-specific instruction tuning.</p>
   <ComparisonTable title="Domain Adaptation Approaches" headers={['Approach','What It Does','Data Needed','Use Case']} rows={[['Continued Pre-Training','Expose model to domain text (no labels)','10K-1M domain documents','Medical, legal, financial terminology'],['Instruction Tuning','Teach model to follow domain-specific instructions','500-5K instruction pairs','Customer support, code review'],['RLHF / DPO','Align model outputs with human preferences','1K-10K preference pairs','Safety, tone, quality alignment'],['Adapter Stacking','Multiple LoRA adapters for different sub-tasks','Varies per adapter','Multi-tenant: same base, different clients']]}/>
   <CodeBlock title="DPO Training (Preference Alignment)" code={`from trl import DPOTrainer, DPOConfig
 from datasets import load_dataset
@@ -2501,10 +2501,10 @@ function TabCodeGenTools({onNavigate,onComplete}){return <FadeIn><div className=
 </div></FadeIn>}
 function TabCodeGenPatterns({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Effective Patterns</h2>
-  <ExpandableSection title="1. Spec-First Development" icon={'\uD83D\uDCCB'} defaultOpen><p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Write a detailed spec or pseudocode, then have AI implement it. The spec acts as a contract \u2014 AI generates code that matches your design, not its own interpretation.</p></ExpandableSection>
+  <ExpandableSection title="1. Spec-First Development" icon={'\uD83D\uDCCB'} defaultOpen><p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Write a detailed spec or pseudocode, then have AI implement it. Whether you are doing <JargonTip term="vibe coding">vibe coding</JargonTip> or spec-driven development, the spec acts as a contract \u2014 AI generates code that matches your design, not its own interpretation.</p></ExpandableSection>
   <ExpandableSection title="2. Test-Driven AI" icon={'\u2705'}><p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Write tests first, then tell AI: "Generate code that passes these tests." The tests constrain the AI's output and make verification automatic.</p></ExpandableSection>
   <ExpandableSection title="3. Incremental Generation" icon={'\uD83D\uDD04'}><p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Build in small steps. Generate one function, verify it works, then generate the next. Avoid asking AI to generate entire systems at once \u2014 errors compound.</p></ExpandableSection>
-  <ExpandableSection title="4. Context Loading" icon={'\uD83D\uDCDA'}><p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Give the AI relevant context: existing code patterns, type definitions, API docs. The more context about your codebase conventions, the better the generated code matches your style.</p></ExpandableSection>
+  <ExpandableSection title="4. Context Loading" icon={'\uD83D\uDCDA'}><p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Give the AI relevant context: existing code patterns, type definitions, API docs. Good <JargonTip term="prompt engineering">prompt engineering</JargonTip> with codebase conventions produces code that matches your style. Some tools use <JargonTip term="RAG">RAG</JargonTip> to automatically retrieve relevant files.</p></ExpandableSection>
   <Quiz question="You need to add a new feature to a 50-file project. Best approach with AI?" options={["Ask AI to generate the entire feature at once","Write a spec, generate incrementally, test each piece","Just start coding and let autocomplete help","Copy-paste from Stack Overflow"]} correctIndex={1} explanation="Spec-first + incremental generation is most reliable. The spec ensures the AI understands your intent. Generating and testing in small steps catches errors early before they compound across files." onAnswer={()=>onComplete&&onComplete('codegen-patterns','quiz1')}/>
 </div></FadeIn>}
 function TabCodeGenPlayground({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
@@ -2513,7 +2513,7 @@ function TabCodeGenPlayground({onNavigate,onComplete}){return <FadeIn><div class
 </div></FadeIn>}
 function TabDeepCodeContext({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Context Loading & CLAUDE.md</h2>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>The quality of AI-generated code depends almost entirely on the context you provide. Context engineering for code means giving the AI the right files, patterns, and constraints.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>The quality of AI-generated code depends almost entirely on the <JargonTip term="context window">context</JargonTip> you provide. Context engineering for code means giving the <JargonTip term="agent">AI agent</JargonTip> the right files, patterns, and constraints.</p>
   <CodeBlock label="CLAUDE.md Example (Project Instructions)" code={`# CLAUDE.md
 
 ## Project: E-commerce API
@@ -2550,7 +2550,7 @@ npm run build  # Production build
       <li><strong>Error examples:</strong> The specific error you{"'"}re debugging with stack trace</li>
     </ul>
   </ExpandableSection>
-  <Quiz question="What is the #1 factor that determines the quality of AI-generated code?" options={["The model size (GPT-4 vs GPT-3.5)","The quality and relevance of context provided to the model","The programming language used","How detailed the prompt is"]} correctIndex={1} explanation="Context is king. A well-contextualized request to a smaller model will produce better code than a vague request to a larger model. Giving the AI your conventions, similar files, types, and patterns lets it generate code that actually fits your codebase." onAnswer={()=>onComplete&&onComplete('deep-code-context','quiz1')}/>
+  <Quiz question="What is the #1 factor that determines the quality of AI-generated code?" options={["The model size (GPT-4 vs GPT-3.5)","The quality and relevance of context provided to the model","The programming language used","How detailed the prompt is"]} correctIndex={1} explanation="Context is king. A well-contextualized request to a smaller model will produce better code than a vague request to a larger model. Giving the AI your conventions, similar files, types, and patterns lets it generate code that actually fits your codebase while staying within token limits." onAnswer={()=>onComplete&&onComplete('deep-code-context','quiz1')}/>
 </div></FadeIn>}
 function TabDeepCodeReview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>AI Code Review & Quality</h2>
@@ -2654,6 +2654,7 @@ export function CourseAICodeGen({onBack,onNavigate,progress,onComplete,depth,onC
 function TabMMOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>What Is Multimodal AI?</h2>
   <AnalogyBox title="The Five Senses">{`Multimodal AI gives models multiple senses \u2014 text is like hearing, vision is like seeing, audio is like listening. Combining modalities lets AI understand the world more like humans do.`}</AnalogyBox>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}><JargonTip term="multimodal">Multimodal</JargonTip> AI systems built on <JargonTip term="transformer">transformer</JargonTip> architectures use <JargonTip term="attention">attention</JargonTip> mechanisms to process inputs across vision, audio, and text. Key capabilities include <JargonTip term="STT">speech-to-text</JargonTip> and <JargonTip term="TTS">text-to-speech</JargonTip> conversion.</p>
   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">{[
     {icon:'\uD83D\uDDBC\uFE0F',title:'Vision',desc:'Image understanding, document OCR, chart analysis'},{icon:'\uD83C\uDF99\uFE0F',title:'Audio',desc:'Speech-to-text, sound classification, music analysis'},{icon:'\uD83C\uDFA5',title:'Video',desc:'Scene understanding, action recognition, temporal reasoning'},
   ].map((m,i)=><div key={i} className="p-3 rounded-xl border text-center" style={{borderColor:GIM.border}}><span style={{fontSize:28}}>{m.icon}</span><h4 className="font-semibold mt-1" style={{fontSize:13,color:GIM.headingText}}>{m.title}</h4><p style={{fontSize:12,color:GIM.bodyText}}>{m.desc}</p></div>)}</div>
@@ -2737,7 +2738,7 @@ function TabDeepMMAudio({onNavigate,onComplete}){return <FadeIn><div className="
 function TabDeepMMCrossModal({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Cross-Modal Reasoning</h2>
   <ExpandableSection title="What is Cross-Modal Reasoning?" icon={'\uD83E\uDDE0'} defaultOpen>
-    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Cross-modal reasoning is when an AI uses information from one modality to inform understanding in another. For example: reading a chart image (vision) to answer a text question, or using audio context to disambiguate text.</p>
+    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Cross-modal reasoning is when an AI uses information from one modality to inform understanding in another. Models create shared <JargonTip term="embedding">embedding</JargonTip> spaces where different modalities can be compared. For example: reading a chart image (vision) to answer a text question, or using audio context to disambiguate text.</p>
   </ExpandableSection>
   <ComparisonTable title="Cross-Modal Applications" columns={['Input Modalities','Output','Application']} rows={[
     ['Image + Text','Structured JSON','Invoice processing, form extraction'],
@@ -2764,7 +2765,7 @@ export function CourseMultimodal({onBack,onNavigate,progress,onComplete,depth,on
 // ==================== COURSE 8: VOICE AI ====================
 function TabVoiceOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Voice AI & Conversational Agents</h2>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Voice AI transforms how humans interact with machines \u2014 from contact centers to personal assistants to accessibility tools.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Voice AI transforms how humans interact with machines \u2014 from contact centers to personal assistants to accessibility tools. The core pipeline involves <JargonTip term="STT">STT</JargonTip> (speech-to-text), LLM processing, and <JargonTip term="TTS">TTS</JargonTip> (text-to-speech), with <JargonTip term="NER">NER</JargonTip> for extracting entities like names and dates from spoken input.</p>
   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">{[
     {icon:'\uD83C\uDF99\uFE0F',title:'STT',desc:'Speech-to-Text: convert audio to text (Whisper, Deepgram)'},{icon:'\uD83E\uDDE0',title:'NLU',desc:'Natural Language Understanding: interpret intent from text'},{icon:'\uD83D\uDD0A',title:'TTS',desc:'Text-to-Speech: generate natural-sounding voice (ElevenLabs, OpenAI TTS)'},
   ].map((s,i)=><div key={i} className="p-3 rounded-xl border text-center" style={{borderColor:GIM.border}}><span style={{fontSize:24}}>{s.icon}</span><h4 className="font-semibold" style={{fontSize:13,color:GIM.headingText}}>{s.title}</h4><p style={{fontSize:12,color:GIM.bodyText}}>{s.desc}</p></div>)}</div>
@@ -2799,7 +2800,7 @@ function TabVoicePlayground({onNavigate,onComplete}){return <FadeIn><div classNa
 </div></FadeIn>}
 function TabDeepVoiceLatency({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Latency Optimization</h2>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>In voice AI, latency is everything. Users tolerate {'<'}800ms total latency for natural conversation. Every component in the pipeline must be optimized.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>In voice AI, <JargonTip term="latency">latency</JargonTip> is everything. Users tolerate {'<'}800ms total latency for natural conversation. Minimizing <JargonTip term="TTFT">TTFT</JargonTip> (time to first token) is critical, and <JargonTip term="streaming">streaming</JargonTip> overlaps all pipeline stages for the best perceived responsiveness.</p>
   <CodeBlock label="Streaming Voice Pipeline" code={`class StreamingVoicePipeline:
     """Overlap STT/LLM/TTS for minimum latency"""
 
@@ -2873,7 +2874,7 @@ export function CourseVoiceAI({onBack,onNavigate,progress,onComplete,depth,onCha
 function TabRetEngOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Beyond Basic RAG</h2>
   <AnalogyBox title="The Research Librarian">{`Basic RAG is like using a library catalog \u2014 you search by keyword and get results. Retrieval engineering is like having an expert research librarian who understands your question, knows where to look, cross-references sources, and gives you exactly what you need.`}</AnalogyBox>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Retrieval engineering goes beyond simple vector search to build production-grade retrieval systems.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}><JargonTip term="RAG">Retrieval</JargonTip> engineering goes beyond simple vector search to build production-grade retrieval systems using <JargonTip term="chunking">chunking</JargonTip>, <JargonTip term="hybrid search">hybrid search</JargonTip>, and <JargonTip term="reranking">reranking</JargonTip>.</p>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">{[
     {icon:'\uD83D\uDD2A',title:'Advanced Chunking',desc:'Semantic, agentic, and hierarchical chunking strategies'},{icon:'\uD83D\uDD0D',title:'Hybrid Search',desc:'Combine vector similarity with keyword (BM25) search'},{icon:'\uD83C\uDFAF',title:'Reranking',desc:'Cross-encoder models reorder search results by true relevance'},{icon:'\uD83C\uDF33',title:'RAPTOR',desc:'Recursive summarization for hierarchical document retrieval'},
   ].map((t,i)=><div key={i} className="p-3 rounded-xl border" style={{borderColor:GIM.border}}><div className="flex items-center gap-2 mb-1"><span>{t.icon}</span><span className="font-semibold" style={{fontSize:13,color:GIM.headingText}}>{t.title}</span></div><p style={{fontSize:12,color:GIM.bodyText}}>{t.desc}</p></div>)}</div>
@@ -2964,7 +2965,7 @@ class Reranker:
 # Cross-encoders process query+document TOGETHER -- slow but accurate.
 # Use bi-encoder for recall (top 50), cross-encoder for precision (top 5).`}/>
   <ExpandableSection title="RAPTOR: Recursive Summarization" icon={'\uD83C\uDF33'} defaultOpen>
-    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>RAPTOR builds a tree of summaries over your documents. Leaf nodes are original chunks. Parent nodes are summaries of groups of children. At query time, you search across all levels -- this lets you answer both detailed questions (from leaves) and broad questions (from summary nodes).</p>
+    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}><JargonTip term="RAPTOR">RAPTOR</JargonTip> builds a tree of summaries over your documents. Leaf nodes are original chunks, each with an <JargonTip term="embedding">embedding</JargonTip> vector. Parent nodes are summaries of groups of children. <JargonTip term="cross-encoder">Cross-encoder</JargonTip> rerankers then score results for precision. At query time, you search across all levels -- this lets you answer both detailed questions (from leaves) and broad questions (from summary nodes).</p>
     <ul className="list-disc ml-5 mt-2 space-y-1" style={{fontSize:13,color:GIM.bodyText}}>
       <li><strong>Level 0:</strong> Original chunks (detailed facts)</li>
       <li><strong>Level 1:</strong> Summaries of 5-10 chunks (section-level themes)</li>
@@ -2986,6 +2987,7 @@ export function CourseRetrievalEng({onBack,onNavigate,progress,onComplete,depth,
 function TabTestOverview({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>AI Testing & Red-Teaming</h2>
   <AnalogyBox title="Crash Testing for AI">{`AI testing is like crash testing cars \u2014 you intentionally try to break the system in controlled conditions so you can fix vulnerabilities before real users encounter them.`}</AnalogyBox>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>A robust AI testing strategy combines <JargonTip term="eval">evaluation</JargonTip> frameworks, <JargonTip term="LLM-as-judge">LLM-as-judge</JargonTip> scoring, <JargonTip term="guardrails">guardrails</JargonTip> testing, and <JargonTip term="drift detection">drift detection</JargonTip> to ensure quality over time.</p>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">{[
     {icon:'\uD83D\uDD34',title:'Red-Teaming',desc:'Adversarial testing: intentionally try to make the AI misbehave'},{icon:'\uD83E\uDDEA',title:'Eval Frameworks',desc:'Systematic measurement of quality, safety, and reliability'},{icon:'\uD83D\uDEE1\uFE0F',title:'Injection Defense',desc:'Testing prompt injection resistance and safety boundaries'},{icon:'\uD83D\uDCCA',title:'Regression Testing',desc:'Ensure updates don\'t break existing behavior'},
   ].map((t,i)=><div key={i} className="p-3 rounded-xl border" style={{borderColor:GIM.border}}><div className="flex items-center gap-2 mb-1"><span>{t.icon}</span><span className="font-semibold" style={{fontSize:13,color:GIM.headingText}}>{t.title}</span></div><p style={{fontSize:12,color:GIM.bodyText}}>{t.desc}</p></div>)}</div>
@@ -3018,7 +3020,7 @@ function TabTestPlayground({onNavigate,onComplete}){return <FadeIn><div classNam
 </div></FadeIn>}
 function TabDeepRedTeam({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Red-Teaming Methodology</h2>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Red-teaming is the practice of adversarially probing AI systems to discover failure modes, safety gaps, and unexpected behaviors before deployment.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}><JargonTip term="red-teaming">Red-teaming</JargonTip> is the practice of adversarially probing AI systems to discover <JargonTip term="hallucination">hallucination</JargonTip>, safety gaps, and unexpected behaviors before deployment.</p>
   <CodeBlock label="Red-Team Attack Categories" code={`class RedTeamSuite:
     """Systematic AI red-teaming framework"""
 
@@ -3320,11 +3322,11 @@ function AgentCostCalculator(){
 // ==================== TAB 1: AGENT ARCHITECTURE ====================
 function TabAgentArchitecture({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Agent Architecture</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>An <b>agentic AI system</b> is an LLM that can reason about what to do, take actions using tools, observe results, and iterate until a task is complete. Unlike a simple prompt-response model, an agent operates in a <b>loop</b> -- deciding, acting, and learning from each step.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>An <b>agentic AI system</b> is an LLM that can reason about what to do, take actions using tools, observe results, and iterate until a task is complete. Unlike a simple prompt-response model, an <JargonTip term="agent">agent</JargonTip> operates in a <b>loop</b> -- deciding, acting, and learning from each step.</p>
   <AnalogyBox emoji={'\uD83D\uDD75\uFE0F'} title="Think of it like a detective">A detective doesn't solve a case in one guess. They form a hypothesis (thought), investigate a lead (action), examine the evidence (observation), then refine their hypothesis. Agents work the same way -- iterating through think-act-observe cycles until the case is solved.</AnalogyBox>
 
   <h3 className="font-bold mt-5 mb-3" style={{fontSize:16,color:GIM.headingText,fontFamily:GIM.fontMain}}>The ReAct Pattern</h3>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The <b>ReAct</b> (Reason + Act) pattern is the foundational architecture for tool-using agents. At each step the agent produces a <b>Thought</b> (reasoning about what to do), an <b>Action</b> (tool call or response), and receives an <b>Observation</b> (tool result). This cycle repeats until the task is done.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The <b><JargonTip term="ReAct">ReAct</JargonTip></b> (Reason + Act) pattern is the foundational architecture for tool-using agents. At each step the agent produces a <b>Thought</b> (reasoning about what to do), an <b>Action</b> (tool call or response), and receives an <b>Observation</b> (tool result). This cycle repeats until the task is done.</p>
   <CodeBlock language="python" label="ReAct Agent Loop" code={`def react_agent(task, tools, max_steps=10):
     """Core ReAct loop: Thought -> Action -> Observation"""
     messages = [{"role": "system", "content": AGENT_PROMPT}]
@@ -3461,7 +3463,7 @@ SANDBOX_CONFIG = {
 // ==================== TAB 3: MULTI-STEP REASONING ====================
 function TabMultiStepReasoning({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Multi-Step Reasoning</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Real-world tasks rarely complete in a single step. An agent researching a topic might need to search, read multiple documents, cross-reference findings, and synthesize a report. <b>Multi-step reasoning</b> is how agents decompose complex goals into manageable subtasks, maintain context across steps, and route work to the right tools.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Real-world tasks rarely complete in a single step. An agent researching a topic might need to search, read multiple documents, cross-reference findings, and synthesize a report. <b>Multi-step reasoning</b> with <JargonTip term="orchestration">orchestration</JargonTip> is how agents decompose complex goals into manageable subtasks, maintain context across steps, and route work to the right tools.</p>
   <AnalogyBox emoji={'\uD83C\uDFD7\uFE0F'} title="Think of it like building a house">You don't build a house in one step. First you lay the foundation, then frame the walls, then wire electricity, then plumb, then drywall. Each step builds on the last. Some can happen in parallel (electrical and plumbing), others must be sequential (foundation before framing). An agent decomposes tasks the same way.</AnalogyBox>
 
   <h3 className="font-bold mt-5 mb-3" style={{fontSize:16,color:GIM.headingText,fontFamily:GIM.fontMain}}>Task Decomposition</h3>
@@ -3562,7 +3564,7 @@ messages.append({"role": "system", "content": scratchpad.to_context()})`}/>
 // ==================== TAB 4: SCALING AGENTS ====================
 function TabScalingAgents({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Scaling Agents</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Building one agent that works is step one. Running thousands of agents reliably, affordably, and observably in production is a different challenge entirely. Scaling agents means managing <b>parallel execution</b>, <b>rate limits</b>, <b>costs</b>, and <b>observability</b> -- all while maintaining quality.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Building one agent that works is step one. Running thousands of agents reliably, affordably, and observably in production is a different challenge entirely. Scaling <JargonTip term="multi-agent">multi-agent</JargonTip> systems means managing <b>parallel execution</b>, <b>rate limits</b>, <b>costs</b>, and <b><JargonTip term="observability">observability</JargonTip></b> -- all while maintaining quality through <JargonTip term="tracing">tracing</JargonTip> and <JargonTip term="circuit breaker">circuit breakers</JargonTip>.</p>
   <AnalogyBox emoji={'\uD83C\uDFED'} title="Think of it like running a factory">One skilled craftsperson can make beautiful furniture. But a factory that produces 10,000 chairs per day needs assembly lines, quality control, resource management, maintenance schedules, and dashboards. Scaling agents is the same leap from craft to production.</AnalogyBox>
 
   <h3 className="font-bold mt-5 mb-3" style={{fontSize:16,color:GIM.headingText,fontFamily:GIM.fontMain}}>Parallel Tool Calls</h3>
@@ -3787,7 +3789,7 @@ function TabMCPAtScale({onNavigate, onComplete}) {
     <div>
       <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain, fontSize:22, color:GIM.headingText}}>MCP at Scale</h2>
       <p className="mb-3" style={{fontSize:14, color:GIM.bodyText, lineHeight:1.8}}>
-        Course 5 introduced MCP basics. In production you will wire <b>many servers</b> together, choose the right transport for each boundary, manage session lifecycles, and handle composition gracefully when individual servers fail or timeout.
+        Course 5 introduced <JargonTip term="MCP">MCP</JargonTip> basics. In production you will wire <b>many servers</b> together, choose the right transport for each boundary, manage session lifecycles, and handle composition gracefully when individual servers fail or timeout.
       </p>
       <AnalogyBox emoji="🔌" title="Think of MCP servers like power strips">
         A power strip (MCP host) exposes many sockets (tools). Each appliance you plug in (MCP server) contributes its own capabilities. The host does not care what brand the appliances are — it just routes electricity (JSON-RPC messages). You can add or remove appliances at runtime.
@@ -4015,7 +4017,7 @@ function TabCustomToolDesign({onNavigate, onComplete}) {
     <div>
       <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain, fontSize:22, color:GIM.headingText}}>Custom Tool Design</h2>
       <p className="mb-3" style={{fontSize:14, color:GIM.bodyText, lineHeight:1.8}}>
-        Well-designed MCP tools feel natural to LLMs. The schema is the contract between your server and the model — <b>ambiguous schemas cause hallucinated arguments</b>. Advanced patterns include nested schemas, enum constraints, streaming results, and explicit error contracts.
+        Well-designed MCP tools feel natural to LLMs. The schema is the contract between your server and the model via <JargonTip term="function calling">function calling</JargonTip> — <b>ambiguous schemas cause hallucinated arguments</b>. Advanced <JargonTip term="tool use">tool use</JargonTip> patterns include nested schemas, enum constraints, <JargonTip term="streaming">streaming</JargonTip> results, and explicit error contracts.
       </p>
       <CodeBlock language="json" label="Advanced Tool Schema — Nested Objects & Enums" code={`{
   "name": "run_debate_analysis",
@@ -4439,7 +4441,7 @@ function TabSecurityAuth({onNavigate, onComplete}) {
     <div>
       <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain, fontSize:22, color:GIM.headingText}}>Security & Auth</h2>
       <p className="mb-3" style={{fontSize:14, color:GIM.bodyText, lineHeight:1.8}}>
-        MCP servers expose powerful capabilities — reading files, executing queries, triggering workflows. A compromised or misconfigured MCP server is a significant attack surface. Production deployments require <b>OAuth 2.1</b>, scoped permissions, transport-level encryption, audit logs, and rate limiting.
+        MCP servers expose powerful capabilities — reading files, executing queries, triggering workflows. A compromised or misconfigured MCP server is a significant attack surface for any <JargonTip term="agent">agent</JargonTip>. Production deployments require <b>OAuth 2.1</b>, scoped permissions, <JargonTip term="guardrails">guardrails</JargonTip>, transport-level encryption, audit logs, and rate limiting.
       </p>
       <AnalogyBox emoji="🔐" title="MCP auth is like a key card system for a corporate office">
         The key card system (OAuth 2.1) issues scoped badges. A visitor badge opens the lobby. An employee badge opens their floor. An admin badge opens the server room. The audit log records every door opened. Rate limiting stops someone from trying every door in rapid succession.
@@ -5852,7 +5854,7 @@ function EvalMaturityQuiz(){
 
 function TabEOWhyEvaluate({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Why Evaluate?</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Most teams ship AI features based on <b>"vibes"</b> -- they read a few outputs, decide it looks good, and push to production. This works until it does not. A prompt change that improves creative writing might silently break factual accuracy. A model upgrade that feels snappier might hallucinate 3x more. Without systematic evaluation, you are flying blind.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Most teams ship AI features based on <b>"vibes"</b> -- they read a few outputs, decide it looks good, and push to production. This works until it does not. A prompt change that improves creative writing might silently break factual accuracy. A model upgrade that feels snappier might hallucinate 3x more. Without systematic <JargonTip term="eval">evaluation</JargonTip>, you are flying blind.</p>
   <AnalogyBox emoji={'\uD83C\uDFED'} title="Think of it like quality control in manufacturing">A factory does not ship products because one engineer glanced at them. They measure tolerances, run stress tests, and sample from every batch. AI evaluation is quality control for non-deterministic software -- you cannot inspect every output, but you can systematically measure quality across representative samples.</AnalogyBox>
   <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The shift from vibes to systematic evaluation is called <b>Evaluation-Driven Development (EDD)</b>. Just as Test-Driven Development changed how we write code, EDD changes how we build AI systems: define quality criteria first, build evals, then iterate on prompts and models until evals pass.</p>
   <ComparisonTable title="Offline vs Online Evaluation" columns={['Dimension','Offline Eval','Online Eval']} rows={[
@@ -5923,7 +5925,7 @@ function JudgePatternSimulator(){
 
 function TabEOEvalFrameworks({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Evaluation Frameworks</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Building a robust eval framework requires three pillars: <b>benchmark design</b> (what do you test?), <b>scoring methodology</b> (how do you judge?), and <b>agreement measurement</b> (how consistent are your judges?). Getting any one wrong undermines the whole system.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Building a robust eval framework requires three pillars: <b>benchmark design</b> (what do you test?), <b>scoring methodology</b> (how do you judge, including <JargonTip term="LLM-as-judge">LLM-as-judge</JargonTip> approaches?), and <b>agreement measurement</b> (how consistent are your judges?). Getting any one wrong undermines the whole system.</p>
   <AnalogyBox emoji={'\uD83C\uDFEB'} title="Think of it like a university exam system">You need well-designed questions (benchmark), qualified graders who follow rubrics (judges), and inter-rater reliability to ensure two professors would give the same essay the same grade (agreement metrics). Without all three, grades are meaningless.</AnalogyBox>
   <ExpandableSection title="Benchmark Design Principles" icon={'\uD83D\uDCCB'} defaultOpen={true}>
     <p className="mb-2" style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}><b>Coverage:</b> Test cases should cover the full distribution of real-world inputs -- common cases, edge cases, adversarial inputs, and failure modes.</p>
@@ -6085,7 +6087,7 @@ function ABTestSimulator(){
 
 function TabEOMetricsScoring({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Metrics & Scoring</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Individual metrics tell you about specific quality dimensions. But stakeholders want one answer: <b>"Is the system good enough to ship?"</b> That requires composite scores with weighted dimensions, operational metrics like latency and cost, and statistical rigor through A/B testing.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Individual metrics tell you about specific quality dimensions. But stakeholders want one answer: <b>"Is the system good enough to ship?"</b> That requires composite scores with weighted dimensions, operational metrics like <JargonTip term="latency">latency</JargonTip> and cost, and statistical rigor through A/B testing.</p>
   <ComparisonTable title="Core Evaluation Metrics" columns={['Metric','What It Measures','Scoring Method','Good Threshold']} rows={[
     ['Faithfulness','Output grounded in source context','LLM judge checks claims vs context','>0.85'],
     ['Relevance','Output addresses the query','LLM judge or embedding similarity','>0.80'],
@@ -6182,7 +6184,7 @@ function DriftDetector(){
 
 function TabEOObservability({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Observability in Production</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Once your AI system is live, offline evals are no longer enough. You need <b>production observability</b>: tracing every LLM call, logging prompts and completions, detecting quality drift, and alerting before users notice problems.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Once your AI system is live, offline evals are no longer enough. You need <b>production <JargonTip term="observability">observability</JargonTip></b>: <JargonTip term="tracing">tracing</JargonTip> every LLM call, logging prompts and completions, <JargonTip term="drift detection">detecting quality drift</JargonTip>, and alerting before users notice problems.</p>
   <AnalogyBox emoji={'\uD83C\uDFE5'} title="Think of it like a hospital monitoring system">A patient's vitals are continuously tracked: heart rate, blood pressure, oxygen levels. Alarms fire immediately if something crosses a threshold. AI observability does the same for your system -- continuously tracking quality, latency, and cost, with alerts for anomalies.</AnalogyBox>
   <CodeBlock language="python" label="Span-Based LLM Tracing" code={`import time
 import uuid
@@ -6674,7 +6676,7 @@ function TabBeyondVectorSearch({onNavigate, onComplete}) {
         Beyond Vector Search
       </h2>
       <p className="mb-3" style={{fontSize: 14, color: GIM.bodyText, lineHeight: 1.8}}>
-        Vector search is powerful — but it only finds documents <em>similar</em> to your query. It cannot follow chains of reasoning, discover multi-hop relationships, or answer questions that require connecting information scattered across many documents. <b>GraphRAG</b> adds a knowledge graph layer that enables relationship-aware retrieval.
+        Vector search is powerful — but it only finds documents <em>similar</em> to your query. It cannot follow chains of reasoning, discover multi-hop relationships, or answer questions that require connecting information scattered across many documents. <b><JargonTip term="GraphRAG">GraphRAG</JargonTip></b> adds a <JargonTip term="knowledge graph">knowledge graph</JargonTip> layer that enables relationship-aware retrieval.
       </p>
       <AnalogyBox emoji="🗺️" title="The map vs the satellite photo">
         A satellite photo (vector search) shows you everything nearby. A map (knowledge graph) shows you how places are connected — roads, borders, rivers. To answer "How do I get from A to B via C?", you need the map.
@@ -6897,7 +6899,7 @@ function TabBuildingKnowledgeGraphs({onNavigate, onComplete}) {
         Building Knowledge Graphs
       </h2>
       <p className="mb-3" style={{fontSize: 14, color: GIM.bodyText, lineHeight: 1.8}}>
-        Constructing a knowledge graph from unstructured text is a multi-stage pipeline: entity extraction, relationship mapping, entity resolution, and ontology enforcement. Each step directly impacts retrieval quality downstream.
+        Constructing a knowledge graph from unstructured text is a multi-stage pipeline: <JargonTip term="NER">entity extraction</JargonTip>, relationship mapping, entity resolution, and ontology enforcement. Each step directly impacts <JargonTip term="RAG">retrieval</JargonTip> quality downstream.
       </p>
       <div className="rounded-xl border p-4 mb-4" style={{borderColor: GIM.border}}>
         <h3 className="font-semibold mb-3" style={{fontSize: 15, color: GIM.headingText, fontFamily: GIM.fontMain}}>
@@ -7528,7 +7530,7 @@ function TabHybridRetrieval({onNavigate, onComplete}) {
         Hybrid Retrieval
       </h2>
       <p className="mb-3" style={{fontSize: 14, color: GIM.bodyText, lineHeight: 1.8}}>
-        No single retrieval method dominates all query types. Production GraphRAG systems combine <b>vector search</b> (semantic similarity), <b>graph traversal</b> (relationship paths), and <b>keyword search</b> (exact matching), then use intelligent <b>query routing</b> and <b>result reranking</b> to fuse the best of all three.
+        No single retrieval method dominates all query types. Production GraphRAG systems combine <b>vector search</b> (semantic <JargonTip term="embedding">embedding</JargonTip> similarity), <b>graph traversal</b> (relationship paths), and <b>keyword search</b> (exact matching) in a <JargonTip term="hybrid search">hybrid search</JargonTip> approach, then use intelligent <b>query routing</b> and <b>result reranking</b> to fuse the best of all three.
       </p>
       <ComparisonTable
         title="Retrieval Method Characteristics"
@@ -9011,7 +9013,7 @@ function DecisionTreeExplorer(){
 
 function TabFTWhenToFineTune({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>When to Fine-Tune</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Fine-tuning is powerful but expensive. Before committing to it, you should exhaust cheaper alternatives: <b>prompt engineering</b>, <b>few-shot examples</b>, and <b>RAG</b>. Fine-tuning wins when you need consistent style, domain-specific behavior, or reduced latency from a smaller model.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><JargonTip term="fine-tuning">Fine-tuning</JargonTip> is powerful but expensive. Before committing to it, you should exhaust cheaper alternatives: <b>prompt engineering</b>, <b>few-shot examples</b>, and <b>RAG</b>. Fine-tuning wins when you need consistent style, domain-specific behavior, or reduced <JargonTip term="inference">inference</JargonTip> latency from a smaller model.</p>
   <AnalogyBox emoji={'\uD83C\uDFA8'} title="Think of it like training an artist">Prompt engineering is giving an artist detailed instructions for each painting. Fine-tuning is teaching the artist your preferred style so they naturally paint that way every time -- no lengthy instructions needed.</AnalogyBox>
   <ComparisonTable title="Approaches Compared" columns={['Approach','Cost','Latency','When It Wins']} rows={[
     ['Prompt Engineering','Low (per-token only)','Base model latency','Simple formatting, general tasks'],
@@ -9021,7 +9023,7 @@ function TabFTWhenToFineTune({onNavigate,onComplete}){return <div>
   ]}/>
   <DecisionTreeExplorer/>
   <ExpandableSection title="Cost-Benefit Analysis" emoji={'\uD83D\uDCB0'}>
-    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Fine-tuning costs include: <b>data preparation</b> (10-50 hours), <b>training compute</b> ($5-500+ depending on model size), <b>evaluation</b> (ongoing), and <b>hosting</b> (dedicated endpoint). The payoff comes from: reduced prompt tokens (no few-shot examples needed), lower latency, and more consistent outputs.</p>
+    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Fine-tuning costs include: <b>data preparation</b> (10-50 hours), <b>training compute</b> ($5-500+ depending on model size), <b>evaluation</b> (ongoing), and <b>hosting</b> (dedicated endpoint). The payoff comes from: reduced prompt tokens (no few-shot examples needed), lower <JargonTip term="inference">inference</JargonTip> latency, and more consistent outputs.</p>
     <CodeBlock title="Cost comparison calculator" language="python" code={`# Cost comparison: prompting vs fine-tuning
 prompt_tokens_per_call = 2000  # With few-shot examples
 ft_tokens_per_call = 200       # No examples needed
@@ -9091,7 +9093,7 @@ function TabFTDataPrep({onNavigate,onComplete}){return <div>
     ]}/>
   </ExpandableSection>
   <ExpandableSection title="Synthetic Data Generation" emoji={'\uD83E\uDDEC'}>
-    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>When you lack enough real data, use a larger model to generate synthetic training data for a smaller model. This is a form of distillation.</p>
+    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>When you lack enough real data, use a larger model to generate synthetic training data for a smaller model. This is a form of <JargonTip term="distillation">distillation</JargonTip>.</p>
     <CodeBlock title="Generating synthetic training data" language="python" code={`import openai
 
 def generate_synthetic_pair(domain, task_desc):
@@ -9144,7 +9146,7 @@ function LoRAVisualizer(){
 
 function TabFTTechniques({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Fine-Tuning Techniques</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Modern fine-tuning doesn't require updating all model weights. <b>Parameter-efficient fine-tuning (PEFT)</b> methods like LoRA achieve comparable results while training less than 1% of parameters.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Modern fine-tuning doesn't require updating all model weights. <b>Parameter-efficient fine-tuning (PEFT)</b> methods like <JargonTip term="LoRA">LoRA</JargonTip> and <JargonTip term="QLoRA">QLoRA</JargonTip> achieve comparable results while training less than 1% of parameters, saving <JargonTip term="token">token</JargonTip> costs at inference time.</p>
   <AnalogyBox emoji={'\uD83C\uDFB9'} title="Think of it like learning piano">Full fine-tuning rewires every neural connection (rebuilding the whole piano). LoRA adds a few sticky notes to the sheet music (small adapter matrices) that modify how the existing knowledge is applied. Same performance, much less effort.</AnalogyBox>
   <LoRAVisualizer/>
   <CodeBlock title="Fine-tuning with LoRA (using PEFT library)" language="python" code={`from peft import LoraConfig, get_peft_model

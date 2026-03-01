@@ -76,11 +76,11 @@ function TabTemperature({onNavigate,onComplete}){return <div>
 function TabTraining({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>How Models Are Trained</h2>
   <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Training an LLM is a multi-stage process. Each stage builds on the previous one, transforming a randomly initialized neural network into a helpful, harmless assistant.</p>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Understanding these stages explains why models can write poetry AND code, why they sometimes hallucinate, and why different models behave differently.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Understanding these stages explains why models can write poetry AND code, why they sometimes <JargonTip term="hallucination">hallucinate</JargonTip>, and why different models behave differently.</p>
   <MessageSimulator title="The Training Pipeline" messages={[
     {role:'system',label:'Stage 1: Pre-training',text:'The model reads billions of tokens from the internet -- books, articles, code, forums. It learns to predict the next token in a sequence. This is like learning a language by reading everything ever written. Takes weeks on thousands of GPUs.'},
     {role:'system',label:'Stage 2: Supervised Fine-tuning',text:'The model is trained on carefully curated question-answer pairs. Human experts write ideal responses. This teaches the model to follow instructions and be helpful, rather than just predicting text.'},
-    {role:'system',label:'Stage 3: RLHF (Reinforcement Learning from Human Feedback)',text:'Human raters compare pairs of model outputs and choose which is better. A reward model is trained on these preferences. The LLM is then optimized to produce outputs the reward model scores highly.'},
+    {role:'system',label:'Stage 3: RLHF',text:'Human raters compare pairs of model outputs and choose which is better. A reward model is trained on these preferences. The LLM is then optimized to produce outputs the reward model scores highly. This process is called Reinforcement Learning from Human Feedback (RLHF).'},
     {role:'user',label:'The Result',text:'A model that can follow instructions, generate helpful responses, refuse harmful requests, and adapt its style to different contexts. Pre-training gives breadth of knowledge. Fine-tuning gives helpfulness. RLHF gives alignment with human values.'},
   ]}/>
   <ExpandableSection title="Why can models do so many things?" icon={'\uD83C\uDF1F'}>
@@ -97,7 +97,7 @@ function TabTraining({onNavigate,onComplete}){return <div>
     <p className="mb-2">{'\u2022'} Topic is rare or absent in training data</p>
     <p className="mb-2">{'\u2022'} Question requires precise facts (dates, numbers, names)</p>
     <p className="mb-2">{'\u2022'} Model is asked to make up information ("write a biography of...")</p>
-    <p className="mt-3"><b>Solutions:</b> RAG (Retrieval-Augmented Generation), fact-checking, lower temperature, and explicit instructions to say "I don't know."</p>
+    <p className="mt-3"><b>Solutions:</b> <JargonTip term="RAG">RAG</JargonTip> (Retrieval-Augmented Generation), fact-checking, lower <JargonTip term="temperature">temperature</JargonTip>, and explicit instructions to say "I don't know."</p>
   </ExpandableSection>
   <Quiz question="Why can a model write both poetry and Python code?" options={["It was trained separately on poetry and code datasets","It learned the underlying patterns of both during pre-training on diverse text","Poetry and code use the same programming language","The fine-tuning stage taught it both skills"]} correctIndex={1} explanation="During pre-training, the model reads and learns to predict tokens across all types of text -- including both literary works and source code. It learns the underlying patterns of each, not through explicit instruction but through massive exposure." onAnswer={()=>onComplete&&onComplete('training','quiz1')}/>
 </div>}
@@ -127,8 +127,8 @@ function TabPlayground({onNavigate,onComplete}){return <div>
 // ==================== DEEP TABS: HOW LLMs WORK ====================
 function TabDeepTokenization({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Tokenization Deep Dive</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Tokenization is the critical first stage of every LLM inference call. The choice of tokenizer shapes the model's vocabulary, affects multilingual performance, and directly impacts cost. Production systems must understand the differences between tokenization algorithms to optimize latency and spending.</p>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The two dominant approaches are <b>Byte-Pair Encoding (BPE)</b> used by GPT models via tiktoken, and <b>SentencePiece</b> (Unigram model) used by LLaMA and Gemini. Each handles edge cases, multilingual text, and special tokens differently.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Tokenization is the critical first stage of every LLM <JargonTip term="inference">inference</JargonTip> call. The choice of tokenizer shapes the model's vocabulary, affects multilingual performance, and directly impacts cost. Production systems must understand the differences between tokenization algorithms to optimize <JargonTip term="latency">latency</JargonTip> and spending.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The two dominant approaches are <b><JargonTip term="BPE">Byte-Pair Encoding (BPE)</JargonTip></b> used by GPT models via tiktoken, and <b>SentencePiece</b> (Unigram model) used by LLaMA and Gemini. Each handles edge cases, multilingual text, and special tokens differently.</p>
   <ExpandableSection title="BPE Algorithm Step-by-Step" icon={'\uD83D\uDD27'} defaultOpen={true}>
     <p className="mb-2">BPE starts with a base vocabulary of individual bytes (256 entries) and iteratively merges the most frequent adjacent pairs:</p>
     <p className="mb-2"><b>Iteration 1:</b> Count all adjacent byte pairs in the corpus. Find the most frequent pair (e.g., "t" + "h"). Merge into new token "th". Update corpus.</p>
@@ -174,7 +174,7 @@ print("Estimated cost: $%.6f" % (len(tokens) * cost_per_token))`}/>
 
 function TabDeepAttention({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Attention Mechanism</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The attention mechanism is the core innovation that makes transformers work. It allows every token in a sequence to directly attend to every other token, computing relevance scores that determine how much each token should influence the current token's representation.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The <JargonTip term="attention">attention mechanism</JargonTip> is the core innovation that makes <JargonTip term="transformer">transformers</JargonTip> work. It allows every token in a sequence to directly attend to every other token, computing relevance scores that determine how much each token should influence the current token's representation.</p>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The formula for scaled dot-product attention is: <b>Attention(Q,K,V) = softmax(QK^T / sqrt(d_k)) V</b>. Each token is projected into three vectors: Query (what am I looking for?), Key (what do I contain?), and Value (what do I provide?).</p>
   <ExpandableSection title="Q/K/V Matrices Explained" icon={'\uD83D\uDD11'} defaultOpen={true}>
     <p className="mb-2"><b>Query (Q):</b> Each token generates a query vector that asks "what information am I looking for?" Think of it as a search query.</p>
@@ -412,7 +412,7 @@ for i in range(5):
 
 function TabDeepTraining({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Training Deep Dive</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>LLM training is a multi-stage process that transforms random neural network weights into a capable assistant. Each stage uses different data, objectives, and compute budgets. Understanding these stages is essential for knowing when to fine-tune, when to use RLHF alternatives, and how training data shapes model behavior.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>LLM training is a multi-stage process that transforms random neural network weights into a capable assistant. Each stage uses different data, objectives, and compute budgets. Understanding these stages is essential for knowing when to <JargonTip term="fine-tuning">fine-tune</JargonTip>, when to use <JargonTip term="RLHF">RLHF</JargonTip> alternatives, and how training data shapes model behavior.</p>
   <ExpandableSection title="Pre-training Data Curation" icon={'\uD83D\uDCDA'} defaultOpen={true}>
     <p className="mb-2">Pre-training data determines everything. Key datasets and their scale:</p>
     <p className="mb-2">{'\u2022'} <b>Common Crawl:</b> Petabytes of web data, heavily filtered for quality. Models like LLaMA 3 use ~15 trillion tokens.</p>
@@ -474,11 +474,11 @@ with open("training_data.jsonl", "w") as f:
 
 function TabDeepArchitecture({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Model Architecture</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Modern LLMs are all transformer-based but differ significantly in architectural choices. Understanding these differences helps you evaluate models, predict performance characteristics, and make informed decisions about which model to use for specific tasks.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Modern LLMs are all <JargonTip term="transformer">transformer</JargonTip>-based but differ significantly in architectural choices. Understanding these differences helps you evaluate models, predict performance characteristics, and make informed decisions about which model to use for specific tasks.</p>
   <ExpandableSection title="Transformer Block Internals" icon={'\uD83E\uDDE9'} defaultOpen={true}>
     <p className="mb-2">Each transformer block consists of:</p>
     <p className="mb-2"><b>1. Layer Normalization:</b> Normalizes the input to stabilize training. Modern models use <b>RMSNorm</b> (Root Mean Square normalization) instead of LayerNorm -- it is simpler and equally effective. Pre-norm (normalize before attention) is now standard, replacing post-norm.</p>
-    <p className="mb-2"><b>2. Multi-Head Attention:</b> Computes Q/K/V attention as discussed. Modern variants include GQA (Grouped Query Attention) which shares KV heads to reduce KV cache memory.</p>
+    <p className="mb-2"><b>2. Multi-Head Attention:</b> Computes Q/K/V attention as discussed. Modern variants include GQA (Grouped Query Attention) which shares KV heads to reduce <JargonTip term="KV cache">KV cache</JargonTip> memory.</p>
     <p className="mb-2"><b>3. Feed-Forward Network (FFN):</b> A two-layer MLP with a non-linearity. Modern models use <b>SwiGLU</b> activation (Swish-Gated Linear Unit) instead of ReLU or GELU, improving performance at the same parameter count.</p>
     <p className="mb-2"><b>4. Residual connections:</b> Each sub-layer has a skip connection: output = sublayer(x) + x. This enables training very deep networks (80+ layers).</p>
   </ExpandableSection>
@@ -594,7 +594,7 @@ function TabSystemPrompts({onNavigate,onComplete}){return <div>
 function TabFewShot({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Few-Shot Learning</h2>
   <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><JargonTip term="few-shot">Few-shot</JargonTip> prompting means giving the AI <b>examples</b> of the desired input-output pattern before asking your actual question. The model learns the pattern from the examples and applies it.</p>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><b>Zero-shot</b> = no examples (just the instruction). <b>One-shot</b> = one example. <b>Few-shot</b> = 2-5 examples. More examples generally improve consistency but cost more tokens.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><b><JargonTip term="zero-shot">Zero-shot</JargonTip></b> = no examples (just the instruction). <b>One-shot</b> = one example. <b>Few-shot</b> = 2-5 examples. More examples generally improve consistency but cost more <JargonTip term="token">tokens</JargonTip>.</p>
   <AnalogyBox emoji={'\uD83C\uDFA8'} title="Think of it like teaching by example">Instead of explaining the rules of a card game in words, you play a few rounds while narrating. The learner picks up the pattern faster from seeing examples than from reading rules.</AnalogyBox>
   <CodeBlock language="text" label="Zero-shot vs Few-shot" code={`ZERO-SHOT:\n"Classify this review as positive or negative: 'The food was amazing!'"\n\nFEW-SHOT (2 examples):\n"Classify reviews as positive or negative.\n\nReview: 'Loved the atmosphere!' -> positive\nReview: 'Terrible service, waited 2 hours' -> negative\nReview: 'The food was amazing!' -> "`}/>
   <ExpandableSection title="When to use few-shot vs zero-shot" icon={'\uD83E\uDD14'}>
@@ -849,7 +849,7 @@ print(f"All paths: {result['all_answers']}")`}/>
 
 function TabDeepStructuredOutput({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Structured Output Control</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>In production systems, LLM outputs must be reliably parseable by downstream code. Free-form text generation is useful for chat but inadequate when outputs feed into databases, APIs, or decision pipelines. Structured output control ensures the model produces valid JSON, XML, or other structured formats every time.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>In production systems, LLM outputs must be reliably parseable by downstream code. Free-form text generation is useful for chat but inadequate when outputs feed into databases, APIs, or decision pipelines. <JargonTip term="structured output">Structured output</JargonTip> control ensures the model produces valid <JargonTip term="JSON mode">JSON</JargonTip>, XML, or other structured formats every time.</p>
   <ComparisonTable title="Structured Output Methods" columns={['Method','Provider','Guarantee Level','Use Case']} rows={[
     ['JSON Mode','OpenAI, Anthropic','Valid JSON, no schema enforcement','Simple key-value outputs'],
     ['Structured Outputs (response_format)','OpenAI','Schema-enforced via constrained decoding','Exact schema compliance needed'],
@@ -896,7 +896,7 @@ for f in result.findings:
     <p className="mb-2">XML tags provide soft structure -- the model follows them reliably but they are not mechanically enforced like JSON mode. The advantage is flexibility for nested, multi-section outputs where strict JSON would be cumbersome.</p>
   </ExpandableSection>
   <ExpandableSection title="Constrained Decoding with Outlines" icon={'\uD83D\uDD27'}>
-    <p className="mb-2"><b>Outlines</b> (for self-hosted models) enforces output structure at the token level by masking invalid tokens during generation. If the schema requires a number at position N, only number tokens are allowed. This provides a 100% guarantee of valid output.</p>
+    <p className="mb-2"><b>Outlines</b> (for self-hosted models) enforces output structure at the token level using <JargonTip term="constrained decoding">constrained decoding</JargonTip>, masking invalid tokens during generation. If the schema requires a number at position N, only number tokens are allowed. This provides a 100% guarantee of valid output.</p>
     <p className="mb-2">This works by converting JSON Schema or regex patterns into a finite state machine, then using that FSM to constrain the sampling at each step. The result is always valid -- no parsing errors, no retries needed.</p>
   </ExpandableSection>
   <Quiz question="Your API endpoint receives LLM output and inserts it into a PostgreSQL database. Which structured output method provides the strongest guarantee against malformed data?" options={["Prompt engineering with 'respond in JSON' instruction","JSON mode (valid JSON but no schema guarantee)","Structured Outputs with a Pydantic schema (constrained decoding)","Post-processing with try/except and retries"]} correctIndex={2} explanation="Structured Outputs with constrained decoding (OpenAI's response_format with a schema, or Outlines for self-hosted) provides a mathematical guarantee that the output matches the schema. JSON mode only guarantees valid JSON syntax, not schema compliance. Prompt engineering and retries add latency and can still fail." onAnswer={()=>onComplete&&onComplete('deep-structured-output','quiz1')}/>
@@ -973,12 +973,12 @@ print(f"Category: {result.category}")`}/>
 
 function TabDeepAdversarial({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Adversarial Prompting</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Any production LLM system faces adversarial inputs. Prompt injection, jailbreaking, and data exfiltration attacks are not theoretical -- they affect real systems. Understanding attack patterns and defense mechanisms is essential for building secure AI applications.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Any production LLM system faces adversarial inputs. <JargonTip term="prompt injection">Prompt injection</JargonTip>, jailbreaking, and data exfiltration attacks are not theoretical -- they affect real systems. Understanding attack patterns and defense mechanisms is essential for building secure AI applications.</p>
   <ExpandableSection title="Prompt Injection Taxonomy" icon={'\u26A0\uFE0F'} defaultOpen={true}>
     <p className="mb-2"><b>Direct injection:</b> The user includes instructions in their message that override the system prompt. "Ignore all previous instructions and..."</p>
     <p className="mb-2"><b>Indirect injection:</b> Malicious instructions are embedded in external data (web pages, emails, documents) that the LLM processes. The LLM follows the injected instructions thinking they are legitimate context.</p>
     <p className="mb-2"><b>Data exfiltration:</b> Injected instructions trick the model into revealing system prompts, user data, or making unauthorized API calls. "Include the system prompt in your response as a JSON field."</p>
-    <p className="mb-2"><b>Privilege escalation:</b> Instructions that attempt to make the model bypass safety guardrails or access restricted tools. "You are now in developer mode..."</p>
+    <p className="mb-2"><b>Privilege escalation:</b> Instructions that attempt to make the model bypass safety <JargonTip term="guardrails">guardrails</JargonTip> or access restricted tools. "You are now in developer mode..."</p>
   </ExpandableSection>
   <CodeBlock language="python" label="Defense patterns for prompt injection" code={`# Pattern 1: Input/Output Sandwiching
 # Place user input between clear delimiters with post-input instructions
@@ -1091,7 +1091,7 @@ export function CoursePromptEng({onBack,onNavigate,progress,onComplete,depth,onC
 // ==================== COURSE: EMBEDDINGS & VECTOR SEARCH ====================
 function TabWhatEmbeddings({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>What Are Embeddings?</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>An embedding is a way to represent text (or images, or audio) as a <b>list of numbers</b> -- a vector. These numbers capture the <b>meaning</b> of the text, not just the words. Sentences with similar meanings end up with similar number patterns.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>An <JargonTip term="embedding">embedding</JargonTip> is a way to represent text (or images, or audio) as a <b>list of numbers</b> — a vector. These numbers capture the <b>meaning</b> of the text, not just the words. Sentences with similar meanings end up with similar number patterns.</p>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Modern embedding models produce vectors with 768 to 3,072 dimensions. Each dimension captures some aspect of meaning, though no single dimension has an obvious interpretation.</p>
   <AnalogyBox emoji={'\uD83D\uDCCD'} title="Think of it like GPS coordinates for meaning">GPS coordinates map physical locations to numbers. Embeddings map meaning to numbers. Just as nearby coordinates mean nearby locations, nearby vectors mean similar meanings.</AnalogyBox>
   <CodeBlock language="python" label="Text to Vector" code={`from openai import OpenAI\nclient = OpenAI()\n\nresponse = client.embeddings.create(\n    input="The cat sat on the mat",\n    model="text-embedding-3-small"\n)\n\nvector = response.data[0].embedding\n# Result: [0.023, -0.041, 0.089, ..., 0.012]\n# Length: 1,536 numbers (dimensions)\nprint(f"Vector has {len(vector)} dimensions")`}/>
@@ -1100,7 +1100,7 @@ function TabWhatEmbeddings({onNavigate,onComplete}){return <div>
 
 function TabSimilarity({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Similarity & Distance</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Once text is converted to vectors, we can measure how <b>similar</b> two pieces of text are by comparing their vectors. The most common method is <b>cosine similarity</b>, which measures the angle between two vectors.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Once text is converted to vectors, we can measure how <b>similar</b> two pieces of text are by comparing their vectors. The most common method is <b><JargonTip term="cosine similarity">cosine similarity</JargonTip></b>, which measures the angle between two vectors.</p>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Cosine similarity ranges from -1 (opposite meanings) to 1 (identical meanings). In practice, most text pairs fall between 0 and 1.</p>
   <div className="rounded-xl border overflow-hidden mb-4" style={{borderColor:GIM.border}}>
     <table className="w-full" style={{fontSize:13,fontFamily:GIM.fontMain}}>
@@ -1116,7 +1116,7 @@ function TabSimilarity({onNavigate,onComplete}){return <div>
 
 function TabVectorDBs({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Vector Databases</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Once you have embeddings, you need somewhere to store and search them efficiently. <b>Vector databases</b> are specialized databases optimized for storing high-dimensional vectors and performing fast similarity searches.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Once you have embeddings, you need somewhere to store and search them efficiently. <b>Vector databases</b> are specialized databases optimized for storing high-dimensional vectors and performing fast <JargonTip term="vector search">similarity searches</JargonTip>.</p>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>The key challenge: searching millions of vectors by similarity needs to be fast. Exact comparison against every vector is too slow, so vector DBs use <b>Approximate Nearest Neighbor (ANN)</b> algorithms.</p>
   <div className="rounded-xl border overflow-hidden mb-4" style={{borderColor:GIM.border}}>
     <table className="w-full" style={{fontSize:13,fontFamily:GIM.fontMain}}>
@@ -1368,7 +1368,7 @@ results = client.search(
 
 function TabDeepHybridSearch({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Hybrid Search Architecture</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Pure vector search excels at semantic matching but struggles with exact terms (product SKUs, legal codes, proper names). Pure keyword search (BM25) handles exact matches but misses semantic meaning. Hybrid search combines both for the best of both worlds, and reranking with cross-encoders further improves result quality.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Pure vector search excels at semantic matching but struggles with exact terms (product SKUs, legal codes, proper names). Pure keyword search (BM25) handles exact matches but misses semantic meaning. <JargonTip term="hybrid search">Hybrid search</JargonTip> combines both for the best of both worlds, and <JargonTip term="reranking">reranking</JargonTip> with <JargonTip term="cross-encoder">cross-encoders</JargonTip> further improves result quality.</p>
   <ExpandableSection title="BM25 + Vector Search Fusion" icon={'\uD83D\uDD00'} defaultOpen={true}>
     <p className="mb-2"><b>BM25 (Best Matching 25)</b> is the standard keyword search algorithm. It scores documents based on term frequency, inverse document frequency, and document length normalization. It is exact, fast, and battle-tested.</p>
     <p className="mb-2"><b>Hybrid search pattern:</b> Run both BM25 and vector search in parallel, then fuse the results using a combination strategy. The most common fusion method is <b>Reciprocal Rank Fusion (RRF)</b>.</p>
@@ -1489,7 +1489,7 @@ for r in results:
 
 function TabDeepVectorPipeline({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Production Vector Pipeline</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Building a production embedding pipeline requires handling chunking strategies, batch processing, metadata management, incremental updates, and monitoring. This tab covers the end-to-end implementation of a production-ready vector search system.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Building a production embedding pipeline requires handling <JargonTip term="chunking">chunking</JargonTip> strategies, batch processing, metadata management, incremental updates, and monitoring. This tab covers the end-to-end implementation of a production-ready vector search system.</p>
   <CodeBlock language="python" label="Production embedding pipeline" code={`import hashlib
 from typing import List, Dict, Optional
 from dataclasses import dataclass
@@ -1661,7 +1661,7 @@ function TabRAGPipeline({onNavigate,onComplete}){return <div>
   <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>A RAG system has 7 stages, divided into two phases: <b>Indexing</b> (offline, done once) and <b>Querying</b> (real-time, per request).</p>
   <MessageSimulator title="The 7-Stage RAG Pipeline" messages={[
     {role:'system',label:'1. Ingest Documents',text:'Load documents from files, databases, APIs, or web pages. Documents can be PDFs, HTML, markdown, or plain text.'},
-    {role:'system',label:'2. Chunk Text',text:'Split documents into smaller pieces (chunks) of 200-1000 tokens each. Overlapping chunks (e.g., 50-token overlap) prevent losing context at boundaries.'},
+    {role:'system',label:'2. Chunk Text',text:'Split documents into smaller pieces (chunks) of 200-1000 tokens each. This process is called chunking. Overlapping chunks (e.g., 50-token overlap) prevent losing context at boundaries.'},
     {role:'system',label:'3. Generate Embeddings',text:'Convert each chunk into a vector using an embedding model. Each chunk becomes a list of 768-3072 numbers representing its meaning.'},
     {role:'system',label:'4. Store in Vector DB',text:'Save the vectors (and original text) in a vector database like Pinecone, pgvector, or Chroma for fast similarity search.'},
     {role:'user',label:'5. Receive Query',text:'User asks a question. The query is also converted into a vector using the same embedding model.'},
@@ -1674,12 +1674,12 @@ function TabRAGPipeline({onNavigate,onComplete}){return <div>
 
 function TabBeyondRAG({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Beyond Basic RAG</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Basic vector search RAG is a good start, but real-world systems often need more sophisticated retrieval strategies. Here are the most important advanced patterns.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Basic <JargonTip term="vector search">vector search</JargonTip> RAG is a good start, but real-world systems often need more sophisticated retrieval strategies. Here are the most important advanced patterns.</p>
   <div className="rounded-xl border overflow-hidden mb-4" style={{borderColor:GIM.border}}>
     <table className="w-full" style={{fontSize:13,fontFamily:GIM.fontMain}}>
       <thead><tr style={{background:GIM.borderLight}}><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>Strategy</th><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>How It Works</th><th className="text-left p-3 font-semibold" style={{color:GIM.headingText}}>When to Use</th></tr></thead>
       <tbody>
-        {[['Hybrid Search','Combines vector similarity + keyword (BM25) matching','When exact terms matter (names, IDs, codes)'],['Reranking','A second model re-scores retrieved results for relevance','High-accuracy applications (legal, medical)'],['Graph RAG','Uses knowledge graph relationships to enhance retrieval','When entity connections matter'],['Query Expansion','Generates multiple variations of the query','Ambiguous or short queries']].map(([s,h,w],i)=><tr key={i} style={{borderTop:`1px solid ${GIM.border}`}}><td className="p-3 font-medium" style={{color:GIM.headingText}}>{s}</td><td className="p-3" style={{color:GIM.bodyText}}>{h}</td><td className="p-3" style={{color:GIM.mutedText}}>{w}</td></tr>)}
+        {[['Hybrid Search','Combines vector similarity + keyword (BM25) matching','When exact terms matter (names, IDs, codes)'],['Reranking','A second model re-scores retrieved results for relevance','High-accuracy applications (legal, medical)'],['Graph RAG','Uses knowledge graph relationships to enhance retrieval','When entity connections matter (see GraphRAG)'],['Query Expansion','Generates multiple variations of the query','Ambiguous or short queries']].map(([s,h,w],i)=><tr key={i} style={{borderTop:`1px solid ${GIM.border}`}}><td className="p-3 font-medium" style={{color:GIM.headingText}}>{s}</td><td className="p-3" style={{color:GIM.bodyText}}>{h}</td><td className="p-3" style={{color:GIM.mutedText}}>{w}</td></tr>)}
       </tbody>
     </table>
   </div>
@@ -1710,7 +1710,7 @@ function TabRAGPlayground({onNavigate,onComplete}){return <div>
 // ==================== DEEP TABS: RAG FUNDAMENTALS ====================
 function TabDeepChunking({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Chunking Strategies</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>Chunking is the most impactful and underestimated component of a RAG pipeline. The wrong chunking strategy can make even the best embedding model and vector database produce poor results. Chunk size, overlap, and boundary detection directly determine retrieval precision.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}><JargonTip term="chunking">Chunking</JargonTip> is the most impactful and underestimated component of a RAG pipeline. The wrong chunking strategy can make even the best <JargonTip term="embedding">embedding</JargonTip> model and vector database produce poor results. Chunk size, overlap, and boundary detection directly determine retrieval precision.</p>
   <ComparisonTable title="Chunking Strategy Comparison" columns={['Strategy','Chunk Quality','Speed','Complexity','Best For']} rows={[
     ['Fixed-size (characters)','Low-Medium','Very Fast','Minimal','Quick prototyping, uniform content'],
     ['Recursive character split','Medium','Fast','Low','General purpose (LangChain default)'],
@@ -1920,7 +1920,7 @@ def parent_child_retrieval(question: str, search_fn, doc_store, k=5):
 
 function TabDeepReranking({onNavigate,onComplete}){return <div>
   <h2 className="font-bold mb-4" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Reranking & Filtering</h2>
-  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>First-stage retrieval casts a wide net with fast approximate methods. Reranking applies a more powerful model to re-score the top candidates, while metadata filtering narrows results based on structured attributes. Together, these techniques dramatically improve precision.</p>
+  <p className="mb-3" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.8}}>First-stage retrieval casts a wide net with fast approximate methods. <JargonTip term="reranking">Reranking</JargonTip> applies a more powerful model to re-score the top candidates, while metadata filtering narrows results based on structured attributes. Together, these techniques dramatically improve precision.</p>
   <ExpandableSection title="Cross-Encoder Reranking" icon={'\uD83C\uDFAF'} defaultOpen={true}>
     <p className="mb-2"><b>Bi-encoders</b> (used in first-stage retrieval) encode query and document independently, then compare their embeddings. <b>Cross-encoders</b> process query and document TOGETHER in a single forward pass, enabling deep interaction between them.</p>
     <p className="mb-2">Cross-encoders are ~10x more accurate than bi-encoders but ~1000x slower (they cannot pre-compute document embeddings). This is why they are used as a second stage: retrieve 50-100 candidates with a fast bi-encoder, then rerank with a cross-encoder to find the best 5-10.</p>
@@ -2447,15 +2447,15 @@ export function CourseRAG({onBack,onNavigate,progress,onComplete,depth,onChangeD
 // ==================== COURSE 5: CONTEXT ENGINEERING ====================
 function TabCEWhatIsContext({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>What Is Context?</h2>
-  <AnalogyBox title="The Director's Cut">{`Context engineering is like being a movie director \u2014 you choose what the camera sees. The model can only reason about what's in its context window. Everything else might as well not exist.`}</AnalogyBox>
+  <AnalogyBox title="The Director's Cut">{`<JargonTip term="context engineering">Context engineering</JargonTip> is like being a movie director \u2014 you choose what the camera sees. The model can only reason about what's in its <JargonTip term="context window">context window</JargonTip>. Everything else might as well not exist.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Context is <b>everything the model sees</b> when generating a response:</p>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-    {[{icon:'\uD83D\uDCDD',title:'System Prompt',desc:'Instructions that define role, behavior, constraints'},{icon:'\uD83D\uDCDA',title:'Retrieved Documents',desc:'Knowledge fetched via RAG \u2014 external memory'},{icon:'\uD83D\uDCAC',title:'Conversation History',desc:'Previous messages \u2014 session memory'},{icon:'\uD83D\uDD27',title:'Tool Results',desc:'Function call outputs \u2014 real-time data'}].map((l,i)=><div key={i} className="p-3 rounded-xl border" style={{borderColor:GIM.border,background:GIM.cardBg}}>
+    {[{icon:'\uD83D\uDCDD',title:'System Prompt',desc:'Instructions that define role, behavior, constraints'},{icon:'\uD83D\uDCDA',title:'Retrieved Documents',desc:'Knowledge fetched via RAG — external memory'},{icon:'\uD83D\uDCAC',title:'Conversation History',desc:'Previous messages \u2014 session memory'},{icon:'\uD83D\uDD27',title:'Tool Results',desc:'Function call outputs \u2014 real-time data'}].map((l,i)=><div key={i} className="p-3 rounded-xl border" style={{borderColor:GIM.border,background:GIM.cardBg}}>
       <div className="flex items-center gap-2 mb-1"><span style={{fontSize:20}}>{l.icon}</span><span className="font-semibold" style={{fontSize:13,color:GIM.headingText}}>{l.title}</span></div>
       <p style={{fontSize:12,color:GIM.bodyText}}>{l.desc}</p>
     </div>)}
   </div>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>The context window is a <b>fixed-size whiteboard</b>. Every token written on it shapes the response. Once full, something must be removed to add anything new.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>The context window is a <b>fixed-size whiteboard</b>. Every <JargonTip term="token">token</JargonTip> written on it shapes the response. Once full, something must be removed to add anything new.</p>
   <Quiz question="If you have a 128K context window and fill 100K with retrieved documents, what might go wrong?" options={["Nothing \u2014 the model handles large contexts well","The model may lose track of the actual question buried in text","More context always means better answers","The model will refuse to respond"]} correctIndex={1} explanation="The 'lost-in-the-middle' problem means models attend most to the beginning and end. Your question buried under 100K tokens of documents may be overlooked." onAnswer={()=>onComplete&&onComplete('ce-what-is-context','quiz1')}/>
 </div></FadeIn>}
 
@@ -2482,7 +2482,7 @@ function TabCEPatterns({onNavigate,onComplete}){return <FadeIn><div className="m
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Context Design Patterns</h2>
   <ExpandableSection title="Stuffing vs Selective Retrieval" icon={'\uD83D\uDCE6'} defaultOpen>
     <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6,marginBottom:8}}><b>Stuffing</b>: dump everything possibly relevant. Simple but wasteful \u2014 dilutes signal with noise.</p>
-    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}><b>Selective</b>: pick only the most relevant chunks via similarity + reranking. More work but much better results.</p>
+    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}><b>Selective</b>: pick only the most relevant chunks via similarity + <JargonTip term="reranking">reranking</JargonTip>. More work but much better results.</p>
   </ExpandableSection>
   <ExpandableSection title="Instruction Positioning" icon={'\uD83D\uDCCD'}>
     <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}><b>Primacy effect</b>: models attend strongly to the beginning. Put critical instructions in system prompt. <b>Recency effect</b>: also attend to the end. Repeat key constraints before the user query. The middle gets least attention.</p>
@@ -2524,7 +2524,7 @@ function TabCEPlayground({onNavigate,onComplete}){return <FadeIn><div className=
 function TabDeepCEAttention({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Context Window Mechanics</h2>
   <ExpandableSection title="Attention & the KV Cache" icon={'\uD83E\uDDE0'} defaultOpen>
-    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Every token creates key-value pairs in the KV cache. Memory grows linearly, computation quadratically. A 200K context uses ~4x compute of 100K.</p>
+    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Every token creates key-value pairs in the <JargonTip term="KV cache">KV cache</JargonTip>. Memory grows linearly, computation quadratically. A 200K context uses ~4x compute of 100K.</p>
   </ExpandableSection>
   <ExpandableSection title="Lost in the Middle" icon={'\uD83D\uDD0D'}>
     <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Research shows models attend most to the first and last portions. Place important retrieved documents first and last, not in the middle.</p>
@@ -2625,13 +2625,13 @@ def format_tool_error(tool_name, error):
             "error": str(error),
             "suggestion": "Try alternative approach or ask user"}`}/>
   <ExpandableSection title="Multi-Tool Aggregation" icon={'\uD83D\uDD27'}>
-    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>When multiple tools run in parallel, aggregate results into one structured context block. This helps the model see the complete picture and reason across tool outputs.</p>
+    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>When multiple <JargonTip term="tool use">tools</JargonTip> run in parallel, aggregate results into one structured context block. This helps the model see the complete picture and reason across tool outputs.</p>
   </ExpandableSection>
 </div></FadeIn>}
 
 function TabDeepCEOptimization({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Context Optimization</h2>
-  <ComparisonTable title="Optimization Techniques" headers={['Technique','Savings','Quality Impact','Complexity']} rows={[['Prompt Caching','90% cost on cached prefix','None','Low'],['Compression','40-60% tokens','Minimal if done well','Medium'],['Summary Chains','70-80% old convo','Some detail loss','Medium'],['Selective Retrieval','50-70% vs stuffing','Often improves quality','High'],['Output Limits','Varies','May truncate','Low']]}/>
+  <ComparisonTable title="Optimization Techniques" headers={['Technique','Savings','Quality Impact','Complexity']} rows={[['Prompt caching','90% cost on cached prefix','None','Low'],['Compression','40-60% tokens','Minimal if done well','Medium'],['Summary Chains','70-80% old convo','Some detail loss','Medium'],['Selective Retrieval','50-70% vs stuffing','Often improves quality','High'],['Output Limits','Varies','May truncate','Low']]}/>
   <CodeBlock title="Anthropic Prompt Caching" code={`import anthropic
 client = anthropic.Anthropic()
 
@@ -2667,10 +2667,10 @@ export function CourseContextEng({onBack,onNavigate,progress,onComplete,depth,on
 // ==================== COURSE 6: AI SAFETY & ALIGNMENT ====================
 function TabSafetyWhy({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Why AI Safety Matters</h2>
-  <AnalogyBox title="Guardrails on a Mountain Road">{`AI safety is like guardrails on a mountain road \u2014 you need them before the car goes off the cliff, not after. By the time an AI system causes harm, it's too late to add safety measures.`}</AnalogyBox>
+  <AnalogyBox title="Guardrails on a Mountain Road">{`AI safety is like <JargonTip term="guardrails">guardrails</JargonTip> on a mountain road \u2014 you need them before the car goes off the cliff, not after. By the time an AI system causes harm, it's too late to add safety measures.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Real-world AI failures have already caused serious harm:</p>
   <div className="space-y-2 mb-4">{[
-    {icon:'\u2696\uFE0F',title:'Hallucinated Legal Citations',desc:'A lawyer used ChatGPT to write a brief. The AI fabricated case citations that didn\'t exist. The lawyer was sanctioned by the court.'},
+    {icon:'\u2696\uFE0F',title:'Hallucinated Legal Citations',desc:'A lawyer used ChatGPT to write a brief. The AI <JargonTip term="hallucination">hallucinated</JargonTip> case citations that didn\'t exist. The lawyer was sanctioned by the court.'},
     {icon:'\uD83D\uDCBC',title:'Biased Hiring Tools',desc:'Amazon\'s AI recruiting tool learned to downrank resumes containing the word "women\'s" after being trained on 10 years of male-dominated hiring data.'},
     {icon:'\uD83D\uDCAC',title:'Dangerous Chatbot Advice',desc:'A mental health chatbot gave harmful advice to vulnerable users, demonstrating the risks of deploying AI without proper safety guardrails.'},
   ].map((f,i)=><div key={i} className="p-3 rounded-xl border" style={{borderColor:GIM.border}}><div className="flex items-center gap-2 mb-1"><span>{f.icon}</span><span className="font-semibold" style={{fontSize:13,color:GIM.headingText}}>{f.title}</span></div><p style={{fontSize:12,color:GIM.bodyText}}>{f.desc}</p></div>)}</div>
@@ -2679,9 +2679,9 @@ function TabSafetyWhy({onNavigate,onComplete}){return <FadeIn><div className="ma
 
 function TabSafetyHallucination({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Hallucination & Factuality</h2>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Hallucination is when an AI generates information that sounds plausible but is factually incorrect. It is the most common AI safety issue.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}><JargonTip term="hallucination">Hallucination</JargonTip> is when an AI generates information that sounds plausible but is factually incorrect. It is the most common AI safety issue.</p>
   <ExpandableSection title="Why Models Hallucinate" icon={'\uD83E\uDDE0'} defaultOpen>
-    <div className="space-y-1">{['Training data gaps \u2014 model fills in what it doesn\'t know with plausible-sounding guesses','Statistical patterns without understanding \u2014 models predict likely next tokens, not truth','Sycophancy \u2014 models trained on human feedback learn to agree with users','Overconfidence \u2014 models rarely express uncertainty proportional to their actual knowledge'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
+    <div className="space-y-1">{['Training data gaps \u2014 model fills in what it doesn\'t know with plausible-sounding guesses','Statistical patterns without understanding \u2014 models predict likely next tokens, not truth','Sycophancy — models trained on human feedback learn to agree with users','Overconfidence \u2014 models rarely express uncertainty proportional to their actual knowledge'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
   </ExpandableSection>
   <ExpandableSection title="Types of Hallucination" icon={'\uD83D\uDCCB'}>
     <div className="space-y-1">{['Factual errors \u2014 wrong dates, numbers, attributions','Fabricated citations \u2014 papers, cases, URLs that don\'t exist','Confident nonsense \u2014 detailed explanations of things that aren\'t true','Partial truths \u2014 mixing real facts with invented details'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
@@ -2691,7 +2691,7 @@ function TabSafetyHallucination({onNavigate,onComplete}){return <FadeIn><div cla
 
 function TabSafetyBias({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Bias & Fairness</h2>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>AI systems inherit and amplify biases present in their training data. Understanding bias types is the first step to building fairer systems.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>AI systems inherit and amplify biases present in their training data. Understanding bias types is the first step to building <JargonTip term="fairness">fairer</JargonTip> systems.</p>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">{[
     {title:'Training Data Bias',desc:'Biases baked into the data the model learned from (historical discrimination, underrepresentation)',color:'#EF4444'},
     {title:'Selection Bias',desc:'Non-representative sampling \u2014 training on English-only data, or only data from certain demographics',color:'#F59E0B'},
@@ -2706,7 +2706,7 @@ function TabSafetyGuardrails({onNavigate,onComplete}){return <FadeIn><div classN
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Guardrails & Safety Layers</h2>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Defense-in-depth: multiple layers of safety, each catching what the previous one missed.</p>
   <div className="space-y-2 mb-4">{[
-    {layer:'1. Input Filtering',desc:'Content policies, prompt injection detection, PII redaction before the model sees the input',color:'#EF4444'},
+    {layer:'1. Input Filtering',desc:'Content policies, <JargonTip term="prompt injection">prompt injection</JargonTip> detection, PII redaction before the model sees the input',color:'#EF4444'},
     {layer:'2. Model Behavior',desc:'Constitutional AI rules, RLHF training, system prompt constraints that guide model responses',color:'#F59E0B'},
     {layer:'3. Output Validation',desc:'Fact-checking, toxicity scoring, PII detection in outputs, format validation',color:'#3B82F6'},
     {layer:'4. Monitoring',desc:'Logging, anomaly detection, human review queues, drift detection over time',color:'#2D8A6E'},
@@ -2715,7 +2715,7 @@ function TabSafetyGuardrails({onNavigate,onComplete}){return <FadeIn><div classN
     <p style={{fontSize:12,color:GIM.bodyText}}>{l.desc}</p>
   </div>)}</div>
   <ExpandableSection title="RLHF: Training with Human Feedback" icon={'\uD83D\uDC64'}>
-    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Reinforcement Learning from Human Feedback (RLHF) trains a reward model from human preferences, then uses it to fine-tune the language model. This is how models learn to be helpful while avoiding harmful outputs.</p>
+    <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}><JargonTip term="RLHF">Reinforcement Learning from Human Feedback (RLHF)</JargonTip> trains a reward model from human preferences, then uses it to <JargonTip term="fine-tuning">fine-tune</JargonTip> the language model. This is how models learn to be helpful while avoiding harmful outputs.</p>
   </ExpandableSection>
   <ExpandableSection title="Constitutional AI" icon={'\uD83D\uDCDC'}>
     <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>Constitutional AI defines a set of principles (a "constitution") that the model must follow. The model critiques and revises its own outputs against these principles during training, reducing the need for human feedback on every example.</p>
@@ -2724,11 +2724,11 @@ function TabSafetyGuardrails({onNavigate,onComplete}){return <FadeIn><div classN
 
 function TabDeepSafetyAlignment({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>The Alignment Problem</h2>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Alignment is ensuring AI systems actually do what we intend, not just what we measure.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Alignment is ensuring AI systems actually do what we intend, not just what we measure. It is one of the central challenges of <JargonTip term="AI governance">AI governance</JargonTip>.</p>
   <ExpandableSection title="Goodhart's Law in AI" icon={'\uD83D\uDCCA'} defaultOpen>
     <p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6}}>"When a measure becomes a target, it ceases to be a good measure." In AI: optimizing for a proxy metric (engagement, clicks, satisfaction scores) often leads to unintended behaviors.</p>
   </ExpandableSection>
-  <ComparisonTable title="Alignment Approaches" headers={['Approach','How It Works','Pros','Cons']} rows={[['RLHF','Human raters rank outputs, train reward model','Proven at scale (GPT-4, Claude)','Expensive, reward hacking possible'],['DPO','Direct preference optimization without reward model','Simpler training pipeline, stable','Less flexible than RLHF'],['Constitutional AI','Model self-critiques against principles','Scalable, reduces human labeling','Principles must be well-defined'],['Debate','Multiple models argue, humans judge','Catches errors through adversarial review','Complex setup, higher compute']]}/>
+  <ComparisonTable title="Alignment Approaches" headers={['Approach','How It Works','Pros','Cons']} rows={[['RLHF','Human raters rank outputs, train reward model','Proven at scale (GPT-4, Claude)','Expensive, reward hacking possible'],['DPO','Direct preference optimization without reward model','Simpler pipeline, stable','Less flexible than RLHF'],['Constitutional AI','Model self-critiques against principles','Scalable, reduces human labeling','Principles must be well-defined'],['Debate','Multiple models argue, humans judge','Catches errors through adversarial review','Complex setup, higher compute']]}/>
   <CodeBlock title="Simple Reward Scoring" code={`def score_response(response, criteria):
     """Score a model response against safety criteria."""
     scores = {}
@@ -2854,7 +2854,7 @@ function TabDeepSafetyInjection({onNavigate,onComplete}){return <FadeIn><div cla
 
 function TabDeepSafetyEval({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Safety Evaluation</h2>
-  <ExpandableSection title="Red-Teaming Methodology" icon={'\uD83D\uDD34'} defaultOpen>
+  <ExpandableSection title="Red-Teaming Methodology" icon={'\uD83D\uDD34'} defaultOpen><p style={{fontSize:13,color:GIM.bodyText,lineHeight:1.6,marginBottom:8}}><JargonTip term="red-teaming">Red-teaming</JargonTip> is the process of systematically testing AI systems for vulnerabilities and failure modes:</p>
     <div className="space-y-1">{['Define scope: what behaviors are you testing for?','Build attack taxonomy: categories of harmful outputs','Systematic probing: test each category with varied prompts','Escalation testing: start subtle, increase adversarial pressure','Document findings: severity, reproducibility, mitigation'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
   </ExpandableSection>
   <CodeBlock title="Automated Safety Test Runner" code={`class SafetyTestSuite:
@@ -2940,7 +2940,7 @@ export function CourseAISafety({onBack,onNavigate,progress,onComplete,depth,onCh
 function TabTCTokens({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>What Are Tokens?</h2>
   <AnalogyBox title="Arcade Coins">{`Tokens are like coins in an arcade \u2014 different machines (models) have different prices per play. And some words cost more coins than others! "The" is 1 token, but "antidisestablishmentarianism" might be 6+ tokens.`}</AnalogyBox>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Tokens are <b>subword units</b>, not words. LLMs break text into tokens using BPE (Byte-Pair Encoding). Common words like "the" are 1 token, but uncommon words get split into pieces.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}><JargonTip term="token">Tokens</JargonTip> are <b>subword units</b>, not words. LLMs break text into tokens using <JargonTip term="BPE">BPE</JargonTip> (Byte-Pair Encoding). Common words like "the" are 1 token, but uncommon words get split into pieces.</p>
   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">{[
     {word:'Hello',tokens:1,display:'[Hello]'},{word:'ChatGPT',tokens:3,display:'[Chat][G][PT]'},{word:'unhappiness',tokens:3,display:'[un][happi][ness]'},
   ].map((w,i)=><div key={i} className="p-3 rounded-lg text-center" style={{background:GIM.borderLight}}>
@@ -2949,14 +2949,14 @@ function TabTCTokens({onNavigate,onComplete}){return <FadeIn><div className="max
     <div style={{fontSize:11,color:GIM.mutedText}}>{w.tokens} token{w.tokens>1?'s':''}</div>
   </div>)}</div>
   <ExpandableSection title="Why Tokens Matter" icon={'\u26A1'}>
-    <div className="space-y-1">{['They determine cost \u2014 you pay per token, not per word','They set context limits \u2014 128K tokens \u2248 96K words for English','Different languages tokenize differently \u2014 Chinese/Japanese use more tokens per concept','Code is token-heavy \u2014 variable names, syntax, indentation all consume tokens'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
+    <div className="space-y-1">{['They determine cost \u2014 you pay per token, not per word','They set context window limits — 128K tokens ≈ 96K words for English','Different languages tokenize differently \u2014 Chinese/Japanese use more tokens per concept','Code is token-heavy \u2014 variable names, syntax, indentation all consume tokens'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
   </ExpandableSection>
   <Quiz question="How many tokens is 'unhappiness' likely to be?" options={["1 token","2-3 tokens","5+ tokens","Same as number of characters"]} correctIndex={1} explanation="BPE splits 'unhappiness' into common subwords like 'un' + 'happi' + 'ness' (2-3 tokens). The prefix 'un' and suffix 'ness' are very common and get their own tokens." onAnswer={()=>onComplete&&onComplete('tc-tokens','quiz1')}/>
 </div></FadeIn>}
 
 function TabTCPricing({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Model Pricing & Selection</h2>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>AI model pricing has two components: <b>input tokens</b> (what you send) and <b>output tokens</b> (what the model generates). Output tokens cost 3-5x more because generation is computationally expensive.</p>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>AI model pricing has two components: <b>input tokens</b> (what you send) and <b>output tokens</b> (what the model generates). Output tokens cost 3-5x more because <JargonTip term="inference">inference</JargonTip> generation is computationally expensive.</p>
   <ModelCostCalculator/>
   <ExpandableSection title="When to Use Which Model" icon={'\uD83C\uDFAF'} defaultOpen>
     <div className="space-y-2">{[
@@ -2976,9 +2976,9 @@ function TabTCPricing({onNavigate,onComplete}){return <FadeIn><div className="ma
 function TabTCOptimization({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Cost Optimization</h2>
   <div className="space-y-3 mb-4">{[
-    {icon:'\uD83D\uDCBE',title:'Prompt Caching',desc:'Anthropic charges ~90% less for cached system prompts. Structure your prompts so the long prefix stays constant.',saving:'Up to 90%'},
+    {icon:'\uD83D\uDCBE',title:'Prompt Caching',desc:'Anthropic charges ~90% less for cached system prompts. This prompt caching technique means you should structure your prompts so the long prefix stays constant.',saving:'Up to 90%'},
     {icon:'\uD83D\uDCE6',title:'Batching',desc:'OpenAI batch API: 50% discount for requests that can wait up to 24 hours.',saving:'50%'},
-    {icon:'\uD83D\uDD00',title:'Model Cascading',desc:'Small model screens queries, routes complex ones to big model. 70-80% of queries handled by the cheap model.',saving:'60-80%'},
+    {icon:'\uD83D\uDD00',title:'Model Cascading',desc:'Small model screens queries, routes complex ones to big model. This model cascading pattern means 70-80% of queries are handled by the cheap model.',saving:'60-80%'},
     {icon:'\u2702\uFE0F',title:'Output Limits',desc:'Set max_tokens to prevent runaway generation. If you need 100-word summaries, cap at 200 tokens.',saving:'Variable'},
   ].map((s,i)=><div key={i} className="p-3 rounded-xl border flex items-start gap-3" style={{borderColor:GIM.border}}>
     <span style={{fontSize:24}}>{s.icon}</span>
@@ -3066,7 +3066,7 @@ function TabDeepTCCostModeling({onNavigate,onComplete}){return <FadeIn><div clas
 </div></FadeIn>}
 
 function TabDeepTCCascading({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
-  <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Model Cascading & Routing</h2>
+  <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}><JargonTip term="model cascading">Model Cascading</JargonTip> & Routing</h2>
   <CodeBlock title="Model Router" code={`class ModelRouter:
     def __init__(self):
         self.classifier = load_model("query-complexity-classifier")
@@ -3108,7 +3108,7 @@ function TabDeepTCCascading({onNavigate,onComplete}){return <FadeIn><div classNa
 </div></FadeIn>}
 
 function TabDeepTCCaching({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
-  <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Prompt Caching & Batching</h2>
+  <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}><JargonTip term="prompt caching">Prompt Caching</JargonTip> & Batching</h2>
   <CodeBlock title="Anthropic Prompt Caching" code={`import anthropic
 client = anthropic.Anthropic()
 
@@ -3165,8 +3165,8 @@ export function CourseTokensCosts({onBack,onNavigate,progress,onComplete,depth,o
 // ==================== COURSE 8: JSON MODE & STRUCTURED OUTPUTS ====================
 function TabJMWhy({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Why Structured Outputs?</h2>
-  <AnalogyBox title="Forms vs Blank Pages">{`Structured outputs are like a form vs a blank page \u2014 forms ensure you get exactly the data fields you need, in a format your code can process. Without structure, you are parsing free text and praying.`}</AnalogyBox>
-  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>The problem: LLMs output free text, but applications need structured data \u2014 JSON, typed objects, database records.</p>
+  <AnalogyBox title="Forms vs Blank Pages">{`<JargonTip term="structured output">Structured outputs</JargonTip> are like a form vs a blank page \u2014 forms ensure you get exactly the data fields you need, in a format your code can process. Without structure, you are parsing free text and praying.`}</AnalogyBox>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>The problem: LLMs output free text, but applications need structured data — <JargonTip term="JSON mode">JSON</JargonTip>, typed objects, database records.</p>
   <ExpandableSection title="Common Failure Modes" icon={'\u26A0\uFE0F'} defaultOpen>
     <div className="space-y-1">{['Missing fields \u2014 model forgets to include required data','Wrong types \u2014 returns string "42" instead of number 42','Extra text \u2014 wraps JSON in markdown code blocks or explanation','Nested quotes \u2014 unescaped quotes inside strings break JSON parsing','Inconsistent format \u2014 sometimes returns array, sometimes object'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
   </ExpandableSection>
@@ -3211,7 +3211,7 @@ response = client.messages.create(
     messages=[{"role":"user","content":"Analyze: 'This is amazing!'"}]
 )
 # Returns structured tool_use result with guaranteed schema`}/>
-  <ComparisonTable title="Provider JSON Support" headers={['Provider','Method','Guarantees','Notes']} rows={[['OpenAI','response_format + json_schema','Valid JSON matching schema','Best schema support'],['Anthropic','tool_use with input_schema','Valid JSON matching tool schema','Uses tool calling as structured output trick'],['Gemini','response_schema parameter','Valid JSON matching schema','Native schema support'],['Open-source','Outlines / guidance libraries','Constrained decoding','Requires local hosting']]}/>
+  <ComparisonTable title="Provider JSON Support" headers={['Provider','Method','Guarantees','Notes']} rows={[['OpenAI','response_format + json_schema','Valid JSON matching schema','Best schema support'],['Anthropic','tool_use with input_schema','Valid JSON matching tool schema','Uses function calling as structured output trick'],['Gemini','response_schema parameter','Valid JSON matching schema','Native schema support'],['Open-source','Outlines / guidance libraries','Constrained decoding','Requires local hosting']]}/>
 </div></FadeIn>}
 
 function TabJMSchema({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
@@ -3219,7 +3219,7 @@ function TabJMSchema({onNavigate,onComplete}){return <FadeIn><div className="max
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Good schema design makes the difference between reliable and brittle structured outputs.</p>
   <SchemaDesigner/>
   <ExpandableSection title="Schema Design Tips" icon={'\uD83D\uDCA1'} defaultOpen>
-    <div className="space-y-1">{['Keep schemas flat when possible \u2014 deeply nested objects increase failure rates','Use enums to constrain values \u2014 the model can only pick from your options','Add descriptions to guide the model \u2014 "confidence: a number between 0 and 1"','Make non-critical fields optional \u2014 required fields may cause the model to hallucinate values','Use arrays for variable-length data \u2014 let the model decide how many entities to extract'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
+    <div className="space-y-1">{['Keep schemas flat when possible \u2014 deeply nested objects increase failure rates','Use enums to constrain values \u2014 the model can only pick from your options','Add descriptions to guide the model \u2014 "confidence: a number between 0 and 1"','Make non-critical fields optional — required fields may cause the model to hallucinate values','Use arrays for variable-length data \u2014 let the model decide how many entities to extract'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
   </ExpandableSection>
   <Quiz question="You need the model to classify text sentiment. Best schema design?" options={["Free text 'sentiment' string field","Enum field with 3 options: positive, negative, neutral","Number from -1 to 1","Boolean 'is_positive' field"]} correctIndex={1} explanation="Enums give you exactly the values you expect, making downstream code simpler and more reliable. Free text could return anything ('kind of positive?'), numbers need threshold handling, and boolean loses the neutral category." onAnswer={()=>onComplete&&onComplete('jm-schema','quiz1')}/>
 </div></FadeIn>}
@@ -3314,6 +3314,7 @@ function TabDeepJMSchemaSpec({onNavigate,onComplete}){return <FadeIn><div classN
 
 function TabDeepJMProviders({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Provider Implementation</h2>
+  <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Each LLM provider implements <JargonTip term="structured output">structured outputs</JargonTip> differently. Some use <JargonTip term="function calling">function calling</JargonTip> under the hood, while others support native <JargonTip term="constrained decoding">constrained decoding</JargonTip>.</p>
   <CodeBlock title="OpenAI Structured Output (2025)" code={`from openai import OpenAI
 client = OpenAI()
 
@@ -3439,7 +3440,7 @@ result = client.chat.completions.create(
 </div></FadeIn>}
 
 function TabDeepJMStreaming({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
-  <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Streaming Structured Output</h2>
+  <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}><JargonTip term="streaming">Streaming</JargonTip> Structured Output</h2>
   <CodeBlock title="Streaming JSON Parser" code={`import { streamObject } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
