@@ -49,6 +49,37 @@ export async function authFetch(endpoint, body) {
   return res.json();
 }
 
+// Authenticated SSE fetch — returns an async iterator of parsed SSE events
+export async function authFetchSSE(endpoint, body, onEvent) {
+  const { auth } = await getFirebase();
+  const token = auth?.currentUser ? await auth.currentUser.getIdToken() : null;
+  const headers = { "Content-Type": "application/json", "Accept": "text/event-stream" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  const res = await fetch(endpoint, { method: "POST", headers, body: JSON.stringify(body) });
+  if (!res.ok) { const err = await res.text(); throw new Error(`API ${res.status}: ${err}`); }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let finalResult = null;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n\n");
+    buffer = lines.pop() || "";
+    for (const chunk of lines) {
+      const line = chunk.trim();
+      if (!line.startsWith("data: ")) continue;
+      try {
+        const payload = JSON.parse(line.slice(6));
+        if (payload.type === "result" || payload.type === "done") finalResult = payload;
+        if (onEvent) onEvent(payload);
+      } catch {}
+    }
+  }
+  return finalResult;
+}
+
 export async function signInWithGoogle() {
   try {
     const { auth } = await getFirebase();

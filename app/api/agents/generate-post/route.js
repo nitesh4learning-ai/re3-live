@@ -57,7 +57,7 @@ export async function POST(req) {
   try {
     const { user, error, status } = await getAuthUser(req);
     if (error) return NextResponse.json({ error }, { status });
-    const { allowed } = llmRateLimit.check(user.uid);
+    const { allowed } = await llmRateLimit.check(user.uid);
     if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
 
     const { data: body, error: inputError, status: inputStatus } = validateInput(await req.json(), GeneratePostInputSchema);
