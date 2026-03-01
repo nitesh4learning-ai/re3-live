@@ -200,11 +200,12 @@ function ReviewCard({ review }) {
  * ReviewBoard — collapsible panel showing 3 agent reviews for a course.
  * Uses pre-generated review data. If none exist, shows a placeholder.
  */
-function ReviewBoard({ courseId, courseTitle }) {
+function ReviewBoard({ courseId, courseTitle, currentUser }) {
   const { getReview, saveReview } = useReviewData(courseId);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const reviewData = getReview(courseId);
+  const canGenerate = currentUser?.email === "nitesh4learning@gmail.com";
 
   const generateReviews = async () => {
     setLoading(true);
@@ -249,21 +250,27 @@ function ReviewBoard({ courseId, courseTitle }) {
         </div>
       ) : (
         <div className="text-center py-4">
-          <p style={{ fontSize: 13, color: GIM.mutedText, marginBottom: 12 }}>
-            No reviews yet. Generate an AI review board for this course?
-          </p>
-          <button
-            onClick={generateReviews}
-            disabled={loading}
-            className="px-4 py-2 rounded-lg font-semibold text-sm transition-all hover:shadow-sm"
-            style={{
-              background: loading ? GIM.borderLight : GIM.primary,
-              color: loading ? GIM.mutedText : "white",
-            }}
-          >
-            {loading ? "Generating..." : "\uD83E\uDDD1\u200D\uD83C\uDFEB Generate Review Board"}
-          </button>
-          {error && <p style={{ fontSize: 12, color: "#EF4444", marginTop: 8 }}>{error}</p>}
+          {canGenerate ? (<>
+            <p style={{ fontSize: 13, color: GIM.mutedText, marginBottom: 12 }}>
+              No reviews yet. Generate an AI review board for this course?
+            </p>
+            <button
+              onClick={generateReviews}
+              disabled={loading}
+              className="px-4 py-2 rounded-lg font-semibold text-sm transition-all hover:shadow-sm"
+              style={{
+                background: loading ? GIM.borderLight : GIM.primary,
+                color: loading ? GIM.mutedText : "white",
+              }}
+            >
+              {loading ? "Generating..." : "\uD83E\uDDD1\u200D\uD83C\uDFEB Generate Review Board"}
+            </button>
+            {error && <p style={{ fontSize: 12, color: "#EF4444", marginTop: 8 }}>{error}</p>}
+          </>) : (
+            <p style={{ fontSize: 13, color: GIM.mutedText }}>
+              No reviews yet. Reviews will be available soon.
+            </p>
+          )}
         </div>
       )}
     </ExpandableSection>

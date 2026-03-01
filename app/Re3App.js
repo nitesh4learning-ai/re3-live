@@ -32,16 +32,16 @@ function CycleCard({cycle,onNavigate,variant="default"}){
       </div>
       {/* Journey progress dots */}
       {isHero&&<div className="flex items-center justify-center gap-1.5 mb-4">
-        {[["rethink","Rethink","#3B6B9B"],["rediscover","Rediscover","#E8734A"],["reinvent","Reinvent","#2D8A6E"]].map(([key,label,color],i)=>{const post=cycle[key];return <Fragment key={key}>{i>0&&<div style={{width:24,height:2,background:`linear-gradient(90deg,${[["#3B6B9B"],["#E8734A"],["#2D8A6E"]][i-1]},${color})`,borderRadius:4}}/>}<button onClick={()=>post&&onNavigate(cycle.isJourney?"loom-cycle":"post",cycle.isJourney?cycle.id:post.id)} className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-full" style={{background:post?color:"#E5E7EB"}}/><span className="text-xs font-semibold hidden sm:inline" style={{color:post?color:"#CCC"}}>{post?.title?.slice(0,25)||(label+"...")}{post?.title?.length>25?"...":""}</span></button></Fragment>})}
+        {(()=>{const dp=cycle.dynamicPillars;const dots=dp?dp.map((p,i)=>[p.key,p.label,p.color]):[ ["rethink","Rethink","#3B6B9B"],["rediscover","Rediscover","#E8734A"],["reinvent","Reinvent","#2D8A6E"]];return dots.map(([key,label,color],i)=>{const post=dp?cycle.posts?.[i]:cycle[key];return <Fragment key={key}>{i>0&&<div style={{width:24,height:2,background:`linear-gradient(90deg,${dots[i-1][2]},${color})`,borderRadius:4}}/>}<button onClick={()=>post&&onNavigate(cycle.isJourney?"loom-cycle":"post",cycle.isJourney?cycle.id:post.id)} className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-full" style={{background:post?color:"#E5E7EB"}}/><span className="text-xs font-semibold hidden sm:inline" style={{color:post?color:"#CCC"}}>{post?.title?.slice(0,25)||(label+"...")}{post?.title?.length>25?"...":""}</span></button></Fragment>})})()}
       </div>}
       <div className={`grid grid-cols-1 ${isHero?"md:grid-cols-3":""} gap-3`}>
-        {[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean).map(post=>{const author=getAuthor(post.authorId);const pillar=PILLARS[post.pillar];return <button key={post.id} onClick={()=>onNavigate(cycle.isJourney?"loom-cycle":"post",cycle.isJourney?cycle.id:post.id)} className="text-left p-4 rounded-xl transition-all group" style={{background:"#FFFFFF",borderLeft:`4px solid ${pillar.color}`,border:"1px solid #E5E7EB",borderLeftWidth:4,borderLeftColor:pillar.color}} onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,0.08)"}} onMouseLeave={e=>{e.currentTarget.style.boxShadow="none"}}>
-          <div className="flex items-center gap-1.5 mb-2"><PillarTag pillar={post.pillar}/></div>
+        {(()=>{const classicPosts=[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean);const allPosts=classicPosts.length>0?classicPosts:cycle.posts||[];return allPosts.map(post=>{const author=getAuthor(post.authorId);const dp=cycle.dynamicPillars?.find(p=>p.key===post.pillar);const pillarColor=dp?.color||PILLARS[post.pillar]?.color||"#9CA3AF";return <button key={post.id} onClick={()=>onNavigate(cycle.isJourney?"loom-cycle":"post",cycle.isJourney?cycle.id:post.id)} className="text-left p-4 rounded-xl transition-all group" style={{background:"#FFFFFF",borderLeft:`4px solid ${pillarColor}`,border:"1px solid #E5E7EB",borderLeftWidth:4,borderLeftColor:pillarColor}} onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,0.08)"}} onMouseLeave={e=>{e.currentTarget.style.boxShadow="none"}}>
+          <div className="flex items-center gap-1.5 mb-2">{dp?<span className="inline-block px-2 py-0.5 rounded-full font-bold" style={{fontSize:10,background:`${pillarColor}15`,color:pillarColor}}>{dp.label}</span>:<PillarTag pillar={post.pillar}/>}</div>
           <h3 className="font-bold leading-snug mb-1.5" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:isHero?16:14}}>{post.title}</h3>
-          <p className="mb-2" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"#6B7280",lineHeight:1.5,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.paragraphs[0]?.slice(0,isHero?140:100)}...</p>
+          <p className="mb-2" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"#6B7280",lineHeight:1.5,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.paragraphs[0]?.replace(/\*\*/g,"").replace(/^- /gm,"").slice(0,isHero?140:100)}...</p>
           <AuthorBadge author={author}/>
           <span className="text-xs font-semibold opacity-0 group-hover:opacity-100 transition-all mt-1 inline-block" style={{color:"#9333EA"}}>{cycle.isJourney?"View journey":"Read"} &rarr;</span>
-        </button>})}
+        </button>})})()}
       </div>
       {/* Journey artifact summary */}
       {isHero&&cycle.isJourney&&<div className="flex items-center justify-center gap-2 mt-3">{["questions","principle","blueprint"].map(type=>{const a=cycle.artifacts[type];return a?<span key={type} className="px-2 py-0.5 rounded-full text-xs" style={{background:type==="questions"?"#E8EEF5":type==="principle"?"#FDE8E0":"#E0F2EC",color:type==="questions"?"#3B6B9B":type==="principle"?"#E8734A":"#2D8A6E",fontSize:10}}>{type==="questions"?"🔍 "+(a.items?.length||0)+" Qs":type==="principle"?"💡 Principle":"🔧 Blueprint"}</span>:null})}</div>}
@@ -156,10 +156,9 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
           <h2 className="font-bold" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#F9FAFB",fontSize:20}}>Explore Re³</h2>
           <p style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(255,255,255,0.45)",marginTop:4}}>Jump into what matters most — cycles, debates, use cases, and the arena</p>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-6 pb-6">
+        <div className="grid grid-cols-3 gap-3 px-6 pb-6">
           {[
             {label:"Latest Cycle",sub:hero?`Cycle ${hero.number}${hero.headline?': '+hero.headline:''}`:"Explore cycles",icon:"🧵",color:"#9333EA",bg:"rgba(147,51,234,0.15)",action:()=>hero?onNavigate(hero.isJourney?"loom-cycle":"post",hero.isJourney?hero.id:hero.posts[0]?.id):onNavigate("loom")},
-            {label:"Debate Lab",sub:forgeSessions?.length?`${forgeSessions.length} sessions`:"Start debating",icon:"⚡",color:"#E8734A",bg:"rgba(232,115,74,0.15)",action:()=>onNavigate("forge")},
             {label:"Arena",sub:"AI orchestration",icon:"🎯",color:"#10B981",bg:"rgba(16,185,129,0.15)",action:()=>onNavigate("arena")},
             {label:"Academy",sub:"Learn AI skills",icon:"🎓",color:"#3B82F6",bg:"rgba(59,130,246,0.15)",action:()=>onNavigate("academy")}
           ].map((item,i)=><FadeIn key={item.label} delay={i*60}><button onClick={item.action} className="w-full text-left p-4 rounded-xl transition-all group" style={{background:item.bg,border:"1px solid rgba(255,255,255,0.06)"}} onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow=`0 8px 20px ${item.color}25`}} onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="none"}}>
@@ -174,7 +173,7 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1"><span className="font-bold px-2 py-0.5 rounded-full" style={{fontSize:9,background:"rgba(147,51,234,0.2)",color:"#C4B5FD"}}>FEATURED CYCLE</span>{hero.isJourney&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"rgba(45,138,110,0.2)",color:"#6EE7B7"}}>Journey</span>}</div>
               <h3 className="font-bold" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#F9FAFB",fontSize:15}}>Cycle {hero.number}{hero.headline?': '+hero.headline:''}</h3>
-              <p style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(255,255,255,0.4)",marginTop:2}}>{hero.rethink?.paragraphs?.[0]?.slice(0,120)||hero.rediscover?.paragraphs?.[0]?.slice(0,120)||hero.posts?.[0]?.paragraphs?.[0]?.slice(0,120)||"Explore this cycle"}...</p>
+              <p style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(255,255,255,0.4)",marginTop:2}}>{(hero.rethink?.paragraphs?.[0]||hero.rediscover?.paragraphs?.[0]||hero.posts?.[0]?.paragraphs?.[0]||"Explore this cycle").replace(/\*\*/g,"").replace(/^- /gm,"").slice(0,120)}...</p>
             </div>
             <div className="flex gap-1">{(hero.dynamicPillars?hero.posts:([hero.rethink,hero.rediscover,hero.reinvent].filter(Boolean))).map((p,i)=><div key={p.id||i} className="w-1.5 rounded-full" style={{height:32,background:hero.dynamicPillars?.[i]?.color||PILLARS[p.pillar]?.color||"#999"}}/>)}</div>
           </div>
@@ -247,7 +246,7 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
 
 // ==================== TRIPTYCH COMPONENTS ====================
 function TriptychCard({cycle,onExpand,onArchiveCycle,currentUser}){
-  const pillars=[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean);
+  const pillars=cycle.dynamicPillars?cycle.posts:[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean);
   const connectionDensity=cycle.posts.reduce((sum,p)=>sum+(p.debate?.streams?.length||0),0);
   return <div className="cursor-pointer rounded-xl overflow-hidden transition-all hover:shadow-md" style={{background:"#FFFFFF",border:"1px solid #E5E7EB"}} onClick={()=>onExpand(cycle.id)}>
     <div className="flex items-center justify-between p-4" style={{borderBottom:"1px solid #E5E7EB"}}>
@@ -257,17 +256,17 @@ function TriptychCard({cycle,onExpand,onArchiveCycle,currentUser}){
         {isAdmin(currentUser)&&onArchiveCycle&&<button onClick={e=>{e.stopPropagation();if(confirm('Archive this cycle? It will be hidden from views.'))onArchiveCycle(cycle.id)}} className="px-2 py-0.5 rounded-full font-semibold transition-all hover:bg-red-50" style={{fontSize:9,color:"rgba(229,62,62,0.6)",border:"1px solid rgba(229,62,62,0.2)"}}>Archive</button>}
       </div>
     </div>
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-0">{pillars.map((post,i)=>{const pc=PILLARS[post.pillar]?.color||"#9CA3AF";return <div key={post.id} className="p-4" style={{borderRight:i<pillars.length-1?"1px solid #E5E7EB":"none",borderLeft:`4px solid ${pc}`}}>
-      <PillarTag pillar={post.pillar}/>
+    <div className={`grid grid-cols-1 sm:grid-cols-${Math.min(pillars.length,3)} gap-0`}>{pillars.map((post,i)=>{const dp=cycle.dynamicPillars?.find(p=>p.key===post.pillar);const pc=dp?.color||PILLARS[post.pillar]?.color||"#9CA3AF";return <div key={post.id} className="p-4" style={{borderRight:i<pillars.length-1?"1px solid #E5E7EB":"none",borderLeft:`4px solid ${pc}`}}>
+      {dp?<span className="inline-block px-2 py-0.5 rounded-full font-bold" style={{fontSize:10,background:`${pc}15`,color:pc}}>{dp.label}</span>:<PillarTag pillar={post.pillar}/>}
       <h4 className="font-bold mt-1.5" style={{fontFamily:"'Inter',system-ui,sans-serif",fontSize:13,color:"#111827",lineHeight:1.3,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.title}</h4>
-      <p className="mt-1" style={{fontSize:11,color:"#6B7280",lineHeight:1.4,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.paragraphs?.[0]?.slice(0,100)}...</p>
+      <p className="mt-1" style={{fontSize:12,color:"#6B7280",lineHeight:1.5,display:"-webkit-box",WebkitLineClamp:4,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.paragraphs?.[0]?.replace(/\*\*/g,"").replace(/^- /gm,"").slice(0,180)}...</p>
     </div>})}</div>
     <div className="text-center py-2" style={{borderTop:"1px solid #E5E7EB"}}><span className="text-xs font-medium" style={{color:"#9333EA"}}>Click to explore &rarr;</span></div>
   </div>
 }
 
 function TriptychExpanded({cycle,onNavigate,onCollapse,onForge,onArchiveCycle,currentUser}){
-  const pillars=[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean);
+  const pillars=cycle.dynamicPillars?cycle.posts:[cycle.rethink,cycle.rediscover,cycle.reinvent].filter(Boolean);
   const getAgentPerspectives=(post)=>{if(!post?.debate?.rounds)return[];return post.debate.rounds.flat().filter(r=>r.status==="success"&&r.response).slice(0,2).map(r=>({name:r.name,excerpt:(r.response||"").slice(0,120)+"..."}))};
   const synthesisPost=pillars.find(p=>p?.debate?.loom);
   return <div className="rounded-xl overflow-hidden mb-2" style={{background:"#FFFFFF",border:"1px solid #E5E7EB",boxShadow:"0 4px 24px rgba(0,0,0,0.08)"}}>
@@ -283,12 +282,12 @@ function TriptychExpanded({cycle,onNavigate,onCollapse,onForge,onArchiveCycle,cu
     {cycle.throughLineQuestion&&<div className="px-4 py-2" style={{background:"#FAF5FF",borderBottom:"1px solid #E9D5FF"}}>
       <p className="text-xs font-semibold text-center" style={{color:"#8B5CF6",fontStyle:"italic"}}>"{cycle.throughLineQuestion}"</p>
     </div>}
-    <div className="grid grid-cols-1 md:grid-cols-3">{pillars.map((post,i)=>{const pillar=PILLARS[post.pillar];const perspectives=getAgentPerspectives(post);
-      return <div key={post.id} className="p-4" style={{borderRight:i<pillars.length-1?"1px solid #E5E7EB":"none",borderLeft:`4px solid ${pillar.color}`}}>
-        <PillarTag pillar={post.pillar}/>
+    <div className={`grid grid-cols-1 md:grid-cols-${Math.min(pillars.length,3)}`}>{pillars.map((post,i)=>{const dp=cycle.dynamicPillars?.find(p=>p.key===post.pillar);const pillarColor=dp?.color||PILLARS[post.pillar]?.color||"#9CA3AF";const perspectives=getAgentPerspectives(post);
+      return <div key={post.id} className="p-4" style={{borderRight:i<pillars.length-1?"1px solid #E5E7EB":"none",borderLeft:`4px solid ${pillarColor}`}}>
+        {dp?<span className="inline-block px-2 py-0.5 rounded-full font-bold" style={{fontSize:10,background:`${pillarColor}15`,color:pillarColor}}>{dp.label}</span>:<PillarTag pillar={post.pillar}/>}
         <h3 className="font-bold mt-2 mb-2" style={{fontFamily:"'Inter',system-ui,sans-serif",fontSize:15,color:"#111827",lineHeight:1.3}}>{post.title}</h3>
-        <p className="mb-3" style={{fontSize:12,color:"rgba(0,0,0,0.45)",lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.paragraphs?.[0]?.slice(0,180)}...</p>
-        {perspectives.length>0&&<div className="mb-3"><span className="font-bold" style={{fontSize:9,color:"rgba(0,0,0,0.3)",letterSpacing:"0.1em"}}>PERSPECTIVES</span><div className="mt-1 space-y-1">{perspectives.map((p,pi)=><div key={pi} className="p-2 rounded-lg" style={{background:"rgba(0,0,0,0.02)",fontSize:11,color:"#888"}}><span className="font-bold" style={{color:pillar.color}}>{p.name}: </span>{p.excerpt}</div>)}</div></div>}
+        <p className="mb-3" style={{fontSize:12,color:"rgba(0,0,0,0.45)",lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.paragraphs?.[0]?.replace(/\*\*/g,"").replace(/^- /gm,"").slice(0,180)}...</p>
+        {perspectives.length>0&&<div className="mb-3"><span className="font-bold" style={{fontSize:9,color:"rgba(0,0,0,0.3)",letterSpacing:"0.1em"}}>PERSPECTIVES</span><div className="mt-1 space-y-1">{perspectives.map((p,pi)=><div key={pi} className="p-2 rounded-lg" style={{background:"rgba(0,0,0,0.02)",fontSize:11,color:"#888"}}><span className="font-bold" style={{color:pillarColor}}>{p.name}: </span>{p.excerpt}</div>)}</div></div>}
         <button onClick={()=>onNavigate("post",post.id)} className="text-xs font-semibold" style={{color:"#9333EA"}}>Read full post &rarr;</button>
       </div>})}</div>
     {/* Action bar with full-cycle debate option */}
