@@ -19,8 +19,8 @@ export function getCycles(content) {
   const active = content.filter(c => c.sundayCycle && !c.archived);
   const cycleGroups = {};
   active.forEach(c => { const key = c.cycleId || c.sundayCycle; if (!cycleGroups[key]) cycleGroups[key] = []; cycleGroups[key].push(c); });
-  const keys = Object.keys(cycleGroups).sort((a, b) => b.localeCompare(a));
-  return keys.map((key, i) => {
+  const keys = Object.keys(cycleGroups);
+  const cycles = keys.map((key) => {
     const posts = cycleGroups[key];
     const date = posts[0]?.sundayCycle || key;
     const id = posts[0]?.cycleId || key;
@@ -39,6 +39,16 @@ export function getCycles(content) {
     const isJourney = !!(throughLineQuestion || rethink?.bridgeSentence || rediscover?.synthesisPrinciple);
     // Dynamic pillars: if any post has dynamicPillars metadata, use it
     const dynamicPillars = posts[0]?.dynamicPillars || null;
-    return { id, date, number: keys.length - i, rethink, rediscover, reinvent, extra, posts, headline, endorsements: posts.reduce((s, p) => s + p.endorsements, 0), comments: posts.reduce((s, p) => s + p.comments.length, 0), throughLineQuestion, artifacts, isJourney, dynamicPillars };
+    // Use createdAt from the newest post for reliable sorting
+    const latestCreatedAt = posts.reduce((latest, p) => {
+      const t = new Date(p.createdAt || date).getTime();
+      return t > latest ? t : latest;
+    }, 0);
+    return { id, date, latestCreatedAt, rethink, rediscover, reinvent, extra, posts, headline, endorsements: posts.reduce((s, p) => s + p.endorsements, 0), comments: posts.reduce((s, p) => s + p.comments.length, 0), throughLineQuestion, artifacts, isJourney, dynamicPillars };
   });
+  // Sort by actual date (newest first), not by key string
+  cycles.sort((a, b) => b.latestCreatedAt - a.latestCreatedAt);
+  // Assign cycle numbers after sorting (oldest = 1, newest = N)
+  cycles.forEach((c, i) => { c.number = cycles.length - i; });
+  return cycles;
 }

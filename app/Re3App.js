@@ -109,19 +109,77 @@ function HomePage({content,themes,articles,onNavigate,onVoteTheme,onAddTheme,onE
       </div>
     </section>
 
-    {/* Three Pillars Explainer */}
-    <section className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-      <FadeIn><h2 className="font-bold mb-1 text-center" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:22}}>Three Lenses, One Conversation</h2>
-        <p className="mb-6 text-center" style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(0,0,0,0.4)"}}>Every topic is examined through three complementary philosophical pillars</p></FadeIn>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {Object.values(PILLARS).map((p,i)=><FadeIn key={p.key} delay={i*80}><div className="relative p-5 rounded-xl text-center transition-all cursor-default group" style={{background:"#FFFFFF",border:"1px solid #E5E7EB",borderLeft:`4px solid ${p.color}`}} onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-4px)";e.currentTarget.style.boxShadow="0 8px 24px rgba(0,0,0,0.08)"}} onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="none"}}>
-          <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl mb-3" style={{background:`${p.color}15`}}><PillarIcon pillar={p.key} size={20}/></div>
-          <div className="font-bold mb-0.5" style={{fontFamily:"'Inter',sans-serif",fontSize:11,letterSpacing:"0.1em",color:p.color}}>{p.label.toUpperCase()}</div>
-          <div className="font-bold mb-1" style={{fontFamily:"'Inter',system-ui,sans-serif",fontSize:15,color:"#111827"}}>{p.tagline}</div>
-          <div style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(0,0,0,0.4)",lineHeight:1.5}}>{p.key==="rethink"?"Deconstruct assumptions and question foundations":p.key==="rediscover"?"Find hidden patterns across disciplines":"Build implementable architectures"}</div>
-        </div></FadeIn>)}
+    {/* Re³ Journey — Visual flow of Rethink → Rediscover → Reinvent */}
+    <section className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+      <FadeIn><h2 className="font-bold mb-1 text-center" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:22}}>The Re³ Journey</h2>
+        <p className="mb-8 text-center" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"rgba(0,0,0,0.4)"}}>Every topic flows through three philosophical lenses to produce connected insights</p></FadeIn>
+      <div className="relative">
+        {/* Connecting line */}
+        <div className="hidden sm:block absolute top-1/2 left-0 right-0" style={{height:2,background:"linear-gradient(90deg,#3B6B9B,#E8734A,#2D8A6E)",opacity:0.25,transform:"translateY(-50%)"}}/>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {[
+            {key:"rethink",num:"01",icon:"🔍",action:"Question",desc:"Deconstruct assumptions. Challenge what we think we know. Surface hidden premises and blind spots.",example:"What if our approach is built on a faulty assumption?"},
+            {key:"rediscover",num:"02",icon:"🔗",action:"Connect",desc:"Find hidden patterns across disciplines. Bridge ideas from unexpected domains into fresh frameworks.",example:"The same pattern appears in biology, economics, and software..."},
+            {key:"reinvent",num:"03",icon:"🛠️",action:"Build",desc:"Prototype implementable architectures. Turn insights into tangible systems, tools, and strategies.",example:"Here's a working blueprint with components and constraints."}
+          ].map((step,i)=>{const p=PILLARS[step.key];return <FadeIn key={step.key} delay={i*100}><div className="relative rounded-2xl p-6 text-center transition-all group" style={{background:"#FFFFFF",border:"1px solid #E5E7EB",boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}} onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-6px)";e.currentTarget.style.boxShadow="0 12px 32px rgba(0,0,0,0.1)"}} onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,0.04)"}}>
+            {/* Step number badge */}
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full flex items-center justify-center font-bold" style={{background:p.color,color:"white",fontSize:11,boxShadow:`0 2px 8px ${p.color}40`}}>{step.num}</div>
+            {/* Arrow between steps (desktop) */}
+            {i<2&&<div className="hidden sm:block absolute top-1/2 -right-3 z-10" style={{transform:"translateY(-50%)",color:p.color,fontSize:16,fontWeight:700}}>&#8594;</div>}
+            <div className="mt-2 mb-3" style={{fontSize:28}}>{step.icon}</div>
+            <div className="font-bold mb-0.5" style={{fontFamily:"'Inter',sans-serif",fontSize:11,letterSpacing:"0.12em",color:p.color}}>{p.label.toUpperCase()}</div>
+            <div className="font-bold mb-2" style={{fontFamily:"'Inter',system-ui,sans-serif",fontSize:17,color:"#111827"}}>{step.action}</div>
+            <p style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"#6B7280",lineHeight:1.6,marginBottom:12}}>{step.desc}</p>
+            <div className="rounded-lg p-3" style={{background:`${p.color}08`,border:`1px dashed ${p.color}30`}}>
+              <p className="text-xs italic" style={{color:p.color,lineHeight:1.5}}>"{step.example}"</p>
+            </div>
+          </div></FadeIn>})}
+        </div>
       </div>
-      <div className="flex justify-center mt-4"><div className="flex items-center gap-1">{Object.values(PILLARS).map((p,i)=><Fragment key={p.key}><div style={{width:60,height:3,borderRadius:2,background:p.color,opacity:0.5}}/>{i<2&&<div style={{width:12,height:3,borderRadius:2,background:"rgba(0,0,0,0.1)"}}/>}</Fragment>)}</div></div>
+      {/* Flow summary */}
+      <FadeIn delay={350}><div className="flex items-center justify-center gap-2 mt-8">
+        {Object.values(PILLARS).map((p,i)=><Fragment key={p.key}>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{background:`${p.color}10`,border:`1px solid ${p.color}25`}}>
+            <div className="w-2 h-2 rounded-full" style={{background:p.color}}/>
+            <span className="font-bold" style={{fontSize:10,color:p.color,letterSpacing:"0.05em"}}>{p.label}</span>
+          </div>
+          {i<2&&<span style={{color:"#D1D5DB",fontSize:14}}>&#8594;</span>}
+        </Fragment>)}
+      </div></FadeIn>
+    </section>
+
+    {/* Featured Spotlight — Curated highlights across platform */}
+    <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-10">
+      <FadeIn><div className="rounded-2xl overflow-hidden" style={{background:"linear-gradient(135deg,#1E1B2E 0%,#2D1B4E 50%,#1B2E3E 100%)",border:"1px solid rgba(147,51,234,0.2)"}}>
+        <div className="p-6 pb-4">
+          <div className="flex items-center gap-2 mb-1"><span className="w-1.5 h-1.5 rounded-full" style={{background:"#A78BFA"}}/><span className="font-bold" style={{fontFamily:"'Inter',sans-serif",fontSize:10,letterSpacing:"0.12em",color:"#A78BFA"}}>SPOTLIGHT</span></div>
+          <h2 className="font-bold" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#F9FAFB",fontSize:20}}>Explore Re³</h2>
+          <p style={{fontFamily:"'Inter',sans-serif",fontSize:12,color:"rgba(255,255,255,0.45)",marginTop:4}}>Jump into what matters most — cycles, debates, use cases, and the arena</p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-6 pb-6">
+          {[
+            {label:"Latest Cycle",sub:hero?`Cycle ${hero.number}${hero.headline?': '+hero.headline:''}`:"Explore cycles",icon:"🧵",color:"#9333EA",bg:"rgba(147,51,234,0.15)",action:()=>hero?onNavigate(hero.isJourney?"loom-cycle":"post",hero.isJourney?hero.id:hero.posts[0]?.id):onNavigate("loom")},
+            {label:"Debate Lab",sub:forgeSessions?.length?`${forgeSessions.length} sessions`:"Start debating",icon:"⚡",color:"#E8734A",bg:"rgba(232,115,74,0.15)",action:()=>onNavigate("forge")},
+            {label:"Arena",sub:"AI orchestration",icon:"🎯",color:"#10B981",bg:"rgba(16,185,129,0.15)",action:()=>onNavigate("arena")},
+            {label:"Academy",sub:"Learn AI skills",icon:"🎓",color:"#3B82F6",bg:"rgba(59,130,246,0.15)",action:()=>onNavigate("academy")}
+          ].map((item,i)=><FadeIn key={item.label} delay={i*60}><button onClick={item.action} className="w-full text-left p-4 rounded-xl transition-all group" style={{background:item.bg,border:"1px solid rgba(255,255,255,0.06)"}} onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow=`0 8px 20px ${item.color}25`}} onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="none"}}>
+            <span style={{fontSize:24}}>{item.icon}</span>
+            <div className="font-bold mt-2" style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:"#F9FAFB"}}>{item.label}</div>
+            <div style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(255,255,255,0.4)",marginTop:2}}>{item.sub}</div>
+          </button></FadeIn>)}
+        </div>
+        {/* Featured article / cycle row */}
+        {hero&&<div className="px-6 pb-6">
+          <div className="flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all" style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.08)"}} onClick={()=>onNavigate(hero.isJourney?"loom-cycle":"post",hero.isJourney?hero.id:hero.posts[0]?.id)} onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,0.1)"}} onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,0.05)"}}>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1"><span className="font-bold px-2 py-0.5 rounded-full" style={{fontSize:9,background:"rgba(147,51,234,0.2)",color:"#C4B5FD"}}>FEATURED CYCLE</span>{hero.isJourney&&<span className="px-1.5 py-0.5 rounded-full" style={{fontSize:8,background:"rgba(45,138,110,0.2)",color:"#6EE7B7"}}>Journey</span>}</div>
+              <h3 className="font-bold" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#F9FAFB",fontSize:15}}>Cycle {hero.number}{hero.headline?': '+hero.headline:''}</h3>
+              <p style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:"rgba(255,255,255,0.4)",marginTop:2}}>{hero.rethink?.paragraphs?.[0]?.slice(0,120)||hero.rediscover?.paragraphs?.[0]?.slice(0,120)||""}...</p>
+            </div>
+            <div className="flex gap-1">{[hero.rethink,hero.rediscover,hero.reinvent].filter(Boolean).map(p=><div key={p.id} className="w-1.5 rounded-full" style={{height:32,background:PILLARS[p.pillar]?.color||"#999"}}/>)}</div>
+          </div>
+        </div>}
+      </div></FadeIn>
     </section>
 
     {/* BENTO: Latest Cycle */}
