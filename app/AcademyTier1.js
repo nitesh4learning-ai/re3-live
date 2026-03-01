@@ -2447,7 +2447,7 @@ export function CourseRAG({onBack,onNavigate,progress,onComplete,depth,onChangeD
 // ==================== COURSE 5: CONTEXT ENGINEERING ====================
 function TabCEWhatIsContext({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>What Is Context?</h2>
-  <AnalogyBox title="The Director's Cut">{`<JargonTip term="context engineering">Context engineering</JargonTip> is like being a movie director \u2014 you choose what the camera sees. The model can only reason about what's in its <JargonTip term="context window">context window</JargonTip>. Everything else might as well not exist.`}</AnalogyBox>
+  <AnalogyBox title="The Director's Cut">{`Context engineering is like being a movie director \u2014 you choose what the camera sees. The model can only reason about what's in its context window. Everything else might as well not exist.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Context is <b>everything the model sees</b> when generating a response:</p>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
     {[{icon:'\uD83D\uDCDD',title:'System Prompt',desc:'Instructions that define role, behavior, constraints'},{icon:'\uD83D\uDCDA',title:'Retrieved Documents',desc:'Knowledge fetched via RAG — external memory'},{icon:'\uD83D\uDCAC',title:'Conversation History',desc:'Previous messages \u2014 session memory'},{icon:'\uD83D\uDD27',title:'Tool Results',desc:'Function call outputs \u2014 real-time data'}].map((l,i)=><div key={i} className="p-3 rounded-xl border" style={{borderColor:GIM.border,background:GIM.cardBg}}>
@@ -2667,7 +2667,7 @@ export function CourseContextEng({onBack,onNavigate,progress,onComplete,depth,on
 // ==================== COURSE 6: AI SAFETY & ALIGNMENT ====================
 function TabSafetyWhy({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Why AI Safety Matters</h2>
-  <AnalogyBox title="Guardrails on a Mountain Road">{`AI safety is like <JargonTip term="guardrails">guardrails</JargonTip> on a mountain road \u2014 you need them before the car goes off the cliff, not after. By the time an AI system causes harm, it's too late to add safety measures.`}</AnalogyBox>
+  <AnalogyBox title="Guardrails on a Mountain Road">{`AI safety is like guardrails on a mountain road \u2014 you need them before the car goes off the cliff, not after. By the time an AI system causes harm, it's too late to add safety measures.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Real-world AI failures have already caused serious harm:</p>
   <div className="space-y-2 mb-4">{[
     {icon:'\u2696\uFE0F',title:'Hallucinated Legal Citations',desc:'A lawyer used ChatGPT to write a brief. The AI <JargonTip term="hallucination">hallucinated</JargonTip> case citations that didn\'t exist. The lawyer was sanctioned by the court.'},
@@ -3165,7 +3165,7 @@ export function CourseTokensCosts({onBack,onNavigate,progress,onComplete,depth,o
 // ==================== COURSE 8: JSON MODE & STRUCTURED OUTPUTS ====================
 function TabJMWhy({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Why Structured Outputs?</h2>
-  <AnalogyBox title="Forms vs Blank Pages">{`<JargonTip term="structured output">Structured outputs</JargonTip> are like a form vs a blank page \u2014 forms ensure you get exactly the data fields you need, in a format your code can process. Without structure, you are parsing free text and praying.`}</AnalogyBox>
+  <AnalogyBox title="Forms vs Blank Pages">{`Structured outputs are like a form vs a blank page \u2014 forms ensure you get exactly the data fields you need, in a format your code can process. Without structure, you are parsing free text and praying.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>The problem: LLMs output free text, but applications need structured data — <JargonTip term="JSON mode">JSON</JargonTip>, typed objects, database records.</p>
   <ExpandableSection title="Common Failure Modes" icon={'\u26A0\uFE0F'} defaultOpen>
     <div className="space-y-1">{['Missing fields \u2014 model forgets to include required data','Wrong types \u2014 returns string "42" instead of number 42','Extra text \u2014 wraps JSON in markdown code blocks or explanation','Nested quotes \u2014 unescaped quotes inside strings break JSON parsing','Inconsistent format \u2014 sometimes returns array, sometimes object'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
