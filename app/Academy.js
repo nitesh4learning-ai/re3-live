@@ -6,6 +6,7 @@ import { TIER2_REGISTRY } from './AcademyTier2';
 import { TIER3_REGISTRY } from './AcademyTier3';
 import { TIER4_REGISTRY } from './AcademyTier4';
 import { ReviewBoard, AttributionBadge } from './AcademyReviews';
+import { COURSES, COURSE_AUTHOR } from './constants/courses';
 
 // Auto-generated course component registry (merged from all tiers)
 const COURSE_REGISTRY = { ...TIER1_REGISTRY, ...TIER2_REGISTRY, ...TIER3_REGISTRY, ...TIER4_REGISTRY };
@@ -34,57 +35,8 @@ const ADB = {
   set:(key,v)=>{try{typeof window!=='undefined'&&localStorage.setItem(`re3_academy_${key}`,JSON.stringify(v))}catch{}},
 };
 
-// ==================== COURSE AUTHORS ====================
-// Default author for all Academy courses (shown as "Created By")
-const COURSE_AUTHOR = { name: 'Nitesh', avatar: 'NP', color: '#9333EA' };
-
 // Module-level ref for current user (set by Academy component, read by CourseShell)
 let _academyCurrentUser = null;
-
-// ==================== COURSE CATALOG (32 COURSES) ====================
-const COURSES = [
-  // Tier 1: Foundations (8 courses)
-  {id:'llm-basics',tier:1,icon:'\uD83E\uDDE0',title:'How LLMs Work',description:'Tokens, context windows, temperature, inference. The mechanics behind every AI interaction.',difficulty:'Beginner',timeMinutes:45,exerciseCount:8,tabCount:5,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'prompt-engineering',tier:1,icon:'\uD83D\uDCAC',title:'Prompt Engineering',description:'System prompts, few-shot, chain-of-thought, structured outputs. The art of communicating with AI.',difficulty:'Beginner',timeMinutes:40,exerciseCount:10,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'embeddings',tier:1,icon:'\uD83D\uDD0E',title:'Embeddings & Vector Search',description:'How AI understands similarity. Vectors, cosine distance, approximate nearest neighbors.',difficulty:'Beginner',timeMinutes:35,exerciseCount:6,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'rag-fundamentals',tier:1,icon:'\uD83D\uDD0D',title:'RAG Fundamentals',description:'Retrieval-Augmented Generation. Grounding AI in real data to reduce hallucination.',difficulty:'Beginner',timeMinutes:50,exerciseCount:9,tabCount:5,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'context-engineering',tier:1,icon:'\uD83E\uDDE9',title:'Context Engineering',description:'The meta-skill of AI: prompt + memory + retrieval + tools = context. Design what the model sees.',difficulty:'Beginner',timeMinutes:40,exerciseCount:7,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'ai-safety',tier:1,icon:'\uD83D\uDEE1\uFE0F',title:'AI Safety & Alignment Basics',description:'Hallucination causes, bias types, guardrails, red-teaming basics. Building AI that behaves.',difficulty:'Beginner',timeMinutes:35,exerciseCount:6,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'tokens-costs',tier:1,icon:'\uD83D\uDCB0',title:'Tokens, Costs & Model Selection',description:'Pricing models, when to use GPT vs Claude vs Gemini vs open-source. Optimizing spend.',difficulty:'Beginner',timeMinutes:30,exerciseCount:5,tabCount:3,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'json-mode',tier:1,icon:'\uD83D\uDCCB',title:'JSON Mode & Structured Outputs',description:'JSON mode, Instructor, Pydantic, schema enforcement. Getting reliable structured data from AI.',difficulty:'Beginner',timeMinutes:35,exerciseCount:7,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  // Tier 2: Protocols & Patterns (8 courses)
-  {id:'mcp-protocol',tier:2,icon:'\uD83D\uDD0C',title:'Model Context Protocol (MCP)',description:'The universal adapter for AI. Host/Client/Server architecture, Tools/Resources/Prompts.',difficulty:'Intermediate',timeMinutes:60,exerciseCount:12,tabCount:6,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'a2a-protocol',tier:2,icon:'\uD83E\uDD1D',title:'Agent-to-Agent (A2A)',description:'How AI agents discover, communicate, and collaborate across platforms.',difficulty:'Intermediate',timeMinutes:45,exerciseCount:8,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'function-calling',tier:2,icon:'\u2699\uFE0F',title:'Function Calling & Tool Use',description:'How LLMs invoke tools across providers. JSON Schema, tool definitions, response handling.',difficulty:'Intermediate',timeMinutes:35,exerciseCount:7,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'ai-governance',tier:2,icon:'\uD83C\uDFDB\uFE0F',title:'AI Governance Essentials',description:'Frameworks for responsible AI. Mapping use cases to governance across organizational pillars.',difficulty:'Intermediate',timeMinutes:40,exerciseCount:6,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'acp-protocol',tier:2,icon:'\uD83D\uDCE1',title:'Agent Communication Protocol',description:'IBM\'s ACP: event-driven, async-first messaging for enterprise agent ecosystems.',difficulty:'Intermediate',timeMinutes:40,exerciseCount:6,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'agentic-patterns',tier:2,icon:'\uD83D\uDD04',title:'Agentic Design Patterns',description:'ReAct, Plan-and-Execute, Reflection, Tool-use loops. The building blocks of AI agents.',difficulty:'Intermediate',timeMinutes:45,exerciseCount:8,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'memory-systems',tier:2,icon:'\uD83E\uDDE0',title:'Memory Systems for AI',description:'Short-term buffers, long-term stores, semantic & episodic memory. Giving AI persistent context.',difficulty:'Intermediate',timeMinutes:40,exerciseCount:7,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'human-in-loop',tier:2,icon:'\uD83D\uDC64',title:'Human-in-the-Loop Patterns',description:'Approval gates, escalation, confidence thresholds. Keeping humans in control of AI decisions.',difficulty:'Intermediate',timeMinutes:35,exerciseCount:6,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  // Tier 3: Production AI (10 courses)
-  {id:'multi-agent',tier:3,icon:'\uD83E\uDD16',title:'Multi-Agent Orchestration',description:'Agent roles, debate flows, consensus mechanisms. How systems like Re\u00b3 actually work.',difficulty:'Advanced',timeMinutes:55,exerciseCount:10,tabCount:5,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'graph-rag',tier:3,icon:'\uD83C\uDF10',title:'Graph RAG & Knowledge Graphs',description:'Combining structured and unstructured retrieval. Entity relationships, hybrid search.',difficulty:'Advanced',timeMinutes:50,exerciseCount:8,tabCount:5,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'ai-observability',tier:3,icon:'\uD83D\uDCCA',title:'AI Observability & Evaluation',description:'Measuring AI quality. Tracing, drift detection, evaluation frameworks, quality scorecards.',difficulty:'Advanced',timeMinutes:45,exerciseCount:7,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'llm-gateway',tier:3,icon:'\uD83D\uDE80',title:'LLM Gateway Patterns',description:'Multi-provider routing, fallbacks, cost optimization, rate limiting. Enterprise AI at scale.',difficulty:'Advanced',timeMinutes:40,exerciseCount:6,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'fine-tuning',tier:3,icon:'\uD83D\uDD27',title:'Fine-Tuning & Model Customization',description:'LoRA, QLoRA, synthetic data, domain adaptation. Making models work for your specific use case.',difficulty:'Advanced',timeMinutes:50,exerciseCount:8,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'ai-code-gen',tier:3,icon:'\uD83D\uDCBB',title:'AI-Powered Code Generation',description:'Agentic coding, Claude Code, Cursor, vibe coding patterns. AI as your programming partner.',difficulty:'Advanced',timeMinutes:45,exerciseCount:9,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'multimodal',tier:3,icon:'\uD83D\uDDBC\uFE0F',title:'Multimodal AI Pipelines',description:'Vision + text + audio. Document processing, image understanding, cross-modal reasoning.',difficulty:'Advanced',timeMinutes:45,exerciseCount:7,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'voice-ai',tier:3,icon:'\uD83C\uDF99\uFE0F',title:'Voice AI & Conversational Agents',description:'STT, TTS, real-time conversation, contact center AI. Building voice-first experiences.',difficulty:'Advanced',timeMinutes:40,exerciseCount:6,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'retrieval-eng',tier:3,icon:'\uD83D\uDD0E',title:'Retrieval Engineering',description:'Advanced chunking, hybrid search, reranking, RAPTOR. Going beyond basic RAG.',difficulty:'Advanced',timeMinutes:45,exerciseCount:8,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'ai-testing',tier:3,icon:'\uD83E\uDDEA',title:'AI Testing & Red-Teaming',description:'Adversarial testing, prompt injection defense, safety benchmarks. Hardening AI systems.',difficulty:'Advanced',timeMinutes:40,exerciseCount:7,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'agentic-scale',tier:3,icon:'\uD83E\uDD16',title:'Agentic AI Patterns & Tool Use at Scale',description:'ReAct loops, multi-tool orchestration, agent memory architectures, reliability & error recovery for production agents.',difficulty:'Advanced',timeMinutes:55,exerciseCount:10,tabCount:5,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'mcp-advanced',tier:3,icon:'\uD83D\uDD0C',title:'MCP — Advanced Patterns',description:'Multi-server composition, custom tool design, resource & sampling patterns, OAuth security for production MCP.',difficulty:'Advanced',timeMinutes:50,exerciseCount:9,tabCount:5,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'eval-observability',tier:3,icon:'\uD83D\uDCCA',title:'AI Evaluation & Observability',description:'Systematic evaluation, LLM-as-judge, tracing & observability pipelines, drift detection & quality monitoring.',difficulty:'Advanced',timeMinutes:45,exerciseCount:8,tabCount:5,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'graphrag-advanced',tier:3,icon:'\uD83C\uDF10',title:'GraphRAG & Knowledge Graphs',description:'Beyond vector search — knowledge graph construction, Microsoft GraphRAG, hybrid retrieval strategies.',difficulty:'Advanced',timeMinutes:50,exerciseCount:9,tabCount:5,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'fine-tuning-distillation',tier:3,icon:'\uD83D\uDD27',title:'Fine-Tuning & Model Distillation',description:'When to fine-tune, LoRA/QLoRA techniques, teacher-student distillation, evaluation & deployment at scale.',difficulty:'Advanced',timeMinutes:50,exerciseCount:8,tabCount:5,status:'available',createdBy:COURSE_AUTHOR},
-  // Tier 4: Strategic & Frontier (6 courses)
-  {id:'ai-regulatory',tier:4,icon:'\u2696\uFE0F',title:'AI Governance & Regulatory Landscape',description:'NIST AI RMF, EU AI Act, model risk management. Navigating the regulatory maze.',difficulty:'Expert',timeMinutes:50,exerciseCount:7,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'responsible-ai',tier:4,icon:'\uD83E\uDD1D',title:'Responsible AI in Practice',description:'Fairness, explainability, Fairlearn, AI Fairness 360. Ethical AI at production scale.',difficulty:'Expert',timeMinutes:45,exerciseCount:6,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'enterprise-strategy',tier:4,icon:'\uD83D\uDCCA',title:'Enterprise AI Strategy',description:'Top-down vs bottom-up, value realization, workflow redesign. AI transformation leadership.',difficulty:'Expert',timeMinutes:40,exerciseCount:5,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'ai-economics',tier:4,icon:'\uD83D\uDCC8',title:'AI Economics & ROI',description:'Cost modeling, build vs buy, GPU economics, inference optimization. The business of AI.',difficulty:'Expert',timeMinutes:35,exerciseCount:5,tabCount:3,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'computer-use',tier:4,icon:'\uD83D\uDDA5\uFE0F',title:'Computer Use & Browser Agents',description:'Anthropic computer use, web agents, RPA 2.0. AI that operates your software.',difficulty:'Expert',timeMinutes:45,exerciseCount:7,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-  {id:'physical-ai',tier:4,icon:'\uD83E\uDD16',title:'Physical AI & Robotics Foundations',description:'Embodied AI, simulation-to-real, sensor fusion. When AI meets the physical world.',difficulty:'Expert',timeMinutes:40,exerciseCount:5,tabCount:4,status:'available',createdBy:COURSE_AUTHOR},
-];
 
 // ==================== SHARED COMPONENTS ====================
 function FadeIn({children,delay=0,className=""}){const[v,setV]=useState(false);useEffect(()=>{const t=setTimeout(()=>setV(true),delay);return()=>clearTimeout(t)},[delay]);return <div className={className} style={{opacity:v?1:0,transform:v?'none':'translateY(12px)',transition:`all 0.45s cubic-bezier(0.22,1,0.36,1) ${delay}ms`}}>{children}</div>}
