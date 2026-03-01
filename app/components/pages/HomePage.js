@@ -1,11 +1,13 @@
 "use client";
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { useApp } from '../../providers';
 import { GIM, PILLARS, isAdmin } from '../../constants';
 import { getCycles } from '../../utils/helpers';
 import { FadeIn, renderInline } from '../shared/UIComponents';
 import { listRuns as listArenaRuns } from '../../../lib/orchestration/run-store';
 import { COURSES as ACADEMY_COURSES } from '../../constants/courses';
+
+const LandingPage = lazy(() => import('./LandingPage'));
 
 export default function HomePage(){
   const app = useApp();
@@ -20,6 +22,13 @@ export default function HomePage(){
   const[newThemeTxt,setNewThemeTxt]=useState("");
   const[editingTheme,setEditingTheme]=useState(null);
   const[editThemeTxt,setEditThemeTxt]=useState("");
+
+  // Show landing page for logged-out visitors
+  if (!currentUser) {
+    return <Suspense fallback={null}>
+      <LandingPage onSignIn={() => app.setShowLogin(true)} onNavigate={onNavigate} />
+    </Suspense>;
+  }
 
   // Platform-wide stats
   const registryAgentCount = registry?.totalAgents || 1000;

@@ -1,4 +1,5 @@
 import { callLLM } from "../../../../lib/llm-router";
+import { streamAnthropicLLM } from "../../../../lib/llm-router";
 import { getAuthUser } from "../../../../lib/auth";
 import { llmRateLimit } from "../../../../lib/rate-limit";
 import { RoundInputSchema, validateInput } from "../../../../lib/schemas";
@@ -9,7 +10,7 @@ export async function POST(req) {
   try {
     const { user, error, status } = await getAuthUser(req, { allowGuest: true });
     if (error) return NextResponse.json({ error }, { status });
-    const { allowed } = llmRateLimit.check(user.uid);
+    const { allowed } = await llmRateLimit.check(user.uid);
     if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
 
     const { data: body, error: inputError, status: inputStatus } = validateInput(await req.json(), RoundInputSchema);
@@ -18,6 +19,7 @@ export async function POST(req) {
     const { agents, roundNumber, previousRounds, pillarNames } = body;
     const articleTitle = sanitizeShort(body.articleTitle);
     const articleText = sanitizeForLLM(body.articleText);
+    const wantsStream = req.headers.get("accept")?.includes("text/event-stream");
 
     // Build context from previous rounds
     let context = "";
@@ -28,7 +30,6 @@ export async function POST(req) {
       });
     });
 
-    // Detect if this is a full-cycle debate (longer content with all 3 articles)
     const isCycleDebate = articleText.length > 3000 || articleText.includes("---\n\n");
     const contentSlice1 = isCycleDebate ? articleText.slice(0, 5000) : articleText.slice(0, 2500);
     const contentSlice2 = isCycleDebate ? articleText.slice(0, 3000) : articleText.slice(0, 1500);
@@ -45,13 +46,57 @@ export async function POST(req) {
     };
 
     const getPrompt = roundPrompts[roundNumber] || roundPrompts[1];
+    const systemFor = (agent) =>
+      `You are ${agent.name}. ${agent.persona} You are participating in a structured debate on the Re³ platform. Keep responses crisp and under 120 words. No filler — every sentence must earn its place. Use simple, everyday language that anyone can understand. Avoid jargon — if you must use a technical term, explain it briefly in parentheses. Write like you are talking to a smart friend, not writing an academic paper.`;
 
-    // Fire all 5 agents in parallel with individual error handling
+    // ==================== SSE STREAMING MODE ====================
+    if (wantsStream) {
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        async start(controller) {
+          const send = (payload) => {
+            try { controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)); } catch {}
+          };
+
+          // Stream all agents in parallel — each emits token deltas
+          const agentPromises = agents.map(async (agent) => {
+            try {
+              send({ type: "agent_start", agent: { id: agent.id, name: agent.name } });
+              const text = await streamAnthropicLLM(
+                systemFor(agent),
+                getPrompt(agent),
+                {
+                  timeout: 30000, maxTokens: 500, tier: "standard",
+                  onChunk: (delta) => send({ type: "agent_delta", agentId: agent.id, delta }),
+                }
+              );
+              const result = { id: agent.id, name: agent.name, response: text, model: agent.model, status: "success" };
+              send({ type: "agent_done", agentId: agent.id, result });
+              return result;
+            } catch (e) {
+              const result = { id: agent.id, name: agent.name, response: null, model: agent.model, status: "failed", error: e.message };
+              send({ type: "agent_done", agentId: agent.id, result });
+              return result;
+            }
+          });
+
+          const responses = await Promise.all(agentPromises);
+          send({ type: "done", data: { round: roundNumber, responses } });
+          controller.close();
+        },
+      });
+
+      return new Response(stream, {
+        headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform", "Connection": "keep-alive" },
+      });
+    }
+
+    // ==================== JSON MODE (backward-compatible) ====================
     const results = await Promise.allSettled(
       agents.map(async (agent) => {
         const text = await callLLM(
           agent.model || "anthropic",
-          `You are ${agent.name}. ${agent.persona} You are participating in a structured debate on the Re³ platform. Keep responses crisp and under 120 words. No filler — every sentence must earn its place. Use simple, everyday language that anyone can understand. Avoid jargon — if you must use a technical term, explain it briefly in parentheses. Write like you are talking to a smart friend, not writing an academic paper.`,
+          systemFor(agent),
           getPrompt(agent),
           { timeout: 30000, maxTokens: 500, tier: "standard" }
         );

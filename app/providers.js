@@ -34,7 +34,10 @@ export function AppProvider({ children }) {
   const [showLogin, setShowLogin] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  // Phase 1: Load from localStorage (instant)
+  // Track whether Firestore is the active source (vs offline cache)
+  const firestoreActive = useRef(false);
+
+  // Phase 1: Load from localStorage cache (instant, for fast first paint)
   useEffect(() => {
     const su = DB.get("user", null);
     const sc = DB.get("content_v5", null);
@@ -45,7 +48,6 @@ export function AppProvider({ children }) {
     const sfs = DB.get("forge_sessions_v1", null);
     if (su) setUser(su);
     if (sc && Array.isArray(sc) && sc.length > 0) {
-      // Merge: keep all localStorage posts + add any INIT_CONTENT posts not already present
       const existingIds = new Set(sc.map(p => p.id));
       const missing = INIT_CONTENT.filter(p => !existingIds.has(p.id));
       setContent(missing.length > 0 ? [...sc, ...missing] : sc);
@@ -62,7 +64,7 @@ export function AppProvider({ children }) {
     setLoaded(true);
   }, []);
 
-  // Phase 2: Background Firestore hydration (non-blocking, merges newer data)
+  // Phase 2: Firestore is SOURCE OF TRUTH — replaces localStorage cache when reachable
   useEffect(() => {
     if (!loaded) return;
     getFirestoreModule().then(mod => {
@@ -70,18 +72,27 @@ export function AppProvider({ children }) {
       if (mod.needsMigration()) { mod.migrateLocalStorageToFirestore(); return; }
       Promise.allSettled([
         mod.loadContent(null), mod.loadThemes(null),
-        mod.loadArticles(null), mod.loadForgeSessions(null)
+        mod.loadArticles(null), mod.loadForgeSessions(null),
+        mod.loadAgents(null), mod.loadProjects(null),
       ]).then(results => {
-        const [fc, ft, fa, ffs] = results.map(r => r.status === 'fulfilled' ? r.value : null);
-        if (fc && fc.length > 0) {
-          // Merge Firestore posts with current state (new posts only, no duplicates)
-          const currentIds = new Set(content.map(p => p.id));
-          const newFromFirestore = fc.filter(p => !currentIds.has(p.id));
-          if (newFromFirestore.length > 0) setContent(prev => [...newFromFirestore, ...prev]);
+        const [fc, ft, fa, ffs, fag, fp] = results.map(r => r.status === 'fulfilled' ? r.value : null);
+        // Firestore-authoritative: when Firestore returns data, it REPLACES local state.
+        // Only merge INIT_CONTENT seeds that aren't in Firestore yet.
+        if (fc?.source === 'firestore' && fc.data.length > 0) {
+          firestoreActive.current = true;
+          const fsIds = new Set(fc.data.map(p => p.id));
+          const seeds = INIT_CONTENT.filter(p => !fsIds.has(p.id));
+          setContent(seeds.length > 0 ? [...fc.data, ...seeds] : fc.data);
         }
-        if (ft && ft.length) setThemes(prev => ft.length >= prev.length ? ft : prev);
-        if (fa && fa.length > articles.length) setArticles(fa);
-        if (ffs && ffs.length > forgeSessions.length) setForgeSessions(ffs);
+        if (ft?.source === 'firestore') setThemes(ft.data);
+        if (fa?.source === 'firestore') setArticles(fa.data);
+        if (ffs?.source === 'firestore') setForgeSessions(ffs.data);
+        if (fag?.source === 'firestore') {
+          const fsAgentIds = new Set(fag.data.map(a => a.id));
+          const seedAgents = INIT_AGENTS.filter(a => !fsAgentIds.has(a.id));
+          setAgents(seedAgents.length > 0 ? [...fag.data, ...seedAgents] : fag.data);
+        }
+        if (fp?.source === 'firestore') setProjects(fp.data);
       });
     }).catch(() => {});
   }, [loaded]);

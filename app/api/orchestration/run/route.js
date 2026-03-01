@@ -16,7 +16,7 @@ export async function POST(req) {
   const { user, error, status } = await getAuthUser(req);
   if (error) return NextResponse.json({ error }, { status });
 
-  const { allowed } = llmRateLimit.check(user.uid);
+  const { allowed } = await llmRateLimit.check(user.uid);
   if (!allowed) {
     return NextResponse.json(
       { error: "Rate limit exceeded. Orchestration requires multiple LLM calls — please wait." },
