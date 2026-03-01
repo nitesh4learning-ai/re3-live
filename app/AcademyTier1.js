@@ -2670,7 +2670,7 @@ function TabSafetyWhy({onNavigate,onComplete}){return <FadeIn><div className="ma
   <AnalogyBox title="Guardrails on a Mountain Road">{`AI safety is like guardrails on a mountain road \u2014 you need them before the car goes off the cliff, not after. By the time an AI system causes harm, it's too late to add safety measures.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Real-world AI failures have already caused serious harm:</p>
   <div className="space-y-2 mb-4">{[
-    {icon:'\u2696\uFE0F',title:'Hallucinated Legal Citations',desc:'A lawyer used ChatGPT to write a brief. The AI <JargonTip term="hallucination">hallucinated</JargonTip> case citations that didn\'t exist. The lawyer was sanctioned by the court.'},
+    {icon:'\u2696\uFE0F',title:'Hallucinated Legal Citations',desc:'A lawyer used ChatGPT to write a brief. The AI hallucinated case citations that didn\'t exist. The lawyer was sanctioned by the court.'},
     {icon:'\uD83D\uDCBC',title:'Biased Hiring Tools',desc:'Amazon\'s AI recruiting tool learned to downrank resumes containing the word "women\'s" after being trained on 10 years of male-dominated hiring data.'},
     {icon:'\uD83D\uDCAC',title:'Dangerous Chatbot Advice',desc:'A mental health chatbot gave harmful advice to vulnerable users, demonstrating the risks of deploying AI without proper safety guardrails.'},
   ].map((f,i)=><div key={i} className="p-3 rounded-xl border" style={{borderColor:GIM.border}}><div className="flex items-center gap-2 mb-1"><span>{f.icon}</span><span className="font-semibold" style={{fontSize:13,color:GIM.headingText}}>{f.title}</span></div><p style={{fontSize:12,color:GIM.bodyText}}>{f.desc}</p></div>)}</div>
@@ -2706,7 +2706,7 @@ function TabSafetyGuardrails({onNavigate,onComplete}){return <FadeIn><div classN
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Guardrails & Safety Layers</h2>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Defense-in-depth: multiple layers of safety, each catching what the previous one missed.</p>
   <div className="space-y-2 mb-4">{[
-    {layer:'1. Input Filtering',desc:'Content policies, <JargonTip term="prompt injection">prompt injection</JargonTip> detection, PII redaction before the model sees the input',color:'#EF4444'},
+    {layer:'1. Input Filtering',desc:'Content policies, prompt injection detection, PII redaction before the model sees the input',color:'#EF4444'},
     {layer:'2. Model Behavior',desc:'Constitutional AI rules, RLHF training, system prompt constraints that guide model responses',color:'#F59E0B'},
     {layer:'3. Output Validation',desc:'Fact-checking, toxicity scoring, PII detection in outputs, format validation',color:'#3B82F6'},
     {layer:'4. Monitoring',desc:'Logging, anomaly detection, human review queues, drift detection over time',color:'#2D8A6E'},

@@ -85,6 +85,6 @@ Keep excerpts under 2 sentences each. Every response should appear in exactly on
     return NextResponse.json({ loom: loomText, streams });
   } catch (e) {
     console.error("Loom error:", e);
-    return NextResponse.json({ loom: "Hypatia is still reflecting on this debate...", streams: [], error: e.message });
+    return NextResponse.json({ loom: "Hypatia is still reflecting on this debate...", streams: [], error: e.message }, { status: 500 });
   }
 }

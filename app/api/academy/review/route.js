@@ -52,14 +52,14 @@ function selectReviewers(courseId, courseTitle) {
 
   // Pick top 3 with diverse cognitive styles (avoid all same disposition)
   const selected = [];
-  const dispositions = new Set();
+  const dispositionCounts = {};
   for (const { agent } of scored) {
     if (selected.length >= 3) break;
     const disp = agent.cognitiveStyle?.disposition || "neutral";
     // Allow at most 2 of the same disposition
-    if (dispositions.has(disp) && [...dispositions].filter((d) => d === disp).length >= 2) continue;
+    if ((dispositionCounts[disp] || 0) >= 2) continue;
     selected.push(agent);
-    dispositions.add(disp);
+    dispositionCounts[disp] = (dispositionCounts[disp] || 0) + 1;
   }
 
   // If we still don't have 3, just fill from the top
