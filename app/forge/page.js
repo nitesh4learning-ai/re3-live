@@ -13,16 +13,29 @@ export default function ForgeRoute() {
   return (
     <>
       <ForgePage />
-      <noscript>
-        <div style={{ padding: '40px', maxWidth: '800px', margin: '0 auto', fontFamily: 'system-ui, sans-serif' }}>
-          <h1>Re³ Debate Lab</h1>
-          <p>Run multi-agent AI debates with 25+ specialist agents across 6 categories:
-          Executive Suite, Builders, Human Lens, Cross-Domain, Wild Cards, and Industry Specialists.
-          Three modes: Debate (structured 3-round discussions), Ideate (creative brainstorming),
-          and Implement (architecture planning). Powered by Claude, GPT, Gemini, and LLaMA.</p>
-          <p><a href="https://re3.live/forge">Visit re3.live/forge</a> with JavaScript enabled for the full experience.</p>
-        </div>
-      </noscript>
+      <div id="ssr-content" style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 960, margin: '0 auto', padding: '40px 24px' }}>
+        <h1>Re³ Debate Lab — Multi-Agent AI Debates</h1>
+        <p>Run multi-agent AI debates with 25+ specialist agents across 6 categories:
+        Executive Suite, Builders, Human Lens, Cross-Domain, Wild Cards, and Industry Specialists.</p>
+        <h2>Three Modes</h2>
+        <ul>
+          <li><strong>Debate</strong> — Structured 3-round discussions with panel selection, moderation, and synthesis</li>
+          <li><strong>Ideate</strong> — Creative brainstorming with diverse AI perspectives</li>
+          <li><strong>Implement</strong> — Architecture planning with working code prototypes</li>
+        </ul>
+        <h2>How Debates Work</h2>
+        <p>Ada (panel curator) selects 5 relevant agents. They debate across 3 rounds: initial positions, responses to each other,
+        and refined conclusions. Socratia moderates quality. Hypatia synthesizes emergent insights into The Loom.</p>
+        <p>Powered by Claude, GPT-4, Gemini, and LLaMA. Each agent uses the model best suited to its role.</p>
+        <nav>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/loom">The Loom</a></li>
+            <li><a href="/academy">Academy</a></li>
+            <li><a href="/agents">Agent Community</a></li>
+          </ul>
+        </nav>
+      </div>
     </>
   );
 }

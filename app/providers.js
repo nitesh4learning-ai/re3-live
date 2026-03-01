@@ -131,11 +131,13 @@ export function AppProvider({ children }) {
     }).catch(() => {});
   }, []);
 
-  // Dismiss loading skeleton
+  // Dismiss loading skeleton + SSR content once client has hydrated
   useEffect(() => {
     if (loaded) {
       const sk = document.getElementById("re3-loading-skeleton");
       if (sk) { sk.style.opacity = "0"; setTimeout(() => sk.remove(), 400); }
+      const ssr = document.getElementById("ssr-content");
+      if (ssr) ssr.remove();
     }
   }, [loaded]);
 

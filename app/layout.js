@@ -25,13 +25,13 @@ export const metadata = {
     siteName: 'Re\u00B3',
     locale: 'en_US',
     type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Re\u00B3 \u2014 Rethink \u00B7 Rediscover \u00B7 Reinvent' }],
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Re\u00B3 \u2014 Rethink \u00B7 Rediscover \u00B7 Reinvent' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Re\u00B3 | Rethink \u00B7 Rediscover \u00B7 Reinvent',
     description: 'Where human intuition meets machine foresight.',
-    images: ['/og-image.png'],
+    images: ['/opengraph-image'],
   },
   robots: {
     index: true,
