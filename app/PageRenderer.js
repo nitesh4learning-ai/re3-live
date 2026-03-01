@@ -874,7 +874,8 @@ function DebatePanel({article,topic,agents,onDebateComplete,onSaveSession,curren
   const topicText=isCycleDebate?(topic?.text||""):(article?.paragraphs?.join("\n\n")||article?.htmlContent?.replace(/<[^>]*>/g," ")||topic?.text||"");
   const existingDebate=article?.debate;
   const[status,setStatus]=useState(existingDebate?"complete":"idle");const[step,setStep]=useState(existingDebate?"Complete!":"");const[panel,setPanel]=useState(existingDebate?.panel||null);const[rounds,setRounds]=useState(existingDebate?.rounds||[]);const[atlas,setAtlas]=useState(existingDebate?.atlas||null);const[loom,setLoom]=useState(existingDebate?.loom||null);const[streams,setStreams]=useState(existingDebate?.streams||[]);const[error,setError]=useState("");const[progress,setProgress]=useState(existingDebate?100:0);const[toast,setToast]=useState("");const debateRef=useRef(null);
-  const[sidePanelOpen,setSidePanelOpen]=useState(typeof window!=='undefined'&&window.innerWidth>=768);
+  const[sidePanelOpen,setSidePanelOpen]=useState(false);
+  useEffect(()=>{setSidePanelOpen(window.innerWidth>=768)},[]);
 
   const scrollToBottom=()=>{if(debateRef.current)debateRef.current.scrollIntoView({behavior:"smooth",block:"end"})};
   const showToast=(msg)=>{setToast(msg);setTimeout(()=>setToast(""),4000)};

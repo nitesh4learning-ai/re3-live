@@ -176,8 +176,7 @@ function CourseShell({id,onBack,onNavigate,progress,onComplete,depth,onChangeDep
   const[activeTab,setActiveTab]=useState(0);
   const tabs=depth==='deep'?deepTabs:visionaryTabs;
   // Reset tab when switching depth if current tab exceeds new tab count
-  const safeTab=Math.min(activeTab,tabs.length-1);
-  if(safeTab!==activeTab)setActiveTab(safeTab);
+  useEffect(()=>{const safeTab=Math.min(activeTab,tabs.length-1);if(safeTab!==activeTab)setActiveTab(safeTab)},[activeTab,tabs.length]);
   const courseData=COURSES.find(c=>c.id===id);
   const icon=courseData?.icon||'';
   const title=courseData?.title||id;

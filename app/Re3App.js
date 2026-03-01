@@ -345,7 +345,7 @@ function LoomCyclePage({cycleDate,content,articles,onNavigate,onForge,currentUse
   const allParticipants=[...new Set(pillars.flatMap(p=>(p?.debate?.panel?.agents||[]).map(a=>a.name)))];
   const allRounds=pillars.flatMap(p=>p?.debate?.rounds||[]);
   const debatePanel=pillars.find(p=>p?.debate?.panel)?.debate?.panel;
-  const cycleShareUrl=typeof window!=='undefined'?window.location.origin+'/loom/'+cycle.id:'';;
+  const cycleShareUrl=typeof window!=='undefined'?window.location.origin+'/loom/'+cycle.id:'';
   const isJourney=cycle.isJourney;
 
   // Scroll handlers for act tracking
@@ -649,7 +649,8 @@ function DebatePanel({article,topic,agents,onDebateComplete,onSaveSession,curren
   const topicText=isCycleDebate?(topic?.text||""):(article?.paragraphs?.join("\n\n")||article?.htmlContent?.replace(/<[^>]*>/g," ")||topic?.text||"");
   const existingDebate=article?.debate;
   const[status,setStatus]=useState(existingDebate?"complete":"idle");const[step,setStep]=useState(existingDebate?"Complete!":"");const[panel,setPanel]=useState(existingDebate?.panel||null);const[rounds,setRounds]=useState(existingDebate?.rounds||[]);const[atlas,setAtlas]=useState(existingDebate?.atlas||null);const[loom,setLoom]=useState(existingDebate?.loom||null);const[streams,setStreams]=useState(existingDebate?.streams||[]);const[error,setError]=useState("");const[progress,setProgress]=useState(existingDebate?100:0);const[toast,setToast]=useState("");const debateRef=useRef(null);
-  const[sidePanelOpen,setSidePanelOpen]=useState(typeof window!=='undefined'&&window.innerWidth>=768);
+  const[sidePanelOpen,setSidePanelOpen]=useState(false);
+  useEffect(()=>{setSidePanelOpen(window.innerWidth>=768)},[]);
 
   const scrollToBottom=()=>{if(debateRef.current)debateRef.current.scrollIntoView({behavior:"smooth",block:"end"})};
   const showToast=(msg)=>{setToast(msg);setTimeout(()=>setToast(""),4000)};
@@ -1857,14 +1858,14 @@ function Re3(){
     window.scrollTo({top:0,behavior:"smooth"});
   },[]);
   const endorse=(id)=>setContent(p=>p.map(c=>c.id===id?{...c,endorsements:c.endorsements+1}:c));
-  const cmnt=(id,text)=>{if(!user)return;setContent(p=>p.map(c=>c.id===id?{...c,comments:[...c.comments,{id:"cm_"+Date.now(),authorId:user.id,text,date:new Date().toISOString().split("T")[0]}]}:c))};
+  const cmnt=(id,text)=>{if(!user)return;setContent(p=>p.map(c=>c.id===id?{...c,comments:[...(c.comments||[]),{id:"cm_"+Date.now(),authorId:user.id,text,date:new Date().toISOString().split("T")[0]}]}:c))};
   const addPost=(p)=>setContent(prev=>[p,...prev]);
   const react=(postId,pi,key)=>{setContent(p=>p.map(c=>{if(c.id!==postId)return c;const r={...c.reactions};if(!r[pi])r[pi]={};r[pi]={...r[pi],[key]:(r[pi][key]||0)+1};return{...c,reactions:r}}))};
   const addCh=(postId,text)=>{if(!user)return;setContent(p=>p.map(c=>c.id===postId?{...c,challenges:[...(c.challenges||[]),{id:"ch_"+Date.now(),authorId:user.id,text,date:new Date().toISOString().split("T")[0],votes:1}]}:c))};
   const addMN=(postId,pi,text)=>{if(!user)return;setContent(p=>p.map(c=>c.id===postId?{...c,marginNotes:[...(c.marginNotes||[]),{id:"mn_"+Date.now(),paragraphIndex:pi,authorId:user.id,text,date:new Date().toISOString().split("T")[0]}]}:c))};
   const updatePost=(updated)=>{const next=content.map(c=>c.id===updated.id?updated:c);setContent(next);DB.set("content_v5",next)};
   const archiveCycle=(cycleId)=>setContent(p=>p.map(c=>(c.cycleId===cycleId||c.sundayCycle===cycleId)?{...c,archived:true}:c));
-  const autoComment=(postId,agentId,text)=>{setContent(p=>p.map(c=>c.id===postId?{...c,comments:[...c.comments,{id:"cm_"+Date.now()+"_"+Math.random().toString(36).slice(2,6),authorId:agentId,text,date:new Date().toISOString().split("T")[0]}]}:c))};
+  const autoComment=(postId,agentId,text)=>{setContent(p=>p.map(c=>c.id===postId?{...c,comments:[...(c.comments||[]),{id:"cm_"+Date.now()+"_"+Math.random().toString(36).slice(2,6),authorId:agentId,text,date:new Date().toISOString().split("T")[0]}]}:c))};
   const voteTheme=(id)=>setThemes(t=>t.map(th=>th.id===id?{...th,votes:th.votes+(th.voted?0:1),voted:true}:th));
   const addTheme=(title)=>setThemes(t=>[...t,{id:"t_"+Date.now(),title,votes:0,voted:false}]);
   const editTheme=(id,newTitle)=>setThemes(t=>t.map(th=>th.id===id?{...th,title:newTitle}:th));

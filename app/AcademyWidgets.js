@@ -99,7 +99,7 @@ function TokenEstimationGame(){
   ];
   const[current,setCurrent]=useState(0);const[guess,setGuess]=useState('');const[revealed,setRevealed]=useState(false);const[score,setScore]=useState(0);
   const c=challenges[current];const diff=revealed?Math.abs(Number(guess)-c.actual):0;
-  const reveal=()=>{if(!guess.trim())return;setRevealed(true);if(diff<=1)setScore(s=>s+1)};
+  const reveal=()=>{if(!guess.trim())return;const d=Math.abs(Number(guess)-c.actual);setRevealed(true);if(d<=1)setScore(s=>s+1)};
   const next=()=>{if(current<challenges.length-1){setCurrent(i=>i+1);setGuess('');setRevealed(false)}};
   return <div>
     <div className="flex items-center justify-between mb-3"><span style={{fontSize:12,color:GIM.mutedText}}>Challenge {current+1} of {challenges.length}</span><span className="font-semibold" style={{fontSize:12,color:GIM.primary}}>Score: {score}/{challenges.length}</span></div>
@@ -247,7 +247,8 @@ function HallucinationDetector(){
 // ==================== INTERACTIVE: PIPELINE ORDER GAME ====================
 function PipelineOrderGame(){
   const stages=['Ingest Documents','Chunk Text','Generate Embeddings','Store in Vector DB','Receive Query','Retrieve Similar Chunks','Generate Response'];
-  const[order,setOrder]=useState([]);const[available,setAvailable]=useState([...stages].sort(()=>Math.random()-0.5));const[checked,setChecked]=useState(false);
+  const[order,setOrder]=useState([]);const[available,setAvailable]=useState([...stages]);const[checked,setChecked]=useState(false);
+  useEffect(()=>{setAvailable(prev=>[...prev].sort(()=>Math.random()-0.5))},[]);
   const addStage=(stage)=>{setOrder(o=>[...o,stage]);setAvailable(a=>a.filter(s=>s!==stage))};
   const removeStage=(stage)=>{setOrder(o=>o.filter(s=>s!==stage));setAvailable(a=>[...a,stage])};
   const isCorrect=checked&&order.every((s,i)=>s===stages[i])&&order.length===stages.length;

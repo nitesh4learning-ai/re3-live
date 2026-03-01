@@ -139,7 +139,7 @@ export function AppProvider({ children }) {
 
   const cmnt = (id, text) => {
     if (!user) return;
-    setContent(p => p.map(c => c.id === id ? { ...c, comments: [...c.comments, { id: "cm_" + Date.now(), authorId: user.id, text, date: new Date().toISOString().split("T")[0] }] } : c));
+    setContent(p => p.map(c => c.id === id ? { ...c, comments: [...(c.comments || []), { id: "cm_" + Date.now(), authorId: user.id, text, date: new Date().toISOString().split("T")[0] }] } : c));
   };
 
   const addPost = (p) => setContent(prev => [p, ...prev]);
@@ -164,9 +164,9 @@ export function AppProvider({ children }) {
     setContent(p => p.map(c => c.id === postId ? { ...c, marginNotes: [...(c.marginNotes || []), { id: "mn_" + Date.now(), paragraphIndex: pi, authorId: user.id, text, date: new Date().toISOString().split("T")[0] }] } : c));
   };
 
-  const updatePost = (updated) => { const next = content.map(c => c.id === updated.id ? updated : c); setContent(next); DB.set("content_v5", next); };
+  const updatePost = (updated) => { setContent(prev => prev.map(c => c.id === updated.id ? updated : c)); };
   const archiveCycle = (cycleId) => setContent(p => p.map(c => (c.cycleId === cycleId || c.sundayCycle === cycleId) ? { ...c, archived: true } : c));
-  const autoComment = (postId, agentId, text) => { setContent(p => p.map(c => c.id === postId ? { ...c, comments: [...c.comments, { id: "cm_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6), authorId: agentId, text, date: new Date().toISOString().split("T")[0] }] } : c)); };
+  const autoComment = (postId, agentId, text) => { setContent(p => p.map(c => c.id === postId ? { ...c, comments: [...(c.comments || []), { id: "cm_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6), authorId: agentId, text, date: new Date().toISOString().split("T")[0] }] } : c)); };
   const voteTheme = (id) => setThemes(t => t.map(th => th.id === id ? { ...th, votes: th.votes + (th.voted ? 0 : 1), voted: true } : th));
   const addTheme = (title) => setThemes(t => [...t, { id: "t_" + Date.now(), title, votes: 0, voted: false }]);
   const editTheme = (id, newTitle) => setThemes(t => t.map(th => th.id === id ? { ...th, title: newTitle } : th));

@@ -2447,7 +2447,7 @@ export function CourseRAG({onBack,onNavigate,progress,onComplete,depth,onChangeD
 // ==================== COURSE 5: CONTEXT ENGINEERING ====================
 function TabCEWhatIsContext({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>What Is Context?</h2>
-  <AnalogyBox title="The Director's Cut">{`Context engineering is like being a movie director \u2014 you choose what the camera sees. The model can only reason about what's in its context window. Everything else might as well not exist.`}</AnalogyBox>
+  <AnalogyBox emoji={'D83CDFAC'} title="The Director's Cut">{`Context engineering is like being a movie director \u2014 you choose what the camera sees. The model can only reason about what's in its context window. Everything else might as well not exist.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Context is <b>everything the model sees</b> when generating a response:</p>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
     {[{icon:'\uD83D\uDCDD',title:'System Prompt',desc:'Instructions that define role, behavior, constraints'},{icon:'\uD83D\uDCDA',title:'Retrieved Documents',desc:'Knowledge fetched via RAG — external memory'},{icon:'\uD83D\uDCAC',title:'Conversation History',desc:'Previous messages \u2014 session memory'},{icon:'\uD83D\uDD27',title:'Tool Results',desc:'Function call outputs \u2014 real-time data'}].map((l,i)=><div key={i} className="p-3 rounded-xl border" style={{borderColor:GIM.border,background:GIM.cardBg}}>
@@ -2667,10 +2667,10 @@ export function CourseContextEng({onBack,onNavigate,progress,onComplete,depth,on
 // ==================== COURSE 6: AI SAFETY & ALIGNMENT ====================
 function TabSafetyWhy({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Why AI Safety Matters</h2>
-  <AnalogyBox title="Guardrails on a Mountain Road">{`AI safety is like guardrails on a mountain road \u2014 you need them before the car goes off the cliff, not after. By the time an AI system causes harm, it's too late to add safety measures.`}</AnalogyBox>
+  <AnalogyBox emoji={'D83DDEE1FE0F'} title="Guardrails on a Mountain Road">{`AI safety is like guardrails on a mountain road \u2014 you need them before the car goes off the cliff, not after. By the time an AI system causes harm, it's too late to add safety measures.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Real-world AI failures have already caused serious harm:</p>
   <div className="space-y-2 mb-4">{[
-    {icon:'\u2696\uFE0F',title:'Hallucinated Legal Citations',desc:'A lawyer used ChatGPT to write a brief. The AI <JargonTip term="hallucination">hallucinated</JargonTip> case citations that didn\'t exist. The lawyer was sanctioned by the court.'},
+    {icon:'\u2696\uFE0F',title:'Hallucinated Legal Citations',desc:'A lawyer used ChatGPT to write a brief. The AI hallucinated case citations that didn\'t exist. The lawyer was sanctioned by the court.'},
     {icon:'\uD83D\uDCBC',title:'Biased Hiring Tools',desc:'Amazon\'s AI recruiting tool learned to downrank resumes containing the word "women\'s" after being trained on 10 years of male-dominated hiring data.'},
     {icon:'\uD83D\uDCAC',title:'Dangerous Chatbot Advice',desc:'A mental health chatbot gave harmful advice to vulnerable users, demonstrating the risks of deploying AI without proper safety guardrails.'},
   ].map((f,i)=><div key={i} className="p-3 rounded-xl border" style={{borderColor:GIM.border}}><div className="flex items-center gap-2 mb-1"><span>{f.icon}</span><span className="font-semibold" style={{fontSize:13,color:GIM.headingText}}>{f.title}</span></div><p style={{fontSize:12,color:GIM.bodyText}}>{f.desc}</p></div>)}</div>
@@ -2706,7 +2706,7 @@ function TabSafetyGuardrails({onNavigate,onComplete}){return <FadeIn><div classN
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Guardrails & Safety Layers</h2>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>Defense-in-depth: multiple layers of safety, each catching what the previous one missed.</p>
   <div className="space-y-2 mb-4">{[
-    {layer:'1. Input Filtering',desc:'Content policies, <JargonTip term="prompt injection">prompt injection</JargonTip> detection, PII redaction before the model sees the input',color:'#EF4444'},
+    {layer:'1. Input Filtering',desc:'Content policies, prompt injection detection, PII redaction before the model sees the input',color:'#EF4444'},
     {layer:'2. Model Behavior',desc:'Constitutional AI rules, RLHF training, system prompt constraints that guide model responses',color:'#F59E0B'},
     {layer:'3. Output Validation',desc:'Fact-checking, toxicity scoring, PII detection in outputs, format validation',color:'#3B82F6'},
     {layer:'4. Monitoring',desc:'Logging, anomaly detection, human review queues, drift detection over time',color:'#2D8A6E'},
@@ -2939,7 +2939,7 @@ export function CourseAISafety({onBack,onNavigate,progress,onComplete,depth,onCh
 // ==================== COURSE 7: TOKENS, COSTS & MODEL SELECTION ====================
 function TabTCTokens({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>What Are Tokens?</h2>
-  <AnalogyBox title="Arcade Coins">{`Tokens are like coins in an arcade \u2014 different machines (models) have different prices per play. And some words cost more coins than others! "The" is 1 token, but "antidisestablishmentarianism" might be 6+ tokens.`}</AnalogyBox>
+  <AnalogyBox emoji={'D83EDE99'} title="Arcade Coins">{`Tokens are like coins in an arcade \u2014 different machines (models) have different prices per play. And some words cost more coins than others! "The" is 1 token, but "antidisestablishmentarianism" might be 6+ tokens.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}><JargonTip term="token">Tokens</JargonTip> are <b>subword units</b>, not words. LLMs break text into tokens using <JargonTip term="BPE">BPE</JargonTip> (Byte-Pair Encoding). Common words like "the" are 1 token, but uncommon words get split into pieces.</p>
   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">{[
     {word:'Hello',tokens:1,display:'[Hello]'},{word:'ChatGPT',tokens:3,display:'[Chat][G][PT]'},{word:'unhappiness',tokens:3,display:'[un][happi][ness]'},
@@ -3165,7 +3165,7 @@ export function CourseTokensCosts({onBack,onNavigate,progress,onComplete,depth,o
 // ==================== COURSE 8: JSON MODE & STRUCTURED OUTPUTS ====================
 function TabJMWhy({onNavigate,onComplete}){return <FadeIn><div className="max-w-3xl mx-auto">
   <h2 className="text-2xl font-bold mb-4" style={{color:GIM.headingText,fontFamily:GIM.fontMain}}>Why Structured Outputs?</h2>
-  <AnalogyBox title="Forms vs Blank Pages">{`Structured outputs are like a form vs a blank page \u2014 forms ensure you get exactly the data fields you need, in a format your code can process. Without structure, you are parsing free text and praying.`}</AnalogyBox>
+  <AnalogyBox emoji={'D83DDCCB'} title="Forms vs Blank Pages">{`Structured outputs are like a form vs a blank page \u2014 forms ensure you get exactly the data fields you need, in a format your code can process. Without structure, you are parsing free text and praying.`}</AnalogyBox>
   <p className="mb-4" style={{fontSize:14,color:GIM.bodyText,lineHeight:1.7}}>The problem: LLMs output free text, but applications need structured data — <JargonTip term="JSON mode">JSON</JargonTip>, typed objects, database records.</p>
   <ExpandableSection title="Common Failure Modes" icon={'\u26A0\uFE0F'} defaultOpen>
     <div className="space-y-1">{['Missing fields \u2014 model forgets to include required data','Wrong types \u2014 returns string "42" instead of number 42','Extra text \u2014 wraps JSON in markdown code blocks or explanation','Nested quotes \u2014 unescaped quotes inside strings break JSON parsing','Inconsistent format \u2014 sometimes returns array, sometimes object'].map((r,i)=><p key={i} style={{fontSize:12,color:GIM.bodyText}}>{'\u2022'} {r}</p>)}</div>
