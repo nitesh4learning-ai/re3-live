@@ -84,7 +84,7 @@ const COURSES = [
 ];
 
 // ==================== SHARED COMPONENTS ====================
-function FadeIn({children,delay=0,className=""}){const[v,setV]=useState(false);useEffect(()=>{const t=setTimeout(()=>setV(true),delay);return()=>clearTimeout(t)},[delay]);return <div className={className} style={{opacity:v?1:0,transform:v?"translateY(0)":"translateY(12px)",transition:`all 0.45s cubic-bezier(0.22,1,0.36,1) ${delay}ms`}}>{children}</div>}
+function FadeIn({children,delay=0,className=""}){const[v,setV]=useState(false);useEffect(()=>{const t=setTimeout(()=>setV(true),delay);return()=>clearTimeout(t)},[delay]);return <div className={className} style={{opacity:v?1:0,transform:v?'none':'translateY(12px)',transition:`all 0.45s cubic-bezier(0.22,1,0.36,1) ${delay}ms`}}>{children}</div>}
 
 function ProgressBar({percent,size='md'}){const h=size==='sm'?4:size==='lg'?8:6;return <div className="w-full rounded-full overflow-hidden" style={{height:h,background:GIM.borderLight}}><div className="rounded-full transition-all" style={{width:`${Math.min(100,Math.max(0,percent))}%`,height:'100%',background:GIM.primary,transition:'width 0.5s ease'}}/></div>}
 
@@ -500,7 +500,7 @@ function AcademyHub({onStartCourse,progress,currentUser}){
               {!isComing&&!isDraft&&<div className="mb-3"><ProgressBar percent={cp.percent} size="sm"/></div>}
               {isComing?<span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold" style={{background:GIM.borderLight,color:GIM.mutedText}}>Coming Soon</span>
               :isDraft?<span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold" style={{background:'#FEF3C7',color:'#D97706'}}>Draft — Admin Only</span>
-              :<button onClick={()=>onStartCourse(course.id)} className="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm" style={{background:isComplete?'#EBF5F1':isStarted?GIM.primary:GIM.primaryBadge,color:isComplete?'#2D8A6E':isStarted?'white':GIM.primary}}>{isComplete?'\u2713 Review':isStarted?'Continue':'Start Course'}</button>}
+              :<button onClick={()=>onStartCourse(course.id)} className="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm" style={{background:isComplete?'#2D8A6E':isStarted?GIM.primary:GIM.primaryBadge,color:isComplete?'white':isStarted?'white':GIM.primary,border:isComplete?'1px solid #2D8A6E':'none'}}>{isComplete?'\u2713 Review':isStarted?'Continue':'Start Course'}</button>}
             </>}
           </div>})}</div>
         {/* Add Course button (admin) */}
