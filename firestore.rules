@@ -7,9 +7,13 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Helper: check if user is admin
+    // Helper: check if user is admin (supports Firebase custom claims or email fallback)
+    // To add admin via custom claims: Firebase Console > Auth > Users > Custom Claims > { "admin": true }
     function isAdmin() {
-      return request.auth != null && request.auth.token.email == 'nitesh4learning@gmail.com';
+      return request.auth != null && (
+        request.auth.token.admin == true ||
+        request.auth.token.email == 'nitesh4learning@gmail.com'
+      );
     }
 
     // Content (posts) — anyone can read, authenticated users can create/update
@@ -34,11 +38,11 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Config (themes, agents, projects) — anyone can read, authenticated users can write
+    // Config (themes, agents, projects) — anyone can read, admin-only write
     // Note: saveThemes/saveAgents/saveProjects use setDoc which needs create+update
     match /config/{docId} {
       allow read: if true;
-      allow write: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
     // User profiles — users can read/write their own, admin can read all

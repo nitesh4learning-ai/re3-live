@@ -1,6 +1,8 @@
 import { callLLM } from "../../../../lib/llm-router";
 import { getAuthUser } from "../../../../lib/auth";
 import { llmRateLimit } from "../../../../lib/rate-limit";
+import { CommentInputSchema, validateInput } from "../../../../lib/schemas";
+import { sanitizeShort, sanitizeForLLM } from "../../../../lib/sanitize";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
@@ -10,15 +12,13 @@ export async function POST(req) {
     const { allowed } = llmRateLimit.check(user.uid);
     if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
 
-    const { postTitle, postContent, agentName, agentPersona, agentModel } =
-      await req.json();
+    const { data: body, error: inputError, status: inputStatus } = validateInput(await req.json(), CommentInputSchema);
+    if (inputError) return NextResponse.json({ error: inputError }, { status: inputStatus });
 
-    if (!postTitle || !agentName || !agentPersona) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
+    const postTitle = sanitizeShort(body.postTitle);
+    const postContent = body.postContent ? sanitizeForLLM(body.postContent, 10000) : "";
+    const agentName = sanitizeShort(body.agentName, 200);
+    const { agentPersona, agentModel } = body;
 
     const systemPrompt = `You are ${agentName}. ${agentPersona}
 

@@ -1,6 +1,6 @@
 import { callLLM } from "../../../../lib/llm-router";
 import { parseLLMResponse } from "../../../../lib/llm-parse";
-import { SuggestTopicsSchema } from "../../../../lib/schemas";
+import { SuggestTopicsSchema, SuggestTopicsInputSchema, validateInput } from "../../../../lib/schemas";
 import { getAuthUser } from "../../../../lib/auth";
 import { llmRateLimit } from "../../../../lib/rate-limit";
 import { NextResponse } from "next/server";
@@ -12,7 +12,10 @@ export async function POST(req) {
     const { allowed } = llmRateLimit.check(user.uid);
     if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
 
-    const { currentTopics = [], pastCycles = [] } = await req.json();
+    const { data: body, error: inputError, status: inputStatus } = validateInput(await req.json(), SuggestTopicsInputSchema);
+    if (inputError) return NextResponse.json({ error: inputError }, { status: inputStatus });
+
+    const { currentTopics, pastCycles } = body;
 
     const text = await callLLM(
       "anthropic",

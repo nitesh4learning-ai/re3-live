@@ -1,8 +1,9 @@
 import { callLLM } from "../../../../lib/llm-router";
 import { parseLLMResponse } from "../../../../lib/llm-parse";
-import { SelectPanelSchema } from "../../../../lib/schemas";
+import { SelectPanelSchema, SelectInputSchema, validateInput } from "../../../../lib/schemas";
 import { getAuthUser } from "../../../../lib/auth";
 import { llmRateLimit } from "../../../../lib/rate-limit";
+import { sanitizeForLLM, sanitizeShort } from "../../../../lib/sanitize";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
@@ -12,7 +13,12 @@ export async function POST(req) {
     const { allowed } = llmRateLimit.check(user.uid);
     if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
 
-    const { articleTitle, articleText, agents, forgePersona, activityType } = await req.json();
+    const { data: body, error: inputError, status: inputStatus } = validateInput(await req.json(), SelectInputSchema);
+    if (inputError) return NextResponse.json({ error: inputError }, { status: inputStatus });
+
+    const { agents, forgePersona, activityType } = body;
+    const articleTitle = sanitizeShort(body.articleTitle);
+    const articleText = sanitizeForLLM(body.articleText);
     const activeAgents = agents.filter((a) => a.status !== "inactive");
     const agentList = activeAgents
       .map((a) => {

@@ -1,8 +1,9 @@
 import { callLLM } from "../../../../lib/llm-router";
 import { parseLLMResponse } from "../../../../lib/llm-parse";
-import { IdeateAgentSchema, IdeateClusterSchema } from "../../../../lib/schemas";
+import { IdeateAgentSchema, IdeateClusterSchema, IdeateInputSchema, validateInput } from "../../../../lib/schemas";
 import { getAuthUser } from "../../../../lib/auth";
 import { llmRateLimit } from "../../../../lib/rate-limit";
+import { sanitizeShort } from "../../../../lib/sanitize";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
@@ -12,11 +13,11 @@ export async function POST(req) {
     const { allowed } = llmRateLimit.check(user.uid);
     if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
 
-    const { topic, agents, context } = await req.json();
+    const { data: body, error: inputError, status: inputStatus } = validateInput(await req.json(), IdeateInputSchema);
+    if (inputError) return NextResponse.json({ error: inputError }, { status: inputStatus });
 
-    if (!agents || agents.length === 0) {
-      return NextResponse.json({ error: "No agents provided" }, { status: 400 });
-    }
+    const topic = sanitizeShort(body.topic);
+    const { agents, context } = body;
 
     // Step 1: Each agent generates 2-3 ideas in parallel
     const results = await Promise.allSettled(

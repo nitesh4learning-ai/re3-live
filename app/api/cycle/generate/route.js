@@ -1,6 +1,6 @@
 import { callLLM } from "../../../../lib/llm-router";
 import { parseLLMResponse } from "../../../../lib/llm-parse";
-import { ThroughLineSchema, CycleRethinkSchema, CycleRediscoverSchema, CycleReinventSchema } from "../../../../lib/schemas";
+import { ThroughLineSchema, CycleRethinkSchema, CycleRediscoverSchema, CycleReinventSchema, CycleGenerateInputSchema, validateInput } from "../../../../lib/schemas";
 import { getAuthUser } from "../../../../lib/auth";
 import { llmRateLimit } from "../../../../lib/rate-limit";
 import { NextResponse } from "next/server";
@@ -257,11 +257,10 @@ export async function POST(req) {
     const { allowed } = llmRateLimit.check(user.uid);
     if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
 
-    const { topic, step, previousData } = await req.json();
+    const { data: body, error: inputError, status: inputStatus } = validateInput(await req.json(), CycleGenerateInputSchema);
+    if (inputError) return NextResponse.json({ error: inputError }, { status: inputStatus });
 
-    if (!topic?.title) {
-      return NextResponse.json({ error: "Topic title is required" }, { status: 400 });
-    }
+    const { topic, step, previousData } = body;
 
     // Support step-by-step streaming for UI progress updates
     if (step === "through-line") {
