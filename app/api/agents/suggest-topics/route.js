@@ -1,11 +1,9 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { callLLM } from "../../../../lib/llm-router";
 import { parseLLMResponse } from "../../../../lib/llm-parse";
 import { SuggestTopicsSchema } from "../../../../lib/schemas";
 import { getAuthUser } from "../../../../lib/auth";
 import { llmRateLimit } from "../../../../lib/rate-limit";
 import { NextResponse } from "next/server";
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req) {
   try {
@@ -16,10 +14,9 @@ export async function POST(req) {
 
     const { currentTopics = [], pastCycles = [] } = await req.json();
 
-    const msg = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 2000,
-      system: `You are the editorial brain behind Re³, a human-AI synthesis platform focused on enterprise technology, AI governance, data architecture, and the future of human-machine collaboration.
+    const text = await callLLM(
+      "anthropic",
+      `You are the editorial brain behind Re³, a human-AI synthesis platform focused on enterprise technology, AI governance, data architecture, and the future of human-machine collaboration.
 
 Your job is to suggest 3-4 TOPICS for the next synthesis cycle. Each topic should:
 1. Be emerging NOW but not yet mainstream (predictive thinking)
@@ -43,19 +40,13 @@ Respond in JSON format only:
     }
   ]
 }`,
-      messages: [
-        {
-          role: "user",
-          content: `Current platform topics already covered: ${JSON.stringify(currentTopics)}
-          
+      `Current platform topics already covered: ${JSON.stringify(currentTopics)}
+
 Past cycle themes: ${JSON.stringify(pastCycles)}
 
 Suggest 3-4 NEW topics that are emerging right now and will peak in relevance over the next 1-4 weeks. Be predictive, not reactive. What should smart enterprise technologists be thinking about BEFORE everyone else?`,
-        },
-      ],
-    });
-
-    const text = msg.content[0]?.text || "";
+      { maxTokens: 2000, tier: "light" }
+    );
     const { data: topics, error: parseError } = parseLLMResponse(text, SuggestTopicsSchema);
     if (!topics) {
       return NextResponse.json({ error: "Failed to parse response: " + parseError }, { status: 500 });

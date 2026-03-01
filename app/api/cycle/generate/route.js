@@ -59,7 +59,7 @@ Return JSON only:
   "rediscover_angle": "Same as pillars[1].angle (for backward compat)",
   "reinvent_angle": "Same as pillars[2].angle (for backward compat)"
 }`,
-    { maxTokens: 600, timeout: 30000 }
+    { maxTokens: 600, timeout: 30000, tier: "light" }
   );
 
   const { data, error } = parseLLMResponse(response, ThroughLineSchema);
@@ -232,7 +232,7 @@ Return JSON:
   const maxTokens = actIndex === 2 ? 1500 : 1200;
   const timeout = actIndex === 2 ? 45000 : 30000;
 
-  const response = await callLLM("anthropic", prompt.system, prompt.user, { maxTokens, timeout });
+  const response = await callLLM("anthropic", prompt.system, prompt.user, { maxTokens, timeout, tier: "standard" });
   const { data, error } = parseLLMResponse(response, prompt.schema);
   if (!data) throw new Error(`Failed to parse ${orch.name} response for "${pillarLabel}": ` + error);
   return data;

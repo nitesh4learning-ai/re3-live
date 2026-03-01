@@ -125,6 +125,7 @@ ${reviewers.map((r) => `- ID: ${r.id}, Name: ${r.name}, Avatar: ${r.avatar || r.
     const raw = await callLLM("anthropic", systemPrompt, userMessage, {
       maxTokens: 1200,
       timeout: 25000,
+      tier: "light",
     });
 
     // Parse JSON from response

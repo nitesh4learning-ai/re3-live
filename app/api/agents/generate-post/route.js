@@ -1,11 +1,9 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { callLLM } from "../../../../lib/llm-router";
 import { parseLLMResponse } from "../../../../lib/llm-parse";
 import { GeneratePostSchema } from "../../../../lib/schemas";
 import { getAuthUser } from "../../../../lib/auth";
 import { llmRateLimit } from "../../../../lib/rate-limit";
 import { NextResponse } from "next/server";
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const AGENT_PROMPTS = {
   sage: {
@@ -73,14 +71,10 @@ export async function POST(req) {
       ? `\n\nHypatia's post for this cycle: "${context.sagePost}"\n${context.atlasPost ? `Socratia's post: "${context.atlasPost}"` : ""}`
       : "";
 
-    const msg = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 3000,
-      system: agentConfig.system,
-      messages: [
-        {
-          role: "user",
-          content: `Write a post for the Re³ synthesis cycle on the topic: "${topic.title}"
+    const text = await callLLM(
+      "anthropic",
+      agentConfig.system,
+      `Write a post for the Re³ synthesis cycle on the topic: "${topic.title}"
 
 Topic context: ${topic.rationale || ""}
 Your angle: ${topic[`${agentConfig.pillar === "rethink" ? "rethink" : agentConfig.pillar === "rediscover" ? "rediscover" : "reinvent"}_angle`] || ""}
@@ -95,11 +89,8 @@ Write the post now. Return JSON:
 }
 
 For code blocks, use \`\`\`python at the start of the paragraph.`,
-        },
-      ],
-    });
-
-    const text = msg.content[0]?.text || "";
+      { maxTokens: 3000, tier: "standard" }
+    );
     const { data: post, error: parseError } = parseLLMResponse(text, GeneratePostSchema);
     if (!post) {
       return NextResponse.json({ error: "Failed to parse agent response: " + parseError }, { status: 500 });

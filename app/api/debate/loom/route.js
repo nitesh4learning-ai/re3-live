@@ -44,10 +44,10 @@ ${transcript.slice(0, 5000)}
 Socratia's moderation note: ${atlasNote || "None"}
 
 Now weave The Loom. This is not a summary — it is a synthesis. ${isCycleDebate ? `This debate covered an entire Re³ cycle across these lenses: ${pillarLabel}. Your synthesis should address how the debate enriched or challenged the full intellectual arc across all perspectives.` : "Find the deeper threads, the tensions that reveal something neither side saw alone, and the emergent insight."} Write 3-4 paragraphs. End with one open question for the community.`,
-      { maxTokens: 1500, timeout: 45000 }
+      { maxTokens: 1500, timeout: 45000, tier: "standard" }
     );
 
-    // Step 2: Cluster into themed streams
+    // Step 2: Cluster into themed streams (light tier — structured JSON grouping)
     const clusterResponse = await callLLM(
       "anthropic",
       "You organize debate transcripts into thematic argument streams. Be precise.",
@@ -70,7 +70,7 @@ Respond in JSON only:
 }
 
 Keep excerpts under 2 sentences each. Every response should appear in exactly one stream.`,
-      { maxTokens: 2000, timeout: 30000 }
+      { maxTokens: 2000, timeout: 30000, tier: "light" }
     );
 
     let streams = [];
