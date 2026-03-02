@@ -57,7 +57,7 @@ export default function CourseShell({ courseId, meta, visionaryTabs, deepTabs })
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
           <FadeIn>
             <div className="flex items-center gap-3 mb-4">
-              <Link href="/academy2" className="px-3 py-1.5 rounded-lg font-medium text-xs transition-all hover:shadow-sm" style={{ border: `1px solid ${GIM.border}`, color: GIM.bodyText }}>{'\u2190'} All Courses</Link>
+              <Link href="/academy" className="px-3 py-1.5 rounded-lg font-medium text-xs transition-all hover:shadow-sm" style={{ border: `1px solid ${GIM.border}`, color: GIM.bodyText }}>{'\u2190'} All Courses</Link>
               <span style={{ fontSize: 24 }}>{meta.icon}</span>
               <h1 className="font-bold" style={{ fontFamily: GIM.fontMain, fontSize: 'clamp(20px,4vw,28px)', color: GIM.headingText }}>{meta.title}</h1>
             </div>
@@ -80,7 +80,7 @@ export default function CourseShell({ courseId, meta, visionaryTabs, deepTabs })
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <FadeIn>
           <div className="flex items-center gap-3 mb-4">
-            <Link href="/academy2" className="px-3 py-1.5 rounded-lg font-medium text-xs transition-all hover:shadow-sm" style={{ border: `1px solid ${GIM.border}`, color: GIM.bodyText }}>{'\u2190'} All Courses</Link>
+            <Link href="/academy" className="px-3 py-1.5 rounded-lg font-medium text-xs transition-all hover:shadow-sm" style={{ border: `1px solid ${GIM.border}`, color: GIM.bodyText }}>{'\u2190'} All Courses</Link>
             <span style={{ fontSize: 24 }}>{meta.icon}</span>
             <h1 className="font-bold" style={{ fontFamily: GIM.fontMain, fontSize: 'clamp(20px,4vw,28px)', color: GIM.headingText }}>{meta.title}</h1>
           </div>
@@ -143,7 +143,7 @@ export default function CourseShell({ courseId, meta, visionaryTabs, deepTabs })
           </button>
           {activeTab === tabs.length - 1 ? (
             <Link
-              href="/academy2"
+              href="/academy"
               className="px-5 py-2 rounded-lg font-semibold text-sm transition-all hover:shadow-md"
               style={{ background: cp >= 100 ? '#2D8A6E' : GIM.primary, color: 'white' }}
             >

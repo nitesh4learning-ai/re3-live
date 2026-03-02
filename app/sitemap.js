@@ -18,6 +18,20 @@ export default async function sitemap() {
     { url: `${baseUrl}/search`, lastModified: now, changeFrequency: 'weekly', priority: 0.5 },
   ];
 
+  // Academy course pages (from course metadata files)
+  let coursePages = [];
+  try {
+    const { getAllCourseIds } = await import('./academy/lib/course-loader');
+    coursePages = getAllCourseIds().map(id => ({
+      url: `${baseUrl}/academy/${id}`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    }));
+  } catch {
+    // Course loader unavailable — skip
+  }
+
   // Dynamic pages from Firestore
   let dynamicPages = [];
   try {
@@ -68,5 +82,5 @@ export default async function sitemap() {
     }));
   }
 
-  return [...staticPages, ...dynamicPages];
+  return [...staticPages, ...coursePages, ...dynamicPages];
 }

@@ -1,4 +1,4 @@
-// Academy 2.0 Layout — wraps all /academy2/* pages
+// Academy Layout — wraps all /academy/* pages
 // Provides shared metadata and structure.
 
 export const metadata = {
