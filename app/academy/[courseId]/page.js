@@ -1,4 +1,4 @@
-// /academy2/[courseId] — Individual Course Page (Server Component)
+// /academy/[courseId] — Individual Course Page (Server Component)
 // Loads course metadata + MDX tabs at build time, renders with client shell.
 
 import { notFound } from "next/navigation";
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }) {
   const meta = getCourseMeta(courseId);
   if (!meta) return { title: "Course Not Found" };
   return {
-    title: meta.seo?.metaTitle || `${meta.title} — Re³ Academy`,
+    title: meta.title,
     description: meta.seo?.metaDescription || meta.description,
     openGraph: {
       title: meta.seo?.metaTitle || `${meta.title} — Re³ Academy`,

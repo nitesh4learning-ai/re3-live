@@ -12,7 +12,7 @@ export default function CourseNotFound() {
           This course doesn't exist or hasn't been published yet.
         </p>
         <Link
-          href="/academy2"
+          href="/academy"
           className="inline-block px-6 py-2.5 rounded-lg font-semibold text-sm transition-all hover:shadow-md"
           style={{ background: '#9333EA', color: 'white' }}
         >

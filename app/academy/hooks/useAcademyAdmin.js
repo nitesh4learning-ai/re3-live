@@ -12,8 +12,9 @@ export function isAcademyAdmin(user) {
   return user?.email === ADMIN_EMAIL;
 }
 
-export default function useAcademyAdmin() {
+export default function useAcademyAdmin(serverCourses) {
   const [config, setConfig] = useState(() => ADB.get('admin_config', null));
+  const baseCourses = serverCourses && serverCourses.length > 0 ? serverCourses : COURSES;
 
   const save = (next) => { setConfig(next); ADB.set('admin_config', next); };
   const reset = () => { setConfig(null); if (typeof window !== 'undefined') localStorage.removeItem('re3_academy_admin_config'); };
@@ -42,7 +43,7 @@ export default function useAcademyAdmin() {
   // and never reflected admin overrides. getCourses() now applies all overrides
   // so any consumer gets the admin-adjusted tier for each course.
   const getCourses = useCallback(() => {
-    let list = [...COURSES];
+    let list = [...baseCourses];
     if (config?.courses) {
       list = list.map(c => {
         const override = config.courses[c.id];
@@ -73,7 +74,7 @@ export default function useAcademyAdmin() {
       });
     }
     return list;
-  }, [config]);
+  }, [config, baseCourses]);
 
   const updateTier = (tierNum, updates) => {
     const next = { ...config || {}, tiers: { ...(config?.tiers || {}) } };

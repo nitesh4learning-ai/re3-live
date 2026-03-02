@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useApp } from "../providers";
 import { GIM, TIER_DEFAULTS } from "./constants";
 import FadeIn from "./components/FadeIn";
 import ProgressBar from "./components/ProgressBar";
@@ -17,7 +18,7 @@ function DepthBadge() {
 }
 
 export default function AcademyHub({ courses: serverCourses }) {
-  const admin = useAcademyAdmin();
+  const admin = useAcademyAdmin(serverCourses);
   const [adminMode, setAdminMode] = useState(false);
   const [editingTier, setEditingTier] = useState(null);
   const [editTierLabel, setEditTierLabel] = useState('');
@@ -31,8 +32,7 @@ export default function AcademyHub({ courses: serverCourses }) {
   const [progress] = useAcademyProgress(courses);
   const tiers = admin.getTiers();
 
-  // TODO: Get currentUser from auth context when available
-  const currentUser = null;
+  const { user: currentUser } = useApp();
   const isAdmin = isAcademyAdmin(currentUser);
 
   const totalCourses = courses.length;
@@ -246,7 +246,7 @@ export default function AcademyHub({ courses: serverCourses }) {
                               <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold" style={{ background: '#FEF3C7', color: '#D97706' }}>Draft — Admin Only</span>
                             ) : (
                               <Link
-                                href={`/academy2/${course.id}`}
+                                href={`/academy/${course.id}`}
                                 className="inline-block px-4 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm"
                                 style={{
                                   background: isComplete ? '#2D8A6E' : isStarted ? GIM.primary : GIM.primaryBadge,
