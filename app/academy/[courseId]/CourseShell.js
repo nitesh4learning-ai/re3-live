@@ -33,7 +33,7 @@ function DepthSelector({ depth, onChangeDepth }) {
   );
 }
 
-export default function CourseShell({ courseId, meta, visionaryTabs, deepTabs }) {
+export default function CourseShell({ courseId, meta, visionaryTabs = [], deepTabs = [] }) {
   const [getDepth, setDepth] = useDepthPreference();
   const [progress, updateProgress] = useAcademyProgress(COURSES);
   const depth = getDepth(courseId);

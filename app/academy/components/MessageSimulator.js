@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { GIM } from "../constants";
 
-export default function MessageSimulator({ messages, title = "See how it works" }) {
+export default function MessageSimulator({ messages = [], title = "See how it works" }) {
   const [step, setStep] = useState(0);
   const visible = messages.slice(0, step + 1);
 

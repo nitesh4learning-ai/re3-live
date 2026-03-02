@@ -1,7 +1,7 @@
 "use client";
 import { GIM } from "../constants";
 
-export default function ComparisonTable({ title, columns, headers, rows }) {
+export default function ComparisonTable({ title, columns, headers, rows = [] }) {
   const cols = columns || headers || [];
   return (
     <div className="rounded-xl border overflow-hidden mb-4" style={{ borderColor: GIM.border }}>
@@ -26,7 +26,7 @@ export default function ComparisonTable({ title, columns, headers, rows }) {
           <tbody>
             {rows.map((row, i) => (
               <tr key={i} style={{ borderTop: `1px solid ${GIM.border}` }}>
-                {row.map((cell, j) => (
+                {(row || []).map((cell, j) => (
                   <td
                     key={j}
                     className="p-3"
