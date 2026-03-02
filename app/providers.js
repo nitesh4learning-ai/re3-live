@@ -74,9 +74,10 @@ export function AppProvider({ children }) {
   // Phase 2: Firestore is SOURCE OF TRUTH — replaces localStorage cache when reachable
   useEffect(() => {
     if (!loaded) return;
-    getFirestoreModule().then(mod => {
+    getFirestoreModule().then(async (mod) => {
       if (!mod) return;
-      if (mod.needsMigration()) { mod.migrateLocalStorageToFirestore(); return; }
+      // Migrate localStorage → Firestore if first visit, then ALWAYS load from Firestore
+      if (mod.needsMigration()) { await mod.migrateLocalStorageToFirestore(); }
       Promise.allSettled([
         mod.loadContent(null), mod.loadThemes(null),
         mod.loadArticles(null), mod.loadForgeSessions(null),
