@@ -37,6 +37,9 @@ export function AppProvider({ children }) {
   // Track whether Firestore is the active source (vs offline cache)
   const firestoreActive = useRef(false);
 
+  // Track write timestamps for cross-tab conflict detection
+  const writeTimestamps = useRef({});
+
   // Phase 1: Load from localStorage cache (instant, for fast first paint)
   useEffect(() => {
     const su = DB.get("user", null);
@@ -98,12 +101,49 @@ export function AppProvider({ children }) {
   }, [loaded]);
 
   // Persist changes: localStorage (immediate) + Firestore (debounced background)
-  useEffect(() => { if (loaded) { DB.set("content_v5", content); syncToFirestore('content', content); } }, [content, loaded]);
-  useEffect(() => { if (loaded) { DB.set("themes", themes); syncToFirestore('themes', themes); } }, [themes, loaded]);
-  useEffect(() => { if (loaded) { DB.set("articles_v1", articles); syncToFirestore('articles', articles); } }, [articles, loaded]);
-  useEffect(() => { if (loaded) { DB.set("agents_v1", agents); syncToFirestore('agents', agents); } }, [agents, loaded]);
-  useEffect(() => { if (loaded) { DB.set("projects_v1", projects); syncToFirestore('projects', projects); } }, [projects, loaded]);
-  useEffect(() => { if (loaded) { DB.set("forge_sessions_v1", forgeSessions); syncToFirestore('forge_sessions', forgeSessions); } }, [forgeSessions, loaded]);
+  // Each write stamps an updatedAt timestamp for cross-tab conflict detection.
+  const persistWithTimestamp = useCallback((key, data, firestoreType) => {
+    const ts = Date.now();
+    writeTimestamps.current[key] = ts;
+    DB.set(key, data);
+    DB.set(key + "_ts", ts);
+    syncToFirestore(firestoreType, data);
+  }, []);
+
+  useEffect(() => { if (loaded) persistWithTimestamp("content_v5", content, "content"); }, [content, loaded, persistWithTimestamp]);
+  useEffect(() => { if (loaded) persistWithTimestamp("themes", themes, "themes"); }, [themes, loaded, persistWithTimestamp]);
+  useEffect(() => { if (loaded) persistWithTimestamp("articles_v1", articles, "articles"); }, [articles, loaded, persistWithTimestamp]);
+  useEffect(() => { if (loaded) persistWithTimestamp("agents_v1", agents, "agents"); }, [agents, loaded, persistWithTimestamp]);
+  useEffect(() => { if (loaded) persistWithTimestamp("projects_v1", projects, "projects"); }, [projects, loaded, persistWithTimestamp]);
+  useEffect(() => { if (loaded) persistWithTimestamp("forge_sessions_v1", forgeSessions, "forge_sessions"); }, [forgeSessions, loaded, persistWithTimestamp]);
+
+  // Cross-tab conflict detection: reload state when another tab writes to localStorage.
+  // The 'storage' event only fires in OTHER tabs, not the one that wrote.
+  useEffect(() => {
+    const keySetterMap = {
+      re3_content_v5: (d) => { if (Array.isArray(d) && d.length > 0) setContent(d); },
+      re3_themes: setThemes,
+      re3_articles_v1: setArticles,
+      re3_agents_v1: (d) => { if (Array.isArray(d) && d.length > 0) setAgents(d); },
+      re3_projects_v1: setProjects,
+      re3_forge_sessions_v1: setForgeSessions,
+    };
+
+    const handleStorage = (e) => {
+      if (!e.key || !keySetterMap[e.key] || !e.newValue) return;
+      try {
+        const data = JSON.parse(e.newValue);
+        keySetterMap[e.key](data);
+        // Notify UI via custom event (ToastProvider listens)
+        window.dispatchEvent(new CustomEvent("re3:conflict", {
+          detail: { key: e.key.replace("re3_", "") },
+        }));
+      } catch {}
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
 
   // Flush pending Firestore writes on tab close
   useEffect(() => {

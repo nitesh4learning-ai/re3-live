@@ -1,39 +1,15 @@
 // POST /api/orchestration/run
 // Submit a use case and run the full orchestration pipeline.
 // Streams events via SSE for real-time timeline and canvas updates.
-// Falls back to JSON response on pre-flight errors (auth, validation, guardrails).
 
+import { createHandler } from "../../../../lib/api-handler";
+import { OrchestrationRunInputSchema } from "../../../../lib/schemas";
 import { runOrchestration } from "../../../../lib/orchestration/engine.js";
 import { analyzeUseCase } from "../../../../lib/orchestration/intake-analyzer.js";
-import { getAuthUser } from "../../../../lib/auth.js";
-import { llmRateLimit } from "../../../../lib/rate-limit.js";
-import { OrchestrationRunInputSchema, validateInput } from "../../../../lib/schemas.js";
 import { sanitizeShort, sanitizeForLLM } from "../../../../lib/sanitize.js";
 import { NextResponse } from "next/server";
 
-export async function POST(req) {
-  // Pre-flight checks return normal JSON errors (not streamed)
-  const { user, error, status } = await getAuthUser(req);
-  if (error) return NextResponse.json({ error }, { status });
-
-  const { allowed } = await llmRateLimit.check(user.uid);
-  if (!allowed) {
-    return NextResponse.json(
-      { error: "Rate limit exceeded. Orchestration requires multiple LLM calls — please wait." },
-      { status: 429 }
-    );
-  }
-
-  let rawBody;
-  try {
-    rawBody = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-  }
-
-  const { data: body, error: inputError, status: inputStatus } = validateInput(rawBody, OrchestrationRunInputSchema);
-  if (inputError) return NextResponse.json({ error: inputError }, { status: inputStatus });
-
+export const POST = createHandler(OrchestrationRunInputSchema, async (body) => {
   const title = sanitizeShort(body.title);
   const description = sanitizeForLLM(body.description, 10000);
   const { type, options } = body;
@@ -75,7 +51,6 @@ export async function POST(req) {
           onEvent: (event) => send(event),
         });
 
-        // Send final result as a special event type
         send({ type: "result", data: { success: true, deliverable } });
       } catch (err) {
         console.error("Orchestration error:", err);
@@ -93,4 +68,4 @@ export async function POST(req) {
       Connection: "keep-alive",
     },
   });
-}
+});

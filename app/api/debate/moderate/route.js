@@ -1,36 +1,26 @@
+import { createHandler } from "../../../../lib/api-handler";
+import { ModerateInputSchema, ModerationSchema } from "../../../../lib/schemas";
 import { callLLM } from "../../../../lib/llm-router";
 import { parseLLMResponse } from "../../../../lib/llm-parse";
-import { ModerationSchema, ModerateInputSchema, validateInput } from "../../../../lib/schemas";
-import { getAuthUser } from "../../../../lib/auth";
-import { llmRateLimit } from "../../../../lib/rate-limit";
 import { sanitizeShort } from "../../../../lib/sanitize";
 import { NextResponse } from "next/server";
 
-export async function POST(req) {
-  try {
-    const { user, error, status } = await getAuthUser(req);
-    if (error) return NextResponse.json({ error }, { status });
-    const { allowed } = await llmRateLimit.check(user.uid);
-    if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+export const POST = createHandler(ModerateInputSchema, async (body) => {
+  const { rounds, atlasPersona } = body;
+  const articleTitle = sanitizeShort(body.articleTitle);
 
-    const { data: body, error: inputError, status: inputStatus } = validateInput(await req.json(), ModerateInputSchema);
-    if (inputError) return NextResponse.json({ error: inputError }, { status: inputStatus });
-
-    const { rounds, atlasPersona } = body;
-    const articleTitle = sanitizeShort(body.articleTitle);
-
-    let transcript = "";
-    rounds.forEach((round, i) => {
-      transcript += `\n--- Round ${i + 1} ---\n`;
-      round.forEach((r) => {
-        if (r.response) transcript += `${r.name}: ${r.response}\n\n`;
-      });
+  let transcript = "";
+  rounds.forEach((round, i) => {
+    transcript += `\n--- Round ${i + 1} ---\n`;
+    round.forEach((r) => {
+      if (r.response) transcript += `${r.name}: ${r.response}\n\n`;
     });
+  });
 
-    const response = await callLLM(
-      "anthropic",
-      atlasPersona || "You are Socratia, the debate moderator for Re³. Your job is to ensure the discussion stays focused on the core question raised by the article. You intervene only when necessary.",
-      `Article topic: "${articleTitle}"
+  const response = await callLLM(
+    "anthropic",
+    atlasPersona || "You are Socratia, the debate moderator for Re³. Your job is to ensure the discussion stays focused on the core question raised by the article. You intervene only when necessary.",
+    `Article topic: "${articleTitle}"
 
 Full debate transcript:
 ${transcript.slice(0, 4000)}
@@ -46,14 +36,10 @@ Respond in JSON:
   "intervention": "Your intervention text or acknowledgment",
   "missing_perspectives": "Any important angles not covered"
 }`,
-      { maxTokens: 500, tier: "light" }
-    );
+    { maxTokens: 500, tier: "light" }
+  );
 
-    const { data: parsed } = parseLLMResponse(response, ModerationSchema);
-    if (!parsed) return NextResponse.json({ intervention: "Discussion reviewed.", on_topic: true, missing_perspectives: "" });
-    return NextResponse.json(parsed);
-  } catch (e) {
-    console.error("Socratia moderation error:", e);
-    return NextResponse.json({ intervention: "Moderation unavailable.", on_topic: true, missing_perspectives: "" });
-  }
-}
+  const { data: parsed } = parseLLMResponse(response, ModerationSchema);
+  if (!parsed) return NextResponse.json({ intervention: "Discussion reviewed.", on_topic: true, missing_perspectives: "" });
+  return NextResponse.json(parsed);
+});
