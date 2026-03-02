@@ -14,6 +14,8 @@ export async function getFirestoreModule() {
   }
   return _firestoreModule;
 }
+// Synchronous access to already-loaded module (for beforeunload flush)
+export function getFirestoreModuleSync() { return _firestoreModule; }
 
 // Background Firestore sync (non-blocking)
 export function syncToFirestore(type, data) {

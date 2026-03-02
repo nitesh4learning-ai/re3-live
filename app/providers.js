@@ -6,7 +6,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useRef } f
 import { useRouter } from 'next/navigation';
 import { INIT_CONTENT, INIT_THEMES, INIT_AGENTS, DEFAULT_PROJECTS, ALL_USERS } from './constants';
 import { pathToPage, pageToPath } from './utils/routing';
-import { DB, getFirestoreModule, syncToFirestore, getFirebase, authFetch, signInWithGoogle, firebaseSignOut } from './utils/firebase-client';
+import { DB, getFirestoreModule, getFirestoreModuleSync, syncToFirestore, getFirebase, authFetch, signInWithGoogle, firebaseSignOut } from './utils/firebase-client';
 
 const AppContext = createContext(null);
 
@@ -102,11 +102,17 @@ export function AppProvider({ children }) {
         }
         if (fp?.source === 'firestore') {
           const fpData = fp.data || [];
-          if (fpData.length > 0) {
-            const fsProjectIds = new Set(fpData.map(p => p.id));
-            const seedProjects = DEFAULT_PROJECTS.filter(p => !fsProjectIds.has(p.id));
-            setProjects(seedProjects.length > 0 ? [...fpData, ...seedProjects] : fpData);
-          }
+          // Merge: Firestore base + local-only projects (not yet synced) + default seeds
+          setProjects(prev => {
+            const fsIds = new Set(fpData.map(p => p.id));
+            const defaultIds = new Set(DEFAULT_PROJECTS.map(p => p.id));
+            // Keep local projects that aren't in Firestore (newly added, not yet synced)
+            const localOnly = prev.filter(p => !fsIds.has(p.id) && !defaultIds.has(p.id));
+            // Keep default seeds missing from both Firestore and local
+            const allIds = new Set([...fsIds, ...localOnly.map(p => p.id)]);
+            const seeds = DEFAULT_PROJECTS.filter(p => !allIds.has(p.id));
+            return [...fpData, ...localOnly, ...seeds];
+          });
         }
       });
     }).catch(() => {});
@@ -157,10 +163,11 @@ export function AppProvider({ children }) {
     return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
-  // Flush pending Firestore writes on tab close
+  // Flush pending Firestore writes on tab close (synchronous to run before page unloads)
   useEffect(() => {
     const handleBeforeUnload = () => {
-      getFirestoreModule().then(mod => { if (mod?.flushPendingWrites) mod.flushPendingWrites(); }).catch(() => {});
+      const mod = getFirestoreModuleSync();
+      if (mod?.flushPendingWrites) mod.flushPendingWrites();
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
