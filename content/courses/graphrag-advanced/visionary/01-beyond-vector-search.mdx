@@ -7,9 +7,9 @@ icon: "\uD83D\uDD0D"
 
 Vector search is powerful — but it only finds documents *similar* to your query. It cannot follow chains of reasoning, discover multi-hop relationships, or answer questions that require connecting information scattered across many documents. **<JargonTip term="GraphRAG">GraphRAG</JargonTip>** adds a <JargonTip term="knowledge graph">knowledge graph</JargonTip> layer that enables relationship-aware retrieval.
 
-      <AnalogyBox emoji="🗺️" title="The map vs the satellite photo">
-        A satellite photo (vector search) shows you everything nearby. A map (knowledge graph) shows you how places are connected — roads, borders, rivers. To answer "How do I get from A to B via C?", you need the map.
-      </AnalogyBox>
+<AnalogyBox emoji="🗺️" title="The map vs the satellite photo">
+  A satellite photo (vector search) shows you everything nearby. A map (knowledge graph) shows you how places are connected — roads, borders, rivers. To answer "How do I get from A to B via C?", you need the map.
+</AnalogyBox>
 
 
 ### The Fundamental Limitations of Vector-Only RAG
@@ -20,15 +20,13 @@ Vector search is powerful — but it only finds documents *similar* to your quer
 - **Entity Disambiguation Failure** -- "Apple" the company vs "apple" the fruit -- embedding-based search collapses these; a typed knowledge graph distinguishes them explicitly.
 
 
-
-
 ### Knowledge Graphs 101
 
 - **Nodes (Entities)** -- Real-world objects: People, Organizations, Concepts, Events, Products. Each node has a type and properties.
 - **Edges (Relationships)** -- Named, directed connections between nodes: WORKS_AT, FOUNDED, DEPENDS_ON, CITED_BY. Edges can also have properties.
 - **Properties** -- Attributes on nodes and edges: name, date, confidence score, source document, embedding vector. Rich metadata for filtering.
 
-        <CodeBlock language="text" label="Knowledge Graph Structure Example" code={`// Nodes
+<CodeBlock language="text" label="Knowledge Graph Structure Example" code={`// Nodes
 (n1:Person   {name: "Geoffrey Hinton",  field: "AI"})
 (n2:Concept  {name: "Backpropagation", domain: "ML"})
 (n3:Org      {name: "Google Brain",    founded: 2011})
@@ -45,26 +43,26 @@ Vector search is powerful — but it only finds documents *similar* to your quer
 // n3 <-[:WORKED_AT]- n1 -[:DEVELOPED]-> n2
 // Answer: Backpropagation (via Hinton → Google Brain)`} />
 
-      <BasicVsGraphRAGComparison />
-      <Quiz
-        question="What is the primary advantage of GraphRAG over vector-only RAG?"
-        options={[
-          "It generates faster embeddings",
-          "It can traverse multi-hop relationships between entities",
-          "It stores more documents",
-          "It uses less memory"
-        ]}
-        correctIndex={1}
-        explanation="GraphRAG's core advantage is multi-hop traversal: it can follow chains of relationships (A → B → C → D) to answer questions that require connecting information across multiple entity boundaries — something vector search fundamentally cannot do."
-      />
-      <Quiz
-        question="Which query type MOST benefits from GraphRAG over basic RAG?"
-        options={[
-          "Find documents about climate change",
-          "What did Einstein's PhD students go on to publish about?",
-          "Summarize this paragraph",
-          "Translate this text to French"
-        ]}
-        correctIndex={1}
-        explanation="'What did Einstein's PhD students publish about?' requires: Einstein → supervised → [students] → authored → [papers] → about → [topics]. This multi-hop chain is exactly what knowledge graph traversal solves. The other queries are single-hop or non-retrieval tasks."
-      />
+<BasicVsGraphRAGComparison />
+<Quiz
+  question="What is the primary advantage of GraphRAG over vector-only RAG?"
+  options={[
+    "It generates faster embeddings",
+    "It can traverse multi-hop relationships between entities",
+    "It stores more documents",
+    "It uses less memory"
+  ]}
+  correctIndex={1}
+  explanation="GraphRAG's core advantage is multi-hop traversal: it can follow chains of relationships (A → B → C → D) to answer questions that require connecting information across multiple entity boundaries — something vector search fundamentally cannot do."
+/>
+<Quiz
+  question="Which query type MOST benefits from GraphRAG over basic RAG?"
+  options={[
+    "Find documents about climate change",
+    "What did Einstein's PhD students go on to publish about?",
+    "Summarize this paragraph",
+    "Translate this text to French"
+  ]}
+  correctIndex={1}
+  explanation="'What did Einstein's PhD students publish about?' requires: Einstein → supervised → [students] → authored → [papers] → about → [topics]. This multi-hop chain is exactly what knowledge graph traversal solves. The other queries are single-hop or non-retrieval tasks."
+/>

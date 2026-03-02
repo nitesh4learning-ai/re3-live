@@ -36,7 +36,7 @@ GraphRAG systems require evaluation at two levels: **graph quality** (is the kno
 - Graph freshness (update lag)
 
 
-      <CodeBlock language="python" label="GraphRAG Evaluation with RAGAS" code={`from ragas import evaluate
+<CodeBlock language="python" label="GraphRAG Evaluation with RAGAS" code={`from ragas import evaluate
 from ragas.metrics import (
     faithfulness,
     answer_relevancy,
@@ -114,7 +114,7 @@ MULTIHOP_BENCHMARK = [
         "type": "global_synthesis"
     },
 ]`} />
-      <CodeBlock language="python" label="Graph-Specific Precision & Recall" code={`def evaluate_graph_quality(
+<CodeBlock language="python" label="Graph-Specific Precision & Recall" code={`def evaluate_graph_quality(
     extracted_entities: list,
     extracted_relations: list,
     gold_entities: list,
@@ -154,13 +154,9 @@ MULTIHOP_BENCHMARK = [
         "hallucinated_relations": len(extracted_rels - gold_rels),
         "missed_relations": len(gold_rels - extracted_rels),
     }`} />
-      <ExpandableSection title="GraphRAG vs Naive RAG Benchmarks" icon="\uD83D\uDCCA">
+<ExpandableSection title="GraphRAG vs Naive RAG Benchmarks" icon="\uD83D\uDCCA">
 
 Microsoft's original GraphRAG paper (Edge et al., 2024) benchmarked against naive RAG across question types. The results show a clear pattern: GraphRAG dominates on global and multi-hop queries, while naive RAG holds its own on local factoid queries where vector similarity is sufficient.
-
-
-
-
 
 | Query Type | Naive RAG | GraphRAG (Local) | GraphRAG (Global) | Winner |
 |-----------|----------|-----------------|------------------|--------|
@@ -169,20 +165,17 @@ Microsoft's original GraphRAG paper (Edge et al., 2024) benchmarked against naiv
 | Local factoid | 82% | 85% | 71% | GraphRAG Local |
 | Thematic overview | 28% | 51% | 80% | GraphRAG Global |
 
-
-
-
 Percentages are illustrative win rates from comparative evaluations. Actual numbers vary by domain and dataset.
 
-      </ExpandableSection>
-      <Quiz
-        question="Why do standard RAG metrics (like faithfulness, answer relevancy) not fully capture GraphRAG quality?"
-        options={[
-          "Standard metrics are too expensive to compute",
-          "They measure answer quality but not graph-specific properties like multi-hop accuracy, entity resolution rate, or community coherence",
-          "Standard metrics only work for classification tasks",
-          "GraphRAG cannot be evaluated"
-        ]}
-        correctIndex={1}
-        explanation="Standard RAGAS metrics measure the final answer quality but are blind to graph-specific failures: an entity resolution failure (two nodes for the same person) won't show up in NDCG, a hallucinated graph path produces a faithful-sounding answer that RAGAS rates highly, and community coherence determines global search quality but has no analog in document-based metrics."
-      />
+</ExpandableSection>
+<Quiz
+  question="Why do standard RAG metrics (like faithfulness, answer relevancy) not fully capture GraphRAG quality?"
+  options={[
+    "Standard metrics are too expensive to compute",
+    "They measure answer quality but not graph-specific properties like multi-hop accuracy, entity resolution rate, or community coherence",
+    "Standard metrics only work for classification tasks",
+    "GraphRAG cannot be evaluated"
+  ]}
+  correctIndex={1}
+  explanation="Standard RAGAS metrics measure the final answer quality but are blind to graph-specific failures: an entity resolution failure (two nodes for the same person) won't show up in NDCG, a hallucinated graph path produces a faithful-sounding answer that RAGAS rates highly, and community coherence determines global search quality but has no analog in document-based metrics."
+/>

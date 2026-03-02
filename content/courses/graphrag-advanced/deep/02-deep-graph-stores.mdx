@@ -7,18 +7,18 @@ icon: "\uD83D\uDDC4\uFE0F"
 
 Choosing the right graph database determines query expressiveness, scalability, and operational complexity. The two dominant paradigms are **property graphs** (Neo4j, AWS Neptune) with Cypher/Gremlin, and **RDF triple stores** (Apache Jena, Amazon Neptune RDF) with SPARQL.
 
-      <ComparisonTable
-        title="Graph Database Comparison"
-        columns={['Database', 'Type', 'Query Language', 'Scale', 'Managed?', 'Best For']}
-        rows={[
-          ['Neo4j', 'Property Graph', 'Cypher', 'Up to ~1B nodes', 'Neo4j Aura (cloud)', 'Knowledge graphs, recommendation'],
-          ['AWS Neptune', 'Property + RDF', 'Gremlin + SPARQL', 'Petabytes (managed)', 'Fully managed', 'Enterprise, AWS ecosystem'],
-          ['Weaviate', 'Vector + Graph', 'GraphQL + ANN', '100M+ objects', 'Cloud available', 'GraphRAG hybrid search'],
-          ['TigerGraph', 'Property Graph', 'GSQL', 'Massive scale', 'Cloud available', 'Real-time deep link analytics'],
-          ['NetworkX', 'In-memory graph', 'Python API', 'Millions of nodes', 'No (library)', 'Prototyping, research'],
-        ]}
-      />
-      <CodeBlock language="cypher" label="Advanced Cypher Queries for GraphRAG" code={`// 1. ENTITY NEIGHBORHOOD (Local Search context)
+<ComparisonTable
+title="Graph Database Comparison"
+columns={['Database', 'Type', 'Query Language', 'Scale', 'Managed?', 'Best For']}
+rows={[
+['Neo4j', 'Property Graph', 'Cypher', 'Up to ~1B nodes', 'Neo4j Aura (cloud)', 'Knowledge graphs, recommendation'],
+['AWS Neptune', 'Property + RDF', 'Gremlin + SPARQL', 'Petabytes (managed)', 'Fully managed', 'Enterprise, AWS ecosystem'],
+['Weaviate', 'Vector + Graph', 'GraphQL + ANN', '100M+ objects', 'Cloud available', 'GraphRAG hybrid search'],
+['TigerGraph', 'Property Graph', 'GSQL', 'Massive scale', 'Cloud available', 'Real-time deep link analytics'],
+['NetworkX', 'In-memory graph', 'Python API', 'Millions of nodes', 'No (library)', 'Prototyping, research'],
+]}
+/>
+<CodeBlock language="cypher" label="Advanced Cypher Queries for GraphRAG" code={`// 1. ENTITY NEIGHBORHOOD (Local Search context)
 // Get all entities within 2 hops of a query entity
 MATCH (start:Entity {name: "Geoffrey Hinton"})
 CALL apoc.path.subgraphAll(start, {
@@ -65,7 +65,7 @@ WITH b, count(shared) as shared_count
 ORDER BY shared_count DESC
 LIMIT 10
 RETURN b.name, shared_count as similarity_score`} />
-      <CodeBlock language="python" label="AWS Neptune with Python (Gremlin)" code={`from gremlin_python.driver import client, serializer
+<CodeBlock language="python" label="AWS Neptune with Python (Gremlin)" code={`from gremlin_python.driver import client, serializer
 from gremlin_python.process.anonymous_traversal import traversal
 from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
 
@@ -120,8 +120,8 @@ community_graph = (g.V()
   .by(__.valueMap('name'))
   .toList()
 )`} />
-      <ExpandableSection title="Vector + Graph: Weaviate Setup" icon="\uD83D\uDD27">
-        <CodeBlock language="python" label="Weaviate Hybrid Schema for GraphRAG" code={`import weaviate
+<ExpandableSection title="Vector + Graph: Weaviate Setup" icon="\uD83D\uDD27">
+<CodeBlock language="python" label="Weaviate Hybrid Schema for GraphRAG" code={`import weaviate
 import weaviate.classes as wvc
 
 client = weaviate.connect_to_local()
@@ -161,15 +161,15 @@ result = entities.query.hybrid(
     ],
     limit=10
 )`} />
-      </ExpandableSection>
-      <Quiz
-        question="For a large-scale production GraphRAG deployment, why choose AWS Neptune over self-hosted Neo4j?"
-        options={[
-          "Neptune has better Cypher support",
-          "Neptune is fully managed: automated backups, scaling, HA — no operational overhead",
-          "Neptune is cheaper for small graphs",
-          "Neptune has more graph algorithms built-in"
-        ]}
-        correctIndex={1}
-        explanation="AWS Neptune's key advantage is full management: automated backups, multi-AZ high availability, read replicas, and auto-scaling. For production systems, operational overhead (patching, scaling, failover) is a major cost. Self-hosted Neo4j requires a dedicated ops team. Neptune's total cost of ownership is lower at scale despite higher per-node pricing."
-      />
+</ExpandableSection>
+<Quiz
+question="For a large-scale production GraphRAG deployment, why choose AWS Neptune over self-hosted Neo4j?"
+options={[
+"Neptune has better Cypher support",
+"Neptune is fully managed: automated backups, scaling, HA — no operational overhead",
+"Neptune is cheaper for small graphs",
+"Neptune has more graph algorithms built-in"
+]}
+correctIndex={1}
+explanation="AWS Neptune's key advantage is full management: automated backups, multi-AZ high availability, read replicas, and auto-scaling. For production systems, operational overhead (patching, scaling, failover) is a major cost. Self-hosted Neo4j requires a dedicated ops team. Neptune's total cost of ownership is lower at scale despite higher per-node pricing."
+/>

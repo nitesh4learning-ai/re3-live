@@ -18,7 +18,7 @@ Production GraphRAG systems face challenges beyond the research prototype: **gra
 - **Generation + Cache** -- LLM with retrieved context. Semantic cache: similar queries return cached responses (TTL 1hr for dynamic content). Answer traced to source graph paths.
 
 
-      <CodeBlock language="python" label="Incremental Graph Updates (Delta Processing)" code={`import asyncio
+<CodeBlock language="python" label="Incremental Graph Updates (Delta Processing)" code={`import asyncio
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -98,16 +98,16 @@ class IncrementalGraphUpdater:
             return 'simple'
         cap_ratio = sum(1 for w in words if w and w[0].isupper()) / len(words)
         return 'complex' if cap_ratio > 0.08 else 'simple'`} />
-      <ExpandableSection title="Cost Optimization Strategies" icon="\uD83D\uDCB0">
+<ExpandableSection title="Cost Optimization Strategies" icon="\uD83D\uDCB0">
 
 - **Extraction Caching** (60-80% saving) -- Cache extraction results keyed by doc_id + hash. Re-ingestion of updated docs only re-extracts changed content.
 - **Tiered LLM Routing** (40-60% saving) -- Use Claude Haiku / GPT-3.5 for simple entity extraction. Claude Opus / GPT-4 only for complex relation extraction or low-confidence re-verification.
 - **Community Summary Caching** (30-50% saving) -- Community summaries used in global search are expensive to generate (O(communities) LLM calls). Cache with TTL; only regenerate on dirty communities.
 - **Query-level Semantic Cache** (20-40% saving) -- Semantically similar queries (cosine distance &lt; 0.05) return cached answers. Particularly effective for FAQ-style systems.
 
-      </ExpandableSection>
-      <ExpandableSection title="Observability & Tracing" icon="\uD83D\uDD2C">
-        <CodeBlock language="python" label="GraphRAG Query Trace" code={`from dataclasses import dataclass, field
+</ExpandableSection>
+<ExpandableSection title="Observability & Tracing" icon="\uD83D\uDD2C">
+<CodeBlock language="python" label="GraphRAG Query Trace" code={`from dataclasses import dataclass, field
 from typing import List
 
 @dataclass
@@ -148,15 +148,15 @@ async def traced_query(graphrag_system, query: str) -> RetrievalTrace:
     # Store trace for debugging and evaluation
     await trace_store.save(trace)
     return trace`} />
-      </ExpandableSection>
-      <ArchitectureDecision
-        scenario="Your GraphRAG system handles 10,000 queries/day. Community detection (Louvain) takes 4 hours to run on your 500K-node graph. How do you keep communities fresh without blocking queries?"
-        options={[
-          {label: 'Run Louvain on the full graph every hour', tradeoff: 'Impossible: 4h job every hour = graph store is always being rebuilt.'},
-          {label: 'Nightly full recompute + incremental dirty-community refresh during the day', tradeoff: 'Nightly job ensures consistency; incremental refresh handles hot spots. Communities for documents ingested today may be 1-24h stale, which is acceptable for most use cases.'},
-          {label: 'Never recompute — use initial community assignments forever', tradeoff: 'Communities degrade as new entities are added and existing ones become more connected. Global search quality degrades over time.'},
-          {label: 'Compute communities per-query on the fly', tradeoff: 'Louvain takes 4 hours — running it per-query is orders of magnitude too slow.'}
-        ]}
-        correctIndex={1}
-        explanation="The standard production pattern is a nightly full recompute (when traffic is low) combined with incremental dirty-community refreshes triggered by new document ingestion. Communities for very recently added documents may be stale for up to 24 hours, which is an acceptable trade-off for keeping the system responsive."
-      />
+</ExpandableSection>
+<ArchitectureDecision
+  scenario="Your GraphRAG system handles 10,000 queries/day. Community detection (Louvain) takes 4 hours to run on your 500K-node graph. How do you keep communities fresh without blocking queries?"
+  options={[
+    {label: 'Run Louvain on the full graph every hour', tradeoff: 'Impossible: 4h job every hour = graph store is always being rebuilt.'},
+    {label: 'Nightly full recompute + incremental dirty-community refresh during the day', tradeoff: 'Nightly job ensures consistency; incremental refresh handles hot spots. Communities for documents ingested today may be 1-24h stale, which is acceptable for most use cases.'},
+    {label: 'Never recompute — use initial community assignments forever', tradeoff: 'Communities degrade as new entities are added and existing ones become more connected. Global search quality degrades over time.'},
+    {label: 'Compute communities per-query on the fly', tradeoff: 'Louvain takes 4 hours — running it per-query is orders of magnitude too slow.'}
+  ]}
+  correctIndex={1}
+  explanation="The standard production pattern is a nightly full recompute (when traffic is low) combined with incremental dirty-community refreshes triggered by new document ingestion. Communities for very recently added documents may be stale for up to 24 hours, which is an acceptable trade-off for keeping the system responsive."
+/>

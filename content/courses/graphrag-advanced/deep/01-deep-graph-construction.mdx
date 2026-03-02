@@ -7,17 +7,17 @@ icon: "\uD83D\uDEE0\uFE0F"
 
 Building production knowledge graphs from large document corpora requires handling three hard problems: **throughput** (processing millions of documents efficiently), **quality** (high-precision extraction with low hallucination), and **consistency** (merging extractions from different documents without fragmentation).
 
-      <ComparisonTable
-        title="Extraction Strategy Trade-offs"
-        columns={['Strategy', 'Precision', 'Recall', 'Cost', 'Speed', 'Best For']}
-        rows={[
-          ['Rule-based NER (spaCy)', 'High', 'Low', 'Very cheap', 'Very fast', 'Well-defined entity types, production throughput'],
-          ['Fine-tuned NER model', 'High', 'Medium', 'Cheap (inference)', 'Fast', 'Domain-specific entities after labeling'],
-          ['LLM extraction (GPT/Claude)', 'Very high', 'Very high', 'Expensive', 'Slow', 'High-value documents, complex relations'],
-          ['Hybrid (NER + LLM validation)', 'Very high', 'High', 'Medium', 'Medium', 'Production balance of quality and cost'],
-        ]}
-      />
-      <CodeBlock language="python" label="Scalable Async Extraction Pipeline" code={`import asyncio
+<ComparisonTable
+title="Extraction Strategy Trade-offs"
+columns={['Strategy', 'Precision', 'Recall', 'Cost', 'Speed', 'Best For']}
+rows={[
+['Rule-based NER (spaCy)', 'High', 'Low', 'Very cheap', 'Very fast', 'Well-defined entity types, production throughput'],
+['Fine-tuned NER model', 'High', 'Medium', 'Cheap (inference)', 'Fast', 'Domain-specific entities after labeling'],
+['LLM extraction (GPT/Claude)', 'Very high', 'Very high', 'Expensive', 'Slow', 'High-value documents, complex relations'],
+['Hybrid (NER + LLM validation)', 'Very high', 'High', 'Medium', 'Medium', 'Production balance of quality and cost'],
+]}
+/>
+<CodeBlock language="python" label="Scalable Async Extraction Pipeline" code={`import asyncio
 from asyncio import Semaphore
 from typing import AsyncIterator
 import anthropic
@@ -101,11 +101,11 @@ class GraphConstructionPipeline:
         # Second pass: LLM-based fuzzy resolution for near-duplicates
         # Group candidates by first 3 chars for efficiency
         return canonical_map`} />
-      <ExpandableSection title="Entity Disambiguation Deep Dive" icon="\uD83D\uDD0D">
+<ExpandableSection title="Entity Disambiguation Deep Dive" icon="\uD83D\uDD0D">
 
 Entity disambiguation is the hardest unsolved problem in knowledge graph construction. The same string can refer to different entities ("Apple" = company or fruit), and different strings can refer to the same entity ("NY" = "New York" = "New York City").
 
-        <CodeBlock language="python" label="Entity Disambiguation with Context" code={`def disambiguate_entity(mention: str, context: str,
+<CodeBlock language="python" label="Entity Disambiguation with Context" code={`def disambiguate_entity(mention: str, context: str,
                          candidates: list, llm) -> str:
     """
     Given a mention and its surrounding context,
@@ -131,8 +131,8 @@ Entity disambiguation is the hardest unsolved problem in knowledge graph constru
 
     idx = int(response.strip()) - 1
     return candidates[idx]['canonical'] if 0 <= idx < len(candidates) else mention`} />
-      </ExpandableSection>
-      <ExpandableSection title="Graph Quality Metrics" icon="\uD83D\uDCCA">
+</ExpandableSection>
+<ExpandableSection title="Graph Quality Metrics" icon="\uD83D\uDCCA">
 
 | Metric | Formula | Target | Why It Matters |
 |--------|---------|--------|---------------|
@@ -142,15 +142,15 @@ Entity disambiguation is the hardest unsolved problem in knowledge graph constru
 | Graph Density | Edges / (Nodes x (Nodes-1)) | 0.001 - 0.01 | Too dense = noise; too sparse = disconnected; target the "small-world" range |
 | Community Modularity | Louvain Q score | &gt; 0.3 | Measures how well-defined community structure is. Low = no meaningful clusters. |
 
-      </ExpandableSection>
-      <ArchitectureDecision
-        scenario="You have 500,000 documents. Full LLM extraction would cost $10,000 and take 2 weeks. You need the graph live in 3 days. What approach do you take?"
-        options={[
+</ExpandableSection>
+<ArchitectureDecision
+scenario="You have 500,000 documents. Full LLM extraction would cost $10,000 and take 2 weeks. You need the graph live in 3 days. What approach do you take?"
+options={[
           {label: 'Full LLM extraction on all documents', tradeoff: 'Highest quality but 5x over deadline and budget.'},
           {label: 'Tiered extraction: spaCy NER on all docs, LLM extraction only on top 10% highest-value documents', tradeoff: 'Delivers on deadline, 90% cost savings, ~85% of full quality. Most entities are simple; LLM adds value only for complex relationships.'},
           {label: 'Skip extraction, use pure vector search instead', tradeoff: 'No graph means no relationship traversal — loses the core GraphRAG advantage.'},
           {label: 'Wait for the full extraction to complete', tradeoff: 'Misses deadline and likely over-engineers for actual business needs.'}
-        ]}
-        correctIndex={1}
-        explanation="Tiered extraction is the standard production approach: fast rule-based NER handles the bulk, LLM extraction is reserved for high-value content (recent docs, key source documents, frequently accessed material). This pattern achieves Pareto-optimal quality/cost/speed."
-      />
+]}
+correctIndex={1}
+explanation="Tiered extraction is the standard production approach: fast rule-based NER handles the bulk, LLM extraction is reserved for high-value content (recent docs, key source documents, frequently accessed material). This pattern achieves Pareto-optimal quality/cost/speed."
+/>

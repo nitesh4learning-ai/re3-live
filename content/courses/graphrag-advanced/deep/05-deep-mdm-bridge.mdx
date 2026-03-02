@@ -7,22 +7,22 @@ icon: "\uD83C\uDFDB\uFE0F"
 
 Master Data Management (MDM) is the enterprise practice of creating a single, authoritative source of truth for core business entities: customers, products, suppliers, employees. GraphRAG knowledge graphs solve exactly the same problem for AI systems — they are **MDM for AI retrieval**.
 
-      <AnalogyBox emoji="🏛️" title="The Enterprise MDM Parallel">
-        In enterprise MDM: Customer "John Smith" might exist in 12 different systems with different IDs. MDM creates one canonical "golden record." In GraphRAG: entity "Sam Altman" might appear as "S. Altman," "Samuel H. Altman," and "the OpenAI CEO" across 1,000 documents. Entity resolution creates one canonical node — the AI golden record.
-      </AnalogyBox>
-      <ComparisonTable
-        title="MDM Concepts Applied to GraphRAG"
-        columns={['MDM Concept', 'MDM Definition', 'GraphRAG Equivalent', 'Failure Without It']}
-        rows={[
-          ['Golden Record', 'Single authoritative entity record', 'Canonical entity node after resolution', 'Fragmented graph; entity appears as 8 disconnected nodes'],
-          ['Survivorship Rules', 'Which source wins when attributes conflict', 'Confidence scores + source priority for entity attributes', 'Wrong attributes (wrong company, wrong date) propagate to answers'],
-          ['Match & Merge', 'Linking records that represent the same real entity', 'Entity resolution: string normalization + LLM disambiguation', 'Duplicate traversal paths return conflicting results'],
-          ['Data Stewardship', 'Human oversight of data quality', 'Graph QA dashboard: flagging low-confidence entities for review', 'Hallucinated relations persist undetected'],
-          ['Lineage / Provenance', 'Tracking where each data point came from', 'source_doc property on all entities and relations', 'Cannot audit or explain why a path was returned'],
-          ['Domain Model / Ontology', 'Formal definition of entity types and relationships', 'Graph ontology: entity types, relation types, constraints', 'Schema drift: FOUNDED_BY vs CREATED_BY vs ESTABLISHED_BY'],
-        ]}
-      />
-      <CodeBlock language="python" label="MDM-Style Entity Resolution Pipeline" code={`from dataclasses import dataclass
+<AnalogyBox emoji="🏛️" title="The Enterprise MDM Parallel">
+In enterprise MDM: Customer "John Smith" might exist in 12 different systems with different IDs. MDM creates one canonical "golden record." In GraphRAG: entity "Sam Altman" might appear as "S. Altman," "Samuel H. Altman," and "the OpenAI CEO" across 1,000 documents. Entity resolution creates one canonical node — the AI golden record.
+</AnalogyBox>
+<ComparisonTable
+title="MDM Concepts Applied to GraphRAG"
+columns={['MDM Concept', 'MDM Definition', 'GraphRAG Equivalent', 'Failure Without It']}
+rows={[
+['Golden Record', 'Single authoritative entity record', 'Canonical entity node after resolution', 'Fragmented graph; entity appears as 8 disconnected nodes'],
+['Survivorship Rules', 'Which source wins when attributes conflict', 'Confidence scores + source priority for entity attributes', 'Wrong attributes (wrong company, wrong date) propagate to answers'],
+['Match & Merge', 'Linking records that represent the same real entity', 'Entity resolution: string normalization + LLM disambiguation', 'Duplicate traversal paths return conflicting results'],
+['Data Stewardship', 'Human oversight of data quality', 'Graph QA dashboard: flagging low-confidence entities for review', 'Hallucinated relations persist undetected'],
+['Lineage / Provenance', 'Tracking where each data point came from', 'source_doc property on all entities and relations', 'Cannot audit or explain why a path was returned'],
+['Domain Model / Ontology', 'Formal definition of entity types and relationships', 'Graph ontology: entity types, relation types, constraints', 'Schema drift: FOUNDED_BY vs CREATED_BY vs ESTABLISHED_BY'],
+]}
+/>
+<CodeBlock language="python" label="MDM-Style Entity Resolution Pipeline" code={`from dataclasses import dataclass
 from typing import List, Optional
 import hashlib
 
@@ -135,11 +135,11 @@ class EntityResolutionEngine:
             last_updated=datetime.utcnow().isoformat(),
             attribute_sources={}
         )`} />
-      <ExpandableSection title="Data Lineage for AI Explainability" icon="\uD83D\uDD0D">
+<ExpandableSection title="Data Lineage for AI Explainability" icon="\uD83D\uDD0D">
 
 One of the most critical MDM practices for AI is **data lineage**: tracing every fact in the graph back to its source document, extraction method, and confidence score. This enables explainability ("Why did the system say X?") and quality control ("This relation came from a low-confidence LLM extraction — flag for review").
 
-        <CodeBlock language="cypher" label="Querying Entity Lineage in Neo4j" code={`// For any entity, find all source documents and their confidence
+<CodeBlock language="cypher" label="Querying Entity Lineage in Neo4j" code={`// For any entity, find all source documents and their confidence
 MATCH (e:Entity {name: "Sam Altman"})
 OPTIONAL MATCH (e)-[:EXTRACTED_FROM]->(doc:Document)
 RETURN e.name,
@@ -156,30 +156,30 @@ WHERE r.confidence < 0.6
 RETURN a.name, type(r), b.name, r.confidence, r.source_doc
 ORDER BY r.confidence ASC
 LIMIT 50`} />
-      </ExpandableSection>
-      <SeeItInRe3
-        text="Re3 articles have relationships — bridges, blind spots, and thematic streams. GraphRAG could connect debate insights across articles through entity relationships rather than just vector similarity. The MDM pattern applies: each debater agent is an entity, each argument is a relation, and The Loom is the community summary — a golden synthesis of the debate graph."
-        targetPage="loom"
-      />
-      <Quiz
-        question="Why is entity resolution (match & merge) more important in GraphRAG than in vector RAG?"
-        options={[
-          "GraphRAG is more expensive so quality matters more",
-          "In vector RAG, duplicate documents simply reduce relevance scores. In GraphRAG, unresolved duplicate entities create disconnected graph fragments that break multi-hop traversal",
-          "Vector RAG automatically deduplicates",
-          "GraphRAG uses more storage so deduplication saves space"
-        ]}
-        correctIndex={1}
-        explanation="In vector RAG, a document appearing twice slightly distorts relevance scores but answers remain mostly correct. In GraphRAG, two separate nodes for 'Sam Altman' and 'S. Altman' mean the graph has no path between their respective relationships — multi-hop traversal breaks entirely. Entity resolution is a correctness requirement, not a quality improvement."
-      />
-      <Quiz
-        question="Which MDM practice most directly prevents 'schema drift' in a knowledge graph (e.g., some extractions use FOUNDED_BY, others use CREATED_BY for the same relation type)?"
-        options={[
-          "Golden record creation",
-          "Data lineage tracking",
-          "Ontology design with a controlled relation type vocabulary",
-          "Survivorship rules"
-        ]}
-        correctIndex={2}
-        explanation="Ontology design defines the canonical vocabulary of relation types. A controlled relation vocabulary (e.g., 'only FOUNDED_BY exists; CREATED_BY is not an allowed relation type') prevents schema drift during extraction. This is enforced at ingestion time via ontology validation, much like MDM domain model enforcement in enterprise data governance."
-      />
+</ExpandableSection>
+<SeeItInRe3
+text="Re3 articles have relationships — bridges, blind spots, and thematic streams. GraphRAG could connect debate insights across articles through entity relationships rather than just vector similarity. The MDM pattern applies: each debater agent is an entity, each argument is a relation, and The Loom is the community summary — a golden synthesis of the debate graph."
+targetPage="loom"
+/>
+<Quiz
+question="Why is entity resolution (match & merge) more important in GraphRAG than in vector RAG?"
+options={[
+"GraphRAG is more expensive so quality matters more",
+"In vector RAG, duplicate documents simply reduce relevance scores. In GraphRAG, unresolved duplicate entities create disconnected graph fragments that break multi-hop traversal",
+"Vector RAG automatically deduplicates",
+"GraphRAG uses more storage so deduplication saves space"
+]}
+correctIndex={1}
+explanation="In vector RAG, a document appearing twice slightly distorts relevance scores but answers remain mostly correct. In GraphRAG, two separate nodes for 'Sam Altman' and 'S. Altman' mean the graph has no path between their respective relationships — multi-hop traversal breaks entirely. Entity resolution is a correctness requirement, not a quality improvement."
+/>
+<Quiz
+question="Which MDM practice most directly prevents 'schema drift' in a knowledge graph (e.g., some extractions use FOUNDED_BY, others use CREATED_BY for the same relation type)?"
+options={[
+"Golden record creation",
+"Data lineage tracking",
+"Ontology design with a controlled relation type vocabulary",
+"Survivorship rules"
+]}
+correctIndex={2}
+explanation="Ontology design defines the canonical vocabulary of relation types. A controlled relation vocabulary (e.g., 'only FOUNDED_BY exists; CREATED_BY is not an allowed relation type') prevents schema drift during extraction. This is enforced at ingestion time via ontology validation, much like MDM domain model enforcement in enterprise data governance."
+/>

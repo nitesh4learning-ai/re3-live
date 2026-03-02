@@ -12,26 +12,26 @@ Microsoft Research's GraphRAG (2024) introduced a breakthrough: instead of just 
 ### Microsoft GraphRAG: Two Search Modes
 
 
-            Local Search
+Local Search
 
 Entity-centric queries about specific things. Combines knowledge graph context (entity neighborhood) with relevant text chunks.
 
 
-              Example: "Tell me about Geoffrey Hinton's contributions"
+Example: "Tell me about Geoffrey Hinton's contributions"
 
 
 
-            Global Search
+Global Search
 
 Dataset-wide thematic questions. Uses community summaries to answer questions that require synthesizing the entire corpus.
 
 
-              Example: "What are the main research themes in our documents?"
+Example: "What are the main research themes in our documents?"
 
 
 
 
-      <CodeBlock language="python" label="Microsoft GraphRAG Indexing Pipeline" code={`# pip install graphrag
+<CodeBlock language="python" label="Microsoft GraphRAG Indexing Pipeline" code={`# pip install graphrag
 # graphrag.config.yml setup
 
 import os
@@ -111,7 +111,7 @@ local_search = LocalSearch(
 
 result = await local_search.asearch("What did Geoffrey Hinton work on at Google?")
 print(result.response)`} />
-      <CodeBlock language="python" label="Community Detection with NetworkX" code={`import networkx as nx
+<CodeBlock language="python" label="Community Detection with NetworkX" code={`import networkx as nx
 import community as community_louvain
 
 def detect_communities(entities: list, relations: list) -> dict:
@@ -169,26 +169,26 @@ async def generate_community_summary(community_entities: list,
 
     Write a 2-3 sentence summary for use in global search queries.
     """)`} />
-      <CommunityExplorer />
-      <Quiz
-        question="What does GraphRAG's 'global search' enable that local search cannot?"
-        options={[
-          "Faster query response times",
-          "Answering thematic questions that require synthesizing the entire corpus",
-          "Better single-entity lookups",
-          "Cheaper API costs"
-        ]}
-        correctIndex={1}
-        explanation="Global search uses community summaries — pre-generated descriptions of entity clusters — to answer questions like 'What are the main themes in all our documents?' Local search is entity-centric and only works well when you know what specific thing to look up."
-      />
-      <Quiz
-        question="What is the purpose of community detection in GraphRAG?"
-        options={[
-          "To delete redundant entities",
-          "To group related entities into clusters and generate summaries for global queries",
-          "To speed up vector search",
-          "To convert the graph to a relational database"
-        ]}
-        correctIndex={1}
-        explanation="Community detection algorithms (like Louvain) identify densely connected groups of entities. GraphRAG then generates LLM summaries of each community, which become the retrieval units for global search — enabling dataset-wide synthesis."
-      />
+<CommunityExplorer />
+<Quiz
+question="What does GraphRAG's 'global search' enable that local search cannot?"
+options={[
+"Faster query response times",
+"Answering thematic questions that require synthesizing the entire corpus",
+"Better single-entity lookups",
+"Cheaper API costs"
+]}
+correctIndex={1}
+explanation="Global search uses community summaries — pre-generated descriptions of entity clusters — to answer questions like 'What are the main themes in all our documents?' Local search is entity-centric and only works well when you know what specific thing to look up."
+/>
+<Quiz
+question="What is the purpose of community detection in GraphRAG?"
+options={[
+"To delete redundant entities",
+"To group related entities into clusters and generate summaries for global queries",
+"To speed up vector search",
+"To convert the graph to a relational database"
+]}
+correctIndex={1}
+explanation="Community detection algorithms (like Louvain) identify densely connected groups of entities. GraphRAG then generates LLM summaries of each community, which become the retrieval units for global search — enabling dataset-wide synthesis."
+/>

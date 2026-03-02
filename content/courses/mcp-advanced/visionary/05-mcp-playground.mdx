@@ -7,20 +7,11 @@ icon: "🎮"
 
 Apply everything from this course. Three hands-on exercises.
 
-
-        {exercises.map((e, i) => (
-          <button key={i} onClick={()=>setActiveExercise(i)}>
-            Exercise {i+1}: {e}
-          </button>
-        ))}
-
-
-      {activeExercise === 0 && (
-        <ExpandableSection title="Exercise 1: Build a Production MCP Server" icon="🏗️" defaultOpen={true}>
+<ExpandableSection title="Exercise 1: Build a Production MCP Server" icon="🏗️" defaultOpen={true}>
 
 Review this production MCP server implementation. Check each production requirement as you verify it's implemented.
 
-          <CodeBlock language="python" label="Production MCP Server — Re3 Article Search" code={`import asyncio
+<CodeBlock language="python" label="Production MCP Server — Re3 Article Search" code={`import asyncio
 import logging
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
@@ -99,54 +90,27 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())`}/>
 
-            Verify production requirements:
-            {[
-              ['transport', 'Transport configured (STDIO for local)'],
-              ['auth', 'Auth / scope validation present'],
-              ['rateLimit', 'Rate limiting implemented (or delegated to proxy)'],
-              ['errorHandling', 'Error handling — no internal leakage'],
-              ['logging', 'Structured audit logging active'],
-            ].map(([key, label]) => (
-              <label key={key}>
-                <input type="checkbox" checked={productionChecks[key]} onChange={e=>setProductionChecks(c=>({...c,[key]:e.target.checked}))}/>
-                {label}
-              </label>
-            ))}
-            {allChecked && All production requirements verified!}
+**Verify production requirements:**
 
-          <Quiz question="In the production MCP server above, why does the error handler return a generic 'Search temporarily unavailable' message instead of the actual exception?" options={["To save characters in the response","To prevent leaking internal server details (stack traces, DB schema, file paths) to the LLM and potentially back to users","Exception messages are always empty","The MCP protocol does not support error messages"]} correctIndex={1} explanation="Leaking internal exception details to an LLM is a significant security risk. Stack traces can reveal server architecture, file paths, database schema, and library versions — information useful to an attacker. Always return sanitized error messages and log the full details server-side only."/>
-        </ExpandableSection>
-      )}
+- Transport configured (STDIO for local)
+- Auth / scope validation present
+- Rate limiting implemented (or delegated to proxy)
+- Error handling -- no internal leakage
+- Structured audit logging active
 
-      {activeExercise === 1 && (
-        <ExpandableSection title="Exercise 2: Multi-Server Composition Challenge" icon="🧩" defaultOpen={true}>
+<Quiz question="In the production MCP server above, why does the error handler return a generic 'Search temporarily unavailable' message instead of the actual exception?" options={["To save characters in the response","To prevent leaking internal server details (stack traces, DB schema, file paths) to the LLM and potentially back to users","Exception messages are always empty","The MCP protocol does not support error messages"]} correctIndex={1} explanation="Leaking internal exception details to an LLM is a significant security risk. Stack traces can reveal server architecture, file paths, database schema, and library versions — information useful to an attacker. Always return sanitized error messages and log the full details server-side only."/>
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 2: Multi-Server Composition Challenge" icon="🧩">
 
 You need to build an AI assistant that can search Re3 articles, trigger debates, and configure agents. The servers use different transports. Review the configuration below.
 
-          <CodeBlock language="json" label="Multi-Server Config Challenge" code={serverConfig}/>
-          <Quiz question="The config above has a security vulnerability. Which server is missing authentication?" options={["re3-articles — it has a bearer token","re3-debates — it's HTTP but has no Authorization header","re3-agents — STDIO servers never need auth","All servers are correctly configured"]} correctIndex={1} explanation="re3-debates uses HTTP transport but has no Authorization header. Any process that can reach that URL could call its tools without authentication. HTTP MCP servers always need authentication — either a static bearer token or OAuth 2.1."/>
-        </ExpandableSection>
-      )}
+<Quiz question="The config above has a security vulnerability. Which server is missing authentication?" options={["re3-articles — it has a bearer token","re3-debates — it's HTTP but has no Authorization header","re3-agents — STDIO servers never need auth","All servers are correctly configured"]} correctIndex={1} explanation="re3-debates uses HTTP transport but has no Authorization header. Any process that can reach that URL could call its tools without authentication. HTTP MCP servers always need authentication — either a static bearer token or OAuth 2.1."/>
+</ExpandableSection>
 
-      {activeExercise === 2 && (
-        <ExpandableSection title="Exercise 3: Security Audit" icon="🔍" defaultOpen={true}>
+<ExpandableSection title="Exercise 3: Security Audit" icon="🔍">
 
-Use the checkboxes from Exercise 1 to simulate a security audit. Run the audit to see findings.
+Use the checklist from Exercise 1 to simulate a security audit. Consider which production requirements are met and which have gaps.
 
-
-            Current state from Exercise 1: {Object.entries(productionChecks).filter(([,v])=>v).map(([k])=>k).join(', ') || 'no controls enabled'}
-
-          <button onClick={runAudit}>Run Security Audit</button>
-          {auditRun && (
-
-              {auditFindings.map((f, i) => (
-                <div key={i}>
-                  {f.severity}
-                  {f.issue}
-
-              ))}
-
-          )}
-          <SeeItInRe3 text="Re3's article search, agent configuration, and debate triggers could all be exposed as MCP servers — this course shows how. An LLM assistant with access to those three servers could discover articles, select agents, and trigger full debates autonomously." targetPage="forge"/>
-        </ExpandableSection>
-      )}
+<SeeItInRe3 text="Re3's article search, agent configuration, and debate triggers could all be exposed as MCP servers — this course shows how. An LLM assistant with access to those three servers could discover articles, select agents, and trigger full debates autonomously." targetPage="forge"/>
+</ExpandableSection>

@@ -7,16 +7,16 @@ icon: "\uD83D\uDD00"
 
 No single retrieval method dominates all query types. Production GraphRAG systems combine **vector search** (semantic <JargonTip term="embedding">embedding</JargonTip> similarity), **graph traversal** (relationship paths), and **keyword search** (exact matching) in a <JargonTip term="hybrid search">hybrid search</JargonTip> approach, then use intelligent **query routing** and **result reranking** to fuse the best of all three.
 
-      <ComparisonTable
-        title="Retrieval Method Characteristics"
-        columns={['Method', 'Best For', 'Latency', 'Index Size', 'Query Type']}
-        rows={[
-          ['Vector / ANN', 'Semantic similarity, paraphrase matching', 'Fast (20-100ms)', 'Large (4 bytes × dims × docs)', 'What is similar to X?'],
-          ['Graph Traversal', 'Multi-hop entity connections', 'Medium (100-500ms)', 'Medium (edges + nodes)', 'How are X and Y connected?'],
-          ['BM25 / Keyword', 'Exact terms, technical jargon, IDs', 'Very fast (<20ms)', 'Small (inverted index)', 'Find docs mentioning X exactly'],
-          ['Hybrid (all)', 'General-purpose production retrieval', 'Medium (parallel)', 'Sum of above', 'Any query'],
-        ]}
-      />
+<ComparisonTable
+title="Retrieval Method Characteristics"
+columns={['Method', 'Best For', 'Latency', 'Index Size', 'Query Type']}
+rows={[
+['Vector / ANN', 'Semantic similarity, paraphrase matching', 'Fast (20-100ms)', 'Large (4 bytes × dims × docs)', 'What is similar to X?'],
+['Graph Traversal', 'Multi-hop entity connections', 'Medium (100-500ms)', 'Medium (edges + nodes)', 'How are X and Y connected?'],
+['BM25 / Keyword', 'Exact terms, technical jargon, IDs', 'Very fast (<20ms)', 'Small (inverted index)', 'Find docs mentioning X exactly'],
+['Hybrid (all)', 'General-purpose production retrieval', 'Medium (parallel)', 'Sum of above', 'Any query'],
+]}
+/>
 
 
 ### Query Routing: When to Use Which Method
@@ -30,7 +30,7 @@ No single retrieval method dominates all query types. Production GraphRAG system
 | Complex multi-part question | All three + rerank | RRF fusion maximizes recall; reranker optimizes precision |
 
 
-      <CodeBlock language="python" label="Hybrid Retrieval with RRF Fusion" code={`from typing import List, Dict
+<CodeBlock language="python" label="Hybrid Retrieval with RRF Fusion" code={`from typing import List, Dict
 import numpy as np
 
 class HybridRetriever:
@@ -92,30 +92,30 @@ class HybridRetriever:
         if any(c.isdigit() for c in query) or query.count('"') >= 2:
             return 'exact'
         return 'hybrid'`} />
-      <RetrievalStrategyComparator />
-      <Quiz
-        question="What does Reciprocal Rank Fusion (RRF) do?"
-        options={[
-          "It deletes duplicate results from multiple retrievers",
-          "It combines ranked result lists from multiple retrievers into one optimized ranking",
-          "It reranks results using a cross-encoder model",
-          "It weights vector results more heavily than keyword results"
-        ]}
-        correctIndex={1}
-        explanation="RRF merges ranked lists from different retrieval methods using the formula score = Σ(1 / (k + rank_i)). Each document's final score is the sum of its reciprocal ranks across all methods. This is model-free, fast, and consistently outperforms per-method retrieval in benchmarks."
-      />
-      <Quiz
-        question="When should you route a query to graph traversal instead of vector search?"
-        options={[
-          "When the query is very long",
-          "When the query asks about relationships between specific entities",
-          "When you need fast results",
-          "For all queries — graph is always better"
-        ]}
-        correctIndex={1}
-        explanation="Graph traversal excels at relational queries: 'How are X and Y connected?', 'What did X's collaborators work on?', 'What is the path from A to B?' Vector search is better for open-ended semantic similarity queries where you don't know exactly what entity to start from."
-      />
-      <SeeItInRe3
-        text="Re³ articles have relationships — bridges, blind spots, and thematic streams from The Loom. GraphRAG could connect debate insights across articles through entity relationships rather than just vector similarity, enabling cross-debate synthesis."
-        targetPage="loom"
-      />
+<RetrievalStrategyComparator />
+<Quiz
+question="What does Reciprocal Rank Fusion (RRF) do?"
+options={[
+"It deletes duplicate results from multiple retrievers",
+"It combines ranked result lists from multiple retrievers into one optimized ranking",
+"It reranks results using a cross-encoder model",
+"It weights vector results more heavily than keyword results"
+]}
+correctIndex={1}
+explanation="RRF merges ranked lists from different retrieval methods using the formula score = Σ(1 / (k + rank_i)). Each document's final score is the sum of its reciprocal ranks across all methods. This is model-free, fast, and consistently outperforms per-method retrieval in benchmarks."
+/>
+<Quiz
+question="When should you route a query to graph traversal instead of vector search?"
+options={[
+"When the query is very long",
+"When the query asks about relationships between specific entities",
+"When you need fast results",
+"For all queries — graph is always better"
+]}
+correctIndex={1}
+explanation="Graph traversal excels at relational queries: 'How are X and Y connected?', 'What did X's collaborators work on?', 'What is the path from A to B?' Vector search is better for open-ended semantic similarity queries where you don't know exactly what entity to start from."
+/>
+<SeeItInRe3
+text="Re³ articles have relationships — bridges, blind spots, and thematic streams from The Loom. GraphRAG could connect debate insights across articles through entity relationships rather than just vector similarity, enabling cross-debate synthesis."
+targetPage="loom"
+/>

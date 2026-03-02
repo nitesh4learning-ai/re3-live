@@ -7,20 +7,11 @@ icon: "🎮"
 
 Advanced exercises combining architecture, security, and operations.
 
-
-        {scenarios.map((s, i) => (
-          <button key={i} onClick={()=>setScenario(i)}>
-            {s.icon} {s.title}
-          </button>
-        ))}
-
-
-      {scenario === 0 && (
-        <ExpandableSection title="Exercise 1: Multi-Server Re3 Deployment" icon="🏗️" defaultOpen={true}>
+<ExpandableSection title="Exercise 1: Multi-Server Re3 Deployment" icon="🏗️" defaultOpen={true}>
 
 Re3 wants to expose its full platform as a suite of MCP servers. Design the server split, transport choices, and OAuth scopes.
 
-          <CodeBlock language="json" label="Proposed Re3 MCP Server Suite" code={`{
+<CodeBlock language="json" label="Proposed Re3 MCP Server Suite" code={`{
   "re3_mcp_suite": {
     "re3-articles": {
       "description": "Article CRUD, search, pillar categorization",
@@ -56,26 +47,24 @@ Re3 wants to expose its full platform as a suite of MCP servers. Design the serv
     }
   }
 }`}/>
-          <ArchitectureDecision
-            scenario="The re3-debates MCP server needs to use sampling to call the LLM for inline synthesis during a tool call. The host is Claude Desktop. What does the server need to do to request sampling?"
-            options={[
-              {label:'Store an Anthropic API key in the server environment and call the API directly', tradeoff:'Works but defeats the purpose — the server holds credentials, bypasses host rate limiting and governance, and duplicates the LLM client.'},
-              {label:'Declare sampling:{} in capabilities at init, then call session.create_message() during the tool handler', tradeoff:'Correct MCP pattern. Host receives the request, can show approval UI, applies its rate limits, and returns the completion. Server never holds API keys.'},
-              {label:'Return a partial result and ask the host to finish it', tradeoff:'Not a formal MCP pattern. Undefined behavior — the host may not understand what to do with a partial result.'},
-              {label:'Use a webhook callback URL for async sampling results', tradeoff:'Non-standard. The MCP sampling protocol is synchronous RPC — the server awaits the host response inline.'}
-            ]}
-            correctIndex={1}
-            explanation="The correct pattern is capability declaration + session.create_message(). The server declares it wants sampling capability during initialization. When it needs an LLM completion during a tool call, it calls session.create_message() which sends a JSON-RPC request to the host. The host uses its configured LLM client to fulfill the request and returns the result. Clean separation of concerns."
-          />
-        </ExpandableSection>
-      )}
+<ArchitectureDecision
+  scenario="The re3-debates MCP server needs to use sampling to call the LLM for inline synthesis during a tool call. The host is Claude Desktop. What does the server need to do to request sampling?"
+  options={[
+    {label:'Store an Anthropic API key in the server environment and call the API directly', tradeoff:'Works but defeats the purpose — the server holds credentials, bypasses host rate limiting and governance, and duplicates the LLM client.'},
+    {label:'Declare sampling:{} in capabilities at init, then call session.create_message() during the tool handler', tradeoff:'Correct MCP pattern. Host receives the request, can show approval UI, applies its rate limits, and returns the completion. Server never holds API keys.'},
+    {label:'Return a partial result and ask the host to finish it', tradeoff:'Not a formal MCP pattern. Undefined behavior — the host may not understand what to do with a partial result.'},
+    {label:'Use a webhook callback URL for async sampling results', tradeoff:'Non-standard. The MCP sampling protocol is synchronous RPC — the server awaits the host response inline.'}
+  ]}
+  correctIndex={1}
+  explanation="The correct pattern is capability declaration + session.create_message(). The server declares it wants sampling capability during initialization. When it needs an LLM completion during a tool call, it calls session.create_message() which sends a JSON-RPC request to the host. The host uses its configured LLM client to fulfill the request and returns the result. Clean separation of concerns."
+/>
+</ExpandableSection>
 
-      {scenario === 1 && (
-        <ExpandableSection title="Exercise 2: Sampling Authorization Design" icon="🤖" defaultOpen={true}>
+<ExpandableSection title="Exercise 2: Sampling Authorization Design" icon="🤖">
 
 Your MCP server uses sampling extensively. Design an authorization policy for sampling requests.
 
-          <CodeBlock language="python" label="Host-Side Sampling Authorization Handler" code={`from mcp.types import CreateMessageRequest, CreateMessageResult
+<CodeBlock language="python" label="Host-Side Sampling Authorization Handler" code={`from mcp.types import CreateMessageRequest, CreateMessageResult
 
 class SamplingAuthorizationPolicy:
     """Host-side policy for approving/denying server sampling requests."""
@@ -115,30 +104,21 @@ class SamplingAuthorizationPolicy:
 
         self.session_counts[session_key] = count + 1
         return {"allowed": True, "modified_request": request, "reason": "approved"}`}/>
-          <Quiz question="An MCP server calls session.create_message() with maxTokens=2000 during a tool call. Your host policy caps sampling at 500 tokens. What is the correct host behavior?" options={["Reject the sampling request with an error","Silently cap the request to 500 tokens and fulfill it — the server still gets a useful completion","Ask the user to approve every time maxTokens > 500","Forward the request as-is and let the LLM provider reject it"]} correctIndex={1} explanation="Silently capping is the right balance. Outright rejection breaks the tool call and confuses the LLM. Asking for approval on every request creates too much friction. The host is the governance layer — it enforces resource limits while still serving the server's intent with a reduced but useful response."/>
-        </ExpandableSection>
-      )}
+<Quiz question="An MCP server calls session.create_message() with maxTokens=2000 during a tool call. Your host policy caps sampling at 500 tokens. What is the correct host behavior?" options={["Reject the sampling request with an error","Silently cap the request to 500 tokens and fulfill it — the server still gets a useful completion","Ask the user to approve every time maxTokens > 500","Forward the request as-is and let the LLM provider reject it"]} correctIndex={1} explanation="Silently capping is the right balance. Outright rejection breaks the tool call and confuses the LLM. Asking for approval on every request creates too much friction. The host is the governance layer — it enforces resource limits while still serving the server's intent with a reduced but useful response."/>
+</ExpandableSection>
 
-      {scenario === 2 && (
-        <ExpandableSection title="Exercise 3: Production Incident Diagnosis" icon="🚨" defaultOpen={true}>
+<ExpandableSection title="Exercise 3: Production Incident Diagnosis" icon="🚨">
 
 Diagnose the following incident from the alert data.
 
+**INCIDENT ALERT -- 14:32 UTC**
 
-            INCIDENT ALERT — 14:32 UTC
+- Tool error rate on re3-debates server spiked from 0.2% to 34%
+- All errors are: "PermissionError: Tool 'trigger_debate' requires scope 'mcp:write'"
+- Affected clients: Claude Desktop (all users), Claude Code (not affected)
+- Timeline: Started exactly at token refresh cycle (14:30 UTC)
+- Claude.ai web (not affected), API direct (not affected)
 
-              • Tool error rate on re3-debates server spiked from 0.2% → 34%
-
-              • All errors are: "PermissionError: Tool 'trigger_debate' requires scope 'mcp:write'"
-
-              • Affected clients: Claude Desktop (all users), Claude Code (not affected)
-
-              • Timeline: Started exactly at token refresh cycle (14:30 UTC)
-
-              • Claude.ai web (not affected), API direct (not affected)
-
-
-          <Quiz question="What is the most likely root cause of this incident?" options={["The re3-debates server crashed and restarted without its tool registry","The OAuth refresh token exchange for Claude Desktop is returning tokens without the mcp:write scope — likely a scope regression in the auth server deployment at 14:30","The re3-debates database is rejecting writes due to disk full","Rate limiting is triggering and returning permission errors instead of 429 responses"]} correctIndex={1} explanation="The evidence is definitive: errors are scope-specific (mcp:write missing), only Claude Desktop is affected (Claude Code uses a different auth flow), and it started at the token refresh time. This is an OAuth server regression — the 14:30 deployment changed scope issuance. The fix is to roll back the auth server or add mcp:write back to the Claude Desktop OAuth client configuration."/>
-          <SeeItInRe3 text="Re3's article search, agent configuration, and debate triggers could all be exposed as MCP servers — this course shows how. The production patterns in this deep dive apply directly: OAuth scopes map to Re3's three server domains, sampling enables inline synthesis during debate triggers, and the observability stack gives full visibility into the multi-server flow." targetPage="forge"/>
-        </ExpandableSection>
-      )}
+<Quiz question="What is the most likely root cause of this incident?" options={["The re3-debates server crashed and restarted without its tool registry","The OAuth refresh token exchange for Claude Desktop is returning tokens without the mcp:write scope — likely a scope regression in the auth server deployment at 14:30","The re3-debates database is rejecting writes due to disk full","Rate limiting is triggering and returning permission errors instead of 429 responses"]} correctIndex={1} explanation="The evidence is definitive: errors are scope-specific (mcp:write missing), only Claude Desktop is affected (Claude Code uses a different auth flow), and it started at the token refresh time. This is an OAuth server regression — the 14:30 deployment changed scope issuance. The fix is to roll back the auth server or add mcp:write back to the Claude Desktop OAuth client configuration."/>
+<SeeItInRe3 text="Re3's article search, agent configuration, and debate triggers could all be exposed as MCP servers — this course shows how. The production patterns in this deep dive apply directly: OAuth scopes map to Re3's three server domains, sampling enables inline synthesis during debate triggers, and the observability stack gives full visibility into the multi-server flow." targetPage="forge"/>
+</ExpandableSection>
