@@ -16,10 +16,7 @@ export default function LandingPage({ onSignIn, onNavigate }) {
         <svg width="28" height="28" viewBox="0 0 64 64" fill="none"><defs><linearGradient id="lg" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stopColor="#2D8A6E"/><stop offset="50%" stopColor="#9333EA"/><stop offset="100%" stopColor="#E8734A"/></linearGradient></defs><path d="M10 32c0-8 5.5-15 14-15s12 5 17 10c5-5 8.5-10 17-10s14 7 14 15-5.5 15-14 15-12-5-17-10c-5 5-8.5 10-17 10S10 40 10 32zm14-9c-5.5 0-8 4.5-8 9s2.5 9 8 9 9.5-4.5 13-9c-3.5-4.5-7.5-9-13-9zm34 0c-5.5 0-9.5 4.5-13 9 3.5 4.5 7.5 9 13 9s8-4.5 8-9-2.5-9-8-9z" fill="url(#lg)" strokeWidth="2"/></svg>
         <span className="font-bold" style={{ fontFamily: GIM.fontMain, fontSize: 18, color: GIM.headingText }}>Re<sup style={{ fontSize: 11 }}>3</sup></span>
       </div>
-      <div className="flex items-center gap-3">
-        <button onClick={() => onNavigate?.("academy")} className="text-sm font-medium px-3 py-1.5 rounded-lg transition-all hover:bg-gray-100" style={{ color: GIM.bodyText }}>Academy</button>
-        <button onClick={() => onNavigate?.("agents")} className="text-sm font-medium px-3 py-1.5 rounded-lg transition-all hover:bg-gray-100" style={{ color: GIM.bodyText }}>Agents</button>
-      </div>
+      <button onClick={onSignIn} className="text-sm font-semibold px-4 py-2 rounded-lg transition-all hover:shadow-md" style={{ background: GIM.primary, color: 'white' }}>Sign in</button>
     </nav>
 
     {/* ===== HERO ===== */}
