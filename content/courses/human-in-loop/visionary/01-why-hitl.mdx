@@ -1,0 +1,17 @@
+---
+label: "Why HITL?"
+icon: "👤"
+---
+
+## Why Human-in-the-Loop?
+
+<AnalogyBox emoji="✈️" title="The Autopilot Analogy">AI with human-in-the-loop is like a plane on autopilot -- it handles routine operations automatically, but the pilot takes over for takeoff, landing, and turbulence. The key is knowing when to hand off control.</AnalogyBox>
+
+Not every AI decision should be automated. <JargonTip term="HITL">Human-in-the-loop (HITL)</JargonTip> patterns keep humans in control of **high-stakes**, **ambiguous**, or **novel** decisions while automating the routine.
+
+- **✅ Approval Gates** -- AI proposes, human approves before action is taken
+- **🚨 Escalation** -- AI handles routine cases, uses escalation for edge cases to humans
+- **📊 Confidence Thresholds** -- Auto-act when confident, ask for help when uncertain
+- **🔄 Feedback Loops** -- Human corrections improve the AI over time
+
+<Quiz question="An AI customer support agent is 60% confident in its answer to a billing question that involves a $5,000 charge. What should it do?" options={["Answer anyway -- 60% is good enough","Escalate to a human agent for review","Ask the customer to call back later","Refuse to answer"]} correctIndex={1} explanation="For high-stakes decisions (large charges), 60% confidence is too low to act autonomously. Escalating to a human agent protects both the customer and the company." />

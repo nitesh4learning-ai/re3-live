@@ -1,0 +1,21 @@
+---
+label: "What Is Context?"
+icon: "\uD83E\uDDE9"
+---
+
+## What Is Context?
+
+<AnalogyBox emoji={'D83CDFAC'} title="The Director's Cut">
+{`Context engineering is like being a movie director — you choose what the camera sees. The model can only reason about what's in its context window. Everything else might as well not exist.`}
+</AnalogyBox>
+
+Context is **everything the model sees** when generating a response:
+
+- **System Prompt** -- Instructions that define role, behavior, constraints
+- **Retrieved Documents** -- Knowledge fetched via RAG — external memory
+- **Conversation History** -- Previous messages — session memory
+- **Tool Results** -- Function call outputs — real-time data
+
+The context window is a **fixed-size whiteboard**. Every <JargonTip term="token">token</JargonTip> written on it shapes the response. Once full, something must be removed to add anything new.
+
+<Quiz question="If you have a 128K context window and fill 100K with retrieved documents, what might go wrong?" options={["Nothing — the model handles large contexts well","The model may lose track of the actual question buried in text","More context always means better answers","The model will refuse to respond"]} correctIndex={1} explanation="The 'lost-in-the-middle' problem means models attend most to the beginning and end. Your question buried under 100K tokens of documents may be overlooked." />

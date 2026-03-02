@@ -1,0 +1,137 @@
+---
+label: "Scaling Agents"
+icon: "\uD83D\uDCC8"
+---
+
+## Scaling Agents
+
+Building one agent that works is step one. Running thousands of agents reliably, affordably, and observably in production is a different challenge entirely. Scaling <JargonTip term="multi-agent">multi-agent</JargonTip> systems means managing **parallel execution**, **rate limits**, **costs**, and **<JargonTip term="observability">observability</JargonTip>** -- all while maintaining quality through <JargonTip term="tracing">tracing</JargonTip> and <JargonTip term="circuit breaker">circuit breakers</JargonTip>.
+
+  <AnalogyBox emoji="🏭" title="Think of it like running a factory">One skilled craftsperson can make beautiful furniture. But a factory that produces 10,000 chairs per day needs assembly lines, quality control, resource management, maintenance schedules, and dashboards. Scaling agents is the same leap from craft to production.</AnalogyBox>
+
+
+### Parallel Tool Calls
+  <CodeBlock language="python" label="Parallel Tool Execution with Semaphore" code={`import asyncio
+from collections import defaultdict
+
+class ParallelToolExecutor:
+    """Execute multiple tool calls concurrently with rate limiting."""
+
+    def __init__(self, max_concurrent=10, rate_limit_per_min=60):
+        self.semaphore = asyncio.Semaphore(max_concurrent)
+        self.rate_limiter = RateLimiter(rate_limit_per_min)
+        self.metrics = defaultdict(list)
+
+    async def execute_batch(self, tool_calls: list) -> list:
+        """Run multiple tool calls in parallel with concurrency control."""
+        tasks = [self._guarded_execute(tc) for tc in tool_calls]
+        return await asyncio.gather(*tasks, return_exceptions=True)
+
+    async def _guarded_execute(self, tool_call):
+        async with self.semaphore:  # Limit concurrency
+            await self.rate_limiter.wait()  # Respect rate limits
+            start = time.time()
+            try:
+                result = await execute_tool(
+                    tool_call["name"], tool_call["args"]
+                )
+                self.metrics[tool_call["name"]].append({
+                    "latency": time.time() - start,
+                    "success": True
+                })
+                return result
+            except Exception as e:
+                self.metrics[tool_call["name"]].append({
+                    "latency": time.time() - start,
+                    "success": False,
+                    "error": str(e)
+                })
+                return {"error": str(e)}
+
+class RateLimiter:
+    """Token bucket rate limiter."""
+    def __init__(self, per_minute):
+        self.per_minute = per_minute
+        self.tokens = per_minute
+        self.last_refill = time.time()
+
+    async def wait(self):
+        while self.tokens <= 0:
+            elapsed = time.time() - self.last_refill
+            self.tokens = min(self.per_minute, elapsed * self.per_minute / 60)
+            if self.tokens <= 0:
+                await asyncio.sleep(0.1)
+        self.tokens -= 1`}/>
+
+  <AgentCostCalculator/>
+
+
+### Agent Observability
+
+When agents fail at scale, you need to understand *why*. Observability means capturing detailed traces of every agent run so you can debug failures, optimize performance, and monitor quality over time.
+
+  <CodeBlock language="python" label="Agent Tracing & Observability" code={`import uuid, time, json
+
+class AgentTracer:
+    """Capture detailed traces of agent execution for observability."""
+
+    def __init__(self, run_id=None):
+        self.run_id = run_id or str(uuid.uuid4())
+        self.spans = []
+        self.start_time = time.time()
+
+    def span(self, name, type="generic"):
+        return TracerSpan(self, name, type)
+
+    def to_trace(self):
+        return {
+            "run_id": self.run_id,
+            "total_duration_s": time.time() - self.start_time,
+            "total_llm_calls": sum(1 for s in self.spans if s["type"]=="llm"),
+            "total_tool_calls": sum(1 for s in self.spans if s["type"]=="tool"),
+            "total_tokens": sum(s.get("tokens",0) for s in self.spans),
+            "total_cost_usd": sum(s.get("cost",0) for s in self.spans),
+            "spans": self.spans
+        }
+
+# Usage in agent loop:
+tracer = AgentTracer()
+with tracer.span("llm_call", type="llm") as span:
+    response = llm.generate(messages)
+    span.set("tokens", response.usage.total_tokens)
+    span.set("model", "claude-sonnet-4-20250514")
+with tracer.span("tool_search", type="tool") as span:
+    result = search_tool(query)
+    span.set("result_count", len(result))
+
+# Export trace for dashboard
+print(json.dumps(tracer.to_trace(), indent=2))`}/>
+
+  <ComparisonTable title="Observability Tools for Agents" columns={['Tool','Type','Key Feature','Pricing']} rows={[
+    ['LangSmith','Commercial','LangChain-native tracing, evals, datasets','Free tier + paid'],
+    ['Braintrust','Commercial','Logging, evals, prompt playground','Free tier + paid'],
+    ['Arize Phoenix','Open source','Traces, evals, embedding analysis','Free (self-hosted)'],
+    ['OpenTelemetry','Open standard','Vendor-neutral tracing standard','Free (standard)'],
+    ['Custom logging','DIY','Full control, domain-specific metrics','Infrastructure cost'],
+  ]}/>
+
+  <Quiz question="Why is a semaphore important when executing parallel tool calls?" options={["It makes calls go faster","It limits concurrency to prevent overwhelming APIs or exhausting system resources","It's a security measure","It's required by Python's asyncio"]} correctIndex={1} explanation="Without concurrency limits, launching 1000 parallel API calls could overwhelm the target API (causing rate limit errors), exhaust memory, or create socket exhaustion. A semaphore caps concurrent operations at a safe level, like a traffic light controlling how many cars enter an intersection."/>
+
+  <ExpandableSection title="Cost Management Strategies" icon="💰">
+
+**Token budgets:** Set per-run and per-step token limits. Kill a run that exceeds its budget to prevent runaway costs.
+
+
+**Model tiering:** Use cheaper/faster models for simple steps (classification, extraction) and expensive models only for complex reasoning. A single agent run might use 3 different models.
+
+
+**Caching:** Cache tool results and LLM responses for identical inputs. Many agent runs repeat the same searches or queries -- caching can cut costs 30-60%.
+
+
+**Batching:** Accumulate similar tasks and process them together, using batch API pricing (often 50% cheaper).
+
+  </ExpandableSection>
+
+  <Quiz question="What is model tiering in the context of cost-efficient agents?" options={["Using only one model consistently","Using expensive models for simple tasks","Using different models for different complexity levels -- cheap models for easy steps, powerful models for hard steps","Running models in different tiers of cloud infrastructure"]} correctIndex={2} explanation="Model tiering assigns the right model to each task: use a fast, cheap model (e.g., Haiku) for classification or extraction, a mid-tier model for standard generation, and a top-tier model (e.g., Opus) only for complex reasoning. This can reduce costs 60-80% versus using the most expensive model for everything."/>
+
+  <SeeItInRe3 text="Re\u00b3's debate system uses model diversity across agents -- different debater agents can use different LLM providers (Anthropic, OpenAI, Gemini, Groq) via the llm-router, providing both cost optimization and perspective diversity." targetPage="agent-community"/>

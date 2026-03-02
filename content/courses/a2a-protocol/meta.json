@@ -1,0 +1,16 @@
+{
+  "tier": 2,
+  "icon": "🤝",
+  "title": "Agent-to-Agent (A2A)",
+  "description": "How AI agents discover, communicate, and collaborate across platforms.",
+  "difficulty": "Intermediate",
+  "timeMinutes": 45,
+  "exerciseCount": 8,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Agent-to-Agent Protocol (A2A) — Re³ Academy",
+    "metaDescription": "Learn how AI agents discover, communicate, and collaborate across platforms with A2A."
+  }
+}

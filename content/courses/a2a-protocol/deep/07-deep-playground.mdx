@@ -1,0 +1,28 @@
+---
+label: "Deep Playground"
+icon: "🎮"
+---
+
+## Deep Playground
+
+Design and evaluate multi-agent systems using A2A.
+
+<ExpandableSection title="Exercise 1: Multi-Agent System Design" icon="🏗️" defaultOpen={true}>
+
+A company wants to build an automated customer support system with: a triage agent (classifies tickets), a technical support agent, a billing support agent, and an escalation agent (routes to human).
+
+<ArchitectureDecision scenario="How should these 4 agents communicate?" options={[
+  {label:'All agents talk directly to each other (fully connected mesh)',tradeoff:'Maximum flexibility but O(n^2) connections. Adding a new agent requires updating all others'},
+  {label:'Triage agent acts as orchestrator, delegates to specialists',tradeoff:'Clean hierarchy. Triage routes to the right specialist. Specialists only need to handle their domain. Easy to add new specialists'},
+  {label:'Message queue between all agents',tradeoff:'Decoupled but adds infrastructure complexity. Harder to track task state across agents'},
+]} correctIndex={1} explanation="The triage agent is a natural orchestrator. It classifies the ticket and delegates to the appropriate specialist via A2A. Specialists focus on their domain and return results to the triage agent, which manages the customer interaction." />
+
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 2: Protocol Selection" icon="🤔">
+  <Quiz question="A coding assistant needs to: (1) read files from disk, (2) run tests, (3) ask a code review agent for feedback. Which protocols?" options={["MCP for everything","A2A for everything","MCP for file access and test running, A2A for the code review agent","REST APIs for everything"]} correctIndex={2} explanation="File access and test running are deterministic tool operations (MCP). Code review requires intelligent analysis, may involve back-and-forth, and produces structured feedback -- this is agent-to-agent work (A2A)." />
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 3: Failure Handling" icon="⚠️">
+  <Quiz question="An orchestrator delegates a task to Agent B, which crashes mid-processing. The task state in the orchestrator's records is still 'working'. How should the system handle this?" options={["Assume it will eventually complete","Implement a heartbeat/timeout mechanism that transitions stale 'working' tasks to 'failed'","Delete the task record","Send the task to a different agent immediately"]} correctIndex={1} explanation="A heartbeat or timeout mechanism detects stale tasks. If Agent B does not provide updates within a configurable window, the orchestrator marks the task as failed and can optionally retry with a different agent." />
+</ExpandableSection>

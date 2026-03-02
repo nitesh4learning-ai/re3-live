@@ -1,0 +1,10 @@
+---
+label: "Architecture Lab"
+icon: "\uD83C\uDFD7\uFE0F"
+---
+
+## Architecture Decision Lab
+
+<ArchitectureDecision scenario="Customer support chatbot, 8K context, 500-token system prompt. Customers have 20+ message conversations about complex billing. How design the context?" options={[{label:'4K system+FAQ, 3K conversation (8 turns), 1K query',tradeoff:'Rich instructions but limited conversation — may lose important details'},{label:'1K system, 2K FAQ, 4K conversation (12 turns+summary), 1K query',tradeoff:'Good memory but minimal instructions and limited FAQ'},{label:'1.5K system, 2.5K dynamic (FAQ or convo based on need), 3K compressed convo, 1K query',tradeoff:'Adaptive — retrieves FAQs only when needed, compresses old turns'}]} correctIndex={2} explanation="Adaptive allocation is most effective. Short conversations need more FAQ; long ones need more memory. Compressing older turns while keeping recent ones verbatim gives the best of both worlds." />
+
+<ArchitectureDecision scenario="Code assistant, 128K window, 10K file codebase. User asks: 'Refactor auth module to use JWT.' How assemble context?" options={[{label:'Retrieve top 50 relevant files, include all',tradeoff:'Comprehensive but 50 files = 50K+ tokens, overwhelming'},{label:'5-8 relevant files + dependency graph + module summaries',tradeoff:'Focused with structural awareness — model understands code and relationships'},{label:'Only the specific auth files, nothing else',tradeoff:'Fast but model may miss dependencies and patterns used elsewhere'}]} correctIndex={1} explanation="Focused files plus structural context (dependency graph, module summaries) gives enough information for informed refactoring without drowning in code." />

@@ -1,0 +1,16 @@
+{
+  "tier": 1,
+  "icon": "🔍",
+  "title": "RAG Fundamentals",
+  "description": "Retrieval-Augmented Generation. Grounding AI in real data to reduce hallucination.",
+  "difficulty": "Beginner",
+  "timeMinutes": 50,
+  "exerciseCount": 9,
+  "tabCount": 5,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "RAG Fundamentals — Re³ Academy",
+    "metaDescription": "Learn Retrieval-Augmented Generation: grounding AI in real data to reduce hallucination."
+  }
+}

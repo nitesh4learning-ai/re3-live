@@ -1,0 +1,22 @@
+---
+label: "Why Observe AI"
+icon: "\uD83D\uDCCA"
+---
+
+## Why Observe AI?
+
+Unlike traditional software with deterministic outputs, AI systems are **non-deterministic**. The same input can produce different outputs. This makes monitoring, debugging, and quality assurance fundamentally different. <JargonTip term="observability">Observability</JargonTip> is essential for understanding what your AI system is actually doing.
+
+  <AnalogyBox emoji="🚗" title="Think of it like a car dashboard">You wouldn't drive without a speedometer, fuel gauge, and warning lights. AI observability gives you the same visibility into your AI system -- speed (latency), fuel (tokens/cost), and warning lights (quality issues).</AnalogyBox>
+
+
+| Metric | What It Measures | Why It Matters |
+|--------|-----------------|---------------|
+| Latency | Response time (ms) | User experience, SLA compliance |
+| Token Usage | Input + output tokens per request | Cost management, budget planning |
+| Error Rate | % of failed or low-quality responses | System reliability |
+| Quality Score | Faithfulness, relevance, coherence | Output accuracy and usefulness |
+
+
+
+  <Quiz question="Why is AI observability harder than traditional software monitoring?" options={["AI is always faster","AI outputs are non-deterministic -- same input can produce different outputs","AI doesn't generate errors","Monitoring tools don't work with AI"]} correctIndex={1} explanation="Traditional software has deterministic outputs (same input = same output). AI is non-deterministic, so you can't just check if the output matches an expected value -- you need quality metrics."/>

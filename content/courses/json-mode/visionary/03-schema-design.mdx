@@ -1,0 +1,22 @@
+---
+label: "Schema Design"
+icon: "📄"
+---
+
+## Schema Design
+
+Good schema design makes the difference between reliable and brittle structured outputs.
+
+<SchemaDesigner/>
+
+<ExpandableSection title="Schema Design Tips" icon="💡" defaultOpen>
+
+- Keep schemas flat when possible — deeply nested objects increase failure rates
+- Use enums to constrain values — the model can only pick from your options
+- Add descriptions to guide the model — "confidence: a number between 0 and 1"
+- Make non-critical fields optional — required fields may cause the model to hallucinate values
+- Use arrays for variable-length data — let the model decide how many entities to extract
+
+</ExpandableSection>
+
+<Quiz question="You need the model to classify text sentiment. Best schema design?" options={["Free text 'sentiment' string field","Enum field with 3 options: positive, negative, neutral","Number from -1 to 1","Boolean 'is_positive' field"]} correctIndex={1} explanation="Enums give you exactly the values you expect, making downstream code simpler and more reliable. Free text could return anything ('kind of positive?'), numbers need threshold handling, and boolean loses the neutral category."/>

@@ -1,0 +1,33 @@
+---
+label: "Tools Primitive"
+icon: "🔧"
+---
+
+## The Tools Primitive
+
+Tools are the most commonly used MCP primitive. A tool is a **function the AI can call** -- this is called <JargonTip term="function calling">function calling</JargonTip> -- like searching a database, sending an email, or creating a file. Tools have a name, description, and an input <JargonTip term="tool schema">schema</JargonTip> that defines what parameters they accept.
+
+<CodeBlock language="json" label="MCP Tool Definition" code={`{
+  "name": "search_documents",
+  "description": "Search internal documents by query",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "query": {
+        "type": "string",
+        "description": "Search query text"
+      },
+      "limit": {
+        "type": "number",
+        "description": "Max results to return"
+      }
+    },
+    "required": ["query"]
+  }
+}`}/>
+
+<ToolDefinitionBuilder/>
+
+<Quiz question="Why does a tool need an inputSchema?" options={["For documentation only","So the AI knows what parameters to provide and their types","To make the JSON look professional","It's optional and rarely used"]} correctIndex={1} explanation="The inputSchema tells the AI exactly what parameters the tool accepts, their types, and which are required. Without it, the AI wouldn't know how to correctly call the tool." />
+
+<Quiz question={"A tool definition has 'required: [\"query\"]'. What does this mean?"} options={["The query parameter has a default value","The AI must always provide the query parameter when calling this tool","The tool only works with queries","The query is optional"]} correctIndex={1} explanation="The 'required' array lists parameters that must be provided every time the tool is called. Optional parameters can be omitted and the tool will use defaults." />

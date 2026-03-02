@@ -1,0 +1,52 @@
+---
+label: "Tool Schema Design"
+icon: "📝"
+---
+
+## Tool Schema Design
+
+JSON Schema is the foundation of every <JargonTip term="tool schema">tool definition</JargonTip>. A well-designed schema tells the LLM exactly what parameters are available, their types, constraints, and when they are required. Poor schema design leads to <JargonTip term="hallucination">hallucinated</JargonTip> parameters, wrong types, and failed tool calls.
+
+<CodeBlock language="json" label="Advanced Tool Schema with Nested Objects" code={`{
+  "name": "search_database",
+  "description": "Search a structured database with filters and sorting.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "query": { "type": "string", "description": "Free-text search query" },
+      "filters": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "enum": ["active", "archived", "draft"] },
+          "created_after": { "type": "string", "format": "date" },
+          "tags": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "sort": {
+        "type": "object",
+        "properties": {
+          "field": { "type": "string", "enum": ["created_at", "updated_at", "relevance"] },
+          "order": { "type": "string", "enum": ["asc", "desc"], "default": "desc" }
+        }
+      },
+      "limit": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20 }
+    },
+    "required": ["query"]
+  }
+}`}/>
+
+<ExpandableSection title="Schema Design Best Practices" icon="📋" defaultOpen={true}>
+
+1. **Descriptive names**: Use verb_noun format (search_database, get_weather). The LLM uses the name to decide when to call the tool.
+
+2. **Rich descriptions**: Tell the LLM when to use the tool, not just what it does.
+
+3. **Use enums**: Constrain string parameters to valid values to eliminate hallucinated values.
+
+4. **Defaults**: Provide sensible defaults so the LLM does not have to specify every parameter.
+
+5. **Minimal required fields**: Only mark truly essential parameters as required.
+
+</ExpandableSection>
+
+<Quiz question="Why are enum constraints in tool schemas important?" options={["They make the schema longer","They prevent the LLM from hallucinating invalid parameter values","They are required by JSON Schema spec","They improve response speed"]} correctIndex={1} explanation="Enums restrict parameters to a known set of valid values. Without them, the LLM might generate invalid values." />

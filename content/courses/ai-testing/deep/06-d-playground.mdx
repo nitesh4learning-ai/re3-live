@@ -1,0 +1,7 @@
+---
+label: "Playground"
+icon: "\uD83C\uDFAE"
+---
+
+## Testing Playground
+  <ArchitectureDecision scenario="You are about to deploy a new version of your AI chatbot. The previous version has been in production for 3 months. How do you test the new version before full deployment?" options={[{label:'Manual testing by the team for a few hours',tradeoff:'Catches obvious issues but misses edge cases. Not reproducible or systematic.'},{label:'Automated eval suite (500 test cases) + red-teaming session + A/B test on 5% of traffic',tradeoff:'Comprehensive: automated tests catch regressions, red-teaming finds vulnerabilities, A/B test validates real-world performance'},{label:'Deploy to 100% and monitor for issues',tradeoff:'Fast to deploy but extremely risky. Production users become your test subjects.'}]} correctIndex={1} explanation="The gold standard is three layers: (1) automated eval suite catches regressions on known test cases, (2) red-teaming finds new failure modes, (3) A/B testing on a small percentage validates real-world performance before full rollout."/>

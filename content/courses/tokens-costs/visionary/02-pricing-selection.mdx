@@ -1,0 +1,25 @@
+---
+label: "Pricing & Selection"
+icon: "💰"
+---
+
+## Model Pricing & Selection
+
+AI model pricing has two components: **input tokens** (what you send) and **output tokens** (what the model generates). Output tokens cost 3-5x more because <JargonTip term="inference">inference</JargonTip> generation is computationally expensive.
+
+<ModelCostCalculator/>
+
+<ExpandableSection title="When to Use Which Model" icon={'\uD83C\uDFAF'} defaultOpen>
+  <div className="space-y-2">{[
+    {task:'Classification, routing, simple extraction',model:'Small/fast (Haiku, GPT-4o-mini)',reason:'Simple tasks don\'t need reasoning power'},
+    {task:'Complex reasoning, analysis, creative writing',model:'Large (Opus, GPT-4o, Sonnet)',reason:'Quality justifies the higher cost'},
+    {task:'High-volume, cost-sensitive workloads',model:'Open-source (Llama via Groq/Together)',reason:'Lowest marginal cost at scale'},
+    {task:'Long document processing',model:'Gemini 1.5 Pro',reason:'2M token context window, competitive pricing'},
+  ].map((s,i)=><div key={i} className="p-2 rounded-lg" style={{background:GIM.borderLight}}>
+    <span className="font-semibold" style={{fontSize:12,color:GIM.headingText}}>{s.task}</span>
+    <span style={{fontSize:12,color:GIM.primary,marginLeft:8}}>{'\u2192'} {s.model}</span>
+    <p style={{fontSize:11,color:GIM.mutedText}}>{s.reason}</p>
+  </div>)}</div>
+</ExpandableSection>
+
+<Quiz question="You need to classify 1M customer support tickets into 5 categories. Most cost-effective strategy?" options={["GPT-4o for best accuracy","GPT-4o-mini/Claude Haiku \u2014 classification is simple","Self-host Llama for zero API cost","Gemini for largest context"]} correctIndex={1} explanation="Classification into 5 categories is a simple task. Small, fast models like GPT-4o-mini or Claude Haiku handle it well at 10-50x lower cost than full-size models." />

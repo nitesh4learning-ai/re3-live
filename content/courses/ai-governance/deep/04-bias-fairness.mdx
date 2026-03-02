@@ -1,0 +1,33 @@
+---
+label: "Bias & Fairness"
+icon: "⚖️"
+---
+
+## Bias & Fairness
+
+<JargonTip term="fairness">Fairness</JargonTip> in AI is not a single metric -- there are multiple, sometimes conflicting, mathematical definitions. Choosing the right fairness criteria depends on the context and the type of harm you want to prevent.
+
+<ComparisonTable title="Statistical Fairness Definitions" columns={["Definition","Formula","Best For","Limitation"]} rows={[
+  ["Demographic Parity","P(Y=1|A=0) = P(Y=1|A=1)","Equal selection rates across groups","Ignores actual qualification rates"],
+  ["Equal Opportunity","P(Y=1|A=0,Y*=1) = P(Y=1|A=1,Y*=1)","Equal true positive rates","Only considers positive outcomes"],
+  ["Predictive Parity","P(Y*=1|A=0,Y=1) = P(Y*=1|A=1,Y=1)","Equal precision across groups","May not equalize error rates"],
+  ["Calibration","P(Y*=1|S=s,A=0) = P(Y*=1|S=s,A=1)","Equal accuracy at each score level","Difficult to achieve perfectly"],
+]}/>
+
+<ExpandableSection title="The Impossibility Theorem" icon="⚠️" defaultOpen={true}>
+
+A fundamental result in algorithmic fairness: it is mathematically impossible to satisfy demographic parity, equal opportunity, and predictive parity simultaneously (except in trivial cases). This means every fairness decision involves tradeoffs.
+
+</ExpandableSection>
+
+<ExpandableSection title="Bias Mitigation Strategies" icon="🛠️">
+
+1. **Pre-processing**: Fix training data (re-sampling, re-weighting, removing proxies for protected attributes).
+
+2. **In-processing**: Add fairness constraints during model training (adversarial debiasing, regularization).
+
+3. **Post-processing**: Adjust model outputs to satisfy fairness criteria (threshold adjustment, calibration).
+
+</ExpandableSection>
+
+<Quiz question="Why is it impossible to satisfy all fairness definitions simultaneously?" options={["We lack the technology","Mathematical proof shows they conflict when base rates differ between groups","Nobody has tried hard enough","Only one definition is correct"]} correctIndex={1} explanation="The impossibility theorem proves that when base rates (actual qualification rates) differ between groups, satisfying one fairness criterion necessarily violates others. This makes fairness a policy choice, not just a technical one." />

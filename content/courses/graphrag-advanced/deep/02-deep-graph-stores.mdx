@@ -1,0 +1,175 @@
+---
+label: "Graph Stores & Cypher"
+icon: "\uD83D\uDDC4\uFE0F"
+---
+
+## Graph Stores & Query Languages
+
+Choosing the right graph database determines query expressiveness, scalability, and operational complexity. The two dominant paradigms are **property graphs** (Neo4j, AWS Neptune) with Cypher/Gremlin, and **RDF triple stores** (Apache Jena, Amazon Neptune RDF) with SPARQL.
+
+<ComparisonTable
+title="Graph Database Comparison"
+columns={['Database', 'Type', 'Query Language', 'Scale', 'Managed?', 'Best For']}
+rows={[
+['Neo4j', 'Property Graph', 'Cypher', 'Up to ~1B nodes', 'Neo4j Aura (cloud)', 'Knowledge graphs, recommendation'],
+['AWS Neptune', 'Property + RDF', 'Gremlin + SPARQL', 'Petabytes (managed)', 'Fully managed', 'Enterprise, AWS ecosystem'],
+['Weaviate', 'Vector + Graph', 'GraphQL + ANN', '100M+ objects', 'Cloud available', 'GraphRAG hybrid search'],
+['TigerGraph', 'Property Graph', 'GSQL', 'Massive scale', 'Cloud available', 'Real-time deep link analytics'],
+['NetworkX', 'In-memory graph', 'Python API', 'Millions of nodes', 'No (library)', 'Prototyping, research'],
+]}
+/>
+<CodeBlock language="cypher" label="Advanced Cypher Queries for GraphRAG" code={`// 1. ENTITY NEIGHBORHOOD (Local Search context)
+// Get all entities within 2 hops of a query entity
+MATCH (start:Entity {name: "Geoffrey Hinton"})
+CALL apoc.path.subgraphAll(start, {
+    maxLevel: 2,
+    relationshipFilter: ">",
+    labelFilter: "+Entity"
+})
+YIELD nodes, relationships
+RETURN nodes, relationships
+
+// 2. SHORTEST PATH (Multi-hop connection)
+// Find how two entities are connected
+MATCH (a:Entity {name: "OpenAI"}),
+      (b:Entity {name: "Turing Award"})
+MATCH path = shortestPath((a)-[*..5]-(b))
+RETURN path, length(path) as hops,
+       [n in nodes(path) | n.name] as entity_chain
+
+// 3. COMMUNITY QUERY (Global Search context)
+// Get all entities in a community with their relationships
+MATCH (e:Entity {community_id: 3})
+WITH collect(e) as community_nodes
+MATCH (n)-[r]->(m)
+WHERE n IN community_nodes AND m IN community_nodes
+RETURN n.name, type(r), m.name
+
+// 4. PAGERANK for entity importance
+CALL gds.pageRank.stream('entityGraph', {
+    dampingFactor: 0.85,
+    maxIterations: 20,
+    relationshipWeightProperty: 'weight'
+})
+YIELD nodeId, score
+WITH gds.util.asNode(nodeId) AS entity, score
+ORDER BY score DESC
+LIMIT 20
+RETURN entity.name, entity.type, score as importance
+
+// 5. SIMILARITY via shared neighbors (entity co-occurrence)
+MATCH (a:Entity {name: "Transformer"})-[:CO_OCCURS_WITH]->(shared)
+      <-[:CO_OCCURS_WITH]-(b:Entity)
+WHERE a <> b
+WITH b, count(shared) as shared_count
+ORDER BY shared_count DESC
+LIMIT 10
+RETURN b.name, shared_count as similarity_score`} />
+<CodeBlock language="python" label="AWS Neptune with Python (Gremlin)" code={`from gremlin_python.driver import client, serializer
+from gremlin_python.process.anonymous_traversal import traversal
+from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
+
+# Connect to Neptune
+connection = DriverRemoteConnection(
+    'wss://your-neptune-endpoint:8182/gremlin',
+    'g',
+    message_serializer=serializer.GraphSONSerializersV2d0()
+)
+g = traversal().withRemote(connection)
+
+# Create entity
+g.addV('Entity') \\
+  .property('name', 'Geoffrey Hinton') \\
+  .property('type', 'Person') \\
+  .property('community_id', 0) \\
+  .next()
+
+# Create relationship
+hinton = g.V().has('Entity', 'name', 'Geoffrey Hinton').next()
+deeplearning = g.V().has('Entity', 'name', 'Deep Learning').next()
+
+g.addE('DEVELOPED') \\
+  .from_(hinton) \\
+  .to(deeplearning) \\
+  .property('confidence', 0.98) \\
+  .property('source_doc', 'doc_001') \\
+  .next()
+
+# Multi-hop traversal: find entities 2 hops from Hinton
+results = (g.V()
+  .has('Entity', 'name', 'Geoffrey Hinton')
+  .repeat(__.out().simplePath())
+  .times(2)
+  .dedup()
+  .valueMap('name', 'type')
+  .toList()
+)
+
+# Entity community with relationships (for global search)
+community_graph = (g.V()
+  .has('Entity', 'community_id', 0)
+  .as_('source')
+  .outE()
+  .as_('edge')
+  .inV()
+  .has('community_id', 0)
+  .as_('target')
+  .select('source', 'edge', 'target')
+  .by(__.valueMap('name'))
+  .by(__.label())
+  .by(__.valueMap('name'))
+  .toList()
+)`} />
+<ExpandableSection title="Vector + Graph: Weaviate Setup" icon="\uD83D\uDD27">
+<CodeBlock language="python" label="Weaviate Hybrid Schema for GraphRAG" code={`import weaviate
+import weaviate.classes as wvc
+
+client = weaviate.connect_to_local()
+
+# Create entity collection with vector + graph properties
+client.collections.create(
+    name="Entity",
+    vectorizer_config=wvc.config.Configure.Vectorizer.text2vec_openai(),
+    properties=[
+        wvc.config.Property(name="name", data_type=wvc.config.DataType.TEXT),
+        wvc.config.Property(name="entity_type", data_type=wvc.config.DataType.TEXT),
+        wvc.config.Property(name="description", data_type=wvc.config.DataType.TEXT),
+        wvc.config.Property(name="community_id", data_type=wvc.config.DataType.INT),
+        wvc.config.Property(name="pagerank_score", data_type=wvc.config.DataType.NUMBER),
+        wvc.config.Property(name="community_summary", data_type=wvc.config.DataType.TEXT),
+    ],
+    references=[
+        wvc.config.ReferenceProperty(
+            name="relatedTo",
+            target_collection="Entity"
+        ),
+    ]
+)
+
+# Hybrid search: semantic + keyword
+entities = client.collections.get("Entity")
+
+# Vector search with graph neighborhood context
+result = entities.query.hybrid(
+    query="machine learning pioneer neural networks",
+    alpha=0.5,  # 0=BM25 only, 1=vector only, 0.5=balanced
+    return_references=[
+        wvc.query.QueryReference(
+            link_on="relatedTo",
+            return_properties=["name", "entity_type"],
+        )
+    ],
+    limit=10
+)`} />
+</ExpandableSection>
+<Quiz
+question="For a large-scale production GraphRAG deployment, why choose AWS Neptune over self-hosted Neo4j?"
+options={[
+"Neptune has better Cypher support",
+"Neptune is fully managed: automated backups, scaling, HA — no operational overhead",
+"Neptune is cheaper for small graphs",
+"Neptune has more graph algorithms built-in"
+]}
+correctIndex={1}
+explanation="AWS Neptune's key advantage is full management: automated backups, multi-AZ high availability, read replicas, and auto-scaling. For production systems, operational overhead (patching, scaling, failover) is a major cost. Self-hosted Neo4j requires a dedicated ops team. Neptune's total cost of ownership is lower at scale despite higher per-node pricing."
+/>

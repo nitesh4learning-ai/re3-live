@@ -1,0 +1,12 @@
+---
+label: "Playground"
+icon: "🎮"
+---
+
+## HITL Playground
+
+<ArchitectureDecision scenario="You are deploying an AI that automatically responds to customer emails. Some emails involve refunds (up to $500), account changes, or sensitive issues. How do you design the HITL system?" options={[
+  {label:'All emails get human review before sending',tradeoff:'Maximum safety but defeats the purpose of automation. Human team becomes a bottleneck.'},
+  {label:'Auto-send for routine queries (FAQs, status), human approval for refunds and account changes, escalate sensitive issues',tradeoff:'Best balance: 70% automated, 20% human-approved, 10% fully escalated. Preserves safety for high-stakes actions.'},
+  {label:'Auto-send everything with a confidence threshold of 85%',tradeoff:'Fast but risky -- a confidently wrong refund approval could be costly. No category-based safety.'},
+]} correctIndex={1} explanation="Category-based routing is more robust than pure confidence routing. Some actions (refunds, account changes) always need human approval regardless of AI confidence. Routine queries can be fully automated." />

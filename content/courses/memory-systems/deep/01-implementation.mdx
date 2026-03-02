@@ -1,0 +1,28 @@
+---
+label: "Implementation"
+icon: "🔧"
+---
+
+## Implementation Deep Dive
+
+<ComparisonTable title="Memory Stores" columns={['Store','Best For','Latency','Persistence','Complexity']} rows={[
+  ['In-memory dict','Prototyping, short sessions','Instant','None','Minimal'],
+  ['Redis','Fast key-value, entity memory','1-5ms','Optional','Low'],
+  ['PostgreSQL+pgvector','Structured + vector search','5-20ms','Durable','Medium'],
+  ['Pinecone/Weaviate','Pure vector similarity search','10-50ms','Durable','Low'],
+  ['SQLite','Edge/local deployment','1-5ms','Durable','Low'],
+]}/>
+
+<CodeBlock title="Entity Extraction" code={`def extract_memory_entities(message, existing_entities):
+    """Extract facts worth remembering from a message."""
+    prompt = f"""Extract key facts from this message that would be
+useful to remember for future conversations.
+
+Existing known entities: {json.dumps(existing_entities)}
+
+Message: {message}
+
+Return JSON: {{"entities": [{{"name": "entity_name", "fact": "specific fact", "type": "person|project|preference|fact"}}]}}"""
+
+    result = call_llm(prompt, response_format="json")
+    return result.get("entities", [])`}/>

@@ -1,0 +1,46 @@
+---
+label: "Inference Pipeline"
+icon: "\u26A1"
+---
+
+## Inference Pipeline
+
+LLM inference has two distinct phases: **prefill** (processing the entire input prompt in parallel) and **decode** (generating output tokens one at a time). Understanding this split is critical for optimizing latency, throughput, and cost in production deployments.
+
+The prefill phase is compute-bound (limited by GPU FLOPS), while the decode phase is memory-bound (limited by KV cache memory bandwidth). This dual nature drives most optimization strategies.
+
+<ExpandableSection title="Prefill vs Decode" icon="\u26A1" defaultOpen={true}>
+
+**Prefill phase:** The entire input prompt is processed in one forward pass. All input tokens are computed in parallel, populating the KV cache. This is GPU compute-bound and benefits from batching.
+
+**Decode phase:** Tokens are generated one at a time, autoregressively. Each new token requires reading the entire KV cache to compute attention. This is memory bandwidth-bound.
+
+**Time to First Token (TTFT):** Dominated by prefill time. Longer prompts = longer TTFT.
+
+**Time Per Output Token (TPOT):** Dominated by decode speed. Roughly constant regardless of prompt length (but KV cache reads slow down with very long contexts).
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="Measuring inference performance" code={`import time\nfrom openai import OpenAI\n\nclient = OpenAI()\n\nprompt = "Explain the difference between prefill and decode in LLM inference."\n\nstart = time.time()\nstream = client.chat.completions.create(\n    model="gpt-4o",\n    messages=[{"role": "user", "content": prompt}],\n    stream=True\n)\n\nfirst_token_time = None\ntoken_count = 0\nchunks = []\n\nfor chunk in stream:\n    if chunk.choices[0].delta.content:\n        if first_token_time is None:\n            first_token_time = time.time()\n        token_count += 1\n        chunks.append(chunk.choices[0].delta.content)\n\nend = time.time()\n\nttft = first_token_time - start\ntotal = end - start\ndecode_time = end - first_token_time\ntpot = decode_time / max(1, token_count - 1)\n\nprint(f"Time to First Token (TTFT): {ttft*1000:.0f}ms")\nprint(f"Tokens generated: {token_count}")\nprint(f"Decode time per token (TPOT): {tpot*1000:.1f}ms")\nprint(f"Total time: {total:.2f}s")\nprint(f"Throughput: {token_count/total:.1f} tokens/sec")`}/>
+
+<ExpandableSection title="Speculative Decoding" icon="\uD83D\uDE80">
+
+Speculative decoding uses a small, fast "draft" model to generate candidate tokens, then the large model verifies them in parallel. Since verification is cheaper than generation (it can batch all draft tokens at once), this can achieve 2-3x speedup.
+
+**How it works:** The draft model generates N candidate tokens (e.g., 4). The target model evaluates all N+1 positions in a single forward pass. If the target agrees with the draft's predictions, those tokens are accepted for free. If not, the first divergent token is resampled from the target model's distribution.
+
+This technique is used by Medusa, Eagle, and is built into vLLM and TensorRT-LLM serving frameworks.
+
+</ExpandableSection>
+
+<ExpandableSection title="Continuous Batching" icon="\uD83D\uDCE6">
+
+Static batching waits for all requests in a batch to complete before starting new ones. **Continuous batching** (used by vLLM, TGI) inserts new requests into the batch as soon as a slot opens, dramatically improving GPU utilization.
+
+With continuous batching, a GPU serving 32 concurrent requests can achieve 10-20x the throughput of naive sequential serving.
+
+</ExpandableSection>
+
+<Quiz question="Your API shows 2000ms Time to First Token but only 30ms per subsequent token. What is the bottleneck?" options={["Slow network connection","Long prompt causing slow prefill phase","The model is too large","Insufficient GPU memory"]} correctIndex={1} explanation="TTFT is dominated by the prefill phase, which processes the entire input prompt. A 2000ms TTFT suggests a very long prompt (potentially 10K+ tokens). The fast 30ms TPOT confirms the decode phase is healthy. Solutions: reduce prompt size, use prompt caching, or use faster prefill hardware."/>
+
+<ArchitectureDecision scenario="You are serving a chatbot with 500 concurrent users. Average input is 2K tokens, output 500 tokens. You need to minimize cost while maintaining <500ms TTFT. Which serving strategy?" options={[{label:'Single large GPU (A100 80GB) with vLLM continuous batching',tradeoff:'Simple deployment, good throughput with continuous batching, but may struggle with 500 concurrent users'},{label:'Multiple smaller GPUs behind a load balancer with request routing',tradeoff:'Horizontally scalable, can handle traffic spikes, but adds networking latency and complexity'},{label:'Managed API (OpenAI/Anthropic) with prompt caching enabled',tradeoff:'Zero infrastructure management, elastic scaling, prompt caching reduces TTFT and cost, but per-token costs are higher'}]} correctIndex={2} explanation="For 500 concurrent users, a managed API with prompt caching provides elastic scaling without infrastructure management. The system prompt and common prefixes are cached, reducing both TTFT and cost. Self-hosting at this scale requires significant DevOps investment."/>

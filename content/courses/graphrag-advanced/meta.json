@@ -1,0 +1,16 @@
+{
+  "tier": 3,
+  "icon": "🌐",
+  "title": "GraphRAG & Knowledge Graphs",
+  "description": "Beyond vector search — knowledge graph construction, Microsoft GraphRAG, hybrid retrieval strategies.",
+  "difficulty": "Advanced",
+  "timeMinutes": 50,
+  "exerciseCount": 9,
+  "tabCount": 5,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "GraphRAG & Knowledge Graphs — Re³ Academy",
+    "metaDescription": "Advanced GraphRAG: knowledge graph construction, Microsoft GraphRAG, and hybrid retrieval."
+  }
+}

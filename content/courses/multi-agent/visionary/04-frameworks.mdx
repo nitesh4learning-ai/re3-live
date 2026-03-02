@@ -1,0 +1,22 @@
+---
+label: "Frameworks"
+icon: "\uD83D\uDD27"
+---
+
+## Orchestration Frameworks
+
+Several frameworks simplify building multi-agent systems. Each has different strengths.
+
+
+
+| Framework | By | Strength | Pattern |
+|-----------|-------|----------|---------|
+| LangGraph | LangChain | Graph-based workflows with cycles | Stateful orchestration |
+| CrewAI | Open source | Role-based agent teams | Team collaboration |
+| AutoGen | Microsoft | Conversational agents | Chat-based multi-agent |
+| Claude Agent SDK | Anthropic | Agentic loops with tool use | Single-agent + tools |
+
+
+
+  <Quiz question="Which framework is best for building a graph-based workflow with loops and conditional branching?" options={["CrewAI","LangGraph","AutoGen","Flask"]} correctIndex={1} explanation="LangGraph is specifically designed for graph-based workflows. Its nodes-and-edges model naturally supports cycles, branches, and conditional routing between agent steps."/>
+  <SeeItInRe3 text="Re\u00b3 built its own orchestration framework for debates, using a round-based flow: Select panel \u2192 Rounds (debate) \u2192 Moderate \u2192 Synthesize into The Loom." targetPage="agent-community"/>

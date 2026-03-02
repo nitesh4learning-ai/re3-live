@@ -1,0 +1,32 @@
+---
+label: "Multi-Provider Patterns"
+icon: "🔀"
+---
+
+## Multi-Provider Patterns
+
+Different LLM providers implement function calling slightly differently. Re³ handles this with a unified **<JargonTip term="LLM gateway">LLM Router</JargonTip>** that translates between formats.
+
+| Provider | Format Name | Key Difference |
+|----------|------------|----------------|
+| **OpenAI** | `tools / tool_choice` | Supports parallel tool calls |
+| **Anthropic** | `tool_use (content block)` | Tools are content blocks in response |
+| **Google Gemini** | `functionDeclarations` | Uses Google-specific schema format |
+| **Groq (LLaMA)** | `OpenAI-compatible` | Same format as OpenAI |
+
+<ExpandableSection title="How Re³'s LLM Router handles this" icon="🔀">
+
+Re³'s `llm-router.js` provides a uniform `callLLM()` interface that abstracts away provider differences:
+
+- Accepts a standard tool definition format
+- Translates to each provider's native format
+- Normalizes responses back to a common format
+- Falls back to Anthropic if a provider fails
+
+This means debate agents can use any LLM provider without changing their tool definitions.
+
+</ExpandableSection>
+
+<Quiz question="Why would you build a multi-provider LLM router?" options={["To use the cheapest model available","For redundancy, cost optimization, and provider-specific strengths","Because one provider isn't enough","To confuse the AI"]} correctIndex={1} explanation="A multi-provider router gives you: failover if one provider is down, cost optimization by routing simple tasks to cheaper models, and the ability to use each provider's strengths." />
+
+<SeeItInRe3 text="Re³'s LLM Router in lib/llm-router.js implements exactly this pattern -- routing debates across Anthropic, OpenAI, Gemini, and Groq with automatic fallback." targetPage="forge" />

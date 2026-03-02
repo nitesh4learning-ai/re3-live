@@ -1,0 +1,16 @@
+{
+  "tier": 2,
+  "icon": "🧠",
+  "title": "Memory Systems for AI",
+  "description": "Short-term buffers, long-term stores, semantic & episodic memory. Giving AI persistent context.",
+  "difficulty": "Intermediate",
+  "timeMinutes": 40,
+  "exerciseCount": 7,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Memory Systems for AI — Re³ Academy",
+    "metaDescription": "Learn AI memory systems: short-term buffers, long-term stores, semantic and episodic memory."
+  }
+}

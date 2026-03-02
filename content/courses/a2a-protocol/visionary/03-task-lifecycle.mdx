@@ -1,0 +1,26 @@
+---
+label: "Task Lifecycle"
+icon: "🔄"
+---
+
+## Task Lifecycle
+
+When one <JargonTip term="agent">agent</JargonTip> delegates work to another, the task goes through a defined lifecycle. This ensures both agents understand the current state and can handle failures gracefully.
+
+<MessageSimulator title="A2A Task Flow" messages={[
+  {role:'user',label:'1. Submitted',text:'Agent A sends a task to Agent B: "Research recent AI governance frameworks and summarize the top 3."'},
+  {role:'ai',label:'2. Working',text:'Agent B acknowledges the task and begins working. It can send progress updates: "Found 7 frameworks, analyzing..."'},
+  {role:'ai',label:'3. Artifact Created',text:'Agent B produces an artifact (partial result): a draft summary of the first framework for early feedback.'},
+  {role:'ai',label:'4. Completed',text:'Agent B finishes the task and returns the final result: a structured summary of the top 3 AI governance frameworks.'},
+]}/>
+
+| State | Meaning |
+|-------|---------|
+| **submitted** | Task sent, waiting for agent to pick it up |
+| **working** | Agent is actively processing |
+| **input-needed** | Agent needs more info from the requester |
+| **completed** | Task finished successfully |
+| **failed** | Task could not be completed |
+| **canceled** | Task was canceled by the requester |
+
+<Quiz question="An agent needs more information to complete a task. What state should it transition to?" options={["failed","working","input-needed","canceled"]} correctIndex={2} explanation="The 'input-needed' state signals that the agent requires additional information from the requester before it can continue. This enables interactive collaboration." />

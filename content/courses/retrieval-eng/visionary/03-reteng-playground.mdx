@@ -1,0 +1,7 @@
+---
+label: "Playground"
+icon: "\uD83C\uDFAE"
+---
+
+## Retrieval Engineering Playground
+  <ArchitectureDecision scenario="Your RAG system processes technical documentation (10K pages). Users report two issues: (1) searching 'error 502' returns unrelated content about HTTP, (2) long documents are chunked poorly, losing context." options={[{label:'Increase vector search top_k to return more results',tradeoff:'Returns more noise, doesn\'t fix the keyword matching or chunking problems'},{label:'Add BM25 for keyword search + semantic chunking + parent-child chunk retrieval',tradeoff:'BM25 catches exact matches, semantic chunking preserves meaning, parent-child retrieval provides surrounding context'},{label:'Switch to a more powerful embedding model',tradeoff:'May help semantic search quality but doesn\'t fix keyword matching or chunking issues'}]} correctIndex={1} explanation="This is a multi-faceted problem requiring multiple fixes. BM25 handles exact keyword queries like 'error 502'. Semantic chunking splits documents at natural boundaries. Parent-child retrieval returns the matching chunk plus its surrounding context for better answers."/>

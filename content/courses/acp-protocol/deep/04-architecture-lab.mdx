@@ -1,0 +1,12 @@
+---
+label: "Architecture Lab"
+icon: "🏗️"
+---
+
+## ACP Architecture Lab
+
+<ArchitectureDecision scenario="Design an ACP-based workflow for insurance claims processing. Steps: document intake, damage assessment (AI vision), policy lookup, coverage determination, fraud detection, approval/denial. Each step involves a specialized agent." options={[
+  {label:'Linear pipeline: each agent triggers the next',tradeoff:'Simple but slow -- fraud detection has to wait for all prior steps'},
+  {label:'Parallel fan-out: after intake, damage assessment + policy lookup + fraud detection run simultaneously, then converge for coverage determination',tradeoff:'Faster processing, agents work independently, but needs a convergence mechanism'},
+  {label:'Fully reactive: each agent watches all events and decides what to do',tradeoff:'Maximum flexibility but hard to reason about, potential for circular dependencies'},
+]} correctIndex={1} explanation="Parallel fan-out with convergence is the sweet spot. After intake, three independent assessments run simultaneously (often cutting processing time by 60%). A saga coordinator waits for all three before triggering coverage determination. The event bus ensures full audit trail." />

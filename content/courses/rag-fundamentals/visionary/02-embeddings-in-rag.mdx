@@ -1,0 +1,24 @@
+---
+label: "Embeddings in RAG"
+icon: "🔢"
+---
+
+## Embeddings in RAG
+
+RAG uses <JargonTip term="embedding">embeddings</JargonTip> to find relevant documents. Both the user's query and all stored documents are converted into vectors. The system then finds documents whose vectors are closest to the query vector using <JargonTip term="vector search">vector search</JargonTip>.
+
+This is called **semantic search** -- finding documents by meaning, not just keywords. "How do I fix a flat tire?" will match a document about "tire puncture repair" even though the words are different.
+
+<CodeBlock language="text" label="Semantic vs Keyword Search" code={`QUERY: "How to fix a flat tire?"
+
+KEYWORD SEARCH finds: Documents containing "fix", "flat", "tire"
+  ✗ Misses: "Puncture repair guide" (no matching keywords!)
+
+SEMANTIC SEARCH finds: Documents with similar MEANING
+  ✓ "Puncture repair guide" (similar concept)
+  ✓ "Changing a tire step-by-step" (related topic)
+  ✓ "Roadside emergency tire fix" (synonymous intent)`} />
+
+<Quiz question="Why is semantic search better than keyword search for RAG?" options={["It's faster","It finds documents by meaning, not just matching words","It uses less storage","It doesn't need embeddings"]} correctIndex={1} explanation="Semantic search understands meaning, so 'fix a flat tire' matches 'puncture repair guide' even without shared keywords. This dramatically improves retrieval quality." />
+
+<SeeItInRe3 text="When you submit an article to Re³'s Debate Lab, the system uses semantic search to find related articles and themes -- exactly this embedding-based retrieval process." targetPage="forge" />

@@ -1,0 +1,24 @@
+---
+label: "Evaluation Frameworks"
+icon: "\u2705"
+---
+
+## Evaluation Frameworks
+
+How do you measure if your AI system is "good"? <JargonTip term="eval">Evaluation</JargonTip> frameworks provide standardized metrics to assess AI output quality across multiple dimensions.
+
+
+
+| Metric | Question It Answers | Score Range |
+|--------|-------------------|------------|
+| Faithfulness | Is the answer supported by the retrieved context? | 0-1 (higher = more faithful) |
+| Answer Relevancy | Does the answer actually address the question? | 0-1 (higher = more relevant) |
+| Context Precision | Are the retrieved documents relevant? | 0-1 (higher = more precise) |
+| Context Recall | Did retrieval find all relevant information? | 0-1 (higher = better recall) |
+| Coherence | Is the answer well-structured and logical? | 1-5 (higher = more coherent) |
+
+
+
+  <Quiz question="Users report that your AI sometimes includes information not found in the source documents. Which metric is low?" options={["Answer Relevancy","Context Precision","Faithfulness","Coherence"]} correctIndex={2} explanation="Faithfulness measures whether the answer is grounded in the retrieved context. Low faithfulness means the LLM is generating information beyond what was retrieved -- hallucinating."/>
+  <Quiz question="Your RAG system retrieves mostly irrelevant documents. Which metric would flag this?" options={["Faithfulness","Context Precision","Answer Relevancy","Coherence"]} correctIndex={1} explanation="Context Precision measures whether the retrieved documents are actually relevant to the query. Low precision means the retrieval step is returning too much irrelevant content."/>
+  <SeeItInRe3 text="Re\u00b3's moderator agent acts as a quality evaluator -- scoring debate arguments for relevance, depth, and accuracy. This is AI evaluation applied to a debate system." targetPage="forge"/>

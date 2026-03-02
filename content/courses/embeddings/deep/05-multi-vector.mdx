@@ -1,0 +1,75 @@
+---
+label: "Multi-Vector & Late Interaction"
+icon: "🔍"
+---
+
+## Multi-Vector & Late Interaction
+
+Standard bi-encoder embeddings compress an entire document into a single vector, losing fine-grained token-level information. Multi-vector approaches like **ColBERT** represent each document as a set of token-level vectors, enabling more precise matching through late interaction.
+
+<ExpandableSection title="ColBERT: Late Interaction Retrieval" icon="🔍" defaultOpen={true}>
+
+**ColBERT (Contextualized Late Interaction over BERT)** represents each token in the query and document as a separate embedding vector. At search time, it computes the maximum similarity between each query token and all document tokens (MaxSim), then sums these scores.
+
+**MaxSim formula:** Score(Q, D) = sum over q_i of max over d_j of (q_i . d_j)
+
+This captures token-level semantic matching that single-vector models miss. For example, a query about "Python memory management" would separately match "Python" tokens to programming context and "memory management" to systems concepts.
+
+**Trade-off:** Much better retrieval quality than bi-encoders, but requires storing N vectors per document (where N is the token count). A 200-token document needs 200 x 128-dim vectors = 100KB vs 6KB for a single 1536-dim vector.
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="ColBERT-style retrieval with RAGatouille" code={`# RAGatouille provides an easy-to-use ColBERT interface
+from ragatouille import RAGPretrainedModel
+
+# Load a pre-trained ColBERT model
+rag = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
+
+# Index documents (creates multi-vector index)
+documents = [
+    "Python memory management uses reference counting and garbage collection.",
+    "The garbage collector in Python handles cyclic references automatically.",
+    "JavaScript uses mark-and-sweep garbage collection in V8.",
+    "Memory leaks in Python often occur due to global variables holding references.",
+    "Rust's ownership system eliminates the need for garbage collection entirely.",
+]
+
+rag.index(
+    collection=documents,
+    index_name="memory_docs",
+    max_document_length=256,
+    split_documents=True,  # Auto-chunk long documents
+)
+
+# Search with token-level matching
+results = rag.search(
+    query="How does Python handle memory cleanup?",
+    k=3,
+)
+
+for r in results:
+    print(f"Score: {r['score']:.4f} | {r['content'][:80]}...")
+
+# ColBERT finds nuanced matches that bi-encoders might miss:
+# "garbage collection" matches "memory cleanup" at the token level
+# "Python" disambiguates from JavaScript/Rust results`}/>
+
+<ExpandableSection title="When to Use Multi-Vector vs Single-Vector" icon="⚖️">
+
+**Use single-vector (bi-encoder) when:**
+
+- Storage is constrained (millions to billions of documents)
+- Latency requirements are very tight (&lt;10ms)
+- General semantic similarity is sufficient
+
+**Use multi-vector (ColBERT) when:**
+
+- Retrieval precision is critical (legal, medical, technical)
+- Dataset is moderate size (&lt;10M documents)
+- Queries contain multiple distinct concepts that need separate matching
+
+</ExpandableSection>
+
+<Quiz question="ColBERT stores 128-dimensional vectors for each token in a document. A corpus has 1 million documents averaging 200 tokens each. How much storage is needed for the token vectors alone (float32)?" options={["~10 GB","~50 GB","~97 GB","~500 GB"]} correctIndex={2} explanation="1M docs x 200 tokens x 128 dims x 4 bytes = 102.4 billion bytes = ~97 GB. This is ~16x more than a single-vector approach (1M x 1536 x 4 = 5.7 GB). The storage cost is the main trade-off for ColBERT's superior retrieval quality."/>
+
+<Quiz question="What is the key advantage of late interaction (MaxSim) over early interaction (single-vector cosine similarity)?" options={["Late interaction is faster","Late interaction captures token-level semantic matching that single vectors compress away","Late interaction uses less memory","Late interaction works with any embedding model"]} correctIndex={1} explanation="Single-vector embeddings compress all token information into one vector, losing fine-grained matching capability. Late interaction preserves per-token representations and computes matching at the token level (MaxSim), capturing nuanced relationships that compression destroys."/>

@@ -1,0 +1,28 @@
+---
+label: "Sensors"
+icon: "\uD83D\uDCE1"
+---
+
+## Sensor Fusion & Perception
+
+<ComparisonTable title="Common Robot Sensors" columns={['Sensor','What It Measures','Strengths','Weaknesses']} rows={[
+  ['Camera (RGB)','Visual images','Rich detail, color, cheap','Affected by lighting, no depth'],
+  ['LiDAR','Distance (3D point cloud)','Precise depth, works in dark','Expensive, sparse, rain/fog issues'],
+  ['IMU','Acceleration, rotation','Fast, cheap, no external deps','Drift over time, noisy'],
+  ['Force/Torque','Contact forces','Essential for manipulation','Local only, fragile'],
+  ['Ultrasonic','Distance (short range)','Cheap, simple','Short range, low resolution'],
+  ['GPS/RTK','Global position','Absolute positioning','Poor indoors, cm-level accuracy'],
+]}/>
+
+<ExpandableSection title="Why Fuse Sensors?" icon={'\uD83E\uDDE9'} defaultOpen>
+
+No single sensor is perfect. <JargonTip term="sensor fusion">Sensor fusion</JargonTip> combines multiple sensor streams to get a more reliable picture:
+
+- **Camera + LiDAR:** Rich visual context + accurate depth (self-driving standard)
+- **IMU + GPS:** Fast local tracking + absolute global position (drones)
+- **Camera + Force sensor:** See the object + feel the grip (manipulation)
+- **Multi-camera:** Multiple viewpoints for 3D reconstruction
+
+</ExpandableSection>
+
+<Quiz question="Self-driving cars typically fuse camera and LiDAR data. What does each contribute?" options={["Camera provides depth, LiDAR provides color","Camera provides rich visual context and object recognition, LiDAR provides precise 3D depth measurements","They both measure the same thing for redundancy","Camera works at night, LiDAR works during the day"]} correctIndex={1} explanation="Cameras excel at visual understanding (reading signs, recognizing objects, detecting lane markings) while LiDAR provides precise 3D point clouds for distance measurement. Together they give both 'what is it' (camera) and 'exactly where is it' (LiDAR)."/>

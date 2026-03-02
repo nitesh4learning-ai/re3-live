@@ -1,0 +1,45 @@
+---
+label: "Confidence Calibration"
+icon: "📊"
+---
+
+## Confidence Calibration
+
+<CodeBlock title="Calibrated Confidence Scoring" code={`class ConfidenceCalibrator:
+    def __init__(self, model):
+        self.model = model
+        self.calibration_data = []
+
+    async def generate_with_confidence(self, query):
+        # Method 1: Ask the model to self-assess
+        response = await self.model.generate(
+            query + "\\n\\nAfter answering, rate your confidence 0-100."
+        )
+        self_assessed = extract_confidence(response)
+
+        # Method 2: Consistency check (sample 3 responses)
+        samples = [await self.model.generate(query) for _ in range(3)]
+        consistency = calculate_agreement(samples)
+
+        # Method 3: Entropy of token probabilities (if available)
+        logprobs = response.logprobs
+        entropy = calculate_entropy(logprobs) if logprobs else None
+
+        # Combine signals
+        confidence = weighted_average(
+            self_assessed * 0.3,
+            consistency * 0.5,
+            (1 - entropy) * 0.2 if entropy else self_assessed * 0.2
+        )
+
+        return {
+            "response": response.text,
+            "confidence": confidence,
+            "signals": {
+                "self_assessed": self_assessed,
+                "consistency": consistency,
+                "entropy": entropy
+            }
+        }`}/>
+
+<Quiz question="Why is self-assessed confidence (asking the model 'how confident are you?') unreliable on its own?" options={["Models can't understand confidence","Models tend to be overconfident -- they rarely express uncertainty proportional to their actual knowledge","Self-assessment is too slow","It only works with GPT-4"]} correctIndex={1} explanation="LLMs are systematically overconfident. They're trained on human feedback that rewards confident answers. Multi-signal confidence (self-assessment + consistency + entropy) is much more reliable." />

@@ -1,0 +1,16 @@
+{
+  "tier": 3,
+  "icon": "🤖",
+  "title": "Agentic AI Patterns & Tool Use at Scale",
+  "description": "ReAct loops, multi-tool orchestration, agent memory architectures, reliability & error recovery for production agents.",
+  "difficulty": "Advanced",
+  "timeMinutes": 55,
+  "exerciseCount": 10,
+  "tabCount": 5,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Agentic AI at Scale — Re³ Academy",
+    "metaDescription": "Production agentic AI: ReAct loops, multi-tool orchestration, and error recovery at scale."
+  }
+}

@@ -1,0 +1,132 @@
+---
+label: "Production Vector Pipeline"
+icon: "🔧"
+---
+
+## Production Vector Pipeline
+
+Building a production embedding pipeline requires handling <JargonTip term="chunking">chunking</JargonTip> strategies, batch processing, metadata management, incremental updates, and monitoring. This tab covers the end-to-end implementation of a production-ready vector search system.
+
+<CodeBlock language="python" label="Production embedding pipeline" code={`import hashlib
+from typing import List, Dict, Optional
+from dataclasses import dataclass
+from openai import OpenAI
+from qdrant_client import QdrantClient
+from qdrant_client.models import PointStruct, VectorParams, Distance, Filter, FieldCondition
+
+@dataclass
+class Chunk:
+    text: str
+    doc_id: str
+    chunk_index: int
+    metadata: Dict
+
+class EmbeddingPipeline:
+    def __init__(self, qdrant_url="localhost", collection="documents"):
+        self.embedder = OpenAI()
+        self.qdrant = QdrantClient(qdrant_url, port=6333)
+        self.collection = collection
+        self.model = "text-embedding-3-small"
+        self.batch_size = 100  # OpenAI supports up to 2048
+
+    def chunk_document(self, text: str, chunk_size=500, overlap=50) -> List[str]:
+        """Recursive character splitter with overlap."""
+        chunks = []
+        start = 0
+        while start < len(text):
+            end = start + chunk_size
+            # Try to break at sentence boundary
+            if end < len(text):
+                last_period = text.rfind('.', start, end)
+                if last_period > start + chunk_size // 2:
+                    end = last_period + 1
+            chunks.append(text[start:end].strip())
+            start = end - overlap
+        return [c for c in chunks if len(c) > 20]
+
+    def embed_batch(self, texts: List[str]) -> List[List[float]]:
+        """Embed a batch of texts with retry logic."""
+        response = self.embedder.embeddings.create(
+            input=texts,
+            model=self.model,
+            dimensions=512,  # Matryoshka truncation for cost savings
+        )
+        return [d.embedding for d in response.data]
+
+    def ingest_document(self, doc_id: str, text: str, metadata: Dict = None):
+        """Full pipeline: chunk -> embed -> store."""
+        chunks = self.chunk_document(text)
+        points = []
+
+        # Process in batches
+        for batch_start in range(0, len(chunks), self.batch_size):
+            batch = chunks[batch_start:batch_start + self.batch_size]
+            embeddings = self.embed_batch(batch)
+
+            for i, (chunk, embedding) in enumerate(zip(batch, embeddings)):
+                idx = batch_start + i
+                point_id = hashlib.md5(
+                    f"{doc_id}_{idx}".encode()
+                ).hexdigest()[:16]
+
+                points.append(PointStruct(
+                    id=int(point_id, 16) % (2**63),
+                    vector=embedding,
+                    payload={
+                        "text": chunk,
+                        "doc_id": doc_id,
+                        "chunk_index": idx,
+                        "total_chunks": len(chunks),
+                        **(metadata or {}),
+                    }
+                ))
+
+        self.qdrant.upsert(collection=self.collection, points=points)
+        return len(points)
+
+    def search(self, query: str, top_k=5, filters: Dict = None):
+        """Search with optional metadata filtering."""
+        query_embedding = self.embed_batch([query])[0]
+        filter_conditions = None
+        if filters:
+            filter_conditions = Filter(must=[
+                FieldCondition(key=k, match={"value": v})
+                for k, v in filters.items()
+            ])
+
+        results = self.qdrant.search(
+            collection_name=self.collection,
+            query_vector=query_embedding,
+            limit=top_k,
+            query_filter=filter_conditions,
+        )
+        return [{"text": r.payload["text"], "score": r.score,
+                 "doc_id": r.payload["doc_id"]} for r in results]`}/>
+
+<ExpandableSection title="Chunking Strategy Decision Guide" icon="🔪" defaultOpen={true}>
+
+**Fixed-size chunking:** Split every N characters/tokens with overlap. Simple, predictable, works for most content. Best default choice.
+
+**Semantic chunking:** Use embedding similarity to detect topic boundaries. Split when similarity between adjacent sentences drops. Better for varied content but slower to process.
+
+**Document-aware chunking:** Respect document structure (headers, paragraphs, sections). Best for structured content like documentation, legal contracts, and reports.
+
+**Recursive character splitting:** Try to split at paragraph boundaries, then sentences, then words. LangChain's default approach. Good general-purpose choice.
+
+**Chunk size guideline:** 200-500 tokens for precise retrieval, 500-1000 tokens for broader context. Always include 50-100 token overlap to prevent losing information at boundaries.
+
+</ExpandableSection>
+
+<ExpandableSection title="Index Maintenance & Monitoring" icon="📊">
+
+**Incremental updates:** Use document IDs and chunk hashes to detect which chunks have changed. Only re-embed and re-index changed chunks, not the entire corpus.
+
+**Monitoring metrics:** Track embedding latency, search latency (P50/P99), recall@k on a test set, and storage growth. Alert on quality degradation.
+
+**Index rebuild:** When the embedding model changes, you must re-embed the entire corpus. Plan for this by storing original text alongside vectors.
+
+</ExpandableSection>
+
+<Quiz question="Your embedding pipeline processes 100,000 documents daily. Each document averages 2,000 tokens. Using text-embedding-3-small at $0.02/1M tokens, what is your daily embedding cost?" options={["$0.40","$4.00","$40.00","$400.00"]} correctIndex={1} explanation="100K documents x 2,000 tokens = 200M tokens/day. At $0.02 per 1M tokens: 200 x $0.02 = $4.00/day or ~$120/month. This is quite affordable for production use, which is why managed embedding APIs are often cheaper than self-hosting for moderate scale."/>
+
+<ArchitectureDecision scenario="Your knowledge base has 5 million documents. Documents are updated frequently (10% change daily). Your current pipeline re-embeds all 5M documents nightly. How do you optimize?" options={[{label:'Keep the nightly full rebuild for simplicity',tradeoff:'Simple but wasteful: re-embedding 4.5M unchanged documents daily costs 90% more than necessary'},{label:'Implement incremental updates: hash each chunk, only re-embed changed chunks',tradeoff:'90% cost reduction, slightly more complex pipeline, requires tracking chunk hashes'},{label:'Use a streaming pipeline: process document updates in real-time as they arrive',tradeoff:'Near-zero latency for updates, most complex to build, requires message queue and worker infrastructure'}]} correctIndex={1} explanation="Incremental updates via chunk hashing give the best cost/complexity ratio. Hash each chunk's content, compare with stored hashes, and only re-embed changed chunks. This cuts embedding costs by ~90% while adding minimal complexity. Streaming is overkill unless real-time freshness is a hard requirement."/>

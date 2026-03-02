@@ -1,0 +1,42 @@
+---
+label: "Instructor & Pydantic"
+icon: "🐍"
+---
+
+## Instructor & Pydantic
+
+<CodeBlock title="Pydantic + Instructor Pipeline" code={`import instructor
+from pydantic import BaseModel, Field
+from openai import OpenAI
+
+# Define your output schema as a Pydantic model
+class SentimentAnalysis(BaseModel):
+    sentiment: str = Field(description="Overall sentiment", enum=["positive","negative","neutral"])
+    confidence: float = Field(ge=0, le=1, description="Confidence score 0-1")
+    key_phrases: list[str] = Field(description="Important phrases from the text")
+    reasoning: str = Field(description="Brief explanation of the sentiment")
+
+# Patch OpenAI client with Instructor
+client = instructor.from_openai(OpenAI())
+
+# Extract structured data with automatic retry on validation failure
+result = client.chat.completions.create(
+    model="gpt-4o",
+    response_model=SentimentAnalysis,  # Pydantic model as schema
+    max_retries=2,  # Auto-retry if validation fails
+    messages=[{"role":"user","content":"Analyze: 'Product is okay but shipping was terrible'"}]
+)
+
+print(result.sentiment)     # "mixed" -> ValidationError -> retry -> "negative"
+print(result.confidence)    # 0.78
+print(result.key_phrases)   # ["okay", "shipping was terrible"]`}/>
+
+<ExpandableSection title="Why Instructor is Powerful" icon="⚡">
+
+- Automatic schema generation from Pydantic models
+- Built-in validation with automatic retry on failure
+- Streaming support for partial objects
+- Works with OpenAI, Anthropic, and other providers
+- Type safety throughout your pipeline
+
+</ExpandableSection>

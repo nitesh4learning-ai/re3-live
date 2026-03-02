@@ -1,0 +1,56 @@
+---
+label: "Multi-Provider"
+icon: "🔀"
+---
+
+## Multi-Provider Function Calling
+
+OpenAI, Anthropic, and Google each implement function calling differently. Building a unified abstraction is essential for production systems that need provider flexibility or fallback.
+
+<ComparisonTable title="Provider API Differences" columns={["Aspect","OpenAI","Anthropic","Google Gemini"]} rows={[
+  ["Schema field","functions / tools","tools","function_declarations"],
+  ["Call format","tool_calls[].function","content[].type=tool_use","functionCall"],
+  ["Result format","tool message with tool_call_id","tool_result content block","functionResponse"],
+  ["Parallel calls","Native support","Native support","Supported"],
+  ["Streaming","Delta chunks","Event stream","SSE stream"],
+]}/>
+
+<CodeBlock language="javascript" label="Unified Tool Calling Abstraction" code={`class ToolRouter {
+  constructor(tools) {
+    this.tools = tools;
+  }
+
+  formatForProvider(provider) {
+    return this.tools.map(tool => {
+      if (provider === "openai") return {
+        type: "function",
+        function: { name: tool.name, description: tool.description, parameters: tool.schema }
+      };
+      if (provider === "anthropic") return {
+        name: tool.name, description: tool.description, input_schema: tool.schema
+      };
+      if (provider === "gemini") return {
+        name: tool.name, description: tool.description, parameters: tool.schema
+      };
+    });
+  }
+
+  extractCalls(provider, response) {
+    if (provider === "openai")
+      return (response.choices[0].message.tool_calls || []).map(tc => ({
+        id: tc.id, name: tc.function.name, args: JSON.parse(tc.function.arguments)
+      }));
+    if (provider === "anthropic")
+      return response.content.filter(b => b.type === "tool_use")
+        .map(b => ({ id: b.id, name: b.name, args: b.input }));
+    if (provider === "gemini")
+      return response.candidates[0].content.parts
+        .filter(p => p.functionCall)
+        .map(p => ({ id: p.functionCall.name, name: p.functionCall.name, args: p.functionCall.args }));
+    return [];
+  }
+}`}/>
+
+<Quiz question="What is the main challenge of multi-provider function calling?" options={["Different pricing","Each provider has different schema formats and response structures","Some providers are faster","They use different languages"]} correctIndex={1} explanation="Each provider wraps tool definitions and tool call responses in different JSON structures. A unified abstraction normalizes these differences." />
+
+<SeeItInRe3 text="Re³'s lib/llm-router.js implements this pattern, routing tool calls across Anthropic, OpenAI, Gemini, and Groq with automatic fallback." targetPage="forge" />

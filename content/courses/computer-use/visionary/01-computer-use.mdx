@@ -1,0 +1,28 @@
+---
+label: "Computer Use"
+icon: "\uD83D\uDDA5\uFE0F"
+---
+
+## AI That Operates Your Computer
+
+<AnalogyBox emoji={'\uD83D\uDDA5\uFE0F'} title="From chatbot to co-pilot to operator">Traditional AI answers questions. Agentic AI takes actions. Computer-use AI actually operates your software -- clicking buttons, filling forms, navigating websites -- like a remote colleague sharing your screen.</AnalogyBox>
+
+<ExpandableSection title="How Computer Use Works" icon={'\u2699\uFE0F'} defaultOpen>
+
+<JargonTip term="computer use">Computer use</JargonTip> AI combines several <JargonTip term="multimodal">multimodal</JargonTip> capabilities:
+
+- **Screen understanding:** AI sees screenshots and understands UI elements
+- **Action generation:** Converts intent into mouse clicks, keyboard input, and scrolling with minimal <JargonTip term="latency">latency</JargonTip>
+- **State tracking:** Remembers what it's done and what's changed
+- **Error recovery:** Detects when something went wrong and tries alternatives
+
+</ExpandableSection>
+
+<ComparisonTable title="Computer Use Approaches" columns={['Approach','How It Works','Pros','Cons']} rows={[
+  ['Screenshot + Vision','AI sees pixels, identifies elements visually','Works with any app, no integration needed','Slower, brittle to UI changes'],
+  ['DOM/Accessibility Tree','AI reads the page structure directly','Fast, reliable, structured data','Web-only, needs browser extension'],
+  ['API-first','AI calls APIs instead of using UI','Fastest, most reliable','Only works when APIs exist'],
+  ['Hybrid','Combines DOM reading with visual fallback','Best of both worlds','More complex to build'],
+]}/>
+
+<Quiz question="What is the key advantage of computer-use AI over traditional API-based automation?" options={["It's always faster","It works with any application that has a visual interface, even without APIs","It's more reliable than APIs","It doesn't need any permissions"]} correctIndex={1} explanation="Computer-use AI's superpower is universality -- it can automate any application with a visual interface, even legacy systems with no APIs. This is what makes it 'RPA 2.0' -- it handles the long tail of applications that can't be integrated any other way."/>

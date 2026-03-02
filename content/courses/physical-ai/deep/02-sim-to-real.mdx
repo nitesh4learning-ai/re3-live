@@ -1,0 +1,57 @@
+---
+label: "Sim-to-Real"
+icon: "\uD83C\uDFAE"
+---
+
+## Simulation-to-Real Transfer
+
+Training robots in the real world is slow, expensive, and dangerous. The breakthrough: train in simulation, then transfer to reality. This is called <JargonTip term="sim-to-real">sim-to-real transfer</JargonTip>.
+
+<ExpandableSection title="The Sim-to-Real Pipeline" icon={'\uD83C\uDFAE'} defaultOpen>
+
+- **Build simulation:** Create virtual environment mimicking real-world physics (Isaac Sim, MuJoCo, PyBullet)
+- **Domain randomization:** Vary lighting, textures, physics parameters so the model generalizes
+- **Train policy:** Use <JargonTip term="RLHF">reinforcement learning</JargonTip> to learn tasks in simulation (millions of trials in hours)
+- **Transfer:** Deploy trained policy on real robot
+- **Fine-tune:** Adapt with small amounts of real-world data to close the "reality gap"
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="Sim-to-Real Training Loop (Conceptual)" code={`# Training a robot arm to pick up objects
+
+# 1. Simulation setup
+env = IsaacSimEnv(
+    scene="tabletop_pick_and_place",
+    robot="franka_panda",
+    randomize={
+        "object_positions": True,
+        "lighting": True,
+        "table_texture": True,
+        "object_mass": (0.1, 2.0),  # kg range
+        "friction": (0.3, 0.8),
+    }
+)
+
+# 2. Train with reinforcement learning
+agent = PPO(
+    policy_network=TransformerPolicy(
+        obs_dim=env.observation_space,
+        act_dim=env.action_space
+    ),
+    learning_rate=3e-4
+)
+
+# 3. Millions of simulated episodes
+for episode in range(2_000_000):
+    obs = env.reset()  # Random scene each time
+    while not done:
+        action = agent.act(obs)
+        obs, reward, done = env.step(action)
+        agent.learn(reward)
+
+# 4. Transfer to real robot
+real_robot = FrankaPanda()
+real_robot.load_policy(agent.policy)
+# Fine-tune with 100 real-world demonstrations`}/>
+
+<Quiz question="Why is 'domain randomization' critical for sim-to-real transfer?" options={["It makes the simulation run faster","It reduces training compute costs","It forces the model to generalize across variations so it's robust to real-world differences","It improves the visual quality of the simulation"]} correctIndex={2} explanation="Domain randomization deliberately varies visual and physical parameters (lighting, textures, friction, mass) during simulation training. This forces the model to learn robust strategies that work across many conditions, rather than overfitting to one specific simulation setup -- which is key to surviving the 'reality gap' when deployed on real hardware."/>

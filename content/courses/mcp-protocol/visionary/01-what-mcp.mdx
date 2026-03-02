@@ -1,0 +1,24 @@
+---
+label: "What is MCP"
+icon: "🔌"
+---
+
+## What is MCP?
+
+The **<JargonTip term="MCP">Model Context Protocol (MCP)</JargonTip>** is an open standard that provides a universal way for AI models to connect to external <JargonTip term="tool use">tools</JargonTip>, data sources, and services. Instead of building custom integrations for every tool, MCP provides one protocol that works everywhere.
+
+<AnalogyBox emoji="🔌" title="Think of it like USB-C">Before USB-C, every device had its own charger. MCP is the USB-C of AI -- one standard connector that lets any AI model talk to any tool or data source.</AnalogyBox>
+
+<CodeBlock language="text" label="Before vs After MCP" code={`BEFORE MCP: N models × M tools = N×M custom integrations
+  GPT-4  ──custom──> Slack, GitHub, Database, Calendar
+  Claude ──custom──> Slack, GitHub, Database, Calendar
+  Result: 8 custom integrations (and growing!)
+
+AFTER MCP: N models + M tools = N+M implementations
+  GPT-4  ──MCP──┐
+  Claude ──MCP──┤──> MCP Server: Slack, GitHub, DB, Calendar
+  Result: 2 clients + 4 servers = 6 implementations total`}/>
+
+<Quiz question="What problem does MCP solve?" options={["Making AI models faster","Eliminating the need for N×M custom integrations","Replacing APIs entirely","Training better models"]} correctIndex={1} explanation="MCP standardizes how AI models connect to tools. Instead of every model needing a custom integration for every tool (N×M), each model implements MCP once and can access any MCP-compatible tool." />
+
+<Quiz question="Which best describes MCP's role?" options={["A new programming language","A universal protocol connecting AI to tools","A database technology","A model training framework"]} correctIndex={1} explanation="MCP is a protocol -- a standardized way for AI models (clients) to communicate with tools and data sources (servers). It defines the message format, not the implementation." />

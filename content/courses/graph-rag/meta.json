@@ -1,0 +1,16 @@
+{
+  "tier": 3,
+  "icon": "🌐",
+  "title": "Graph RAG & Knowledge Graphs",
+  "description": "Combining structured and unstructured retrieval. Entity relationships, hybrid search.",
+  "difficulty": "Advanced",
+  "timeMinutes": 50,
+  "exerciseCount": 8,
+  "tabCount": 5,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Graph RAG & Knowledge Graphs — Re³ Academy",
+    "metaDescription": "Master Graph RAG: combining structured and unstructured retrieval with knowledge graphs."
+  }
+}

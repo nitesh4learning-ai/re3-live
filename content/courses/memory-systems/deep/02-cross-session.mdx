@@ -1,0 +1,45 @@
+---
+label: "Cross-Session"
+icon: "🔗"
+---
+
+## Cross-Session Memory
+
+<CodeBlock title="Session-Aware Memory" code={`class CrossSessionMemory:
+    def __init__(self, user_id, db):
+        self.user_id = user_id
+        self.db = db
+
+    def end_session(self, messages):
+        """Archive session and extract key learnings."""
+        # Summarize the session
+        summary = summarize_conversation(messages)
+
+        # Extract new entities/facts
+        entities = extract_entities_from_session(messages)
+
+        # Store session record
+        self.db.sessions.insert({
+            "user_id": self.user_id,
+            "timestamp": now(),
+            "summary": summary,
+            "entities": entities,
+            "message_count": len(messages),
+            "embedding": embed(summary)  # For future retrieval
+        })
+
+        # Update user profile
+        preferences = extract_preferences(messages)
+        self.db.users.update(self.user_id, preferences)
+
+    def start_session(self):
+        """Load relevant context for a new session."""
+        user = self.db.users.get(self.user_id)
+        recent_sessions = self.db.sessions.find(
+            user_id=self.user_id, limit=3, sort="-timestamp"
+        )
+        return {
+            "preferences": user.get("preferences", {}),
+            "recent_context": [s["summary"] for s in recent_sessions],
+            "known_entities": user.get("entities", {})
+        }`}/>

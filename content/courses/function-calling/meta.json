@@ -1,0 +1,16 @@
+{
+  "tier": 2,
+  "icon": "⚙️",
+  "title": "Function Calling & Tool Use",
+  "description": "How LLMs invoke tools across providers. JSON Schema, tool definitions, response handling.",
+  "difficulty": "Intermediate",
+  "timeMinutes": 35,
+  "exerciseCount": 7,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Function Calling & Tool Use — Re³ Academy",
+    "metaDescription": "Master LLM function calling: JSON Schema, tool definitions, and response handling across providers."
+  }
+}

@@ -1,0 +1,59 @@
+---
+label: "Error Handling"
+icon: "🛡️"
+---
+
+## Error Handling & Graceful Degradation
+
+Tool calls fail. APIs time out, parameters are invalid, permissions are denied. The key principle: **always return errors to the LLM** rather than crashing. The LLM can often recover by trying a different approach or explaining the issue to the user.
+
+<CodeBlock language="javascript" label="Robust Error Handling Pattern" code={`class ToolExecutor {
+  constructor(opts = {}) {
+    this.maxRetries = opts.maxRetries || 2;
+    this.timeout = opts.timeout || 30000;
+  }
+
+  async execute(tool, args) {
+    for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
+      try {
+        // Validate args against schema first
+        const validation = this.validateArgs(tool.schema, args);
+        if (!validation.valid) {
+          return { error: true, message: "Invalid parameters: " + validation.errors.join(", ") };
+        }
+
+        // Execute with timeout
+        const result = await Promise.race([
+          tool.handler(args),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Timeout")), this.timeout)
+          ),
+        ]);
+        return { success: true, data: result };
+
+      } catch (err) {
+        if (attempt < this.maxRetries && this.isRetryable(err)) {
+          await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+          continue;
+        }
+        return {
+          error: true, code: err.code || "UNKNOWN",
+          message: err.message, retried: attempt > 0,
+        };
+      }
+    }
+  }
+
+  isRetryable(err) {
+    return ["ETIMEDOUT", "ECONNRESET", "RATE_LIMITED"].includes(err.code)
+      || (err.status >= 500 && err.status < 600);
+  }
+}`}/>
+
+<ExpandableSection title="User Confirmation Pattern" icon="✅">
+
+For destructive operations (delete, send, publish), implement a confirmation step. The tool returns a preview, the LLM shows the user, and only proceeds after explicit confirmation.
+
+</ExpandableSection>
+
+<Quiz question="When a tool call fails, what is the best practice?" options={["Crash immediately","Silently ignore the error","Return a structured error to the LLM so it can decide what to do","Retry indefinitely"]} correctIndex={2} explanation="Returning structured errors lets the LLM decide the best recovery strategy -- retry, try a fallback, or explain to the user." />

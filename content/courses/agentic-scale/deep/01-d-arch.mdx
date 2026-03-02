@@ -1,0 +1,65 @@
+---
+label: "Agent Architecture"
+icon: "\uD83E\uDD16"
+---
+
+## Agent Architecture
+
+An **agentic AI system** is an LLM that can reason about what to do, take actions using tools, observe results, and iterate until a task is complete. Unlike a simple prompt-response model, an <JargonTip term="agent">agent</JargonTip> operates in a **loop** -- deciding, acting, and learning from each step.
+
+  <AnalogyBox emoji="🕵️" title="Think of it like a detective">A detective doesn't solve a case in one guess. They form a hypothesis (thought), investigate a lead (action), examine the evidence (observation), then refine their hypothesis. Agents work the same way -- iterating through think-act-observe cycles until the case is solved.</AnalogyBox>
+
+
+### The ReAct Pattern
+
+The **<JargonTip term="ReAct">ReAct</JargonTip>** (Reason + Act) pattern is the foundational architecture for tool-using agents. At each step the agent produces a **Thought** (reasoning about what to do), an **Action** (tool call or response), and receives an **Observation** (tool result). This cycle repeats until the task is done.
+
+  <CodeBlock language="python" label="ReAct Agent Loop" code={`def react_agent(task, tools, max_steps=10):
+    """Core ReAct loop: Thought -> Action -> Observation"""
+    messages = [{"role": "system", "content": AGENT_PROMPT}]
+    messages.append({"role": "user", "content": task})
+
+    for step in range(max_steps):
+        # 1. LLM generates Thought + Action
+        response = llm.generate(messages, tools=tools)
+
+        if response.stop_reason == "tool_use":
+            # 2. Execute the tool call
+            tool_name = response.tool_calls[0].name
+            tool_args = response.tool_calls[0].arguments
+            result = execute_tool(tool_name, tool_args)
+
+            # 3. Feed Observation back to the agent
+            messages.append({"role": "assistant", "content": response})
+            messages.append({"role": "tool", "content": str(result)})
+        else:
+            # Agent decided to respond -- task complete
+            return response.content
+
+    return "Max steps reached without completion"`}/>
+  <ReActSimulator/>
+
+  <ComparisonTable title="Agent Architecture Patterns" columns={['Pattern','How It Works','Strengths','Weaknesses']} rows={[
+    ['ReAct','Think-Act-Observe loop','Simple, debuggable, effective','Can get stuck in loops'],
+    ['Plan & Execute','Create full plan, then execute','Better for complex multi-step tasks','Plan may become stale'],
+    ['Tree of Thought','Explore multiple reasoning branches','Best for problems with many approaches','Expensive, high token usage'],
+    ['Reflexion','Execute, self-critique, retry','Self-improving, learns from mistakes','Slow, multiple LLM calls per step'],
+  ]}/>
+
+  <Quiz question="What is the key insight of the ReAct pattern compared to basic chain-of-thought?" options={["ReAct uses more tokens","ReAct interleaves reasoning with tool use, grounding thoughts in real observations","ReAct uses a different LLM","ReAct is always faster"]} correctIndex={1} explanation="ReAct's key innovation is interleaving reasoning (Thought) with real-world actions (Action) and their results (Observation). Basic chain-of-thought reasons in a vacuum; ReAct grounds each reasoning step in actual tool outputs, dramatically reducing hallucination."/>
+
+  <ExpandableSection title="Planning Loops: When Agents Think Ahead" icon="🗺️" defaultOpen>
+
+For complex tasks, a single ReAct loop may not be enough. **Planning loops** add a meta-layer where the agent creates an explicit plan before executing. The plan is updated as new information arrives.
+
+
+**Plan & Execute:** A planner LLM generates a step-by-step plan. An executor LLM carries out each step. After each step, the planner may revise remaining steps.
+
+
+**When to use planning:** Tasks with 5+ steps, tasks where order matters, tasks that require resource coordination, or tasks where failure at step N should change steps N+1 through M.
+
+  </ExpandableSection>
+
+  <Quiz question="When should you prefer Plan & Execute over a basic ReAct loop?" options={["Always -- planning is always better","For single-step tasks","When the task has many dependent steps that benefit from upfront coordination","When you want to minimize token usage"]} correctIndex={2} explanation="Plan & Execute shines for complex multi-step tasks where steps depend on each other. For simple tasks (1-3 steps), ReAct is sufficient and cheaper. Planning adds overhead, so it should only be used when the coordination benefit outweighs the cost."/>
+
+  <SeeItInRe3 text="Re\u00b3's debate system uses a planning pattern: Forge selects the panel (plan), then debate rounds execute sequentially (execute), with Atlas moderating quality between rounds (observation/replanning)." targetPage="forge"/>

@@ -1,0 +1,50 @@
+---
+label: "Context Window Engineering"
+icon: "\uD83D\uDCBE"
+---
+
+## Context Window Engineering
+
+The context window is not just a simple limit -- it is a complex engineering surface with performance cliffs, caching strategies, and retrieval trade-offs. Understanding KV cache mechanics, the "lost in the middle" problem, and context compression techniques is essential for production systems.
+
+Modern models advertise context windows from 128K (GPT-4o) to 1M+ (Gemini 1.5 Pro) tokens, but actual performance degrades significantly as context fills up. Effective context utilization requires deliberate engineering.
+
+<ExpandableSection title="KV Cache: Why Long Contexts Are Expensive" icon="\uD83D\uDCBE" defaultOpen={true}>
+
+During autoregressive generation, the model must attend to all previous tokens at each step. To avoid recomputing attention for all prior tokens, the **KV (Key-Value) cache** stores pre-computed K and V matrices for every layer.
+
+For a 70B parameter model with 80 layers and d\_model=8192 processing 32K tokens: KV cache = 2 (K+V) x 80 layers x 32K tokens x 8192 dims x 2 bytes = **~80 GB of GPU memory just for the cache**.
+
+This is why serving long-context requests is dramatically more expensive: memory grows linearly with context length, and inference speed degrades as attention must scan more cached keys.
+
+**Optimization techniques:** Multi-Query Attention (MQA) shares KV heads across query heads, reducing cache size by 8-32x. Grouped-Query Attention (GQA), used by LLaMA 2 and Mistral, is a middle ground that groups queries to share a smaller set of KV heads.
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="Estimating KV cache memory requirements" code={`def estimate_kv_cache_memory(\n    num_layers: int,\n    d_model: int,\n    num_kv_heads: int,\n    head_dim: int,\n    seq_length: int,\n    dtype_bytes: int = 2,  # fp16 = 2 bytes\n    batch_size: int = 1\n) -> dict:\n    """Estimate KV cache memory for a transformer model."""\n    # Each layer stores K and V, each of shape (batch, kv_heads, seq_len, head_dim)\n    per_layer = 2 * batch_size * num_kv_heads * seq_length * head_dim * dtype_bytes\n    total_bytes = num_layers * per_layer\n    total_gb = total_bytes / (1024 ** 3)\n\n    return {\n        "per_layer_mb": per_layer / (1024 ** 2),\n        "total_gb": round(total_gb, 2),\n        "seq_length": seq_length,\n        "recommendation": "Fits in 80GB GPU" if total_gb < 70 else "Needs model parallelism"\n    }\n\n# LLaMA 3 70B with GQA (8 KV heads)\nresult = estimate_kv_cache_memory(\n    num_layers=80, d_model=8192, num_kv_heads=8,\n    head_dim=128, seq_length=32768\n)\nprint(f"KV cache for 32K context: {result['total_gb']} GB")\n# Output: KV cache for 32K context: ~10 GB (with GQA, much less than full MHA)`}/>
+
+<ExpandableSection title="The 'Lost in the Middle' Problem" icon="\u26A0\uFE0F">
+
+Research has consistently shown that LLMs recall information at the **beginning** and **end** of long contexts much better than information in the **middle**. This U-shaped performance curve means:
+
+- Information placed at position 1 (beginning) has the highest recall
+- Information at the very end also has high recall (recency bias)
+- Information buried in positions 5-15 (of 20 retrieved documents) has significantly lower recall
+
+**Mitigation strategies:** Place the most important context at the beginning or end. Use reranking to put the best results first. Consider retrieval strategies that return fewer, higher-quality chunks rather than many mediocre ones.
+
+</ExpandableSection>
+
+<ExpandableSection title="Context Compression Techniques" icon="\uD83D\uDDDC\uFE0F">
+
+**Prompt compression:** Tools like LLMLingua use a small model to identify and remove tokens that contribute least to the response quality, achieving 2-5x compression with minimal quality loss.
+
+**Summarization checkpoints:** Periodically summarize conversation history into a compact summary, replacing the full transcript. This is how ChatGPT handles very long conversations.
+
+**Selective context:** Only include the portions of retrieved documents most relevant to the current query, rather than full documents.
+
+</ExpandableSection>
+
+<Quiz question="A user reports that your RAG system misses relevant information even though it is in the retrieved context. The context contains 15 documents. What is the most likely cause?" options={["The embedding model is broken","The relevant document is positioned in the middle of the context (lost-in-the-middle problem)","The context window is too small","The temperature is too high"]} correctIndex={1} explanation="The 'lost in the middle' problem causes LLMs to underweight information in middle positions of long contexts. With 15 documents, information around positions 5-10 has significantly lower recall. Place the most relevant documents at the beginning or end."/>
+
+<ArchitectureDecision scenario="Your application processes 200-page legal documents. The model supports 128K tokens (enough to fit the whole document). Should you use the full context or a RAG approach?" options={[{label:'Stuff the entire document into the context window',tradeoff:'Simple architecture, no chunking needed, but expensive per request ($0.50-$2.00), slower, and lost-in-the-middle affects accuracy'},{label:'RAG with chunking and retrieval',tradeoff:'Cheaper per query ($0.01-$0.05), faster, more precise, but requires indexing pipeline and may miss cross-references'},{label:'Hybrid: RAG for retrieval + targeted long-context for verification',tradeoff:'Best accuracy, RAG narrows the search then long-context verifies in surrounding pages, moderate cost'}]} correctIndex={2} explanation="The hybrid approach uses RAG to efficiently find relevant sections, then loads surrounding context for verification. This avoids the cost of full-document processing while maintaining accuracy. Pure stuffing is too expensive for production; pure RAG may miss context that spans multiple sections."/>

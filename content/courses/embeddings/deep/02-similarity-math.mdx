@@ -1,0 +1,96 @@
+---
+label: "Similarity Mathematics"
+icon: "📏"
+---
+
+## Similarity Mathematics
+
+Choosing the right similarity metric affects search quality and computational efficiency. Understanding the mathematical properties of each metric helps you select the right one for your use case and optimize performance.
+
+<ExpandableSection title="Cosine Similarity vs Dot Product vs L2" icon="📏" defaultOpen={true}>
+
+**Cosine similarity:** cos(A,B) = (A . B) / (||A|| * ||B||). Measures the angle between vectors, ignoring magnitude. Range: [-1, 1]. Best for semantic similarity where vector length is irrelevant.
+
+**Dot product:** A . B = sum(a_i * b_i). Combines both direction and magnitude. Range: (-inf, inf). Preferred when vectors are already normalized (where it equals cosine similarity) or when magnitude carries meaning.
+
+**L2 (Euclidean) distance:** ||A - B|| = sqrt(sum((a_i - b_i)^2)). Measures straight-line distance. Range: [0, inf]. Lower = more similar. Used in clustering and when absolute differences matter.
+
+**Key insight:** For normalized vectors (unit length), cosine similarity and dot product are mathematically equivalent. Most embedding models produce normalized vectors, so the choice between them is a performance optimization, not a quality decision.
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="Similarity metrics implementation and comparison" code={`import numpy as np
+from scipy.spatial.distance import cosine, euclidean
+
+def compare_metrics(a, b):
+    """Compare all similarity/distance metrics between two vectors."""
+    # Cosine similarity
+    cos_sim = np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
+    # Dot product
+    dot = np.dot(a, b)
+
+    # L2 (Euclidean) distance
+    l2 = np.linalg.norm(a - b)
+
+    # For normalized vectors, show equivalence
+    a_norm = a / np.linalg.norm(a)
+    b_norm = b / np.linalg.norm(b)
+    dot_normalized = np.dot(a_norm, b_norm)
+
+    return {
+        "cosine_similarity": round(cos_sim, 4),
+        "dot_product": round(dot, 4),
+        "l2_distance": round(l2, 4),
+        "dot_product_normalized": round(dot_normalized, 4),
+        "cos_equals_dot_normalized": abs(cos_sim - dot_normalized) < 1e-6
+    }
+
+# Example: similar vectors
+a = np.array([0.8, 0.3, 0.5, 0.1])
+b = np.array([0.7, 0.4, 0.6, 0.2])
+print("Similar vectors:", compare_metrics(a, b))
+
+# Dimension reduction comparison
+def evaluate_dim_reduction(embeddings, full_dim=1536, reduced_dim=256):
+    """Evaluate quality loss from dimension reduction."""
+    full = embeddings[:, :full_dim]
+    reduced = embeddings[:, :reduced_dim]
+
+    # Compare pairwise similarities (ranking preservation)
+    n = len(embeddings)
+    full_sims = []
+    reduced_sims = []
+    for i in range(n):
+        for j in range(i+1, n):
+            full_sims.append(np.dot(full[i], full[j]) /
+                           (np.linalg.norm(full[i]) * np.linalg.norm(full[j])))
+            reduced_sims.append(np.dot(reduced[i], reduced[j]) /
+                              (np.linalg.norm(reduced[i]) * np.linalg.norm(reduced[j])))
+
+    # Rank correlation (Spearman)
+    from scipy.stats import spearmanr
+    corr, _ = spearmanr(full_sims, reduced_sims)
+    print(f"Rank correlation ({full_dim}d vs {reduced_dim}d): {corr:.4f}")`}/>
+
+<ExpandableSection title="Dimension Reduction: PCA vs UMAP" icon="📉">
+
+**PCA (Principal Component Analysis):** Linear dimension reduction that preserves maximum variance. Fast, deterministic, and good for reducing from 3072 to 256-512 dimensions. Quality loss is predictable and gradual.
+
+**UMAP (Uniform Manifold Approximation):** Non-linear reduction that preserves local neighborhood structure. Better for visualization (reducing to 2D/3D) but slower and non-deterministic. Not recommended for production search -- use for exploration only.
+
+**Best practice:** For search, use Matryoshka truncation (native to the model) or PCA. For visualization, use UMAP. For production with fixed-dimension models, PCA on the full embeddings can reduce storage without recomputing embeddings.
+
+</ExpandableSection>
+
+<ExpandableSection title="Normalization: When and Why" icon="📊">
+
+Normalizing vectors to unit length (L2 normalization) converts all distance metrics to be equivalent. This simplifies your pipeline and often improves search quality by removing the influence of vector magnitude.
+
+Most embedding APIs return normalized vectors by default. But if you are combining embeddings (e.g., averaging chunk embeddings for a document), the result may not be normalized. Always re-normalize after any vector arithmetic.
+
+</ExpandableSection>
+
+<Quiz question="Your vector database uses dot product for similarity search. Your embedding model returns normalized (unit length) vectors. A teammate suggests switching to cosine similarity for 'better results.' Is this correct?" options={["Yes, cosine similarity is always better for text","No -- for normalized vectors, dot product and cosine similarity produce identical rankings","It depends on the embedding model","Cosine similarity is faster so it's always preferred"]} correctIndex={1} explanation="For normalized (unit length) vectors, dot product equals cosine similarity mathematically. Switching metrics would produce identical search results. Dot product is actually slightly faster to compute (no normalization step), so there is no reason to switch."/>
+
+<Quiz question="You reduce embeddings from 1536 to 256 dimensions using Matryoshka truncation. Search quality drops 3% but storage drops 83%. When is this trade-off worthwhile?" options={["Never -- always use full dimensions","When you have millions of vectors and storage/compute cost matters more than marginal quality","Only for prototyping, never production","Only when the embedding model explicitly supports Matryoshka"]} correctIndex={1} explanation="At scale (millions of vectors), the 83% storage reduction saves significant infrastructure cost. A 3% quality drop is often imperceptible to end users. This trade-off is ideal for production systems with large corpora where the cost savings justify the modest quality decrease."/>

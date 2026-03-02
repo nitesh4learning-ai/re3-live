@@ -1,0 +1,46 @@
+---
+label: "Langfuse & LangSmith"
+icon: "🔧"
+---
+
+## Observability Platforms
+
+Two leading platforms for LLM observability are **Langfuse** (open-source) and **LangSmith** (by LangChain). Both provide tracing, evaluation, and prompt management, but differ in philosophy and deployment model.
+
+  <ComparisonTable title="Langfuse vs LangSmith" columns={['Feature','Langfuse','LangSmith']} rows={[
+    ['License','Open-source (MIT)','Proprietary (freemium)'],
+    ['Self-Hosting','Yes -- Docker, Kubernetes','No -- cloud only'],
+    ['Tracing','OpenTelemetry-compatible, decorator-based','LangChain-native, automatic for chains'],
+    ['Evaluation','Custom scores, LLM-as-judge, annotation queues','Datasets, evaluators, regression testing'],
+    ['Prompt Mgmt','Versioned prompts with A/B testing','Prompt hub with versioning'],
+    ['Integration','Framework-agnostic','Best with LangChain, supports others'],
+  ]}/>
+  <CodeBlock language="python" label="Langfuse Integration" code={`from langfuse.decorators import observe, langfuse_context
+
+@observe()
+async def rag_pipeline(query: str):
+    """Langfuse automatically traces this function."""
+
+    @observe()
+    async def retrieve(q):
+        docs = await vector_store.search(q, top_k=5)
+        langfuse_context.update_current_observation(
+            metadata={"num_docs": len(docs), "top_score": docs[0].score})
+        return docs
+
+    @observe()
+    async def generate(q, context):
+        response = await llm.invoke(
+            system="Answer using context.",
+            user=f"Context: \\$\\{context\\}\\nQ: \\$\\{q\\}")
+        langfuse_context.update_current_observation(
+            usage={"input": response.usage.input,
+                   "output": response.usage.output},
+            model="claude-3-sonnet")
+        return response.content
+
+    docs = await retrieve(query)
+    answer = await generate(query, format_docs(docs))
+    langfuse_context.score_current_trace(name="user_feedback", value=1.0)
+    return answer`}/>
+  <Quiz question="When should you choose Langfuse over LangSmith?" options={["When you only use LangChain","When you need self-hosted open-source for data privacy compliance","When you want the cheapest cloud option","When you need fastest setup"]} correctIndex={1} explanation="Langfuse is the clear choice when data privacy requires self-hosting (healthcare, finance, government). Its open-source MIT license lets you deploy on your own infrastructure, keeping all trace data within your security boundary."/>

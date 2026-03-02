@@ -1,0 +1,10 @@
+---
+label: "Cost Optimization Lab"
+icon: "🏗️"
+---
+
+## Cost Optimization Lab
+
+<ArchitectureDecision scenario="Customer support bot: 100K queries/day, average 600 input + 250 output tokens. Current spend: $30K/month on GPT-4o. Target: reduce to $10K/month without major quality loss." options={[{label:'Switch entirely to GPT-4o-mini ($4.5K/mo)',tradeoff:'Massive savings but noticeable quality drop on complex queries (20-30% of volume)'},{label:'Cascade (70% mini, 30% GPT-4o) + prompt caching ($8K/mo)',tradeoff:'Best balance \u2014 maintains quality for complex queries, caching reduces repeated context costs'},{label:'Switch to Llama 3.1 via Groq ($2K/mo)',tradeoff:'Cheapest but requires migration effort, different API, and may lack function calling features'}]} correctIndex={1} explanation="Cascading with caching hits the $10K target while maintaining quality. Simple queries (greetings, FAQs, status checks) work great on mini. Complex queries (complaints, multi-step) keep GPT-4o quality. Prompt caching saves further on the repeated system prompt." />
+
+<ArchitectureDecision scenario="Code review tool: 500 PRs/day, each PR averages 2000 tokens of diff. You need to check style, bugs, security, and performance. Quality is critical. Budget: $5K/month." options={[{label:'GPT-4o for everything ($15K/mo) \u2014 over budget',tradeoff:'Best quality but 3x over budget'},{label:'Multi-pass: GPT-4o-mini for style/lint ($0.5K), GPT-4o for security/bugs ($5K), skip perf unless flagged',tradeoff:'Prioritizes critical reviews, fits budget by using cheap model for mechanical checks'},{label:'Claude 3.5 Sonnet for everything ($9K) \u2014 still over budget',tradeoff:'Great code quality but still over budget'}]} correctIndex={1} explanation="Multi-pass cascading applies the right model to the right task. Style/lint checks are mechanical and work fine with mini. Security and bug detection need reasoning power. Performance analysis can be on-demand only." />

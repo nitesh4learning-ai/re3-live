@@ -1,0 +1,34 @@
+---
+label: "Tokenization Deep Dive"
+icon: "🧠"
+---
+
+## Tokenization Deep Dive
+
+<ExpandableSection title="BPE Algorithm" icon={'\uD83E\uDDE0'} defaultOpen>
+  Byte-Pair Encoding starts with individual characters and iteratively merges the most frequent adjacent pairs. After thousands of merges, common words become single tokens while rare words stay split into subwords.
+</ExpandableSection>
+
+<ComparisonTable title="Vocabulary Sizes" headers={['Model Family','Vocab Size','Effect','Tokenizer']} rows={[['GPT-4/4o','~100K','Efficient English + code','cl100k_base'],['Claude 3.x','~100K','Efficient across languages','Custom BPE'],['Llama 2','32K','More tokens per text, higher cost','SentencePiece'],['Llama 3','128K','Much improved efficiency','tiktoken-compatible']]}/>
+
+<CodeBlock title="Token Counting with tiktoken" code={`import tiktoken
+
+def analyze_tokens(text, model="gpt-4o"):
+    enc = tiktoken.encoding_for_model(model)
+    tokens = enc.encode(text)
+
+    print(f"Text: '{text}'")
+    print(f"Tokens: {len(tokens)}")
+    print(f"Token-to-word ratio: {len(tokens)/len(text.split()):.2f}")
+    print(f"Tokens: {[enc.decode([t]) for t in tokens]}")
+
+    # Cost estimate (GPT-4o input pricing)
+    cost = len(tokens) * 2.50 / 1_000_000
+    print("Input cost: $%.6f" % cost)
+
+analyze_tokens("Context engineering is the meta-skill of AI development")
+# Tokens: 8
+# Ratio: 1.00
+# Cost: $0.000020`}/>
+
+<Quiz question="Why does Llama 2 (32K vocab) use more tokens than GPT-4 (100K vocab) for the same English text?" options={["Llama 2 is a worse model","Smaller vocabulary means words get split into more subword pieces","Llama 2 uses character-level tokenization","It does not \u2014 they use the same number of tokens"]} correctIndex={1} explanation="With a smaller vocabulary (32K vs 100K), fewer words get their own token. More words must be split into subword pieces, increasing total token count and cost." />

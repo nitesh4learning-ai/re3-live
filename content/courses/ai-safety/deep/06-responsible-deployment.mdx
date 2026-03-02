@@ -1,0 +1,39 @@
+---
+label: "Responsible Deployment"
+icon: "🚀"
+---
+
+## Responsible Deployment
+
+<ExpandableSection title="The Deployment Checklist" icon="✅" defaultOpen>
+
+- Model card: document capabilities, limitations, intended use
+- Bias audit: test across demographic groups
+- Safety evaluation: red-teaming results documented
+- Staged rollout: internal → beta → limited → general
+- Monitoring: toxicity, hallucination rate, user reports
+- Incident response: plan for when things go wrong
+- Feedback loop: user reports feed back into safety improvements
+
+</ExpandableSection>
+
+<CodeBlock title="Safety Monitoring Config" code={`monitoring_config = {
+    "metrics": {
+        "hallucination_rate": {"threshold": 0.05, "window": "1h"},
+        "toxicity_score": {"threshold": 0.1, "window": "15m"},
+        "refusal_rate": {"threshold": 0.3, "window": "1h"},
+        "user_reports": {"threshold": 5, "window": "1h"},
+    },
+    "alerts": {
+        "channel": "slack:#ai-safety",
+        "escalation": "pagerduty:ai-oncall",
+        "auto_disable_threshold": {
+            "toxicity_score": 0.3,  # Auto-disable if toxicity > 30%
+            "user_reports": 20,      # Auto-disable if > 20 reports/hour
+        }
+    },
+    "logging": {
+        "sample_rate": 0.1,  # Log 10% of interactions
+        "full_log_on_flag": True,  # Full log if any metric flagged
+    }
+}`} />

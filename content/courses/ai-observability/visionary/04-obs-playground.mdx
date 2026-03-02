@@ -1,0 +1,15 @@
+---
+label: "Playground"
+icon: "\uD83C\uDFAE"
+---
+
+## Playground
+
+Test your observability knowledge!
+
+  <ExpandableSection title="Exercise 1: Metric Selection" icon="📊" defaultOpen={true}>
+    <Quiz question="Your AI system's costs doubled last month. Which metric should you investigate first?" options={["Faithfulness","Token usage per request","Coherence","Answer relevancy"]} correctIndex={1} explanation="Cost is directly proportional to token usage. If costs doubled, check if requests are using more tokens (longer prompts, more retrieval, longer outputs) or if request volume increased."/>
+  </ExpandableSection>
+  <ExpandableSection title="Exercise 2: Quality Diagnosis" icon="🔍">
+    <Quiz question="Users say answers are correct but hard to understand. Which metric is the issue?" options={["Faithfulness","Context Recall","Coherence","Context Precision"]} correctIndex={2} explanation="If answers are factually correct (high faithfulness) but hard to understand, the issue is coherence -- the logical structure, readability, and organization of the response."/>
+  </ExpandableSection>

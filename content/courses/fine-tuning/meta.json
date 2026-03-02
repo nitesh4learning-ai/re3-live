@@ -1,0 +1,16 @@
+{
+  "tier": 3,
+  "icon": "🔧",
+  "title": "Fine-Tuning & Model Customization",
+  "description": "LoRA, QLoRA, synthetic data, domain adaptation. Making models work for your specific use case.",
+  "difficulty": "Advanced",
+  "timeMinutes": 50,
+  "exerciseCount": 8,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Fine-Tuning & Model Customization — Re³ Academy",
+    "metaDescription": "Learn fine-tuning: LoRA, QLoRA, synthetic data, and domain adaptation for custom AI models."
+  }
+}

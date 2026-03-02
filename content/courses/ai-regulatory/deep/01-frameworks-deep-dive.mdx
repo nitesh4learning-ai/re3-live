@@ -1,0 +1,53 @@
+---
+label: "Frameworks Deep Dive"
+icon: "\uD83C\uDF0D"
+---
+
+## Deep Dive: Regulatory Frameworks Compared
+
+<ComparisonTable title="Global AI Regulation Comparison" columns={['Framework','Approach','Scope','Enforcement','Status']} rows={[
+  ['EU AI Act','Risk-based, prescriptive','All AI systems in EU market','Fines up to 7% global revenue','In force, phased compliance'],
+  ['NIST AI RMF','Voluntary, flexible','US organizations','No direct penalties','Published, widely adopted'],
+  ['ISO 42001','Certifiable standard','Global','Certification audits','Published 2023'],
+  ['China Interim Measures','Content-focused','Generative AI in China','Service suspension, fines','In force'],
+  ['Canada AIDA','Risk-based','Federal regulated entities','Criminal penalties possible','In progress'],
+]}/>
+
+<CodeBlock language="python" label="Automated EU AI Act Risk Classifier" code={`class EUAIActClassifier:
+    """Classify AI systems per EU AI Act risk tiers"""
+
+    UNACCEPTABLE = {
+        "social_scoring", "real_time_biometric_mass",
+        "emotion_detection_workplace", "predictive_policing_individual"
+    }
+    HIGH_RISK_DOMAINS = {
+        "hiring", "credit_scoring", "education_access",
+        "medical_diagnosis", "criminal_justice", "border_control",
+        "critical_infrastructure", "law_enforcement"
+    }
+
+    def classify(self, system_profile):
+        use_case = system_profile["use_case"]
+        if use_case in self.UNACCEPTABLE:
+            return {"tier": "UNACCEPTABLE", "action": "DO NOT DEPLOY"}
+        if system_profile.get("domain") in self.HIGH_RISK_DOMAINS:
+            return {
+                "tier": "HIGH_RISK",
+                "requirements": [
+                    "conformity_assessment",
+                    "quality_management_system",
+                    "technical_documentation",
+                    "human_oversight_measures",
+                    "accuracy_robustness_cybersecurity",
+                    "post_market_monitoring"
+                ]
+            }
+        if system_profile.get("interacts_with_humans"):
+            return {"tier": "LIMITED_RISK", "requirements": ["transparency_disclosure"]}
+        return {"tier": "MINIMAL_RISK", "requirements": []}`}/>
+
+<ArchitectureDecision scenario="Your startup is building an AI resume screener for enterprise clients. You want to sell globally. How should you approach compliance?" options={[
+  {label:"Comply with EU AI Act only (strictest)",tradeoff:"Covers most requirements but misses US-specific rules like NYC Local Law 144"},
+  {label:"Build modular compliance per jurisdiction",tradeoff:"Most thorough but highest engineering cost -- separate controls per market"},
+  {label:"Superset approach: meet all frameworks simultaneously",tradeoff:"Build to the highest bar across all regulations; simplifies ops but may over-engineer for lenient markets"},
+]} correctIndex={2} explanation="For a global product, the superset approach is most practical -- build once to the highest standard. The marginal cost of over-complying in lenient markets is far less than maintaining separate compliance modules per jurisdiction."/>

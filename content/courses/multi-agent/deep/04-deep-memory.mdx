@@ -1,0 +1,77 @@
+---
+label: "Agent Memory"
+icon: "\uD83E\uDDE0"
+---
+
+## Agent Memory Systems
+
+Effective multi-agent memory goes beyond simple chat history. Production systems need shared memory stores with access control, <JargonTip term="episodic memory">episodic recall</JargonTip> for learning from past interactions, and working memory management to stay within context limits.
+
+  <ComparisonTable title="Memory Architecture Comparison" columns={['Memory Type','Scope','Persistence','Use Case']} rows={[
+    ['Conversation Buffer','Single agent session','Ephemeral','Chat context, immediate task'],
+    ['Shared State Store','All agents in a workflow','Workflow lifetime','Debate state, pipeline data'],
+    ['Episodic Memory','Per agent, long-term','Persistent (DB)','Learning from past tasks'],
+    ['Semantic Memory','Global knowledge base','Persistent (vector DB)','Facts, domain knowledge'],
+    ['Working Memory','Per agent, per task','Task lifetime','Scratchpad, intermediate results'],
+  ]}/>
+  <CodeBlock language="python" label="Multi-Agent Memory Manager" code={`from datetime import datetime
+import json
+
+class AgentMemoryManager:
+    """Manages different memory types for a multi-agent system."""
+
+    def __init__(self, vector_store, kv_store):
+        self.vector_store = vector_store  # for semantic memory
+        self.kv_store = kv_store          # for episodic + shared state
+
+    async def get_agent_context(self, agent_id: str,
+                                 task: str,
+                                 max_tokens: int = 2000) -> dict:
+        """Build optimized context for an agent within token budget."""
+        context = {"working": [], "episodic": [], "semantic": [],
+                   "shared": {}}
+        budget = max_tokens
+
+        # 1. Shared state (highest priority) ~30% budget
+        shared = await self.kv_store.get(f"shared_state")
+        if shared:
+            shared_str = json.dumps(shared)
+            context["shared"] = shared
+            budget -= len(shared_str) // 4  # rough token estimate
+
+        # 2. Relevant episodic memories ~30% budget
+        past_tasks = await self.kv_store.range(
+            f"episodic:{agent_id}:", limit=10)
+        for memory in past_tasks:
+            if budget <= 0:
+                break
+            context["episodic"].append(memory)
+            budget -= len(str(memory)) // 4
+
+        # 3. Semantic retrieval ~40% budget
+        relevant_docs = await self.vector_store.search(
+            query=task, top_k=5,
+            filter={"accessible_by": agent_id})
+        for doc in relevant_docs:
+            if budget <= 0:
+                break
+            context["semantic"].append(doc.text)
+            budget -= len(doc.text) // 4
+
+        return context
+
+    async def save_episode(self, agent_id: str, task: str,
+                           result: str, score: float):
+        """Save a completed task as episodic memory for future reference."""
+        episode = {
+            "task": task, "result": result, "score": score,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        await self.kv_store.set(
+            f"episodic:{agent_id}:{datetime.utcnow().timestamp()}",
+            episode)
+        # Also index in vector store for semantic retrieval
+        await self.vector_store.upsert(
+            text=f"Task: {task}\\nResult: {result}",
+            metadata={"agent_id": agent_id, "score": score})`}/>
+  <Quiz question="An agent system processes 50 customer requests per day. After a week, agents start exceeding context windows. What memory strategy fixes this?" options={["Give agents the full conversation history for every request","Use summary memory: compress older interactions into summaries","Remove all memory so context stays small","Switch to a model with larger context window"]} correctIndex={1} explanation="Summary memory compresses older interactions into concise summaries while keeping recent interactions in full. This keeps context within bounds while preserving important historical knowledge. Simply using larger context windows is expensive and does not scale."/>

@@ -1,0 +1,21 @@
+---
+label: "Why A2A"
+icon: "🤝"
+---
+
+## Why A2A?
+
+<JargonTip term="MCP">MCP</JargonTip> connects AI to **tools**. But what about connecting AI to **other AI <JargonTip term="agent">agents</JargonTip>**? The **<JargonTip term="A2A">Agent-to-Agent (A2A)</JargonTip>** protocol enables AI agents to discover each other, negotiate capabilities, and collaborate on tasks.
+
+<AnalogyBox emoji="📞" title="MCP vs A2A: Phone analogy">MCP is like calling a service (pizza delivery, bank). A2A is like calling a colleague to collaborate on a project. Different relationship, different protocol.</AnalogyBox>
+
+| Aspect | MCP | A2A |
+|--------|-----|-----|
+| **Connects** | AI to Tools/Data | AI to AI Agents |
+| **Pattern** | Client-Server | Peer-to-Peer |
+| **Communication** | Tool calls | Task delegation |
+| **Discovery** | Server exposes tools | Agent Cards advertise capabilities |
+
+<Quiz question="MCP connects AI to tools. A2A connects AI to..." options={["Databases","Other AI agents","Users","The internet"]} correctIndex={1} explanation="A2A is specifically designed for agent-to-agent communication. It enables AI agents built by different teams or companies to discover and collaborate with each other." />
+
+<Quiz question="Which protocol would you use for an AI agent to search a database?" options={["A2A -- agents handle everything","MCP -- it connects AI to tools and data","Both equally","Neither"]} correctIndex={1} explanation="Database search is a tool/data access pattern -- exactly what MCP is designed for. A2A is for agent-to-agent collaboration, not tool access." />

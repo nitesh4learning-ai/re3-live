@@ -1,0 +1,17 @@
+---
+label: "Why Memory?"
+icon: "🧠"
+---
+
+## Why Memory Matters
+
+<AnalogyBox emoji="🐠" title="The Goldfish Problem">Without memory, every conversation with an AI is like talking to a goldfish -- it forgets everything after each interaction. Memory systems give AI persistent context, making it actually useful for ongoing tasks.</AnalogyBox>
+
+Memory systems let AI <JargonTip term="agent">agents</JargonTip> remember past interactions, learn preferences, and maintain context across sessions. There are several types:
+
+- **⏱️ Short-Term (Buffer)** -- Recent conversation turns kept in context window. Ephemeral.
+- **💾 Long-Term (Persistent)** -- Facts, preferences, entities stored in a database across sessions.
+- **🧠 Semantic Memory** -- General knowledge extracted from interactions -- facts, concepts. Also called semantic memory.
+- **📸 Episodic Memory** -- Specific past events and interactions -- what episodic memory captures.
+
+<Quiz question="Why can't you just keep all conversation history in the context window?" options={["You can -- modern models have huge context windows","Context windows have limits, old messages get expensive, and retrieval quality degrades","The model will refuse to process long conversations","There's no benefit to keeping old messages"]} correctIndex={1} explanation="Even with large context windows, keeping everything is impractical: costs grow linearly, the 'lost-in-the-middle' problem reduces quality, and most old messages aren't relevant to the current query. Smart memory systems extract and retrieve only what's needed." />

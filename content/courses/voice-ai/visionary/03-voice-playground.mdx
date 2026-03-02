@@ -1,0 +1,7 @@
+---
+label: "Playground"
+icon: "\uD83C\uDFAE"
+---
+
+## Voice AI Playground
+  <ArchitectureDecision scenario="You are building a voice-based customer support agent for a restaurant chain. It handles reservations, menu questions, and hours. 500 calls/day." options={[{label:'IVR menu tree (press 1 for reservations...)',tradeoff:'Cheapest but frustrating UX. Customers hate phone trees.'},{label:'Full AI voice agent: Deepgram STT + GPT-4o-mini + OpenAI TTS',tradeoff:'Natural conversation, handles diverse queries. ~$0.10/call. Great UX.'},{label:'AI voice with human escalation for complex requests',tradeoff:'Best of both: AI handles 80% of calls, humans handle edge cases. Slightly more complex to build.'}]} correctIndex={2} explanation="AI voice + human escalation is the production sweet spot. The AI handles routine calls (hours, reservations, menu) quickly and naturally. Complex situations (complaints, special dietary needs, large party planning) get seamlessly transferred to a human."/>

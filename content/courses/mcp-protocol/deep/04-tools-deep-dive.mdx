@@ -1,0 +1,81 @@
+---
+label: "Tools Deep Dive"
+icon: "🔧"
+---
+
+## Tools Deep Dive
+
+Tool design is where MCP servers succeed or fail in practice. Good tool schemas guide the LLM to call tools correctly. Poor schemas lead to hallucinated parameters, wrong tool selection, and frustrated users.
+
+<CodeBlock language="python" label="Tool Design Best Practices" code={`# BAD: Vague name, no descriptions, loose types
+@app.tool()
+async def do_stuff(data: str) -> str:
+    """Process data."""  # What data? What processing?
+    pass
+
+# GOOD: Clear name, rich descriptions, constrained types
+@app.tool()
+async def search_customer_orders(
+    customer_email: str,
+    status: str = None,
+    date_after: str = None,
+    limit: int = 20
+) -> str:
+    """Search for customer orders by email address.
+
+    Returns order summaries including order ID, date, total, and status.
+    Use this when a customer asks about their order history or a specific order.
+
+    Args:
+        customer_email: The customer's email address (e.g., user@example.com)
+        status: Filter by order status: 'pending', 'shipped', 'delivered', 'canceled'
+        date_after: Only return orders after this date (ISO 8601: YYYY-MM-DD)
+        limit: Maximum orders to return (1-100, default 20)
+    """
+    # Validate inputs
+    if status and status not in ('pending', 'shipped', 'delivered', 'canceled'):
+        return json.dumps({"error": f"Invalid status '{status}'. Use: pending, shipped, delivered, canceled"})
+    if limit < 1 or limit > 100:
+        limit = max(1, min(100, limit))
+
+    orders = await db.search_orders(customer_email, status, date_after, limit)
+    return json.dumps({"orders": orders, "count": len(orders)})`}/>
+
+<CodeBlock language="python" label="Async Tool Execution with Timeouts" code={`import asyncio
+from mcp.types import TextContent
+
+@app.tool()
+async def analyze_repository(repo_url: str, depth: str = "summary") -> str:
+    """Analyze a GitHub repository's structure and code quality.
+
+    This operation may take 10-30 seconds for large repos.
+
+    Args:
+        repo_url: Full GitHub repository URL
+        depth: Analysis depth - 'summary' (fast) or 'detailed' (slower, includes file-level analysis)
+    """
+    try:
+        result = await asyncio.wait_for(
+            _run_analysis(repo_url, depth),
+            timeout=60.0  # Hard timeout
+        )
+        return json.dumps(result)
+    except asyncio.TimeoutError:
+        return json.dumps({
+            "error": "Analysis timed out after 60 seconds",
+            "suggestion": "Try with depth='summary' for faster results"
+        })
+    except Exception as e:
+        return json.dumps({
+            "error": str(e),
+            "recoverable": True,
+            "suggestion": "Check if the repository URL is correct and accessible"
+        })`}/>
+
+<Quiz question="A tool returns an error. What is the best practice for the error response format?" options={["Raise an exception that crashes the server","Return a JSON object with error details and recovery suggestions","Return an empty string","Return HTTP 500"]} correctIndex={1} explanation="Returning structured error information (what went wrong, whether it is recoverable, and what the user or LLM can try instead) lets the LLM handle the failure gracefully rather than giving up." />
+
+<ArchitectureDecision scenario="You have a tool that fetches data from a slow external API (5-15 second response time). How should you handle this in your MCP server?" options={[
+  {label:'Synchronous call with no timeout',tradeoff:'Simple code, but the client and LLM hang indefinitely if the API is down'},
+  {label:'Async with timeout + structured error on failure',tradeoff:'Robust handling -- the LLM gets a clear error it can act on if the call times out, and the server stays responsive'},
+  {label:'Cache everything and never call the API in real time',tradeoff:'Fast responses but stale data, cache invalidation complexity, and cold-start misses'},
+]} correctIndex={1} explanation="Async with timeouts is the production standard. The LLM receives a structured error it can reason about (e.g., suggest trying again or using a different approach). Caching can supplement this but should not replace real-time access entirely." />

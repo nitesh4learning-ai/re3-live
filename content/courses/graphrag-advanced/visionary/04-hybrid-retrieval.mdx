@@ -1,0 +1,121 @@
+---
+label: "Hybrid Retrieval"
+icon: "\uD83D\uDD00"
+---
+
+## Hybrid Retrieval
+
+No single retrieval method dominates all query types. Production GraphRAG systems combine **vector search** (semantic <JargonTip term="embedding">embedding</JargonTip> similarity), **graph traversal** (relationship paths), and **keyword search** (exact matching) in a <JargonTip term="hybrid search">hybrid search</JargonTip> approach, then use intelligent **query routing** and **result reranking** to fuse the best of all three.
+
+<ComparisonTable
+title="Retrieval Method Characteristics"
+columns={['Method', 'Best For', 'Latency', 'Index Size', 'Query Type']}
+rows={[
+['Vector / ANN', 'Semantic similarity, paraphrase matching', 'Fast (20-100ms)', 'Large (4 bytes × dims × docs)', 'What is similar to X?'],
+['Graph Traversal', 'Multi-hop entity connections', 'Medium (100-500ms)', 'Medium (edges + nodes)', 'How are X and Y connected?'],
+['BM25 / Keyword', 'Exact terms, technical jargon, IDs', 'Very fast (<20ms)', 'Small (inverted index)', 'Find docs mentioning X exactly'],
+['Hybrid (all)', 'General-purpose production retrieval', 'Medium (parallel)', 'Sum of above', 'Any query'],
+]}
+/>
+
+
+### Query Routing: When to Use Which Method
+
+| Signal | Method | Why |
+|--------|--------|-----|
+| "How are X and Y related?" | Graph traversal | Explicit relationship question -- graph edges answer this directly |
+| "What is the main theme across all documents?" | Global search (community summaries) | Dataset-wide synthesis -- requires hierarchical community summaries |
+| Contains specific version number, ID, or exact term | BM25 keyword search | Exact match needed -- vector embeddings blur precision |
+| "Something about X" or conceptual query | Vector search | Semantic similarity -- no exact terms known |
+| Complex multi-part question | All three + rerank | RRF fusion maximizes recall; reranker optimizes precision |
+
+
+<CodeBlock language="python" label="Hybrid Retrieval with RRF Fusion" code={`from typing import List, Dict
+import numpy as np
+
+class HybridRetriever:
+    def __init__(self, vector_store, graph_store, bm25_index):
+        self.vector_store = vector_store
+        self.graph_store = graph_store
+        self.bm25_index = bm25_index
+        self.reranker = CrossEncoderReranker()
+
+    def retrieve(self, query: str, k: int = 10) -> List[Dict]:
+        # Detect query type for routing
+        route = self._route_query(query)
+
+        results = {}
+
+        # Always run vector search
+        vector_results = self.vector_store.similarity_search(query, k=k*2)
+        results['vector'] = vector_results
+
+        # Run graph traversal if relational
+        if route in ['relational', 'hybrid']:
+            entities = self._extract_entities(query)
+            graph_results = self.graph_store.traverse(entities, max_hops=2)
+            results['graph'] = graph_results
+
+        # Run BM25 if has exact terms
+        if route in ['exact', 'hybrid']:
+            bm25_results = self.bm25_index.search(query, k=k*2)
+            results['bm25'] = bm25_results
+
+        # Reciprocal Rank Fusion
+        fused = self._rrf_fusion(results, k=k*2)
+
+        # Cross-encoder reranking for final precision
+        reranked = self.reranker.rerank(query, fused, top_k=k)
+
+        return reranked
+
+    def _rrf_fusion(self, results_by_method: dict, k: int = 60) -> List[Dict]:
+        """Reciprocal Rank Fusion: score = sum(1 / (k + rank_i))"""
+        doc_scores = {}
+
+        for method, docs in results_by_method.items():
+            for rank, doc in enumerate(docs):
+                doc_id = doc['id']
+                if doc_id not in doc_scores:
+                    doc_scores[doc_id] = {'doc': doc, 'score': 0.0}
+                doc_scores[doc_id]['score'] += 1.0 / (k + rank + 1)
+
+        sorted_docs = sorted(doc_scores.values(),
+                            key=lambda x: x['score'], reverse=True)
+        return [item['doc'] for item in sorted_docs]
+
+    def _route_query(self, query: str) -> str:
+        relational_signals = ['how are', 'relationship between',
+                              'connected to', 'related to', 'path from']
+        if any(s in query.lower() for s in relational_signals):
+            return 'relational'
+        if any(c.isdigit() for c in query) or query.count('"') >= 2:
+            return 'exact'
+        return 'hybrid'`} />
+<RetrievalStrategyComparator />
+<Quiz
+question="What does Reciprocal Rank Fusion (RRF) do?"
+options={[
+"It deletes duplicate results from multiple retrievers",
+"It combines ranked result lists from multiple retrievers into one optimized ranking",
+"It reranks results using a cross-encoder model",
+"It weights vector results more heavily than keyword results"
+]}
+correctIndex={1}
+explanation="RRF merges ranked lists from different retrieval methods using the formula score = Σ(1 / (k + rank_i)). Each document's final score is the sum of its reciprocal ranks across all methods. This is model-free, fast, and consistently outperforms per-method retrieval in benchmarks."
+/>
+<Quiz
+question="When should you route a query to graph traversal instead of vector search?"
+options={[
+"When the query is very long",
+"When the query asks about relationships between specific entities",
+"When you need fast results",
+"For all queries — graph is always better"
+]}
+correctIndex={1}
+explanation="Graph traversal excels at relational queries: 'How are X and Y connected?', 'What did X's collaborators work on?', 'What is the path from A to B?' Vector search is better for open-ended semantic similarity queries where you don't know exactly what entity to start from."
+/>
+<SeeItInRe3
+text="Re³ articles have relationships — bridges, blind spots, and thematic streams from The Loom. GraphRAG could connect debate insights across articles through entity relationships rather than just vector similarity, enabling cross-debate synthesis."
+targetPage="loom"
+/>

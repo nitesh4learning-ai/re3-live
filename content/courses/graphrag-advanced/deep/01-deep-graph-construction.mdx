@@ -1,0 +1,156 @@
+---
+label: "Graph Construction at Scale"
+icon: "\uD83D\uDEE0\uFE0F"
+---
+
+## Graph Construction at Scale
+
+Building production knowledge graphs from large document corpora requires handling three hard problems: **throughput** (processing millions of documents efficiently), **quality** (high-precision extraction with low hallucination), and **consistency** (merging extractions from different documents without fragmentation).
+
+<ComparisonTable
+title="Extraction Strategy Trade-offs"
+columns={['Strategy', 'Precision', 'Recall', 'Cost', 'Speed', 'Best For']}
+rows={[
+['Rule-based NER (spaCy)', 'High', 'Low', 'Very cheap', 'Very fast', 'Well-defined entity types, production throughput'],
+['Fine-tuned NER model', 'High', 'Medium', 'Cheap (inference)', 'Fast', 'Domain-specific entities after labeling'],
+['LLM extraction (GPT/Claude)', 'Very high', 'Very high', 'Expensive', 'Slow', 'High-value documents, complex relations'],
+['Hybrid (NER + LLM validation)', 'Very high', 'High', 'Medium', 'Medium', 'Production balance of quality and cost'],
+]}
+/>
+<CodeBlock language="python" label="Scalable Async Extraction Pipeline" code={`import asyncio
+from asyncio import Semaphore
+from typing import AsyncIterator
+import anthropic
+
+client = anthropic.Anthropic()
+
+class GraphConstructionPipeline:
+    def __init__(self,
+                 max_concurrent: int = 10,
+                 batch_size: int = 50):
+        self.semaphore = Semaphore(max_concurrent)
+        self.batch_size = batch_size
+        self.entity_store = {}
+        self.relation_store = []
+
+    async def process_corpus(self, documents: list) -> tuple:
+        """Process entire corpus with bounded concurrency."""
+
+        # Chunk documents for parallel processing
+        tasks = []
+        for doc in documents:
+            chunks = self._chunk_document(doc, size=800, overlap=100)
+            for chunk in chunks:
+                tasks.append(self._extract_with_semaphore(chunk, doc['id']))
+
+        # Process with progress tracking
+        results = []
+        for i in range(0, len(tasks), self.batch_size):
+            batch = tasks[i:i + self.batch_size]
+            batch_results = await asyncio.gather(*batch, return_exceptions=True)
+
+            # Filter out failures and log them
+            for result in batch_results:
+                if isinstance(result, Exception):
+                    print(f"Extraction failed: {result}")
+                else:
+                    results.append(result)
+
+            print(f"Processed {min(i + self.batch_size, len(tasks))}/{len(tasks)} chunks")
+
+        # Entity resolution pass
+        entities = await self._resolve_entities(
+            [e for r in results for e in r.get('entities', [])]
+        )
+        relations = [rel for r in results for rel in r.get('relations', [])]
+
+        return entities, relations
+
+    async def _extract_with_semaphore(self, chunk: str, doc_id: str) -> dict:
+        async with self.semaphore:
+            return await self._extract_chunk(chunk, doc_id)
+
+    async def _extract_chunk(self, chunk: str, doc_id: str) -> dict:
+        """LLM-powered extraction with structured output."""
+        # Use batch API for cost efficiency on large corpora
+        response = client.messages.create(
+            model="claude-opus-4-6",
+            max_tokens=1500,
+            system="""Extract entities and relationships as JSON.
+            Schema: {"entities": [{"name": str, "type": str, "canonical": str}],
+                     "relations": [{"source": str, "relation": str, "target": str, "confidence": float}]}
+            Only output valid JSON, no other text.""",
+            messages=[{"role": "user", "content": f"Extract from:\\n{chunk}"}]
+        )
+        try:
+            import json, re
+            match = re.search(r'\\{[\\s\\S]*\\}', response.content[0].text)
+            return json.loads(match.group()) if match else {}
+        except Exception:
+            return {}
+
+    async def _resolve_entities(self, entities: list) -> dict:
+        """Merge duplicate entities using string normalization + LLM."""
+        # First pass: exact canonical name dedup
+        canonical_map = {}
+        for e in entities:
+            key = e.get('canonical', e['name']).lower().strip()
+            if key not in canonical_map:
+                canonical_map[key] = e
+
+        # Second pass: LLM-based fuzzy resolution for near-duplicates
+        # Group candidates by first 3 chars for efficiency
+        return canonical_map`} />
+<ExpandableSection title="Entity Disambiguation Deep Dive" icon="\uD83D\uDD0D">
+
+Entity disambiguation is the hardest unsolved problem in knowledge graph construction. The same string can refer to different entities ("Apple" = company or fruit), and different strings can refer to the same entity ("NY" = "New York" = "New York City").
+
+<CodeBlock language="python" label="Entity Disambiguation with Context" code={`def disambiguate_entity(mention: str, context: str,
+                         candidates: list, llm) -> str:
+    """
+    Given a mention and its surrounding context,
+    select the correct canonical entity from candidates.
+    """
+    if len(candidates) == 1:
+        return candidates[0]['canonical']
+
+    candidate_desc = "\\n".join([
+        f"{i+1}. {c['canonical']} ({c['type']}): {c.get('description', 'No description')}"
+        for i, c in enumerate(candidates)
+    ])
+
+    response = llm.generate(f"""
+    The text mentions "{mention}" in this context:
+    "{context}"
+
+    Which entity does this refer to?
+    {candidate_desc}
+
+    Reply with just the number (1, 2, etc.).
+    """)
+
+    idx = int(response.strip()) - 1
+    return candidates[idx]['canonical'] if 0 <= idx < len(candidates) else mention`} />
+</ExpandableSection>
+<ExpandableSection title="Graph Quality Metrics" icon="\uD83D\uDCCA">
+
+| Metric | Formula | Target | Why It Matters |
+|--------|---------|--------|---------------|
+| Entity Coverage | Unique entities extracted / Total named entities in corpus | &gt; 85% | Low coverage means your graph has gaps that will cause retrieval failures |
+| Relation Precision | Correct relations / Total extracted relations | &gt; 90% | False relations create misleading paths; users will distrust the system |
+| Entity Resolution Rate | Merged duplicates / Total raw extractions | &gt; 30% | Unresolved duplicates fragment the graph into disconnected islands |
+| Graph Density | Edges / (Nodes x (Nodes-1)) | 0.001 - 0.01 | Too dense = noise; too sparse = disconnected; target the "small-world" range |
+| Community Modularity | Louvain Q score | &gt; 0.3 | Measures how well-defined community structure is. Low = no meaningful clusters. |
+
+</ExpandableSection>
+<ArchitectureDecision
+scenario="You have 500,000 documents. Full LLM extraction would cost $10,000 and take 2 weeks. You need the graph live in 3 days. What approach do you take?"
+options={[
+          {label: 'Full LLM extraction on all documents', tradeoff: 'Highest quality but 5x over deadline and budget.'},
+          {label: 'Tiered extraction: spaCy NER on all docs, LLM extraction only on top 10% highest-value documents', tradeoff: 'Delivers on deadline, 90% cost savings, ~85% of full quality. Most entities are simple; LLM adds value only for complex relationships.'},
+          {label: 'Skip extraction, use pure vector search instead', tradeoff: 'No graph means no relationship traversal — loses the core GraphRAG advantage.'},
+          {label: 'Wait for the full extraction to complete', tradeoff: 'Misses deadline and likely over-engineers for actual business needs.'}
+]}
+correctIndex={1}
+explanation="Tiered extraction is the standard production approach: fast rule-based NER handles the bulk, LLM extraction is reserved for high-value content (recent docs, key source documents, frequently accessed material). This pattern achieves Pareto-optimal quality/cost/speed."
+/>

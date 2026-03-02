@@ -1,0 +1,42 @@
+---
+label: "Workflow"
+icon: "\uD83D\uDD04"
+---
+
+## Workflow Redesign
+
+<AnalogyBox emoji={'\uD83D\uDD04'} title="Don't pave the cow paths">The biggest AI wins come not from automating existing workflows, but from reimagining them. If you just bolt AI onto a broken process, you get a faster broken process.</AnalogyBox>
+
+<ExpandableSection title="Three Levels of AI Integration" icon={'\uD83D\uDCC8'} defaultOpen>
+
+- **Level 1 - Assist:** AI helps humans do existing tasks faster (autocomplete, summarization). Low risk, quick wins, modest impact.
+- **Level 2 - Augment:** AI handles routine cases, humans handle exceptions (triage, pre-screening). Medium risk, significant efficiency gains.
+- **Level 3 - Automate:** AI handles end-to-end with human oversight (autonomous <JargonTip term="agent">agents</JargonTip>, decision systems). High risk, transformative impact.
+
+</ExpandableSection>
+
+<CodeBlock language="yaml" label="AI Integration Assessment" code={`workflow_assessment:
+  current_process: "Customer support ticket routing"
+  current_state:
+    volume: "5,000 tickets/day"
+    avg_resolution: "4.2 hours"
+    misroute_rate: "23%"
+    cost_per_ticket: "$12.50"
+
+  ai_integration:
+    level_1_assist:
+      action: "AI suggests category, human confirms"
+      expected_improvement: "15% faster routing"
+      risk: "Low"
+
+    level_2_augment:
+      action: "AI auto-routes high-confidence tickets (>90%)"
+      expected_improvement: "60% auto-routed, 5% misroute"
+      risk: "Medium - needs escalation path"
+
+    level_3_automate:
+      action: "AI routes + resolves FAQ tickets autonomously"
+      expected_improvement: "40% fully automated resolution"
+      risk: "High - needs quality monitoring"`}/>
+
+<Quiz question="When introducing AI into an existing workflow, what should you do first?" options={["Automate the entire workflow end-to-end","Start with Level 1 (assist) and measure impact before escalating","Skip to Level 3 for maximum ROI","Replace the existing workflow entirely"]} correctIndex={1} explanation="Starting with Level 1 (assist) lets you validate AI quality, build organizational trust, and gather real-world performance data before escalating to augmentation or automation. Jumping straight to full automation risks costly failures."/>

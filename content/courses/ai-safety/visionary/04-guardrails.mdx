@@ -1,0 +1,25 @@
+---
+label: "Guardrails"
+icon: "🛡️"
+---
+
+## Guardrails & Safety Layers
+
+Defense-in-depth: multiple layers of safety, each catching what the previous one missed.
+
+- **1. Input Filtering** — Content policies, prompt injection detection, PII redaction before the model sees the input
+- **2. Model Behavior** — Constitutional AI rules, RLHF training, system prompt constraints that guide model responses
+- **3. Output Validation** — Fact-checking, toxicity scoring, PII detection in outputs, format validation
+- **4. Monitoring** — Logging, anomaly detection, human review queues, drift detection over time
+
+<ExpandableSection title="RLHF: Training with Human Feedback" icon="👤">
+
+<JargonTip term="RLHF">Reinforcement Learning from Human Feedback (RLHF)</JargonTip> trains a reward model from human preferences, then uses it to <JargonTip term="fine-tuning">fine-tune</JargonTip> the language model. This is how models learn to be helpful while avoiding harmful outputs.
+
+</ExpandableSection>
+
+<ExpandableSection title="Constitutional AI" icon="📜">
+
+Constitutional AI defines a set of principles (a "constitution") that the model must follow. The model critiques and revises its own outputs against these principles during training, reducing the need for human feedback on every example.
+
+</ExpandableSection>

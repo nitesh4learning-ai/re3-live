@@ -1,0 +1,162 @@
+---
+label: "Production GraphRAG"
+icon: "\u2699\uFE0F"
+---
+
+## Production GraphRAG
+
+Production GraphRAG systems face challenges beyond the research prototype: **graph freshness** (new documents arrive continuously), **cost management** (LLM extraction is expensive), **latency requirements** (users expect sub-second responses), and **observability** (why did the system return this answer?).
+
+
+
+### Production Architecture
+
+- **Document Ingestion** -- Queue-based async processing. New documents enter a priority queue; high-importance docs get LLM extraction, others get rule-based NER. Extraction results cached indefinitely.
+- **Graph Store** -- Neptune or Neo4j with read replicas. Write through primary; queries served by replicas. Community detection runs nightly on graph delta, not full recompute.
+- **Query Router** -- Classifies incoming queries as local/global/hybrid/keyword. Routes to appropriate retrieval strategy. Caches community summaries (refreshed nightly).
+- **Retrieval Layer** -- Parallel execution of all relevant strategies. Results merged via RRF. Cross-encoder reranker for final precision. P95 latency target: 800ms.
+- **Generation + Cache** -- LLM with retrieved context. Semantic cache: similar queries return cached responses (TTL 1hr for dynamic content). Answer traced to source graph paths.
+
+
+<CodeBlock language="python" label="Incremental Graph Updates (Delta Processing)" code={`import asyncio
+from datetime import datetime, timedelta
+from typing import Optional
+
+class IncrementalGraphUpdater:
+    """
+    Handles continuous document ingestion without full graph rebuilds.
+    Key insight: only recompute community detection on changed subgraph.
+    """
+
+    def __init__(self, graph_store, llm, extraction_cache):
+        self.graph_store = graph_store
+        self.llm = llm
+        self.cache = extraction_cache
+        self.dirty_communities = set()  # communities needing summary refresh
+
+    async def ingest_document(self, doc: dict) -> dict:
+        """Process a new document and update the graph incrementally."""
+
+        # 1. Check extraction cache (avoid re-extracting updated docs)
+        cache_key = f"extract:{doc['id']}:{doc['updated_at']}"
+        cached = await self.cache.get(cache_key)
+
+        if cached:
+            entities, relations = cached['entities'], cached['relations']
+        else:
+            entities, relations = await self._extract(doc)
+            await self.cache.set(cache_key, {'entities': entities, 'relations': relations})
+
+        # 2. Upsert entities (merge with existing, don't duplicate)
+        affected_nodes = await self.graph_store.upsert_entities(entities)
+
+        # 3. Add new relationships (idempotent)
+        affected_edges = await self.graph_store.upsert_relations(relations, doc['id'])
+
+        # 4. Track which communities are affected
+        for node_id in affected_nodes:
+            community = await self.graph_store.get_community(node_id)
+            if community:
+                self.dirty_communities.add(community)
+
+        return {'entities': len(entities), 'relations': len(relations),
+                'affected_communities': len(self.dirty_communities)}
+
+    async def refresh_communities(self, max_communities: Optional[int] = None):
+        """
+        Refresh only dirty community summaries.
+        Called by background job, not in the hot path.
+        """
+        communities_to_refresh = list(self.dirty_communities)[:max_communities]
+
+        for community_id in communities_to_refresh:
+            # Get updated community contents
+            community_entities = await self.graph_store.get_community_entities(community_id)
+            community_relations = await self.graph_store.get_community_relations(community_id)
+
+            # Regenerate summary
+            summary = await self._generate_summary(community_entities, community_relations)
+            await self.graph_store.update_community_summary(community_id, summary)
+            self.dirty_communities.discard(community_id)
+
+        print(f"Refreshed {len(communities_to_refresh)} communities. "
+              f"{len(self.dirty_communities)} still pending.")
+
+    async def _extract(self, doc: dict) -> tuple:
+        """Tiered extraction: simple docs get NER, complex ones get LLM."""
+        complexity = self._estimate_complexity(doc['content'])
+
+        if complexity == 'simple':
+            return self._extract_with_ner(doc['content'])
+        else:
+            return await self._extract_with_llm(doc['content'])
+
+    def _estimate_complexity(self, text: str) -> str:
+        """Heuristic: long text with many capitalized phrases = complex."""
+        words = text.split()
+        if len(words) < 200:
+            return 'simple'
+        cap_ratio = sum(1 for w in words if w and w[0].isupper()) / len(words)
+        return 'complex' if cap_ratio > 0.08 else 'simple'`} />
+<ExpandableSection title="Cost Optimization Strategies" icon="\uD83D\uDCB0">
+
+- **Extraction Caching** (60-80% saving) -- Cache extraction results keyed by doc_id + hash. Re-ingestion of updated docs only re-extracts changed content.
+- **Tiered LLM Routing** (40-60% saving) -- Use Claude Haiku / GPT-3.5 for simple entity extraction. Claude Opus / GPT-4 only for complex relation extraction or low-confidence re-verification.
+- **Community Summary Caching** (30-50% saving) -- Community summaries used in global search are expensive to generate (O(communities) LLM calls). Cache with TTL; only regenerate on dirty communities.
+- **Query-level Semantic Cache** (20-40% saving) -- Semantically similar queries (cosine distance &lt; 0.05) return cached answers. Particularly effective for FAQ-style systems.
+
+</ExpandableSection>
+<ExpandableSection title="Observability & Tracing" icon="\uD83D\uDD2C">
+<CodeBlock language="python" label="GraphRAG Query Trace" code={`from dataclasses import dataclass, field
+from typing import List
+
+@dataclass
+class RetrievalTrace:
+    """Every GraphRAG response includes a complete audit trace."""
+    query: str
+    query_type: str           # local | global | hybrid
+    methods_used: List[str]   # [vector, graph, bm25]
+
+    # Graph traversal trace
+    start_entities: List[str]  # entities extracted from query
+    hops_traversed: int
+    graph_path: List[str]      # entity chain followed
+
+    # Retrieved context
+    context_sources: List[dict]  # {text, doc_id, retrieval_method, score}
+    community_summaries_used: List[int]
+
+    # Generation
+    answer: str
+    faithfulness_score: float  # auto-computed
+
+    # Performance
+    total_latency_ms: int
+    retrieval_latency_ms: int
+    generation_latency_ms: int
+    token_cost: float
+
+async def traced_query(graphrag_system, query: str) -> RetrievalTrace:
+    trace = RetrievalTrace(query=query, ...)
+
+    # All operations log to trace
+    with TraceContext(trace) as ctx:
+        route = ctx.log("route", graphrag_system.route_query(query))
+        context = ctx.log("retrieve", await graphrag_system.retrieve(query, route))
+        answer = ctx.log("generate", await graphrag_system.generate(query, context))
+
+    # Store trace for debugging and evaluation
+    await trace_store.save(trace)
+    return trace`} />
+</ExpandableSection>
+<ArchitectureDecision
+  scenario="Your GraphRAG system handles 10,000 queries/day. Community detection (Louvain) takes 4 hours to run on your 500K-node graph. How do you keep communities fresh without blocking queries?"
+  options={[
+    {label: 'Run Louvain on the full graph every hour', tradeoff: 'Impossible: 4h job every hour = graph store is always being rebuilt.'},
+    {label: 'Nightly full recompute + incremental dirty-community refresh during the day', tradeoff: 'Nightly job ensures consistency; incremental refresh handles hot spots. Communities for documents ingested today may be 1-24h stale, which is acceptable for most use cases.'},
+    {label: 'Never recompute — use initial community assignments forever', tradeoff: 'Communities degrade as new entities are added and existing ones become more connected. Global search quality degrades over time.'},
+    {label: 'Compute communities per-query on the fly', tradeoff: 'Louvain takes 4 hours — running it per-query is orders of magnitude too slow.'}
+  ]}
+  correctIndex={1}
+  explanation="The standard production pattern is a nightly full recompute (when traffic is low) combined with incremental dirty-community refreshes triggered by new document ingestion. Communities for very recently added documents may be stale for up to 24 hours, which is an acceptable trade-off for keeping the system responsive."
+/>

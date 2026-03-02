@@ -1,0 +1,63 @@
+---
+label: "Semantic Caching"
+icon: "⚡"
+---
+
+## Semantic Caching
+
+<JargonTip term="prompt caching">Semantic caching</JargonTip> goes beyond exact string matching. By comparing **embeddings** of incoming queries against cached queries, the gateway can return cached responses for semantically similar questions, dramatically reducing LLM costs for repetitive workloads.
+
+  <CodeBlock language="python" label="Semantic Cache Implementation" code={`import numpy as np
+from datetime import datetime, timedelta
+
+class SemanticCache:
+    def __init__(self, embedder, similarity_threshold=0.95,
+                 ttl_minutes=60):
+        self.embedder = embedder
+        self.threshold = similarity_threshold
+        self.ttl = timedelta(minutes=ttl_minutes)
+        self.cache = []
+
+    async def get(self, query):
+        query_emb = await self.embedder.embed(query)
+        now = datetime.utcnow()
+        best_match, best_score = None, 0
+
+        for entry in self.cache:
+            if now - entry["timestamp"] > self.ttl:
+                continue
+            score = self._cosine_sim(query_emb, entry["embedding"])
+            if score > best_score:
+                best_score = score
+                best_match = entry
+
+        if best_match and best_score >= self.threshold:
+            return {"response": best_match["response"],
+                    "cache_hit": True, "similarity": best_score}
+        return None
+
+    async def put(self, query, response):
+        embedding = await self.embedder.embed(query)
+        self.cache.append({"embedding": embedding, "query": query,
+            "response": response, "timestamp": datetime.utcnow()})
+        self._cleanup()
+
+    def _cosine_sim(self, a, b):
+        return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
+    def _cleanup(self):
+        now = datetime.utcnow()
+        self.cache = [e for e in self.cache
+                      if now - e["timestamp"] <= self.ttl]
+
+# Usage in gateway
+cache = SemanticCache(embedder, similarity_threshold=0.95)
+
+async def gateway_request(query, llm):
+    cached = await cache.get(query)
+    if cached:
+        return cached["response"]  # Free!
+    response = await llm.invoke(query)
+    await cache.put(query, response)
+    return response`}/>
+  <Quiz question="Setting similarity threshold to 0.80 instead of 0.95 would have what effect?" options={["No effect","More cache hits but higher risk of returning wrong cached answers","Fewer cache hits","Better quality"]} correctIndex={1} explanation="A lower threshold means more queries match cached entries (higher hit rate), but some matches will be false positives -- different questions with somewhat similar embeddings. This trades accuracy for cost savings."/>

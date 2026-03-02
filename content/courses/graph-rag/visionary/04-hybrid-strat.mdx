@@ -1,0 +1,21 @@
+---
+label: "Hybrid Strategies"
+icon: "\uD83D\uDD00"
+---
+
+## Hybrid Search Strategies
+
+The most powerful retrieval systems combine multiple strategies: **vector search** for semantic similarity, **keyword search** for exact matches, and **graph traversal** for relationship discovery. This combination is known as <JargonTip term="hybrid search">hybrid search</JargonTip>.
+
+
+
+| Method | Finds | Misses |
+|--------|-------|--------|
+| Vector Search | Semantically similar content | Exact terms, connected entities |
+| Keyword Search | Exact term matches | Synonyms, related concepts |
+| Graph Traversal | Entity relationships, multi-hop paths | Unstructured content |
+| Hybrid (all three) | Comprehensive results | (Most complete coverage) |
+
+
+
+  <Quiz question="Why combine vector search with graph traversal instead of using just one?" options={["It's a trend","They find different types of information, covering each other's blind spots","Graph search is always better","Vector search doesn't work"]} correctIndex={1} explanation="Vector search finds semantically similar content but misses entity connections. Graph traversal finds connected entities but misses unstructured content. Together, they provide comprehensive coverage."/>

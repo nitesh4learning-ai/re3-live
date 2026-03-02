@@ -1,0 +1,32 @@
+---
+label: "Memory Types"
+icon: "💾"
+---
+
+## Memory Architecture
+
+<ExpandableSection title="Buffer Memory" icon="📝" defaultOpen={true}>
+
+Keep the last N messages in context. Simplest approach. Good for short conversations but loses older context. Sliding window variant: keep last N turns + a summary of earlier turns.
+
+</ExpandableSection>
+
+<ExpandableSection title="Entity Memory" icon="👤">
+
+Extract and store named entities (people, places, topics) mentioned in conversation. When a user mentions "my project" again later, the system recalls all stored facts about that project.
+
+</ExpandableSection>
+
+<ExpandableSection title="Summary Memory" icon="📝">
+
+Periodically summarize older conversation turns. The summary replaces the raw messages in context, preserving meaning while saving tokens. Good for long-running conversations.
+
+</ExpandableSection>
+
+<ExpandableSection title="Vector Store Memory" icon="🔎">
+
+<JargonTip term="embedding">Embed</JargonTip> past messages and store in a <JargonTip term="vector search">vector database</JargonTip>. When a relevant topic comes up, retrieve similar past messages. Best for cross-session recall -- "What did we discuss about authentication last month?"
+
+</ExpandableSection>
+
+<SeeItInRe3 text="Re³ uses localStorage-based memory for Academy progress and user preferences, keeping learning state persistent across sessions."/>

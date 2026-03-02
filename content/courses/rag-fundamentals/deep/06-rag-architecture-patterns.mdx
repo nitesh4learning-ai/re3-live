@@ -1,0 +1,61 @@
+---
+label: "RAG Architecture Patterns"
+icon: "🏗️"
+---
+
+## RAG Architecture Patterns
+
+RAG has evolved from a simple retrieve-then-generate pattern into a family of architectures, each suited to different complexity levels. Understanding these patterns helps you choose the right architecture for your use case and plan for future evolution.
+
+<ComparisonTable title="RAG Architecture Evolution" columns={['Pattern','Complexity','Quality','Latency','Best For']} rows={[
+  ['Naive RAG','Low','Medium','Low','Prototypes, simple Q&A'],
+  ['Advanced RAG','Medium','High','Medium','Production chatbots, search'],
+  ['Modular RAG','Medium-High','High','Medium','Customizable pipelines'],
+  ['Self-RAG','High','Very High','High','Critical accuracy (legal, medical)'],
+  ['CRAG (Corrective RAG)','High','Very High','High','When retrieval quality varies'],
+  ['Agentic RAG','Very High','Highest','Variable','Complex multi-step research'],
+]} />
+
+<ExpandableSection title="Naive RAG vs Advanced RAG" icon="📊" defaultOpen={true}>
+
+**Naive RAG:** Embed query -> Vector search -> Top-k chunks -> Stuff into prompt -> Generate. Simple, fast, but suffers from poor retrieval, no reranking, and no query optimization.
+
+**Advanced RAG** adds: query optimization (rewriting, HyDE), hybrid search, reranking, optimized chunking, and prompt engineering. This is the production standard for most applications.
+
+Moving from Naive to Advanced RAG typically improves answer quality by 20-40%, measured by RAGAS metrics.
+
+</ExpandableSection>
+
+<ExpandableSection title="Self-RAG: Retrieval with Self-Reflection" icon="🤔">
+
+**Self-RAG** adds a critique layer: the model evaluates whether retrieval is needed, whether retrieved documents are relevant, and whether the generated answer is supported by the evidence.
+
+**Process:** (1) Determine if retrieval is needed for this query (2) If yes, retrieve (3) Evaluate each retrieved passage for relevance (4) Generate answer segments (5) Self-critique: check if answer is supported by evidence (6) If not, retry or abstain.
+
+Self-RAG adds 2-3x latency but significantly reduces hallucination, making it ideal for high-stakes domains.
+
+</ExpandableSection>
+
+<ExpandableSection title="CRAG: Corrective RAG" icon="🔄">
+
+**CRAG** adds a retrieval evaluator that scores retrieved documents as "Correct," "Ambiguous," or "Incorrect." Based on the evaluation:
+
+- **Correct:** Proceed with generation using the retrieved context.
+- **Ambiguous:** Supplement with web search for additional context.
+- **Incorrect:** Discard retrieved results and rely entirely on web search or abstain.
+
+CRAG is particularly valuable when the knowledge base may not cover all user queries, providing graceful fallback to web search.
+
+</ExpandableSection>
+
+<ExpandableSection title="Agentic RAG" icon="🤖">
+
+**Agentic RAG** wraps RAG in an autonomous agent loop. The agent can: reformulate queries, decide which knowledge bases to search, determine when it has enough information, reason across multiple retrieved contexts, and request human clarification.
+
+This is the most powerful pattern but also the most complex and unpredictable. It is best suited for complex research tasks where the information need cannot be satisfied by a single retrieval step.
+
+</ExpandableSection>
+
+<Quiz question="You are building a RAG system for a medical information service. Incorrect answers could harm patients. Which RAG architecture is most appropriate?" options={["Naive RAG for speed","Advanced RAG with reranking","Self-RAG with explicit faithfulness checks and abstention when uncertain","Agentic RAG for maximum capability"]} correctIndex={2} explanation="Self-RAG's self-critique and abstention capabilities are essential for medical applications. The system can explicitly check whether its answer is supported by retrieved evidence and choose to say 'I cannot confidently answer this' rather than risk generating a harmful hallucination. This safety-first approach is critical in healthcare." />
+
+<ArchitectureDecision scenario="Your startup's RAG chatbot answers product questions. Sometimes the knowledge base does not have the answer, and the chatbot confidently hallucinates incorrect product specs. How do you fix this?" options={[{label:'Add stronger instructions to the prompt: "Only answer based on provided context"',tradeoff:'Helps somewhat but LLMs still hallucinate through strong prompting, especially with high temperature'},{label:"Implement CRAG: evaluate retrieval quality and fall back to \"I don't know\" when retrieval is poor",tradeoff:'Directly addresses the problem by detecting when retrieval fails and abstaining rather than hallucinating'},{label:'Fine-tune the model on your product data so it has the knowledge built-in',tradeoff:'Reduces but does not eliminate hallucination, expensive to maintain as products change, still needs RAG for freshness'}]} correctIndex={1} explanation="CRAG directly addresses the root cause: the system confidently generates answers even when retrieval did not find relevant information. By evaluating retrieval quality and triggering a fallback ('I don't have information about that specific product') when the retrieved context is irrelevant, you prevent the hallucination pathway entirely." />

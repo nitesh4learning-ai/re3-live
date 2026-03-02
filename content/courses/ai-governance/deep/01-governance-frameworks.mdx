@@ -1,0 +1,40 @@
+---
+label: "Governance Frameworks"
+icon: "🏛️"
+---
+
+## Governance Frameworks
+
+Three major governance frameworks are shaping AI regulation worldwide: the <JargonTip term="NIST AI RMF">NIST AI Risk Management Framework</JargonTip>, the EU AI Act, and ISO/IEC 42001. Each takes a different approach to managing AI risks.
+
+<ComparisonTable title="Framework Comparison" columns={["Framework","Scope","Approach","Enforcement"]} rows={[
+  ["NIST AI RMF","Voluntary US framework","Risk-based, four functions: Govern, Map, Measure, Manage","Voluntary adoption, no penalties"],
+  ["EU AI Act","Mandatory EU regulation","Risk classification: Unacceptable, High, Limited, Minimal","Fines up to 35M EUR or 7% global revenue"],
+  ["ISO/IEC 42001","International standard","Management system for responsible AI development","Certification-based, market pressure"],
+]}/>
+
+<ExpandableSection title="NIST AI RMF: Four Core Functions" icon="🏛️" defaultOpen={true}>
+
+1. **GOVERN**: Establish policies, roles, and accountability structures for AI risk management.
+
+2. **MAP**: Identify and document AI risks in context, including intended use, stakeholders, and potential impacts.
+
+3. **MEASURE**: Assess identified risks using quantitative and qualitative methods.
+
+4. **MANAGE**: Prioritize and act on risks through mitigation, monitoring, and response plans.
+
+</ExpandableSection>
+
+<ExpandableSection title="EU AI Act Risk Tiers" icon="⚠️">
+
+**Unacceptable Risk**: Banned outright -- social scoring, manipulative AI, real-time biometric surveillance.
+
+**High Risk**: Strict requirements -- medical devices, hiring tools, credit scoring, law enforcement.
+
+**Limited Risk**: Transparency obligations -- chatbots, deepfakes, emotion recognition.
+
+**Minimal Risk**: No specific requirements -- spam filters, video game AI.
+
+</ExpandableSection>
+
+<Quiz question="Which framework can impose fines for non-compliance?" options={["NIST AI RMF","ISO/IEC 42001","EU AI Act","None of them"]} correctIndex={2} explanation="The EU AI Act is the only legally binding framework with enforcement powers. NIST is voluntary and ISO is certification-based." />

@@ -1,0 +1,56 @@
+---
+label: "Enterprise Patterns"
+icon: "🏢"
+---
+
+## Enterprise Patterns
+
+Enterprise A2A deployments require authentication, comprehensive audit trails, compliance controls, and multi-tenant isolation. These patterns ensure A2A systems meet enterprise security and governance requirements.
+
+<CodeBlock language="python" label="Audit Trail for A2A Tasks" code={`import datetime, json
+
+class AuditLogger:
+    """Comprehensive audit logging for A2A task operations."""
+
+    async def log_event(self, event_type: str, task_id: str, details: dict):
+        entry = {
+            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "event_type": event_type,
+            "task_id": task_id,
+            "agent_id": self.agent_id,
+            **details
+        }
+        await self.store.append(entry)
+        return entry
+
+# Usage in task handler:
+audit = AuditLogger()
+
+async def handle_task(task_id, message, requester_info):
+    await audit.log_event("task_received", task_id, {
+        "requester": requester_info["agent_name"],
+        "requester_ip": requester_info["ip"],
+        "skill_requested": message.get("skill"),
+        "input_size_bytes": len(json.dumps(message)),
+    })
+
+    # Process task...
+    result = await process(message)
+
+    await audit.log_event("task_completed", task_id, {
+        "output_size_bytes": len(json.dumps(result)),
+        "processing_time_ms": elapsed_ms,
+        "tools_used": tools_called,
+        "tokens_consumed": token_count,
+    })`}/>
+
+<ComparisonTable title="Enterprise A2A Security Layers" columns={['Layer','Implementation','Purpose']} rows={[
+  ['Transport','mTLS between agents','Encrypt and authenticate all agent communication'],
+  ['Identity','OAuth 2.0 + JWT tokens','Verify agent identity and authorization scopes'],
+  ['Input validation','JSON Schema validation on all messages','Prevent injection and malformed data'],
+  ['Rate limiting','Per-agent quotas with sliding windows','Prevent abuse and ensure fair resource sharing'],
+  ['Audit','Immutable log of all task operations','Compliance, debugging, and forensics'],
+  ['Data isolation','Tenant-scoped task stores','Multi-tenant data separation'],
+]}/>
+
+<Quiz question="Why is mTLS (mutual TLS) recommended for A2A agent communication instead of regular TLS?" options={["mTLS is faster","mTLS verifies BOTH sides of the connection, not just the server","mTLS uses stronger encryption","Regular TLS does not work with JSON-RPC"]} correctIndex={1} explanation="Regular TLS only verifies the server's identity. mTLS ensures both the client agent and server agent prove their identity with certificates. This prevents unauthorized agents from impersonating legitimate ones." />

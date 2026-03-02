@@ -1,0 +1,139 @@
+---
+label: "Resource & Sampling"
+icon: "📚"
+---
+
+## Resource & Sampling Patterns
+
+MCP resources let servers expose **readable data** (files, database records, API responses) distinct from tools. **Subscriptions** push real-time change notifications to the host. **Sampling** lets servers request LLM completions from the host — enabling server-side AI loops without embedding API keys in the server.
+
+      <AnalogyBox emoji="📚" title="Resources are like a library, sampling is like calling a reference desk">
+        Resources are the books on the shelves — static or periodically updated data the LLM can read. Subscriptions ring a bell when a book is updated. Sampling is when the server itself calls the reference desk (the LLM) to answer a question — the server is temporarily in the driver's seat.
+      </AnalogyBox>
+      <CodeBlock language="python" label="Dynamic Resource Discovery" code={`from mcp.server import Server
+from mcp.types import Resource, ResourceContents, TextResourceContents
+import json
+
+server = Server("re3-resources")
+
+@server.list_resources()
+async def list_resources() -> list[Resource]:
+    """Dynamically enumerate available resources."""
+    # Fetch current debate IDs from database
+    active_debates = await db.get_active_debate_ids()
+
+    base_resources = [
+        Resource(
+            uri="re3://articles/recent",
+            name="Recent Articles",
+            mimeType="application/json",
+            description="Latest 20 published articles"
+        ),
+        Resource(
+            uri="re3://agents/registry",
+            name="Agent Registry",
+            mimeType="application/json",
+            description="All 25 debater agents with metadata"
+        )
+    ]
+
+    # Dynamically add per-debate resources
+    debate_resources = [
+        Resource(
+            uri=f"re3://debates/{debate_id}/loom",
+            name=f"Loom for debate {debate_id}",
+            mimeType="text/markdown",
+            description=f"Synthesized insights from debate {debate_id}"
+        )
+        for debate_id in active_debates
+    ]
+
+    return base_resources + debate_resources
+
+@server.read_resource()
+async def read_resource(uri: str) -> ResourceContents:
+    if uri == "re3://articles/recent":
+        articles = await db.get_recent_articles(limit=20)
+        return TextResourceContents(
+            uri=uri,
+            mimeType="application/json",
+            text=json.dumps(articles)
+        )
+    elif uri.startswith("re3://debates/") and uri.endswith("/loom"):
+        debate_id = uri.split("/")[3]
+        loom = await db.get_debate_loom(debate_id)
+        return TextResourceContents(uri=uri, mimeType="text/markdown", text=loom)
+    raise ValueError(f"Unknown resource: {uri}")`}/>
+      <ExpandableSection title="Resource Subscriptions (Push Notifications)" icon="🔔">
+        <CodeBlock language="python" label="Server-Initiated Resource Notifications" code={`from mcp.server import Server
+from mcp.types import ResourceUpdatedNotification
+import asyncio
+
+server = Server("re3-live-resources")
+
+# Track active subscriptions
+subscriptions: set[str] = set()
+
+@server.subscribe_resource()
+async def subscribe(uri: str):
+    subscriptions.add(uri)
+    # Start background watcher if not already running
+    asyncio.create_task(watch_resource(uri))
+
+@server.unsubscribe_resource()
+async def unsubscribe(uri: str):
+    subscriptions.discard(uri)
+
+async def watch_resource(uri: str):
+    """Background task: poll for changes and notify subscribers."""
+    last_hash = await compute_resource_hash(uri)
+    while uri in subscriptions:
+        await asyncio.sleep(5)  # Poll every 5 seconds
+        current_hash = await compute_resource_hash(uri)
+        if current_hash != last_hash:
+            last_hash = current_hash
+            # Notify the MCP host — host decides how to handle
+            await server.request_context.session.send_resource_updated(
+                ResourceUpdatedNotification(uri=uri)
+            )`}/>
+      </ExpandableSection>
+      <ExpandableSection title="Server-Initiated Sampling (LLM-in-the-Loop)" icon="🤖">
+
+Sampling lets an MCP server ask the host's LLM to complete a prompt — without the server holding any API keys. The host controls model selection, rate limiting, and approval.
+
+        <CodeBlock language="python" label="Sampling from an MCP Server" code={`from mcp.server import Server
+from mcp.types import (
+    CreateMessageRequest, CreateMessageResult,
+    SamplingMessage, TextContent
+)
+
+server = Server("intelligent-indexer")
+
+@server.call_tool()
+async def call_tool(name: str, arguments: dict):
+    if name == "summarize_and_tag_article":
+        article_text = arguments["content"]
+
+        # Server asks the HOST's LLM to generate a summary
+        # The host can show a confirmation UI, apply guardrails, etc.
+        result: CreateMessageResult = await server.request_context.session.create_message(
+            CreateMessageRequest(
+                messages=[
+                    SamplingMessage(
+                        role="user",
+                        content=TextContent(
+                            type="text",
+                            text=f"Summarize this article in 2 sentences and suggest 5 tags:\\n\\n{article_text}"
+                        )
+                    )
+                ],
+                maxTokens=300,
+                systemPrompt="You are a content taxonomy expert. Return JSON with keys: summary, tags.",
+                # Model preference — host may override
+                modelPreferences={"hints": [{"name": "claude-sonnet-4"}]}
+            )
+        )
+        return [TextContent(type="text", text=result.content.text)]`}/>
+      </ExpandableSection>
+      <ResourceExplorer/>
+      <Quiz question="What is the key security advantage of MCP Sampling (server requesting LLM completions from the host)?" options={["It makes LLM calls faster by routing them locally","The MCP server never needs to store or manage LLM API keys — the host controls all API access","The server gets unlimited free LLM calls","Sampling uses a different, more capable model than the host"]} correctIndex={1} explanation="With sampling, the MCP server can leverage LLM intelligence for its internal logic without holding any API credentials. The host controls the API key, can apply rate limits, can require user approval for each sampling request, and can override the model choice — maintaining centralized governance."/>

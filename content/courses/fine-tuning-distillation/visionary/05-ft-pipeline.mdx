@@ -1,0 +1,81 @@
+---
+label: "Build Pipeline"
+icon: "\uD83D\uDE80"
+---
+
+## Build a Fine-Tuning Pipeline
+
+Putting it all together: configure a complete fine-tuning pipeline, from model selection through training to evaluation. Experiment with different configurations to understand the tradeoffs.
+
+  <PipelineBuilder/>
+  <CodeBlock title="Complete fine-tuning pipeline" language="python" code={`from datasets import load_dataset
+from peft import LoraConfig, get_peft_model
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from trl import SFTTrainer, SFTConfig
+
+# 1. Load & prepare data
+dataset = load_dataset("json", data_files="training_data.jsonl")
+tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3-8B")
+tokenizer.pad_token = tokenizer.eos_token
+
+# 2. Load model with quantization for QLoRA
+from transformers import BitsAndBytesConfig
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_compute_dtype=torch.bfloat16,
+)
+model = AutoModelForCausalLM.from_pretrained(
+    "meta-llama/Llama-3-8B",
+    quantization_config=bnb_config,
+    device_map="auto"
+)
+
+# 3. Apply LoRA
+peft_config = LoraConfig(r=16, lora_alpha=32,
+    target_modules=["q_proj","v_proj","k_proj","o_proj"],
+    lora_dropout=0.05, task_type="CAUSAL_LM")
+model = get_peft_model(model, peft_config)
+
+# 4. Train
+trainer = SFTTrainer(
+    model=model,
+    train_dataset=dataset["train"],
+    args=SFTConfig(
+        output_dir="./output", num_train_epochs=3,
+        per_device_train_batch_size=4, learning_rate=2e-4,
+        warmup_ratio=0.1, logging_steps=10,
+        save_strategy="epoch", evaluation_strategy="epoch",
+    ),
+    tokenizer=tokenizer,
+)
+trainer.train()
+
+# 5. Save adapter (small file, ~30MB)
+model.save_pretrained("./ft-adapter")
+
+# 6. Evaluate
+from evaluate import load
+results = trainer.evaluate(dataset["test"])
+print(f"Eval loss: {results['eval_loss']:.4f}")`}/>
+  <ExpandableSection title="Post-Training Checklist" icon="✅">
+
+
+**1. Evaluate on held-out test set** -- never evaluate on training data
+
+
+**2. Compare against baseline** -- is the fine-tuned model actually better than prompting?
+
+
+**3. Test for regressions** -- check general capabilities haven't degraded
+
+
+**4. Red-team for new failure modes** -- fine-tuning can introduce unexpected behaviors
+
+
+**5. A/B test in production** -- route 5% of traffic to the new model before full rollout
+
+
+  </ExpandableSection>
+  <Quiz question="What should you always do after fine-tuning before deploying?" options={["Deploy immediately to get feedback","Evaluate on a held-out test set and compare to baseline","Delete the original model","Increase the learning rate and retrain"]} correctIndex={1} explanation="Always evaluate on data the model hasn't seen during training, and compare against your baseline (e.g., prompting the base model). Fine-tuning isn't guaranteed to be better -- you need to verify the improvement is real and check for regressions."/>
+  <Quiz question="Why save only the LoRA adapter instead of the full model?" options={["It's faster to save","The adapter is ~30MB vs ~14GB for the full model","The full model is already saved elsewhere","It reduces training time"]} correctIndex={1} explanation="LoRA adapters are tiny (~30MB) compared to full model copies (~14GB for 7B params). You can store dozens of specialized adapters and load them on top of the same base model at inference time, switching between tasks instantly."/>

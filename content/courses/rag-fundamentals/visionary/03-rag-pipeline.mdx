@@ -1,0 +1,22 @@
+---
+label: "The RAG Pipeline"
+icon: "🔧"
+---
+
+## The RAG Pipeline
+
+A RAG system has 7 stages, divided into two phases: **Indexing** (offline, done once) and **Querying** (real-time, per request).
+
+<MessageSimulator title="The 7-Stage RAG Pipeline" messages={[
+  {role:'system',label:'1. Ingest Documents',text:'Load documents from files, databases, APIs, or web pages. Documents can be PDFs, HTML, markdown, or plain text.'},
+  {role:'system',label:'2. Chunk Text',text:'Split documents into smaller pieces (chunks) of 200-1000 tokens each. This process is called chunking. Overlapping chunks (e.g., 50-token overlap) prevent losing context at boundaries.'},
+  {role:'system',label:'3. Generate Embeddings',text:'Convert each chunk into a vector using an embedding model. Each chunk becomes a list of 768-3072 numbers representing its meaning.'},
+  {role:'system',label:'4. Store in Vector DB',text:'Save the vectors (and original text) in a vector database like Pinecone, pgvector, or Chroma for fast similarity search.'},
+  {role:'user',label:'5. Receive Query',text:'User asks a question. The query is also converted into a vector using the same embedding model.'},
+  {role:'ai',label:'6. Retrieve Similar Chunks',text:'The vector DB finds the top-k chunks most similar to the query vector (typically k=3 to k=10). These are the most relevant pieces of information.'},
+  {role:'ai',label:'7. Generate Response',text:'The retrieved chunks are injected into the LLM prompt as context. The LLM generates an answer grounded in the retrieved information, dramatically reducing hallucination.'},
+]} />
+
+<PipelineOrderGame />
+
+<Quiz question="If your chunk size is too large (e.g., entire documents), what problem occurs?" options={["The embeddings are more accurate","Retrieval becomes less precise -- you get more irrelevant content mixed in","It uses less storage","The LLM responds faster"]} correctIndex={1} explanation="Large chunks mean each retrieved result contains both relevant and irrelevant content, diluting the useful information. Smaller chunks allow more precise retrieval of just the relevant passages." />

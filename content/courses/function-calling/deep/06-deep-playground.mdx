@@ -1,0 +1,18 @@
+---
+label: "Deep Playground"
+icon: "🎯"
+---
+
+## Deep Playground
+
+Apply your advanced function calling knowledge to real architectural decisions.
+
+<ArchitectureDecision scenario="You are building a customer support agent that needs tools for: searching a knowledge base, creating tickets, sending emails, and escalating to humans. The agent handles 1000+ conversations per hour." options={[
+  {label:"Single monolithic tool registry",tradeoff:"Simple to build, but hard to scale individual tools independently. A bug in one tool risks affecting all others."},
+  {label:"Microservice tools with a gateway",tradeoff:"Each tool is its own service with independent scaling. Gateway handles routing. More complex but more resilient."},
+  {label:"Serverless functions per tool",tradeoff:"Maximum scalability with pay-per-use. Cold start latency can be an issue for time-sensitive tools."},
+]} correctIndex={1} explanation="At 1000+ conversations/hour, microservice architecture with a gateway gives the best balance. Individual tools scale independently, and the gateway handles routing and rate limiting." />
+
+<Quiz question="An LLM requests a tool call with invalid parameters. What should your system do?" options={["Execute anyway","Return a validation error to the LLM with details about what was wrong","Crash with a stack trace","Silently fix the parameters"]} correctIndex={1} explanation="Return a clear validation error. The LLM can then self-correct and retry with valid parameters." />
+
+<Quiz question="Your tool system has a 15% error rate. What metric should you investigate first?" options={["Total volume","Error breakdown by tool -- which specific tools are failing?","Average response time","Cache hit rate"]} correctIndex={1} explanation="Breaking errors down by tool reveals whether one problematic tool is dragging down the average or if it is a systemic issue." />

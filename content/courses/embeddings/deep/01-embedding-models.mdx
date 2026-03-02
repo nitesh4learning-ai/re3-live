@@ -1,0 +1,87 @@
+---
+label: "Embedding Models Deep Dive"
+icon: "🧠"
+---
+
+## Embedding Models Deep Dive
+
+Choosing the right embedding model impacts retrieval quality, cost, latency, and storage requirements. The landscape has evolved rapidly -- from early sentence-transformers to state-of-the-art models with Matryoshka representation learning that allow flexible dimensionality.
+
+<ComparisonTable title="Production Embedding Models (2024-2025)" columns={['Model','Dimensions','Max Tokens','MTEB Score','Cost (per 1M tokens)']} rows={[
+  ['text-embedding-3-small (OpenAI)','1536 (flexible)','8191','62.3','$0.02'],
+  ['text-embedding-3-large (OpenAI)','3072 (flexible)','8191','64.6','$0.13'],
+  ['embed-v4 (Cohere)','1024','512','66.1','$0.10'],
+  ['jina-embeddings-v3','1024 (flexible)','8192','65.5','Free (local) / API'],
+  ['BGE-M3 (BAAI)','1024','8192','64.0','Free (open-source)'],
+  ['nomic-embed-text-v1.5','768 (flexible)','8192','62.2','Free (open-source)'],
+  ['Voyage-3-large','1024','32000','67.2','$0.18'],
+]}/>
+
+<ExpandableSection title="Matryoshka Representation Learning (MRL)" icon="🪆" defaultOpen={true}>
+
+**Matryoshka embeddings** (named after Russian nesting dolls) train the model so that the first N dimensions of the embedding are a valid, useful embedding on their own. You can truncate a 3072-dimension embedding to 256 dimensions and still get good similarity search results.
+
+**Why this matters:** Storage and search costs scale linearly with dimension count. Using 256 dimensions instead of 3072 gives a 12x reduction in storage and a significant speedup in similarity computation, with only a modest quality decrease (typically 2-5% on retrieval benchmarks).
+
+OpenAI's text-embedding-3 models and Jina v3 support Matryoshka truncation. This allows you to tune the quality/cost trade-off per use case.
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="Embedding model comparison pipeline" code={`from openai import OpenAI
+import numpy as np
+
+client = OpenAI()
+
+def get_embeddings(texts, model="text-embedding-3-small", dimensions=None):
+    """Get embeddings with optional dimension truncation (Matryoshka)."""
+    params = {"input": texts, "model": model}
+    if dimensions:
+        params["dimensions"] = dimensions  # Matryoshka truncation
+
+    response = client.embeddings.create(**params)
+    return [np.array(d.embedding) for d in response.data]
+
+def cosine_similarity(a, b):
+    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
+# Compare full vs truncated embeddings
+query = "How do I implement authentication in my web app?"
+docs = [
+    "OAuth 2.0 implementation guide for Node.js applications",
+    "Best practices for password hashing with bcrypt",
+    "Introduction to machine learning with Python",
+    "JWT token verification middleware setup",
+]
+
+# Full dimensions (1536)
+emb_full = get_embeddings([query] + docs, dimensions=1536)
+
+# Truncated (256 dims - 6x smaller, faster search)
+emb_small = get_embeddings([query] + docs, dimensions=256)
+
+print("Full (1536d) similarities:")
+for i, doc in enumerate(docs):
+    sim = cosine_similarity(emb_full[0], emb_full[i+1])
+    print(f"  {sim:.4f} - {doc[:50]}")
+
+print("\\nTruncated (256d) similarities:")
+for i, doc in enumerate(docs):
+    sim = cosine_similarity(emb_small[0], emb_small[i+1])
+    print(f"  {sim:.4f} - {doc[:50]}")
+
+# Storage comparison
+print(f"\\nStorage: {1536*4/1024:.1f}KB vs {256*4/1024:.1f}KB per vector")`}/>
+
+<ExpandableSection title="Task-Specific vs General Embeddings" icon="🎯">
+
+General embedding models are trained on diverse text. But for specific domains (legal, medical, code), fine-tuned embeddings can dramatically outperform general ones.
+
+- **Cohere embed-v4:** Supports task-type hints (search_document, search_query, classification, clustering) to optimize the embedding for your use case
+- **Jina v3:** Supports late-interaction and task-specific adapters
+- **Custom fine-tuning:** For domain-specific tasks, fine-tuning a small embedding model (like Nomic or BGE) on your domain data can outperform larger general models
+
+</ExpandableSection>
+
+<Quiz question="You need to build a semantic search system for a legal firm. Documents are 10-50 pages long. Which embedding model choice minimizes cost while maintaining quality?" options={["text-embedding-3-large at full 3072 dimensions for maximum quality","text-embedding-3-small with Matryoshka truncation to 512 dimensions","A free open-source model (BGE-M3) self-hosted","Cohere embed-v4 with search_document task type"]} correctIndex={2} explanation="For a legal firm processing many long documents, self-hosting BGE-M3 eliminates per-token costs entirely. The model has strong performance (64.0 MTEB), supports 8192 tokens per chunk, and incurs only the one-time cost of GPU infrastructure. API-based models would be expensive at scale with legal document volumes."/>
+
+<ArchitectureDecision scenario="You are building a multi-language knowledge base for a global company. Documents are in English, Spanish, German, Japanese, and Chinese. Which embedding approach?" options={[{label:'Use OpenAI text-embedding-3-large (supports multilingual through training data)',tradeoff:'Good multilingual support, easy API, but non-English languages may have slightly lower quality'},{label:'Use Cohere embed-v4 (explicitly trained for multilingual)',tradeoff:'Best multilingual performance, task-type optimization, slightly more expensive'},{label:'Use separate monolingual embedding models per language',tradeoff:'Best per-language quality, but prevents cross-language search and multiplies infrastructure'}]} correctIndex={1} explanation="Cohere embed-v4 is explicitly optimized for multilingual embeddings, ensuring consistent quality across languages. Using separate models per language would prevent cross-language search (finding a German document from an English query), which is a key requirement for global knowledge bases."/>

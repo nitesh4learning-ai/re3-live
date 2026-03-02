@@ -1,0 +1,77 @@
+---
+label: "Production Pipeline"
+icon: "⚙️"
+---
+
+## Production Graph RAG
+
+Production Graph RAG systems need incremental graph updates, consistency guarantees between the graph and vector store, performance tuning for large graphs, and monitoring for graph quality degradation.
+
+  <CodeBlock language="python" label="Production Graph RAG Pipeline" code={`class ProductionGraphRAG:
+    def __init__(self, graph_db, vector_store, llm, embedder):
+        self.graph = graph_db
+        self.vectors = vector_store
+        self.llm = llm
+        self.embedder = embedder
+        self.resolver = EntityResolver(embedder)
+
+    async def ingest_document(self, doc_id: str, content: str):
+        """Incrementally add a document to the graph."""
+        chunks = chunk_text(content, max_tokens=500, overlap=50)
+
+        async with self.graph.transaction() as tx:
+            # Create document node
+            await tx.run(
+                "MERGE (d:Document {id: $id}) SET d.updated = datetime()",
+                id=doc_id)
+
+            for i, chunk in enumerate(chunks):
+                # Extract and resolve entities
+                extraction = await extract_knowledge(chunk, self.llm)
+
+                for entity in extraction.entities:
+                    canonical = await self.resolver.resolve(
+                        entity.name, entity.type)
+                    await tx.run("""
+                        MERGE (e:Entity {name: $name})
+                        SET e.type = $type, e.updated = datetime()
+                        MERGE (d:Document {id: $doc_id})
+                        MERGE (d)-[:MENTIONS]->(e)
+                    """, name=canonical, type=entity.type, doc_id=doc_id)
+
+                for rel in extraction.relations:
+                    src = await self.resolver.resolve(rel.source, "Entity")
+                    tgt = await self.resolver.resolve(rel.target, "Entity")
+                    await tx.run("""
+                        MATCH (a:Entity {name: $src}), (b:Entity {name: $tgt})
+                        MERGE (a)-[r:RELATES {type: $rel_type}]->(b)
+                        SET r.confidence = $conf, r.evidence = $evidence
+                    """, src=src, tgt=tgt, rel_type=rel.relation,
+                         conf=rel.confidence, evidence=rel.evidence)
+
+                # Index chunk in vector store
+                embedding = await self.embedder.embed(chunk)
+                await self.vectors.upsert(
+                    id=f"{doc_id}_chunk_{i}", vector=embedding,
+                    metadata={"doc_id": doc_id, "chunk_index": i,
+                              "text": chunk,
+                              "entities": [e.name for e in extraction.entities]}
+                )
+
+    async def query(self, question: str, strategy: str = "hybrid"):
+        """Query with configurable retrieval strategy."""
+        if strategy == "local":
+            return await self._local_search(question)
+        elif strategy == "global":
+            return await self._global_search(question)
+        else:
+            # Hybrid: combine graph + vector retrieval
+            graph_ctx = await self._graph_context(question)
+            vector_ctx = await self._vector_context(question)
+            return await self._synthesize(question, graph_ctx, vector_ctx)`}/>
+  <ArchitectureDecision scenario="Your Graph RAG system processes 100 new documents daily. After 3 months, query latency increased from 200ms to 2 seconds. Graph has 500K nodes and 2M edges. What is the most likely fix?" options={[
+    {label:'Rebuild the entire graph from scratch monthly',tradeoff:'Clean state but expensive. Causes downtime during rebuild.'},
+    {label:'Add graph database indexes on frequently queried properties',tradeoff:'Addresses the root cause. Index on entity names and types speeds up MATCH queries dramatically.'},
+    {label:'Reduce the number of entities extracted per document',tradeoff:'Smaller graph but loses information. Does not fix the indexing problem.'},
+    {label:'Switch to a larger database instance',tradeoff:'Throwing hardware at the problem. Helps temporarily but does not scale.'}
+  ]} correctIndex={1} explanation="The latency increase is almost certainly due to missing indexes. As the graph grew from thousands to 500K nodes, unindexed property lookups became full scans. Adding indexes on entity name and type fields brings query times back to O(log n)."/>

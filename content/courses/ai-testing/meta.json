@@ -1,0 +1,16 @@
+{
+  "tier": 3,
+  "icon": "🧪",
+  "title": "AI Testing & Red-Teaming",
+  "description": "Adversarial testing, prompt injection defense, safety benchmarks. Hardening AI systems.",
+  "difficulty": "Advanced",
+  "timeMinutes": 40,
+  "exerciseCount": 7,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "AI Testing & Red-Teaming — Re³ Academy",
+    "metaDescription": "Learn AI security testing: adversarial testing, prompt injection defense, safety benchmarks."
+  }
+}

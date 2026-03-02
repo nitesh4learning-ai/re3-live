@@ -1,0 +1,67 @@
+---
+label: "Deep Playground"
+icon: "\uD83C\uDFAE"
+---
+
+## Deep Playground
+
+Advanced production scenarios requiring synthesis of all GraphRAG concepts. These exercises mirror real architectural decisions made at scale.
+
+<ExpandableSection title="Exercise 1: System Design — Legal Research Platform" icon="\uD83C\uDFD7\uFE0F" defaultOpen={true}>
+
+A law firm wants GraphRAG over 200,000 case documents. Cases cite other cases, involve parties (companies, individuals), are decided by judges, and establish legal precedents. Design the complete system.
+
+  <Quiz
+question="The firm's most common query type is: 'Find all cases where [Company X] was a defendant that cite [Precedent Y].' Which retrieval strategy handles this optimally?"
+options={[
+"Pure vector search — embed the query and find similar case descriptions",
+"Graph traversal: Company X <- DEFENDANT_IN <- Cases -> CITES -> Precedent Y (intersection query)",
+"BM25 keyword search for company and precedent names",
+"Global search using community summaries"
+]}
+correctIndex={1}
+explanation="This is a graph intersection query: (cases where X was defendant) AND (cases citing Y). Graph traversal computes this as the intersection of two entity neighborhoods — exactly what graph databases are designed for. Vector search would retrieve semantically similar cases but miss the precise structural constraint."
+/>
+</ExpandableSection>
+<ExpandableSection title="Exercise 2: Cost Architecture — 1M Document Corpus" icon="\uD83D\uDCB0">
+
+You are building GraphRAG for a news corpus with 1 million articles published over 10 years. Articles arrive at ~500/day. LLM extraction (Claude Haiku) costs $0.0025/article. Community detection takes 6 hours on the full graph.
+
+  <Quiz
+question="Your monthly indexing budget is $500. At $0.0025/article, how many new articles can you run through LLM extraction each month?"
+options={[
+"500 articles",
+"5,000 articles",
+"50,000 articles",
+"200,000 articles"
+]}
+correctIndex={3}
+explanation="$500 / $0.0025 per article = 200,000 articles/month. At 500 articles/day, that is 15,000/month of new articles — well within budget. The remaining budget covers re-extraction of updated high-priority articles or selective LLM validation of low-confidence NER results. Always model your cost budget explicitly before committing to an extraction strategy."
+/>
+</ExpandableSection>
+<ExpandableSection title="Exercise 3: Failure Mode Analysis" icon="\uD83D\uDD27">
+  <Quiz
+question="After deploying GraphRAG, users report that questions about recent events (last 24 hours) return stale or incorrect answers. The root cause is most likely:"
+options={[
+"The LLM model is outdated",
+"Community summaries are cached and not refreshed for recently ingested documents",
+"The vector index is not updated in real time",
+"Graph traversal has a bug in the recent-documents filter"
+]}
+correctIndex={1}
+explanation="Community summaries are the most common freshness bottleneck in GraphRAG. They are expensive to generate, so they are typically cached and refreshed on a schedule (e.g., nightly). New documents ingested in the last 24 hours may not yet be reflected in community summaries used by global search. The fix is incremental dirty-community refresh triggered immediately after ingestion."
+/>
+</ExpandableSection>
+<ExpandableSection title="Exercise 4: Entity Resolution Edge Case" icon="\uD83E\uDD14">
+  <Quiz
+question="Your graph has two nodes: 'Apple Inc.' (Organization, 500 connections) and 'Apple' (Organization, 800 connections). Entity resolution scores them at 0.72 similarity (below auto-merge threshold of 0.85). What is the correct action?"
+options={[
+"Auto-merge them — they are obviously the same entity",
+"Route to human review queue: high similarity but below threshold; a data steward should confirm before merging 1,300 connections",
+"Delete the smaller node (fewer connections)",
+"Increase the auto-merge threshold to 0.70 to catch this case"
+]}
+correctIndex={1}
+explanation="Merging two high-degree nodes (1,300 combined connections) is irreversible and high-impact. The correct MDM practice is human review for borderline cases. The data steward can confirm they are the same entity and trigger a safe merge. Lowering the threshold globally would cause false merges for genuinely different entities (e.g., 'Amazon.com' vs 'Amazon river')."
+/>
+</ExpandableSection>

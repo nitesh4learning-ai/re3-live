@@ -1,0 +1,184 @@
+---
+label: "Observability & Ops"
+icon: "📊"
+---
+
+## Observability & Production Operations
+
+Debugging an MCP server in production requires structured logs correlated by session ID, distributed traces across host-server boundaries, metrics on tool call latency and error rates, and health check endpoints that can report capability degradation before LLMs start failing.
+
+      <ComparisonTable title="MCP Observability Stack" columns={['Layer','Tool','What It Captures','Alert On']} rows={[
+        ['Logs','Structured JSON (Pino/structlog)','Tool calls, errors, session events, auth','ERROR rate > 1%, auth failures spike'],
+        ['Traces','OpenTelemetry spans','End-to-end latency host→server→DB','p99 > 5s, trace gaps'],
+        ['Metrics','Prometheus + Grafana','RPS, latency histogram, error rates','p95 > 2s, error rate > 0.5%'],
+        ['Health','MCP ping + /health endpoint','Server reachability, DB connectivity','Any health check failure'],
+        ['Audit','Append-only audit log','Who called what tool, when, with what args','Unusual access patterns'],
+      ]}/>
+      <CodeBlock language="python" label="OpenTelemetry Instrumentation for MCP Server" code={`from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
+import time
+import structlog
+
+# Configure OTLP export to Jaeger/Grafana Tempo
+provider = TracerProvider()
+provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
+trace.set_tracer_provider(provider)
+tracer = trace.get_tracer("re3-mcp-server")
+
+# Structured logger with context propagation
+log = structlog.get_logger()
+
+# Instrument HTTP client (for DB calls)
+HTTPXClientInstrumentor().instrument()
+
+class ObservableServer(Server):
+    """Wraps MCP Server with full observability."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.metrics = {
+            "tool_calls_total": {},
+            "tool_errors_total": {},
+            "tool_latency_ms": {},
+        }
+
+    async def traced_call_tool(self, name: str, arguments: dict, session_id: str):
+        with tracer.start_as_current_span(f"mcp.tool.{name}") as span:
+            span.set_attribute("mcp.tool.name", name)
+            span.set_attribute("mcp.session.id", session_id)
+            span.set_attribute("mcp.server.name", self.name)
+
+            bound_log = log.bind(
+                tool=name,
+                session_id=session_id,
+                trace_id=format(span.get_span_context().trace_id, '032x')
+            )
+
+            start_ms = time.monotonic() * 1000
+            try:
+                result = await self._call_tool_impl(name, arguments)
+                latency = time.monotonic() * 1000 - start_ms
+
+                span.set_attribute("mcp.tool.latency_ms", latency)
+                span.set_attribute("mcp.tool.success", True)
+
+                bound_log.info("tool_call_success",
+                               latency_ms=round(latency, 2),
+                               result_type=type(result).__name__)
+
+                self._record_metric("tool_calls_total", name, 1)
+                self._record_metric("tool_latency_ms", name, latency)
+                return result
+
+            except Exception as e:
+                latency = time.monotonic() * 1000 - start_ms
+                span.record_exception(e)
+                span.set_attribute("mcp.tool.success", False)
+                span.set_attribute("error.type", type(e).__name__)
+
+                bound_log.error("tool_call_failed",
+                                error=str(e),
+                                error_type=type(e).__name__,
+                                latency_ms=round(latency, 2))
+
+                self._record_metric("tool_errors_total", name, 1)
+                raise
+
+    def _record_metric(self, metric: str, label: str, value: float):
+        self.metrics[metric][label] = self.metrics[metric].get(label, 0) + value
+
+    def get_metrics(self) -> dict:
+        return {
+            "tool_calls_total": self.metrics["tool_calls_total"],
+            "tool_errors_total": self.metrics["tool_errors_total"],
+            "avg_latency_ms": {
+                k: v / self.metrics["tool_calls_total"].get(k, 1)
+                for k, v in self.metrics["tool_latency_ms"].items()
+            }
+        }`}/>
+      <ExpandableSection title="Health Check Endpoint" icon="❤️">
+        <CodeBlock language="python" label="MCP Health Check with Capability Probing" code={`from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+import asyncio
+
+app = FastAPI()
+
+@app.get("/health")
+async def health_check():
+    """Deep health check: verifies each subsystem."""
+    checks = {}
+    overall = "healthy"
+
+    # 1. Database connectivity
+    try:
+        await db.ping()
+        checks["database"] = {"status": "ok", "latency_ms": await db.ping_latency()}
+    except Exception as e:
+        checks["database"] = {"status": "error", "error": str(e)}
+        overall = "degraded"
+
+    # 2. LLM provider (for sampling capability)
+    try:
+        await llm_client.ping()
+        checks["llm_provider"] = {"status": "ok"}
+    except Exception as e:
+        checks["llm_provider"] = {"status": "error", "error": str(e)}
+        # Sampling capability degraded but server still functional
+        checks["llm_provider"]["capability_impact"] = "sampling_unavailable"
+
+    # 3. Server info
+    checks["server"] = {
+        "name": "re3-article-search",
+        "version": "1.0.0",
+        "uptime_seconds": get_uptime(),
+        "active_sessions": len(active_sessions),
+    }
+
+    status_code = 200 if overall == "healthy" else 503
+    return JSONResponse(
+        {"status": overall, "checks": checks, "timestamp": datetime.utcnow().isoformat()},
+        status_code=status_code
+    )`}/>
+      </ExpandableSection>
+      <ExpandableSection title="Graceful Shutdown & Session Draining" icon="🔌">
+        <CodeBlock language="python" label="Zero-Downtime MCP Server Restart" code={`import signal
+import asyncio
+
+class GracefulMCPServer:
+    def __init__(self):
+        self.shutting_down = False
+        self.active_requests = 0
+
+    async def start(self):
+        # Register signal handlers
+        loop = asyncio.get_event_loop()
+        loop.add_signal_handler(signal.SIGTERM, self._initiate_shutdown)
+        loop.add_signal_handler(signal.SIGINT, self._initiate_shutdown)
+
+    def _initiate_shutdown(self):
+        if not self.shutting_down:
+            self.shutting_down = True
+            asyncio.create_task(self._drain_and_shutdown())
+
+    async def _drain_and_shutdown(self):
+        print("SIGTERM received — draining active requests...")
+
+        # Stop accepting new sessions
+        await self.stop_accepting_connections()
+
+        # Wait for active requests to complete (max 30s)
+        deadline = asyncio.get_event_loop().time() + 30
+        while self.active_requests > 0:
+            remaining = deadline - asyncio.get_event_loop().time()
+            if remaining <= 0:
+                print(f"Shutdown timeout: {self.active_requests} requests still active")
+                break
+            await asyncio.sleep(0.1)
+
+        print("Shutdown complete")
+        asyncio.get_event_loop().stop()`}/>
+      </ExpandableSection>
+      <Quiz question="Your MCP server's p99 tool call latency spikes from 200ms to 8 seconds at 9am every weekday. What does this pattern most likely indicate?" options={["A DDoS attack targeting the MCP server","A scheduled job (e.g., batch report) running at 9am consuming DB resources and causing resource contention","The MCP specification requires a daily restart","OAuth token expiry causing re-authentication overhead"]} correctIndex={1} explanation="A consistent weekday morning latency spike is a classic resource contention pattern. A scheduled job (batch report, data sync, analytics query) is competing for the same DB resources as the MCP server. The solution is to give the MCP server a read replica, throttle the batch job, or schedule it outside business hours."/>

@@ -1,0 +1,36 @@
+---
+label: "Risk Assessment"
+icon: "📊"
+---
+
+## Risk Assessment
+
+AI risk assessment involves systematically identifying, analyzing, and evaluating potential harms from AI systems. A structured taxonomy helps organizations consistently evaluate risks across different projects.
+
+<ComparisonTable title="AI Risk Taxonomy" columns={["Risk Category","Description","Example","Mitigation"]} rows={[
+  ["Bias & Discrimination","Unfair treatment of groups","Hiring model favoring one demographic","Bias audits, diverse training data"],
+  ["Privacy Violation","Unauthorized data use or exposure","Model memorizing personal information","Differential privacy, data minimization"],
+  ["Safety Failure","Physical or financial harm","Autonomous vehicle misclassification","Redundant safety systems, human oversight"],
+  ["Transparency Gap","Inability to explain decisions","Black-box denial of medical coverage","Explainability tools, model cards"],
+  ["Security Vulnerability","Adversarial attacks or data poisoning","Prompt injection in LLM applications","Input validation, red teaming"],
+]}/>
+
+<CodeBlock language="javascript" label="Risk Scoring Matrix" code={`// Risk score = likelihood x impact x (1 - mitigation_effectiveness)
+function calculateRiskScore(risk) {
+  const likelihood = risk.likelihood;   // 1-5 scale
+  const impact = risk.impact;           // 1-5 scale
+  const mitigation = risk.mitigation;   // 0-1 (effectiveness)
+
+  const rawScore = likelihood * impact;
+  const mitigatedScore = rawScore * (1 - mitigation);
+
+  return {
+    raw: rawScore,
+    mitigated: mitigatedScore,
+    level: mitigatedScore > 15 ? "CRITICAL"
+         : mitigatedScore > 10 ? "HIGH"
+         : mitigatedScore > 5  ? "MEDIUM" : "LOW",
+  };
+}`}/>
+
+<Quiz question="In a risk scoring matrix, what does mitigated risk score represent?" options={["The worst-case scenario","The residual risk after applying mitigation controls","The likelihood of occurrence","The cost of the AI system"]} correctIndex={1} explanation="Mitigated risk score represents residual risk -- the remaining risk after mitigation controls are applied. It is calculated as raw risk multiplied by (1 minus mitigation effectiveness)." />

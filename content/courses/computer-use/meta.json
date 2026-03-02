@@ -1,0 +1,16 @@
+{
+  "tier": 4,
+  "icon": "🖥️",
+  "title": "Computer Use & Browser Agents",
+  "description": "Anthropic computer use, web agents, RPA 2.0. AI that operates your software.",
+  "difficulty": "Expert",
+  "timeMinutes": 45,
+  "exerciseCount": 7,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Computer Use & Browser Agents — Re³ Academy",
+    "metaDescription": "Build computer-use AI: Anthropic computer use, web agents, and next-gen RPA."
+  }
+}

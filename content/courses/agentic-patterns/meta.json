@@ -1,0 +1,16 @@
+{
+  "tier": 2,
+  "icon": "🔄",
+  "title": "Agentic Design Patterns",
+  "description": "ReAct, Plan-and-Execute, Reflection, Tool-use loops. The building blocks of AI agents.",
+  "difficulty": "Intermediate",
+  "timeMinutes": 45,
+  "exerciseCount": 8,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Agentic Design Patterns — Re³ Academy",
+    "metaDescription": "Master agentic design patterns: ReAct, Plan-and-Execute, Reflection, and Tool-use loops."
+  }
+}

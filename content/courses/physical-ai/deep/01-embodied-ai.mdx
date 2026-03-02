@@ -1,0 +1,29 @@
+---
+label: "Embodied AI"
+icon: "\uD83E\uDD16"
+---
+
+## Embodied AI: When AI Meets the Physical World
+
+<AnalogyBox emoji={'\uD83E\uDD16'} title="From brain to body">LLMs are like brilliant brains in jars -- immense reasoning power but no hands, no eyes, no ability to interact with the physical world. Embodied AI gives them a body: sensors to perceive, actuators to act, and physics to contend with.</AnalogyBox>
+
+<ExpandableSection title="What Makes Physical AI Different" icon={'\uD83C\uDF0D'} defaultOpen>
+
+- **Real-world consequences:** A wrong API call can be retried; a robot arm that moves wrong can break things or hurt people
+- **Continuous state:** Digital systems have discrete states; physical world is continuous and noisy
+- **<JargonTip term="latency">Latency</JargonTip> matters:** A self-driving car needs decisions in milliseconds, not seconds
+- **Sensor noise:** Cameras blur, LiDAR has artifacts, GPS drifts -- real data is messy
+- **Physics constraints:** Gravity, friction, momentum -- you can't ctrl+Z in the real world
+
+</ExpandableSection>
+
+<ComparisonTable title="Digital AI vs Physical AI" columns={['Aspect','Digital AI','Physical AI']} rows={[
+  ['Environment','Structured data, APIs','Unstructured, continuous, noisy'],
+  ['Errors','Retry, rollback','May cause physical damage'],
+  ['Latency','Seconds acceptable','Milliseconds critical'],
+  ['Testing','Unit tests, CI/CD','Simulation + real-world validation'],
+  ['Deployment','Cloud, push update','Hardware + software, field updates'],
+  ['Safety','Data protection','Physical safety, human proximity'],
+]}/>
+
+<Quiz question="What is the fundamental challenge that makes physical AI harder than digital AI?" options={["Physical AI needs more compute power","Robots are expensive to build","Real-world actions are irreversible and the environment is continuous and noisy","Programming languages for robotics are harder"]} correctIndex={2} explanation="The core challenge is irreversibility combined with environmental complexity. In digital AI, you can retry, rollback, or A/B test safely. In physical AI, a wrong action can damage property or injure people, and the continuous, noisy nature of the real world makes prediction much harder."/>

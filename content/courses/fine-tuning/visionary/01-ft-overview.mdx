@@ -1,0 +1,12 @@
+---
+label: "What Is Fine-Tuning?"
+icon: "\uD83D\uDD27"
+---
+
+## What Is Fine-Tuning?
+  <AnalogyBox emoji={'D83CDF93'} title="Teaching a Specialist">{`Fine-tuning is like sending a general practitioner to a residency \u2014 the base model already knows medicine, but fine-tuning specializes it in cardiology. You don't teach it language from scratch; you teach it domain expertise.`}</AnalogyBox>
+
+<JargonTip term="fine-tuning">Fine-tuning</JargonTip> adapts a pre-trained model to your specific domain by training it on your data. It changes the model's **weights**, unlike prompting which only changes the model's **input**.
+
+  <ComparisonTable title="When to Fine-Tune vs RAG vs Prompt Engineering" headers={['Approach','Best For','Data Needed','Cost','Flexibility']} rows={[['Prompt Engineering','Behavior/format changes','None','Lowest','Highest'],['RAG','External knowledge, citations','Documents','Medium','High'],['Fine-Tuning','Style, domain expertise, consistent behavior','100s-1000s examples','Higher','Lower']]}/>
+  <Quiz question="Your company wants the AI to always respond in a specific technical writing style with domain-specific terminology. Best approach?" options={["Longer system prompts with examples","RAG with company style guide","Fine-tuning on 500 examples of desired style","Just tell the model to be technical"]} correctIndex={2} explanation="Consistent style and domain terminology are ideal fine-tuning use cases. Few-shot prompting works but uses tokens every call. Fine-tuning bakes the style into the model weights, giving consistent behavior at lower inference cost."/>

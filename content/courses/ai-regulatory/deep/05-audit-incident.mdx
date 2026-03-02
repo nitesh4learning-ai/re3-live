@@ -1,0 +1,62 @@
+---
+label: "Audit & Incident"
+icon: "\uD83D\uDEA8"
+---
+
+## AI Audit & Incident Response
+
+<CodeBlock language="python" label="AI Audit Trail System" code={`import json, hashlib
+from datetime import datetime
+
+class AIAuditLogger:
+    """Tamper-evident audit logging for AI decisions"""
+
+    def __init__(self, system_id):
+        self.system_id = system_id
+        self.chain = []
+
+    def log_decision(self, input_data, output, confidence,
+                     model_version, human_override=None):
+        entry = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "system_id": self.system_id,
+            "model_version": model_version,
+            "input_hash": hashlib.sha256(
+                json.dumps(input_data, sort_keys=True).encode()
+            ).hexdigest(),
+            "output": output,
+            "confidence": confidence,
+            "human_override": human_override,
+            "prev_hash": self.chain[-1]["hash"] if self.chain else "genesis"
+        }
+        entry["hash"] = hashlib.sha256(
+            json.dumps(entry, sort_keys=True).encode()
+        ).hexdigest()
+        self.chain.append(entry)
+        return entry
+
+    def verify_chain(self):
+        """Verify no entries have been tampered with"""
+        for i, entry in enumerate(self.chain):
+            stored_hash = entry["hash"]
+            entry_copy = {k: v for k, v in entry.items() if k != "hash"}
+            computed = hashlib.sha256(
+                json.dumps(entry_copy, sort_keys=True).encode()
+            ).hexdigest()
+            if stored_hash != computed:
+                return False, f"Tampered at index {i}"
+        return True, "Chain intact"`}/>
+
+<ExpandableSection title="Incident Response Playbook" icon={'\uD83D\uDEA8'} defaultOpen>
+
+**When an AI system causes harm or behaves unexpectedly:**
+
+- **0-1 hr:** Contain -- disable system or switch to human fallback
+- **1-24 hr:** Assess -- determine scope, affected users, root cause
+- **24-72 hr:** Report -- notify authorities per EU AI Act / local rules
+- **1-2 weeks:** Remediate -- fix root cause, update monitoring
+- **30 days:** Post-mortem -- document lessons, update risk assessment
+
+</ExpandableSection>
+
+<Quiz question="What is the primary purpose of a tamper-evident audit trail for AI decisions?" options={["To speed up the AI system","To prove that decision logs haven't been altered after the fact","To improve model accuracy over time","To reduce storage costs"]} correctIndex={1} explanation="Tamper-evident audit trails (using hash chains) ensure that decision logs cannot be altered retroactively. This is critical for regulatory compliance -- you must prove that the records you present to auditors are the same records generated at decision time."/>

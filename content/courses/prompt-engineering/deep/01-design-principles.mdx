@@ -1,0 +1,79 @@
+---
+label: "Prompt Design Principles"
+icon: "🎯"
+---
+
+## Prompt Design Principles
+
+Production prompt engineering goes beyond basic instructions. It requires systematic application of design principles: specificity, task decomposition, output anchoring, and role-based prompting patterns. These principles apply across all LLM providers and dramatically improve consistency and quality.
+
+<ExpandableSection title="Specificity Ladder" icon="🎯" defaultOpen={true}>
+
+Every vague element in a prompt creates a decision point where the model may diverge from your intent. The specificity ladder systematically eliminates ambiguity:
+
+**Level 1 (Vague):** "Summarize this article."
+
+**Level 2 (Format):** "Summarize this article in 3 bullet points."
+
+**Level 3 (Audience):** "Summarize this article in 3 bullet points for a technical PM audience."
+
+**Level 4 (Criteria):** "Summarize this article in 3 bullet points for a technical PM. Focus on: architecture decisions, performance implications, and migration path."
+
+**Level 5 (Constraints):** "Summarize in 3 bullets for a technical PM. Focus on architecture, performance, migration. Each bullet: max 20 words, start with an action verb, include one quantitative metric if available."
+
+</ExpandableSection>
+
+<CodeBlock language="text" label="Production system prompt pattern" code={`# Role-Task-Format-Constraints (RTFC) Pattern
+
+ROLE:
+You are a senior security analyst specializing in cloud infrastructure.
+You have 10+ years of experience with AWS, GCP, and Azure security.
+
+TASK:
+Analyze the provided cloud configuration for security vulnerabilities.
+Prioritize findings by severity: Critical > High > Medium > Low.
+
+FORMAT:
+Respond in JSON matching this exact schema:
+{
+  "findings": [
+    {
+      "severity": "critical|high|medium|low",
+      "resource": "the affected resource ARN or identifier",
+      "issue": "concise description of the vulnerability",
+      "remediation": "specific fix, including CLI command if applicable",
+      "cwe": "relevant CWE ID if applicable"
+    }
+  ],
+  "summary": "one-sentence overall risk assessment"
+}
+
+CONSTRAINTS:
+- Only report confirmed vulnerabilities, not best-practice suggestions
+- Do not hallucinate CWE IDs; omit if unsure
+- If no vulnerabilities found, return empty findings array
+- Maximum 10 findings per analysis`}/>
+
+<ExpandableSection title="Task Decomposition" icon="🔧">
+
+Complex tasks should be decomposed into sequential sub-tasks within the prompt. This leverages the model's autoregressive nature -- each step's output conditions the next step.
+
+**Pattern:** "First, identify the key entities. Then, determine relationships between them. Then, classify the overall sentiment. Finally, generate a structured summary."
+
+Decomposition reduces errors because each sub-task is simpler, and mistakes are caught by subsequent steps. It also makes debugging easier -- you can see where the reasoning went wrong.
+
+</ExpandableSection>
+
+<ExpandableSection title="Output Anchoring" icon="⚓">
+
+**Output anchoring** means pre-filling the start of the assistant's response to constrain the output format. Many APIs support this via "prefill" or by including a partial assistant message.
+
+Example: Setting the assistant message prefix to `{"analysis":` forces the model to continue generating valid JSON starting from that point.
+
+Anthropic's Claude API supports this directly via the `assistant` turn prefill. OpenAI supports it via JSON mode and function calling.
+
+</ExpandableSection>
+
+<Quiz question="You are writing a prompt for a medical triage system. Which principle is MOST important?" options={["Using creative role-playing ('You are Dr. House')", "Explicit constraints defining what the system should NOT do (e.g., never diagnose, always refer to physician)", "Making the prompt as short as possible for speed", "Using many few-shot examples"]} correctIndex={1} explanation="For high-stakes domains like medical triage, explicit constraints (what NOT to do) are the most critical design principle. The system must have clear boundaries -- never diagnose, never recommend medication, always recommend professional consultation for anything above basic triage."/>
+
+<ArchitectureDecision scenario="You are building a customer-facing AI assistant for an e-commerce platform. The prompt must handle product questions, order status, returns, and complaints. How should you structure the system prompt?" options={[{label:'One monolithic prompt covering all scenarios with if/then rules',tradeoff:'Simple to deploy, all logic in one place, but becomes unwieldy at 2000+ tokens and hard to maintain'},{label:'Dynamic prompt assembly: select prompt sections based on detected intent',tradeoff:'Smaller prompts per request, easier to maintain, but requires intent classification as a pre-step'},{label:'Multiple specialized system prompts routed by a classifier model',tradeoff:'Best quality per category, easiest to test/iterate, but adds routing latency and complexity'}]} correctIndex={1} explanation="Dynamic prompt assembly strikes the best balance. A lightweight intent classifier selects relevant prompt sections (product knowledge, order lookup, returns policy), keeping the context window efficient while maintaining specialized behavior. This is more maintainable than monolithic prompts and simpler than full multi-model routing."/>

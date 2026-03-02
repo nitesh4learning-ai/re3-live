@@ -1,0 +1,41 @@
+---
+label: "Building a Server"
+icon: "💻"
+---
+
+## Building an MCP Server
+
+Building an MCP server is surprisingly simple. Here's a minimal Python server that exposes a single tool.
+
+<CodeBlock language="python" label="Minimal MCP Server (Python)" code={`from mcp.server import Server
+from mcp.types import Tool, TextContent
+
+app = Server("my-server")
+
+@app.tool()
+async def get_greeting(name: str) -> str:
+    """Generate a personalized greeting."""
+    return f"Hello, {name}! Welcome to MCP."
+
+# That's it! The decorator handles:
+# - Tool registration and schema generation
+# - Input validation
+# - JSON-RPC message handling
+# - Error responses`}/>
+
+<ExpandableSection title="How tool definitions are auto-generated" icon="⚙️">
+
+The MCP SDK inspects your Python function to automatically generate the tool definition:
+
+- **Function name** becomes the tool name
+- **Docstring** becomes the description
+- **Type hints** become the input schema
+- **Required params** are those without defaults
+
+This convention-over-configuration approach means writing an MCP server is almost as simple as writing a regular Python function.
+
+</ExpandableSection>
+
+<Quiz question="What does the MCP SDK auto-generate from a Python function?" options={["The server's hosting infrastructure","The tool's name, description, and input schema","The client-side UI","Test cases for the tool"]} correctIndex={1} explanation="The SDK inspects the function name (tool name), docstring (description), and type hints (input schema) to automatically generate the complete MCP tool definition." />
+
+<SeeItInRe3 text="Re³'s Debate Lab could be exposed as an MCP server -- offering tools like 'search_articles', 'start_debate', and 'get_loom_synthesis' to any MCP-compatible AI client." targetPage="forge" />

@@ -1,0 +1,102 @@
+---
+label: "Evaluation with RAGAS"
+icon: "📊"
+---
+
+## Evaluation with RAGAS
+
+Without systematic evaluation, you cannot know if your RAG system is improving. RAGAS (Retrieval Augmented Generation Assessment) provides standardized metrics for measuring every component of the RAG pipeline: retrieval quality, answer quality, and faithfulness to retrieved context.
+
+<ComparisonTable title="RAGAS Metrics Explained" columns={['Metric','What It Measures','Score Range','Key Question']} rows={[
+  ['Faithfulness','Is the answer supported by the context?','0-1','Is the LLM hallucinating beyond what was retrieved?'],
+  ['Answer Relevancy','Does the answer address the question?','0-1','Is the response actually useful to the user?'],
+  ['Context Precision','Are retrieved docs relevant to the question?','0-1','Is the retrieval returning useful chunks?'],
+  ['Context Recall','Did retrieval find ALL relevant information?','0-1','Are we missing important documents?'],
+  ['Answer Correctness','Is the answer factually correct?','0-1','Would a human expert agree with this answer?'],
+  ['Answer Similarity','Does the answer match the reference answer?','0-1','How close is the generated answer to the ideal?'],
+]} />
+
+<CodeBlock language="python" label="RAGAS evaluation pipeline" code={`from ragas import evaluate
+from ragas.metrics import (
+    faithfulness, answer_relevancy,
+    context_precision, context_recall,
+)
+from datasets import Dataset
+
+# Prepare evaluation dataset
+# Each example needs: question, answer, contexts, ground_truth
+eval_data = {
+    "question": [
+        "What is the refund policy for digital products?",
+        "How do I reset my password?",
+        "What payment methods are accepted?",
+    ],
+    "answer": [
+        "Digital products can be refunded within 14 days of purchase if unused.",
+        "Click 'Forgot Password' on the login page and follow the email instructions.",
+        "We accept Visa, Mastercard, PayPal, and Apple Pay.",
+    ],
+    "contexts": [
+        ["Digital products: Full refund within 14 days if product is unused. "
+         "After 14 days, store credit only. Contact support for processing."],
+        ["To reset your password: 1) Go to login page 2) Click 'Forgot Password' "
+         "3) Enter your email 4) Follow the link in the reset email."],
+        ["Accepted payment methods: Visa, Mastercard, American Express, "
+         "PayPal, Apple Pay, Google Pay. Wire transfers for orders over $10,000."],
+    ],
+    "ground_truth": [
+        "Digital products are refundable within 14 days if unused. After that, only store credit.",
+        "Use the 'Forgot Password' link on the login page to receive a reset email.",
+        "Visa, Mastercard, American Express, PayPal, Apple Pay, and Google Pay are accepted.",
+    ],
+}
+
+dataset = Dataset.from_dict(eval_data)
+
+# Run evaluation
+results = evaluate(
+    dataset,
+    metrics=[faithfulness, answer_relevancy, context_precision, context_recall],
+)
+
+print(f"Faithfulness:      {results['faithfulness']:.3f}")
+print(f"Answer Relevancy:  {results['answer_relevancy']:.3f}")
+print(f"Context Precision: {results['context_precision']:.3f}")
+print(f"Context Recall:    {results['context_recall']:.3f}")
+
+# Interpreting results:
+# Faithfulness < 0.8: LLM is hallucinating beyond retrieved context
+# Context Recall < 0.7: Retrieval is missing relevant documents
+# Context Precision < 0.7: Retrieval returns too much irrelevant content
+# Answer Relevancy < 0.8: LLM is not addressing the actual question`} />
+
+<ExpandableSection title="Building an Evaluation Dataset" icon="📊" defaultOpen={true}>
+
+A good evaluation dataset is the foundation of RAG improvement. Building one requires upfront effort but pays dividends in reliable iteration.
+
+**Step 1:** Collect 50-200 real user questions from production logs or stakeholder interviews.
+
+**Step 2:** For each question, have a domain expert write the ideal answer (ground truth) and identify which source documents contain the answer.
+
+**Step 3:** Run your RAG pipeline on each question and record: the retrieved chunks, the generated answer.
+
+**Step 4:** Score with RAGAS metrics. Identify patterns in failures.
+
+**Automated evaluation set generation:** Use a strong LLM (GPT-4) to generate question-answer pairs from your documents. This bootstraps an eval set quickly, though human review of a subset is recommended.
+
+</ExpandableSection>
+
+<ExpandableSection title="Diagnosing RAG Failures" icon="🔧">
+
+Low RAGAS scores point to specific pipeline components that need fixing:
+
+- **Low context recall + high faithfulness:** Retrieval is the problem. Fix chunking, try hybrid search, or add query expansion.
+- **High context recall + low faithfulness:** The LLM is hallucinating despite having good context. Fix the prompt, lower temperature, or use a more capable model.
+- **Low context precision:** Retrieval returns irrelevant chunks. Improve embeddings, add reranking, or use metadata filtering.
+- **Low answer relevancy:** The LLM is not addressing the question. Improve the prompt template or use CoT reasoning.
+
+</ExpandableSection>
+
+<Quiz question="Your RAGAS evaluation shows: faithfulness=0.92, context_recall=0.55, context_precision=0.80, answer_relevancy=0.88. Which component needs the most improvement?" options={["The LLM (low faithfulness)","The retrieval system (low context recall)","The prompt template (low answer relevancy)","The reranking stage (low context precision)"]} correctIndex={1} explanation="Context recall at 0.55 means the retrieval system is only finding 55% of the relevant documents. This is the weakest metric and the most impactful to fix. The other metrics are healthy (faithfulness 0.92, relevancy 0.88, precision 0.80). Improving retrieval (better chunking, hybrid search, query expansion) would have the biggest impact on overall system quality." />
+
+<Quiz question="You want to automate RAG evaluation in your CI/CD pipeline. How should you set up regression detection?" options={["Run RAGAS on the full evaluation set and check that all metrics exceed 0.9","Run RAGAS on a representative sample and alert if any metric drops by more than 5% from the baseline","Only evaluate faithfulness since it's the most important metric","Manual review of 10 random outputs per deployment"]} correctIndex={1} explanation="Relative regression detection (alert on 5%+ drops from baseline) is more useful than absolute thresholds because baseline quality varies by domain. Running on a representative sample keeps CI/CD fast while catching regressions. All metrics matter -- a system can be faithful but miss relevant context, or precise but irrelevant." />

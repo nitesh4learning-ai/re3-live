@@ -1,0 +1,44 @@
+---
+label: "Audio & Video"
+icon: "\uD83C\uDF99\uFE0F"
+---
+
+## Audio & Video Pipelines
+  <ComparisonTable title="Audio AI Capabilities" columns={['Task','Models','Use Case']} rows={[
+    ['Speech-to-Text','Whisper, Deepgram, AssemblyAI','Meeting transcription, voice commands'],
+    ['Text-to-Speech','ElevenLabs, OpenAI TTS, Bark','Audiobooks, assistants, dubbing'],
+    ['Audio Classification','YAMNet, PANNs','Sound detection, music genre'],
+    ['Music Generation','MusicLM, Suno, Udio','Background music, composition'],
+    ['Speaker Diarization','PyAnnote, AssemblyAI','Who spoke when in meetings'],
+  ]}/>
+  <CodeBlock label="Multi-Modal Document Processing" code={`async def process_multimodal_document(file_path):
+    """Process documents combining vision, text, and table extraction"""
+    pages = pdf_to_images(file_path)
+    results = []
+
+    for page_img in pages:
+        # Vision model extracts text, tables, charts, diagrams
+        extraction = await vision_llm.analyze(
+            image=page_img,
+            prompt="""Extract ALL content from this page:
+            - Text content (preserve formatting)
+            - Tables (as structured JSON)
+            - Charts (describe data and trends)
+            - Diagrams (describe structure and relationships)
+            Return as structured JSON."""
+        )
+        results.append(extraction)
+
+    # Combine and cross-reference across pages
+    combined = merge_extractions(results)
+
+    # Generate embeddings for multimodal search
+    for section in combined["sections"]:
+        section["embedding"] = embed(section["text"])
+        if section.get("table"):
+            section["table_embedding"] = embed(
+                table_to_text(section["table"])
+            )
+
+    return combined`}/>
+  <Quiz question="For processing a 200-page PDF with mixed text, tables, and charts, what is the most cost-effective approach?" options={["Send every page as an image to GPT-4o","Use OCR for text pages, vision LLM only for pages with charts/tables","Use a custom ML model trained on your document type","Process everything with a cheap text extraction library"]} correctIndex={1} explanation="A hybrid approach is most cost-effective: standard OCR (nearly free) handles text-heavy pages, while expensive vision LLM calls are reserved for pages that contain charts, tables, or complex layouts that OCR can't handle. Page classification first, then appropriate processing."/>

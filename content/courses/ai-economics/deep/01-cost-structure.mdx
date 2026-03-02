@@ -1,0 +1,29 @@
+---
+label: "Cost Structure"
+icon: "\uD83D\uDCB0"
+---
+
+## AI Cost Structure
+
+<AnalogyBox emoji={'\uD83D\uDCB0'} title="AI costs are like an iceberg">The API call cost is just the tip. Below the surface: data preparation, engineering time, monitoring, retraining, compliance, and the opportunity cost of getting it wrong.</AnalogyBox>
+
+<ComparisonTable title="AI Cost Breakdown" columns={['Category','% of Total','Components']} rows={[
+  ['Data & Preparation','25-35%','Collection, cleaning, labeling, storage, pipelines'],
+  ['Development','20-30%','Engineering, experimentation, model selection, testing'],
+  ['Infrastructure','15-25%','Compute (training + inference), GPUs, cloud services'],
+  ['Operations','10-15%','Monitoring, retraining, incident response, on-call'],
+  ['Governance','5-10%','Compliance, audits, documentation, legal review'],
+]}/>
+
+<ExpandableSection title="Inference Cost Drivers" icon={'\u26A1'} defaultOpen>
+
+For production AI, <JargonTip term="inference">inference</JargonTip> cost usually dominates over time:
+
+- **<JargonTip term="token">Token</JargonTip> volume:** Input + output tokens per request x requests per day
+- **Model size:** GPT-4 class = 10-30x cost of GPT-4o-mini class
+- **<JargonTip term="latency">Latency</JargonTip> requirements:** Real-time needs more expensive provisioned capacity
+- **Caching:** <JargonTip term="prompt caching">Prompt caching</JargonTip> can reduce costs 50-90% for repeated patterns
+
+</ExpandableSection>
+
+<Quiz question="Which cost category typically represents the largest share of an enterprise AI project's total cost?" options={["GPU/compute infrastructure","API call costs","Data preparation and engineering","Model training compute"]} correctIndex={2} explanation="Data preparation and engineering (collection, cleaning, labeling, pipeline building) typically accounts for 25-35% of total AI project costs -- more than any other single category. The popular focus on GPU costs and API pricing misses the bigger picture."/>

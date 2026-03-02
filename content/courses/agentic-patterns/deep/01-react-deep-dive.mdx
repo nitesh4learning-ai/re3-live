@@ -1,0 +1,52 @@
+---
+label: "ReAct Deep Dive"
+icon: "🔄"
+---
+
+## ReAct Deep Dive
+
+<CodeBlock title="Production ReAct Agent" code={`class ReActAgent:
+    def __init__(self, model, tools, max_steps=10):
+        self.model = model
+        self.tools = {t.name: t for t in tools}
+        self.max_steps = max_steps
+        self.trajectory = []  # Full reasoning trace
+
+    async def run(self, query):
+        messages = [
+            {"role": "system", "content": self.system_prompt},
+            {"role": "user", "content": query}
+        ]
+
+        for step in range(self.max_steps):
+            response = await self.model.generate(messages, tools=self.tools)
+
+            # Check for final answer
+            if not response.tool_calls:
+                self.trajectory.append({"type": "answer", "content": response.text})
+                return response.text
+
+            # Execute tool calls (may be parallel)
+            for call in response.tool_calls:
+                self.trajectory.append({
+                    "type": "tool_call",
+                    "tool": call.name,
+                    "args": call.arguments
+                })
+                try:
+                    result = await self.tools[call.name].execute(call.arguments)
+                    messages.append({"role": "tool", "content": str(result)})
+                except Exception as e:
+                    messages.append({"role": "tool", "content": f"Error: {e}"})
+
+        return "Max steps reached. Partial results: " + str(self.trajectory[-1])`}/>
+
+<ExpandableSection title="ReAct Best Practices" icon="💡">
+
+- Set a reasonable max_steps limit (5-15 depending on complexity)
+- Include error handling for tool failures -- let the agent recover
+- Log the full trajectory for debugging and evaluation
+- Use streaming to show reasoning in real-time to users
+- Add guardrails: budget limits, dangerous action detection
+
+</ExpandableSection>

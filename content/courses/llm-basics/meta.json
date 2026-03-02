@@ -1,0 +1,16 @@
+{
+  "tier": 1,
+  "icon": "🧠",
+  "title": "How LLMs Work",
+  "description": "Tokens, context windows, temperature, inference. The mechanics behind every AI interaction.",
+  "difficulty": "Beginner",
+  "timeMinutes": 45,
+  "exerciseCount": 8,
+  "tabCount": 5,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "How LLMs Work — Re³ Academy",
+    "metaDescription": "Learn how Large Language Models work: tokens, context windows, temperature, and inference mechanics."
+  }
+}

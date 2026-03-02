@@ -1,0 +1,12 @@
+---
+label: "HITL Lab"
+icon: "🏗️"
+---
+
+## HITL Architecture Lab
+
+<ArchitectureDecision scenario="You are building an AI-powered legal document reviewer. It marks clauses as 'standard', 'needs review', or 'high risk'. Lawyers review the flagged items. After 6 months, the AI is auto-approving 85% of clauses. A partner asks: 'Can we increase auto-approval to 95%?'" options={[
+  {label:"Yes -- the AI has proven itself over 6 months",tradeoff:"Risky: legal review errors can have catastrophic consequences. The 15% reviewed may contain the hardest cases."},
+  {label:"Increase gradually with monitoring: 85% -> 88% -> 90%, measure error rates at each step",tradeoff:"Cautious and data-driven. Each step validates the AI can handle more. Rollback if error rate increases."},
+  {label:"No -- maintain 85% and focus on improving quality of the 85% instead",tradeoff:"Safe but misses the opportunity to free up lawyer time. May be the right call for high-liability work."},
+]} correctIndex={1} explanation="Gradual increase with monitoring is the gold standard for expanding AI autonomy. Each step validates performance on the additional cases. Error rate monitoring catches regression immediately. This is especially important in legal where a single missed clause can be catastrophic." />

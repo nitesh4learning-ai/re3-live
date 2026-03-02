@@ -1,0 +1,89 @@
+---
+label: "Chain-of-Thought Variants"
+icon: "🌳"
+---
+
+## Chain-of-Thought Variants
+
+Chain-of-Thought (CoT) has evolved into a family of techniques, each optimizing for different aspects of reasoning. Understanding when to use zero-shot CoT versus self-consistency versus tree-of-thought is critical for building reliable reasoning systems.
+
+<ComparisonTable title="CoT Variant Comparison" columns={['Technique','Mechanism','Best For','Cost Multiplier']} rows={[
+  ['Zero-Shot CoT','"Let\'s think step by step"','Simple reasoning, math, logic','1x (single call)'],
+  ['Few-Shot CoT','Examples with reasoning traces','Domain-specific reasoning','1x (longer prompt)'],
+  ['Self-Consistency','Multiple CoT paths, majority vote','High-stakes decisions, math','3-5x (multiple calls)'],
+  ['Tree-of-Thought','Branching exploration with backtracking','Complex planning, puzzles','10-20x (many calls)'],
+  ['Graph-of-Thought','Non-linear reasoning with merging','Multi-constraint problems','Variable'],
+  ['Plan-and-Solve','Explicit planning step before solving','Multi-step word problems','1x (structured prompt)'],
+]}/>
+
+<ExpandableSection title="Self-Consistency: Majority Voting for Reliability" icon="🗳️" defaultOpen={true}>
+
+**Self-consistency** generates multiple CoT reasoning paths (typically 5-10) using temperature > 0, then takes the majority vote on the final answer. Different reasoning paths may make different errors, but the correct answer tends to be the most common.
+
+This technique improves accuracy on math and logic tasks by 5-15% over single-pass CoT. The trade-off is proportionally higher API costs and latency.
+
+**When to use:** High-stakes decisions where accuracy matters more than speed or cost. Medical triage, legal analysis, financial calculations.
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="Self-consistency implementation" code={`from openai import OpenAI
+from collections import Counter
+
+client = OpenAI()
+
+def self_consistency(question, n_paths=5, temperature=0.7):
+    """Generate multiple reasoning paths and vote on the answer."""
+    answers = []
+
+    for _ in range(n_paths):
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            temperature=temperature,
+            messages=[
+                {"role": "system", "content": "Solve the problem step by step. "
+                 "End with 'ANSWER: <your_answer>'"},
+                {"role": "user", "content": question}
+            ]
+        )
+        text = response.choices[0].message.content
+        # Extract answer after "ANSWER:"
+        if "ANSWER:" in text:
+            answer = text.split("ANSWER:")[-1].strip()
+            answers.append(answer)
+
+    # Majority vote
+    if not answers:
+        return None, []
+
+    vote = Counter(answers)
+    best_answer, count = vote.most_common(1)[0]
+    confidence = count / len(answers)
+
+    return {
+        "answer": best_answer,
+        "confidence": confidence,
+        "all_answers": answers,
+        "vote_distribution": dict(vote)
+    }
+
+result = self_consistency(
+    "A store has 15 apples. 3 customers each buy 2. A delivery adds 10. "
+    "Then 1 customer returns 3 apples. How many apples does the store have?",
+    n_paths=5
+)
+print(f"Answer: {result['answer']} (confidence: {result['confidence']:.0%})")
+print(f"All paths: {result['all_answers']}")`}/>
+
+<ExpandableSection title="Tree-of-Thought: Deliberate Exploration" icon="🌳">
+
+**Tree-of-Thought (ToT)** explores multiple reasoning branches at each step, evaluates them, and backtracks from dead ends. Unlike self-consistency (which only votes on final answers), ToT evaluates intermediate reasoning steps.
+
+**Process:** Generate 3-5 candidate next steps. Use the LLM to evaluate which steps are most promising. Expand the best branches. Continue until a solution is found or all branches are exhausted.
+
+ToT is most useful for complex planning, puzzle solving, and creative tasks where the reasoning space is large and early missteps compound.
+
+</ExpandableSection>
+
+<Quiz question="You are building a system that verifies financial calculations from invoices. Accuracy is critical and you cannot afford errors. Which CoT variant is most appropriate?" options={["Zero-shot CoT ('Let's think step by step')","Self-consistency with 7 reasoning paths and majority voting","Tree-of-Thought for maximum exploration","No CoT needed -- just use temperature 0"]} correctIndex={1} explanation="Self-consistency with multiple reasoning paths is ideal for high-stakes calculations. Different paths may catch different errors, and the majority vote filters out anomalous reasoning. Temperature 0 alone can still produce wrong answers -- self-consistency adds a verification layer."/>
+
+<ArchitectureDecision scenario="You are building an AI tutor that helps students solve physics problems. The system should show clear reasoning and handle multi-step problems. Which prompting strategy?" options={[{label:'Zero-shot CoT with "solve step by step" instruction',tradeoff:'Simple, low cost, shows reasoning, but may skip steps or make errors on complex problems'},{label:'Few-shot CoT with physics-specific worked examples',tradeoff:'Teaches the model the expected reasoning format for physics, higher quality, but requires curated examples'},{label:'Plan-and-Solve: first outline the solution approach, then execute each step',tradeoff:'Most structured reasoning, catches conceptual errors early, but slightly higher token usage'}]} correctIndex={2} explanation="Plan-and-Solve is ideal for educational physics problems because it first identifies what concepts and formulas are needed (the plan), then executes step-by-step. This mirrors how expert physics tutors teach: identify the approach before diving into calculations. It also makes errors easier to spot because the plan can be validated independently."/>

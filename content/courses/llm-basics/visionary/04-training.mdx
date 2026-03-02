@@ -1,0 +1,46 @@
+---
+label: "How Models Are Trained"
+icon: "\u2699\uFE0F"
+---
+
+## How Models Are Trained
+
+Training an LLM is a multi-stage process. Each stage builds on the previous one, transforming a randomly initialized neural network into a helpful, harmless assistant.
+
+Understanding these stages explains why models can write poetry AND code, why they sometimes <JargonTip term="hallucination">hallucinate</JargonTip>, and why different models behave differently.
+
+<MessageSimulator title="The Training Pipeline" messages={[
+  {role:'system',label:'Stage 1: Pre-training',text:'The model reads billions of tokens from the internet -- books, articles, code, forums. It learns to predict the next token in a sequence. This is like learning a language by reading everything ever written. Takes weeks on thousands of GPUs.'},
+  {role:'system',label:'Stage 2: Supervised Fine-tuning',text:'The model is trained on carefully curated question-answer pairs. Human experts write ideal responses. This teaches the model to follow instructions and be helpful, rather than just predicting text.'},
+  {role:'system',label:'Stage 3: RLHF',text:'Human raters compare pairs of model outputs and choose which is better. A reward model is trained on these preferences. The LLM is then optimized to produce outputs the reward model scores highly. This process is called Reinforcement Learning from Human Feedback (RLHF).'},
+  {role:'user',label:'The Result',text:'A model that can follow instructions, generate helpful responses, refuse harmful requests, and adapt its style to different contexts. Pre-training gives breadth of knowledge. Fine-tuning gives helpfulness. RLHF gives alignment with human values.'},
+]}/>
+
+<ExpandableSection title="Why can models do so many things?" icon="\uD83C\uDF1F">
+
+The key is pre-training. By predicting the next token across billions of documents, the model implicitly learns:
+
+- **Language structure:** Grammar, syntax, semantics
+- **World knowledge:** Facts, relationships, concepts
+- **Reasoning patterns:** Logic, cause-and-effect, analogy
+- **Code:** Programming languages, algorithms, data structures
+
+It's not that the model was explicitly taught poetry and code separately. It learned the patterns underlying both through predicting text that included both.
+
+</ExpandableSection>
+
+<ExpandableSection title="What causes hallucination?" icon="\u26A0\uFE0F">
+
+Hallucination happens because the model is fundamentally a next-token predictor, not a knowledge database. When it doesn't have reliable information, it generates plausible-sounding text based on patterns -- which may be factually wrong.
+
+Common causes:
+
+- Topic is rare or absent in training data
+- Question requires precise facts (dates, numbers, names)
+- Model is asked to make up information ("write a biography of...")
+
+**Solutions:** <JargonTip term="RAG">RAG</JargonTip> (Retrieval-Augmented Generation), fact-checking, lower <JargonTip term="temperature">temperature</JargonTip>, and explicit instructions to say "I don't know."
+
+</ExpandableSection>
+
+<Quiz question="Why can a model write both poetry and Python code?" options={["It was trained separately on poetry and code datasets","It learned the underlying patterns of both during pre-training on diverse text","Poetry and code use the same programming language","The fine-tuning stage taught it both skills"]} correctIndex={1} explanation="During pre-training, the model reads and learns to predict tokens across all types of text -- including both literary works and source code. It learns the underlying patterns of each, not through explicit instruction but through massive exposure."/>

@@ -1,0 +1,58 @@
+---
+label: "Control & Planning"
+icon: "\uD83C\uDFAF"
+---
+
+## Robot Control & Planning
+
+<ComparisonTable title="Control Approaches" columns={['Approach','How It Works','Best For','Limitation']} rows={[
+  ['Classical Control (PID)','Mathematical feedback loops','Simple, well-modeled systems','Can\'t handle complex tasks'],
+  ['Model Predictive Control','Optimize trajectory over future horizon','Smooth motion, constraints','Needs accurate dynamics model'],
+  ['Reinforcement Learning','Learn from trial and error','Complex, hard-to-model tasks','Sample inefficient, safety concerns'],
+  ['Imitation Learning','Learn from human demonstrations','Quick bootstrapping','Limited to demonstrated behaviors'],
+  ['LLM-guided Planning','Language model plans high-level steps','Novel tasks, reasoning','Slow, can\'t do low-level control'],
+]}/>
+
+<CodeBlock language="python" label="Hierarchical Robot Planning" code={`class HierarchicalRobotPlanner:
+    """LLM plans high-level, RL executes low-level"""
+
+    def __init__(self):
+        self.llm = LanguageModel("claude-sonnet")
+        self.skills = {
+            "pick": PickSkill(),      # RL-trained
+            "place": PlaceSkill(),    # RL-trained
+            "navigate": NavSkill(),   # Classical + RL
+            "inspect": InspectSkill() # Vision model
+        }
+
+    def plan_task(self, instruction):
+        """LLM decomposes instruction into skill sequence"""
+        plan = self.llm.generate(f"""
+            Instruction: {instruction}
+            Available skills: {list(self.skills.keys())}
+            Output a JSON list of steps.
+        """)
+        return plan  # e.g., [
+        #   {"skill": "navigate", "target": "red_box"},
+        #   {"skill": "pick", "object": "red_box"},
+        #   {"skill": "navigate", "target": "shelf_2"},
+        #   {"skill": "place", "location": "shelf_2"}
+        # ]
+
+    def execute_plan(self, plan):
+        for step in plan:
+            skill = self.skills[step["skill"]]
+            success = skill.execute(step)
+            if not success:
+                # Re-plan from current state
+                return self.plan_task(
+                    f"Continue: completed steps "
+                    f"{plan[:plan.index(step)]}, "
+                    f"failed at {step}"
+                )`}/>
+
+<ArchitectureDecision scenario="You're building a warehouse robot that needs to pick diverse objects from bins. Some objects are well-known (boxes, bottles), others are novel (random consumer products). What control approach should you use?" options={[
+  {label:"Pure reinforcement learning trained on all objects",tradeoff:"Most general but needs enormous training data and simulation; struggles with truly novel objects"},
+  {label:"Imitation learning from human demonstrations",tradeoff:"Quick to train, natural behaviors, but limited to what was demonstrated; needs re-training for new objects"},
+  {label:"Foundation model (RT-2 style) + fine-tuning on your objects",tradeoff:"Best generalization to novel objects; leverages pre-trained visual understanding; still needs real-world fine-tuning"},
+]} correctIndex={2} explanation="A foundation model approach (like RT-2) trained on diverse manipulation data provides the best generalization to novel objects. It leverages pre-trained visual understanding to handle objects it hasn't been specifically trained on, with fine-tuning on your specific warehouse environment to close the domain gap."/>

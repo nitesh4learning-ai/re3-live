@@ -1,0 +1,18 @@
+---
+label: "Interface Design"
+icon: "🎨"
+---
+
+## Designing HITL Interfaces
+
+<ExpandableSection title="Good HITL Design Principles" icon="💡" defaultOpen={true}>
+
+- Show AI reasoning -- humans need explainability to understand WHY the AI made a decision
+- Make approval fast -- one-click approve/reject with editable drafts
+- Provide context -- show relevant history, similar past decisions, confidence level
+- Track overrides -- log when humans change AI decisions for future improvement via guardrails
+- Set SLAs -- escalated items need response time targets to avoid bottlenecks
+
+</ExpandableSection>
+
+<Quiz question="What is the biggest risk of poorly designed human-in-the-loop systems?" options={["Too slow","Too many false escalations lead to 'alert fatigue' -- humans start rubber-stamping approvals","Too expensive","Humans always disagree with the AI"]} correctIndex={1} explanation="Alert fatigue is the #1 killer of HITL systems. If 95% of escalations are unnecessary, humans stop reviewing carefully and start auto-approving. This defeats the entire purpose of human oversight." />

@@ -1,0 +1,37 @@
+---
+label: "Event Schema"
+icon: "📃"
+---
+
+## Event Schema Design
+
+<CodeBlock title="CloudEvents Specification" code={`# ACP uses CloudEvents as the event envelope format
+{
+    "specversion": "1.0",
+    "type": "com.acme.agent.document.classified",
+    "source": "agent://classifier/v2",
+    "id": "evt-abc-123",
+    "time": "2025-01-15T10:30:00Z",
+    "datacontenttype": "application/json",
+    "subject": "document/doc-12345",
+    "data": {
+        "classification": "financial_report",
+        "confidence": 0.94,
+        "subcategories": ["quarterly_earnings", "sec_filing"],
+        "processing_time_ms": 1250
+    },
+    # ACP extensions
+    "traceid": "trace-789",
+    "correlationid": "workflow-456",
+    "agentversion": "2.1.0"
+}`}/>
+
+<ExpandableSection title="Event Design Best Practices" icon="💡">
+
+- Use past tense for event types (document.classified, not classify.document)
+- Include correlation IDs for tracing across agent chains
+- Keep event payloads small -- include references, not full data
+- Version your event schemas for backward compatibility
+- Include processing metadata (time, confidence, model used)
+
+</ExpandableSection>

@@ -1,0 +1,87 @@
+---
+label: "Prompt Optimization"
+icon: "⚙️"
+---
+
+## Prompt Optimization
+
+Production prompt engineering requires systematic optimization: testing variants, measuring performance, and iterating based on data. Tools like DSPy automate prompt optimization, while frameworks for A/B testing and versioning ensure prompts improve over time without regressions.
+
+<ExpandableSection title="DSPy: Programmatic Prompt Optimization" icon="🤖" defaultOpen={true}>
+
+**DSPy** replaces hand-written prompts with programmatic modules. You define the task signature (input/output types) and optimization metric, and DSPy automatically discovers the best prompt strategy -- including few-shot examples, CoT, and instruction wording.
+
+DSPy compiles your program into optimized prompts by trying many variants and selecting the best-performing ones on your evaluation set. This turns prompt engineering from an art into an engineering discipline.
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="DSPy prompt optimization pipeline" code={`import dspy
+
+# Configure the language model
+lm = dspy.LM("openai/gpt-4o-mini", temperature=0.7)
+dspy.configure(lm=lm)
+
+# Define the task as a signature
+class ClassifyTicket(dspy.Signature):
+    """Classify a customer support ticket into a category."""
+    ticket_text: str = dspy.InputField(desc="The customer's message")
+    category: str = dspy.OutputField(
+        desc="One of: billing, technical, shipping, product_question, complaint"
+    )
+
+# Create a module (DSPy chooses the best strategy)
+classifier = dspy.ChainOfThought(ClassifyTicket)
+
+# Prepare training examples
+trainset = [
+    dspy.Example(
+        ticket_text="I was charged twice for my order",
+        category="billing"
+    ).with_inputs("ticket_text"),
+    dspy.Example(
+        ticket_text="The app keeps crashing on login",
+        category="technical"
+    ).with_inputs("ticket_text"),
+    # ... more examples
+]
+
+# Define evaluation metric
+def accuracy_metric(example, prediction, trace=None):
+    return prediction.category.lower() == example.category.lower()
+
+# Optimize the prompt automatically
+optimizer = dspy.MIPROv2(metric=accuracy_metric, auto="medium")
+optimized_classifier = optimizer.compile(
+    classifier,
+    trainset=trainset,
+    max_bootstrapped_demos=4,  # max few-shot examples
+    max_labeled_demos=8,
+)
+
+# Use the optimized classifier
+result = optimized_classifier(ticket_text="My package hasn't arrived yet")
+print(f"Category: {result.category}")`}/>
+
+<ExpandableSection title="Prompt Versioning & A/B Testing" icon="🔬">
+
+Production prompts should be version-controlled and A/B tested like any other code:
+
+- **Version control:** Store prompts in a database or config system with version numbers. Never modify production prompts in-place.
+- **A/B testing:** Route 10-20% of traffic to a new prompt variant. Measure quality metrics (accuracy, user satisfaction, task completion) before full rollout.
+- **Rollback:** If a new prompt degrades performance, immediately roll back to the previous version.
+
+Tools like Langfuse, Humanloop, and PromptLayer provide prompt versioning, A/B testing, and analytics out of the box.
+
+</ExpandableSection>
+
+<ExpandableSection title="Automatic Prompt Engineering (APE)" icon="⚙️">
+
+**APE** uses an LLM to generate candidate prompts, evaluates them on a test set, and selects the best-performing one. This is meta-prompting: using AI to optimize AI instructions.
+
+The process: (1) Generate 20-50 candidate instructions using a strong model, (2) Evaluate each on a held-out test set, (3) Select the top performers, (4) Optionally iterate: use the best prompts to generate refined variations.
+
+</ExpandableSection>
+
+<Quiz question="Your team manually wrote a prompt for invoice data extraction. It works 85% of the time. What is the most effective next step to improve accuracy?" options={["Rewrite the prompt with more detailed instructions","Use DSPy to automatically optimize the prompt against a labeled evaluation set","Switch to a larger model","Add more few-shot examples randomly"]} correctIndex={1} explanation="DSPy systematically explores the prompt design space (instructions, few-shot selection, CoT strategies) and optimizes against your specific evaluation metric. Manual rewriting is subjective and may not find the optimal configuration. DSPy often discovers non-obvious prompt structures that outperform human-written ones."/>
+
+<Quiz question="You deploy a new prompt version that improved accuracy from 90% to 94% in testing. After deployment, user satisfaction drops. What likely happened?" options={["The model degraded over time","The test set was not representative of real production traffic","94% accuracy is too high, causing overconfidence","The new prompt was too long"]} correctIndex={1} explanation="If testing showed improvement but production showed degradation, the test set did not represent real-world traffic patterns. This is a distribution shift problem. Production prompts should be evaluated on a representative sample of actual user queries, including edge cases and adversarial inputs."/>

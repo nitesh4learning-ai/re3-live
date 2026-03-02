@@ -1,0 +1,72 @@
+---
+label: "Structured Output Control"
+icon: "📋"
+---
+
+## Structured Output Control
+
+In production systems, LLM outputs must be reliably parseable by downstream code. Free-form text generation is useful for chat but inadequate when outputs feed into databases, APIs, or decision pipelines. <JargonTip term="structured output">Structured output</JargonTip> control ensures the model produces valid <JargonTip term="JSON mode">JSON</JargonTip>, XML, or other structured formats every time.
+
+<ComparisonTable title="Structured Output Methods" columns={['Method','Provider','Guarantee Level','Use Case']} rows={[
+  ['JSON Mode','OpenAI, Anthropic','Valid JSON, no schema enforcement','Simple key-value outputs'],
+  ['Structured Outputs (response_format)','OpenAI','Schema-enforced via constrained decoding','Exact schema compliance needed'],
+  ['Function/Tool Calling','All major providers','Schema-enforced parameters','When output maps to a function call'],
+  ['XML Tags','Anthropic (Claude)','Soft constraint via prompting','Multi-section outputs, nested structures'],
+  ['LMQL','Open-source','Programmatic constraints on generation','Research, custom constraints'],
+  ['Outlines / Guidance','Open-source (local)','Grammar-constrained decoding','Self-hosted models, regex patterns'],
+]}/>
+
+<CodeBlock language="python" label="OpenAI Structured Outputs with Pydantic" code={`from openai import OpenAI
+from pydantic import BaseModel, Field
+from typing import Literal
+
+client = OpenAI()
+
+# Define the exact output schema using Pydantic
+class SecurityFinding(BaseModel):
+    severity: Literal["critical", "high", "medium", "low"]
+    resource: str = Field(description="Affected resource identifier")
+    issue: str = Field(description="Description of the vulnerability")
+    remediation: str = Field(description="Specific fix steps")
+
+class SecurityAnalysis(BaseModel):
+    findings: list[SecurityFinding]
+    overall_risk: Literal["critical", "high", "medium", "low"]
+    summary: str = Field(description="One-sentence risk assessment")
+
+# Use structured outputs - guaranteed schema compliance
+response = client.beta.chat.completions.parse(
+    model="gpt-4o-2024-08-06",
+    messages=[
+        {"role": "system", "content": "Analyze cloud configurations for security issues."},
+        {"role": "user", "content": "Review this S3 bucket policy: {'Effect':'Allow','Principal':'*','Action':'s3:GetObject'}"}
+    ],
+    response_format=SecurityAnalysis,
+)
+
+result = response.choices[0].message.parsed
+print(f"Risk: {result.overall_risk}")
+for f in result.findings:
+    print(f"  [{f.severity.upper()}] {f.resource}: {f.issue}")`}/>
+
+<ExpandableSection title="XML-Guided Generation (Claude Pattern)" icon="📋">
+
+Claude responds particularly well to XML tag structures in system prompts. This pattern uses XML tags to define output sections:
+
+**Prompt:** "Analyze the code and respond with: {'<analysis>'}your analysis{'</analysis>'} {'<issues>'}list of issues{'</issues>'} {'<fix>'}corrected code{'</fix>'}"
+
+XML tags provide soft structure -- the model follows them reliably but they are not mechanically enforced like JSON mode. The advantage is flexibility for nested, multi-section outputs where strict JSON would be cumbersome.
+
+</ExpandableSection>
+
+<ExpandableSection title="Constrained Decoding with Outlines" icon="🔧">
+
+**Outlines** (for self-hosted models) enforces output structure at the token level using <JargonTip term="constrained decoding">constrained decoding</JargonTip>, masking invalid tokens during generation. If the schema requires a number at position N, only number tokens are allowed. This provides a 100% guarantee of valid output.
+
+This works by converting JSON Schema or regex patterns into a finite state machine, then using that FSM to constrain the sampling at each step. The result is always valid -- no parsing errors, no retries needed.
+
+</ExpandableSection>
+
+<Quiz question="Your API endpoint receives LLM output and inserts it into a PostgreSQL database. Which structured output method provides the strongest guarantee against malformed data?" options={["Prompt engineering with 'respond in JSON' instruction","JSON mode (valid JSON but no schema guarantee)","Structured Outputs with a Pydantic schema (constrained decoding)","Post-processing with try/except and retries"]} correctIndex={2} explanation="Structured Outputs with constrained decoding (OpenAI's response_format with a schema, or Outlines for self-hosted) provides a mathematical guarantee that the output matches the schema. JSON mode only guarantees valid JSON syntax, not schema compliance. Prompt engineering and retries add latency and can still fail."/>
+
+<Quiz question="When should you prefer XML-guided generation over JSON structured outputs?" options={["When you need strict schema compliance","When outputs have multiple free-form text sections with nested structure","When working with OpenAI models","When the output will be parsed by code"]} correctIndex={1} explanation="XML tags excel at structuring outputs with multiple free-form text sections (analysis, reasoning, recommendations) that would be awkward in JSON. JSON structured outputs are better when you need strict type enforcement and the output is data-oriented rather than text-oriented."/>

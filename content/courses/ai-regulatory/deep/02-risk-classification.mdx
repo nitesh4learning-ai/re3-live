@@ -1,0 +1,28 @@
+---
+label: "Risk Classification"
+icon: "\u26A0\uFE0F"
+---
+
+## Classifying AI Risk
+
+Not all AI systems carry the same risk. The key is mapping your use case to the appropriate risk tier, then applying proportionate controls.
+
+<ComparisonTable title="Risk Classification by Domain" columns={['Domain','Risk Level','Key Requirements','Example']} rows={[
+  ['Healthcare diagnostics','High','Clinical validation, human oversight, audit trails','AI reading X-rays'],
+  ['Content recommendation','Limited','Transparency, opt-out mechanisms','News feed algorithms'],
+  ['Customer service chatbot','Limited','Disclose AI identity, escalation path','Support automation'],
+  ['Spam filtering','Minimal','None specific','Email spam detection'],
+  ['Employee surveillance','Unacceptable*','Banned in many jurisdictions','Emotion detection at work'],
+]}/>
+
+<ExpandableSection title="Model Risk Management (MRM)" icon={'\uD83C\uDFE6'} defaultOpen>
+
+Originally from banking (SR 11-7), now applied to AI. Three lines of defense:
+
+- **1st Line:** Model developers -- build, test, document
+- **2nd Line:** Model validation -- independent review and challenge
+- **3rd Line:** Internal audit -- assess the overall MRM framework
+
+</ExpandableSection>
+
+<Quiz question="In the three lines of defense for Model Risk Management, who performs independent model validation?" options={["Model developers (1st line)","Risk management / validation team (2nd line)","Internal audit (3rd line)","External regulators"]} correctIndex={1} explanation="The 2nd line of defense -- risk management and model validation teams -- provides independent review and challenge of models built by the 1st line."/>

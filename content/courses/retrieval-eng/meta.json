@@ -1,0 +1,16 @@
+{
+  "tier": 3,
+  "icon": "🔎",
+  "title": "Retrieval Engineering",
+  "description": "Advanced chunking, hybrid search, reranking, RAPTOR. Going beyond basic RAG.",
+  "difficulty": "Advanced",
+  "timeMinutes": 45,
+  "exerciseCount": 8,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Retrieval Engineering — Re³ Academy",
+    "metaDescription": "Advanced retrieval engineering: chunking strategies, hybrid search, reranking, and RAPTOR."
+  }
+}

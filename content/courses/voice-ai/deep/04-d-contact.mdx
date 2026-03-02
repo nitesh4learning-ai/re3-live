@@ -1,0 +1,29 @@
+---
+label: "Contact Center"
+icon: "\uD83D\uDCDE"
+---
+
+## Contact Center AI
+  <ExpandableSection title="Contact Center Architecture" icon="📞" defaultOpen>
+
+Modern AI contact centers combine voice AI with intelligent routing, real-time assistance, and analytics:
+
+
+      - **IVR replacement:** AI agent handles initial greeting and intent classification
+      - **Self-service:** Resolve 40-60% of calls without human agents (FAQs, account lookups, bookings)
+      - **Agent assist:** Real-time suggestions and information retrieval for human agents
+      - **Post-call:** Automated summarization, sentiment analysis, quality scoring
+
+  </ExpandableSection>
+  <ComparisonTable title="Voice AI Providers (2025)" columns={['Provider','Focus','Latency','Pricing']} rows={[
+    ['Vapi','Developer-first voice agents','Low','Per-minute'],
+    ['Retell.ai','Enterprise call center AI','Low','Per-minute + platform'],
+    ['Bland.ai','High-volume outbound calls','Medium','Per-minute'],
+    ['OpenAI Realtime API','General-purpose voice','Very low','Per-token + audio'],
+    ['Twilio + custom','Fully customizable','Varies','Usage-based'],
+  ]}/>
+  <ArchitectureDecision scenario="A healthcare provider wants to build a voice AI system for appointment scheduling. Patients call to book, reschedule, or cancel appointments. 2,000 calls/day. HIPAA compliance required." options={[
+    {label:"Fully managed voice AI platform (Retell/Vapi)",tradeoff:"Fastest to deploy but must verify HIPAA BAA availability; less control over data handling"},
+    {label:"Custom pipeline on your infrastructure: Whisper + GPT-4o-mini + OpenAI TTS",tradeoff:"Full data control for HIPAA; more engineering effort; you own compliance"},
+    {label:"Hybrid: AI handles scheduling, human handles medical questions",tradeoff:"Best safety profile -- AI for structured tasks, human for anything clinical; meets HIPAA with clear data boundaries"},
+  ]} correctIndex={2} explanation="Healthcare requires extreme caution. AI handles the structured scheduling task (low risk, high volume) while humans handle anything medical. This provides clear HIPAA boundaries -- the AI only accesses scheduling data, never medical records -- and reduces liability."/>

@@ -1,0 +1,30 @@
+---
+label: "Frontier"
+icon: "\uD83D\uDE80"
+---
+
+## The Frontier of Physical AI
+
+<ExpandableSection title="Foundation Models for Robotics" icon={'\uD83E\uDDE0'} defaultOpen>
+
+Just as <JargonTip term="transformer">transformer</JargonTip>-based models like GPT transformed NLP, foundation models are coming to robotics:
+
+- **RT-2 (Google):** Vision-Language-Action model that can reason about tasks and execute robot actions from natural language instructions
+- **NVIDIA GR00T:** Foundation model for humanoid robots, trained on massive simulation data
+- **Open X-Embodiment:** Collaborative dataset across 22 robot types to train general-purpose robot policies
+- **World models:** AI that learns physics from video to predict what will happen next
+
+</ExpandableSection>
+
+<ExpandableSection title="Key Frontiers" icon={'\uD83D\uDE80'}>
+
+- Humanoid robots for general-purpose physical tasks (Figure, Tesla Optimus, 1X)
+- Autonomous construction and manufacturing
+- Surgical robots with AI-assisted precision
+- Agricultural robots for planting, monitoring, and harvesting
+- Last-mile delivery robots and autonomous <JargonTip term="agent">agent</JargonTip>-driven vehicles
+- Space exploration with AI-driven rovers and probes
+
+</ExpandableSection>
+
+<Quiz question="What is a 'world model' in the context of physical AI?" options={["A 3D map of the physical environment","An AI that learns physics from observation to predict future states","A database of all physical objects","A simulation engine like Unity or Unreal"]} correctIndex={1} explanation="World models are AI systems that learn the underlying physics and dynamics of the world from observation (usually video). They can predict what will happen next given an action, enabling robots to 'imagine' the consequences of their actions before executing them -- a key capability for safe autonomous behavior."/>

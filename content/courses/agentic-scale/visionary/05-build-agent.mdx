@@ -1,0 +1,34 @@
+---
+label: "Build an Agent"
+icon: "\uD83C\uDFAE"
+---
+
+## Build an Agent
+
+Time to put it all together. Use the interactive builder below to design a complete agent system: select your tools, define a planning strategy, write a task, and watch the simulated execution trace.
+
+  <AgentBuilder/>
+
+  <ExpandableSection title="Exercise 1: Tool Selection" icon="🔧" defaultOpen>
+    <Quiz question="You're building an agent to answer questions about your company's internal wiki. Which tool combination is most appropriate?" options={["Web Search + Calculator","File Reader + Database Query","Web Search + Code Executor + API Caller + Database Query","File Reader + Database Query + Calculator"]} correctIndex={1} explanation="For an internal wiki Q&A agent, you need a File Reader (to read wiki pages) and Database Query (to search the wiki's content store). Web Search is for external data, Code Executor is for computation -- neither is needed for simple wiki Q&A. Keep the tool set minimal to reduce error surface."/>
+  </ExpandableSection>
+
+  <ExpandableSection title="Exercise 2: Planning Strategy Selection" icon="🗺️">
+    <Quiz question="Your agent must: (1) fetch a user's order history, (2) analyze spending patterns, (3) generate personalized product recommendations, (4) format the recommendations as an email. Which planning strategy?" options={["ReAct -- simple loop is sufficient","Plan & Execute -- sequential steps with dependencies benefit from upfront planning","Tree of Thought -- explore multiple recommendation strategies","No planning needed -- just chain the tools"]} correctIndex={1} explanation="This is a 4-step sequential pipeline where each step depends on the previous one's output. Plan & Execute creates the full pipeline upfront, making it clear what each step needs and produces. ReAct might work but could wander; Tree of Thought is overkill for a linear workflow."/>
+  </ExpandableSection>
+
+  <ExpandableSection title="Exercise 3: Architecture Decision" icon="⚖️">
+    <ArchitectureDecision scenario="You are building a customer support agent that handles 50,000 tickets per day. The agent needs to: search the knowledge base, look up customer history, sometimes execute refunds, and always log the interaction. The agent must respond within 5 seconds." options={[
+      {label:'Single ReAct agent with all tools -- search, lookup, refund, logging',tradeoff:'Simple architecture but serial tool calls may exceed the 5-second latency budget. Refund tool is high-risk with no guardrails.'},
+      {label:'Router agent classifies ticket, then routes to specialized sub-agents (search agent, refund agent, etc.) with parallel pre-fetching of customer data',tradeoff:'Parallel pre-fetching cuts latency. Specialized agents are simpler and more reliable. Refund agent can have extra safeguards. More complex to build and maintain.'},
+      {label:'Pre-computed responses for common tickets, agent only handles novel cases',tradeoff:'Fastest for common cases (cache hit). But requires maintaining a response database and knowing which tickets are "common". Novel cases still need the full agent.'},
+    ]} correctIndex={1} explanation="At 50K tickets/day with a 5-second SLA, you need parallel execution and specialization. A router classifies the ticket (fast), pre-fetches customer data in parallel with knowledge base search, and routes to specialized sub-agents. The refund agent gets extra safeguards (confirmation, amount limits). This architecture scales horizontally and meets the latency requirement."/>
+  </ExpandableSection>
+
+  <ExpandableSection title="Exercise 4: Observability Design" icon="📊">
+    <Quiz question="Your agent processes 10,000 runs per day. Last week, customer satisfaction dropped 15% but you don't know why. What observability data would help you diagnose the issue?" options={["Just check if the API is returning 200 status codes","Traces showing full agent execution (tool calls, latency per step, LLM responses, error rates) over time with before/after comparison","Check the LLM provider's uptime page","Increase logging verbosity and wait for the issue to happen again"]} correctIndex={1} explanation="Detailed execution traces let you compare agent behavior before and after the quality drop. You can identify: Did tool call failure rates increase? Did latency spike (causing timeouts)? Did a model update change response quality? Did a specific tool start returning bad data? Without traces, you are debugging blind."/>
+  </ExpandableSection>
+
+  <ExpandableSection title="Exercise 5: Scale & Cost" icon="💰">
+    <Quiz question="Your agent costs $0.12 per run. At 10,000 runs/day, that's $1,200/day ($36K/month). What is the single highest-impact cost reduction strategy?" options={["Switch to a cheaper LLM provider","Implement response caching for repeated queries (40% of queries are duplicates)","Reduce the max_tokens parameter","Run fewer agent instances"]} correctIndex={1} explanation="If 40% of queries are duplicates, caching eliminates 4,000 LLM calls per day. That is $480/day saved ($14.4K/month). Caching identical inputs at the tool and LLM level is almost always the highest-ROI cost optimization for agents because real-world query distributions follow power laws -- a small number of queries account for a large portion of volume."/>
+  </ExpandableSection>

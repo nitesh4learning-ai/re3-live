@@ -1,0 +1,16 @@
+{
+  "tier": 4,
+  "icon": "⚖️",
+  "title": "AI Governance & Regulatory Landscape",
+  "description": "NIST AI RMF, EU AI Act, model risk management. Navigating the regulatory maze.",
+  "difficulty": "Expert",
+  "timeMinutes": 50,
+  "exerciseCount": 7,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "AI Governance & Regulatory Landscape — Re³ Academy",
+    "metaDescription": "Navigate AI regulation: NIST AI RMF, EU AI Act, and model risk management frameworks."
+  }
+}

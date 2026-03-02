@@ -1,0 +1,46 @@
+---
+label: "Graph Databases"
+icon: "🗄️"
+---
+
+## Graph Databases
+
+Knowledge graphs need a storage layer optimized for traversals, pattern matching, and relationship queries. Graph databases use native graph storage with index-free adjacency for O(1) relationship lookups regardless of graph size.
+
+  <ComparisonTable title="Graph Database Comparison" columns={['Database','Model','Query Language','Strengths','Hosting']} rows={[
+    ['Neo4j','Labeled Property Graph','Cypher','Most mature, rich ecosystem, APOC plugins','Self-hosted, AuraDB cloud'],
+    ['Amazon Neptune','Property Graph + RDF','Gremlin / SPARQL','AWS integration, serverless, managed','AWS only'],
+    ['Memgraph','Property Graph','Cypher-compatible','In-memory speed, streaming ingestion','Self-hosted, cloud'],
+    ['FalkorDB','Property Graph','Cypher subset','Redis-compatible, very fast reads','Self-hosted'],
+  ]}/>
+  <CodeBlock language="text" label="Cypher Query Examples (Neo4j)" code={`// Create entities and relationships
+CREATE (e:Person {name: 'Einstein', born: 1879})
+CREATE (r:Concept {name: 'Relativity', field: 'Physics'})
+CREATE (e)-[:DEVELOPED {year: 1905}]->(r)
+
+// Find all concepts developed by Einstein
+MATCH (p:Person {name: 'Einstein'})-[:DEVELOPED]->(c:Concept)
+RETURN c.name, c.field
+
+// Multi-hop: Find collaborators of Einstein's collaborators
+MATCH (e:Person {name: 'Einstein'})-[:COLLABORATED_WITH]->
+      (colleague)-[:COLLABORATED_WITH]->(extended)
+WHERE extended <> e
+RETURN DISTINCT extended.name, COUNT(*) AS connections
+ORDER BY connections DESC
+
+// Shortest path between two concepts
+MATCH path = shortestPath(
+  (a:Concept {name: 'Quantum Mechanics'})-[*..6]-
+  (b:Concept {name: 'General Relativity'})
+)
+RETURN [node IN nodes(path) | node.name] AS pathway
+
+// Subgraph for context retrieval (Graph RAG)
+MATCH (seed:Concept {name: $query_entity})
+CALL apoc.path.subgraphAll(seed, {
+  maxLevel: 2,
+  relationshipFilter: "RELATES_TO|DEPENDS_ON|IMPLEMENTS"
+}) YIELD nodes, relationships
+RETURN nodes, relationships`}/>
+  <Quiz question="Why do graph databases outperform relational databases for multi-hop relationship queries?" options={["Graph databases use SQL which is faster","Graph databases use index-free adjacency -- each node directly references its neighbors","Graph databases store less data","Relational databases cannot represent relationships"]} correctIndex={1} explanation="Index-free adjacency means each node stores direct pointers to its neighbors. A 6-hop traversal in a graph DB is O(6) regardless of graph size, while the same query in SQL requires 6 JOIN operations that scale with table size."/>

@@ -1,0 +1,52 @@
+---
+label: "Attention Mechanism"
+icon: "\uD83D\uDC41\uFE0F"
+---
+
+## Attention Mechanism
+
+The <JargonTip term="attention">attention mechanism</JargonTip> is the core innovation that makes <JargonTip term="transformer">transformers</JargonTip> work. It allows every token in a sequence to directly attend to every other token, computing relevance scores that determine how much each token should influence the current token's representation.
+
+The formula for scaled dot-product attention is: **Attention(Q,K,V) = softmax(QK^T / sqrt(d_k)) V**. Each token is projected into three vectors: Query (what am I looking for?), Key (what do I contain?), and Value (what do I provide?).
+
+<ExpandableSection title="Q/K/V Matrices Explained" icon="\uD83D\uDD11" defaultOpen={true}>
+
+**Query (Q):** Each token generates a query vector that asks "what information am I looking for?" Think of it as a search query.
+
+**Key (K):** Each token generates a key vector that advertises "here's what I contain." Think of it as a document title in a search index.
+
+**Value (V):** Each token generates a value vector that says "here's my actual content." Think of it as the document body.
+
+The dot product of Q and K determines relevance. High Q\*K score means "this token is relevant to my query." The softmax normalizes these scores into a probability distribution, then the V vectors are weighted by these probabilities.
+
+All three projections are learned weight matrices (W\_Q, W\_K, W\_V), each of dimension d\_model x d\_k.
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="Self-attention computation (simplified)" code={`import numpy as np\n\ndef self_attention(X, W_Q, W_K, W_V):\n    """\n    X: input embeddings (seq_len, d_model)\n    W_Q, W_K, W_V: projection matrices (d_model, d_k)\n    """\n    Q = X @ W_Q   # (seq_len, d_k) - queries\n    K = X @ W_K   # (seq_len, d_k) - keys\n    V = X @ W_V   # (seq_len, d_k) - values\n\n    d_k = K.shape[-1]\n    # Scaled dot-product attention scores\n    scores = (Q @ K.T) / np.sqrt(d_k)  # (seq_len, seq_len)\n\n    # Softmax to get attention weights\n    weights = np.exp(scores) / np.exp(scores).sum(axis=-1, keepdims=True)\n\n    # Weighted sum of values\n    output = weights @ V  # (seq_len, d_k)\n    return output, weights\n\n# Example: 4 tokens, 8-dim embeddings, 4-dim attention\nX = np.random.randn(4, 8)\nW_Q = np.random.randn(8, 4)\nW_K = np.random.randn(8, 4)\nW_V = np.random.randn(8, 4)\nout, attn_weights = self_attention(X, W_Q, W_K, W_V)\nprint(f"Attention weights shape: {attn_weights.shape}")  # (4, 4)\nprint(f"Each row sums to 1: {attn_weights.sum(axis=-1)}")`}/>
+
+<ExpandableSection title="Multi-Head Attention" icon="\uD83D\uDC41\uFE0F">
+
+Instead of computing one set of Q/K/V projections, multi-head attention computes **h** parallel attention operations (heads), each with its own learned projections. GPT-4 uses ~96 heads; LLaMA 2 (70B) uses 64 heads.
+
+Each head can focus on a different type of relationship: one head might track syntactic dependencies (subject-verb agreement), another semantic relationships (pronoun-antecedent), another positional patterns.
+
+The outputs of all heads are concatenated and projected through a final linear layer: **MultiHead(Q,K,V) = Concat(head\_1,...,head\_h) W\_O**
+
+This is why the d\_model dimension is typically split: if d\_model=1024 and h=16, each head operates on d\_k=64 dimensions. The total computation cost is the same as single-head attention with d\_k=1024.
+
+</ExpandableSection>
+
+<ExpandableSection title="Positional Encoding: RoPE" icon="\uD83D\uDD04">
+
+Transformers have no inherent notion of token position. Without positional encoding, the sentence "dog bites man" and "man bites dog" would produce identical representations.
+
+**RoPE (Rotary Position Embeddings)** is the current standard, used by LLaMA, Mistral, and most modern models. It encodes position by rotating the Q and K vectors in 2D subspaces. The rotation angle is proportional to position, so relative positions are naturally captured by the dot product.
+
+RoPE has a key advantage: it generalizes to longer sequences than seen during training, which is why models can be "context-extended" via RoPE scaling techniques like NTK-aware interpolation or YaRN.
+
+</ExpandableSection>
+
+<Quiz question="In the attention formula Attention(Q,K,V) = softmax(QK^T / sqrt(d_k)) V, why do we divide by sqrt(d_k)?" options={["To reduce memory usage","To prevent the dot products from growing too large, which would push softmax into regions with tiny gradients","To normalize the output vectors to unit length","To speed up computation"]} correctIndex={1} explanation="Without scaling, the dot products of Q and K grow proportionally to d_k, pushing the softmax into extremely peaked distributions where gradients vanish. Dividing by sqrt(d_k) keeps the variance stable regardless of dimension size."/>
+
+<ArchitectureDecision scenario="You are designing a custom transformer for processing very long legal documents (100K+ tokens). Standard full attention has O(n^2) memory. What attention variant should you use?" options={[{label:'Full causal attention with FlashAttention v2',tradeoff:'Exact attention, IO-aware, 2-4x faster and memory-efficient, but still O(n^2) compute'},{label:'Sliding window attention (e.g., Mistral style)',tradeoff:'O(n * w) where w is window size, handles local patterns well, may miss long-range dependencies'},{label:'Ring attention with sequence parallelism',tradeoff:'Distributes the sequence across multiple GPUs, maintains full attention quality, requires multi-GPU setup'}]} correctIndex={0} explanation="For 100K tokens, FlashAttention v2 with hardware-optimized tiling makes full attention feasible on modern GPUs. Sliding window attention loses long-range dependencies critical for legal cross-references. Ring attention adds unnecessary infrastructure complexity unless exceeding single-GPU memory limits."/>

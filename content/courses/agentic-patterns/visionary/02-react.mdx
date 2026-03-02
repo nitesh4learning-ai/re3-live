@@ -1,0 +1,32 @@
+---
+label: "ReAct"
+icon: "🧠"
+---
+
+## ReAct: Reason + Act
+
+The most fundamental agentic pattern. The <JargonTip term="ReAct">ReAct</JargonTip> loop: the model **thinks** about what to do, **acts** (calls a tool), **observes** the result, then **thinks** again.
+
+<CodeBlock title="ReAct Loop" code={`def react_loop(query, tools, max_steps=5):
+    messages = [{"role": "user", "content": query}]
+
+    for step in range(max_steps):
+        # THINK: model reasons about what to do
+        response = call_llm(messages, tools=tools)
+
+        if response.is_final_answer:
+            return response.content  # Done!
+
+        if response.tool_call:
+            # ACT: execute the tool
+            tool_result = execute_tool(
+                response.tool_call.name,
+                response.tool_call.arguments
+            )
+            # OBSERVE: add result to conversation
+            messages.append({"role": "tool", "content": tool_result})
+            # Loop back to THINK
+
+    return "Max steps reached"`}/>
+
+<SeeItInRe3 text="Re³'s agent debate system uses a form of ReAct -- each agent reasons about its position, observes other agents' arguments, then refines its conclusion through multiple rounds."/>

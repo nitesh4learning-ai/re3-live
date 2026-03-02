@@ -1,0 +1,12 @@
+---
+label: "Memory Lab"
+icon: "🏗️"
+---
+
+## Memory Architecture Lab
+
+<ArchitectureDecision scenario="You are building a customer support AI for an e-commerce company. Customers often contact support multiple times about the same order. The AI needs to remember the full history of each customer's issues across sessions." options={[
+  {label:'Store all conversations in a vector database, retrieve by customer ID',tradeoff:'Full history searchable, but may surface irrelevant old issues. Need good filtering.'},
+  {label:'Entity memory per customer (order history, open issues) + vector search for specific details',tradeoff:'Structured knowledge (orders, issues) always available. Details retrievable when needed. Best balance.'},
+  {label:'Just look up the order in the database, no conversation memory',tradeoff:"Loses all context from previous support interactions -- customer has to repeat themselves"},
+]} correctIndex={1} explanation="Entity memory captures structured facts (order status, open issues, preferences) that are always relevant. Vector search surfaces specific conversation details when needed. This prevents the 'I already explained this to your colleague' frustration." />

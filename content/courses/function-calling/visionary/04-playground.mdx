@@ -1,0 +1,16 @@
+---
+label: "Playground"
+icon: "🎮"
+---
+
+## Playground
+
+Test your function calling knowledge!
+
+<ExpandableSection title="Exercise 1: Tool Design" icon="🔧" defaultOpen={true}>
+  <Quiz question="You're designing a 'send_email' tool. Which parameter should be required?" options={["subject","cc_list","to_address","signature"]} correctIndex={2} explanation="'to_address' is the only parameter that MUST be provided -- you can't send an email without a recipient. Subject, CC, and signature can have defaults or be optional." />
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 2: Flow Understanding" icon="🔄">
+  <Quiz question="The LLM generates a tool call but the function returns an error. What should happen next?" options={["Crash the application","Send the error back to the LLM so it can handle it gracefully","Ignore the error and continue","Retry the same call 10 times"]} correctIndex={1} explanation="Send the error back to the LLM as a tool result. The LLM can then decide how to handle it -- retry with different parameters, try a different approach, or explain the issue to the user." />
+</ExpandableSection>

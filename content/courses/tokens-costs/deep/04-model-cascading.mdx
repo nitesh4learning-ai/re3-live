@@ -1,0 +1,48 @@
+---
+label: "Model Cascading"
+icon: "🔀"
+---
+
+## <JargonTip term="model cascading">Model Cascading</JargonTip> & Routing
+
+<CodeBlock title="Model Router" code={`class ModelRouter:
+    def __init__(self):
+        self.classifier = load_model("query-complexity-classifier")
+        self.models = {
+            "simple": {"name": "gpt-4o-mini", "max_tokens": 500},
+            "complex": {"name": "gpt-4o", "max_tokens": 1500},
+        }
+
+    def route(self, query):
+        """Route query to appropriate model based on complexity."""
+        complexity = self.classifier.predict(query)
+        confidence = self.classifier.confidence(query)
+
+        # High confidence simple -> use cheap model
+        if complexity == "simple" and confidence > 0.85:
+            return self.models["simple"]
+
+        # Low confidence or complex -> use powerful model
+        return self.models["complex"]
+
+    def generate(self, query):
+        model_config = self.route(query)
+        response = call_llm(
+            model=model_config["name"],
+            prompt=query,
+            max_tokens=model_config["max_tokens"]
+        )
+
+        # Fallback: if cheap model gives low-quality response
+        if model_config["name"] == "gpt-4o-mini":
+            quality = assess_quality(response)
+            if quality < 0.6:  # Re-route to powerful model
+                response = call_llm("gpt-4o", query, max_tokens=1500)
+
+        return response`}/>
+
+<ExpandableSection title="Cascading Examples" icon={'\uD83D\uDD00'}>
+  - Customer support: FAQ/status \u2192 mini, complaints/escalation \u2192 full
+  - Document processing: extraction \u2192 mini, analysis/summarization \u2192 full
+  - Code review: style/lint checks \u2192 mini, logic/security review \u2192 full
+</ExpandableSection>

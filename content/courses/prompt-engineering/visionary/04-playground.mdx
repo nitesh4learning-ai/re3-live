@@ -1,0 +1,32 @@
+---
+label: "Playground"
+icon: "🎮"
+---
+
+## Playground
+
+Test your prompt engineering knowledge with these exercises.
+
+<ExpandableSection title="Exercise 1: Prompt Improvement" icon="✍️" defaultOpen={true}>
+
+<Quiz question="A user says 'Write me something about dogs.' How should you improve this prompt?" options={["'Write a 200-word blog post about the health benefits of daily dog walking for senior citizens, in a warm conversational tone'","'Write about dogs please, make it good'","'Dogs. Go.'","'Tell me everything about every dog breed'"]} correctIndex={0} explanation="Effective prompts are specific about: topic (health benefits of dog walking), audience (seniors), format (blog post), length (200 words), and tone (warm, conversational). Vague prompts get vague results."/>
+
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 2: System Prompt Design" icon="🎬">
+
+<Quiz question="You're building a customer support bot. Which system prompt element is MOST critical?" options={["A friendly greeting message","Clear escalation rules for when the bot can't help","The company's full history","A joke to tell at the start"]} correctIndex={1} explanation="For support bots, knowing when to escalate to a human is critical. Without clear escalation rules, the bot might give wrong answers or frustrate users on complex issues."/>
+
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 3: Technique Selection" icon="🧠">
+
+<Quiz question="You need the AI to classify 1000 support tickets into 5 categories. Best approach?" options={["Zero-shot with category descriptions","Few-shot with 2-3 examples per category","Chain-of-thought for each ticket","Ask the AI to create its own categories"]} correctIndex={1} explanation="For classification tasks with specific categories, few-shot with examples per category gives the most consistent results. CoT adds unnecessary cost at scale, and zero-shot may misinterpret categories."/>
+
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 4: Final Review" icon="🎓">
+
+<Quiz question="What is the correct order of messages in an API call?" options={["User \u2192 System \u2192 Assistant","System \u2192 User \u2192 Assistant","Assistant \u2192 System \u2192 User","User \u2192 Assistant \u2192 System"]} correctIndex={1} explanation="The standard order is: System prompt (sets behavior), then User message (the question), then Assistant response. The system prompt always comes first to establish context."/>
+
+</ExpandableSection>

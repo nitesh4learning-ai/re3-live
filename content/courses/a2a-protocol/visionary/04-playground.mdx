@@ -1,0 +1,20 @@
+---
+label: "Playground"
+icon: "🎮"
+---
+
+## Playground
+
+Test your A2A knowledge!
+
+<ExpandableSection title="Exercise 1: MCP vs A2A" icon="🤔" defaultOpen={true}>
+  <Quiz question="An AI assistant needs to delegate a complex research task to a specialized research agent. Which protocol?" options={["MCP -- all AI communication uses MCP","A2A -- it's agent-to-agent delegation","HTTP REST API","WebSocket"]} correctIndex={1} explanation="Delegating a task to another agent is exactly what A2A is designed for. MCP would be used if the agent needed to call a specific tool, not delegate to another intelligent agent." />
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 2: Agent Card Design" icon="📋">
+  <Quiz question="An Agent Card should NOT include:" options={["The agent's capabilities","How to contact the agent","The agent's internal implementation details","A description of what the agent does"]} correctIndex={2} explanation="Agent Cards describe WHAT an agent can do and HOW to reach it, but never expose internal implementation details. That's an abstraction boundary -- other agents only need to know the interface." />
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 3: Architecture Design" icon="🏗️">
+  <Quiz question="A system has 3 agents that need tools AND need to collaborate with each other. What protocols are needed?" options={["MCP only","A2A only","Both MCP (for tools) and A2A (for agent collaboration)","A custom proprietary protocol"]} correctIndex={2} explanation="MCP and A2A are complementary. MCP connects agents to tools and data sources. A2A connects agents to each other. A full system typically needs both." />
+</ExpandableSection>

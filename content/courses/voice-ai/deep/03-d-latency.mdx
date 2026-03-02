@@ -1,0 +1,44 @@
+---
+label: "Latency"
+icon: "\u26A1"
+---
+
+## Latency Optimization
+
+In voice AI, <JargonTip term="latency">latency</JargonTip> is everything. Users tolerate {'<'}800ms total latency for natural conversation. Minimizing <JargonTip term="TTFT">TTFT</JargonTip> (time to first token) is critical, and <JargonTip term="streaming">streaming</JargonTip> overlaps all pipeline stages for the best perceived responsiveness.
+
+  <CodeBlock label="Streaming Voice Pipeline" code={`class StreamingVoicePipeline:
+    """Overlap STT/LLM/TTS for minimum latency"""
+
+    async def process(self, audio_stream):
+        # Start transcribing as audio arrives (no waiting)
+        transcript = ""
+        async for audio_chunk in audio_stream:
+            partial = await self.stt.transcribe_streaming(audio_chunk)
+            transcript += partial
+
+        # Start LLM generation immediately
+        llm_stream = self.llm.stream(transcript)
+
+        # Key optimization: start TTS on first sentence,
+        # don't wait for full LLM response
+        sentence_buffer = ""
+        async for token in llm_stream:
+            sentence_buffer += token
+            if self._is_sentence_end(sentence_buffer):
+                # Convert this sentence to speech NOW
+                audio = await self.tts.synthesize(sentence_buffer)
+                yield audio  # User hears first sentence in ~300ms
+                sentence_buffer = ""
+
+        # Flush remaining buffer
+        if sentence_buffer:
+            yield await self.tts.synthesize(sentence_buffer)`}/>
+  <ComparisonTable title="Latency Budget Breakdown" columns={['Component','Target','Strategy']} rows={[
+    ['STT','50-150ms','Streaming transcription, Deepgram/AssemblyAI'],
+    ['LLM (first token)','100-200ms','GPT-4o-mini or Haiku; streaming mode'],
+    ['TTS (first audio)','50-150ms','Streaming synthesis, pre-generate filler'],
+    ['Network','20-50ms','Edge deployment, WebSocket'],
+    ['Total','300-600ms','Overlap all stages via streaming'],
+  ]}/>
+  <Quiz question="What is the single most impactful latency optimization for voice AI?" options={["Using a faster LLM","Streaming overlap -- start TTS before LLM finishes generating","Using a local STT model","Reducing audio quality"]} correctIndex={1} explanation="Streaming overlap is the biggest win. Instead of waiting for the full LLM response, you start converting the first sentence to speech immediately. This can cut perceived latency by 50-70% because the user starts hearing the answer while the rest is still being generated."/>

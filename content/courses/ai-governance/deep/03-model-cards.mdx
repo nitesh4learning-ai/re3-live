@@ -1,0 +1,59 @@
+---
+label: "Model Cards"
+icon: "📄"
+---
+
+## Model Cards & Documentation
+
+<JargonTip term="model card">Model cards</JargonTip> are standardized documents that describe an AI model's intended use, performance characteristics, limitations, and ethical considerations. They serve as the primary accountability artifact for AI systems.
+
+<CodeBlock language="json" label="Model Card Template" code={`{
+  "model_name": "Customer Churn Predictor v2.1",
+  "model_type": "Binary classification (gradient boosting)",
+  "intended_use": {
+    "primary": "Predict customer churn risk for retention campaigns",
+    "users": ["Customer success team", "Marketing automation"],
+    "out_of_scope": ["Credit decisions", "Employment screening"]
+  },
+  "training_data": {
+    "source": "Internal CRM, 2022-2024",
+    "size": "450,000 customer records",
+    "demographics": "US customers, enterprise segment",
+    "known_gaps": ["Limited APAC representation", "No SMB data"]
+  },
+  "performance": {
+    "accuracy": 0.87,
+    "precision": 0.82,
+    "recall": 0.79,
+    "auc_roc": 0.91,
+    "fairness_metrics": {
+      "demographic_parity": 0.95,
+      "equal_opportunity": 0.92
+    }
+  },
+  "limitations": [
+    "Performance degrades for customers with < 3 months history",
+    "Not validated for APAC markets",
+    "Seasonal patterns may cause drift in Q4"
+  ],
+  "ethical_considerations": [
+    "Model should not be used for discriminatory pricing",
+    "Human review required before any account actions"
+  ]
+}`}/>
+
+<ExpandableSection title="Key Sections of a Model Card" icon="📄" defaultOpen={true}>
+
+1. **Intended Use**: What the model is designed for and explicitly what it should NOT be used for.
+
+2. **Training Data**: Sources, size, demographics, and known gaps or biases in the data.
+
+3. **Performance**: Standard metrics plus fairness metrics across demographic groups.
+
+4. **Limitations**: Known failure modes, edge cases, and conditions where the model should not be trusted.
+
+5. **Ethical Considerations**: Potential harms and safeguards that must be in place.
+
+</ExpandableSection>
+
+<Quiz question="Why should a model card include out-of-scope uses?" options={["Legal compliance only","To prevent the model from being used in contexts where it was not tested and may cause harm","To make the card longer","It is not necessary"]} correctIndex={1} explanation="Documenting out-of-scope uses prevents the model from being deployed in contexts where it was never validated, reducing the risk of unexpected harm." />

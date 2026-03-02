@@ -1,0 +1,15 @@
+---
+label: "Beyond Basic RAG"
+icon: "\uD83D\uDD0E"
+---
+
+## Beyond Basic RAG
+  <AnalogyBox emoji={'D83DDCDA'} title="The Research Librarian">{`Basic RAG is like using a library catalog \u2014 you search by keyword and get results. Retrieval engineering is like having an expert research librarian who understands your question, knows where to look, cross-references sources, and gives you exactly what you need.`}</AnalogyBox>
+
+<JargonTip term="RAG">Retrieval</JargonTip> engineering goes beyond simple vector search to build production-grade retrieval systems using <JargonTip term="chunking">chunking</JargonTip>, <JargonTip term="hybrid search">hybrid search</JargonTip>, and <JargonTip term="reranking">reranking</JargonTip>.
+
+- **Advanced Chunking** -- Semantic, agentic, and hierarchical chunking strategies
+- **Hybrid Search** -- Combine vector similarity with keyword (BM25) search
+- **Reranking** -- Cross-encoder models reorder search results by true relevance
+- **RAPTOR** -- Recursive summarization for hierarchical document retrieval
+  <Quiz question="Why does basic vector search often fail for production RAG?" options={["Vectors are too slow","Vector similarity misses keyword matches and doesn't capture document structure","Embeddings are inaccurate","Vector databases are expensive"]} correctIndex={1} explanation="Pure vector search can miss exact keyword matches (a user asking about 'error 502' needs the exact match, not semantically similar content). Hybrid search combines vector similarity with keyword matching for much better recall."/>

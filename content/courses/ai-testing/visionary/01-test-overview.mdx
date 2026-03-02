@@ -1,0 +1,15 @@
+---
+label: "AI Testing"
+icon: "\uD83E\uDDEA"
+---
+
+## AI Testing & Red-Teaming
+  <AnalogyBox emoji={'D83DDCA5'} title="Crash Testing for AI">{`AI testing is like crash testing cars \u2014 you intentionally try to break the system in controlled conditions so you can fix vulnerabilities before real users encounter them.`}</AnalogyBox>
+
+A robust AI testing strategy combines <JargonTip term="eval">evaluation</JargonTip> frameworks, <JargonTip term="LLM-as-judge">LLM-as-judge</JargonTip> scoring, <JargonTip term="guardrails">guardrails</JargonTip> testing, and <JargonTip term="drift detection">drift detection</JargonTip> to ensure quality over time.
+
+- **Red-Teaming** -- Adversarial testing: intentionally try to make the AI misbehave
+- **Eval Frameworks** -- Systematic measurement of quality, safety, and reliability
+- **Injection Defense** -- Testing prompt injection resistance and safety boundaries
+- **Regression Testing** -- Ensure updates don't break existing behavior
+  <Quiz question="Why is testing AI systems fundamentally different from testing traditional software?" options={["AI is harder to debug","AI outputs are non-deterministic \u2014 the same input can produce different outputs","AI systems are slower","Traditional testing methods work fine for AI"]} correctIndex={1} explanation="Non-determinism is the core challenge. The same prompt can produce different responses, making assertion-based testing insufficient. AI testing requires statistical evaluation over many runs, not single pass/fail checks."/>

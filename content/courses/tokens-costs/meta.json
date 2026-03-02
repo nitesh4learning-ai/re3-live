@@ -1,0 +1,16 @@
+{
+  "tier": 1,
+  "icon": "💰",
+  "title": "Tokens, Costs & Model Selection",
+  "description": "Pricing models, when to use GPT vs Claude vs Gemini vs open-source. Optimizing spend.",
+  "difficulty": "Beginner",
+  "timeMinutes": 30,
+  "exerciseCount": 5,
+  "tabCount": 3,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Tokens, Costs & Model Selection — Re³ Academy",
+    "metaDescription": "Compare AI model pricing: GPT vs Claude vs Gemini vs open-source. Optimize your AI spend."
+  }
+}

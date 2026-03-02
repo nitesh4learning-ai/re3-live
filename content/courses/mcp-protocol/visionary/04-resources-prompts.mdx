@@ -1,0 +1,18 @@
+---
+label: "Resources & Prompts"
+icon: "📁"
+---
+
+## Resources & Prompts
+
+MCP has three primitives. Beyond Tools, there are **Resources** (read-only data) and **Prompts** (reusable templates).
+
+| Primitive | Direction | Purpose | Example |
+|-----------|-----------|---------|---------|
+| **Tools** | AI → Server | Execute actions | Search DB, send email, create file |
+| **Resources** | Server → AI | Provide read-only data | Config files, documentation, schemas |
+| **Prompts** | Server → User | Reusable templates | Code review template, analysis prompt |
+
+<Quiz question="A server exposes a company's API documentation. Which MCP primitive is most appropriate?" options={["Tool -- because you can search it","Resource -- it's read-only reference data","Prompt -- it's a template","All three equally"]} correctIndex={1} explanation="API documentation is read-only reference data that the AI consumes for context. Resources are designed for exactly this -- providing data to the AI without any action being taken." />
+
+<Quiz question="Which MCP primitive would you use for a 'Summarize this PR' workflow?" options={["Tool","Resource","Prompt","None of these"]} correctIndex={2} explanation="Prompts are reusable templates that define workflows. A 'Summarize this PR' prompt would include the template with placeholders for the PR content, guiding the AI through a structured analysis." />

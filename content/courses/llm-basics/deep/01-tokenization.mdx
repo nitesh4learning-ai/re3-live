@@ -1,0 +1,51 @@
+---
+label: "Tokenization Deep Dive"
+icon: "\uD83D\uDD24"
+---
+
+## Tokenization Deep Dive
+
+Tokenization is the critical first stage of every LLM <JargonTip term="inference">inference</JargonTip> call. The choice of tokenizer shapes the model's vocabulary, affects multilingual performance, and directly impacts cost. Production systems must understand the differences between tokenization algorithms to optimize <JargonTip term="latency">latency</JargonTip> and spending.
+
+The two dominant approaches are **<JargonTip term="BPE">Byte-Pair Encoding (BPE)</JargonTip>** used by GPT models via tiktoken, and **SentencePiece** (Unigram model) used by LLaMA and Gemini. Each handles edge cases, multilingual text, and special tokens differently.
+
+<ExpandableSection title="BPE Algorithm Step-by-Step" icon="\uD83D\uDD27" defaultOpen={true}>
+
+BPE starts with a base vocabulary of individual bytes (256 entries) and iteratively merges the most frequent adjacent pairs:
+
+**Iteration 1:** Count all adjacent byte pairs in the corpus. Find the most frequent pair (e.g., "t" + "h"). Merge into new token "th". Update corpus.
+
+**Iteration 2:** Recount pairs. Maybe "th" + "e" is now most frequent. Merge into "the".
+
+**Repeat** for 50,000-100,000 iterations until vocabulary reaches target size.
+
+The merge order is saved as the tokenizer's "vocabulary file." During inference, text is encoded by applying merges in the same order they were learned.
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="Counting tokens with tiktoken" code={`import tiktoken\n\n# Load encoder for specific model\nenc = tiktoken.encoding_for_model("gpt-4o")\n\ntext = "Tokenization is fundamental to LLM cost optimization."\ntokens = enc.encode(text)\n\nprint(f"Text: {text}")\nprint(f"Token count: {len(tokens)}")\nprint(f"Token IDs: {tokens}")\nprint(f"Decoded tokens: {[enc.decode([t]) for t in tokens]}")\n# Output: ['Token', 'ization', ' is', ' fundamental', ' to', ' LLM', ' cost', ' optimization', '.']\n\n# Cost estimation (GPT-4o: $2.50/1M input tokens)\ncost_per_token = 2.50 / 1_000_000\nprint("Estimated cost: $%.6f" % (len(tokens) * cost_per_token))`}/>
+
+<ComparisonTable title="Tokenizer Comparison" columns={['Feature','tiktoken (GPT)','SentencePiece (LLaMA)','Tekken (Mistral)']} rows={[
+  ['Algorithm','Byte-level BPE','Unigram language model','Byte-level BPE (optimized)'],
+  ['Vocab size','100,256 (GPT-4o)','32,000 (LLaMA 2)','32,768'],
+  ['Multilingual','Good (byte fallback)','Strong (trained on multilingual data)','Strong'],
+  ['Code handling','Excellent','Moderate','Good'],
+  ['Special tokens','<|endoftext|>, etc.','<s>, </s>, <unk>','[INST], [/INST]'],
+  ['Speed','Very fast (Rust)','Fast (C++)','Fast'],
+]}/>
+
+<ExpandableSection title="Multilingual Tokenization Challenges" icon="\uD83C\uDF0D">
+
+Tokenizers trained primarily on English text are inefficient for other languages. The same sentence can require 2-4x more tokens in Chinese, Arabic, or Hindi compared to English. This means:
+
+- **Higher costs:** The same content costs 2-4x more to process
+- **Reduced context:** Less content fits in the context window
+- **Slower inference:** More tokens = more decoding steps
+
+This is why models like Gemini and Mistral's Tekken invest in larger, more multilingual vocabularies -- reducing the token count penalty for non-English text.
+
+</ExpandableSection>
+
+<Quiz question="Why does Chinese text typically require more tokens than English text with a GPT-style tokenizer?" options={["Chinese characters are inherently more complex","The BPE vocabulary was trained primarily on English text, so Chinese characters have fewer pre-merged tokens","Chinese text uses more Unicode bytes","The model processes Chinese more carefully"]} correctIndex={1} explanation="BPE merges are learned from the training corpus. Since GPT tokenizers are trained predominantly on English text, English words get more efficient multi-character merges, while Chinese characters often remain as individual tokens or small byte sequences."/>
+
+<ArchitectureDecision scenario="You are building a multilingual customer support chatbot serving English, Spanish, French, and Mandarin. Token costs are a concern. Which tokenization strategy minimizes cost?" options={[{label:'Use GPT-4o with its default tiktoken tokenizer',tradeoff:'Strong English efficiency, decent multilingual support via byte fallback, large 100K vocab'},{label:'Use a Gemini model with its multilingual-optimized tokenizer',tradeoff:'Designed for multilingual efficiency, lower token counts for CJK languages, potentially lower costs'},{label:'Run separate models per language to optimize per-language tokenization',tradeoff:'Maximum token efficiency per language, but 4x infrastructure cost and complexity'}]} correctIndex={1} explanation="For a multilingual application where token cost matters, a model with a tokenizer optimized for multilingual text (like Gemini) will produce fewer tokens per message in non-English languages. Running separate models adds too much operational complexity for the token savings."/>

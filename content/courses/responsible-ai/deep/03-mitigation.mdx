@@ -1,0 +1,41 @@
+---
+label: "Mitigation"
+icon: "\uD83D\uDEE1\uFE0F"
+---
+
+## Advanced Fairness: Mitigation Strategies
+
+Once you've detected bias through <JargonTip term="red-teaming">red-teaming</JargonTip> or automated testing, you need to mitigate it. There are three intervention points:
+
+<ComparisonTable title="Bias Mitigation Approaches" columns={['Stage','Technique','Pros','Cons']} rows={[
+  ['Pre-processing','Resampling, reweighting data','Model-agnostic, intuitive','May lose signal, privacy concerns'],
+  ['In-processing','Fairness constraints during training','Direct optimization','Model-specific, harder to implement'],
+  ['Post-processing','Threshold adjustment per group','Simple, no retraining needed','May reduce overall accuracy'],
+]}/>
+
+<CodeBlock language="python" label="Post-processing: Equalized Odds" code={`from fairlearn.postprocessing import ThresholdOptimizer
+
+# Wrap your trained model with fairness post-processing
+mitigated = ThresholdOptimizer(
+    estimator=trained_model,
+    constraints="equalized_odds",
+    objective="balanced_accuracy_score"
+)
+
+mitigated.fit(X_train, y_train,
+              sensitive_features=train_demographics)
+
+fair_predictions = mitigated.predict(
+    X_test,
+    sensitive_features=test_demographics
+)
+
+# Compare before/after
+print("Original disparity:", compute_disparity(y_pred))
+print("Mitigated disparity:", compute_disparity(fair_predictions))`}/>
+
+<ArchitectureDecision scenario="Your credit scoring model has a 5% selection rate gap between demographic groups. The business wants to launch next month. What approach do you take?" options={[
+  {label:"Post-processing threshold adjustment",tradeoff:"Fastest to implement; no retraining; may slightly reduce overall accuracy"},
+  {label:"Retrain with in-processing fairness constraints",tradeoff:"Best long-term solution; requires weeks of development; may delay launch"},
+  {label:"Document the gap and launch with enhanced monitoring",tradeoff:"Meets timeline but risks regulatory action; may need to address later anyway"},
+]} correctIndex={0} explanation="Post-processing threshold adjustment is the pragmatic choice -- it addresses the disparity immediately without retraining, gets you to launch on time, and you can iterate with in-processing constraints in the next model version. Launching with a known 5% gap in credit scoring is too risky given regulatory scrutiny."/>

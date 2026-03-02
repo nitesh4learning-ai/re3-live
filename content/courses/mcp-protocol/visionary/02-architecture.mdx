@@ -1,0 +1,24 @@
+---
+label: "Architecture"
+icon: "🏗️"
+---
+
+## MCP Architecture
+
+MCP uses a three-layer architecture: **Host**, **Client**, and **Server**. Understanding these roles is key to building and using MCP systems.
+
+| Role | What It Does | Example |
+|------|-------------|---------|
+| **Host** | The application the user interacts with | Claude Desktop, VS Code, IDE |
+| **Client** | Manages the connection to MCP servers | Built into the host app |
+| **Server** | Exposes tools, resources, and prompts | GitHub server, Slack server, DB server |
+
+<MessageSimulator title="MCP Session Lifecycle" messages={[
+  {role:'user',label:'1. Initialize',text:'Client sends initialize request with its capabilities and protocol version to the server.'},
+  {role:'ai',label:'2. Server Responds',text:'Server returns its capabilities: available tools, resources, and prompts it offers.'},
+  {role:'user',label:'3. Discovery',text:'Client calls tools/list to get detailed tool definitions including input schemas.'},
+  {role:'ai',label:'4. Tool Call',text:'When the AI needs a tool, client sends tools/call with the tool name and arguments.'},
+  {role:'ai',label:'5. Result',text:'Server executes the tool and returns the result. The AI uses this to generate its response.'},
+]}/>
+
+<Quiz question="In MCP, which component exposes tools to the AI?" options={["The Host","The Client","The Server","The LLM itself"]} correctIndex={2} explanation="The Server exposes tools, resources, and prompts. The Client connects to servers and manages communication. The Host is the user-facing application." />

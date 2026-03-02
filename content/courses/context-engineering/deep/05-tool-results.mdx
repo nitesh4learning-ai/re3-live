@@ -1,0 +1,23 @@
+---
+label: "Tool Results"
+icon: "\uD83D\uDD27"
+---
+
+## Tool Result Integration
+
+<CodeBlock title="Tool Output Formatting" code={`def format_tool_result(tool_name, raw_result, max_tokens=500):
+    if count_tokens(str(raw_result)) > max_tokens:
+        return {"tool": tool_name, "status": "success",
+                "summary": summarize(raw_result, max_tokens),
+                "note": "Full result truncated"}
+    return {"tool": tool_name, "status": "success",
+            "data": raw_result}
+
+def format_tool_error(tool_name, error):
+    return {"tool": tool_name, "status": "error",
+            "error": str(error),
+            "suggestion": "Try alternative approach or ask user"}`}/>
+
+<ExpandableSection title="Multi-Tool Aggregation" icon={'\uD83D\uDD27'}>
+When multiple <JargonTip term="tool use">tools</JargonTip> run in parallel, aggregate results into one structured context block. This helps the model see the complete picture and reason across tool outputs.
+</ExpandableSection>

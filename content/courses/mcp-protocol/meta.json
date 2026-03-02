@@ -1,0 +1,16 @@
+{
+  "tier": 2,
+  "icon": "🔌",
+  "title": "Model Context Protocol (MCP)",
+  "description": "The universal adapter for AI. Host/Client/Server architecture, Tools/Resources/Prompts.",
+  "difficulty": "Intermediate",
+  "timeMinutes": 60,
+  "exerciseCount": 12,
+  "tabCount": 6,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Model Context Protocol (MCP) — Re³ Academy",
+    "metaDescription": "Learn MCP: the universal adapter for AI with Host/Client/Server architecture."
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "tier": 3,
+  "icon": "📊",
+  "title": "AI Observability & Evaluation",
+  "description": "Measuring AI quality. Tracing, drift detection, evaluation frameworks, quality scorecards.",
+  "difficulty": "Advanced",
+  "timeMinutes": 45,
+  "exerciseCount": 7,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "AI Observability & Evaluation — Re³ Academy",
+    "metaDescription": "Learn AI observability: tracing, drift detection, evaluation frameworks, and quality scorecards."
+  }
+}

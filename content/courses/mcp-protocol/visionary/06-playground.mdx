@@ -1,0 +1,20 @@
+---
+label: "Playground"
+icon: "🎮"
+---
+
+## Playground
+
+Test your MCP knowledge!
+
+<ExpandableSection title="Exercise 1: Primitive Classification" icon="📋" defaultOpen={true}>
+  <Quiz question="An MCP server gives the AI access to a company's product catalog for browsing (no modifications). Which primitive?" options={["Tool","Resource","Prompt","All three"]} correctIndex={1} explanation="Read-only data access = Resource. Tools are for actions. If the AI could modify the catalog, it would be a Tool." />
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 2: Architecture Design" icon="🏗️">
+  <Quiz question="A company wants Claude Desktop to access their CRM and their ticketing system. How many MCP servers do they need?" options={["1 server handling both","2 servers -- one per system","It depends on the company size","MCP can't handle multiple systems"]} correctIndex={1} explanation="Best practice is one MCP server per external system. This keeps servers focused, independently deployable, and easier to maintain. The MCP client can connect to multiple servers simultaneously." />
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 3: Schema Design" icon="🔧">
+  <Quiz question="Your tool accepts an optional 'format' parameter (defaults to 'json'). How should you define it?" options={["Include 'format' in the 'required' array","Omit 'format' from 'required' and add a default in the description","Don't include 'format' in the schema at all","Make a separate tool for each format"]} correctIndex={1} explanation="Optional parameters are defined in the schema's properties but NOT listed in the 'required' array. Adding the default value in the description helps the AI know what to expect." />
+</ExpandableSection>

@@ -1,0 +1,29 @@
+---
+label: "Memory & Conversation"
+icon: "\uD83D\uDCAC"
+---
+
+## Memory & Conversation
+
+<CodeBlock title="Sliding Window + Summary" code={`class ConversationMemory:
+    def __init__(self, max_recent=6, max_summary_tokens=500):
+        self.messages = []
+        self.summary = ""
+        self.max_recent = max_recent
+
+    def add(self, role, content):
+        self.messages.append({"role": role, "content": content})
+        if len(self.messages) > self.max_recent + 4:
+            old = self.messages[:4]
+            self.messages = self.messages[4:]
+            self.summary = self._summarize(self.summary, old)
+
+    def get_context(self):
+        ctx = []
+        if self.summary:
+            ctx.append({"role":"system",
+                "content":f"Conversation summary: {self.summary}"})
+        ctx.extend(self.messages[-self.max_recent:])
+        return ctx`}/>
+
+<Quiz question="User chatted 50 messages about vacation planning, then asks 'What hotel did I mention?' Which memory strategy helps?" options={["Keep all 50 messages in context","Sliding window of last 10 only","Summary + entity extraction (hotels, dates, preferences)","Tell user you don't remember"]} correctIndex={2} explanation="Entity extraction from older messages captures specific facts (hotel names, dates) even after those messages are summarized away." />

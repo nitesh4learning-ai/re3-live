@@ -1,0 +1,19 @@
+---
+label: "Enterprise Integration"
+icon: "🏢"
+---
+
+## Enterprise Integration
+
+<ComparisonTable title="Message Brokers for ACP" columns={['Broker','Best For','Throughput','Persistence']} rows={[
+  ['Apache Kafka','High-volume event streams','Millions/sec','Log-based (durable)'],
+  ['RabbitMQ','Complex routing, priority queues','100K/sec','Queue-based'],
+  ['Redis Streams','Low-latency, simple pub/sub','1M+/sec','In-memory + AOF'],
+  ['AWS EventBridge','Serverless, AWS ecosystem','Variable','Managed'],
+]}/>
+
+<ArchitectureDecision scenario="Your enterprise has 50 AI agents across 5 departments. You need a message bus for ACP. Requirements: audit trail, exactly-once delivery, cross-region replication, 10K events/second." options={[
+  {label:'Apache Kafka with schema registry',tradeoff:'Best for high throughput with durability. Schema registry ensures event compatibility. Complex to operate.'},
+  {label:'RabbitMQ with persistent queues',tradeoff:'Simpler ops, good routing, but may struggle at 10K/sec with exactly-once guarantees'},
+  {label:'AWS EventBridge + SQS',tradeoff:'Fully managed, good AWS integration, but vendor lock-in and limited cross-region replication'},
+]} correctIndex={0} explanation="Kafka's log-based architecture provides natural audit trails, exactly-once semantics via transactions, and built-in cross-region replication. At 10K events/sec with 50 agents, Kafka's throughput is well within capacity." />

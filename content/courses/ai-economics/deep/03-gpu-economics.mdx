@@ -1,0 +1,60 @@
+---
+label: "GPU Economics"
+icon: "\u26A1"
+---
+
+## GPU Economics & Infrastructure
+
+<ComparisonTable title="Inference Cost Comparison (per 1M tokens)" columns={['Model','Input Cost','Output Cost','Speed','Best For']} rows={[
+  ['GPT-4o','$2.50','$10.00','Fast','Complex reasoning, coding'],
+  ['GPT-4o-mini','$0.15','$0.60','Very fast','Simple tasks, high volume'],
+  ['Claude 3.5 Sonnet','$3.00','$15.00','Fast','Analysis, writing, coding'],
+  ['Claude 3.5 Haiku','$0.25','$1.25','Very fast','Classification, extraction'],
+  ['Gemini 1.5 Flash','$0.075','$0.30','Very fast','Bulk processing'],
+  ['Llama 3 70B (self-hosted)','~$0.50*','~$0.50*','Moderate','Data privacy, custom deployment'],
+]}/>
+
+*Self-hosted costs vary significantly based on GPU utilization and hardware amortization.*
+
+<ExpandableSection title="Cost Optimization Strategies" icon={'\uD83D\uDCB8'} defaultOpen>
+
+- **<JargonTip term="model cascading">Model routing</JargonTip>:** Use cheap models for simple tasks, expensive models only when needed (save 60-80%)
+- **Prompt caching:** Cache system prompts and repeated context (save 50-90% on cached tokens)
+- **Batching:** Batch non-urgent requests for off-peak pricing
+- **Output length control:** Set max_tokens aggressively -- output tokens cost 3-5x input
+- **Semantic caching:** Cache responses for semantically similar queries
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="Model Router for Cost Optimization" code={`class CostAwareRouter:
+    """Route requests to cheapest capable model"""
+
+    MODELS = {
+        "simple": {"name": "gpt-4o-mini", "cost_per_1k": 0.00015},
+        "medium": {"name": "claude-3-5-haiku", "cost_per_1k": 0.00025},
+        "complex": {"name": "claude-3-5-sonnet", "cost_per_1k": 0.003},
+    }
+
+    def classify_complexity(self, prompt):
+        """Simple heuristic -- production would use a classifier"""
+        token_count = len(prompt.split()) * 1.3
+        has_code = any(kw in prompt.lower()
+                       for kw in ["code", "function", "implement", "debug"])
+        has_analysis = any(kw in prompt.lower()
+                          for kw in ["analyze", "compare", "evaluate", "strategy"])
+
+        if has_code or has_analysis or token_count > 500:
+            return "complex"
+        elif token_count > 100:
+            return "medium"
+        return "simple"
+
+    def route(self, prompt):
+        tier = self.classify_complexity(prompt)
+        model = self.MODELS[tier]
+        return model["name"]
+
+# Result: 70% of requests go to 'simple' tier
+# saving ~90% vs routing everything to complex`}/>
+
+<Quiz question="What is the most impactful cost optimization strategy for most AI applications?" options={["Using the cheapest model for everything","Model routing -- using cheap models for simple tasks and expensive ones only when needed","Training your own model to avoid API costs","Reducing the number of AI features"]} correctIndex={1} explanation="Model routing typically saves 60-80% on inference costs because most requests (70%+) are simple enough for cheap models. The expensive model only handles the 20-30% that actually need it."/>

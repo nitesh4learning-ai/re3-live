@@ -1,0 +1,41 @@
+---
+label: "When to Fine-Tune"
+icon: "\uD83C\uDFAF"
+---
+
+## When to Fine-Tune
+
+<JargonTip term="fine-tuning">Fine-tuning</JargonTip> is powerful but expensive. Before committing to it, you should exhaust cheaper alternatives: **prompt engineering**, **few-shot examples**, and **RAG**. Fine-tuning wins when you need consistent style, domain-specific behavior, or reduced <JargonTip term="inference">inference</JargonTip> latency from a smaller model.
+
+  <AnalogyBox emoji="🎨" title="Think of it like training an artist">Prompt engineering is giving an artist detailed instructions for each painting. Fine-tuning is teaching the artist your preferred style so they naturally paint that way every time -- no lengthy instructions needed.</AnalogyBox>
+  <ComparisonTable title="Approaches Compared" columns={['Approach','Cost','Latency','When It Wins']} rows={[
+    ['Prompt Engineering','Low (per-token only)','Base model latency','Simple formatting, general tasks'],
+    ['Few-Shot Prompting','Medium (more tokens)','Higher (longer context)','Pattern matching with examples'],
+    ['RAG','Medium (retrieval infra)','Higher (retrieval + gen)','Domain knowledge from documents'],
+    ['Fine-Tuning','High (training + hosting)','Lower (smaller model)','Consistent style, specialized behavior'],
+  ]}/>
+  <DecisionTreeExplorer/>
+  <ExpandableSection title="Cost-Benefit Analysis" icon="💰">
+
+Fine-tuning costs include: **data preparation** (10-50 hours), **training compute** ($5-500+ depending on model size), **evaluation** (ongoing), and **hosting** (dedicated endpoint). The payoff comes from: reduced prompt tokens (no few-shot examples needed), lower <JargonTip term="inference">inference</JargonTip> latency, and more consistent outputs.
+
+    <CodeBlock title="Cost comparison calculator" language="python" code={`# Cost comparison: prompting vs fine-tuning
+prompt_tokens_per_call = 2000  # With few-shot examples
+ft_tokens_per_call = 200       # No examples needed
+
+calls_per_day = 10000
+cost_per_1k_tokens = 0.003
+
+# Prompting: $60/day
+prompt_cost = (prompt_tokens_per_call / 1000) * cost_per_1k_tokens * calls_per_day
+
+# Fine-tuned: $6/day + $200 training (one-time)
+ft_cost = (ft_tokens_per_call / 1000) * cost_per_1k_tokens * calls_per_day
+training_cost = 200  # one-time
+
+# Break-even in ~4 days at scale
+breakeven_days = training_cost / (prompt_cost - ft_cost)`}/>
+  </ExpandableSection>
+  <Quiz question="When is fine-tuning most clearly justified?" options={["When you need the model to know about recent events","When few-shot prompting works but uses too many tokens","When you want to try a new model","When your task is simple and well-defined"]} correctIndex={1} explanation="Fine-tuning shines when prompting works but is inefficient. If you need many few-shot examples every call, fine-tuning teaches the model the pattern directly, saving tokens and reducing latency. For recent knowledge, RAG is better."/>
+  <Quiz question="What should you try BEFORE fine-tuning?" options={["Immediately fine-tune for best results","Try prompt engineering and RAG first","Skip to model distillation","Train from scratch"]} correctIndex={1} explanation="Always exhaust cheaper alternatives first. Prompt engineering and RAG solve many problems without the cost and complexity of fine-tuning. Only fine-tune when these approaches fall short."/>
+  <SeeItInRe3 text="Re\u00b3's agent system uses carefully engineered prompts with detailed personas rather than fine-tuning. Each agent's system prompt defines its style, expertise, and debate behavior -- showing how far prompt engineering can go." targetPage="forge"/>

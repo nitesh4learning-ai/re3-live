@@ -1,0 +1,84 @@
+---
+label: "Protocol Architecture"
+icon: "📡"
+---
+
+## Protocol Architecture
+
+<JargonTip term="MCP">MCP</JargonTip> uses **JSON-RPC 2.0** as its wire protocol. Every message is a JSON object with a method, params, and an id for request-response correlation. The protocol supports three transport layers, each suited to different deployment scenarios.
+
+<ComparisonTable title="MCP Transport Layers" columns={['Transport','Mechanism','Best For','Limitations']} rows={[
+  ['stdio','Standard input/output streams','Local tools, CLI integrations, desktop apps','Single machine only, no network'],
+  ['SSE (Server-Sent Events)','HTTP POST + SSE stream','Web-hosted servers, cloud deployments','Unidirectional streaming, HTTP overhead'],
+  ['Streamable HTTP','HTTP with bidirectional streaming','Production APIs, scalable services','Newer spec, less tooling support'],
+]}/>
+
+<CodeBlock language="json" label="JSON-RPC 2.0 Initialize Request" code={`// Client -> Server: Initialize handshake
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2025-03-26",
+    "capabilities": {
+      "roots": { "listChanged": true }
+    },
+    "clientInfo": {
+      "name": "my-ai-app",
+      "version": "1.0.0"
+    }
+  }
+}
+
+// Server -> Client: Capability response
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "protocolVersion": "2025-03-26",
+    "capabilities": {
+      "tools": { "listChanged": true },
+      "resources": { "subscribe": true },
+      "prompts": { "listChanged": true }
+    },
+    "serverInfo": {
+      "name": "github-mcp-server",
+      "version": "2.1.0"
+    }
+  }
+}`}/>
+
+The capability negotiation phase is critical. The client advertises what it supports (e.g., root listing), and the server responds with what it offers (tools, resources, prompts). Both sides only use features the other supports.
+
+<CodeBlock language="python" label="Transport Selection in Python" code={`from mcp.server import Server
+from mcp.server.stdio import stdio_server
+from mcp.server.sse import SseServerTransport
+from starlette.applications import Starlette
+from starlette.routing import Route
+
+app = Server("my-server")
+
+# Option 1: stdio transport (local, e.g., Claude Desktop)
+async def run_stdio():
+    async with stdio_server() as (read, write):
+        await app.run(read, write, app.create_initialization_options())
+
+# Option 2: SSE transport (remote, HTTP-based)
+sse = SseServerTransport("/messages")
+
+async def handle_sse(request):
+    async with sse.connect_sse(request.scope, request.receive, request._send) as streams:
+        await app.run(streams[0], streams[1], app.create_initialization_options())
+
+starlette_app = Starlette(routes=[
+    Route("/sse", endpoint=handle_sse),
+    Route("/messages", endpoint=sse.handle_post_message, methods=["POST"]),
+])`}/>
+
+<ArchitectureDecision scenario="You are building an MCP server for a team's internal knowledge base. Developers will use it from Claude Desktop on their laptops, but the knowledge base lives on a shared server accessible via HTTP." options={[
+  {label:'stdio transport',tradeoff:'Simple setup, but requires the server binary on every developer machine and cannot access remote knowledge base directly'},
+  {label:'SSE transport',tradeoff:'Runs on the shared server, all devs connect over HTTP, single deployment to maintain, easy to update'},
+  {label:'Streamable HTTP',tradeoff:'Most scalable but newest spec, less tooling maturity, may be overkill for internal team use'},
+]} correctIndex={1} explanation="SSE is ideal here. The knowledge base is remote, so stdio would require syncing data locally. SSE lets you run one server instance that all devs connect to over HTTP. Streamable HTTP is viable but adds complexity without clear benefit for an internal tool." />
+
+<Quiz question="During MCP initialization, what happens if the client requests a capability the server does not support?" options={["The connection fails with an error","The server ignores it and omits it from the response","The server automatically adds the capability","The client retries with a different version"]} correctIndex={1} explanation="MCP uses graceful capability negotiation. If the server does not support a requested capability, it simply omits it from its response. The client then knows not to use that feature." />

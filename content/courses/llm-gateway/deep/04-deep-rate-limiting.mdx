@@ -1,0 +1,70 @@
+---
+label: "Rate Limiting"
+icon: "🚦"
+---
+
+## Rate Limiting & Budgets
+
+Rate limiting protects both your budget and upstream providers. Production gateways implement **token bucket** for burst tolerance, **sliding window** for smooth enforcement, and **per-user budgets** for cost allocation.
+
+  <CodeBlock language="python" label="Token Bucket Rate Limiter with Per-User Budgets" code={`import time
+from dataclasses import dataclass
+
+@dataclass
+class TokenBucket:
+    capacity: int       # Maximum tokens (burst size)
+    refill_rate: float  # Tokens added per second
+    tokens: float
+    last_refill: float
+
+    def __init__(self, capacity, refill_rate):
+        self.capacity = capacity
+        self.refill_rate = refill_rate
+        self.tokens = capacity
+        self.last_refill = time.time()
+
+    def _refill(self):
+        now = time.time()
+        elapsed = now - self.last_refill
+        self.tokens = min(self.capacity,
+                          self.tokens + elapsed * self.refill_rate)
+        self.last_refill = now
+
+    def consume(self, tokens=1):
+        self._refill()
+        if self.tokens >= tokens:
+            self.tokens -= tokens
+            return True
+        return False
+
+class UserBudgetManager:
+    def __init__(self):
+        self.budgets = {}
+        self.rate_limiters = {}
+
+    def configure_user(self, user_id, tier):
+        tiers = {
+            "free":    {"daily_tokens": 10_000,  "rpm": 10},
+            "pro":     {"daily_tokens": 100_000, "rpm": 60},
+            "enterprise": {"daily_tokens": 1_000_000, "rpm": 300}}
+        config = tiers[tier]
+        self.budgets[user_id] = {
+            "daily_limit": config["daily_tokens"], "used_today": 0}
+        self.rate_limiters[user_id] = TokenBucket(
+            capacity=config["rpm"],
+            refill_rate=config["rpm"] / 60)
+
+    def check_request(self, user_id, est_tokens):
+        budget = self.budgets.get(user_id)
+        limiter = self.rate_limiters.get(user_id)
+        if not budget:
+            return {"allowed": False, "reason": "Unknown user"}
+        if not limiter.consume():
+            return {"allowed": False, "reason": "Rate limit exceeded"}
+        if budget["used_today"] + est_tokens > budget["daily_limit"]:
+            return {"allowed": False, "reason": "Budget exceeded"}
+        return {"allowed": True}
+
+    def record_usage(self, user_id, tokens_used):
+        self.budgets[user_id]["used_today"] += tokens_used`}/>
+  <Quiz question="A free-tier user (10 RPM limit) sends 15 rapid requests. With a token bucket, what happens?" options={["All 15 rejected","First 10 succeed (burst capacity), remaining 5 are rate-limited","All 15 succeed","System crashes"]} correctIndex={1} explanation="The token bucket starts with capacity tokens (10). The first 10 consume the bucket. Subsequent requests wait for the bucket to refill at the configured rate. This allows short bursts while enforcing the average rate."/>

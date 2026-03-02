@@ -1,0 +1,77 @@
+---
+label: "Building Agents"
+icon: "\uD83C\uDFD7\uFE0F"
+---
+
+## Building a Browser Agent
+
+<CodeBlock language="python" label="Production Browser Agent Framework" code={`from playwright.async_api import async_playwright
+import anthropic
+
+class BrowserAgent:
+    def __init__(self, task, max_steps=20):
+        self.task = task
+        self.max_steps = max_steps
+        self.client = anthropic.Anthropic()
+        self.history = []
+
+    async def get_page_context(self, page):
+        """Extract structured page representation"""
+        # Get accessibility tree (more reliable than raw DOM)
+        tree = await page.accessibility.snapshot()
+        url = page.url
+        title = await page.title()
+        return {
+            "url": url,
+            "title": title,
+            "elements": self._flatten_tree(tree),
+            "interactable": [
+                e for e in self._flatten_tree(tree)
+                if e.get("role") in (
+                    "button", "link", "textbox",
+                    "checkbox", "combobox"
+                )
+            ]
+        }
+
+    async def decide_action(self, context):
+        """Use LLM to decide next action"""
+        response = self.client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=500,
+            system="You are a browser automation agent.",
+            messages=[{
+                "role": "user",
+                "content": f"""Task: {self.task}
+Current page: {context['title']} ({context['url']})
+History: {self.history[-5:]}
+Interactive elements: {context['interactable'][:30]}
+
+Return JSON: {{"action": "click|type|navigate|scroll|done",
+"target": "element description", "value": "text if typing"}}"""
+            }]
+        )
+        return self._parse_action(response)
+
+    async def run(self):
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=False)
+            page = await browser.new_page()
+
+            for step in range(self.max_steps):
+                context = await self.get_page_context(page)
+                action = await self.decide_action(context)
+
+                if action["action"] == "done":
+                    return {"success": True, "steps": step}
+
+                await self._execute(page, action)
+                self.history.append(action)
+
+            return {"success": False, "reason": "max steps"}`}/>
+
+<ArchitectureDecision scenario="You're building a browser agent for internal enterprise use (expense reports, HR forms). The agent needs to fill forms that contain employee PII. How should you handle credentials and sensitive data?" options={[
+  {label:"Pass credentials to the LLM in the prompt",tradeoff:"Simple but extremely dangerous -- PII in LLM context, potential logging/training exposure"},
+  {label:"Use a credential vault with scoped, temporary tokens",tradeoff:"Secure but complex -- agent gets time-limited tokens, never sees actual passwords"},
+  {label:"Have the human log in first, then hand off the authenticated session",tradeoff:"Good balance -- human handles auth, agent handles tedious form-filling in authenticated context"},
+]} correctIndex={2} explanation="Having the human authenticate first is the safest practical approach. The agent never touches credentials, operates within an already-authenticated session, and the human maintains control over access. For PII form fields, the agent can fill from a secure vault without the LLM ever seeing the raw values."/>

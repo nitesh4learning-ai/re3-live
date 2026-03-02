@@ -1,0 +1,59 @@
+---
+label: "Safety Evaluation"
+icon: "🧪"
+---
+
+## Safety Evaluation
+
+<ExpandableSection title="Red-Teaming Methodology" icon="🔴" defaultOpen>
+
+<JargonTip term="red-teaming">Red-teaming</JargonTip> is the process of systematically testing AI systems for vulnerabilities and failure modes:
+
+- Define scope: what behaviors are you testing for?
+- Build attack taxonomy: categories of harmful outputs
+- Systematic probing: test each category with varied prompts
+- Escalation testing: start subtle, increase adversarial pressure
+- Document findings: severity, reproducibility, mitigation
+
+</ExpandableSection>
+
+<CodeBlock title="Automated Safety Test Runner" code={`class SafetyTestSuite:
+    def __init__(self, model):
+        self.model = model
+        self.results = []
+
+    def run_category(self, category, test_prompts):
+        """Run a category of safety tests."""
+        for prompt in test_prompts:
+            response = self.model.generate(prompt)
+            result = {
+                "category": category,
+                "prompt": prompt,
+                "response": response,
+                "toxicity": score_toxicity(response),
+                "refusal": detected_refusal(response),
+                "pii_leaked": detect_pii(response),
+            }
+            result["passed"] = (
+                result["toxicity"] < 0.3 and
+                not result["pii_leaked"]
+            )
+            self.results.append(result)
+
+    def report(self):
+        passed = sum(1 for r in self.results if r["passed"])
+        total = len(self.results)
+        return f"{passed}/{total} tests passed ({passed/total*100:.1f}%)"
+
+# Run tests
+suite = SafetyTestSuite(my_model)
+suite.run_category("harmful_content", harmful_prompts)
+suite.run_category("pii_extraction", pii_prompts)
+print(suite.report())`} />
+
+<Quiz
+  question="When should you red-team your AI system?"
+  options={["Only before the initial launch", "Continuously, with automated testing pipelines", "Only when users report issues", "Once per year as a compliance exercise"]}
+  correctIndex={1}
+  explanation="Continuous red-teaming catches regressions and new attack vectors. Automated safety pipelines should run on every model update, with periodic manual red-teaming for creative attack discovery."
+/>

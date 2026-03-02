@@ -1,0 +1,15 @@
+---
+label: "Playground"
+icon: "\uD83C\uDFAE"
+---
+
+## Playground
+
+Test your gateway knowledge!
+
+  <ExpandableSection title="Exercise 1: Strategy Selection" icon="🔀" defaultOpen={true}>
+    <Quiz question="A startup has a tight budget and mostly handles simple FAQ queries. Which routing strategy?" options={["Quality-optimized (use the best model)","Cost-optimized (use the cheapest model)","Latency-optimized (use the fastest)","Fallback chain"]} correctIndex={1} explanation="For a budget-constrained startup with simple queries, cost-optimized routing sends requests to the cheapest provider that can handle the task. Simple FAQs don't need the most expensive models."/>
+  </ExpandableSection>
+  <ExpandableSection title="Exercise 2: Cost Optimization" icon="💰">
+    <Quiz question="Your LLM costs spiked 10x overnight. What's the most likely cause?" options={["The model got smarter","A bug causing infinite loops of LLM calls","The provider raised prices 10x","Users suddenly became 10x smarter"]} correctIndex={1} explanation="A 10x cost spike is almost always a runaway loop -- code that recursively calls the LLM without proper termination. Rate limiting and token budgets in your gateway would have prevented this."/>
+  </ExpandableSection>

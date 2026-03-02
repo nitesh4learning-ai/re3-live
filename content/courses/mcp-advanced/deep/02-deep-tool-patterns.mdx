@@ -1,0 +1,133 @@
+---
+label: "Advanced Tool Patterns"
+icon: "🔧"
+---
+
+## Advanced Tool Patterns
+
+Production MCP tools go well beyond simple request-response. This section covers tool chaining, idempotency, partial failure handling, content types beyond text, and designing tools that LLMs use reliably at scale.
+
+      <CodeBlock language="python" label="Multi-Content-Type Tool Response" code={`from mcp.types import (
+    TextContent, ImageContent, EmbeddedResource,
+    ResourceContents, BlobResourceContents
+)
+import base64
+
+@server.call_tool()
+async def call_tool(name: str, arguments: dict):
+    if name == "generate_debate_summary":
+        debate_id = arguments["debate_id"]
+        include_chart = arguments.get("include_chart", False)
+
+        # Fetch debate data
+        debate = await db.get_debate(debate_id)
+        summary_text = await generate_loom_markdown(debate)
+
+        content = [
+            # Primary text response
+            TextContent(type="text", text=summary_text),
+        ]
+
+        if include_chart:
+            # Generate a participation chart as PNG
+            chart_bytes = await render_participation_chart(debate)
+            content.append(ImageContent(
+                type="image",
+                data=base64.b64encode(chart_bytes).decode(),
+                mimeType="image/png"
+            ))
+
+        # Embed a related resource reference
+        content.append(EmbeddedResource(
+            type="resource",
+            resource=TextResourceContents(
+                uri=f"re3://debates/{debate_id}/full-transcript",
+                mimeType="text/markdown",
+                text="[Available via resource read]"
+            )
+        ))
+
+        return content`}/>
+      <ExpandableSection title="Idempotency and Safe Tool Design" icon="🔄">
+
+LLMs may retry tool calls if they do not see a response. Write-tools must be idempotent to prevent duplicate side effects.
+
+        <CodeBlock language="python" label="Idempotent Tool with Deduplication Key" code={`import hashlib
+
+@server.call_tool()
+async def call_tool(name: str, arguments: dict):
+    if name == "create_article":
+        # Require idempotency key from the caller
+        idempotency_key = arguments.get("idempotency_key")
+        if not idempotency_key:
+            # Generate deterministic key from content hash if not provided
+            content_hash = hashlib.sha256(
+                json.dumps(arguments, sort_keys=True).encode()
+            ).hexdigest()[:16]
+            idempotency_key = f"auto_{content_hash}"
+
+        # Check for duplicate
+        existing = await db.get_by_idempotency_key(idempotency_key)
+        if existing:
+            return [TextContent(type="text", text=json.dumps({
+                "article_id": existing["id"],
+                "status": "already_created",
+                "idempotency_key": idempotency_key,
+                "message": "Article with this idempotency key already exists."
+            }))]
+
+        # Create new article
+        article_id = await db.create_article({
+            **arguments,
+            "idempotency_key": idempotency_key
+        })
+
+        return [TextContent(type="text", text=json.dumps({
+            "article_id": article_id,
+            "status": "created",
+            "idempotency_key": idempotency_key
+        }))]`}/>
+      </ExpandableSection>
+      <ExpandableSection title="Tool Chaining via Continuation Tokens" icon="🔗">
+        <CodeBlock language="python" label="Long-Running Tool with Continuation" code={`import asyncio
+import json
+
+# For operations that take >30s (LLM timeout), use async job pattern
+active_jobs: dict = {}
+
+@server.call_tool()
+async def call_tool(name: str, arguments: dict):
+    if name == "start_full_debate":
+        # Return immediately with job ID
+        job_id = f"job_{int(asyncio.get_event_loop().time() * 1000)}"
+        asyncio.create_task(run_debate_pipeline(job_id, arguments))
+        return [TextContent(type="text", text=json.dumps({
+            "job_id": job_id,
+            "status": "started",
+            "poll_tool": "get_debate_status",
+            "message": "Debate pipeline started. Poll get_debate_status with this job_id."
+        }))]
+
+    elif name == "get_debate_status":
+        job_id = arguments["job_id"]
+        job = active_jobs.get(job_id)
+        if not job:
+            return [TextContent(type="text", text=json.dumps({"error": "Job not found"}))]
+        return [TextContent(type="text", text=json.dumps({
+            "job_id": job_id,
+            "status": job["status"],        # "running" | "complete" | "failed"
+            "progress": job.get("progress"), # e.g. "Round 2/3 complete"
+            "result": job.get("result")      # populated when complete
+        }))]
+
+async def run_debate_pipeline(job_id: str, args: dict):
+    active_jobs[job_id] = {"status": "running", "progress": "Selecting panel"}
+    try:
+        panel = await select_panel(args["article_id"])
+        active_jobs[job_id]["progress"] = "Round 1/3"
+        loom = await run_debate_rounds(panel, args["article_id"])
+        active_jobs[job_id] = {"status": "complete", "result": loom}
+    except Exception as e:
+        active_jobs[job_id] = {"status": "failed", "error": str(e)}`}/>
+      </ExpandableSection>
+      <Quiz question="An LLM calls your 'send_email' tool and does not receive a response before the timeout. It retries the call. What happens if your tool is not idempotent?" options={["Nothing — the LLM knows not to retry write operations","The email is sent twice","The server rejects the duplicate automatically","Timeouts never happen in production MCP"]} correctIndex={1} explanation="Without idempotency, a retried tool call will execute the full side effect again. For email sending, this means duplicate emails. For payment processing, duplicate charges. Every write-tool in production MCP must either be idempotent by nature or implement deduplication via idempotency keys."/>

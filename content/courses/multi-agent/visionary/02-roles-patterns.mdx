@@ -1,0 +1,23 @@
+---
+label: "Roles & Patterns"
+icon: "\uD83C\uDFAD"
+---
+
+## Agent Roles & Patterns
+
+Multi-agent systems follow established <JargonTip term="orchestration">orchestration</JargonTip> patterns. Each pattern suits different types of problems.
+
+
+
+| Pattern | How It Works | Best For |
+|---------|-------------|----------|
+| Orchestrator | Central agent assigns tasks to specialists | Complex projects, dynamic task allocation |
+| Debate | Agents argue positions, synthesizer combines | Multi-perspective analysis, decision support |
+| Pipeline | Output of one stage feeds the next | Sequential workflows, content production |
+| Consensus | Multiple agents vote or agree on answers | High-stakes decisions, quality assurance |
+
+
+
+  <PatternMatcher/>
+  <SeeItInRe3 text="Re\u00b3 uses the Debate Pattern: the panel curator selects agents, the moderator evaluates quality, specialized debater agents argue positions, and the synthesizer weaves insights into The Loom." targetPage="forge"/>
+  <Quiz question="Re\u00b3 uses which orchestration pattern?" options={["Orchestrator","Debate","Pipeline","Consensus"]} correctIndex={1} explanation="Re\u00b3 uses the Debate Pattern -- agents present arguments, engage in multiple rounds, and a synthesizer (Hypatia) draws emergent insights from the collective discussion."/>

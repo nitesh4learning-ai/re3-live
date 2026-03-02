@@ -1,0 +1,30 @@
+---
+label: "Temperature & Sampling"
+icon: "\uD83C\uDF21\uFE0F"
+---
+
+## Temperature & Sampling
+
+<JargonTip term="temperature">Temperature</JargonTip> controls how "creative" versus "focused" an LLM's responses are. It affects the probability distribution the model uses when choosing the next <JargonTip term="token">token</JargonTip>.
+
+At **temperature 0**, the model always picks the most probable next token (deterministic). At **temperature 1**, it samples more broadly. Above 1, outputs become increasingly random and potentially incoherent.
+
+<AnalogyBox emoji="\uD83D\uDDFA\uFE0F" title="Think of it like navigation">Temperature 0 = following GPS turn-by-turn. Temperature 0.7 = exploring some side streets. Temperature 1 = taking a scenic detour. Temperature 2 = random road trip with no map.</AnalogyBox>
+
+<TemperaturePlayground/>
+
+<ExpandableSection title="What are Top-p and Top-k?" icon="\u2699\uFE0F">
+
+Temperature isn't the only way to control output randomness. Two other parameters are commonly used:
+
+**Top-p (nucleus sampling):** Instead of considering all possible next tokens, only consider the smallest set of tokens whose cumulative probability reaches p. For example, top-p=0.9 means: consider tokens until you've covered 90% of the probability mass.
+
+**Top-k:** Only consider the k most likely next tokens. top-k=50 means: only the top 50 candidates are eligible.
+
+**In practice,** most applications use temperature alone or temperature + top-p. The default settings work well for most use cases.
+
+</ExpandableSection>
+
+<Quiz question="You're building a legal compliance checker. What temperature should you use?" options={["Temperature 1.5 for creative legal interpretations","Temperature 0.7 for balanced responses","Temperature 0 or near 0 for consistent, deterministic outputs","Temperature 2.0 to explore all possibilities"]} correctIndex={2} explanation="For legal, medical, and compliance use cases, you want deterministic, reproducible outputs. Temperature 0 ensures the same input always produces the same output, which is critical for audit trails and consistency."/>
+
+<SeeItInRe3 text="Re\u00b3's AI agents use different temperature settings based on their personality. Hypatia (the synthesizer) uses lower temperature for accuracy, while creative agents use higher values." targetPage="agent-community"/>

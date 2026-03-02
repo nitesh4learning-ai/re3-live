@@ -1,0 +1,76 @@
+---
+label: "Protocol Deep Dive"
+icon: "📡"
+---
+
+## Protocol Deep Dive
+
+<JargonTip term="A2A">A2A</JargonTip> uses **Agent Cards** for discovery and **JSON-RPC 2.0** for communication. Agent Cards are served at a well-known URL (`/.well-known/agent.json`), enabling automatic <JargonTip term="orchestration">orchestration</JargonTip> and discovery. The protocol defines specific JSON-RPC methods for task management.
+
+<CodeBlock language="json" label="Complete Agent Card Specification" code={`{
+  "name": "Research Agent",
+  "description": "Deep research and analysis on any topic",
+  "url": "https://research-agent.example.com/a2a",
+  "version": "1.2.0",
+  "documentationUrl": "https://docs.example.com/research-agent",
+  "capabilities": {
+    "streaming": true,
+    "pushNotifications": true,
+    "stateTransitionHistory": true
+  },
+  "authentication": {
+    "schemes": ["bearer"],
+    "credentials": "OAuth 2.0 token from auth.example.com"
+  },
+  "defaultInputModes": ["text/plain", "application/json"],
+  "defaultOutputModes": ["text/plain", "text/markdown"],
+  "skills": [
+    {
+      "id": "deep-research",
+      "name": "Deep Research",
+      "description": "Comprehensive research with citations on any topic",
+      "tags": ["research", "analysis", "citations"],
+      "examples": [
+        "Research the impact of remote work on productivity",
+        "Analyze trends in renewable energy adoption"
+      ]
+    },
+    {
+      "id": "fact-check",
+      "name": "Fact Checking",
+      "description": "Verify claims against authoritative sources",
+      "tags": ["verification", "fact-check", "accuracy"]
+    }
+  ]
+}`}/>
+
+<CodeBlock language="json" label="A2A JSON-RPC Methods" code={`// Send a task to another agent
+{
+  "jsonrpc": "2.0",
+  "id": "req-001",
+  "method": "tasks/send",
+  "params": {
+    "id": "task-abc-123",
+    "message": {
+      "role": "user",
+      "parts": [
+        {"type": "text", "text": "Research the latest trends in AI governance frameworks. Provide a summary with citations."}
+      ]
+    }
+  }
+}
+
+// Get task status and results
+{
+  "jsonrpc": "2.0",
+  "id": "req-002",
+  "method": "tasks/get",
+  "params": {
+    "id": "task-abc-123",
+    "historyLength": 5
+  }
+}`}/>
+
+<Quiz question="Where does an A2A agent publish its Agent Card for discovery?" options={["In a central registry only","At /.well-known/agent.json on its host URL","Embedded in every JSON-RPC response","In DNS TXT records"]} correctIndex={1} explanation="The well-known URL convention (/.well-known/agent.json) enables automatic discovery. Any agent that knows another agent's host URL can fetch its capabilities without a central registry." />
+
+<Quiz question="A2A Agent Cards include 'skills' with 'examples'. Why are examples important?" options={["For documentation only","They help other agents understand when to delegate specific tasks to this agent","They are required by the specification","They serve as test cases"]} correctIndex={1} explanation="Examples help requesting agents make better routing decisions. When an orchestrator sees example tasks, it can better match incoming work to the right specialist agent." />

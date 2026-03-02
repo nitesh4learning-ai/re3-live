@@ -1,0 +1,24 @@
+---
+label: "Evaluation"
+icon: "\uD83D\uDCCA"
+---
+
+## Evaluation Frameworks
+  <CodeBlock title="LLM-as-Judge Evaluation" code={`def evaluate_response(question, response, reference_answer):
+    """Use a powerful LLM to judge response quality."""
+    judge_prompt = f"""Rate this AI response on a scale of 1-5:
+
+Question: {question}
+AI Response: {response}
+Reference Answer: {reference_answer}
+
+Criteria:
+- Accuracy (1-5): Does the response contain correct information?
+- Completeness (1-5): Does it address all parts of the question?
+- Clarity (1-5): Is it well-written and easy to understand?
+
+Return JSON: {{"accuracy": N, "completeness": N, "clarity": N, "reasoning": "..."}}"""
+
+    judgment = call_llm("gpt-4o", judge_prompt, response_format="json")
+    return judgment`}/>
+  <ComparisonTable title="Evaluation Methods" headers={['Method','Speed','Cost','Reliability','Best For']} rows={[['Exact match','Instant','Free','High (for factual)','Classification, extraction'],['BLEU/ROUGE','Instant','Free','Medium','Summarization'],['LLM-as-Judge','Slow','$$','Good','Open-ended generation'],['Human eval','Very slow','$$$','Highest','Critical applications'],['Automated test suites','Fast','$','Good','Regression testing']]}/>
