@@ -10,10 +10,10 @@ import { OrchestratorAvatar } from './Icons';
 export function DebateIdentityPanel({panelAgents,rounds,status,isOpen,onToggle}){
   const stanceSummaries={};
   panelAgents?.forEach(agent=>{
-    const agentResponses=rounds.flatMap(round=>round.filter(r=>r.id===agent.id&&r.status==="success"));
+    const agentResponses=(rounds||[]).flatMap(round=>(round||[]).filter(r=>r.id===agent.id&&r.status==="success"));
     stanceSummaries[agent.id]=agentResponses.map(r=>(r.response||"").slice(0,80)+"...");
   });
-  const currentRoundData=rounds[rounds.length-1]||[];
+  const currentRoundData=(rounds||[])[((rounds||[]).length)-1]||[];
   const activeIds=status==="running"?currentRoundData.filter(r=>r.status==="success").map(r=>r.id):[];
   const providerLabel=(model)=>{const mp=MODEL_PROVIDERS.find(m=>m.id===model);return mp?mp.label:model||"Claude"};
   return <div style={{width:isOpen?280:0,minWidth:isOpen?280:0,transition:"all 0.3s cubic-bezier(0.22,1,0.36,1)",overflow:"hidden",borderLeft:isOpen?"1px solid #E5E7EB":"none",background:"#FAFAFA",flexShrink:0}}>
@@ -74,7 +74,7 @@ export function DebatePanel({article,topic,agents,onDebateComplete,onSaveSession
         setStep(`Round ${r}/3: ${r===1?"Initial positions":r===2?"Cross-responses":"Final positions"} (${responded}/${selectedAgents.length*3} total responses)`);
         const roundData=await authFetch("/api/debate/round",{articleTitle:topicTitle,articleText,agents:selectedAgents,roundNumber:r,previousRounds:allRounds});
         // Add timestamps to responses
-        const timestampedResponses=roundData.responses.map(resp=>({...resp,timestamp:new Date().toISOString()}));
+        const timestampedResponses=(roundData.responses||[]).map(resp=>({...resp,timestamp:new Date().toISOString()}));
         allRounds.push(timestampedResponses);
         setRounds([...allRounds]);
         setProgress(15+r*20);
@@ -492,7 +492,7 @@ export function MiniDebate({agents,onNavigate}){
       const activeAgents=agents.filter(a=>a.status==="active").slice(0,3);
       if(activeAgents.length===0){setError("No agents available");setStatus("error");return}
       const data=await authFetch("/api/debate/round",{articleTitle:title,articleText:title,agents:activeAgents,roundNumber:1,previousRounds:[]});
-      setResponses(data.responses.filter(r=>r.status==="success"));
+      setResponses((data.responses||[]).filter(r=>r.status==="success"));
       setStatus("done");
     }catch(e){setError(e.message);setStatus("error")}
   };
