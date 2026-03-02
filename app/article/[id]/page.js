@@ -1,7 +1,7 @@
 import ArticlePage from '../../components/pages/ArticlePage';
 
 export const metadata = {
-  title: 'Article',
+  title: 'Article — In-Depth Exploration',
   description: 'Read an article on Re³. In-depth explorations of ideas at the intersection of human intuition and machine foresight.',
 };
 

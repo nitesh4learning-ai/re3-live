@@ -1,7 +1,7 @@
 import StudioPage from '../components/pages/StudioPage';
 
 export const metadata = {
-  title: 'My Studio',
+  title: 'My Studio — Dashboard & Content',
   description: 'Your personal dashboard on Re³. Manage posts, articles, debate sessions, and track your contributions across Rethink, Rediscover, and Reinvent.',
 };
 

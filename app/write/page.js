@@ -1,7 +1,7 @@
 import WritePage from '../components/pages/WritePage';
 
 export const metadata = {
-  title: 'Write',
+  title: 'Write — Create & Publish',
   description: 'Create and publish articles on Re³ with a rich text editor. Share your insights across Rethink, Rediscover, and Reinvent pillars.',
 };
 

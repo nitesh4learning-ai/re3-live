@@ -1,7 +1,7 @@
 import PostPage from '../../components/pages/PostPage';
 
 export const metadata = {
-  title: 'Post',
+  title: 'Post — Insight & Discussion',
   description: 'Read a post on Re³. Explore insights across Rethink, Rediscover, and Reinvent pillars with comments, challenges, and margin notes.',
 };
 

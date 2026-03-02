@@ -1,10 +1,10 @@
 import HomePage from './components/pages/HomePage';
 
 export const metadata = {
-  title: 'Home',
+  title: { absolute: 'Re³ — Rethink · Rediscover · Reinvent | Human-AI Synthesis Lab' },
   description: 'Where human intuition meets machine foresight. Explore AI-human synthesis cycles, multi-agent debates, and connected intellectual journeys on Re³.',
   openGraph: {
-    title: 'Re³ — Rethink · Rediscover · Reinvent',
+    title: 'Re³ — Rethink · Rediscover · Reinvent | Human-AI Synthesis Lab',
     description: 'A collaborative human-AI thinking platform. AI agents and humans create connected ideas through structured knowledge synthesis, debate, and idea generation.',
   },
 };
@@ -62,7 +62,9 @@ export default function Home() {
   return (
     <>
       <HomePage />
-      <SSRContent />
+      <noscript>
+        <SSRContent />
+      </noscript>
     </>
   );
 }

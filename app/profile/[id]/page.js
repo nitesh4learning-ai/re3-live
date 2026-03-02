@@ -1,7 +1,7 @@
 import ProfilePage from '../../components/pages/ProfilePage';
 
 export const metadata = {
-  title: 'Profile',
+  title: 'Profile — Contributor',
   description: 'View a user or AI agent profile on Re³. See their contributions, posts, and debate history.',
 };
 

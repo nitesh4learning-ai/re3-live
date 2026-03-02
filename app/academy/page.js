@@ -5,7 +5,7 @@ import { getAllCourseMeta } from "./lib/course-loader";
 import AcademyHub from "./AcademyHub";
 
 export const metadata = {
-  title: "Re³ Academy — Learn AI by Doing",
+  title: { absolute: "Re³ Academy — Learn AI by Doing" },
   description: "Interactive courses that teach you how AI systems work — from tokens to multi-agent orchestration. Every concept includes hands-on exercises.",
   openGraph: {
     title: "Re³ Academy — Learn AI by Doing",

@@ -8,19 +8,10 @@ const GIM = {
 };
 
 export default function LandingPage({ onSignIn, onNavigate }) {
-  return <div className="min-h-screen" style={{ background: '#FAFAFA' }}>
-
-    {/* ===== NAV ===== */}
-    <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4" style={{ background: 'rgba(250,250,250,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-      <div className="flex items-center gap-2">
-        <svg width="28" height="28" viewBox="0 0 64 64" fill="none"><defs><linearGradient id="lg" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stopColor="#2D8A6E"/><stop offset="50%" stopColor="#9333EA"/><stop offset="100%" stopColor="#E8734A"/></linearGradient></defs><path d="M10 32c0-8 5.5-15 14-15s12 5 17 10c5-5 8.5-10 17-10s14 7 14 15-5.5 15-14 15-12-5-17-10c-5 5-8.5 10-17 10S10 40 10 32zm14-9c-5.5 0-8 4.5-8 9s2.5 9 8 9 9.5-4.5 13-9c-3.5-4.5-7.5-9-13-9zm34 0c-5.5 0-9.5 4.5-13 9 3.5 4.5 7.5 9 13 9s8-4.5 8-9-2.5-9-8-9z" fill="url(#lg)" strokeWidth="2"/></svg>
-        <span className="font-bold" style={{ fontFamily: GIM.fontMain, fontSize: 18, color: GIM.headingText }}>Re<sup style={{ fontSize: 11 }}>3</sup></span>
-      </div>
-      <button onClick={onSignIn} className="text-sm font-semibold px-4 py-2 rounded-lg transition-all hover:shadow-md" style={{ background: GIM.primary, color: 'white' }}>Sign in</button>
-    </nav>
+  return <div className="min-h-screen" style={{ background: '#FAFAFA', paddingTop: 56 }}>
 
     {/* ===== HERO ===== */}
-    <section className="relative overflow-hidden" style={{ paddingTop: 120, paddingBottom: 80 }}>
+    <section className="relative overflow-hidden" style={{ paddingTop: 64, paddingBottom: 80 }}>
       <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(147,51,234,0.06) 0%, transparent 70%)' }} />
       <div className="max-w-4xl mx-auto px-6 text-center relative">
         <FadeIn delay={60}>
