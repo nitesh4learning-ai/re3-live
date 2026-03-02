@@ -62,7 +62,11 @@ export function AppProvider({ children }) {
       const missingAgents = INIT_AGENTS.filter(a => !existingAgentIds.has(a.id));
       setAgents(missingAgents.length > 0 ? [...sag, ...missingAgents] : sag);
     }
-    if (sp) setProjects(sp);
+    if (sp && Array.isArray(sp) && sp.length > 0) {
+      const existingProjIds = new Set(sp.map(p => p.id));
+      const missingProjects = DEFAULT_PROJECTS.filter(p => !existingProjIds.has(p.id));
+      setProjects(missingProjects.length > 0 ? [...sp, ...missingProjects] : sp);
+    }
     if (sfs) setForgeSessions(sfs);
     setLoaded(true);
   }, []);
@@ -95,7 +99,14 @@ export function AppProvider({ children }) {
           const seedAgents = INIT_AGENTS.filter(a => !fsAgentIds.has(a.id));
           setAgents(seedAgents.length > 0 ? [...fag.data, ...seedAgents] : fag.data);
         }
-        if (fp?.source === 'firestore') setProjects(fp.data);
+        if (fp?.source === 'firestore') {
+          const fpData = fp.data || [];
+          if (fpData.length > 0) {
+            const fsProjectIds = new Set(fpData.map(p => p.id));
+            const seedProjects = DEFAULT_PROJECTS.filter(p => !fsProjectIds.has(p.id));
+            setProjects(seedProjects.length > 0 ? [...fpData, ...seedProjects] : fpData);
+          }
+        }
       });
     }).catch(() => {});
   }, [loaded]);

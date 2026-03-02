@@ -38,11 +38,17 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Config (themes, agents, projects) — anyone can read, admin-only write
-    // Note: saveThemes/saveAgents/saveProjects use setDoc which needs create+update
+    // Config (themes, agents) — anyone can read, admin-only write
     match /config/{docId} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    // Projects config — anyone can read, authenticated users can write
+    // (separated so user projects persist across browsers via Firestore)
+    match /config/projects {
+      allow read: if true;
+      allow write: if isAuthenticated();
     }
 
     // User profiles — users can read/write their own, admin can read all
