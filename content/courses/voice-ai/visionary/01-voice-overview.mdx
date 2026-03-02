@@ -7,10 +7,7 @@ icon: "\uD83C\uDF99\uFE0F"
 
 Voice AI transforms how humans interact with machines \u2014 from contact centers to personal assistants to accessibility tools. The core pipeline involves <JargonTip term="STT">STT</JargonTip> (speech-to-text), LLM processing, and <JargonTip term="TTS">TTS</JargonTip> (text-to-speech), with <JargonTip term="NER">NER</JargonTip> for extracting entities like names and dates from spoken input.
 
-  {[
-    {icon:'\uD83C\uDF99\uFE0F',title:'STT',desc:'Speech-to-Text: convert audio to text (Whisper, Deepgram)'},{icon:'\uD83E\uDDE0',title:'NLU',desc:'Natural Language Understanding: interpret intent from text'},{icon:'\uD83D\uDD0A',title:'TTS',desc:'Text-to-Speech: generate natural-sounding voice (ElevenLabs, OpenAI TTS)'},
-  ].map((s,i)=><div key={i}>{s.icon}
-####
-{s.desc}
-)}
+- **STT** -- Speech-to-Text: convert audio to text (Whisper, Deepgram)
+- **NLU** -- Natural Language Understanding: interpret intent from text
+- **TTS** -- Text-to-Speech: generate natural-sounding voice (ElevenLabs, OpenAI TTS)
   <Quiz question="What is the biggest challenge in real-time voice AI?" options={["Voice quality","Latency \u2014 users expect {'<'}500ms response time for natural conversation","Accuracy","Cost"]} correctIndex={1} explanation="Latency is the #1 challenge. Natural conversation requires sub-500ms end-to-end (STT + LLM + TTS). Users notice delays beyond 1 second and it breaks conversational flow."/>
