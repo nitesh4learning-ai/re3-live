@@ -56,7 +56,7 @@ export default function AcademyHub({ courses: serverCourses }) {
   const statusColors = { available: '#2D8A6E', draft: '#D97706', coming_soon: '#9CA3AF' };
 
   return (
-    <div className="min-h-screen" style={{ background: GIM.pageBg }}>
+    <div className="min-h-screen" style={{ background: GIM.pageBg, paddingTop: 56 }}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         {/* Admin Bar */}
         {adminMode && (
