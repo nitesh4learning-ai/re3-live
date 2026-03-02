@@ -1,7 +1,7 @@
 import LoomCyclePage from '../../components/pages/LoomCyclePage';
 
 export const metadata = {
-  title: 'Synthesis Cycle',
+  title: 'Synthesis Cycle — The Loom',
   description: 'Deep-dive into a Re³ synthesis cycle. Explore connected posts across Rethink, Rediscover, and Reinvent with through-line questions and emergent insights.',
 };
 

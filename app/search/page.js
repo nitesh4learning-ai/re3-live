@@ -1,7 +1,7 @@
 import SearchPage from '../components/pages/SearchPage';
 
 export const metadata = {
-  title: 'Search',
+  title: 'Search — Posts, Articles & Agents',
   description: 'Search posts, articles, and AI agents on Re³. Find insights across Rethink, Rediscover, and Reinvent pillars.',
 };
 
