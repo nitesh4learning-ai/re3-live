@@ -1,8 +1,7 @@
+import { createHandler } from "../../../../lib/api-handler";
+import { GeneratePostInputSchema, GeneratePostSchema } from "../../../../lib/schemas";
 import { callLLM } from "../../../../lib/llm-router";
 import { parseLLMResponse } from "../../../../lib/llm-parse";
-import { GeneratePostSchema, GeneratePostInputSchema, validateInput } from "../../../../lib/schemas";
-import { getAuthUser } from "../../../../lib/auth";
-import { llmRateLimit } from "../../../../lib/rate-limit";
 import { NextResponse } from "next/server";
 
 const AGENT_PROMPTS = {
@@ -53,31 +52,22 @@ Your writing style:
   },
 };
 
-export async function POST(req) {
-  try {
-    const { user, error, status } = await getAuthUser(req);
-    if (error) return NextResponse.json({ error }, { status });
-    const { allowed } = await llmRateLimit.check(user.uid);
-    if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+export const POST = createHandler(GeneratePostInputSchema, async (body) => {
+  const { agent, topic, context } = body;
 
-    const { data: body, error: inputError, status: inputStatus } = validateInput(await req.json(), GeneratePostInputSchema);
-    if (inputError) return NextResponse.json({ error: inputError }, { status: inputStatus });
+  const agentConfig = AGENT_PROMPTS[agent];
+  if (!agentConfig) {
+    return NextResponse.json({ error: "Unknown agent" }, { status: 400 });
+  }
 
-    const { agent, topic, context } = body;
+  const contextText = context.sagePost
+    ? `\n\nHypatia's post for this cycle: "${context.sagePost}"\n${context.atlasPost ? `Socratia's post: "${context.atlasPost}"` : ""}`
+    : "";
 
-    const agentConfig = AGENT_PROMPTS[agent];
-    if (!agentConfig) {
-      return NextResponse.json({ error: "Unknown agent" }, { status: 400 });
-    }
-
-    const contextText = context.sagePost
-      ? `\n\nHypatia's post for this cycle: "${context.sagePost}"\n${context.atlasPost ? `Socratia's post: "${context.atlasPost}"` : ""}`
-      : "";
-
-    const text = await callLLM(
-      "anthropic",
-      agentConfig.system,
-      `Write a post for the Re³ synthesis cycle on the topic: "${topic.title}"
+  const text = await callLLM(
+    "anthropic",
+    agentConfig.system,
+    `Write a post for the Re³ synthesis cycle on the topic: "${topic.title}"
 
 Topic context: ${topic.rationale || ""}
 Your angle: ${topic[`${agentConfig.pillar === "rethink" ? "rethink" : agentConfig.pillar === "rediscover" ? "rediscover" : "reinvent"}_angle`] || ""}
@@ -92,20 +82,16 @@ Write the post now. Return JSON:
 }
 
 For code blocks, use \`\`\`python at the start of the paragraph.`,
-      { maxTokens: 3000, tier: "standard" }
-    );
-    const { data: post, error: parseError } = parseLLMResponse(text, GeneratePostSchema);
-    if (!post) {
-      return NextResponse.json({ error: "Failed to parse agent response: " + parseError }, { status: 500 });
-    }
-    return NextResponse.json({
-      ...post,
-      agent: agentConfig.name,
-      pillar: agentConfig.pillar,
-      authorId: `agent_${agent}`,
-    });
-  } catch (error) {
-    console.error("Agent generation error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    { maxTokens: 3000, tier: "standard" }
+  );
+  const { data: post, error: parseError } = parseLLMResponse(text, GeneratePostSchema);
+  if (!post) {
+    return NextResponse.json({ error: "Failed to parse agent response: " + parseError }, { status: 500 });
   }
-}
+  return NextResponse.json({
+    ...post,
+    agent: agentConfig.name,
+    pillar: agentConfig.pillar,
+    authorId: `agent_${agent}`,
+  });
+});

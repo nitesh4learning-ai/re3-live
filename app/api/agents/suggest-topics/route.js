@@ -1,25 +1,15 @@
+import { createHandler } from "../../../../lib/api-handler";
+import { SuggestTopicsInputSchema, SuggestTopicsSchema } from "../../../../lib/schemas";
 import { callLLM } from "../../../../lib/llm-router";
 import { parseLLMResponse } from "../../../../lib/llm-parse";
-import { SuggestTopicsSchema, SuggestTopicsInputSchema, validateInput } from "../../../../lib/schemas";
-import { getAuthUser } from "../../../../lib/auth";
-import { llmRateLimit } from "../../../../lib/rate-limit";
 import { NextResponse } from "next/server";
 
-export async function POST(req) {
-  try {
-    const { user, error, status } = await getAuthUser(req);
-    if (error) return NextResponse.json({ error }, { status });
-    const { allowed } = await llmRateLimit.check(user.uid);
-    if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+export const POST = createHandler(SuggestTopicsInputSchema, async (body) => {
+  const { currentTopics, pastCycles } = body;
 
-    const { data: body, error: inputError, status: inputStatus } = validateInput(await req.json(), SuggestTopicsInputSchema);
-    if (inputError) return NextResponse.json({ error: inputError }, { status: inputStatus });
-
-    const { currentTopics, pastCycles } = body;
-
-    const text = await callLLM(
-      "anthropic",
-      `You are the editorial brain behind Re³, a human-AI synthesis platform focused on enterprise technology, AI governance, data architecture, and the future of human-machine collaboration.
+  const text = await callLLM(
+    "anthropic",
+    `You are the editorial brain behind Re³, a human-AI synthesis platform focused on enterprise technology, AI governance, data architecture, and the future of human-machine collaboration.
 
 Your job is to suggest 3-4 TOPICS for the next synthesis cycle. Each topic should:
 1. Be emerging NOW but not yet mainstream (predictive thinking)
@@ -43,21 +33,17 @@ Respond in JSON format only:
     }
   ]
 }`,
-      `Current platform topics already covered: ${JSON.stringify(currentTopics)}
+    `Current platform topics already covered: ${JSON.stringify(currentTopics)}
 
 Past cycle themes: ${JSON.stringify(pastCycles)}
 
 Suggest 3-4 NEW topics that are emerging right now and will peak in relevance over the next 1-4 weeks. Be predictive, not reactive. What should smart enterprise technologists be thinking about BEFORE everyone else?`,
-      { maxTokens: 2000, tier: "light" }
-    );
-    const { data: topics, error: parseError } = parseLLMResponse(text, SuggestTopicsSchema);
-    if (!topics) {
-      return NextResponse.json({ error: "Failed to parse response: " + parseError }, { status: 500 });
-    }
-
-    return NextResponse.json(topics);
-  } catch (error) {
-    console.error("Agent topic suggestion error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    { maxTokens: 2000, tier: "light" }
+  );
+  const { data: topics, error: parseError } = parseLLMResponse(text, SuggestTopicsSchema);
+  if (!topics) {
+    return NextResponse.json({ error: "Failed to parse response: " + parseError }, { status: 500 });
   }
-}
+
+  return NextResponse.json(topics);
+});

@@ -1,8 +1,6 @@
+import { createHandler } from "../../../../lib/api-handler";
+import { PillarsInputSchema } from "../../../../lib/schemas";
 import { callLLM } from "../../../../lib/llm-router";
-import { parseLLMResponse } from "../../../../lib/llm-parse";
-import { PillarsInputSchema, validateInput } from "../../../../lib/schemas";
-import { getAuthUser } from "../../../../lib/auth";
-import { llmRateLimit } from "../../../../lib/rate-limit";
 import { sanitizeShort, sanitizeForLLM } from "../../../../lib/sanitize";
 import { NextResponse } from "next/server";
 
@@ -14,23 +12,14 @@ const PILLAR_COLORS = [
   { color: "#8B5CF6", gradient: "linear-gradient(135deg,#8B5CF6,#A78BFA)", lightBg: "#F5F3FF" },
 ];
 
-export async function POST(req) {
-  try {
-    const { user, error, status } = await getAuthUser(req);
-    if (error) return NextResponse.json({ error }, { status });
-    const { allowed } = await llmRateLimit.check(user.uid);
-    if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+export const POST = createHandler(PillarsInputSchema, async (body) => {
+  const topic = sanitizeShort(body.topic);
+  const context = body.context ? sanitizeForLLM(body.context, 5000) : undefined;
 
-    const { data: body, error: inputError, status: inputStatus } = validateInput(await req.json(), PillarsInputSchema);
-    if (inputError) return NextResponse.json({ error: inputError }, { status: inputStatus });
-
-    const topic = sanitizeShort(body.topic);
-    const context = body.context ? sanitizeForLLM(body.context, 5000) : undefined;
-
-    const response = await callLLM(
-      "anthropic",
-      "You are Sage, the intellectual architect of Re³. Given a topic, you identify the 3 most meaningful lenses through which to explore it. Each lens should represent a genuinely distinct dimension of the topic — not just relabeling, but fundamentally different ways of seeing.",
-      `Topic: "${topic}"
+  const response = await callLLM(
+    "anthropic",
+    "You are Sage, the intellectual architect of Re³. Given a topic, you identify the 3 most meaningful lenses through which to explore it. Each lens should represent a genuinely distinct dimension of the topic — not just relabeling, but fundamentally different ways of seeing.",
+    `Topic: "${topic}"
 ${context ? `Context: ${context.slice(0, 1500)}` : ""}
 
 Generate exactly 3 pillars (lenses) for exploring this topic. Each pillar should:
@@ -50,43 +39,39 @@ Respond in JSON only:
   ],
   "throughLine": "The unifying question connecting all three lenses?"
 }`,
-      { maxTokens: 500, timeout: 20000, tier: "light" }
-    );
+    { maxTokens: 500, timeout: 20000, tier: "light" }
+  );
 
-    // Parse response
-    let parsed;
-    try {
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      if (jsonMatch) parsed = JSON.parse(jsonMatch[0]);
-    } catch { /* fallback below */ }
+  // Parse response
+  let parsed;
+  try {
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (jsonMatch) parsed = JSON.parse(jsonMatch[0]);
+  } catch { /* fallback below */ }
 
-    if (!parsed?.pillars?.length) {
-      // Fallback to classic pillars
-      return NextResponse.json({
-        pillars: [
-          { key: "pillar_1", label: "Rethink", tagline: "Deconstruct assumptions. See what others miss.", ...PILLAR_COLORS[0], number: "01" },
-          { key: "pillar_2", label: "Rediscover", tagline: "Find hidden patterns across domains.", ...PILLAR_COLORS[1], number: "02" },
-          { key: "pillar_3", label: "Reinvent", tagline: "Prototype the future. Build what's next.", ...PILLAR_COLORS[2], number: "03" },
-        ],
-        throughLine: `What does "${topic}" reveal about how we think?`,
-      });
-    }
-
-    // Assign colors and keys to generated pillars
-    const pillars = parsed.pillars.slice(0, 4).map((p, i) => ({
-      key: `pillar_${i + 1}`,
-      label: p.label,
-      tagline: p.tagline,
-      ...PILLAR_COLORS[i % PILLAR_COLORS.length],
-      number: String(i + 1).padStart(2, "0"),
-    }));
-
+  if (!parsed?.pillars?.length) {
+    // Fallback to classic pillars
     return NextResponse.json({
-      pillars,
-      throughLine: parsed.throughLine || `How do these perspectives reshape our understanding of "${topic}"?`,
+      pillars: [
+        { key: "pillar_1", label: "Rethink", tagline: "Deconstruct assumptions. See what others miss.", ...PILLAR_COLORS[0], number: "01" },
+        { key: "pillar_2", label: "Rediscover", tagline: "Find hidden patterns across domains.", ...PILLAR_COLORS[1], number: "02" },
+        { key: "pillar_3", label: "Reinvent", tagline: "Prototype the future. Build what's next.", ...PILLAR_COLORS[2], number: "03" },
+      ],
+      throughLine: `What does "${topic}" reveal about how we think?`,
     });
-  } catch (e) {
-    console.error("Pillar generation error:", e);
-    return NextResponse.json({ error: e.message }, { status: 500 });
   }
-}
+
+  // Assign colors and keys to generated pillars
+  const pillars = parsed.pillars.slice(0, 4).map((p, i) => ({
+    key: `pillar_${i + 1}`,
+    label: p.label,
+    tagline: p.tagline,
+    ...PILLAR_COLORS[i % PILLAR_COLORS.length],
+    number: String(i + 1).padStart(2, "0"),
+  }));
+
+  return NextResponse.json({
+    pillars,
+    throughLine: parsed.throughLine || `How do these perspectives reshape our understanding of "${topic}"?`,
+  });
+});

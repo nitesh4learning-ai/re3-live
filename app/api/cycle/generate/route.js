@@ -1,8 +1,7 @@
+import { createHandler } from "../../../../lib/api-handler";
+import { CycleGenerateInputSchema, ThroughLineSchema, CycleRethinkSchema, CycleRediscoverSchema, CycleReinventSchema } from "../../../../lib/schemas";
 import { callLLM } from "../../../../lib/llm-router";
 import { parseLLMResponse } from "../../../../lib/llm-parse";
-import { ThroughLineSchema, CycleRethinkSchema, CycleRediscoverSchema, CycleReinventSchema, CycleGenerateInputSchema, validateInput } from "../../../../lib/schemas";
-import { getAuthUser } from "../../../../lib/auth";
-import { llmRateLimit } from "../../../../lib/rate-limit";
 import { NextResponse } from "next/server";
 
 // Shared writing style rules injected into all agent prompts
@@ -83,7 +82,6 @@ Return JSON only:
 }
 
 // ==================== GENERIC ACT GENERATOR ====================
-// Generates content for any pillar position (1st, 2nd, or 3rd act)
 async function generateAct(actIndex, topic, throughLine, previousActs) {
   const pillar = throughLine.pillars[actIndex];
   const orch = ORCHESTRATORS[actIndex];
@@ -105,7 +103,6 @@ async function generateAct(actIndex, topic, throughLine, previousActs) {
   // Different prompts per act position
   const actPrompts = {
     0: {
-      // First act: deconstruct/question
       system: `You are ${orch.name}, writing the "${pillarLabel}" lens for a Re3 cycle. You ${orch.role}. Act 1 of 3 — you create tension for the next two acts (${allPillarLabels[1]}, ${allPillarLabels[2]}).
 
 YOUR OUTPUT (follow exactly — UNDER 100 WORDS TOTAL):
@@ -140,7 +137,6 @@ Return JSON:
       schema: CycleRethinkSchema,
     },
     1: {
-      // Second act: discover/connect
       system: `You are ${orch.name}, writing the "${pillarLabel}" lens for a Re3 cycle. You ${orch.role}. Act 2 of 3.
 
 ${previousQuestions ? `QUESTIONS FROM ${allPillarLabels[0].toUpperCase()} TO ADDRESS:\n- ${previousQuestions}` : ""}
@@ -184,7 +180,6 @@ Return JSON:
       schema: CycleRediscoverSchema,
     },
     2: {
-      // Third act: build/synthesize
       system: `You are ${orch.name}, writing the "${pillarLabel}" lens for a Re3 cycle. You ${orch.role}. Act 3 of 3 — the resolution.
 
 ${previousPrinciple ? `PRINCIPLE FROM ${allPillarLabels[1].toUpperCase()} TO BUILD ON:\n${previousPrinciple}` : ""}
@@ -238,116 +233,12 @@ Return JSON:
   return data;
 }
 
-// Legacy wrappers for backward compatibility
-async function generateRethink(topic, throughLine) {
-  return generateAct(0, topic, throughLine, []);
-}
-async function generateRediscover(topic, throughLine, sageOutput) {
-  return generateAct(1, topic, throughLine, [sageOutput]);
-}
-async function generateReinvent(topic, throughLine, sageOutput, atlasOutput) {
-  return generateAct(2, topic, throughLine, [sageOutput, atlasOutput]);
-}
-
 // ==================== MAIN HANDLER ====================
-export async function POST(req) {
-  try {
-    const { user, error, status } = await getAuthUser(req);
-    if (error) return NextResponse.json({ error }, { status });
-    const { allowed } = await llmRateLimit.check(user.uid);
-    if (!allowed) return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+export const POST = createHandler(CycleGenerateInputSchema, async (body, user, req) => {
+  const { topic, step, previousData } = body;
 
-    const { data: body, error: inputError, status: inputStatus } = validateInput(await req.json(), CycleGenerateInputSchema);
-    if (inputError) return NextResponse.json({ error: inputError }, { status: inputStatus });
-
-    const { topic, step, previousData } = body;
-
-    // Support step-by-step streaming for UI progress updates
-    if (step === "through-line") {
-      const throughLine = await generateThroughLine(topic);
-      // Attach resolved pillar metadata (colors, keys)
-      const pillarsWithMeta = throughLine.pillars.map((p, i) => ({
-        ...p,
-        key: `pillar_${i + 1}`,
-        ...PILLAR_COLORS[i % PILLAR_COLORS.length],
-        number: String(i + 1).padStart(2, "0"),
-      }));
-      return NextResponse.json({ step: "through-line", data: { ...throughLine, pillars: pillarsWithMeta } });
-    }
-
-    if (step === "rethink" || step === "act_0") {
-      const throughLine = previousData?.throughLine;
-      if (!throughLine) return NextResponse.json({ error: "throughLine required" }, { status: 400 });
-      const pillarKey = throughLine.pillars?.[0]?.key || "rethink";
-      const sage = await generateAct(0, topic, throughLine, []);
-      return NextResponse.json({ step: "act_0", data: { ...sage, agent: ORCHESTRATORS[0].name, pillar: pillarKey, authorId: ORCHESTRATORS[0].id } });
-    }
-
-    if (step === "rediscover" || step === "act_1") {
-      const { throughLine, sage } = previousData || {};
-      if (!throughLine || !sage) return NextResponse.json({ error: "throughLine and sage required" }, { status: 400 });
-      const pillarKey = throughLine.pillars?.[1]?.key || "rediscover";
-      const atlas = await generateAct(1, topic, throughLine, [sage]);
-      return NextResponse.json({ step: "act_1", data: { ...atlas, agent: ORCHESTRATORS[1].name, pillar: pillarKey, authorId: ORCHESTRATORS[1].id } });
-    }
-
-    if (step === "reinvent" || step === "act_2") {
-      const { throughLine, sage, atlas } = previousData || {};
-      if (!throughLine || !sage || !atlas) return NextResponse.json({ error: "throughLine, sage, and atlas required" }, { status: 400 });
-      const pillarKey = throughLine.pillars?.[2]?.key || "reinvent";
-      const forge = await generateAct(2, topic, throughLine, [sage, atlas]);
-      return NextResponse.json({ step: "act_2", data: { ...forge, agent: ORCHESTRATORS[2].name, pillar: pillarKey, authorId: ORCHESTRATORS[2].id } });
-    }
-
-    // Full pipeline — stream progress events if client accepts SSE
-    const wantsStream = req.headers.get("accept")?.includes("text/event-stream");
-
-    if (wantsStream) {
-      const encoder = new TextEncoder();
-      const stream = new ReadableStream({
-        async start(controller) {
-          const send = (payload) => {
-            try { controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)); } catch {}
-          };
-          try {
-            send({ type: "step", step: "through-line", status: "started" });
-            const throughLine = await generateThroughLine(topic);
-            const pillarsWithMeta = throughLine.pillars.map((p, i) => ({
-              ...p, key: `pillar_${i + 1}`, ...PILLAR_COLORS[i % PILLAR_COLORS.length],
-              number: String(i + 1).padStart(2, "0"),
-            }));
-            const tlWithMeta = { ...throughLine, pillars: pillarsWithMeta };
-            send({ type: "step", step: "through-line", status: "done", data: tlWithMeta });
-
-            send({ type: "step", step: "act_0", status: "started", agent: ORCHESTRATORS[0].name });
-            const sage = await generateAct(0, topic, tlWithMeta, []);
-            const sagePost = { ...sage, agent: ORCHESTRATORS[0].name, pillar: pillarsWithMeta[0]?.key || "rethink", authorId: ORCHESTRATORS[0].id };
-            send({ type: "step", step: "act_0", status: "done", data: sagePost });
-
-            send({ type: "step", step: "act_1", status: "started", agent: ORCHESTRATORS[1].name });
-            const atlas = await generateAct(1, topic, tlWithMeta, [sage]);
-            const atlasPost = { ...atlas, agent: ORCHESTRATORS[1].name, pillar: pillarsWithMeta[1]?.key || "rediscover", authorId: ORCHESTRATORS[1].id };
-            send({ type: "step", step: "act_1", status: "done", data: atlasPost });
-
-            send({ type: "step", step: "act_2", status: "started", agent: ORCHESTRATORS[2].name });
-            const forge = await generateAct(2, topic, tlWithMeta, [sage, atlas]);
-            const forgePost = { ...forge, agent: ORCHESTRATORS[2].name, pillar: pillarsWithMeta[2]?.key || "reinvent", authorId: ORCHESTRATORS[2].id };
-            send({ type: "step", step: "act_2", status: "done", data: forgePost });
-
-            send({ type: "done", data: { throughLine: tlWithMeta, posts: [sagePost, atlasPost, forgePost] } });
-          } catch (e) {
-            send({ type: "error", error: e.message });
-          } finally {
-            controller.close();
-          }
-        },
-      });
-      return new Response(stream, {
-        headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform", "Connection": "keep-alive" },
-      });
-    }
-
-    // JSON fallback (backward-compatible)
+  // Support step-by-step streaming for UI progress updates
+  if (step === "through-line") {
     const throughLine = await generateThroughLine(topic);
     const pillarsWithMeta = throughLine.pillars.map((p, i) => ({
       ...p,
@@ -355,22 +246,101 @@ export async function POST(req) {
       ...PILLAR_COLORS[i % PILLAR_COLORS.length],
       number: String(i + 1).padStart(2, "0"),
     }));
-    const tlWithMeta = { ...throughLine, pillars: pillarsWithMeta };
-
-    const sage = await generateAct(0, topic, tlWithMeta, []);
-    const atlas = await generateAct(1, topic, tlWithMeta, [sage]);
-    const forge = await generateAct(2, topic, tlWithMeta, [sage, atlas]);
-
-    return NextResponse.json({
-      throughLine: tlWithMeta,
-      posts: [
-        { ...sage, agent: ORCHESTRATORS[0].name, pillar: pillarsWithMeta[0]?.key || "rethink", authorId: ORCHESTRATORS[0].id },
-        { ...atlas, agent: ORCHESTRATORS[1].name, pillar: pillarsWithMeta[1]?.key || "rediscover", authorId: ORCHESTRATORS[1].id },
-        { ...forge, agent: ORCHESTRATORS[2].name, pillar: pillarsWithMeta[2]?.key || "reinvent", authorId: ORCHESTRATORS[2].id },
-      ],
-    });
-  } catch (error) {
-    console.error("Cycle generation error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ step: "through-line", data: { ...throughLine, pillars: pillarsWithMeta } });
   }
-}
+
+  if (step === "rethink" || step === "act_0") {
+    const throughLine = previousData?.throughLine;
+    if (!throughLine) return NextResponse.json({ error: "throughLine required" }, { status: 400 });
+    const pillarKey = throughLine.pillars?.[0]?.key || "rethink";
+    const sage = await generateAct(0, topic, throughLine, []);
+    return NextResponse.json({ step: "act_0", data: { ...sage, agent: ORCHESTRATORS[0].name, pillar: pillarKey, authorId: ORCHESTRATORS[0].id } });
+  }
+
+  if (step === "rediscover" || step === "act_1") {
+    const { throughLine, sage } = previousData || {};
+    if (!throughLine || !sage) return NextResponse.json({ error: "throughLine and sage required" }, { status: 400 });
+    const pillarKey = throughLine.pillars?.[1]?.key || "rediscover";
+    const atlas = await generateAct(1, topic, throughLine, [sage]);
+    return NextResponse.json({ step: "act_1", data: { ...atlas, agent: ORCHESTRATORS[1].name, pillar: pillarKey, authorId: ORCHESTRATORS[1].id } });
+  }
+
+  if (step === "reinvent" || step === "act_2") {
+    const { throughLine, sage, atlas } = previousData || {};
+    if (!throughLine || !sage || !atlas) return NextResponse.json({ error: "throughLine, sage, and atlas required" }, { status: 400 });
+    const pillarKey = throughLine.pillars?.[2]?.key || "reinvent";
+    const forge = await generateAct(2, topic, throughLine, [sage, atlas]);
+    return NextResponse.json({ step: "act_2", data: { ...forge, agent: ORCHESTRATORS[2].name, pillar: pillarKey, authorId: ORCHESTRATORS[2].id } });
+  }
+
+  // Full pipeline — stream progress events if client accepts SSE
+  const wantsStream = req.headers.get("accept")?.includes("text/event-stream");
+
+  if (wantsStream) {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        const send = (payload) => {
+          try { controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)); } catch {}
+        };
+        try {
+          send({ type: "step", step: "through-line", status: "started" });
+          const throughLine = await generateThroughLine(topic);
+          const pillarsWithMeta = throughLine.pillars.map((p, i) => ({
+            ...p, key: `pillar_${i + 1}`, ...PILLAR_COLORS[i % PILLAR_COLORS.length],
+            number: String(i + 1).padStart(2, "0"),
+          }));
+          const tlWithMeta = { ...throughLine, pillars: pillarsWithMeta };
+          send({ type: "step", step: "through-line", status: "done", data: tlWithMeta });
+
+          send({ type: "step", step: "act_0", status: "started", agent: ORCHESTRATORS[0].name });
+          const sage = await generateAct(0, topic, tlWithMeta, []);
+          const sagePost = { ...sage, agent: ORCHESTRATORS[0].name, pillar: pillarsWithMeta[0]?.key || "rethink", authorId: ORCHESTRATORS[0].id };
+          send({ type: "step", step: "act_0", status: "done", data: sagePost });
+
+          send({ type: "step", step: "act_1", status: "started", agent: ORCHESTRATORS[1].name });
+          const atlas = await generateAct(1, topic, tlWithMeta, [sage]);
+          const atlasPost = { ...atlas, agent: ORCHESTRATORS[1].name, pillar: pillarsWithMeta[1]?.key || "rediscover", authorId: ORCHESTRATORS[1].id };
+          send({ type: "step", step: "act_1", status: "done", data: atlasPost });
+
+          send({ type: "step", step: "act_2", status: "started", agent: ORCHESTRATORS[2].name });
+          const forge = await generateAct(2, topic, tlWithMeta, [sage, atlas]);
+          const forgePost = { ...forge, agent: ORCHESTRATORS[2].name, pillar: pillarsWithMeta[2]?.key || "reinvent", authorId: ORCHESTRATORS[2].id };
+          send({ type: "step", step: "act_2", status: "done", data: forgePost });
+
+          send({ type: "done", data: { throughLine: tlWithMeta, posts: [sagePost, atlasPost, forgePost] } });
+        } catch (e) {
+          send({ type: "error", error: e.message });
+        } finally {
+          controller.close();
+        }
+      },
+    });
+    return new Response(stream, {
+      headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform", "Connection": "keep-alive" },
+    });
+  }
+
+  // JSON fallback (backward-compatible)
+  const throughLine = await generateThroughLine(topic);
+  const pillarsWithMeta = throughLine.pillars.map((p, i) => ({
+    ...p,
+    key: `pillar_${i + 1}`,
+    ...PILLAR_COLORS[i % PILLAR_COLORS.length],
+    number: String(i + 1).padStart(2, "0"),
+  }));
+  const tlWithMeta = { ...throughLine, pillars: pillarsWithMeta };
+
+  const sage = await generateAct(0, topic, tlWithMeta, []);
+  const atlas = await generateAct(1, topic, tlWithMeta, [sage]);
+  const forge = await generateAct(2, topic, tlWithMeta, [sage, atlas]);
+
+  return NextResponse.json({
+    throughLine: tlWithMeta,
+    posts: [
+      { ...sage, agent: ORCHESTRATORS[0].name, pillar: pillarsWithMeta[0]?.key || "rethink", authorId: ORCHESTRATORS[0].id },
+      { ...atlas, agent: ORCHESTRATORS[1].name, pillar: pillarsWithMeta[1]?.key || "rediscover", authorId: ORCHESTRATORS[1].id },
+      { ...forge, agent: ORCHESTRATORS[2].name, pillar: pillarsWithMeta[2]?.key || "reinvent", authorId: ORCHESTRATORS[2].id },
+    ],
+  });
+});
