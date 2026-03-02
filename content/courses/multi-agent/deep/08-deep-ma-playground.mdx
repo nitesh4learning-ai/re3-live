@@ -1,0 +1,28 @@
+---
+label: "Deep Playground"
+icon: "\uD83C\uDFAE"
+---
+
+## Deep Playground
+
+Apply your multi-agent knowledge to production architecture decisions.
+
+  <ExpandableSection title="Exercise 1: System Architecture" icon="🏗️" defaultOpen={true}>
+    <ArchitectureDecision scenario="You are designing a multi-agent system for automated code review. Agent A analyzes code style, Agent B checks for security vulnerabilities, Agent C evaluates performance. Results must be combined into a single review. What orchestration pattern?" options={[
+      {label:'Pipeline: A then B then C, then merge',tradeoff:'Sequential execution. Safe but slow -- each agent waits for the previous one.'},
+      {label:'Fan-out/Fan-in: Run A, B, C in parallel, then merge',tradeoff:'Fast parallel execution. Results are independent so no data dependency issues.'},
+      {label:'Debate: Agents discuss each finding',tradeoff:'Rich discussion but overkill for independent analysis tasks.'},
+      {label:'Supervisor: Central agent routes code to specialists',tradeoff:'Adds unnecessary coordination overhead when all agents need to analyze the same code.'}
+    ]} correctIndex={1} explanation="Since each agent analyzes different aspects independently (style, security, performance), fan-out/fan-in is optimal. Run all three in parallel for speed, then merge results. No agent depends on another's output."/>
+  </ExpandableSection>
+  <ExpandableSection title="Exercise 2: Failure Handling" icon="⚠️">
+    <Quiz question="In a 5-agent debate system, Agent 3 times out in round 2. What is the best production strategy?" options={["Cancel the entire debate and return an error","Continue with the remaining 4 agents and note the missing perspective","Retry Agent 3 indefinitely until it responds","Replace Agent 3 with a random agent mid-debate"]} correctIndex={1} explanation="Graceful degradation: continue the debate with available agents and note that one perspective is missing. The debate still produces valuable output from 4 agents. Retrying indefinitely risks timeout cascades, and canceling wastes all previous work."/>
+  </ExpandableSection>
+  <ExpandableSection title="Exercise 3: Cost Optimization" icon="💰">
+    <ArchitectureDecision scenario="Your multi-agent pipeline processes 10,000 requests per day. Currently each request uses 5 agents at $0.02 per agent call = $1,000/day. You need to reduce costs by 60% without significantly impacting quality." options={[
+      {label:'Use cheaper models for all agents',tradeoff:'Reduces cost per call but may degrade quality for complex analysis tasks.'},
+      {label:'Tiered approach: cheap models for simple tasks, expensive models only for complex ones',tradeoff:'Best cost/quality balance. Simple requests skip expensive agents entirely.'},
+      {label:'Reduce to 2 agents for all requests',tradeoff:'Drastic quality reduction. Loses specialized perspectives.'},
+      {label:'Cache identical requests and use semantic similarity for near-duplicates',tradeoff:'Helps with repetitive queries but may not reach 60% reduction alone.'}
+    ]} correctIndex={1} explanation="A tiered approach routes simple requests to cheaper models or fewer agents, reserving expensive full-agent analysis for complex cases. Combined with caching, this typically achieves 60%+ cost reduction while maintaining quality where it matters."/>
+  </ExpandableSection>

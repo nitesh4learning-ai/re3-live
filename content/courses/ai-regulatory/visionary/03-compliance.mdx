@@ -1,0 +1,29 @@
+---
+label: "Compliance"
+icon: "\u2705"
+---
+
+## Building a Compliance Program
+
+A compliance program isn't just paperwork -- it's an operational system that ensures your AI deployments meet regulatory requirements continuously, including <JargonTip term="red-teaming">red-teaming</JargonTip> and ongoing audits.
+
+<CodeBlock language="yaml" label="AI Governance Checklist" code={`ai_compliance_checklist:
+  pre_deployment:
+    - risk_assessment: "Classify system by EU AI Act tier"
+    - impact_assessment: "Document potential harms & affected groups"
+    - data_audit: "Verify training data provenance & consent"
+    - bias_testing: "Run fairness metrics across protected groups"
+    - documentation: "Create model card & system card"
+
+  deployment:
+    - human_oversight: "Define escalation triggers & override mechanisms"
+    - transparency: "Implement user disclosure (chatbot = AI)"
+    - logging: "Enable full audit trail of decisions"
+    - monitoring: "Set drift detection & performance alerts"
+
+  post_deployment:
+    - incident_response: "24hr reporting for serious incidents (EU)"
+    - periodic_review: "Quarterly bias & performance audits"
+    - user_feedback: "Mechanism for affected individuals to contest"`}/>
+
+<Quiz question="Under the EU AI Act, how quickly must providers report serious incidents involving high-risk AI systems?" options={["Within 7 days","Within 72 hours","Within 24 hours","Within 30 days"]} correctIndex={1} explanation="The EU AI Act requires providers to report serious incidents to authorities within 72 hours of becoming aware, similar to GDPR breach notification timelines."/>

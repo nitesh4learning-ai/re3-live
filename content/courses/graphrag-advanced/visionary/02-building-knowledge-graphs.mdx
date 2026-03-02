@@ -1,0 +1,141 @@
+---
+label: "Building Knowledge Graphs"
+icon: "\uD83D\uDD77\uFE0F"
+---
+
+## Building Knowledge Graphs
+
+Constructing a knowledge graph from unstructured text is a multi-stage pipeline: <JargonTip term="NER">entity extraction</JargonTip>, relationship mapping, entity resolution, and ontology enforcement. Each step directly impacts <JargonTip term="RAG">retrieval</JargonTip> quality downstream.
+
+
+
+### Graph Construction Pipeline
+
+Raw Text → Chunking → NER + RE → Entity Resolution → Ontology Validation → Graph Store → Index
+
+
+      <CodeBlock language="python" label="Production Entity Extraction Pipeline" code={`import anthropic
+from pydantic import BaseModel
+from typing import List
+
+class Entity(BaseModel):
+    name: str
+    canonical_name: str  # normalized form
+    entity_type: str     # Person | Org | Tech | Concept | Event
+    aliases: List[str]
+    confidence: float
+
+class Relation(BaseModel):
+    source: str          # canonical entity name
+    relation_type: str   # FOUNDED_BY | WORKS_AT | DEVELOPED | etc.
+    target: str          # canonical entity name
+    weight: float        # 0.0-1.0 confidence
+    source_span: str     # exact supporting text
+
+class ExtractionOutput(BaseModel):
+    entities: List[Entity]
+    relations: List[Relation]
+
+client = anthropic.Anthropic()
+
+def extract_knowledge(chunk: str) -> ExtractionOutput:
+    response = client.messages.create(
+        model="claude-opus-4-6",
+        max_tokens=2000,
+        system="""You are a knowledge graph extraction engine.
+        Extract ALL entities and relationships from the provided text.
+
+        Entity types: Person, Organization, Technology, Concept, Event, Location, Product
+
+        Relation types (use these or invent domain-specific ones):
+        FOUNDED_BY, WORKS_AT, DEVELOPED, AUTHORED, CITES, DEPENDS_ON,
+        COMPETES_WITH, PART_OF, INSTANCE_OF, CAUSES, PRECEDED_BY
+
+        Rules:
+        - canonical_name: normalize to most common full form
+        - aliases: include abbreviations, nicknames, variations
+        - confidence: 1.0 = explicitly stated, 0.5 = implied, 0.2 = inferred
+        - source_span: copy exact text supporting the relation
+
+        Respond ONLY with valid JSON matching the schema.""",
+        messages=[{
+            "role": "user",
+            "content": f"Extract knowledge from:\\n\\n{chunk}"
+        }]
+    )
+    return ExtractionOutput.model_validate_json(response.content[0].text)
+
+# Entity Resolution: merge duplicates
+def resolve_entities(entities: List[Entity]) -> dict:
+    canonical_map = {}
+    for entity in entities:
+        key = entity.canonical_name.lower()
+        if key in canonical_map:
+            existing = canonical_map[key]
+            existing.aliases = list(set(existing.aliases + entity.aliases))
+            existing.confidence = max(existing.confidence, entity.confidence)
+        else:
+            canonical_map[key] = entity
+        # map all aliases to canonical
+        for alias in entity.aliases:
+            canonical_map[alias.lower()] = canonical_map[key]
+    return canonical_map`} />
+      <CodeBlock language="cypher" label="Neo4j: Creating the Graph" code={`// Create entity nodes
+CREATE (p:Person {
+  name: "Sam Altman",
+  canonical: "sam_altman",
+  aliases: ["Altman"],
+  confidence: 1.0
+})
+
+CREATE (o:Organization {
+  name: "OpenAI",
+  canonical: "openai",
+  founded: 2015
+})
+
+// Create typed relationship with metadata
+MATCH (p:Person {canonical: "sam_altman"})
+MATCH (o:Organization {canonical: "openai"})
+CREATE (p)-[:CEO_OF {
+  since: 2019,
+  confidence: 1.0,
+  source: "doc_123"
+}]->(o)
+
+// Multi-hop query: find all products created by companies
+// where a given person is CEO
+MATCH (person:Person {name: "Sam Altman"})
+      -[:CEO_OF]->(org:Organization)
+      -[:CREATED]->(product)
+RETURN person.name, org.name, product.name
+
+// Community detection (GDS library)
+CALL gds.louvain.stream('myGraph')
+YIELD nodeId, communityId
+RETURN gds.util.asNode(nodeId).name AS entity,
+       communityId
+ORDER BY communityId`} />
+      <MiniGraphBuilder />
+      <Quiz
+        question="What is 'entity resolution' in knowledge graph construction?"
+        options={[
+          "Drawing the visual graph layout",
+          "Merging duplicate entities that refer to the same real-world thing",
+          "Converting edges to vectors",
+          "Deleting low-confidence nodes"
+        ]}
+        correctIndex={1}
+        explanation="Entity resolution (also called entity deduplication or record linkage) identifies that 'Sam Altman', 'S. Altman', and 'Samuel Altman' all refer to the same person and merges them into one canonical node. Without this, your graph fragments into disconnected duplicates."
+      />
+      <Quiz
+        question="Why does ontology design matter for knowledge graph quality?"
+        options={[
+          "It makes the graph look better visually",
+          "It enforces consistent entity types and relation schemas, preventing structural drift",
+          "It speeds up query execution",
+          "It is only needed for large graphs"
+        ]}
+        correctIndex={1}
+        explanation="An ontology defines allowed entity types, relation types, and constraints (e.g., FOUNDED_BY connects Organization → Person). Without it, different extraction runs create incompatible schemas — some use FOUNDED_BY, others use CREATED_BY — making graph traversal unreliable."
+      />

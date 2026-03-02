@@ -1,0 +1,16 @@
+---
+label: "Overview"
+icon: "\uD83D\uDCBB"
+---
+
+## AI-Powered Code Generation
+  <AnalogyBox emoji={'D83DDC65'} title="The Pair Programmer">{`AI code generation is like having an expert pair programmer who never gets tired, knows every framework, and can write boilerplate at superhuman speed \u2014 but still needs you to drive the architecture and review the output.`}</AnalogyBox>
+  {[
+    {icon:'\uD83D\uDCAC',title:'Agentic Coding',desc:'AI tools like Claude Code and Cursor that understand your entire codebase and make multi-file changes'},
+    {icon:'\uD83C\uDFA8',title:'Vibe Coding',desc:'Describe what you want in natural language, AI generates the implementation'},
+    {icon:'\uD83D\uDD04',title:'Test-Driven AI',desc:'Write tests first, let AI generate code that passes them'},
+    {icon:'\uD83D\uDC1B',title:'AI Debugging',desc:'Paste an error, AI diagnoses the issue and suggests fixes'},
+  ].map((p,i)=><div key={i}>{p.icon}{p.title}
+{p.desc}
+)}
+  <Quiz question="What is 'vibe coding'?" options={["Writing code while listening to music","Describing what you want in natural language and letting AI generate the code","Using AI to review code vibes","A framework for code quality"]} correctIndex={1} explanation="Vibe coding is the practice of describing desired functionality in natural language and letting AI tools generate the implementation. It shifts the developer's role from writing code to directing and reviewing AI-generated code."/>

@@ -1,0 +1,29 @@
+---
+label: "RPA 2.0"
+icon: "\uD83E\uDD16"
+---
+
+## From RPA to AI Agents
+
+<ComparisonTable title="RPA vs AI-Powered Automation" columns={['Capability','Traditional RPA','AI Browser Agents']} rows={[
+  ['UI Handling','Pixel coordinates, selectors','Visual understanding + DOM'],
+  ['Adaptability','Breaks on any UI change','Adapts to layout changes'],
+  ['Decision Making','Fixed rules, if/then','Reasoning, judgment, context'],
+  ['Unstructured Data','Cannot handle','Reads, interprets, extracts'],
+  ['Error Recovery','Predefined error paths','Reasons about errors, tries alternatives'],
+  ['Setup Time','Weeks of scripting','Natural language instructions'],
+]}/>
+
+<ExpandableSection title="Safety & Guardrails" icon={'\uD83D\uDEE1\uFE0F'} defaultOpen>
+
+Computer-use AI needs careful <JargonTip term="guardrails">guardrails</JargonTip> and safety controls:
+
+- **Action sandboxing:** Limit which applications and sites the agent can access
+- **Confirmation gates:** Require human approval for irreversible actions (purchases, deletions, sends)
+- **Credential isolation:** Never let the agent handle passwords or sensitive data directly
+- **Audit logging:** Record every action with screenshots for review
+- **Kill switch:** Instant abort capability for when things go wrong
+
+</ExpandableSection>
+
+<Quiz question="What is the single most important safety control for a computer-use AI agent?" options={["Speed limiting (slow it down)","Confirmation gates for irreversible actions","Only allowing it to use one website","Requiring it to explain every action first"]} correctIndex={1} explanation="Confirmation gates for irreversible actions (purchases, deletions, sending messages) are the most critical safety control. They prevent the worst-case scenarios while still allowing the agent to operate autonomously for reversible, low-risk actions."/>

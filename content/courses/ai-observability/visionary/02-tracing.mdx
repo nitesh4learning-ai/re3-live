@@ -1,0 +1,36 @@
+---
+label: "Tracing & Logging"
+icon: "\uD83D\uDD0D"
+---
+
+## Tracing & Logging
+
+An AI <JargonTip term="tracing">trace</JargonTip> captures the complete journey of a request: from user input through retrieval, LLM calls, tool use, and final response. Each step is a **span** with timing, token counts, and metadata.
+
+  <CodeBlock language="json" label="Example Trace Span" code={`{
+  "trace_id": "tr_abc123",
+  "span_name": "llm_completion",
+  "duration_ms": 2340,
+  "model": "claude-3-sonnet",
+  "input_tokens": 1250,
+  "output_tokens": 380,
+  "temperature": 0.7,
+  "cost_usd": 0.0087,
+  "status": "success",
+  "parent_span": "rag_pipeline"
+}`}/>
+  <ExpandableSection title="Common tracing tools" icon="🔧">
+
+**LangSmith:** By LangChain. Traces chains, agents, and retrievers with a visual UI.
+
+
+**Langfuse:** Open-source. Supports traces, scores, and prompt management.
+
+
+**Arize Phoenix:** Focus on embeddings analysis and retrieval evaluation.
+
+
+**Weights & Biases:** Broad ML ops platform with LLM tracing support.
+
+  </ExpandableSection>
+  <Quiz question="What information does a trace span capture?" options={["Only the final output","Timing, tokens, model, cost, and status for each processing step","Just the error messages","The user's personal data"]} correctIndex={1} explanation="A span captures everything about one processing step: duration, model used, tokens consumed, cost, status, and parent-child relationships to other spans."/>

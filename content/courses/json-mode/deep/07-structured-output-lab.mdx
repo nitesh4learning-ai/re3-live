@@ -1,0 +1,10 @@
+---
+label: "Structured Output Lab"
+icon: "🏗️"
+---
+
+## Structured Output Lab
+
+<ArchitectureDecision scenario="Design a structured output schema for a code review tool. It needs to return: list of issues found, severity per issue, category (bug, style, security, performance), suggested fix, and confidence score." options={[{label:'Flat array of issue objects with all fields required',tradeoff:'Simple and consistent but may force low-confidence issues to have fake severity/fix values'},{label:'Nested: summary object + issues array with required core fields + optional detail fields',tradeoff:'Flexible — every issue has category and severity, but fix suggestions are optional when confidence is low'},{label:'Free-form markdown with embedded JSON blocks per issue',tradeoff:'Easy for the model but nightmare to parse reliably'}]} correctIndex={1} explanation="A nested schema with required core fields (category, severity) and optional detail fields (fix suggestion, confidence) gives the best balance. The model always provides the essentials but can skip details when uncertain, reducing hallucinated fixes."/>
+
+<ArchitectureDecision scenario="Design a schema for multi-document summarization. Input: 5 articles on the same topic. Output needs: unified summary, per-source key points, areas of agreement, areas of conflict, and confidence." options={[{label:'Single summary string + confidence number',tradeoff:'Too simple — loses source attribution and conflict information'},{label:'Per-source summaries + unified synthesis + agreements array + conflicts array with source attribution',tradeoff:'Rich and traceable — users can see which source said what and where sources disagree'},{label:'Hierarchical: topic clusters with nested sub-points',tradeoff:'Organized but complex schema may increase hallucination on the structural relationships'}]} correctIndex={1} explanation="Source-attributed synthesis is most valuable for multi-document summarization. Users need to trace claims back to sources, understand consensus vs disagreement, and assess reliability. The flat-with-attribution approach is easier for models to fill accurately than deep hierarchies."/>

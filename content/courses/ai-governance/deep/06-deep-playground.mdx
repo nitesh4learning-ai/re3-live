@@ -1,0 +1,18 @@
+---
+label: "Deep Playground"
+icon: "🎯"
+---
+
+## Deep Playground
+
+Apply your governance knowledge to real-world scenarios.
+
+<ArchitectureDecision scenario="Your company is deploying an AI system that screens job applicants. Under the EU AI Act, this is classified as high-risk. You need to decide on the governance approach." options={[
+  {label:"Minimal documentation with post-deployment monitoring",tradeoff:"Fast to deploy but legally non-compliant. High-risk systems require pre-deployment conformity assessment."},
+  {label:"Full conformity assessment with model cards, bias audits, and human oversight",tradeoff:"Comprehensive and compliant. Requires significant upfront investment but reduces legal and reputational risk."},
+  {label:"Third-party audit only, no internal governance",tradeoff:"External validation adds credibility but without internal processes, issues between audits go undetected."},
+]} correctIndex={1} explanation="High-risk AI under the EU AI Act requires conformity assessment before deployment, including documentation, bias testing, human oversight mechanisms, and ongoing monitoring. The investment upfront prevents costly non-compliance penalties." />
+
+<Quiz question="A model card shows 92% accuracy overall but 71% for a specific demographic group. What should you do?" options={["Ship it -- 92% is excellent","Investigate the performance gap and determine if it violates fairness requirements","Remove the demographic data","Lower the overall accuracy to match"]} correctIndex={1} explanation="A 21-point accuracy gap between groups is a significant disparity that could indicate bias. Investigate the root cause, assess whether it violates your fairness criteria, and apply targeted mitigation." />
+
+<Quiz question="Your compliance monitor detects data drift above the critical threshold. What is the correct first step?" options={["Immediately retrain the model","Ignore it -- models always drift a little","Alert stakeholders and assess impact on predictions before deciding on action","Shut down the system permanently"]} correctIndex={2} explanation="Data drift alerts should trigger assessment, not automatic retraining. Evaluate whether the drift actually affects prediction quality and fairness before deciding whether to retrain, adjust thresholds, or take other action." />

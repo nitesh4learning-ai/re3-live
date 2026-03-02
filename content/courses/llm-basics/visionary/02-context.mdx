@@ -1,0 +1,39 @@
+---
+label: "The Context Window"
+icon: "\uD83D\uDCCB"
+---
+
+## The Context Window
+
+The <JargonTip term="context window">context window</JargonTip> is the model's **working memory** -- everything it can "see" at once when generating a response. It includes the <JargonTip term="system prompt">system prompt</JargonTip>, your conversation history, any tool results, and the response itself.
+
+Different models have different context window sizes, ranging from 4,096 <JargonTip term="token">tokens</JargonTip> to over 1 million. But bigger isn't always better -- managing what goes into the context window is a critical skill.
+
+<AnalogyBox emoji="\uD83D\uDCCB" title="Think of it like a whiteboard">The context window is a whiteboard of fixed size. Everything the model needs to reference must fit on this board. When you run out of space, the oldest content gets erased to make room for new content.</AnalogyBox>
+
+| Model | Context Window | That's roughly... |
+|-------|---------------|-------------------|
+| GPT-4o | 128K tokens | ~200 pages of text |
+| Claude 3.5 | 200K tokens | ~300 pages of text |
+| Gemini 1.5 | 1M tokens | ~1,500 pages of text |
+| GPT-3.5 | 4K tokens | ~6 pages of text |
+
+<ExpandableSection title="What happens when the context fills up?" icon="\u26A0\uFE0F">
+
+When your conversation exceeds the context window, most implementations handle it by **dropping the oldest messages**. The model literally cannot see those messages anymore.
+
+This is why long conversations can feel like the AI "forgot" earlier context -- it literally did. The messages fell off the whiteboard.
+
+**Strategies to manage context:**
+
+- Summarize earlier conversation into a compact form
+- Use RAG to retrieve relevant information on-demand
+- Keep system prompts concise
+
+</ExpandableSection>
+
+<ContextVisualizer/>
+
+<Quiz question="What happens when your conversation exceeds the context window?" options={["The model remembers everything but responds slower","The oldest messages get dropped and the model loses that context","The model compresses the conversation automatically","An error is returned and the conversation stops"]} correctIndex={1} explanation="Most LLM implementations drop the oldest messages when the context window fills up. The model literally cannot see those messages anymore, which is why long conversations can feel like the AI forgot earlier points."/>
+
+<SeeItInRe3 text="Re\u00b3's debate system carefully manages context. Each agent receives the full debate history within its context window, ensuring no arguments are lost." targetPage="forge"/>

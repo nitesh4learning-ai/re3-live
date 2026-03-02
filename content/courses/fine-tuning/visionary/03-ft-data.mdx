@@ -1,0 +1,13 @@
+---
+label: "Data Preparation"
+icon: "\uD83D\uDCCA"
+---
+
+## Data Preparation
+
+Quality {'>'} quantity. 500 high-quality examples often beat 5000 mediocre ones.
+
+  <ExpandableSection title="Synthetic Data Generation" icon="🤖" defaultOpen>
+Use a powerful model (GPT-4, Claude) to generate training data for a smaller model. This "<JargonTip term="distillation">distillation</JargonTip>" approach is standard practice: have Claude write 500 examples of your desired output format, then fine-tune Llama on those examples.
+</ExpandableSection>
+  <Quiz question="You have 50 real examples of the desired output style. Is this enough for fine-tuning?" options={["No, you need at least 10,000","Yes, 50 is plenty for LoRA","Use the 50 to generate 500 synthetic examples, then fine-tune on the combined set","Fine-tuning always needs millions of examples"]} correctIndex={2} explanation="50 real examples establish the pattern. Use a powerful model to generate 450-950 more synthetic examples following the same pattern. Fine-tune on the combined dataset. This 'human seed + synthetic expansion' approach is highly effective."/>

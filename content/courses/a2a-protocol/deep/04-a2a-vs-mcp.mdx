@@ -1,0 +1,70 @@
+---
+label: "A2A vs MCP"
+icon: "⚖️"
+---
+
+## A2A vs MCP
+
+A2A and MCP are **complementary protocols** that solve different problems. Understanding when to use each -- and when to use both together -- is essential for building real agent systems.
+
+<ComparisonTable title="Detailed A2A vs MCP Comparison" columns={['Dimension','MCP','A2A']} rows={[
+  ['Primary purpose','Connect AI to tools and data','Connect AI agents to each other'],
+  ['Communication','Structured tool calls (name + args)','Natural language task delegation'],
+  ['Discovery','Server exposes tool list via tools/list','Agent Cards at /.well-known/agent.json'],
+  ['State model','Stateless (request-response)','Stateful (task lifecycle with transitions)'],
+  ['Streaming','Resource subscriptions','SSE for task progress + push notifications'],
+  ['Auth model','Server authenticates client','Mutual authentication between peers'],
+  ['Error handling','Tool returns error in result','Task transitions to failed state'],
+  ['Typical latency','Milliseconds to seconds','Seconds to hours (long-running tasks)'],
+]}/>
+
+<CodeBlock language="python" label="Bridging MCP and A2A" code={`# An A2A agent that uses MCP tools internally
+class HybridAgent:
+    """Agent that accepts A2A tasks and uses MCP tools to fulfill them."""
+
+    def __init__(self):
+        self.mcp_manager = MCPManager()  # MCP client
+        self.task_store = TaskStore()     # A2A task state
+
+    async def setup(self):
+        # Connect to MCP servers for tool access
+        await self.mcp_manager.connect("github", "npx", ["-y", "@mcp/server-github"])
+        await self.mcp_manager.connect("db", "npx", ["-y", "@mcp/server-postgres"])
+
+    async def handle_a2a_task(self, task_request: dict) -> dict:
+        """Handle an incoming A2A task using MCP tools."""
+        task_id = task_request["id"]
+        message = task_request["message"]["parts"][0]["text"]
+
+        # Update state: working
+        await self.task_store.update(task_id, state="working")
+
+        # Use MCP tools to fulfill the A2A task
+        try:
+            # 1. Search for relevant data (MCP tool call)
+            search_results = await self.mcp_manager.call_tool(
+                "search_issues", {"query": message, "limit": 10}
+            )
+
+            # 2. Get additional context (MCP resource)
+            repo_info = await self.mcp_manager.read_resource("github://repo/info")
+
+            # 3. Generate response using LLM with MCP context
+            response = await llm.generate(
+                context=[search_results, repo_info],
+                task=message
+            )
+
+            # Update state: completed with artifact
+            await self.task_store.update(task_id,
+                state="completed",
+                artifacts=[{"name": "result", "parts": [{"type": "text", "text": response}]}]
+            )
+        except Exception as e:
+            await self.task_store.update(task_id, state="failed", error=str(e))`}/>
+
+<ArchitectureDecision scenario="You are building a system where a user asks a question, and the system should: (1) search a database, (2) fetch relevant documents, and (3) ask a specialist AI agent to analyze the combined data. Which protocol(s) do you use?" options={[
+  {label:'All MCP -- treat the specialist agent as just another tool',tradeoff:'Simpler architecture, but treating an intelligent agent as a tool limits its autonomy and cannot handle long-running analysis'},
+  {label:'All A2A -- let agents handle everything including data access',tradeoff:'Clean agent boundaries, but A2A is inefficient for simple tool operations like database queries'},
+  {label:'MCP for data access (steps 1-2), A2A for agent delegation (step 3)',tradeoff:'Each protocol used for its strength. MCP handles structured tool calls. A2A handles intelligent agent delegation with state tracking'},
+]} correctIndex={2} explanation="Use the right protocol for the right job. Database queries and document fetching are structured tool operations (MCP). Delegating analysis to a specialist agent that needs to reason, potentially ask clarifying questions, and produce structured artifacts is agent-to-agent work (A2A)." />

@@ -1,0 +1,23 @@
+---
+label: "Deep Playground"
+icon: "🎮"
+---
+
+## Deep Playground
+
+Apply your observability knowledge to production architecture decisions.
+
+  <ExpandableSection title="Exercise 1: Observability Architecture" icon="🏗️" defaultOpen={true}>
+    <ArchitectureDecision scenario="You are designing the observability stack for a healthcare AI assistant. Requirements: HIPAA compliance (data stays on-prem), traces for every LLM call, quality evaluation on 10% of responses, and alerting on quality degradation." options={[
+      {label:'LangSmith cloud + PagerDuty',tradeoff:'Easy setup but HIPAA violation -- trace data leaves your infrastructure.'},
+      {label:'Self-hosted Langfuse + custom drift detector + Slack alerts',tradeoff:'HIPAA compliant. All data stays on-prem. Requires infrastructure maintenance but meets all requirements.'},
+      {label:'Custom logging to CloudWatch',tradeoff:'HIPAA compliant with BAA but lacks built-in LLM evaluation features.'},
+      {label:'No observability -- manual QA review',tradeoff:'HIPAA compliant but unscalable. Cannot detect drift systematically.'}
+    ]} correctIndex={1} explanation="Self-hosted Langfuse meets all requirements: HIPAA compliance through on-prem deployment, built-in tracing and evaluation, and extensibility for custom drift detection and alerting."/>
+  </ExpandableSection>
+  <ExpandableSection title="Exercise 2: Alert Design" icon="🔔">
+    <Quiz question="Your system fires 50 alerts per day for 'low faithfulness.' The team ignores alerts. What is the fix?" options={["Raise the threshold","Implement tiered alerting with severity levels and aggregation windows","Disable monitoring","Switch LLM provider"]} correctIndex={1} explanation="Alert fatigue from too many low-severity alerts is common. The fix is tiered alerting: aggregate over time windows (alert if average drops below 0.7 over 1 hour), and use severity levels with different notification channels."/>
+  </ExpandableSection>
+  <ExpandableSection title="Exercise 3: Evaluation Strategy" icon="⚖️">
+    <Quiz question="You need to evaluate a medical Q&A system where incorrect answers could harm patients. Which evaluation approach?" options={["LLM-as-judge only","Human expert only","Layered: automated metrics filter, then LLM-as-judge triage, then human review for flagged cases","Random 1% sampling"]} correctIndex={2} explanation="High-stakes medical AI requires a layered approach: automated metrics catch obvious failures cheaply, LLM-as-judge provides scalable mid-tier review, and human experts validate the most important or uncertain cases."/>
+  </ExpandableSection>

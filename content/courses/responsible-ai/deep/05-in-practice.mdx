@@ -1,0 +1,47 @@
+---
+label: "In Practice"
+icon: "\uD83D\uDD27"
+---
+
+## Responsible AI in Practice
+
+Implementing responsible AI requires tooling, processes, and culture -- from <JargonTip term="fairness">fairness</JargonTip> audits to <JargonTip term="guardrails">guardrails</JargonTip> that prevent <JargonTip term="hallucination">hallucinations</JargonTip>. Here are the practical building blocks.
+
+<CodeBlock language="python" label="Fairness Assessment Pipeline" code={`# Using Fairlearn for bias detection
+from fairlearn.metrics import MetricFrame
+from sklearn.metrics import accuracy_score, selection_rate
+
+# After training your model
+metric_frame = MetricFrame(
+    metrics={
+        "accuracy": accuracy_score,
+        "selection_rate": selection_rate
+    },
+    y_true=y_test,
+    y_pred=predictions,
+    sensitive_features=demographics["gender"]
+)
+
+print(metric_frame.by_group)
+#              accuracy  selection_rate
+# Female        0.87         0.42
+# Male          0.89         0.45
+# Non-binary    0.84         0.40
+
+# Check if disparity exceeds threshold
+ratio = metric_frame.ratio()  # min/max per metric
+if ratio["selection_rate"] < 0.8:  # 4/5ths rule
+    print("WARNING: Potential disparate impact detected")`}/>
+
+<ExpandableSection title="Responsible AI Checklist" icon={'\u2705'} defaultOpen>
+
+- Conduct bias audit before deployment across protected groups
+- Implement human-in-the-loop for high-stakes decisions
+- Provide clear recourse mechanisms for affected individuals
+- Monitor for drift in fairness metrics post-deployment
+- Document limitations prominently in model cards
+- Establish an AI ethics review board for new use cases
+
+</ExpandableSection>
+
+<Quiz question="The '4/5ths rule' (or 80% rule) in employment law states that:" options={["AI systems must be 80% accurate","The selection rate for any group must be at least 80% of the highest group's rate","80% of decisions must be made by humans","AI must explain 80% of its predictions"]} correctIndex={1} explanation="The 4/5ths rule is a legal standard: if the selection rate for a protected group is less than 80% of the rate for the most-selected group, it may indicate disparate impact and trigger regulatory scrutiny."/>

@@ -1,0 +1,26 @@
+---
+label: "Playground"
+icon: "🎮"
+---
+
+## Playground
+
+Test your RAG knowledge!
+
+<ExpandableSection title="Exercise 1: Pipeline Design" icon="🔧" defaultOpen={true}>
+
+<Quiz question="You're building a RAG system for a legal firm. Documents are 50-page contracts. What chunk size should you use?" options={["Entire documents (no chunking)","5,000 tokens per chunk","300-500 tokens per chunk with 50-token overlap","10 tokens per chunk for maximum precision"]} correctIndex={2} explanation="300-500 token chunks with overlap is ideal for legal documents. Too large and you get irrelevant content. Too small and you lose context. Overlap ensures no information is lost at chunk boundaries." />
+
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 2: Retrieval Strategy" icon="🔍">
+
+<Quiz question="A user searches for 'Policy ABC-123 coverage limits.' Which retrieval strategy is most appropriate?" options={["Pure vector search","Pure keyword search","Hybrid search (vector + keyword)","Random sampling"]} correctIndex={2} explanation="The query contains both semantic intent ('coverage limits') and an exact identifier ('ABC-123'). Hybrid search handles both: vector search finds semantically relevant passages, and keyword matching ensures the specific policy ID is matched." />
+
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 3: Final Review" icon="🎓">
+
+<Quiz question="What is the most important metric to track if users complain that answers contain made-up information?" options={["Context Recall","Answer Relevancy","Faithfulness","Latency"]} correctIndex={2} explanation="Faithfulness measures whether the answer is supported by the retrieved context. Low faithfulness means the LLM is generating information not present in the retrieved documents -- hallucinating." />
+
+</ExpandableSection>

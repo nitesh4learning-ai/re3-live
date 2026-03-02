@@ -1,0 +1,28 @@
+---
+label: "Deep Playground"
+icon: "🎮"
+---
+
+## Deep Playground
+
+Apply your MCP knowledge to real-world architecture challenges.
+
+<ExpandableSection title="Exercise 1: Design an MCP Server" icon="🏗️" defaultOpen={true}>
+
+A company wants to give their AI assistant access to: (a) their PostgreSQL database for customer queries, (b) their Slack workspace for sending notifications, and (c) their Confluence wiki for reading documentation.
+
+<ArchitectureDecision scenario="How many MCP servers should you build, and what primitives should each expose?" options={[
+  {label:'1 server with all three integrations as tools',tradeoff:'Simple deployment but violates separation of concerns. A Slack API outage takes down database access too'},
+  {label:'3 servers: DB (tools + resources), Slack (tools), Confluence (resources)',tradeoff:'Clean separation, independent deployment, correct primitive usage. DB uses tools for queries and resources for schema info. Confluence is read-only so resources are correct'},
+  {label:'2 servers: one for read (DB + Confluence) and one for write (Slack)',tradeoff:'Groups by read/write but mixes unrelated systems. Harder to maintain and reason about'},
+]} correctIndex={1} explanation="One server per external system is the MCP best practice. The database server exposes tools (for running queries) and resources (for schema information). Confluence is read-only so resources are the right primitive. Slack needs tools for sending messages." />
+
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 2: Security Review" icon="🔒">
+  <Quiz question="An MCP server exposes a 'run_shell_command' tool that executes arbitrary shell commands on the server host. What is the security concern?" options={["It is too slow for production use","It gives the LLM (and any prompt injection) full system access -- a critical vulnerability","It uses too many tokens","The tool name is too generic"]} correctIndex={1} explanation="Arbitrary shell command execution is one of the most dangerous tools you can expose. A prompt injection in user input could cause the LLM to execute 'rm -rf /' or exfiltrate data. Tools should be narrowly scoped with specific, validated operations." />
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 3: Transport Selection" icon="🔌">
+  <Quiz question="Your MCP server needs to support 500 concurrent users via a web application. Which transport?" options={["stdio -- it is the simplest","SSE or Streamable HTTP -- they support network connections and scale to many clients","Any transport works at this scale","Build a custom WebSocket transport"]} correctIndex={1} explanation="stdio is limited to local single-user scenarios. At 500 concurrent users over a network, you need HTTP-based transports (SSE or Streamable HTTP) behind a load balancer. Building a custom transport is unnecessary when the spec already supports this." />
+</ExpandableSection>

@@ -1,0 +1,28 @@
+---
+label: "Safety Lab"
+icon: "🏗️"
+---
+
+## Safety Architecture Lab
+
+<ArchitectureDecision
+  scenario="You are deploying a healthcare chatbot that helps patients understand their symptoms. A wrong answer could lead to someone ignoring a serious condition. How do you design safety layers?"
+  options={[
+    { label: 'Standard guardrails: input/output filtering + toxicity checks', tradeoff: "Catches offensive content but doesn't address the core risk of medical misinformation" },
+    { label: 'Medical-specific safety: symptom severity classifier + mandatory disclaimers + escalation to human for high-severity symptoms + citation from medical databases only', tradeoff: 'Comprehensive but complex — requires medical expertise to build the severity classifier and curate sources' },
+    { label: 'Restrict to information only — never provide any medical assessment, always redirect to a doctor', tradeoff: "Safest but defeats the purpose of the chatbot — users get no value" }
+  ]}
+  correctIndex={1}
+  explanation="Healthcare AI needs domain-specific safety beyond generic filters. A severity classifier ensures dangerous symptoms trigger immediate escalation. Mandatory disclaimers set user expectations. Medical database citations ensure grounded responses."
+/>
+
+<ArchitectureDecision
+  scenario="You are building a content moderation AI for a social platform. It processes 10M posts/day. False positives remove legitimate speech; false negatives allow harmful content through. How do you balance?"
+  options={[
+    { label: 'Aggressive filtering: remove anything flagged above 30% confidence', tradeoff: 'Low false negatives (catches most harmful content) but high false positives (removes legitimate posts, user backlash)' },
+    { label: 'Two-tier: auto-remove at 90%+ confidence, human review queue for 30-90%, auto-approve below 30%', tradeoff: 'Balanced approach but requires a large human review team for the 30-90% middle band' },
+    { label: 'Conservative filtering: only remove at 95%+ confidence, let borderline content through', tradeoff: 'Low false positives but high false negatives — harmful content gets through more often' }
+  ]}
+  correctIndex={1}
+  explanation="A two-tier system balances safety with free expression. High-confidence removals are automated for speed. The middle band gets human review, ensuring borderline cases get nuanced judgment. Clear thresholds make the system auditable."
+/>

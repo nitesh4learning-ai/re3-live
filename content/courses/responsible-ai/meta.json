@@ -1,0 +1,16 @@
+{
+  "tier": 4,
+  "icon": "🤝",
+  "title": "Responsible AI in Practice",
+  "description": "Fairness, explainability, Fairlearn, AI Fairness 360. Ethical AI at production scale.",
+  "difficulty": "Expert",
+  "timeMinutes": 45,
+  "exerciseCount": 6,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Responsible AI in Practice — Re³ Academy",
+    "metaDescription": "Build responsible AI: fairness, explainability, Fairlearn, and AI Fairness 360."
+  }
+}

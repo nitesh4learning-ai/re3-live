@@ -1,0 +1,40 @@
+---
+label: "State & Memory"
+icon: "\uD83E\uDDE0"
+---
+
+## State Management & Memory
+
+In multi-agent systems, agents need to share information. **State management** defines how data flows between agents, and **memory** determines what each agent can recall.
+
+  <CodeBlock language="json" label="Shared State Object (Re\u00b3 Debate)" code={`{
+  "debate_id": "d_1707234567",
+  "topic": "Impact of AI on healthcare",
+  "round": 2,
+  "agents": ["agent_strategist", "agent_ethicist", "agent_builder"],
+  "arguments": {
+    "round_1": [
+      {"agent": "agent_strategist", "position": "..."},
+      {"agent": "agent_ethicist", "position": "..."}
+    ],
+    "round_2": [
+      {"agent": "agent_strategist", "response": "..."}
+    ]
+  },
+  "moderator_notes": "Quality score: 8.5/10"
+}`}/>
+  <ExpandableSection title="Memory Strategies" icon="🧠">
+
+**Full history:** Every agent sees all previous messages. Simple but uses lots of <JargonTip term="token">tokens</JargonTip>.
+
+
+**Summary memory:** Older conversations are summarized. Saves tokens but loses detail.
+
+
+**Scoped memory:** Each agent only sees relevant context. Efficient but requires careful design.
+
+
+**External memory:** State stored in a database. Agents query what they need on demand.
+
+  </ExpandableSection>
+  <Quiz question="What's the main risk of giving every agent the full conversation history?" options={["It's too simple","It uses too many tokens, potentially exceeding context windows","It makes agents smarter","It's the default behavior"]} correctIndex={1} explanation="Full history for every agent means duplicating the entire conversation N times. With 5 agents and a long debate, this can easily exceed context windows and be very expensive."/>

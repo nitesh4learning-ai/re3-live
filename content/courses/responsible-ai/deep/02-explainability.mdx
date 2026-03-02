@@ -1,0 +1,29 @@
+---
+label: "Explainability"
+icon: "\uD83D\uDCA1"
+---
+
+## Explainability & Transparency
+
+<JargonTip term="explainability">Explainability</JargonTip> is the ability to describe an AI system's decision process in human-understandable terms. It's both a regulatory requirement and a trust-building tool.
+
+<ComparisonTable title="Explainability Methods" columns={['Method','Type','How It Works','Best For']} rows={[
+  ['SHAP Values','Post-hoc, global/local','Assigns contribution scores to each feature','Tabular data, feature importance'],
+  ['LIME','Post-hoc, local','Fits simple model around a single prediction','Any model, individual explanations'],
+  ['Attention Maps','Intrinsic','Shows which tokens/regions the model focuses on','NLP, vision models'],
+  ['Counterfactuals','Post-hoc, local','"What would need to change for a different outcome?"','Individual recourse'],
+  ['Decision Trees','Intrinsic, global','Inherently interpretable model structure','When accuracy trade-off acceptable'],
+]}/>
+
+<ExpandableSection title="The Explanation Spectrum" icon={'\uD83C\uDF08'} defaultOpen>
+
+Not all stakeholders need the same level of explanation:
+
+- **End users:** Simple, actionable ("You were declined because X. To improve, try Y.")
+- **Domain experts:** Feature importances, confidence scores, model behavior
+- **Regulators:** Full methodology, training data provenance, validation results
+- **Developers:** Model internals, attention patterns, gradient analysis
+
+</ExpandableSection>
+
+<Quiz question="Which explainability method would be most appropriate for telling a loan applicant why they were denied?" options={["SHAP values with raw feature scores","Attention visualization maps","Counterfactual explanations","Full model architecture diagram"]} correctIndex={2} explanation="Counterfactual explanations ('If your income were $5K higher, you would have been approved') are the most actionable for end users because they explain what would need to change, giving the individual recourse."/>

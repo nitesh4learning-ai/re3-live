@@ -1,0 +1,62 @@
+---
+label: "Synthetic Data"
+icon: "\uD83E\uDD16"
+---
+
+## Synthetic Data Generation
+
+Most fine-tuning projects face a data bottleneck. Synthetic data generation uses a powerful teacher model to create training examples for a smaller student model. This is now the dominant approach in production.
+
+  <CodeBlock title="Synthetic Data Pipeline" code={`import anthropic
+import json
+
+client = anthropic.Anthropic()
+
+# Seed examples: 50 real human-written examples
+seed_examples = load_jsonl("seed_data.jsonl")
+
+def generate_synthetic(seed, num_variations=10):
+    """Generate variations of a seed example."""
+    response = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=2048,
+        system="""You are a training data generator. Given an
+example input-output pair, generate varied new examples
+that follow the same pattern but cover different topics
+and edge cases. Output as JSON array.""",
+        messages=[{"role": "user", "content": f"""
+Seed example:
+Input: {seed["input"]}
+Output: {seed["output"]}
+
+Generate {num_variations} new input-output pairs that:
+1. Follow the exact same output format/style
+2. Cover different topics and scenarios
+3. Include edge cases (short inputs, ambiguous cases)
+4. Maintain the same quality level
+
+Return as JSON: [{{"input": "...", "output": "..."}}]"""}]
+    )
+    return json.loads(response.content[0].text)
+
+# Generate dataset
+all_examples = list(seed_examples)  # Start with real data
+for seed in seed_examples:
+    synthetic = generate_synthetic(seed, num_variations=10)
+    all_examples.extend(synthetic)
+
+# Result: 50 real + 500 synthetic = 550 training examples
+# Quality filter: remove low-quality synthetic examples
+filtered = [ex for ex in all_examples if quality_check(ex)]
+save_jsonl(filtered, "training_data.jsonl")`}/>
+  <ExpandableSection title="Data Quality Checklist" icon="📋" defaultOpen>
+
+      - **Diversity:** Cover the full range of inputs your model will see in production
+      - **Consistency:** All examples should follow the exact same output format
+      - **Edge cases:** Include tricky inputs (empty, very long, ambiguous, multilingual)
+      - **Deduplication:** Remove near-duplicates that would cause memorization
+      - **Human review:** Sample 10% of synthetic data and manually verify quality
+      - **Balanced labels:** If classification, ensure class balance in training set
+
+  </ExpandableSection>
+  <Quiz question="You have 30 real examples and need 500+ for fine-tuning. Best approach?" options={["Duplicate the 30 examples 17 times to reach 510","Use the 30 as seeds to generate 470 synthetic examples with a teacher model, then filter for quality","Wait until you have 500 real examples (could take months)","Fine-tune on just 30 examples anyway"]} correctIndex={1} explanation="Synthetic data expansion is the standard approach. Use the 30 real examples as seeds, have a powerful model generate diverse variations, then quality-filter the results. This typically produces a usable dataset in hours vs months of manual collection."/>

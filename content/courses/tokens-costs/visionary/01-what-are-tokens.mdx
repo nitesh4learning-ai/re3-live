@@ -1,0 +1,27 @@
+---
+label: "What Are Tokens?"
+icon: "🪙"
+---
+
+## What Are Tokens?
+
+<AnalogyBox emoji={'D83EDE99'} title="Arcade Coins">{`Tokens are like coins in an arcade — different machines (models) have different prices per play. And some words cost more coins than others! "The" is 1 token, but "antidisestablishmentarianism" might be 6+ tokens.`}</AnalogyBox>
+
+<JargonTip term="token">Tokens</JargonTip> are **subword units**, not words. LLMs break text into tokens using <JargonTip term="BPE">BPE</JargonTip> (Byte-Pair Encoding). Common words like "the" are 1 token, but uncommon words get split into pieces.
+
+<div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">{[
+  {word:'Hello',tokens:1,display:'[Hello]'},{word:'ChatGPT',tokens:3,display:'[Chat][G][PT]'},{word:'unhappiness',tokens:3,display:'[un][happi][ness]'},
+].map((w,i)=><div key={i} className="p-3 rounded-lg text-center" style={{background:GIM.borderLight}}>
+  <div style={{fontSize:14,color:GIM.headingText,fontWeight:600}}>{w.word}</div>
+  <div style={{fontSize:11,color:GIM.primary,fontFamily:'monospace',marginTop:4}}>{w.display}</div>
+  <div style={{fontSize:11,color:GIM.mutedText}}>{w.tokens} token{w.tokens>1?'s':''}</div>
+</div>)}</div>
+
+<ExpandableSection title="Why Tokens Matter" icon={'\u26A1'}>
+  - They determine cost -- you pay per token, not per word
+  - They set context window limits -- 128K tokens \u2248 96K words for English
+  - Different languages tokenize differently -- Chinese/Japanese use more tokens per concept
+  - Code is token-heavy -- variable names, syntax, indentation all consume tokens
+</ExpandableSection>
+
+<Quiz question="How many tokens is 'unhappiness' likely to be?" options={["1 token","2-3 tokens","5+ tokens","Same as number of characters"]} correctIndex={1} explanation="BPE splits 'unhappiness' into common subwords like 'un' + 'happi' + 'ness' (2-3 tokens). The prefix 'un' and suffix 'ness' are very common and get their own tokens." />

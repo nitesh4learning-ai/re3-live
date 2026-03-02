@@ -1,0 +1,16 @@
+{
+  "tier": 3,
+  "icon": "📊",
+  "title": "AI Evaluation & Observability",
+  "description": "Systematic evaluation, LLM-as-judge, tracing & observability pipelines, drift detection & quality monitoring.",
+  "difficulty": "Advanced",
+  "timeMinutes": 45,
+  "exerciseCount": 8,
+  "tabCount": 5,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "AI Evaluation & Observability — Re³ Academy",
+    "metaDescription": "Systematic AI evaluation: LLM-as-judge, tracing pipelines, and drift detection."
+  }
+}

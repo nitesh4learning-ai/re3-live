@@ -1,0 +1,162 @@
+---
+label: "Security & Auth"
+icon: "🔐"
+---
+
+## Security & Auth
+
+MCP servers expose powerful capabilities — reading files, executing queries, triggering workflows. A compromised or misconfigured MCP server is a significant attack surface for any <JargonTip term="agent">agent</JargonTip>. Production deployments require **OAuth 2.1**, scoped permissions, <JargonTip term="guardrails">guardrails</JargonTip>, transport-level encryption, audit logs, and rate limiting.
+
+      <AnalogyBox emoji="🔐" title="MCP auth is like a key card system for a corporate office">
+        The key card system (OAuth 2.1) issues scoped badges. A visitor badge opens the lobby. An employee badge opens their floor. An admin badge opens the server room. The audit log records every door opened. Rate limiting stops someone from trying every door in rapid succession.
+      </AnalogyBox>
+      <CodeBlock language="python" label="OAuth 2.1 Authorization Server for MCP (Python)" code={`from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import OAuth2AuthorizationCodeBearer
+from jose import JWTError, jwt
+from datetime import datetime, timedelta
+import secrets
+
+app = FastAPI()
+
+# OAuth 2.1 — PKCE required, no implicit flow
+SCOPES = {
+    "mcp:read":   "Read resources and call read-only tools",
+    "mcp:write":  "Call tools that modify state",
+    "mcp:admin":  "Access administrative tools and server metadata",
+    "mcp:sample": "Trigger server-side sampling requests"
+}
+
+# Authorization code + PKCE flow
+@app.get("/authorize")
+async def authorize(
+    client_id: str,
+    redirect_uri: str,
+    code_challenge: str,           # PKCE — no client secret needed
+    code_challenge_method: str,    # Must be S256
+    scope: str,
+    state: str
+):
+    # Validate client, redirect_uri, scopes
+    requested_scopes = set(scope.split())
+    if not requested_scopes.issubset(SCOPES.keys()):
+        raise HTTPException(400, "Invalid scope requested")
+
+    # Issue authorization code
+    auth_code = secrets.token_urlsafe(32)
+    await store_auth_code(auth_code, {
+        "client_id": client_id,
+        "redirect_uri": redirect_uri,
+        "code_challenge": code_challenge,
+        "scopes": list(requested_scopes),
+        "expires_at": (datetime.utcnow() + timedelta(minutes=5)).isoformat()
+    })
+    return {"location": f"{redirect_uri}?code={auth_code}&state={state}"}
+
+@app.post("/token")
+async def token(
+    grant_type: str,
+    code: str,
+    code_verifier: str,   # PKCE verifier — validated against challenge
+    client_id: str,
+    redirect_uri: str
+):
+    # Validate code + PKCE verifier
+    stored = await retrieve_auth_code(code)
+    if not verify_pkce(stored["code_challenge"], code_verifier):
+        raise HTTPException(400, "Invalid PKCE verifier")
+
+    # Issue JWT access token with scopes encoded
+    access_token = jwt.encode({
+        "sub": client_id,
+        "scopes": stored["scopes"],
+        "iat": datetime.utcnow(),
+        "exp": datetime.utcnow() + timedelta(hours=1),
+    }, SECRET_KEY, algorithm="RS256")
+
+    return {"access_token": access_token, "token_type": "bearer",
+            "expires_in": 3600, "scope": " ".join(stored["scopes"])}`}/>
+      <ExpandableSection title="Scope Enforcement in MCP Server Handlers" icon="🛡️">
+        <CodeBlock language="python" label="Per-Tool Scope Validation" code={`from mcp.server import Server
+from functools import wraps
+
+server = Server("secure-re3")
+
+# Tool -> required scope mapping
+TOOL_SCOPES = {
+    "search_articles": "mcp:read",
+    "read_article": "mcp:read",
+    "create_article": "mcp:write",
+    "trigger_debate": "mcp:write",
+    "delete_article": "mcp:admin",
+    "configure_agents": "mcp:admin",
+}
+
+def require_scope(tool_name: str):
+    """Decorator: validate JWT contains required scope before tool executes."""
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            token = server.request_context.meta.get("authorization", "").replace("Bearer ", "")
+            try:
+                claims = jwt.decode(token, PUBLIC_KEY, algorithms=["RS256"])
+                required = TOOL_SCOPES.get(tool_name, "mcp:read")
+                if required not in claims.get("scopes", []):
+                    raise PermissionError(f"Tool '{tool_name}' requires scope '{required}'")
+            except JWTError:
+                raise PermissionError("Invalid or expired token")
+
+            # Audit log every tool invocation
+            await audit_log.record({
+                "tool": tool_name, "client": claims["sub"],
+                "timestamp": datetime.utcnow().isoformat(),
+                "args_hash": hash(str(kwargs))  # Log args hash, not raw args
+            })
+            return await func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+@server.call_tool()
+@require_scope("trigger_debate")
+async def trigger_debate(arguments: dict):
+    return await start_debate_pipeline(arguments["article_id"])`}/>
+      </ExpandableSection>
+      <ExpandableSection title="Rate Limiting & Audit Logging" icon="📊">
+        <CodeBlock language="python" label="Token Bucket Rate Limiter for MCP" code={`import asyncio
+from collections import defaultdict
+from datetime import datetime
+
+class MCPRateLimiter:
+    """Per-client token bucket rate limiter."""
+
+    def __init__(self, capacity: int = 60, refill_rate: float = 1.0):
+        self.capacity = capacity          # Max burst size
+        self.refill_rate = refill_rate    # Tokens per second
+        self.buckets: dict = defaultdict(lambda: {
+            "tokens": capacity,
+            "last_refill": datetime.utcnow().timestamp()
+        })
+
+    async def check(self, client_id: str, cost: int = 1) -> bool:
+        bucket = self.buckets[client_id]
+        now = datetime.utcnow().timestamp()
+
+        # Refill tokens based on elapsed time
+        elapsed = now - bucket["last_refill"]
+        bucket["tokens"] = min(self.capacity, bucket["tokens"] + elapsed * self.refill_rate)
+        bucket["last_refill"] = now
+
+        if bucket["tokens"] >= cost:
+            bucket["tokens"] -= cost
+            return True  # Request allowed
+        return False      # Rate limit exceeded
+
+limiter = MCPRateLimiter(capacity=60, refill_rate=1.0)
+
+@server.call_tool()
+async def call_tool(name: str, arguments: dict):
+    client_id = server.request_context.meta.get("client_id", "unknown")
+    if not await limiter.check(client_id):
+        raise RuntimeError("Rate limit exceeded. Retry after 1 second.")`}/>
+      </ExpandableSection>
+      <SecurityConfigBuilder/>
+      <Quiz question="OAuth 2.1 requires PKCE (Proof Key for Code Exchange) for all clients. Why is this important for MCP deployments?" options={["PKCE makes token exchange faster","PKCE prevents authorization code interception attacks, critical when MCP clients may run on shared infrastructure","PKCE is only needed for mobile apps, not MCP servers","PKCE replaces the need for TLS encryption"]} correctIndex={1} explanation="PKCE prevents authorization code interception — a real risk when MCP host processes may run on shared machines or in containerized environments where the redirect URI could be intercepted. PKCE ensures that even if the auth code is stolen, it cannot be exchanged for tokens without the original code verifier."/>

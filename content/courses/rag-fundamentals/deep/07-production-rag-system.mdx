@@ -1,0 +1,176 @@
+---
+label: "Production RAG System"
+icon: "🚀"
+---
+
+## Production RAG System
+
+A production RAG system requires error handling, caching, monitoring, and graceful degradation. This tab presents a complete, production-ready RAG pipeline that you can adapt for your use case.
+
+<CodeBlock language="python" label="Production RAG pipeline with monitoring" code={`import time
+import hashlib
+import logging
+from typing import Optional, Dict, List
+from dataclasses import dataclass, field
+from openai import OpenAI
+from qdrant_client import QdrantClient
+
+logger = logging.getLogger("rag_pipeline")
+
+@dataclass
+class RAGResult:
+    answer: str
+    sources: List[Dict]
+    latency_ms: float
+    retrieval_scores: List[float]
+    cached: bool = False
+    error: Optional[str] = None
+
+class ProductionRAGPipeline:
+    def __init__(self, qdrant_url="localhost", collection="production"):
+        self.llm = OpenAI()
+        self.vector_db = QdrantClient(qdrant_url, port=6333)
+        self.collection = collection
+        self.cache: Dict[str, RAGResult] = {}
+        self.cache_ttl = 3600  # 1 hour
+
+    def _cache_key(self, query: str, filters: dict = None) -> str:
+        key = f"{query}:{str(sorted(filters.items()) if filters else '')}"
+        return hashlib.md5(key.encode()).hexdigest()
+
+    def query(
+        self,
+        question: str,
+        top_k: int = 5,
+        filters: dict = None,
+        use_cache: bool = True,
+        rerank: bool = True,
+    ) -> RAGResult:
+        start = time.time()
+
+        # Step 1: Check cache
+        cache_key = self._cache_key(question, filters)
+        if use_cache and cache_key in self.cache:
+            cached = self.cache[cache_key]
+            cached.cached = True
+            logger.info(f"Cache hit for: {question[:50]}")
+            return cached
+
+        try:
+            # Step 2: Embed query
+            embed_start = time.time()
+            q_embedding = self.llm.embeddings.create(
+                input=question,
+                model="text-embedding-3-small",
+                dimensions=512,
+            ).data[0].embedding
+            embed_ms = (time.time() - embed_start) * 1000
+
+            # Step 3: Retrieve
+            retrieve_start = time.time()
+            results = self.vector_db.search(
+                collection_name=self.collection,
+                query_vector=q_embedding,
+                limit=top_k * 3 if rerank else top_k,  # Over-retrieve for reranking
+            )
+            retrieve_ms = (time.time() - retrieve_start) * 1000
+
+            if not results:
+                return RAGResult(
+                    answer="I could not find relevant information to answer your question.",
+                    sources=[], latency_ms=(time.time()-start)*1000,
+                    retrieval_scores=[], error="no_results"
+                )
+
+            # Step 4: Quality check (CRAG-inspired)
+            top_score = results[0].score if results else 0
+            if top_score < 0.3:  # Low relevance threshold
+                logger.warning(f"Low retrieval score ({top_score:.3f})")
+                return RAGResult(
+                    answer="I don't have enough relevant information to answer "
+                           "this question confidently. Please try rephrasing.",
+                    sources=[], latency_ms=(time.time()-start)*1000,
+                    retrieval_scores=[r.score for r in results],
+                    error="low_relevance"
+                )
+
+            # Step 5: Assemble context
+            sources = []
+            context_parts = []
+            for i, r in enumerate(results[:top_k]):
+                sources.append({
+                    "text": r.payload["text"][:200],
+                    "score": r.score,
+                    "doc_id": r.payload.get("doc_id", "unknown"),
+                })
+                context_parts.append(
+                    f"[Source {i+1}]: {r.payload['text']}"
+                )
+            context = "\\n\\n".join(context_parts)
+
+            # Step 6: Generate answer
+            gen_start = time.time()
+            response = self.llm.chat.completions.create(
+                model="gpt-4o-mini",
+                temperature=0.1,
+                messages=[
+                    {"role": "system", "content":
+                     "Answer based ONLY on the provided context. "
+                     "Cite sources using [Source N]. "
+                     "If the context doesn't contain the answer, say so."},
+                    {"role": "user", "content":
+                     f"Context:\\n{context}\\n\\nQuestion: {question}"}
+                ],
+            )
+            answer = response.choices[0].message.content
+            gen_ms = (time.time() - gen_start) * 1000
+
+            total_ms = (time.time() - start) * 1000
+            logger.info(
+                f"RAG query: embed={embed_ms:.0f}ms, "
+                f"retrieve={retrieve_ms:.0f}ms, "
+                f"generate={gen_ms:.0f}ms, total={total_ms:.0f}ms"
+            )
+
+            result = RAGResult(
+                answer=answer, sources=sources,
+                latency_ms=total_ms,
+                retrieval_scores=[r.score for r in results[:top_k]],
+            )
+            self.cache[cache_key] = result
+            return result
+
+        except Exception as e:
+            logger.error(f"RAG pipeline error: {e}")
+            return RAGResult(
+                answer="I encountered an error processing your question. "
+                       "Please try again.",
+                sources=[], latency_ms=(time.time()-start)*1000,
+                retrieval_scores=[], error=str(e)
+            )`} />
+
+<ExpandableSection title="Caching Strategies" icon="⚡" defaultOpen={true}>
+
+**Query-level caching:** Cache the final answer for each question + filters combination. Use a TTL (time-to-live) to handle knowledge base updates. Best for FAQ-type queries with high repetition.
+
+**Embedding caching:** Cache query embeddings to skip the embedding API call for repeated queries. Saves $0.02/1M tokens in embedding costs and ~100ms latency.
+
+**Semantic caching:** Cache responses for semantically similar (not just identical) queries. Use embedding similarity to match new queries against cached ones. GPTCache implements this pattern.
+
+</ExpandableSection>
+
+<ExpandableSection title="Monitoring & Alerting" icon="📊">
+
+Key metrics to monitor in production:
+
+- **Retrieval score distribution:** Alert if average top-1 score drops below threshold (indicates data drift or index issues)
+- **Latency percentiles:** Track P50, P95, P99 for embed, retrieve, and generate stages independently
+- **No-result rate:** Percentage of queries with no relevant results (indicates knowledge gaps)
+- **Hallucination signals:** Monitor for answers that cite non-existent sources or contain information not in the context
+- **User feedback:** Thumbs up/down on answers, correlated with retrieval scores to identify quality thresholds
+
+</ExpandableSection>
+
+<Quiz question="Your production RAG system's P99 latency suddenly increased from 2s to 8s. The P50 latency is unchanged. What is the most likely cause?" options={["The LLM became slower globally","A subset of queries trigger very long context assembly (e.g., retrieving too many chunks)","The vector database needs reindexing","The embedding model changed"]} correctIndex={1} explanation="P99 spiking while P50 remains stable indicates a tail-latency problem affecting a small percentage of queries. The most common cause is a subset of queries that retrieve many more chunks than average (perhaps broad queries matching many documents), leading to long context assembly and slow generation. Add guards to limit maximum context size." />
+
+<ArchitectureDecision scenario="Your RAG system needs to handle both real-time user queries (sub-2s latency) and batch analytics (process 10,000 questions for quality reporting). How do you architect this?" options={[{label:'Single pipeline with priority queuing',tradeoff:'Simplest architecture, but batch jobs compete with real-time users for LLM API rate limits and may cause latency spikes'},{label:'Separate pipelines: real-time uses streaming API, batch uses async bulk processing',tradeoff:'Isolated workloads, batch can use cheaper/slower models, real-time stays fast, but more infrastructure to maintain'},{label:'Use caching aggressively: run batch first to warm cache, real-time queries hit cache',tradeoff:'Reduces real-time latency, but only works if batch questions overlap with real-time queries (unlikely for analytics vs user questions)'}]} correctIndex={1} explanation="Separate pipelines for real-time and batch isolate the workloads completely. Real-time queries use a fast model with streaming for low latency. Batch processing can use a cheaper model, run during off-peak hours, and process at maximum throughput without impacting user-facing latency. The extra infrastructure cost is justified by the reliability improvement." />

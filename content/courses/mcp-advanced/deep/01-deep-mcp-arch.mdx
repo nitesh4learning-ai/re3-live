@@ -1,0 +1,156 @@
+---
+label: "MCP Architecture"
+icon: "🏛️"
+---
+
+## MCP Architecture Deep Dive
+
+MCP is built on **JSON-RPC 2.0** over a pluggable transport layer. Understanding the wire protocol, capability negotiation, and lifecycle management at this level lets you build servers that are reliable, debuggable, and interoperable with any compliant host.
+
+      <ComparisonTable title="MCP Protocol Layers" columns={['Layer','Protocol','Purpose','Extensible?']} rows={[
+        ['Transport','STDIO / Streamable HTTP / WebSocket','Byte delivery between host and server','Yes — custom transports possible'],
+        ['Framing','Newline-delimited JSON','Message boundaries and encoding','No — spec-defined'],
+        ['RPC','JSON-RPC 2.0','Request/response and notification structure','No — spec-defined'],
+        ['Capabilities','MCP capability negotiation','Declare supported features at init','Yes — custom capabilities'],
+        ['Protocol','MCP methods (tools, resources, sampling, prompts)','Business logic contract','Yes — via experimental extensions'],
+      ]}/>
+      <CodeBlock language="json" label="Raw JSON-RPC 2.0 Wire Messages" code={`// 1. Host → Server: Initialize
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2024-11-05",
+    "capabilities": {
+      "sampling": {},
+      "roots": { "listChanged": true }
+    },
+    "clientInfo": { "name": "claude-code", "version": "1.5.0" }
+  }
+}
+
+// 2. Server → Host: Initialize response
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "protocolVersion": "2024-11-05",
+    "capabilities": {
+      "tools": {},
+      "resources": { "subscribe": true, "listChanged": true },
+      "logging": {}
+    },
+    "serverInfo": { "name": "re3-search", "version": "1.0.0" }
+  }
+}
+
+// 3. Host → Server: Initialized notification (no response expected)
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/initialized"
+}
+
+// 4. Host → Server: Call a tool
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/call",
+  "params": {
+    "name": "search_articles",
+    "arguments": { "query": "consciousness and AI", "limit": 5 }
+  }
+}
+
+// 5. Server → Host: Tool result
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "content": [
+      { "type": "text", "text": "{\"results\": [...], \"count\": 5}" }
+    ],
+    "isError": false
+  }
+}
+
+// 6. Server → Host: Resource change notification (server-initiated)
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/resources/updated",
+  "params": { "uri": "re3://articles/recent" }
+}`}/>
+      <ExpandableSection title="Capability Negotiation Details" icon="🤝">
+
+At initialization, host and server exchange capability flags. A server must not use capabilities the host did not declare, and vice versa.
+
+        <CodeBlock language="json" label="Capability Flags Reference" code={`// Host capabilities (what the HOST offers the server)
+{
+  "sampling": {},          // Host can process sampling/createMessage requests
+  "roots": {
+    "listChanged": true    // Host will notify server when roots change
+  },
+  "experimental": {
+    "myCustomExtension": {}
+  }
+}
+
+// Server capabilities (what the SERVER offers the host)
+{
+  "tools": {
+    "listChanged": true    // Server will notify when tool list changes
+  },
+  "resources": {
+    "subscribe": true,     // Server supports resource subscriptions
+    "listChanged": true    // Server will notify when resource list changes
+  },
+  "prompts": {
+    "listChanged": false   // Server has prompts but list won't change
+  },
+  "logging": {},           // Server supports setLoggingLevel requests
+  "experimental": {}
+}`}/>
+      </ExpandableSection>
+      <ExpandableSection title="Streamable HTTP Transport Details" icon="🌐">
+        <CodeBlock language="python" label="Streamable HTTP Server (FastAPI)" code={`from fastapi import FastAPI, Request, Response
+from fastapi.responses import StreamingResponse
+from mcp.server.streamable_http import MCPStreamableHTTPHandler
+import asyncio
+import json
+
+app = FastAPI()
+
+# The MCP server instance
+from re3_mcp_server import server  # our Server() instance
+
+handler = MCPStreamableHTTPHandler(server)
+
+@app.post("/mcp")
+async def mcp_endpoint(request: Request):
+    """Handles both single responses and SSE streams."""
+    body = await request.json()
+    accept = request.headers.get("accept", "application/json")
+
+    if "text/event-stream" in accept:
+        # Client wants streaming (for requests that may produce progress events)
+        async def event_stream():
+            async for chunk in handler.handle_streaming(body, request.headers):
+                yield f"data: {json.dumps(chunk)}\\n\\n"
+            yield "data: [DONE]\\n\\n"
+        return StreamingResponse(event_stream(), media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+    else:
+        # Standard request/response
+        result = await handler.handle(body, request.headers)
+        return Response(content=json.dumps(result), media_type="application/json")`}/>
+      </ExpandableSection>
+      <ArchitectureDecision
+        scenario="You are building an MCP server that must serve 500+ concurrent LLM host processes in a cloud environment. Each host makes 10-50 tool calls per conversation. Which transport architecture fits best?"
+        options={[
+          {label:'STDIO per-host — spawn a separate process per client', tradeoff:'Complete isolation but 500+ processes is operationally expensive and slow to spawn. Does not scale horizontally.'},
+          {label:'Single Streamable HTTP server — all hosts share one process pool', tradeoff:'Horizontally scalable, supports stateless and stateful sessions, OAuth 2.1 auth, load balancing. Industry standard for multi-tenant MCP.'},
+          {label:'WebSocket per-host — persistent connections for each client', tradeoff:'Low latency persistent connections, but WebSocket management at 500+ concurrent connections needs careful resource accounting.'},
+          {label:'In-process library — embed the server in the host process', tradeoff:'Zero network overhead but forces all hosts to share the same deployment binary. No security boundary.'}
+        ]}
+        correctIndex={1}
+        explanation="Streamable HTTP is the correct choice for multi-tenant cloud MCP. It scales horizontally behind a load balancer, supports OAuth 2.1 for per-client auth, handles concurrent requests efficiently in an async server, and allows the server to be deployed independently of the host processes."
+      />

@@ -1,0 +1,28 @@
+---
+label: "Build vs Buy"
+icon: "\uD83E\uDD14"
+---
+
+## Build vs Buy vs Fine-Tune
+
+<ComparisonTable title="Build vs Buy Decision Framework" columns={['Factor','Build Custom','Fine-Tune Foundation','Buy SaaS/API']} rows={[
+  ['Upfront Cost','$$$','$$','$'],
+  ['Time to Deploy','6-18 months','2-8 weeks','Days to weeks'],
+  ['Customization','Full control','Moderate','Limited'],
+  ['Maintenance','High (your team)','Medium','Low (vendor handles)'],
+  ['Data Privacy','Full control','Your data stays local','Data sent to vendor'],
+  ['Best For','Core differentiator','Domain adaptation','Commodity capabilities'],
+]}/>
+
+<ExpandableSection title="Decision Framework" icon={'\uD83E\uDD14'} defaultOpen>
+
+Ask these questions to choose the right approach and maximize <JargonTip term="ROI">ROI</JargonTip>:
+
+- **Is this a competitive differentiator?** Yes = Build or <JargonTip term="fine-tuning">Fine-tune</JargonTip>. No = Buy.
+- **Do you have proprietary data that matters?** Yes = Fine-tune. No = Buy.
+- **Can you afford 6+ months to deploy?** No = Buy or Fine-tune. Yes = Build is an option.
+- **Does your data leave your premises?** Can't = Build or Fine-tune locally. Can = Buy is fine.
+
+</ExpandableSection>
+
+<Quiz question="When should you fine-tune a foundation model instead of using it via API?" options={["Always -- fine-tuning is always better","When you have proprietary domain data that significantly improves performance for your specific task","When you want to save on API costs","Only when building consumer products"]} correctIndex={1} explanation="Fine-tuning makes sense when you have proprietary data that meaningfully improves the model for your specific domain (medical, legal, your company's style). If a well-prompted API call works, fine-tuning adds unnecessary cost and maintenance."/>

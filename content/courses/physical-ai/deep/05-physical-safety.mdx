@@ -1,0 +1,61 @@
+---
+label: "Physical Safety"
+icon: "\uD83D\uDEE1\uFE0F"
+---
+
+## Physical AI Safety
+
+<JargonTip term="embodied AI">Embodied AI</JargonTip> safety is literally life-and-death. Unlike software bugs, robot failures can cause physical injury, property damage, or worse.
+
+<ExpandableSection title="Safety Standards" icon={'\uD83D\uDCCB'} defaultOpen>
+
+- **ISO 10218:** Industrial robot safety -- workspace separation, speed limits, force limits
+- **ISO/TS 15066:** Collaborative robot (cobot) safety -- defines allowable forces for human contact
+- **IEC 61508:** Functional safety for safety-critical systems -- SIL levels
+- **UL 4600:** Safety for autonomous vehicles -- evaluation framework
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="Safety Monitoring System" code={`class RobotSafetyMonitor:
+    """Real-time safety monitoring for autonomous robots"""
+
+    def __init__(self, config):
+        self.force_limit = config["max_force_newtons"]  # e.g., 150N per ISO/TS 15066
+        self.speed_limit = config["max_speed_ms"]       # e.g., 0.25 m/s near humans
+        self.proximity_threshold = config["min_human_distance_m"]  # e.g., 0.5m
+
+    def check_safety(self, state):
+        violations = []
+
+        # Force limit check
+        if state["contact_force"] > self.force_limit:
+            violations.append({
+                "type": "FORCE_EXCEEDED",
+                "action": "IMMEDIATE_STOP",
+                "value": state["contact_force"]
+            })
+
+        # Speed near humans
+        if (state["human_detected"]
+            and state["human_distance"] < 2.0
+            and state["speed"] > self.speed_limit):
+            violations.append({
+                "type": "SPEED_NEAR_HUMAN",
+                "action": "REDUCE_SPEED",
+                "value": state["speed"]
+            })
+
+        # Proximity violation
+        if (state["human_detected"]
+            and state["human_distance"] < self.proximity_threshold):
+            violations.append({
+                "type": "PROXIMITY_VIOLATION",
+                "action": "IMMEDIATE_STOP"
+            })
+
+        return {
+            "safe": len(violations) == 0,
+            "violations": violations
+        }`}/>
+
+<Quiz question="Under ISO/TS 15066, what is the primary safety mechanism for collaborative robots working near humans?" options={["Physical barriers and cages","Force and speed limiting based on body region contact","Software-only safety controls","Remote operation with cameras"]} correctIndex={1} explanation="ISO/TS 15066 defines Power and Force Limiting (PFL) as the primary safety mechanism for cobots. It specifies maximum allowable forces and pressures for different body regions (e.g., lower limits for head/face, higher for arms/legs), enabling robots to work alongside humans without physical barriers."/>

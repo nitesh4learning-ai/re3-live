@@ -1,0 +1,18 @@
+---
+label: "Playground"
+icon: "\uD83C\uDFAE"
+---
+
+## Playground
+
+Test your multi-agent knowledge!
+
+  <ExpandableSection title="Exercise 1: System Design" icon="🏗️" defaultOpen={true}>
+    <Quiz question="You're building a content pipeline: research \u2192 write \u2192 edit \u2192 SEO optimize. Which pattern?" options={["Debate -- agents discuss the content","Pipeline -- each stage feeds the next","Consensus -- all agents must agree","Orchestrator -- one agent manages all"]} correctIndex={1} explanation="A sequential workflow where each stage's output becomes the next stage's input is the textbook Pipeline pattern."/>
+  </ExpandableSection>
+  <ExpandableSection title="Exercise 2: Re\u00b3 Architecture" icon="🤖">
+    <Quiz question="In Re\u00b3, what role does the moderator play?" options={["Selects which agents participate","Moderates debate quality and scores arguments","Synthesizes the final Loom output","Generates the initial article"]} correctIndex={1} explanation="The moderator evaluates argument quality, assigns scores, and ensures the debate stays on-topic and productive."/>
+  </ExpandableSection>
+  <ExpandableSection title="Exercise 3: Trade-offs" icon="⚖️">
+    <Quiz question="What is the biggest challenge of multi-agent systems?" options={["They're always slower than single agents","Coordinating state and managing complexity","They require more GPU memory","They can only use one LLM provider"]} correctIndex={1} explanation="The biggest challenge is coordination complexity -- managing shared state, ensuring agents communicate effectively, handling failures, and debugging interactions across multiple agents."/>
+  </ExpandableSection>

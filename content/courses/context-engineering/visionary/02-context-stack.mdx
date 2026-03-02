@@ -1,0 +1,28 @@
+---
+label: "The Context Stack"
+icon: "\uD83D\uDCDA"
+---
+
+## The Context Stack
+
+Context has four layers, each competing for the same token budget:
+
+<ExpandableSection title="Layer 1: Instructions (System Prompt)" icon={'\uD83D\uDCDD'} defaultOpen>
+The foundation. Defines WHO the model is, HOW it behaves, WHAT constraints apply. Typical budget: 200--2000 tokens.
+</ExpandableSection>
+
+<ExpandableSection title="Layer 2: Knowledge (RAG / Documents)" icon={'\uD83D\uDCDA'}>
+External knowledge fetched for the query. More relevant chunks = better grounding, but too many = noise. Typical: 500--4000 tokens.
+</ExpandableSection>
+
+<ExpandableSection title="Layer 3: Conversation (Memory)" icon={'\uD83D\uDCAC'}>
+Previous turns kept verbatim or summarized. Without this, every message feels like talking to a stranger. Typical: 500--2000 tokens.
+</ExpandableSection>
+
+<ExpandableSection title="Layer 4: Tools (Function Outputs)" icon={'\uD83D\uDD27'}>
+Results from function calls and APIs. Format concisely — raw API responses waste tokens. Typical: 200--1000 tokens.
+</ExpandableSection>
+
+<ContextBudgetAllocator/>
+
+<SeeItInRe3 text="Re\u00b3 uses context engineering in its debate system — each agent gets a carefully crafted context with its persona, debate history, and the article being discussed."/>

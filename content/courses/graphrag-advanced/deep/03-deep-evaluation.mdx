@@ -1,0 +1,188 @@
+---
+label: "Evaluation & Benchmarking"
+icon: "\uD83D\uDCCA"
+---
+
+## Evaluation & Benchmarking
+
+GraphRAG systems require evaluation at two levels: **graph quality** (is the knowledge graph accurate and complete?) and **retrieval quality** (does retrieval produce the right context for the LLM?). Standard RAG metrics like RAGAS apply, but graph-specific metrics capture what vectors alone cannot measure.
+
+
+
+### Evaluation Dimensions
+
+**Graph Construction Quality:**
+- Entity precision / recall
+- Relation precision / recall
+- Entity resolution accuracy
+- Ontology compliance rate
+
+**Retrieval Quality:**
+- MRR (Mean Reciprocal Rank)
+- NDCG@10 (ranking quality)
+- Context recall (% of relevant facts retrieved)
+- Faithfulness (no hallucinated paths)
+
+**Answer Quality (End-to-End):**
+- Answer relevance
+- Factual correctness
+- Multi-hop question accuracy
+- Global query coherence
+
+**Operational Metrics:**
+- Indexing latency per document
+- Query latency p50/p95/p99
+- Token cost per query
+- Graph freshness (update lag)
+
+
+      <CodeBlock language="python" label="GraphRAG Evaluation with RAGAS" code={`from ragas import evaluate
+from ragas.metrics import (
+    faithfulness,
+    answer_relevancy,
+    context_recall,
+    context_precision,
+)
+from datasets import Dataset
+import pandas as pd
+
+def evaluate_graphrag(
+    questions: list,
+    ground_truths: list,
+    graphrag_pipeline,
+) -> pd.DataFrame:
+    """
+    End-to-end GraphRAG evaluation across query types.
+    """
+    results = []
+
+    for question, ground_truth in zip(questions, ground_truths):
+        # Run GraphRAG retrieval + generation
+        response = graphrag_pipeline.query(question)
+
+        results.append({
+            "question": question,
+            "answer": response.answer,
+            "contexts": response.retrieved_contexts,
+            "ground_truth": ground_truth,
+            "query_type": response.query_type,  # local/global/hybrid
+            "retrieval_methods": response.methods_used,
+            "graph_hops": response.max_hops_traversed,
+        })
+
+    df = pd.DataFrame(results)
+
+    # RAGAS evaluation
+    dataset = Dataset.from_pandas(df[["question", "answer", "contexts", "ground_truth"]])
+    ragas_scores = evaluate(dataset, metrics=[
+        faithfulness,
+        answer_relevancy,
+        context_recall,
+        context_precision,
+    ])
+
+    # Graph-specific metrics
+    multi_hop_questions = df[df['graph_hops'] >= 2]
+    single_hop_questions = df[df['graph_hops'] <= 1]
+
+    print("\\n=== GraphRAG Evaluation Results ===")
+    print(f"Overall faithfulness:      {ragas_scores['faithfulness']:.3f}")
+    print(f"Overall answer relevancy:  {ragas_scores['answer_relevancy']:.3f}")
+    print(f"Context recall:            {ragas_scores['context_recall']:.3f}")
+    print(f"\\nBy query type:")
+    for qtype in df['query_type'].unique():
+        subset = df[df['query_type'] == qtype]
+        print(f"  {qtype}: {len(subset)} questions")
+
+    print(f"\\nMulti-hop accuracy: {_compute_accuracy(multi_hop_questions):.2%}")
+    print(f"Single-hop accuracy: {_compute_accuracy(single_hop_questions):.2%}")
+
+    return df, ragas_scores
+
+# Multi-hop specific evaluation dataset
+MULTIHOP_BENCHMARK = [
+    {
+        "question": "What organizations are connected to Geoffrey Hinton through his PhD students?",
+        "expected_hops": 3,  # Hinton -> supervised -> students -> works_at -> orgs
+        "ground_truth": "MIT, Google, NYU, Montreal Institute for Learning Algorithms...",
+        "type": "chain_reasoning"
+    },
+    {
+        "question": "What are the dominant research themes in the AI safety literature?",
+        "expected_mode": "global",  # Requires community summaries
+        "ground_truth": "Alignment, interpretability, robustness, RLHF...",
+        "type": "global_synthesis"
+    },
+]`} />
+      <CodeBlock language="python" label="Graph-Specific Precision & Recall" code={`def evaluate_graph_quality(
+    extracted_entities: list,
+    extracted_relations: list,
+    gold_entities: list,
+    gold_relations: list,
+) -> dict:
+    """
+    Evaluate knowledge graph quality against gold standard annotations.
+    """
+    # Entity precision/recall
+    extracted_names = {e['canonical'].lower() for e in extracted_entities}
+    gold_names = {e['canonical'].lower() for e in gold_entities}
+
+    entity_tp = len(extracted_names & gold_names)
+    entity_precision = entity_tp / len(extracted_names) if extracted_names else 0
+    entity_recall = entity_tp / len(gold_names) if gold_names else 0
+    entity_f1 = 2 * entity_precision * entity_recall / (entity_precision + entity_recall + 1e-9)
+
+    # Relation precision/recall (exact triple matching)
+    def normalize_relation(r):
+        return (r['source'].lower(), r['relation'].lower(), r['target'].lower())
+
+    extracted_rels = {normalize_relation(r) for r in extracted_relations}
+    gold_rels = {normalize_relation(r) for r in gold_relations}
+
+    rel_tp = len(extracted_rels & gold_rels)
+    rel_precision = rel_tp / len(extracted_rels) if extracted_rels else 0
+    rel_recall = rel_tp / len(gold_rels) if gold_rels else 0
+    rel_f1 = 2 * rel_precision * rel_recall / (rel_precision + rel_recall + 1e-9)
+
+    return {
+        "entity_precision": entity_precision,
+        "entity_recall": entity_recall,
+        "entity_f1": entity_f1,
+        "relation_precision": rel_precision,
+        "relation_recall": rel_recall,
+        "relation_f1": rel_f1,
+        "hallucinated_relations": len(extracted_rels - gold_rels),
+        "missed_relations": len(gold_rels - extracted_rels),
+    }`} />
+      <ExpandableSection title="GraphRAG vs Naive RAG Benchmarks" icon="\uD83D\uDCCA">
+
+Microsoft's original GraphRAG paper (Edge et al., 2024) benchmarked against naive RAG across question types. The results show a clear pattern: GraphRAG dominates on global and multi-hop queries, while naive RAG holds its own on local factoid queries where vector similarity is sufficient.
+
+
+
+
+
+| Query Type | Naive RAG | GraphRAG (Local) | GraphRAG (Global) | Winner |
+|-----------|----------|-----------------|------------------|--------|
+| Global synthesis | 31% | 47% | 72% | GraphRAG Global |
+| Multi-hop reasoning | 45% | 78% | 62% | GraphRAG Local |
+| Local factoid | 82% | 85% | 71% | GraphRAG Local |
+| Thematic overview | 28% | 51% | 80% | GraphRAG Global |
+
+
+
+
+Percentages are illustrative win rates from comparative evaluations. Actual numbers vary by domain and dataset.
+
+      </ExpandableSection>
+      <Quiz
+        question="Why do standard RAG metrics (like faithfulness, answer relevancy) not fully capture GraphRAG quality?"
+        options={[
+          "Standard metrics are too expensive to compute",
+          "They measure answer quality but not graph-specific properties like multi-hop accuracy, entity resolution rate, or community coherence",
+          "Standard metrics only work for classification tasks",
+          "GraphRAG cannot be evaluated"
+        ]}
+        correctIndex={1}
+        explanation="Standard RAGAS metrics measure the final answer quality but are blind to graph-specific failures: an entity resolution failure (two nodes for the same person) won't show up in NDCG, a hallucinated graph path produces a faithful-sounding answer that RAGAS rates highly, and community coherence determines global search quality but has no analog in document-based metrics."
+      />

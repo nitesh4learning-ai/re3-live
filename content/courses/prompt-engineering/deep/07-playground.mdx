@@ -1,0 +1,32 @@
+---
+label: "Deep Playground"
+icon: "🎮"
+---
+
+## Deep Playground
+
+Advanced scenario-based exercises testing production prompt engineering skills.
+
+<ExpandableSection title="Scenario 1: Multi-Step Prompt Design" icon="🏗️" defaultOpen={true}>
+
+<ArchitectureDecision scenario="You need to build a prompt that analyzes legal contracts, extracts key terms, identifies risks, and generates a summary. The contract is 50 pages. How do you structure the prompt pipeline?" options={[{label:'Single prompt: send the entire contract with all analysis instructions at once',tradeoff:'Simplest architecture, but context window may be exceeded, and the model may lose focus on early content'},{label:'Sequential pipeline: chunk contract, extract terms per chunk, then synthesize with a second prompt',tradeoff:'Handles any contract length, each step is focused, but requires orchestration code and multiple API calls'},{label:'Parallel extraction with merge: process contract sections in parallel, merge results, then summarize',tradeoff:'Fastest wall-clock time, scalable, but requires careful chunk boundary handling to avoid missing cross-section references'}]} correctIndex={1} explanation="A sequential pipeline is the most reliable approach for document analysis. Chunking handles length, per-chunk extraction maintains focus, and a synthesis step combines findings. Parallel processing is faster but risks missing cross-references between sections, which are critical in legal contracts."/>
+
+</ExpandableSection>
+
+<ExpandableSection title="Scenario 2: Prompt Debugging" icon="🔍">
+
+<Quiz question="Your classification prompt works 95% of the time but consistently misclassifies sarcastic customer messages (e.g., 'Oh great, another broken product' is classified as positive). What is the best fix?" options={["Increase temperature to capture more nuance","Add few-shot examples specifically showing sarcastic inputs with correct labels","Switch to a larger model","Add 'watch out for sarcasm' to the system prompt"]} correctIndex={1} explanation="Few-shot examples of sarcastic inputs with correct labels directly teach the model the pattern it is missing. The model needs to see examples of the specific failure mode to learn it. A vague instruction about sarcasm is less effective than concrete examples."/>
+
+</ExpandableSection>
+
+<ExpandableSection title="Scenario 3: Cost Optimization" icon="💰">
+
+<ArchitectureDecision scenario="Your prompt engineering pipeline costs $15K/month in API calls. 70% of requests are simple FAQ-type questions that a smaller model handles well. 30% are complex reasoning tasks. How do you reduce costs?" options={[{label:'Switch everything to a cheaper model (GPT-4o-mini)',tradeoff:'70% cost reduction, but quality drops significantly on the 30% complex tasks'},{label:'Build a router: classify queries first, route FAQs to GPT-4o-mini and complex tasks to GPT-4o',tradeoff:'~50% cost reduction with minimal quality impact, adds routing latency (~100ms), requires maintaining a classifier'},{label:'Cache responses for frequently asked questions, use GPT-4o for everything else',tradeoff:'Depends on FAQ repetition rate, simple to implement, no quality compromise for cached responses'}]} correctIndex={1} explanation="A model router is the standard production pattern for cost optimization. Route simple queries to cheaper, faster models and reserve expensive models for tasks that need them. The classification step adds minimal latency and the cost savings typically exceed 50%. Caching is also valuable but only helps with exact or near-exact repeat queries."/>
+
+</ExpandableSection>
+
+<ExpandableSection title="Scenario 4: Security Review" icon="🔐">
+
+<Quiz question="Your team stores the full system prompt (including business logic and pricing formulas) in the system message. A competitor starts offering suspiciously similar features. What should you do?" options={["Nothing -- system prompts are secure","Move sensitive business logic out of the system prompt into server-side code that the LLM cannot access","Encrypt the system prompt","Add stronger anti-leak instructions"]} correctIndex={1} explanation="System prompts should be assumed extractable. Sensitive business logic, pricing formulas, and proprietary algorithms should never be in the system prompt. Instead, implement them in server-side code and expose only the results to the LLM. The system prompt should define behavior, not contain secrets."/>
+
+</ExpandableSection>

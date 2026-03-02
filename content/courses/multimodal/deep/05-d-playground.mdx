@@ -1,0 +1,7 @@
+---
+label: "Playground"
+icon: "\uD83C\uDFAE"
+---
+
+## Multimodal Playground
+  <ArchitectureDecision scenario="You need to build a system that processes 10,000 scanned invoices per day, extracting vendor name, amount, date, and line items. Some invoices are handwritten, some are printed PDFs." options={[{label:'Vision LLM for everything \u2014 send each invoice image to GPT-4o',tradeoff:'Highest accuracy but expensive at scale ($500+/day for 10K invoices)'},{label:'OCR (Tesseract) + text extraction LLM for printed, Vision LLM only for handwritten',tradeoff:'Cost-efficient: 80% of invoices use cheap OCR, expensive vision only when needed'},{label:'Custom ML model trained on invoice data',tradeoff:'Cheapest at scale but requires training data, maintenance, and doesn\'t handle edge cases well'}]} correctIndex={1} explanation="A hybrid pipeline is most cost-effective. Printed invoices are handled well by traditional OCR + text LLM. Reserve expensive vision models for handwritten or complex layouts. Route based on document classification."/>

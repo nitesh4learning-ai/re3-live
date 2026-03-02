@@ -1,0 +1,16 @@
+---
+label: "The Problem RAG Solves"
+icon: "⚠️"
+---
+
+## The Problem RAG Solves
+
+LLMs have a fundamental limitation: they can only use knowledge from their training data. They don't know about events after their training cutoff, your company's internal documents, or real-time data. When they lack knowledge, they <JargonTip term="hallucination">hallucinate</JargonTip> -- generating plausible-sounding but incorrect information.
+
+<JargonTip term="RAG">**Retrieval-Augmented Generation (RAG)**</JargonTip> solves this by fetching relevant information from external sources and injecting it into the prompt before the LLM generates a response.
+
+<AnalogyBox emoji="📚" title="Think of it like an open-book exam">An LLM without RAG is a student taking an exam from memory -- they might mix up facts. An LLM with RAG is a student with the textbook open -- they can look up the right answers.</AnalogyBox>
+
+<HallucinationDetector />
+
+<Quiz question="What is the primary problem that RAG addresses?" options={["LLMs are too slow","LLMs hallucinate when they lack knowledge","LLMs can't process images","LLMs use too many tokens"]} correctIndex={1} explanation="RAG directly addresses hallucination by providing the LLM with relevant, factual information retrieved from trusted sources before it generates a response." />

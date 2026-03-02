@@ -1,0 +1,36 @@
+---
+label: "Streaming Output"
+icon: "⚡"
+---
+
+## <JargonTip term="streaming">Streaming</JargonTip> Structured Output
+
+<CodeBlock title="Streaming JSON Parser" code={`import { streamObject } from 'ai';
+import { openai } from '@ai-sdk/openai';
+import { z } from 'zod';
+
+const AnalysisSchema = z.object({
+  summary: z.string(),
+  keyPoints: z.array(z.string()),
+  sentiment: z.enum(['positive', 'negative', 'neutral']),
+  actionItems: z.array(z.object({
+    task: z.string(),
+    priority: z.enum(['low', 'medium', 'high']),
+  })),
+});
+
+// Stream partial objects as they arrive
+const { partialObjectStream } = await streamObject({
+  model: openai('gpt-4o'),
+  schema: AnalysisSchema,
+  prompt: 'Analyze this meeting transcript...',
+});
+
+for await (const partial of partialObjectStream) {
+  // partial.summary may be incomplete string
+  // partial.keyPoints may have 2 of 5 items so far
+  // partial.sentiment may be undefined until model decides
+  renderPartialUI(partial);  // Update UI progressively
+}`}/>
+
+<Quiz question="When streaming structured output, what challenge does partial JSON create?" options={["The model generates invalid JSON","Fields arrive in random order","Incomplete strings and arrays must be handled gracefully","Streaming is slower than non-streaming"]} correctIndex={2} explanation="During streaming, you receive partial objects where strings may be incomplete ('The meeting was about...' becoming 'The meeting was about project deadlines') and arrays grow incrementally. Your UI must handle undefined fields and growing arrays without crashing."/>

@@ -1,0 +1,32 @@
+---
+label: "Plan & Execute"
+icon: "📋"
+---
+
+## Plan-and-Execute
+
+For complex tasks, <JargonTip term="plan-and-execute">plan first, then execute</JargonTip> step by step. Separating planning from execution improves reliability.
+
+<CodeBlock title="Plan-and-Execute Pattern" code={`def plan_and_execute(task, tools, max_replans=2):
+    # PLAN: Create a step-by-step plan
+    plan = call_llm(
+        f"Create a step-by-step plan for: {task}",
+        response_format="json",
+        schema={"steps": [{"description": "str", "tool": "str"}]}
+    )
+
+    results = []
+    for step in plan["steps"]:
+        # EXECUTE: Run each step
+        result = execute_step(step, tools)
+        results.append(result)
+
+        # CHECK: Verify step succeeded
+        if not result["success"]:
+            # REPLAN: Adjust remaining steps
+            plan = replan(task, results, remaining_steps)
+
+    # SYNTHESIZE: Combine all results
+    return synthesize(task, results)`}/>
+
+<Quiz question="When is Plan-and-Execute better than ReAct?" options={["Always -- planning is always better","When the task has many interdependent steps that benefit from upfront planning","When the task is simple and doesn't need tools","When speed is the top priority"]} correctIndex={1} explanation="Plan-and-Execute shines for complex, multi-step tasks where the order of operations matters. For simple tasks, ReAct's step-by-step approach is faster and more flexible." />

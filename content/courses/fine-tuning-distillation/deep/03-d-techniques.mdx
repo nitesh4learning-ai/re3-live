@@ -1,0 +1,66 @@
+---
+label: "Techniques"
+icon: "\u2699\uFE0F"
+---
+
+## Fine-Tuning Techniques
+
+Modern fine-tuning doesn't require updating all model weights. **Parameter-efficient fine-tuning (PEFT)** methods like <JargonTip term="LoRA">LoRA</JargonTip> and <JargonTip term="QLoRA">QLoRA</JargonTip> achieve comparable results while training less than 1% of parameters, saving <JargonTip term="token">token</JargonTip> costs at inference time.
+
+  <AnalogyBox emoji="🎹" title="Think of it like learning piano">Full fine-tuning rewires every neural connection (rebuilding the whole piano). LoRA adds a few sticky notes to the sheet music (small adapter matrices) that modify how the existing knowledge is applied. Same performance, much less effort.</AnalogyBox>
+  <LoRAVisualizer/>
+  <CodeBlock title="Fine-tuning with LoRA (using PEFT library)" language="python" code={`from peft import LoraConfig, get_peft_model
+from transformers import AutoModelForCausalLM, TrainingArguments
+from trl import SFTTrainer
+
+# Load base model
+model = AutoModelForCausalLM.from_pretrained(
+    "meta-llama/Llama-3-8B",
+    torch_dtype=torch.bfloat16,
+    device_map="auto"
+)
+
+# Configure LoRA
+lora_config = LoraConfig(
+    r=16,                    # Rank (higher = more expressive)
+    lora_alpha=32,           # Scaling factor
+    target_modules=["q_proj", "v_proj"],  # Which layers
+    lora_dropout=0.05,
+    bias="none",
+    task_type="CAUSAL_LM"
+)
+
+model = get_peft_model(model, lora_config)
+model.print_trainable_parameters()
+# Output: trainable params: 8,388,608 || all params: 8,030,261,248 || 0.10%
+
+# Train
+trainer = SFTTrainer(
+    model=model,
+    train_dataset=dataset,
+    args=TrainingArguments(
+        output_dir="./ft-output",
+        num_train_epochs=3,
+        per_device_train_batch_size=4,
+        learning_rate=2e-4,
+        warmup_steps=100,
+        logging_steps=10,
+    )
+)
+trainer.train()`}/>
+  <ExpandableSection title="Hyperparameter Guide" icon="⚙️">
+    <ComparisonTable title="Key Hyperparameters" columns={['Parameter','Typical Range','Effect of Too High','Effect of Too Low']} rows={[
+      ['Learning Rate','1e-5 to 5e-4','Catastrophic forgetting, instability','Slow convergence, wasted compute'],
+      ['Epochs','1-5','Overfitting to training data','Underfitting, poor pattern learning'],
+      ['Batch Size','4-32','Smoother training, more VRAM','Noisier gradients, slower convergence'],
+      ['LoRA Rank (r)','4-64','More params, diminishing returns','May miss complex patterns'],
+      ['LoRA Alpha','2× rank','Amplifies adapter too much','Adapter effect too subtle'],
+    ]}/>
+  </ExpandableSection>
+  <ExpandableSection title="Catastrophic Forgetting" icon="🧠">
+
+When fine-tuning overwrites the model's general capabilities with your specialized data, it "forgets" what it knew. Mitigations include: **LoRA** (doesn't modify original weights), **low learning rates**, **short training** (1-3 epochs), and **mixing general data** into your training set.
+
+  </ExpandableSection>
+  <Quiz question="What does LoRA's 'rank' parameter (r) control?" options={["The number of training epochs","The size of the low-rank adapter matrices","The learning rate schedule","The batch size"]} correctIndex={1} explanation="The rank r determines the dimensionality of the low-rank decomposition matrices A and B. Higher rank = more expressiveness (more trainable parameters) but diminishing returns past r=16-32 for most tasks."/>
+  <Quiz question="Why is LoRA preferred over full fine-tuning for most tasks?" options={["It always produces better results","It trains fewer parameters with comparable quality","It doesn't require any GPU","It works without training data"]} correctIndex={1} explanation="LoRA achieves comparable quality to full fine-tuning while training only ~0.1% of parameters. This means less VRAM, faster training, easier storage (adapter files are ~30MB vs model copies at ~14GB), and reduced risk of catastrophic forgetting."/>

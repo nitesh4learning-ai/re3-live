@@ -1,0 +1,48 @@
+---
+label: "From Text to Tokens"
+icon: "\uD83D\uDD24"
+---
+
+## From Text to Tokens
+
+Large Language Models don't read words the way you do. Before processing any text, they break it into smaller pieces called <JargonTip term="token">tokens</JargonTip>. A token might be a whole word, part of a word, or even a single character.
+
+Understanding tokens is fundamental because they affect everything: how much text a model can process, how much API calls cost, and even how the model "thinks" about language. This process is called <JargonTip term="inference">inference</JargonTip>.
+
+<AnalogyBox emoji="\uD83E\uDDE9" title="Think of it like LEGO bricks">Just as LEGO structures are built from a fixed set of standard bricks, all text is built from a fixed vocabulary of token pieces. The model learned which combinations make meaningful structures during training.</AnalogyBox>
+
+<CodeBlock language="tokenization" label="How text becomes tokens" code={`Input:  "Tokenization is fascinating"\nTokens: ["Token", "ization", " is", " fascin", "ating"]\nCount:  5 tokens\n\nInput:  "AI"\nTokens: ["AI"]\nCount:  1 token\n\nInput:  "ChatGPT"\nTokens: ["Chat", "G", "PT"]\nCount:  3 tokens`}/>
+
+<ExpandableSection title="What is Byte-Pair Encoding (BPE)?" icon="\uD83D\uDD0D">
+
+Most modern LLMs use an algorithm called **Byte-Pair Encoding** to build their token vocabulary. Here's how it works:
+
+**Step 1:** Start with individual characters as the initial vocabulary.
+
+**Step 2:** Find the most frequently occurring pair of adjacent tokens in the training data.
+
+**Step 3:** Merge that pair into a new token and add it to the vocabulary.
+
+**Step 4:** Repeat until the vocabulary reaches the desired size (typically 30,000-100,000 tokens).
+
+This is why common words like "the" are a single token, but rare words like "cryptocurrency" might be split into ["crypt", "ocurrency"]. The algorithm optimizes for the most efficient encoding of typical text.
+
+</ExpandableSection>
+
+<ExpandableSection title="Why tokens matter for cost and limits" icon="\uD83D\uDCB0">
+
+API pricing is per-token, not per-word. This means:
+
+- A 1,000-word email might be ~1,300 tokens
+- Code is often more token-dense than English prose
+- Non-English languages typically use more tokens per word
+
+**Rule of thumb:** 1 token \u2248 4 characters in English, or roughly 0.75 words.
+
+</ExpandableSection>
+
+<TokenCounter/>
+
+<Quiz question="Why do LLMs use tokens instead of whole words?" options={["It makes the model faster to train","It allows handling any text, including words the model has never seen","Words are too complicated for computers","It reduces the model's memory usage"]} correctIndex={1} explanation="Tokenization via BPE allows the model to handle any text input, including words it has never seen before, by breaking them into known sub-word pieces. Even made-up words can be tokenized!"/>
+
+<SeeItInRe3 text="In the Debate Lab, each agent's debate response is measured in tokens. This is why there are length limits on arguments." targetPage="forge"/>

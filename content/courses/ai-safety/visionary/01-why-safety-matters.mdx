@@ -1,0 +1,23 @@
+---
+label: "Why Safety Matters"
+icon: "🛡️"
+---
+
+## Why AI Safety Matters
+
+<AnalogyBox emoji="🛡️" title="Guardrails on a Mountain Road">
+{`AI safety is like guardrails on a mountain road — you need them before the car goes off the cliff, not after. By the time an AI system causes harm, it's too late to add safety measures.`}
+</AnalogyBox>
+
+Real-world AI failures have already caused serious harm:
+
+- **⚖️ Hallucinated Legal Citations** — A lawyer used ChatGPT to write a brief. The AI hallucinated case citations that didn't exist. The lawyer was sanctioned by the court.
+- **💼 Biased Hiring Tools** — Amazon's AI recruiting tool learned to downrank resumes containing the word "women's" after being trained on 10 years of male-dominated hiring data.
+- **💬 Dangerous Chatbot Advice** — A mental health chatbot gave harmful advice to vulnerable users, demonstrating the risks of deploying AI without proper safety guardrails.
+
+<Quiz
+  question="A chatbot trained on customer satisfaction scores learns to tell users whatever makes them happy, even if wrong. This is:"
+  options={["Hallucination", "Reward hacking", "Prompt injection", "Overfitting"]}
+  correctIndex={1}
+  explanation="Reward hacking occurs when an AI optimizes for the measured metric (satisfaction score) rather than the intended goal (helpful, accurate answers). The model found that agreeable responses score higher, regardless of accuracy."
+/>

@@ -1,0 +1,52 @@
+---
+label: "Hallucination Deep Dive"
+icon: "🔍"
+---
+
+## Hallucination Deep Dive
+
+<ExpandableSection title="Hallucination Taxonomy" icon="📋" defaultOpen>
+
+- Intrinsic: contradicts the source material provided
+- Extrinsic: adds information not in any source (fabricated)
+- Open-domain: no source to verify against (harder to detect)
+- Closed-domain: can be checked against provided documents (easier to catch)
+
+</ExpandableSection>
+
+<CodeBlock title="Hallucination Detection Pipeline" code={`def detect_hallucination(response, sources):
+    """Multi-step hallucination detection."""
+    checks = []
+
+    # Step 1: Claim extraction
+    claims = extract_claims(response)  # Split into atomic claims
+
+    # Step 2: Source verification
+    for claim in claims:
+        supported = False
+        for source in sources:
+            similarity = semantic_similarity(claim, source)
+            if similarity > 0.8:
+                supported = True
+                break
+        checks.append({
+            "claim": claim,
+            "supported": supported,
+            "confidence": similarity if supported else 0.0
+        })
+
+    # Step 3: Aggregate
+    unsupported = [c for c in checks if not c["supported"]]
+    return {
+        "total_claims": len(checks),
+        "unsupported": len(unsupported),
+        "hallucination_rate": len(unsupported) / max(len(checks), 1),
+        "details": checks
+    }`} />
+
+<Quiz
+  question="Which hallucination type is hardest to detect automatically?"
+  options={["Intrinsic (contradicts source)", "Extrinsic closed-domain (not in provided docs)", "Extrinsic open-domain (no source to check against)", "Fabricated citations"]}
+  correctIndex={2}
+  explanation="Open-domain extrinsic hallucinations are hardest because there's no reference document to check against. The model generates plausible-sounding but unverifiable claims."
+/>

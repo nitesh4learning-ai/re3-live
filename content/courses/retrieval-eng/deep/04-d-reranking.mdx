@@ -1,0 +1,39 @@
+---
+label: "Reranking & RAPTOR"
+icon: "\uD83C\uDFAF"
+---
+
+## Reranking & RAPTOR
+  <CodeBlock label="Cross-Encoder Reranking" code={`from sentence_transformers import CrossEncoder
+
+class Reranker:
+    def __init__(self, model_name="cross-encoder/ms-marco-MiniLM-L-6-v2"):
+        self.model = CrossEncoder(model_name)
+
+    def rerank(self, query, documents, top_k=5):
+        """Score query-document pairs with cross-encoder"""
+        pairs = [[query, doc["text"]] for doc in documents]
+        scores = self.model.predict(pairs)
+
+        # Attach scores and sort
+        for doc, score in zip(documents, scores):
+            doc["rerank_score"] = float(score)
+
+        ranked = sorted(documents, key=lambda x: x["rerank_score"], reverse=True)
+        return ranked[:top_k]
+
+# Why reranking works: bi-encoders (used in vector search)
+# encode query and document SEPARATELY -- fast but approximate.
+# Cross-encoders process query+document TOGETHER -- slow but accurate.
+# Use bi-encoder for recall (top 50), cross-encoder for precision (top 5).`}/>
+  <ExpandableSection title="RAPTOR: Recursive Summarization" icon="🌳" defaultOpen>
+
+<JargonTip term="RAPTOR">RAPTOR</JargonTip> builds a tree of summaries over your documents. Leaf nodes are original chunks, each with an <JargonTip term="embedding">embedding</JargonTip> vector. Parent nodes are summaries of groups of children. <JargonTip term="cross-encoder">Cross-encoder</JargonTip> rerankers then score results for precision. At query time, you search across all levels -- this lets you answer both detailed questions (from leaves) and broad questions (from summary nodes).
+
+
+      - **Level 0:** Original chunks (detailed facts)
+      - **Level 1:** Summaries of 5-10 chunks (section-level themes)
+      - **Level 2:** Summaries of summaries (document-level insights)
+
+  </ExpandableSection>
+  <Quiz question="Why use a cross-encoder reranker after vector search instead of just using a better embedding model?" options={["Cross-encoders are faster","Cross-encoders process query and document together, capturing fine-grained relevance that independent encoding misses","They use less memory","Cross-encoders are cheaper"]} correctIndex={1} explanation="Cross-encoders see the query and document simultaneously, enabling deep attention between them. Bi-encoders (used in vector search) encode each independently, missing nuanced relationships. Reranking combines fast bi-encoder recall with accurate cross-encoder precision."/>

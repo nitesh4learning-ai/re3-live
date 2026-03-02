@@ -1,0 +1,23 @@
+---
+label: "Deep Playground"
+icon: "🎮"
+---
+
+## Deep Playground
+
+Apply your gateway knowledge to production architecture decisions.
+
+  <ExpandableSection title="Exercise 1: Gateway Architecture Decision" icon="🏗️" defaultOpen={true}>
+    <ArchitectureDecision scenario="You are building an AI support platform serving 10,000 requests/minute across 4 LLM providers. You need centralized logging, per-customer rate limiting, semantic caching, and model A/B testing. Which gateway architecture?" options={[
+      {label:'Embedded SDK in each microservice',tradeoff:'Zero latency but duplicates caching/logging/rate limiting across services.'},
+      {label:'Centralized reverse proxy gateway',tradeoff:'Single point for all concerns. Adds 1-5ms but provides centralized logging, caching, and rate limiting.'},
+      {label:'Sidecar per service',tradeoff:'Good for K8s but duplicates cache storage. Per-service limits do not aggregate correctly.'},
+      {label:'No gateway -- direct provider calls',tradeoff:'Simplest but no failover, caching, rate limiting, or centralized logging.'}
+    ]} correctIndex={1} explanation="At 10K RPM with centralized requirements, a reverse proxy gateway is optimal. The 1-5ms overhead is negligible vs LLM latency (200-3000ms), and centralization makes policy management tractable."/>
+  </ExpandableSection>
+  <ExpandableSection title="Exercise 2: Caching Strategy" icon="⚡">
+    <Quiz question="Your semantic cache has 95% hit rate but users complain answers feel stale for rapidly changing topics. Best fix?" options={["Disable caching","Topic-aware TTL: short TTL for time-sensitive topics, long TTL for stable knowledge","Lower similarity threshold","Increase cache size"]} correctIndex={1} explanation="Topic-aware TTL solves staleness without sacrificing savings for stable content. Time-sensitive queries get short TTL (minutes), stable queries get long TTL (hours)."/>
+  </ExpandableSection>
+  <ExpandableSection title="Exercise 3: Failover Design" icon="🛡️">
+    <Quiz question="Primary provider goes down. Circuit breaker switches to backup. Primary recovers 5 minutes later. What should happen?" options={["Immediately switch all traffic back","Circuit breaker enters HALF_OPEN, sends test requests, gradually shifts traffic back if tests succeed","Keep all traffic on backup permanently","Split 50/50"]} correctIndex={1} explanation="The circuit breaker handles this automatically. After recovery timeout, it enters HALF_OPEN, tests with a few requests, and if successful, transitions back to CLOSED. This prevents stampeding a just-recovered provider."/>
+  </ExpandableSection>

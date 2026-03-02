@@ -1,0 +1,27 @@
+---
+label: "Hybrid Search"
+icon: "\uD83D\uDD00"
+---
+
+## Hybrid Search & Reranking
+  <CodeBlock title="Hybrid Search Pipeline" code={`class HybridSearch:
+    def __init__(self, vector_store, bm25_index, reranker):
+        self.vector_store = vector_store
+        self.bm25 = bm25_index
+        self.reranker = reranker
+
+    def search(self, query, top_k=5):
+        # Step 1: Vector search (semantic similarity)
+        vector_results = self.vector_store.search(query, top_k=20)
+
+        # Step 2: BM25 search (keyword matching)
+        bm25_results = self.bm25.search(query, top_k=20)
+
+        # Step 3: Reciprocal Rank Fusion (combine results)
+        combined = reciprocal_rank_fusion(vector_results, bm25_results)
+
+        # Step 4: Rerank with cross-encoder
+        reranked = self.reranker.rerank(query, combined[:20])
+
+        return reranked[:top_k]`}/>
+  <ComparisonTable title="Search Strategies" headers={['Strategy','Recall','Precision','Speed','Best For']} rows={[['Vector only','Good','Medium','Fast','Semantic queries'],['BM25 only','Medium','Good','Very fast','Keyword/exact match'],['Hybrid (no rerank)','Very good','Good','Fast','General purpose'],['Hybrid + reranking','Very good','Excellent','Medium','Production RAG']]}/>

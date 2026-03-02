@@ -1,0 +1,67 @@
+---
+label: "Production System"
+icon: "🏭"
+---
+
+## Production Tool System
+
+A production tool system goes beyond basic function calling. It includes logging, cost tracking, rate limiting, caching, and monitoring.
+
+<CodeBlock language="javascript" label="Production Tool Registry" code={`class ProductionToolRegistry {
+  constructor(config = {}) {
+    this.tools = new Map();
+    this.metrics = { calls: 0, errors: 0, totalLatency: 0 };
+    this.cache = new Map();
+  }
+
+  register(tool) {
+    if (!tool.name || !tool.handler || !tool.schema)
+      throw new Error("Tool must have name, handler, and schema");
+    this.tools.set(tool.name, { ...tool, callCount: 0, errorCount: 0, avgLatency: 0 });
+  }
+
+  async call(name, args, context = {}) {
+    const tool = this.tools.get(name);
+    if (!tool) throw new Error("Unknown tool: " + name);
+
+    // Cache check for idempotent tools
+    const cacheKey = name + ":" + JSON.stringify(args);
+    if (tool.cacheable && this.cache.has(cacheKey)) return this.cache.get(cacheKey);
+
+    const start = Date.now();
+    this.metrics.calls++;
+    tool.callCount++;
+
+    try {
+      const result = await tool.handler(args, context);
+      const latency = Date.now() - start;
+      this.metrics.totalLatency += latency;
+      tool.avgLatency = (tool.avgLatency + latency) / 2;
+
+      if (tool.cacheable) {
+        this.cache.set(cacheKey, result);
+        setTimeout(() => this.cache.delete(cacheKey), 300000);
+      }
+      return result;
+    } catch (err) {
+      this.metrics.errors++;
+      tool.errorCount++;
+      throw err;
+    }
+  }
+
+  getMetrics() {
+    return {
+      ...this.metrics,
+      avgLatency: this.metrics.calls ? this.metrics.totalLatency / this.metrics.calls : 0,
+      errorRate: this.metrics.calls ? this.metrics.errors / this.metrics.calls : 0,
+      tools: Array.from(this.tools.values()).map(t => ({
+        name: t.name, calls: t.callCount, errors: t.errorCount, avgLatency: Math.round(t.avgLatency)
+      }))
+    };
+  }
+}`}/>
+
+<Quiz question="Why is caching important in a production tool system?" options={["To reduce code complexity","To avoid redundant API calls, saving latency and cost","Caching is not important","To prevent all errors"]} correctIndex={1} explanation="Many tool calls are idempotent. Caching prevents redundant API calls, reducing both latency and cost." />
+
+<SeeItInRe3 text="Re³ uses a tool registry pattern in its debate system -- each orchestrator (Hypatia, Socratia, Ada) has registered capabilities with logging and error handling." targetPage="forge" />

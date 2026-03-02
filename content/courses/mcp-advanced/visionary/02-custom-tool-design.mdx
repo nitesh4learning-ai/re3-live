@@ -1,0 +1,133 @@
+---
+label: "Custom Tool Design"
+icon: "🔧"
+---
+
+## Custom Tool Design
+
+Well-designed MCP tools feel natural to LLMs. The schema is the contract between your server and the model via <JargonTip term="function calling">function calling</JargonTip> — **ambiguous schemas cause hallucinated arguments**. Advanced <JargonTip term="tool use">tool use</JargonTip> patterns include nested schemas, enum constraints, <JargonTip term="streaming">streaming</JargonTip> results, and explicit error contracts.
+
+      <CodeBlock language="json" label="Advanced Tool Schema — Nested Objects & Enums" code={`{
+  "name": "run_debate_analysis",
+  "description": "Analyze an article and trigger a structured debate. Returns debate ID for polling.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "article": {
+        "type": "object",
+        "description": "The article to analyze",
+        "properties": {
+          "title": { "type": "string", "description": "Article title", "maxLength": 200 },
+          "content": { "type": "string", "description": "Full article text", "maxLength": 50000 },
+          "pillar": {
+            "type": "string",
+            "enum": ["rethink", "rediscover", "reinvent"],
+            "description": "Which Re3 philosophical pillar this article belongs to"
+          }
+        },
+        "required": ["title", "content", "pillar"]
+      },
+      "config": {
+        "type": "object",
+        "description": "Debate configuration overrides",
+        "properties": {
+          "panel_size": { "type": "integer", "minimum": 3, "maximum": 7, "default": 5 },
+          "rounds": { "type": "integer", "minimum": 1, "maximum": 5, "default": 3 },
+          "focus_areas": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional list of specific aspects to focus the debate on",
+            "maxItems": 5
+          }
+        }
+      }
+    },
+    "required": ["article"]
+  }
+}`}/>
+      <ExpandableSection title="Streaming Tool Results" icon="🌊">
+
+For long-running tools, stream incremental results back to the host rather than waiting for completion.
+
+        <CodeBlock language="python" label="Streaming Tool Implementation" code={`from mcp.server import Server
+from mcp.types import Tool, TextContent, CallToolResult
+import asyncio
+
+server = Server("streaming-analysis")
+
+@server.call_tool()
+async def call_tool(name: str, arguments: dict):
+    if name == "analyze_large_dataset":
+        return await stream_analysis(arguments)
+    raise ValueError(f"Unknown tool: {name}")
+
+async def stream_analysis(args: dict):
+    """Stream incremental results for long analysis tasks."""
+    dataset = args["dataset_path"]
+    chunk_size = args.get("chunk_size", 1000)
+
+    results = []
+    total_processed = 0
+
+    async for chunk in read_dataset_chunks(dataset, chunk_size):
+        analysis = await analyze_chunk(chunk)
+        total_processed += len(chunk)
+        results.append(analysis)
+
+        # Yield intermediate progress — host can stream to UI
+        yield TextContent(
+            type="text",
+            text=f"Processed {total_processed} records. "
+                 f"Running stats: {compute_running_stats(results)}"
+        )
+
+    # Final result
+    yield TextContent(
+        type="text",
+        text=f"Complete. Final analysis: {aggregate_results(results)}"
+    )`}/>
+      </ExpandableSection>
+      <ExpandableSection title="Pagination for Large Result Sets" icon="📄">
+        <CodeBlock language="typescript" label="Paginated Tool Pattern" code={`import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+
+const server = new Server(
+  { name: 'paginated-search', version: '1.0.0' },
+  { capabilities: { tools: {} } }
+);
+
+// Cursor-based pagination for large result sets
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  if (request.params.name === 'search_knowledge_base') {
+    const { query, cursor, limit = 20 } = request.params.arguments as {
+      query: string;
+      cursor?: string;
+      limit?: number;
+    };
+
+    const offset = cursor ? parseInt(Buffer.from(cursor, 'base64').toString()) : 0;
+    const results = await db.search(query, { offset, limit: limit + 1 });
+
+    const hasMore = results.length > limit;
+    const page = results.slice(0, limit);
+
+    const nextCursor = hasMore
+      ? Buffer.from(String(offset + limit)).toString('base64')
+      : undefined;
+
+    return {
+      content: [{
+        type: 'text',
+        text: JSON.stringify({
+          results: page,
+          total_returned: page.length,
+          next_cursor: nextCursor,
+          has_more: hasMore
+        })
+      }]
+    };
+  }
+});`}/>
+      </ExpandableSection>
+      <ToolSchemaBuilder/>
+      <Quiz question="Why should MCP tool schemas include enum constraints on string parameters wherever possible?" options={["Enums make the schema file smaller","LLMs are less likely to hallucinate invalid values when valid options are explicitly listed","Enum parameters are processed faster by the server","The MCP specification requires enums for all string fields"]} correctIndex={1} explanation="Enums are a form of structured output guidance. When an LLM sees that a parameter must be one of ['rethink', 'rediscover', 'reinvent'], it will reliably pick from that list. Without an enum, the model might invent creative but invalid values like 'reconsider' or 'rebuild'."/>

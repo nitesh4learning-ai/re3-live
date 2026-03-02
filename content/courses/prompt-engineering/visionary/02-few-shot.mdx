@@ -1,0 +1,38 @@
+---
+label: "Few-Shot Learning"
+icon: "📚"
+---
+
+## Few-Shot Learning
+
+<JargonTip term="few-shot">Few-shot</JargonTip> prompting means giving the AI **examples** of the desired input-output pattern before asking your actual question. The model learns the pattern from the examples and applies it.
+
+**<JargonTip term="zero-shot">Zero-shot</JargonTip>** = no examples (just the instruction). **One-shot** = one example. **Few-shot** = 2-5 examples. More examples generally improve consistency but cost more <JargonTip term="token">tokens</JargonTip>.
+
+<AnalogyBox emoji="🎨" title="Think of it like teaching by example">Instead of explaining the rules of a card game in words, you play a few rounds while narrating. The learner picks up the pattern faster from seeing examples than from reading rules.</AnalogyBox>
+
+<CodeBlock language="text" label="Zero-shot vs Few-shot" code={`ZERO-SHOT:
+"Classify this review as positive or negative: 'The food was amazing!'"
+
+FEW-SHOT (2 examples):
+"Classify reviews as positive or negative.
+
+Review: 'Loved the atmosphere!' -> positive
+Review: 'Terrible service, waited 2 hours' -> negative
+Review: 'The food was amazing!' -> "`}/>
+
+<ExpandableSection title="When to use few-shot vs zero-shot" icon="🤔">
+
+**Use zero-shot when:** The task is straightforward and well-understood (translation, summarization, simple Q&A).
+
+**Use few-shot when:** You need a specific output format, the task is nuanced, or the model struggles with zero-shot instructions.
+
+**Use many-shot (5+) when:** The task requires very specific patterns like code generation in a particular style or domain-specific classification.
+
+**Trade-off:** Each example costs tokens. 5 examples at ~100 tokens each = 500 tokens of your context window used before the user even asks a question.
+
+</ExpandableSection>
+
+<Quiz question="You need the AI to consistently output JSON in a very specific schema. What's the best approach?" options={["Zero-shot with detailed instructions","One-shot with a single example","Few-shot with 2-3 examples showing the exact schema","Just set temperature to 0"]} correctIndex={2} explanation="For specific output formats like JSON schemas, few-shot examples are the most reliable approach. The model can see the exact structure you want and replicate it consistently."/>
+
+<Quiz question="What is the main trade-off of using many-shot prompting (5+ examples)?" options={["It makes the model slower","It uses more tokens from the context window","It confuses the model","It only works with GPT-4"]} correctIndex={1} explanation="Each example consumes tokens from your context window. 5+ examples can easily use 500-1000 tokens, leaving less room for the actual conversation and response."/>

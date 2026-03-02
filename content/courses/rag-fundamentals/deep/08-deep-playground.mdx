@@ -1,0 +1,32 @@
+---
+label: "Deep Playground"
+icon: "🎮"
+---
+
+## Deep Playground
+
+Architecture decision exercises and RAG pipeline debugging scenarios drawn from real production challenges.
+
+<ExpandableSection title="Scenario 1: RAG Pipeline Design" icon="🏗️" defaultOpen={true}>
+
+<ArchitectureDecision scenario="A law firm wants to build an AI assistant that can answer questions about their 50,000+ case files, legal precedents, and internal memos. Accuracy is paramount -- wrong legal advice is a malpractice risk. Budget is $5K/month for AI infrastructure." options={[{label:'Advanced RAG with hybrid search, Cohere reranking, GPT-4o for generation',tradeoff:'Strong quality, $3-5K/month for API calls at expected volume, easy to maintain, but no self-hosting control'},{label:'Self-RAG with open-source LLM (LLaMA 3 70B), self-hosted on 2x A100s',tradeoff:'Full control, no data leaves premises, ~$4K/month for GPU rental, but requires ML ops team'},{label:'Advanced RAG with faithfulness checks: retrieve, rerank, generate, then verify answer against sources',tradeoff:'Balanced: uses managed APIs for convenience, adds verification step to catch hallucinations, ~$4K/month'}]} correctIndex={2} explanation="For a law firm, the verification step is non-negotiable. Advanced RAG with a post-generation faithfulness check provides the accuracy guarantees needed for legal work without the operational complexity of self-hosting. The verification step compares each claim in the answer against the retrieved sources, flagging unsupported statements. This catches hallucinations before they reach the user." />
+
+</ExpandableSection>
+
+<ExpandableSection title="Scenario 2: Debugging Poor Retrieval" icon="🔍">
+
+<Quiz question="Users report your RAG system gives good answers for English queries but poor answers for the same questions in Spanish, even though the knowledge base contains Spanish documents. What is the most likely cause?" options={["The LLM does not understand Spanish","The embedding model was trained primarily on English and produces lower-quality embeddings for Spanish text","The chunking strategy does not handle Spanish punctuation","Spanish documents were not indexed"]} correctIndex={1} explanation="Most embedding models trained primarily on English produce lower-quality embeddings for other languages, reducing retrieval quality. The same Spanish query may not match Spanish documents as well as an English query matches English documents. Solutions: use a multilingual embedding model (Cohere embed-v4, BGE-M3), or translate queries to English before retrieval." />
+
+</ExpandableSection>
+
+<ExpandableSection title="Scenario 3: Scale Planning" icon="📊">
+
+<ArchitectureDecision scenario="Your RAG system currently handles 1,000 queries/day with 100K documents. Next quarter, you are expected to scale to 50,000 queries/day with 10M documents. What infrastructure changes are needed?" options={[{label:'Keep the same architecture, just add more API rate limit',tradeoff:'Simplest change, but 50x query volume means 50x embedding costs, and 10M docs may slow vector search without index tuning'},{label:'Add query caching (semantic cache), upgrade vector DB tier, implement batch embedding pipeline',tradeoff:'Caching reduces API calls by 30-50%, upgraded vector DB handles 10M vectors, batch pipeline keeps index fresh'},{label:'Migrate to a fully self-hosted stack (vLLM + Qdrant cluster) for cost control',tradeoff:'Maximum control and lowest marginal cost, but significant upfront investment in infrastructure and ML ops'}]} correctIndex={1} explanation="At 50K queries/day, the incremental improvements (semantic caching, upgraded vector DB, batch pipeline) provide the best ROI. Caching eliminates 30-50% of redundant API calls. A production-tier vector DB handles 10M vectors with proper indexing. Batch embedding keeps the index current without blocking the query path. Self-hosting is overkill at this scale unless cost reduction is the top priority." />
+
+</ExpandableSection>
+
+<ExpandableSection title="Scenario 4: RAG vs Fine-Tuning" icon="⚖️">
+
+<Quiz question="Your company has a consistent set of 500 FAQs that rarely change. Would RAG or fine-tuning be more appropriate for answering these questions?" options={["RAG is always better than fine-tuning","Fine-tuning is better here: small, stable dataset that can be baked into model weights","RAG is better: even static FAQs benefit from explicit source retrieval and citation","It depends on whether accuracy or speed matters more"]} correctIndex={2} explanation="Even for static FAQs, RAG provides important advantages: explicit source citations (users can verify answers), easy updates (change the FAQ document, not retrain the model), and built-in guardrails against hallucination (answers must be grounded in retrieved content). Fine-tuning bakes knowledge into weights, making it harder to audit, update, or verify." />
+
+</ExpandableSection>

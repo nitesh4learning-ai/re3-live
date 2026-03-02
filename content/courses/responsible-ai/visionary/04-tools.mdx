@@ -1,0 +1,27 @@
+---
+label: "Tools"
+icon: "\uD83E\uDDF0"
+---
+
+## Tools & Frameworks
+
+<ComparisonTable title="Responsible AI Tooling" columns={['Tool','Provider','Focus','Language']} rows={[
+  ['Fairlearn','Microsoft','Fairness assessment & mitigation','Python'],
+  ['AI Fairness 360','IBM','Bias detection (70+ metrics)','Python'],
+  ['What-If Tool','Google','Visual model exploration & fairness','Web/Python'],
+  ['Aequitas','U Chicago','Audit tool for decision systems','Python'],
+  ['LIT (Language Interp.)','Google','NLP model interpretability','Python/Web'],
+]}/>
+
+<ExpandableSection title="Building an AI Ethics Board" icon={'\uD83E\uDDD1\u200D\u2696\uFE0F'} defaultOpen>
+
+An effective <JargonTip term="AI governance">AI governance</JargonTip> ethics board should include:
+
+- **Diverse membership:** Engineers, ethicists, legal, domain experts, affected community reps
+- **Clear mandate:** Review new AI use cases, audit existing systems, handle escalations
+- **Real authority:** Power to block or modify deployments, not just advisory
+- **Regular cadence:** Monthly reviews of flagged systems + quarterly portfolio audits
+
+</ExpandableSection>
+
+<Quiz question="Which is the most important attribute of an effective AI ethics review board?" options={["All members should be AI engineers","It should meet daily","It should have real authority to block deployments","It should only include C-suite executives"]} correctIndex={2} explanation="An ethics board without the power to block or modify deployments is merely performative. Real authority -- the ability to say 'no' or 'not yet' -- is what separates effective governance from checkbox compliance."/>

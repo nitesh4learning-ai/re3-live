@@ -1,0 +1,42 @@
+---
+label: "Playground"
+icon: "\uD83C\uDFAE"
+---
+
+## Playground
+
+Put your knowledge to the test! These exercises cover everything from the previous tabs.
+
+<ExpandableSection title="Exercise 1: Token Estimation Challenge" icon="\uD83E\uDDE9" defaultOpen={true}>
+
+Guess how many tokens each phrase uses, then check your answer. Score within 1 to earn a point!
+
+<TokenEstimationGame/>
+
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 2: Context Budget Planner" icon="\uD83D\uDCCB">
+
+You have a 4,096-token context window. Allocate tokens across system prompt, few-shot examples, and user message. Leave enough room for the model to respond!
+
+<ContextBudgetGame/>
+
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 3: Temperature Detective" icon="\uD83C\uDF21\uFE0F">
+
+Read each AI output and guess what temperature setting produced it.
+
+<TemperatureMatchingGame/>
+
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 4: Final Review" icon="\uD83C\uDF93">
+
+<Quiz question="Roughly how many tokens does the average English word use?" options={["Exactly 1 token per word","About 0.75 tokens per word","About 1.3 tokens per word","About 5 tokens per word"]} correctIndex={2} explanation="On average, English text uses about 1.3 tokens per word (or ~0.75 words per token). This means 1,000 words is approximately 1,300 tokens."/>
+
+<Quiz question="If your context window is 100K tokens and your system prompt uses 5K, how much is left?" options={["100K tokens","95K tokens","105K tokens","It depends on the model"]} correctIndex={1} explanation="Context window is a fixed budget. System prompt (5K) + conversation + response must all fit within the 100K limit. So 100K - 5K = 95K remaining for everything else."/>
+
+<Quiz question="Which training stage teaches a model to refuse harmful requests?" options={["Pre-training","Supervised fine-tuning","RLHF (Reinforcement Learning from Human Feedback)","Tokenization"]} correctIndex={2} explanation="RLHF uses human preferences to align the model with human values, including learning to refuse harmful, unethical, or dangerous requests. Human raters rank outputs, and the model learns from these rankings."/>
+
+</ExpandableSection>

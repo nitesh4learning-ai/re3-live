@@ -1,0 +1,34 @@
+---
+label: "Vector Databases"
+icon: "🗄️"
+---
+
+## Vector Databases
+
+Once you have embeddings, you need somewhere to store and search them efficiently. **Vector databases** are specialized databases optimized for storing high-dimensional vectors and performing fast <JargonTip term="vector search">similarity searches</JargonTip>.
+
+The key challenge: searching millions of vectors by similarity needs to be fast. Exact comparison against every vector is too slow, so vector DBs use **Approximate Nearest Neighbor (ANN)** algorithms.
+
+| Database | Type | Best For |
+|----------|------|----------|
+| Pinecone | Managed cloud | Simplest setup, serverless scaling |
+| Weaviate | Self-hosted or cloud | Hybrid search (vector + keyword) |
+| pgvector | PostgreSQL extension | Already using PostgreSQL |
+| Chroma | Lightweight/embedded | Prototyping, small datasets |
+| Qdrant | Self-hosted or cloud | High performance, filtering |
+
+<ExpandableSection title="How ANN Search Works (HNSW)" icon="⚡">
+
+The most popular ANN algorithm is **HNSW (Hierarchical Navigable Small World)**. Think of it like a skip list for vectors:
+
+- Build a multi-layer graph of vectors, with fewer nodes at higher layers
+- Search starts at the top layer (few nodes, big jumps) and drills down
+- At each layer, greedily move toward the nearest neighbor
+
+HNSW trades ~5% accuracy for 100x speed improvement. For most applications, the small accuracy loss is negligible.
+
+</ExpandableSection>
+
+<Quiz question="Why do vector databases use Approximate Nearest Neighbor instead of exact search?" options={["ANN gives better results","Exact search is too slow for millions of vectors","ANN uses less storage","Exact search doesn't work with high dimensions"]} correctIndex={1} explanation="Exact search requires comparing your query against every vector in the database -- this is O(n) and too slow for millions of vectors. ANN algorithms like HNSW provide near-perfect results in milliseconds."/>
+
+<SeeItInRe3 text="Re³ uses vector search to find relevant articles when the AI selects content for debates. Your query becomes a vector, and similar article vectors are found instantly." targetPage="forge"/>

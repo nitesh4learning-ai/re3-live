@@ -1,0 +1,83 @@
+---
+label: "MCP in Production"
+icon: "🚀"
+---
+
+## MCP in Production
+
+Running MCP servers in production requires monitoring, versioning, multi-server orchestration, and deployment strategies. Here are the patterns used by teams running MCP at scale.
+
+<CodeBlock language="python" label="Structured Logging and Monitoring" code={`import structlog, time
+
+logger = structlog.get_logger("mcp-server")
+
+class ToolMetrics:
+    """Track tool call metrics for monitoring dashboards."""
+
+    def __init__(self):
+        self.call_counts: dict[str, int] = defaultdict(int)
+        self.error_counts: dict[str, int] = defaultdict(int)
+        self.latencies: dict[str, list[float]] = defaultdict(list)
+
+    def record(self, tool_name: str, duration: float, error: bool = False):
+        self.call_counts[tool_name] += 1
+        self.latencies[tool_name].append(duration)
+        if error:
+            self.error_counts[tool_name] += 1
+
+    def get_stats(self, tool_name: str) -> dict:
+        lats = self.latencies.get(tool_name, [])
+        return {
+            "calls": self.call_counts[tool_name],
+            "errors": self.error_counts[tool_name],
+            "p50_ms": sorted(lats)[len(lats)//2] * 1000 if lats else 0,
+            "p99_ms": sorted(lats)[int(len(lats)*0.99)] * 1000 if lats else 0,
+        }
+
+metrics = ToolMetrics()
+
+# Middleware pattern: wrap all tool calls with metrics
+def instrumented_tool(func):
+    async def wrapper(*args, **kwargs):
+        start = time.time()
+        try:
+            result = await func(*args, **kwargs)
+            metrics.record(func.__name__, time.time() - start)
+            logger.info("tool_call", tool=func.__name__, duration=time.time()-start)
+            return result
+        except Exception as e:
+            metrics.record(func.__name__, time.time() - start, error=True)
+            logger.error("tool_error", tool=func.__name__, error=str(e))
+            raise
+    return wrapper`}/>
+
+<ComparisonTable title="MCP Deployment Patterns" columns={['Pattern','When to Use','Trade-off']} rows={[
+  ['Sidecar (per-user process)','Desktop apps, personal tools','Simple isolation but high resource use per user'],
+  ['Shared service (HTTP/SSE)','Team tools, cloud resources','Efficient but requires auth and rate limiting'],
+  ['Serverless (per-request)','Infrequent tools, cost-sensitive','Low cost at low volume but cold start latency'],
+  ['Gateway (proxy to multiple servers)','Many servers, unified management','Central control but single point of failure'],
+]}/>
+
+<CodeBlock language="json" label="MCP Server Versioning (package.json)" code={`{
+  "name": "@company/mcp-knowledge-server",
+  "version": "2.1.0",
+  "mcp": {
+    "protocolVersion": "2025-03-26",
+    "capabilities": ["tools", "resources", "prompts"],
+    "minClientVersion": "0.5.0"
+  },
+  "scripts": {
+    "start": "node dist/server.js",
+    "build": "tsc",
+    "test": "vitest run",
+    "test:mcp": "mcp-inspector test"
+  }
+}`}/>
+
+<Quiz question="Your MCP server has a tool that takes 20 seconds on average. You deploy it as a serverless function with a 10-second timeout. What happens?" options={["The tool works fine, serverless handles long tasks","The tool times out on most calls, returning errors to the LLM","The serverless platform automatically extends the timeout","The tool runs in the background and results are returned later"]} correctIndex={1} explanation="Serverless functions have hard timeout limits. If your tool regularly exceeds the timeout, most calls will fail. Either increase the timeout, optimize the tool, or use a different deployment pattern like a shared service." />
+
+<ArchitectureDecision scenario="You manage 12 MCP servers across your organization. Each team maintains their own server. How should you handle discovery and routing for client applications?" options={[
+  {label:'Hardcode server URIs in each client config',tradeoff:'Simple but brittle. Adding or moving servers requires updating every client config manually'},
+  {label:'MCP Gateway that maintains a server registry and routes tool calls',tradeoff:'Central discovery and routing. Adds a hop but provides unified auth, logging, and server management'},
+  {label:'Service mesh with automatic server discovery',tradeoff:'Most sophisticated but complex to set up. Best for very large deployments with dynamic scaling needs'},
+]} correctIndex={1} explanation="A gateway pattern provides centralized management without the complexity of a full service mesh. It handles discovery, auth, rate limiting, and monitoring in one place. The extra network hop is usually negligible compared to LLM latency." />

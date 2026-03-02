@@ -1,0 +1,49 @@
+---
+label: "Validation"
+icon: "✅"
+---
+
+## Validation & Error Handling
+
+<CodeBlock title="Robust JSON Parsing with Retry" code={`import json
+
+def parse_llm_json(response_text, schema=None, max_retries=2):
+    """Parse JSON from LLM response with fallbacks."""
+    for attempt in range(max_retries + 1):
+        try:
+            # Step 1: Try direct parse
+            data = json.loads(response_text)
+
+            # Step 2: Validate against schema (if provided)
+            if schema:
+                validate(data, schema)
+
+            return {"success": True, "data": data}
+
+        except json.JSONDecodeError:
+            # Try extracting JSON from markdown
+            match = re.search(r'\\{[\\s\\S]*\\}', response_text)
+            if match:
+                try:
+                    data = json.loads(match.group())
+                    return {"success": True, "data": data}
+                except:
+                    pass
+
+            if attempt < max_retries:
+                # Retry with clearer instruction
+                response_text = retry_with_prompt(
+                    "Return ONLY valid JSON, no markdown or text."
+                )
+            else:
+                return {"success": False, "error": "Failed to parse JSON"}
+
+        except ValidationError as e:
+            if attempt < max_retries:
+                response_text = retry_with_prompt(
+                    f"Fix this JSON error: {e.message}"
+                )
+            else:
+                return {"success": False, "error": str(e)}`}/>
+
+<SeeItInRe3 text="Re³ uses regex JSON extraction with fallback handling in its LLM router — response.match(/\{[\s\S]*\}/) extracts JSON from any wrapper text."/>

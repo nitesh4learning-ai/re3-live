@@ -1,0 +1,85 @@
+---
+label: "Hybrid Search Architecture"
+icon: "🔀"
+---
+
+## Hybrid Search Architecture
+
+Pure vector search excels at semantic matching but struggles with exact terms (product SKUs, legal codes, proper names). Pure keyword search (BM25) handles exact matches but misses semantic meaning. <JargonTip term="hybrid search">Hybrid search</JargonTip> combines both for the best of both worlds, and <JargonTip term="reranking">reranking</JargonTip> with <JargonTip term="cross-encoder">cross-encoders</JargonTip> further improves result quality.
+
+<ExpandableSection title="BM25 + Vector Search Fusion" icon="🔀" defaultOpen={true}>
+
+**BM25 (Best Matching 25)** is the standard keyword search algorithm. It scores documents based on term frequency, inverse document frequency, and document length normalization. It is exact, fast, and battle-tested.
+
+**Hybrid search pattern:** Run both BM25 and vector search in parallel, then fuse the results using a combination strategy. The most common fusion method is **Reciprocal Rank Fusion (RRF)**.
+
+**RRF formula:** RRF_score(d) = sum(1 / (k + rank_i(d))) for each retrieval system i. k is typically 60. This simple formula works surprisingly well because it depends on rank, not raw scores (which are not comparable across systems).
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="Hybrid search with Reciprocal Rank Fusion" code={`from typing import List, Dict
+import numpy as np
+
+def reciprocal_rank_fusion(
+    result_lists: List[List[str]],
+    k: int = 60
+) -> List[Dict]:
+    """
+    Fuse multiple ranked result lists using Reciprocal Rank Fusion.
+    Each result_list is a list of document IDs ordered by relevance.
+    """
+    scores = {}
+    for result_list in result_lists:
+        for rank, doc_id in enumerate(result_list):
+            if doc_id not in scores:
+                scores[doc_id] = 0
+            scores[doc_id] += 1.0 / (k + rank + 1)  # +1 for 0-indexed
+
+    # Sort by fused score (descending)
+    fused = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    return [{"doc_id": doc_id, "rrf_score": score} for doc_id, score in fused]
+
+# Example: Hybrid search combining BM25 and vector results
+bm25_results = ["doc_42", "doc_7", "doc_15", "doc_3", "doc_88"]
+vector_results = ["doc_7", "doc_42", "doc_99", "doc_15", "doc_23"]
+
+fused = reciprocal_rank_fusion([bm25_results, vector_results])
+print("Fused results:")
+for r in fused[:5]:
+    print(f"  {r['doc_id']}: RRF score = {r['rrf_score']:.4f}")
+# doc_42 and doc_7 rank highest (appear in both lists)
+
+# Weighted hybrid (e.g., 70% vector, 30% keyword)
+def weighted_hybrid(vector_scores, bm25_scores, alpha=0.7):
+    """Combine normalized scores with weighting."""
+    all_docs = set(vector_scores.keys()) | set(bm25_scores.keys())
+    results = {}
+    for doc in all_docs:
+        v_score = vector_scores.get(doc, 0)
+        b_score = bm25_scores.get(doc, 0)
+        results[doc] = alpha * v_score + (1 - alpha) * b_score
+    return sorted(results.items(), key=lambda x: x[1], reverse=True)`}/>
+
+<ExpandableSection title="Cross-Encoder Reranking" icon="🎯">
+
+First-stage retrieval (BM25 + vector) is fast but approximate. **Cross-encoder reranking** takes the top-N results (~20-50) and re-scores them using a more powerful model that processes the query AND document together.
+
+Unlike bi-encoders (which encode query and document independently), cross-encoders attend to both simultaneously, capturing fine-grained interactions. This makes them much more accurate but too slow for first-stage search.
+
+**Pipeline:** BM25 + Vector -> Top 50 candidates -> Cross-encoder reranking -> Top 10 final results
+
+**Options:** Cohere Rerank API, BGE-reranker-v2-m3 (open-source), Jina Reranker v2, or use an LLM as a reranker (accurate but expensive).
+
+</ExpandableSection>
+
+<ExpandableSection title="Weaviate and Vespa Hybrid Search" icon="🔧">
+
+**Weaviate** has built-in hybrid search that combines BM25 and vector search with configurable alpha weighting. Set alpha=0 for pure keyword, alpha=1 for pure vector, or anything in between.
+
+**Vespa** supports even more flexible hybrid retrieval with custom ranking expressions that can combine multiple signals (BM25, vector, metadata, freshness, popularity) in a single query.
+
+</ExpandableSection>
+
+<Quiz question="A user searches for 'error code ERR-4521 connection timeout.' Pure vector search returns general articles about timeouts but misses the specific error code page. What retrieval strategy fixes this?" options={["Use a larger embedding model","Switch to pure BM25 keyword search","Use hybrid search so BM25 catches the exact error code while vector search captures the semantic intent","Increase the number of retrieved results (top-k)"]} correctIndex={2} explanation="Hybrid search solves this perfectly: BM25 matches the exact string 'ERR-4521' while vector search matches the semantic concept of connection timeouts. Reciprocal rank fusion combines both signals, surfacing the specific error code page at the top."/>
+
+<ArchitectureDecision scenario="You are building a legal document search system. Lawyers search for specific statute numbers (exact match critical) AND conceptual legal questions (semantic match critical). Which architecture?" options={[{label:'Vector search only with very high top-k (retrieve 100, filter to relevant)',tradeoff:'Semantic concepts work well, but exact statute numbers may be missed or ranked poorly'},{label:'Hybrid search (BM25 + vector) with RRF fusion and Cohere reranking',tradeoff:'Best of both: exact statute matching via BM25, conceptual matching via vector, reranking refines quality'},{label:'Two separate search systems: keyword for statutes, vector for concepts, present results side-by-side',tradeoff:'Clear separation, but requires users to choose which search to use, adds UI complexity'}]} correctIndex={1} explanation="Hybrid search with reranking is the gold standard for legal search. BM25 ensures exact statute numbers are found, vector search handles conceptual queries, RRF fuses the results, and cross-encoder reranking further refines relevance. This provides a single, unified search experience."/>

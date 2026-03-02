@@ -1,0 +1,31 @@
+---
+label: "Beyond Basic RAG"
+icon: "🚀"
+---
+
+## Beyond Basic RAG
+
+Basic <JargonTip term="vector search">vector search</JargonTip> RAG is a good start, but real-world systems often need more sophisticated retrieval strategies. Here are the most important advanced patterns.
+
+<ComparisonTable title="Advanced RAG Strategies" columns={['Strategy','How It Works','When to Use']} rows={[
+  ['Hybrid Search','Combines vector similarity + keyword (BM25) matching','When exact terms matter (names, IDs, codes)'],
+  ['Reranking','A second model re-scores retrieved results for relevance','High-accuracy applications (legal, medical)'],
+  ['Graph RAG','Uses knowledge graph relationships to enhance retrieval','When entity connections matter (see GraphRAG)'],
+  ['Query Expansion','Generates multiple variations of the query','Ambiguous or short queries'],
+]} />
+
+<ExpandableSection title="Evaluating RAG Quality: RAGAS Framework" icon="📊">
+
+How do you measure if your RAG system is working well? The **RAGAS** framework defines key metrics:
+
+**Faithfulness:** Is the answer supported by the retrieved context? (no hallucination beyond what was retrieved)
+
+**Answer Relevancy:** Does the answer actually address the question?
+
+**Context Precision:** Are the retrieved documents actually relevant?
+
+**Context Recall:** Did the retrieval find ALL the relevant information?
+
+</ExpandableSection>
+
+<Quiz question="When should you use Hybrid Search instead of pure vector search?" options={["Always -- it's strictly better","When exact terms matter (product IDs, names, legal codes)","Only for small datasets","When you don't have an embedding model"]} correctIndex={1} explanation="Hybrid search shines when queries contain specific terms that must match exactly -- like product SKUs, legal statute numbers, or proper names. Pure vector search might miss these exact matches." />

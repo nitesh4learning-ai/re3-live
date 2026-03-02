@@ -1,0 +1,31 @@
+---
+label: "Methods"
+icon: "\u26A1"
+---
+
+## Fine-Tuning Methods
+  <ExpandableSection title="Full Fine-Tuning" icon="🔧" defaultOpen>
+Update all model weights. Highest quality but requires significant compute (GPUs) and risks catastrophic forgetting. Best for small models or when you have abundant data.
+</ExpandableSection>
+  <ExpandableSection title="LoRA (Low-Rank Adaptation)" icon="⚡">
+Only train small <JargonTip term="LoRA">adapter matrices</JargonTip> (0.1-1% of total parameters). Fast, cheap, and preserves base model knowledge. The most popular fine-tuning method in 2025.
+</ExpandableSection>
+  <ExpandableSection title="QLoRA" icon="💾">
+<JargonTip term="QLoRA">QLoRA</JargonTip> combines LoRA with 4-bit quantization. Fine-tune a 70B model on a single GPU. Slight quality trade-off for massive compute savings.
+</ExpandableSection>
+  <CodeBlock title="LoRA Fine-Tuning with Hugging Face" code={`from peft import LoraConfig, get_peft_model
+from transformers import AutoModelForCausalLM
+
+model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3.1-8B")
+
+lora_config = LoraConfig(
+    r=16,           # Rank of the adapter
+    lora_alpha=32,  # Scaling factor
+    target_modules=["q_proj", "v_proj"],  # Which layers to adapt
+    lora_dropout=0.05,
+)
+
+model = get_peft_model(model, lora_config)
+# Only 0.1% of parameters are trainable!
+model.print_trainable_parameters()
+# trainable: 4,194,304 || total: 8,030,261,248 || 0.05%`}/>

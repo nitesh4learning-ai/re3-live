@@ -1,0 +1,15 @@
+---
+label: "Playground"
+icon: "\uD83C\uDFAE"
+---
+
+## Playground
+
+Test your Graph RAG knowledge!
+
+  <ExpandableSection title="Exercise 1: Triple Extraction" icon="🔗" defaultOpen={true}>
+    <Quiz question="From 'Tesla, founded by Elon Musk, is headquartered in Austin.' How many triples can be extracted?" options={["1 triple","2 triples","3 triples","4 triples"]} correctIndex={1} explanation="Two triples: (Tesla, founded by, Elon Musk) and (Tesla, headquartered in, Austin). Each relationship becomes a separate triple."/>
+  </ExpandableSection>
+  <ExpandableSection title="Exercise 2: Strategy Selection" icon="🔍">
+    <Quiz question="A user asks 'What companies did Einstein's colleagues found?' This requires:" options={["Simple vector search","Multi-hop graph traversal","Keyword search for 'Einstein'","A larger LLM"]} correctIndex={1} explanation="This requires graph traversal: Einstein \u2192 (colleagues) \u2192 People \u2192 (founded) \u2192 Companies. Pure search would never connect these dots across multiple relationship hops."/>
+  </ExpandableSection>

@@ -1,0 +1,12 @@
+---
+label: "Playground"
+icon: "🎮"
+---
+
+## Memory Design Playground
+
+<ArchitectureDecision scenario="You are building a personal AI assistant that users interact with daily for months. It should remember their preferences (communication style, favorite topics), ongoing projects, and key facts from past conversations." options={[
+  {label:'Large context window: keep all messages forever',tradeoff:'Expensive and impractical for months of conversation (millions of tokens)'},
+  {label:'Buffer + entity extraction + vector retrieval',tradeoff:'Balanced: recent context in buffer, important facts in entity store, past conversations searchable via vectors'},
+  {label:'Summary memory only: summarize each conversation and store',tradeoff:'Space-efficient but loses specific details -- hard to recall exact facts from past conversations'},
+]} correctIndex={1} explanation="A hybrid approach gives the best of all worlds. Buffer handles immediate context, entity extraction captures key facts (preferences, project names), and vector retrieval lets you surface relevant past conversations when needed." />

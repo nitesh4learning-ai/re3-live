@@ -1,0 +1,16 @@
+---
+label: "What Are Embeddings"
+icon: "🧠"
+---
+
+## What Are Embeddings?
+
+An <JargonTip term="embedding">embedding</JargonTip> is a way to represent text (or images, or audio) as a **list of numbers** -- a vector. These numbers capture the **meaning** of the text, not just the words. Sentences with similar meanings end up with similar number patterns.
+
+Modern embedding models produce vectors with 768 to 3,072 dimensions. Each dimension captures some aspect of meaning, though no single dimension has an obvious interpretation.
+
+<AnalogyBox emoji="📍" title="Think of it like GPS coordinates for meaning">GPS coordinates map physical locations to numbers. Embeddings map meaning to numbers. Just as nearby coordinates mean nearby locations, nearby vectors mean similar meanings.</AnalogyBox>
+
+<CodeBlock language="python" label="Text to Vector" code={`from openai import OpenAI\nclient = OpenAI()\n\nresponse = client.embeddings.create(\n    input="The cat sat on the mat",\n    model="text-embedding-3-small"\n)\n\nvector = response.data[0].embedding\n# Result: [0.023, -0.041, 0.089, ..., 0.012]\n# Length: 1,536 numbers (dimensions)\nprint(f"Vector has {len(vector)} dimensions")`}/>
+
+<Quiz question="What does an embedding capture about text?" options={["The exact words used","The font and formatting","The semantic meaning of the text","The number of characters"]} correctIndex={2} explanation="Embeddings capture semantic meaning -- the concept behind the words. This is why 'happy' and 'joyful' have similar embeddings even though they share no letters."/>

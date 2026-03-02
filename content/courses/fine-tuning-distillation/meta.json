@@ -1,0 +1,16 @@
+{
+  "tier": 3,
+  "icon": "🔧",
+  "title": "Fine-Tuning & Model Distillation",
+  "description": "When to fine-tune, LoRA/QLoRA techniques, teacher-student distillation, evaluation & deployment at scale.",
+  "difficulty": "Advanced",
+  "timeMinutes": 50,
+  "exerciseCount": 8,
+  "tabCount": 5,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Fine-Tuning & Model Distillation — Re³ Academy",
+    "metaDescription": "Master fine-tuning and distillation: LoRA/QLoRA, teacher-student models, and deployment at scale."
+  }
+}

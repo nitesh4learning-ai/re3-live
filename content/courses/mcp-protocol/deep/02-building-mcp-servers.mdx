@@ -1,0 +1,109 @@
+---
+label: "Building MCP Servers"
+icon: "💻"
+---
+
+## Building MCP Servers
+
+A production MCP server registers tools with input validation, handles errors gracefully, and manages resources. Here is a complete Python server with multiple tools, resource handlers, and proper error handling.
+
+<CodeBlock language="python" label="Production MCP Server (Python)" code={`from mcp.server import Server
+from mcp.types import Tool, TextContent, Resource, ResourceTemplate
+import json, httpx, logging
+
+logger = logging.getLogger("knowledge-server")
+app = Server("knowledge-base")
+
+# --- Tool 1: Search documents ---
+@app.tool()
+async def search_documents(query: str, limit: int = 10, category: str = None) -> str:
+    """Search the knowledge base for documents matching a query.
+
+    Args:
+        query: Search terms to match against document titles and content
+        limit: Maximum number of results to return (1-50)
+        category: Optional category filter (engineering, product, design)
+    """
+    if limit < 1 or limit > 50:
+        raise ValueError("limit must be between 1 and 50")
+    valid_cats = ["engineering", "product", "design", None]
+    if category not in valid_cats:
+        raise ValueError(f"category must be one of: {valid_cats}")
+
+    # In production: query your vector DB or search index
+    results = await _do_search(query, limit, category)
+    return json.dumps({"results": results, "total": len(results)})
+
+# --- Tool 2: Create a document ---
+@app.tool()
+async def create_document(title: str, content: str, category: str) -> str:
+    """Create a new document in the knowledge base.
+
+    Args:
+        title: Document title (max 200 characters)
+        content: Document body in markdown format
+        category: Document category (engineering, product, design)
+    """
+    if len(title) > 200:
+        raise ValueError("Title must be 200 characters or less")
+    doc_id = await _save_document(title, content, category)
+    return json.dumps({"id": doc_id, "status": "created"})
+
+# --- Resource: Expose category listing ---
+@app.resource("kb://categories")
+async def list_categories() -> str:
+    """List all available document categories."""
+    return json.dumps(["engineering", "product", "design"])
+
+# --- Prompt: Document review template ---
+@app.prompt("review-doc")
+async def review_prompt(doc_id: str) -> list:
+    """Generate a review prompt for a specific document."""
+    doc = await _get_document(doc_id)
+    return [
+        {"role": "user", "content": f"Review this document for clarity and accuracy:\\n\\n{doc['content']}"}
+    ]`}/>
+
+<CodeBlock language="typescript" label="MCP Server in TypeScript" code={`import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+const server = new Server({ name: "ts-kb-server", version: "1.0.0" }, {
+  capabilities: { tools: {}, resources: {} }
+});
+
+// Register a tool with Zod schema validation
+server.setRequestHandler("tools/list", async () => ({
+  tools: [{
+    name: "search_documents",
+    description: "Search knowledge base by query",
+    inputSchema: {
+      type: "object",
+      properties: {
+        query: { type: "string", description: "Search terms" },
+        limit: { type: "number", description: "Max results (1-50)" }
+      },
+      required: ["query"]
+    }
+  }]
+}));
+
+server.setRequestHandler("tools/call", async (request) => {
+  const { name, arguments: args } = request.params;
+  if (name === "search_documents") {
+    const results = await doSearch(args.query, args.limit ?? 10);
+    return { content: [{ type: "text", text: JSON.stringify(results) }] };
+  }
+  throw new Error(\`Unknown tool: \${name}\`);
+});
+
+const transport = new StdioServerTransport();
+await server.connect(transport);`}/>
+
+<Quiz question="In the Python MCP SDK, how are tool input schemas generated?" options={["You write JSON Schema manually","From function type hints, parameter names, and docstrings","From a separate schema file","From a database of tool definitions"]} correctIndex={1} explanation="The Python SDK inspects type hints for parameter types, parameter names for property names, docstrings for descriptions, and default values to determine required vs optional. Convention over configuration." />
+
+<ArchitectureDecision scenario="You need to build MCP servers for your team. Half the team knows Python well, the other half prefers TypeScript. Which approach?" options={[
+  {label:'All Python -- pick one language for consistency',tradeoff:'Unified codebase and shared patterns, but TS devs are less productive and may resist adoption'},
+  {label:'All TypeScript -- the Node ecosystem is larger',tradeoff:'Larger package ecosystem, but Python devs lose productivity and some data science tools are Python-only'},
+  {label:'Mixed -- each team uses their preferred language',tradeoff:'Maximum developer velocity, MCP protocol is language-agnostic so servers interoperate. Slightly more DevOps complexity'},
+]} correctIndex={2} explanation="MCP is protocol-level interoperability -- servers written in different languages work identically with any client. Let teams use what they know best. The DevOps overhead of supporting two runtimes is typically small compared to the productivity gains." />

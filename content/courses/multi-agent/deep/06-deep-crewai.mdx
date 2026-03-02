@@ -1,0 +1,85 @@
+---
+label: "CrewAI & AutoGen"
+icon: "\uD83E\uDD16"
+---
+
+## CrewAI & AutoGen
+
+CrewAI and AutoGen take different approaches to multi-agent orchestration. CrewAI uses role-based teams with structured task delegation, while AutoGen focuses on conversational agent interactions. Understanding when to use each saves significant development time.
+
+  <CodeBlock language="python" label="CrewAI Agent Team" code={`from crewai import Agent, Task, Crew, Process
+
+# Define agents with roles and expertise
+researcher = Agent(
+    role="Senior Research Analyst",
+    goal="Find comprehensive data on the given topic",
+    backstory="You are an expert researcher with 15 years experience "
+              "in data analysis and information synthesis.",
+    llm="claude-sonnet-4-20250514",
+    verbose=True,
+    allow_delegation=True  # Can delegate subtasks to other agents
+)
+
+writer = Agent(
+    role="Technical Writer",
+    goal="Create clear, engaging technical content",
+    backstory="You specialize in making complex topics accessible "
+              "without sacrificing accuracy.",
+    llm="claude-sonnet-4-20250514",
+    verbose=True
+)
+
+editor = Agent(
+    role="Senior Editor",
+    goal="Ensure content is polished and publication-ready",
+    backstory="Former editor at a major tech publication with an eye "
+              "for clarity, accuracy, and engagement.",
+    llm="claude-sonnet-4-20250514",
+    verbose=True
+)
+
+# Define tasks with dependencies
+research_task = Task(
+    description="Research {topic} thoroughly. Include data and examples.",
+    expected_output="A detailed research brief with key findings.",
+    agent=researcher
+)
+
+writing_task = Task(
+    description="Write an article based on the research brief.",
+    expected_output="A 1500-word article suitable for publication.",
+    agent=writer,
+    context=[research_task]  # Depends on research output
+)
+
+editing_task = Task(
+    description="Edit the article for clarity and accuracy.",
+    expected_output="A polished, publication-ready article.",
+    agent=editor,
+    context=[writing_task]
+)
+
+# Assemble and run the crew
+crew = Crew(
+    agents=[researcher, writer, editor],
+    tasks=[research_task, writing_task, editing_task],
+    process=Process.sequential,  # or Process.hierarchical
+    verbose=True
+)
+
+result = crew.kickoff(inputs={"topic": "Multi-agent AI systems"})`}/>
+  <ComparisonTable title="CrewAI vs AutoGen vs LangGraph" columns={['Feature','CrewAI','AutoGen','LangGraph']} rows={[
+    ['Mental Model','Team of role-based agents','Conversational agents','State machine graph'],
+    ['Orchestration','Sequential or hierarchical process','Chat-based turn-taking','Graph edges and conditions'],
+    ['State Management','Implicit via task context','Chat history','Explicit typed state'],
+    ['Human-in-Loop','Via task callbacks','Via UserProxyAgent','Via checkpoints + interrupts'],
+    ['Best For','Structured team workflows','Conversational problem-solving','Complex stateful workflows'],
+    ['Learning Curve','Low','Medium','Higher'],
+    ['Production Readiness','Growing','Good','Most mature'],
+  ]}/>
+  <ArchitectureDecision scenario="Your team needs to build a customer support system where an AI triages tickets, routes to specialist agents, and escalates to humans when confidence is low. The workflow has complex branching logic." options={[
+    {label:'CrewAI with hierarchical process',tradeoff:'Easy to define agent roles. But hierarchical process has limited branching control.'},
+    {label:'AutoGen with group chat',tradeoff:'Good for conversational flow. But hard to enforce strict routing rules.'},
+    {label:'LangGraph with conditional edges',tradeoff:'Most control over routing logic. Steeper learning curve but handles complex branching natively.'},
+    {label:'Custom orchestration with raw API calls',tradeoff:'Full control but requires building state management, error handling, and checkpointing from scratch.'}
+  ]} correctIndex={2} explanation="Complex branching logic with triage, routing, and escalation paths maps naturally to LangGraph's conditional edges. The graph model makes the workflow explicit and debuggable, and checkpointing enables reliable human escalation."/>

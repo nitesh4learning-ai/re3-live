@@ -1,0 +1,23 @@
+---
+label: "Cross-Modal"
+icon: "\uD83E\uDDE0"
+---
+
+## Cross-Modal Reasoning
+  <ExpandableSection title="What is Cross-Modal Reasoning?" icon="🧠" defaultOpen>
+
+Cross-modal reasoning is when an AI uses information from one modality to inform understanding in another. Models create shared <JargonTip term="embedding">embedding</JargonTip> spaces where different modalities can be compared. For example: reading a chart image (vision) to answer a text question, or using audio context to disambiguate text.
+
+  </ExpandableSection>
+  <ComparisonTable title="Cross-Modal Applications" columns={['Input Modalities','Output','Application']} rows={[
+    ['Image + Text','Structured JSON','Invoice processing, form extraction'],
+    ['Video + Text','Summary + timestamps','Meeting notes, content moderation'],
+    ['Audio + Text','Sentiment + transcript','Call center analytics'],
+    ['Image + Image','Diff report','Quality inspection, change detection'],
+    ['Text + Image','Generated image','Product visualization, design iteration'],
+  ]}/>
+  <ArchitectureDecision scenario="You need to build an AI system that processes insurance claims. Claims include: a text description, photos of damage, and sometimes a scanned handwritten form. How do you architect the multimodal pipeline?" options={[
+    {label:"Single model call -- send everything to GPT-4o in one request",tradeoff:"Simplest but context window limits may truncate data; expensive for routine claims"},
+    {label:"Parallel extraction then fusion -- process each modality separately, then combine with a reasoning LLM",tradeoff:"More complex but handles large claims; each extraction optimized for its modality; fusion step cross-references"},
+    {label:"Sequential pipeline -- OCR first, then vision for photos, then text reasoning",tradeoff:"Structured but no cross-modal reasoning; the text model can't reference photos and vice versa"},
+  ]} correctIndex={1} explanation="Parallel extraction + fusion is the production pattern. Each modality gets specialized processing (OCR for forms, vision for damage photos, NER for text), then a fusion step cross-references everything: 'Does the photo damage match the text description? Is the handwritten amount consistent with the typed claim?'"/>

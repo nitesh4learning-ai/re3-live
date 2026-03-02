@@ -1,0 +1,45 @@
+---
+label: "Cost Modeling"
+icon: "📈"
+---
+
+## Cost Modeling
+
+<CodeBlock title="Cost Estimation Function" code={`def estimate_monthly_cost(
+    queries_per_day,
+    avg_input_tokens,
+    avg_output_tokens,
+    model="gpt-4o",
+    cache_hit_rate=0.0,
+    retry_rate=0.05
+):
+    prices = {
+        "gpt-4o": {"input": 2.50, "output": 10.00},
+        "claude-3.5-sonnet": {"input": 3.00, "output": 15.00},
+        "gpt-4o-mini": {"input": 0.15, "output": 0.60},
+    }
+    p = prices[model]
+
+    # Base cost per query
+    input_cost = (avg_input_tokens / 1e6) * p["input"]
+    output_cost = (avg_output_tokens / 1e6) * p["output"]
+    cost_per_query = input_cost + output_cost
+
+    # Adjust for caching (reduces input cost)
+    if cache_hit_rate > 0:
+        cached_savings = input_cost * cache_hit_rate * 0.9
+        cost_per_query -= cached_savings
+
+    # Adjust for retries
+    effective_queries = queries_per_day * (1 + retry_rate)
+
+    daily = cost_per_query * effective_queries
+    monthly = daily * 30
+
+    return {
+        "cost_per_query": "$%.4f" % cost_per_query,
+        "daily": "$%.2f" % daily,
+        "monthly": "$%.2f" % monthly,
+    }`}/>
+
+<ArchitectureDecision scenario="Your chatbot costs $5K/month using GPT-4o (10K queries/day, 800 input + 300 output tokens avg). Budget is $2K. What do you cut?" options={[{label:'Switch entirely to GPT-4o-mini',tradeoff:'~95% cost reduction to ~$250/mo, but noticeable quality drop for complex queries'},{label:'Model cascading: route 70% of simple queries to GPT-4o-mini, keep GPT-4o for complex ones',tradeoff:'~70% savings to ~$1,500/mo while maintaining quality where it matters'},{label:'Keep GPT-4o but add prompt caching + reduce context size',tradeoff:'~40% savings to ~$3K/mo \u2014 may not reach $2K budget target'}]} correctIndex={1} explanation="Model cascading is the sweet spot. Most support queries are simple (FAQ lookups, status checks) and work fine with GPT-4o-mini. Only complex queries (multi-step reasoning, complaints) need GPT-4o. This achieves ~70% savings while preserving quality." />

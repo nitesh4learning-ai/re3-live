@@ -1,0 +1,12 @@
+---
+label: "Pattern Lab"
+icon: "🏗️"
+---
+
+## Pattern Selection Lab
+
+<ArchitectureDecision scenario="Build an AI code review agent. It receives a PR diff, should analyze code quality, check for bugs, verify test coverage, and suggest improvements. Output: structured review with severity ratings." options={[
+  {label:'ReAct: read diff, call linter, check tests, iterate',tradeoff:'Flexible but may miss systematic issues. Good for simple reviews.'},
+  {label:'Plan-and-Execute + Reflection: plan review strategy, execute checks, then reflect on completeness',tradeoff:'Most thorough -- planning ensures comprehensive coverage, reflection catches missed issues'},
+  {label:'Parallel fan-out: run style check, bug detection, test analysis, security scan simultaneously',tradeoff:'Fastest but no cross-cutting analysis. Bugs that span multiple files may be missed.'},
+]} correctIndex={1} explanation="Code review benefits from both planning (systematic checklist) and reflection (did I miss anything?). The plan ensures style, bugs, tests, and security are all checked. Reflection catches cross-cutting concerns like architectural issues." />

@@ -1,0 +1,194 @@
+---
+label: "GraphRAG Architecture"
+icon: "\uD83C\uDFD7\uFE0F"
+---
+
+## GraphRAG Architecture
+
+Microsoft Research's GraphRAG (2024) introduced a breakthrough: instead of just indexing documents, it builds a full knowledge graph, then runs **community detection** to group related entities, and generates **hierarchical summaries** at each level. This enables answering global questions like "What are the main themes across all our documents?"
+
+
+
+### Microsoft GraphRAG: Two Search Modes
+
+
+            Local Search
+
+Entity-centric queries about specific things. Combines knowledge graph context (entity neighborhood) with relevant text chunks.
+
+
+              Example: "Tell me about Geoffrey Hinton's contributions"
+
+
+
+            Global Search
+
+Dataset-wide thematic questions. Uses community summaries to answer questions that require synthesizing the entire corpus.
+
+
+              Example: "What are the main research themes in our documents?"
+
+
+
+
+      <CodeBlock language="python" label="Microsoft GraphRAG Indexing Pipeline" code={`# pip install graphrag
+# graphrag.config.yml setup
+
+import os
+from graphrag.index import run_pipeline_with_config
+from graphrag.config import create_graphrag_config
+
+# Initialize project
+os.makedirs("./.graphrag", exist_ok=True)
+
+config = create_graphrag_config({
+    "llm": {
+        "api_key": os.environ["ANTHROPIC_API_KEY"],
+        "type": "openai_chat",  # compatible endpoint
+        "model": "claude-opus-4-6",
+        "max_tokens": 4000,
+    },
+    "embeddings": {
+        "llm": {
+            "api_key": os.environ["OPENAI_API_KEY"],
+            "type": "openai_embedding",
+            "model": "text-embedding-3-small",
+        }
+    },
+    "chunks": {
+        "size": 300,
+        "overlap": 100,
+        "group_by_columns": ["id"],
+    },
+    "entity_extraction": {
+        "prompt": "custom_entity_prompt.txt",
+        "entity_types": ["person", "organization", "concept", "technology"],
+        "max_gleanings": 1,
+    },
+    "community_reports": {
+        "max_length": 2000,
+        "max_input_length": 8000,
+    },
+    "cluster_graph": {
+        "max_cluster_size": 10,
+    },
+})
+
+# Run the full indexing pipeline
+# This builds: entities → graph → communities → summaries → embeddings
+await run_pipeline_with_config(config)
+
+# ---- Query with Local Search ----
+from graphrag.query.context_builder.entity_extraction import EntityVectorStoreKey
+from graphrag.query.llm.oai.chat_openai import ChatOpenAI
+from graphrag.query.structured_search.local_search.mixed_context import LocalSearchMixedContext
+from graphrag.query.structured_search.local_search.search import LocalSearch
+
+local_search = LocalSearch(
+    llm=llm,
+    context_builder=LocalSearchMixedContext(
+        community_reports=community_reports,
+        text_units=text_units,
+        entities=entities,
+        relationships=relationships,
+        entity_text_embeddings=entity_embeddings,
+        embedding_vectorstore_key=EntityVectorStoreKey.TITLE,
+        text_embedder=text_embedder,
+    ),
+    token_encoder=token_encoder,
+    llm_params={"max_tokens": 2000, "temperature": 0.0},
+    context_builder_params={
+        "use_community_summary": False,
+        "shuffle_data": True,
+        "include_entity_rank": True,
+        "min_rank": 0,
+        "community_rank_perc": 0.25,
+        "include_relationship_weight": True,
+        "relationship_ranking_technique": "pagerank",
+        "max_tokens": 12000,
+    },
+)
+
+result = await local_search.asearch("What did Geoffrey Hinton work on at Google?")
+print(result.response)`} />
+      <CodeBlock language="python" label="Community Detection with NetworkX" code={`import networkx as nx
+import community as community_louvain
+
+def detect_communities(entities: list, relations: list) -> dict:
+    """Detect communities using Louvain algorithm."""
+    G = nx.Graph()
+
+    # Add nodes with entity metadata
+    for entity in entities:
+        G.add_node(entity['name'],
+                   entity_type=entity['type'],
+                   description=entity.get('description', ''))
+
+    # Add edges with relation weights
+    for relation in relations:
+        if G.has_edge(relation['source'], relation['target']):
+            # Strengthen existing edge
+            G[relation['source']][relation['target']]['weight'] += 1
+        else:
+            G.add_edge(relation['source'], relation['target'],
+                      relation=relation['type'],
+                      weight=relation['confidence'])
+
+    # Run Louvain community detection
+    partition = community_louvain.best_partition(G, weight='weight')
+
+    # Group entities by community
+    communities = {}
+    for node, community_id in partition.items():
+        if community_id not in communities:
+            communities[community_id] = []
+        communities[community_id].append(node)
+
+    # Calculate modularity (quality metric: higher = better communities)
+    modularity = community_louvain.modularity(partition, G)
+    print(f"Community modularity: {modularity:.3f}")  # Good: > 0.3
+
+    return communities, partition, modularity
+
+# Generate community summaries with LLM
+async def generate_community_summary(community_entities: list,
+                                      relations: list, llm) -> str:
+    entity_desc = "\\n".join([f"- {e}" for e in community_entities])
+    rel_desc = "\\n".join([f"- {r['source']} {r['type']} {r['target']}"
+                           for r in relations if r['source'] in community_entities])
+
+    return await llm.generate(f"""
+    Summarize this cluster of related entities and their relationships.
+    Explain what unifies them and what role they play in the broader knowledge graph.
+
+    Entities:
+    {entity_desc}
+
+    Key relationships:
+    {rel_desc}
+
+    Write a 2-3 sentence summary for use in global search queries.
+    """)`} />
+      <CommunityExplorer />
+      <Quiz
+        question="What does GraphRAG's 'global search' enable that local search cannot?"
+        options={[
+          "Faster query response times",
+          "Answering thematic questions that require synthesizing the entire corpus",
+          "Better single-entity lookups",
+          "Cheaper API costs"
+        ]}
+        correctIndex={1}
+        explanation="Global search uses community summaries — pre-generated descriptions of entity clusters — to answer questions like 'What are the main themes in all our documents?' Local search is entity-centric and only works well when you know what specific thing to look up."
+      />
+      <Quiz
+        question="What is the purpose of community detection in GraphRAG?"
+        options={[
+          "To delete redundant entities",
+          "To group related entities into clusters and generate summaries for global queries",
+          "To speed up vector search",
+          "To convert the graph to a relational database"
+        ]}
+        correctIndex={1}
+        explanation="Community detection algorithms (like Louvain) identify densely connected groups of entities. GraphRAG then generates LLM summaries of each community, which become the retrieval units for global search — enabling dataset-wide synthesis."
+      />

@@ -1,0 +1,16 @@
+{
+  "tier": 3,
+  "icon": "🤖",
+  "title": "Multi-Agent Orchestration",
+  "description": "Agent roles, debate flows, consensus mechanisms. How systems like Re³ actually work.",
+  "difficulty": "Advanced",
+  "timeMinutes": 55,
+  "exerciseCount": 10,
+  "tabCount": 5,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Multi-Agent Orchestration — Re³ Academy",
+    "metaDescription": "Learn multi-agent orchestration: agent roles, debate flows, and consensus mechanisms."
+  }
+}

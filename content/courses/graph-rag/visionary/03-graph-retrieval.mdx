@@ -1,0 +1,12 @@
+---
+label: "Graph Retrieval"
+icon: "\uD83D\uDD0D"
+---
+
+## Graph-Enhanced Retrieval
+
+Standard <JargonTip term="RAG">RAG</JargonTip> finds documents similar to your query. **<JargonTip term="GraphRAG">Graph RAG</JargonTip>** enhances this by following relationships in the knowledge graph to find connected information that pure vector search would miss.
+
+  <AnalogyBox emoji="🔍" title="Vector search vs Graph search">Vector search: "Find documents about Einstein" → finds articles mentioning Einstein. Graph search: Start at Einstein node, follow relationships → discovers connected concepts like Relativity, Nobel Prize, Quantum Mechanics.</AnalogyBox>
+  <Quiz question="What can Graph RAG find that vector search alone cannot?" options={["Faster results","Multi-hop connections between entities","More documents","Cheaper processing"]} correctIndex={1} explanation="Graph RAG can traverse relationships across multiple hops -- finding connections like 'Einstein \u2192 won Nobel Prize \u2192 awarded by Royal Swedish Academy' that wouldn't appear in a single document search."/>
+  <SeeItInRe3 text="Re\u00b3's Loom creates thematic connections between debate insights -- these connections form a knowledge graph of ideas, linking arguments across different debates." targetPage="loom"/>

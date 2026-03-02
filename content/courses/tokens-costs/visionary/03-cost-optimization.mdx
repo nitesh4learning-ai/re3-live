@@ -1,0 +1,19 @@
+---
+label: "Cost Optimization"
+icon: "✂️"
+---
+
+## Cost Optimization
+
+<div className="space-y-3 mb-4">{[
+  {icon:'\uD83D\uDCBE',title:'Prompt Caching',desc:'Anthropic charges ~90% less for cached system prompts. This prompt caching technique means you should structure your prompts so the long prefix stays constant.',saving:'Up to 90%'},
+  {icon:'\uD83D\uDCE6',title:'Batching',desc:'OpenAI batch API: 50% discount for requests that can wait up to 24 hours.',saving:'50%'},
+  {icon:'\uD83D\uDD00',title:'Model Cascading',desc:'Small model screens queries, routes complex ones to big model. This model cascading pattern means 70-80% of queries are handled by the cheap model.',saving:'60-80%'},
+  {icon:'\u2702\uFE0F',title:'Output Limits',desc:'Set max_tokens to prevent runaway generation. If you need 100-word summaries, cap at 200 tokens.',saving:'Variable'},
+].map((s,i)=><div key={i} className="p-3 rounded-xl border flex items-start gap-3" style={{borderColor:GIM.border}}>
+  <span style={{fontSize:24}}>{s.icon}</span>
+  <div className="flex-1"><h4 className="font-semibold" style={{fontSize:13,color:GIM.headingText}}>{s.title}</h4><p style={{fontSize:12,color:GIM.bodyText}}>{s.desc}</p></div>
+  <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{background:'#EBF5F1',color:'#2D8A6E'}}>{s.saving}</span>
+</div>)}</div>
+
+<SeeItInRe3 text="Re\u00b3 uses model routing \u2014 quick agent responses use faster models while deep synthesis uses Claude for quality."/>

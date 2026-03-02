@@ -1,0 +1,26 @@
+---
+label: "Messaging Patterns"
+icon: "🔄"
+---
+
+## ACP Messaging Patterns
+
+<ExpandableSection title="Event Sourcing" icon="📃" defaultOpen={true}>
+
+Every agent action is recorded as an immutable event. The full history of events can reconstruct system state at any point. Critical for compliance and audit trails in regulated industries.
+
+</ExpandableSection>
+
+<ExpandableSection title="Saga Pattern" icon="🔄">
+
+Long-running workflows split into a series of compensatable steps. If step 3 fails, steps 1 and 2 are rolled back via compensating events. Essential for multi-agent workflows where any agent can fail.
+
+</ExpandableSection>
+
+<ExpandableSection title="Dead Letter Queue" icon="📪">
+
+Messages that can't be processed go to a dead letter queue for human review. Prevents data loss when agents fail or messages are malformed.
+
+</ExpandableSection>
+
+<Quiz question="In the Saga pattern, what happens when step 3 of a 5-step workflow fails?" options={["The entire workflow retries from step 1","Steps 1 and 2 are rolled back via compensating events","Step 3 retries indefinitely","The workflow continues from step 4"]} correctIndex={1} explanation="The Saga pattern uses compensating events to undo completed steps when a later step fails. This maintains data consistency across distributed agents without requiring distributed transactions." />

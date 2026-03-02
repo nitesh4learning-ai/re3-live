@@ -1,0 +1,76 @@
+---
+label: "Orchestration Patterns"
+icon: "\uD83C\uDFD7\uFE0F"
+---
+
+## Orchestration Patterns
+
+Production <JargonTip term="multi-agent">multi-agent</JargonTip> systems use four core <JargonTip term="orchestration">orchestration</JargonTip> topologies. Each pattern encodes a different control flow, failure boundary, and communication model. Choosing the wrong pattern leads to fragile, expensive systems that are impossible to debug.
+
+  <ComparisonTable title="Orchestration Topology Comparison" columns={['Pattern','Control Flow','Failure Blast Radius','Latency Profile','Best For']} rows={[
+    ['Supervisor','Central coordinator dispatches and collects','Supervisor is SPOF; worker failures are isolated','Sequential bottleneck at supervisor','Task decomposition, dynamic routing'],
+    ['Hierarchical','Tree of supervisors with delegation','Subtree failures contained','Parallel subtrees, sequential depth','Large-scale systems, org-chart workflows'],
+    ['Peer-to-Peer','Agents communicate directly via message bus','Single agent failure can cascade','Low latency, no bottleneck','Real-time collaboration, swarm intelligence'],
+    ['Swarm','Emergent behavior from simple rules','Graceful degradation','Highly parallel','Exploration, creative tasks, brainstorming'],
+  ]}/>
+  <CodeBlock language="python" label="Supervisor Pattern Implementation" code={`from langgraph.graph import StateGraph, END
+from typing import TypedDict, Annotated, Sequence
+import operator
+
+class AgentState(TypedDict):
+    messages: Annotated[Sequence[dict], operator.add]
+    next_agent: str
+    results: dict
+
+def supervisor_node(state: AgentState) -> AgentState:
+    """Central supervisor decides which agent to invoke next."""
+    messages = state["messages"]
+    response = llm.invoke([
+        {"role": "system", "content": """You are a supervisor managing:
+        - researcher: finds information and data
+        - writer: drafts content from research
+        - critic: reviews and improves drafts
+        Decide which agent should act next, or FINISH if done."""},
+        *messages
+    ])
+    next_agent = parse_routing(response.content)
+    return {"next_agent": next_agent, "messages": [response]}
+
+def researcher_node(state: AgentState) -> AgentState:
+    response = llm.invoke([
+        {"role": "system", "content": "You are a researcher. Find relevant data."},
+        *state["messages"]
+    ])
+    return {"messages": [{"role": "assistant", "content": f"[Researcher]: {response.content}"}]}
+
+def writer_node(state: AgentState) -> AgentState:
+    response = llm.invoke([
+        {"role": "system", "content": "You are a writer. Draft content from research."},
+        *state["messages"]
+    ])
+    return {"messages": [{"role": "assistant", "content": f"[Writer]: {response.content}"}]}
+
+# Build the graph
+graph = StateGraph(AgentState)
+graph.add_node("supervisor", supervisor_node)
+graph.add_node("researcher", researcher_node)
+graph.add_node("writer", writer_node)
+graph.add_node("critic", critic_node)
+
+# Supervisor routes to agents
+graph.add_conditional_edges("supervisor", lambda s: s["next_agent"],
+    {"researcher": "researcher", "writer": "writer",
+     "critic": "critic", "FINISH": END})
+
+# All agents report back to supervisor
+for agent in ["researcher", "writer", "critic"]:
+    graph.add_edge(agent, "supervisor")
+
+graph.set_entry_point("supervisor")
+app = graph.compile()`}/>
+  <ArchitectureDecision scenario="You are building a content pipeline where a researcher gathers data, a writer drafts articles, and an editor polishes them. The editor sometimes sends work back to the writer. Which orchestration pattern fits best?" options={[
+    {label:'Supervisor Pattern',tradeoff:'Central coordinator routes between agents. Handles cycles well but adds latency per hop.'},
+    {label:'Strict Pipeline',tradeoff:'Linear flow, no backtracking. Fast but cannot handle editor sending work back to writer.'},
+    {label:'Peer-to-Peer',tradeoff:'Agents talk directly. Flexible but hard to trace execution order and debug.'},
+    {label:'Hierarchical',tradeoff:'Overkill for 3 agents. Adds complexity without proportional benefit.'}
+  ]} correctIndex={0} explanation="The Supervisor pattern handles dynamic routing including cycles (editor returning to writer) while keeping execution traceable through the central coordinator. Pipelines cannot handle backtracking, and peer-to-peer is harder to debug."/>

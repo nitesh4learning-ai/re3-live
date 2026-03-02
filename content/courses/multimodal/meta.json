@@ -1,0 +1,16 @@
+{
+  "tier": 3,
+  "icon": "🖼️",
+  "title": "Multimodal AI Pipelines",
+  "description": "Vision + text + audio. Document processing, image understanding, cross-modal reasoning.",
+  "difficulty": "Advanced",
+  "timeMinutes": 45,
+  "exerciseCount": 7,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Multimodal AI Pipelines — Re³ Academy",
+    "metaDescription": "Build multimodal AI: vision, text, audio processing and cross-modal reasoning."
+  }
+}

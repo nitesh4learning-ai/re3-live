@@ -1,0 +1,126 @@
+---
+label: "Chunking Strategies"
+icon: "🔪"
+---
+
+## Chunking Strategies
+
+<JargonTip term="chunking">Chunking</JargonTip> is the most impactful and underestimated component of a RAG pipeline. The wrong chunking strategy can make even the best <JargonTip term="embedding">embedding</JargonTip> model and vector database produce poor results. Chunk size, overlap, and boundary detection directly determine retrieval precision.
+
+<ComparisonTable title="Chunking Strategy Comparison" columns={['Strategy','Chunk Quality','Speed','Complexity','Best For']} rows={[
+  ['Fixed-size (characters)','Low-Medium','Very Fast','Minimal','Quick prototyping, uniform content'],
+  ['Recursive character split','Medium','Fast','Low','General purpose (LangChain default)'],
+  ['Sentence-based','Medium-High','Fast','Low','Conversational content, FAQs'],
+  ['Semantic chunking','High','Slow','Medium','Mixed-topic documents, varied content'],
+  ['Document-aware (headers/sections)','Very High','Medium','Medium-High','Structured docs (legal, technical)'],
+  ['Agentic chunking','Highest','Very Slow','High','When quality >> speed matters'],
+]} />
+
+<ExpandableSection title="Recursive Character Splitting" icon="🔪" defaultOpen={true}>
+
+The recursive splitter tries multiple separators in order of priority: paragraph breaks, then sentence endings, then spaces, then individual characters. This respects natural text boundaries while guaranteeing chunks stay within the size limit.
+
+**Separator priority:** "\n\n" (paragraphs) > "\n" (lines) > ". " (sentences) > " " (words) > "" (characters)
+
+Overlap ensures context continuity: if a concept spans a chunk boundary, the overlap preserves it in both chunks. Typical overlap is 10-20% of chunk size.
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="Chunking strategy implementations" code={`from typing import List
+import re
+
+class ChunkingStrategies:
+    @staticmethod
+    def fixed_size(text: str, size: int = 500, overlap: int = 50) -> List[str]:
+        """Simplest approach: fixed character count with overlap."""
+        chunks = []
+        start = 0
+        while start < len(text):
+            end = min(start + size, len(text))
+            chunks.append(text[start:end])
+            start += size - overlap
+        return chunks
+
+    @staticmethod
+    def recursive_split(text: str, max_size: int = 500, overlap: int = 50) -> List[str]:
+        """Split at natural boundaries, recursing to smaller separators."""
+        separators = ["\\n\\n", "\\n", ". ", " ", ""]
+        chunks = []
+
+        def split_recursive(text, seps):
+            if len(text) <= max_size:
+                return [text]
+
+            sep = seps[0]
+            parts = text.split(sep) if sep else list(text)
+            current = ""
+            result = []
+
+            for part in parts:
+                candidate = current + (sep if current else "") + part
+                if len(candidate) > max_size and current:
+                    result.append(current)
+                    # Overlap: keep end of previous chunk
+                    overlap_text = current[-overlap:] if overlap else ""
+                    current = overlap_text + sep + part if overlap_text else part
+                else:
+                    current = candidate
+
+            if current:
+                result.append(current)
+
+            # If any chunk still too large, recurse with next separator
+            final = []
+            for chunk in result:
+                if len(chunk) > max_size and len(seps) > 1:
+                    final.extend(split_recursive(chunk, seps[1:]))
+                else:
+                    final.append(chunk)
+            return final
+
+        return split_recursive(text, separators)
+
+    @staticmethod
+    def semantic_chunking(text: str, embed_fn, threshold: float = 0.5) -> List[str]:
+        """Split at semantic boundaries using embedding similarity."""
+        sentences = re.split(r'(?<=[.!?])\\s+', text)
+        if len(sentences) <= 1:
+            return [text]
+
+        # Embed each sentence
+        embeddings = embed_fn(sentences)
+
+        # Find breakpoints where similarity drops
+        chunks = []
+        current_chunk = [sentences[0]]
+        for i in range(1, len(sentences)):
+            # Cosine similarity between adjacent sentences
+            sim = sum(a*b for a,b in zip(embeddings[i-1], embeddings[i]))
+            if sim < threshold:
+                chunks.append(" ".join(current_chunk))
+                current_chunk = [sentences[i]]
+            else:
+                current_chunk.append(sentences[i])
+        if current_chunk:
+            chunks.append(" ".join(current_chunk))
+        return chunks`} />
+
+<ExpandableSection title="Chunk Size Experiments" icon="🔬">
+
+Optimal chunk size depends on your use case. Run experiments comparing different sizes on your actual data:
+
+**100-200 tokens:** Very precise retrieval, best for factual Q&A. Risk: may lose surrounding context needed for understanding.
+
+**300-500 tokens:** Good balance of precision and context. Works well for most general-purpose RAG applications.
+
+**500-1000 tokens:** More context per chunk, better for complex topics that require surrounding information. Risk: dilutes precision with irrelevant content.
+
+**1000+ tokens:** Best for summarization use cases where broad context matters more than precise retrieval.
+
+**Evaluation method:** Create a test set of queries with known relevant passages. Measure retrieval precision and recall at different chunk sizes. The optimal size is task-specific.
+
+</ExpandableSection>
+
+<Quiz question="Your RAG system retrieves relevant chunks but the LLM's answers lack context -- they're technically correct but miss nuance. What should you try first?" options={["Switch to a larger LLM","Increase chunk size or use parent-child chunks to provide more surrounding context","Add more chunks to the retrieval (increase top-k)","Lower the temperature"]} correctIndex={1} explanation="If answers lack context/nuance, the chunks are too small and miss surrounding information. Increasing chunk size or using a parent-child strategy (retrieve small chunks for precision, include the parent section for context) provides the LLM with richer context for better answers." />
+
+<ArchitectureDecision scenario="You are building a RAG system for technical documentation with many code examples and tables. Standard text chunking breaks code blocks and tables into meaningless fragments. How do you handle this?" options={[{label:'Use larger chunk sizes (2000+ tokens) to keep code blocks intact',tradeoff:'Keeps code blocks whole but makes retrieval less precise, and non-code sections get unnecessarily large chunks'},{label:'Document-aware chunking that treats code blocks and tables as atomic units',tradeoff:'Best quality: code blocks and tables stay intact, prose is chunked normally. Requires parsing document structure.'},{label:'Pre-process: extract code blocks into separate documents, chunk prose separately',tradeoff:'Clean separation, each content type gets optimal treatment, but requires maintaining relationships between code and surrounding text'}]} correctIndex={1} explanation="Document-aware chunking is the best approach for structured content. It parses the document structure (Markdown headers, code fences, table markers) and treats certain elements as atomic. This keeps code blocks and tables intact while allowing prose to be chunked at optimal sizes. Most documentation uses Markdown, making structure detection straightforward." />

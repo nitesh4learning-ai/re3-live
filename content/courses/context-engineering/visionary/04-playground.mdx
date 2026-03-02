@@ -1,0 +1,10 @@
+---
+label: "Playground"
+icon: "\uD83C\uDFAE"
+---
+
+## Context Playground
+
+<ContextBudgetAllocator/>
+
+<Quiz question="Building a customer support chatbot (8K context, 500-token system prompt). Customer is 20 messages in about billing. How allocate the remaining 7,500 tokens?" options={["3000 retrieval, 3000 conversation, 1500 query","5000 retrieval, 1000 conversation, 1500 query","1500 retrieval, 5000 conversation, 1000 query","2500 retrieval, 4000 conversation, 1000 query"]} correctIndex={3} explanation="Long support conversations need strong conversation memory (customer has shared many details). But you also need retrieval for KB articles. Balanced split preserves full context while grounding answers." />

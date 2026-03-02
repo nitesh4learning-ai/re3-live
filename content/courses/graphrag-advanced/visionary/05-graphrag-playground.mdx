@@ -1,0 +1,39 @@
+---
+label: "Playground"
+icon: "\uD83C\uDFAE"
+---
+
+## Playground
+
+Apply your GraphRAG knowledge to production design challenges. Test your instincts on graph design, search strategy, and weight optimization.
+
+      <ExpandableSection title="Exercise 1: Knowledge Graph Design Challenge" icon="\uD83C\uDFD7\uFE0F" defaultOpen={true}>
+        <GraphDesignChallenge />
+      </ExpandableSection>
+      <ExpandableSection title="Exercise 2: Hybrid Search Weight Optimizer" icon="\u2696\uFE0F">
+        <HybridSearchOptimizer />
+      </ExpandableSection>
+      <ExpandableSection title="Exercise 3: Pipeline Architecture" icon="\uD83D\uDD27">
+        <Quiz
+          question="You are building a GraphRAG pipeline for 50,000 legal documents. Entity extraction costs $0.02/doc. What optimization should you implement first?"
+          options={["Use a smaller embedding model", "Cache extraction results — each document is extracted once, not on every query", "Reduce chunk size to 50 tokens", "Delete low-confidence entities immediately"]}
+          correctIndex={1}
+          explanation="The indexing phase (entity extraction) is a one-time cost per document, not per query. Caching extraction results means you pay $0.02 x 50,000 = $1,000 once, not $1,000 per query. This is the most impactful optimization: separate the expensive indexing from the cheap query phase."
+        />
+      </ExpandableSection>
+      <ExpandableSection title="Exercise 4: Global vs Local Search" icon="\uD83C\uDF0D">
+        <Quiz
+          question="A researcher asks 'What methodologies are most common in our paper corpus?' Which GraphRAG feature answers this best?"
+          options={["Local search on the entity 'methodology'", "BM25 search for the word 'methodology'", "Global search using community summaries across the entire graph", "Direct vector search for semantic similarity to 'methodology'"]}
+          correctIndex={2}
+          explanation="This is a corpus-wide synthesis question -- it requires understanding the distribution of methodologies across ALL papers, not just finding papers that mention a specific methodology. Global search synthesizes across all community summaries to answer dataset-wide questions."
+        />
+      </ExpandableSection>
+      <ExpandableSection title="Exercise 5: Production Considerations" icon="\u2699\uFE0F">
+        <Quiz
+          question="Your GraphRAG graph has 2M entities and 8M edges. Graph traversal queries are taking 3+ seconds. What is the most effective fix?"
+          options={["Limit traversal to max 2 hops and use entity-level caching for popular starting nodes", "Delete half the entities to reduce graph size", "Switch from graph traversal to pure vector search", "Increase server RAM"]}
+          correctIndex={0}
+          explanation="Two optimizations work together: (1) Limit hop depth to 2 -- most useful information is within 2 hops, and exponential fan-out at depth 3+ causes most latency; (2) Cache popular entities' neighborhoods -- a small number of high-degree nodes (hubs) are queried frequently and their neighborhoods can be precomputed."
+        />
+      </ExpandableSection>

@@ -1,0 +1,66 @@
+---
+label: "Query Patterns"
+icon: "🔍"
+---
+
+## Advanced Query Patterns
+
+Graph RAG queries go beyond simple vector similarity. Multi-hop reasoning, subgraph retrieval, and hybrid traversal strategies unlock the full power of knowledge graphs for complex analytical questions.
+
+  <CodeBlock language="python" label="Multi-Hop Reasoning Pipeline" code={`async def multi_hop_query(question: str, graph_db, vector_store,
+                          llm, max_hops: int = 3):
+    """Answer complex questions requiring multi-hop graph traversal."""
+
+    # Step 1: Decompose question into sub-questions
+    decomposition = await llm.invoke(
+        system="Break this question into sequential sub-questions "
+               "that can each be answered by a knowledge graph lookup.",
+        user=question,
+        response_format={"sub_questions": ["str"]}
+    )
+
+    context_chain = []
+    visited_entities = set()
+
+    for sub_q in decomposition["sub_questions"][:max_hops]:
+        # Step 2: Extract entities from sub-question
+        entities = await extract_entities(sub_q, llm)
+
+        # Step 3: Retrieve subgraph around entities
+        subgraph = await graph_db.query(f"""
+            MATCH (n)-[r]-(m)
+            WHERE n.name IN $entities
+            AND NOT n.name IN $visited
+            RETURN n, r, m LIMIT 50
+        """, entities=[e.name for e in entities],
+             visited=list(visited_entities))
+
+        # Step 4: Also get vector-retrieved context
+        vector_context = await vector_store.search(
+            query=sub_q, top_k=3,
+            filter={"entities": {"$overlap": [e.name for e in entities]}}
+        )
+
+        # Step 5: Answer sub-question with combined context
+        sub_answer = await llm.invoke(
+            system="Answer using ONLY the provided context.",
+            user=f"Question: {sub_q}\\n"
+                 f"Graph context: {format_subgraph(subgraph)}\\n"
+                 f"Text context: {format_docs(vector_context)}"
+        )
+
+        context_chain.append({
+            "question": sub_q,
+            "answer": sub_answer.content,
+            "sources": {"graph": subgraph, "text": vector_context}
+        })
+        visited_entities.update(e.name for e in entities)
+
+    # Step 6: Synthesize final answer from chain
+    final = await llm.invoke(
+        system="Synthesize a comprehensive answer from these findings.",
+        user=f"Original question: {question}\\n"
+             f"Research chain: {json.dumps(context_chain, indent=2)}"
+    )
+    return {"answer": final.content, "chain": context_chain}`}/>
+  <Quiz question="A user asks 'Which companies were founded by former Google engineers who worked on transformer research?' This requires:" options={["Single vector search for 'Google engineers transformers'","Two-hop graph traversal: Google -> engineers -> transformer papers, then engineers -> founded -> companies","Keyword search for 'Google' and 'transformer'","Asking an LLM without any retrieval"]} correctIndex={1} explanation="This requires multi-hop traversal: first find Google engineers connected to transformer research papers, then follow 'founded' edges from those people to companies. No single search query can connect these separate relationship chains."/>

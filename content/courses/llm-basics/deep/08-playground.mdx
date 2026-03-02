@@ -1,0 +1,32 @@
+---
+label: "Deep Playground"
+icon: "\uD83C\uDFAE"
+---
+
+## Deep Playground
+
+Advanced exercises covering architecture decisions, inference optimization, and training trade-offs. These scenarios reflect real production challenges.
+
+<ExpandableSection title="Scenario 1: Model Selection for Production" icon="\uD83C\uDFD7\uFE0F" defaultOpen={true}>
+
+<ArchitectureDecision scenario="Your company processes 10 million customer support tickets per month. Each requires classification into one of 20 categories and a suggested response. Latency must be under 200ms per ticket. Which deployment strategy minimizes total cost?" options={[{label:'GPT-4o via OpenAI API for both classification and response generation',tradeoff:'Highest quality, simplest deployment, but at ~1K tokens/ticket = ~$25K/month in API costs'},{label:'Fine-tuned GPT-4o-mini for classification + GPT-4o for response only on complex tickets',tradeoff:'Use cheap fast model for classification ($2K/month), route only 20% to GPT-4o ($5K/month) = ~$7K/month'},{label:'Self-hosted LLaMA 3 8B fine-tuned on your ticket data',tradeoff:'GPU costs ~$3K/month for 3x A100s, handles full load, model is customized, but requires ML ops team'}]} correctIndex={1} explanation="The cascade approach (cheap model for classification, expensive model only when needed) typically gives the best cost/quality ratio. It avoids the infrastructure burden of self-hosting while using 80% cheaper models for the common case. Reserve the expensive model for tasks that genuinely need it."/>
+
+</ExpandableSection>
+
+<ExpandableSection title="Scenario 2: Inference Optimization" icon="\u26A1">
+
+<ArchitectureDecision scenario="Your LLM-powered application has a P50 latency of 800ms but P99 latency of 12 seconds. Users on the P99 tail are churning. The bottleneck is long output generation (some responses are 2000+ tokens). How do you fix the P99?" options={[{label:'Set max_tokens to 500 to cap output length',tradeoff:'Eliminates long-tail latency but may truncate genuinely useful long responses, hurting quality'},{label:'Implement streaming responses so users see output immediately',tradeoff:'Perceived latency drops to TTFT (~200ms), users see progress, total time unchanged but UX dramatically better'},{label:'Switch to a faster model (e.g., GPT-4o-mini instead of GPT-4o)',tradeoff:'2-3x faster decode speed, lower P99, but may reduce response quality for complex queries'}]} correctIndex={1} explanation="Streaming is the highest-impact, lowest-risk optimization. Users see the first token in 200ms instead of waiting 12 seconds for the full response. The actual generation time is unchanged, but the user experience is transformed. This is why nearly all chat interfaces use streaming."/>
+
+</ExpandableSection>
+
+<ExpandableSection title="Scenario 3: Training Data Strategy" icon="\uD83D\uDCDA">
+
+<Quiz question="You are fine-tuning a model for medical report summarization. You have 500 expert-labeled examples and 50,000 AI-labeled examples. How should you use them?" options={["Use only the 500 expert-labeled examples (quality over quantity)","Use only the 50,000 AI-labeled examples (quantity over quality)","Fine-tune on AI-labeled data first, then fine-tune again on expert-labeled data (curriculum learning)","Mix all 50,500 examples randomly"]} correctIndex={2} explanation="Curriculum learning is the most effective strategy: first train on the larger, noisier AI-labeled dataset to learn general patterns, then refine on the smaller, high-quality expert-labeled dataset. This second stage 'corrects' any noise from the AI labels while retaining the breadth of the larger dataset."/>
+
+</ExpandableSection>
+
+<ExpandableSection title="Scenario 4: Architecture Quiz" icon="\uD83E\uDDE0">
+
+<Quiz question="Why do modern LLMs use RMSNorm instead of LayerNorm?" options={["RMSNorm produces better text quality","RMSNorm is computationally simpler (no mean subtraction) and produces equivalent results","RMSNorm handles longer sequences better","RMSNorm was invented more recently so it must be better"]} correctIndex={1} explanation="RMSNorm removes the mean-subtraction step from LayerNorm, keeping only the variance normalization. This reduces compute per normalization operation with no measurable quality difference, making it a free optimization adopted by LLaMA, Mistral, and most modern architectures."/>
+
+</ExpandableSection>

@@ -1,0 +1,122 @@
+---
+label: "Eval Frameworks"
+icon: "\u2696\uFE0F"
+---
+
+## Evaluation Frameworks
+
+Building a robust eval framework requires three pillars: **benchmark design** (what do you test?), **scoring methodology** (how do you judge, including <JargonTip term="LLM-as-judge">LLM-as-judge</JargonTip> approaches?), and **agreement measurement** (how consistent are your judges?). Getting any one wrong undermines the whole system.
+
+  <AnalogyBox emoji="🏫" title="Think of it like a university exam system">You need well-designed questions (benchmark), qualified graders who follow rubrics (judges), and inter-rater reliability to ensure two professors would give the same essay the same grade (agreement metrics). Without all three, grades are meaningless.</AnalogyBox>
+  <ExpandableSection title="Benchmark Design Principles" icon="📋" defaultOpen={true}>
+
+**Coverage:** Test cases should cover the full distribution of real-world inputs -- common cases, edge cases, adversarial inputs, and failure modes.
+
+
+**Independence:** Test cases should be independent. Do not let one test's result influence another.
+
+
+**Versioning:** Lock your eval datasets. If you change the test set, you cannot compare with previous runs.
+
+
+**Contamination:** Never include eval examples in your training data, few-shot examples, or system prompts.
+
+  </ExpandableSection>
+  <CodeBlock language="python" label="Building an Eval Test Suite" code={`from dataclasses import dataclass
+from typing import List, Optional
+
+@dataclass
+class EvalCase:
+    """A single evaluation test case."""
+    id: str
+    input: str                    # The user query / prompt
+    expected_output: Optional[str]  # Gold-standard answer (if available)
+    context: Optional[str]        # Retrieved context (for RAG evals)
+    category: str                 # e.g., "factual", "creative", "edge_case"
+    difficulty: str               # "easy", "medium", "hard"
+    metadata: dict                # Custom tags for slicing results
+
+@dataclass
+class EvalSuite:
+    """A versioned collection of eval cases."""
+    name: str
+    version: str
+    cases: List[EvalCase]
+    created_at: str
+
+    def slice_by(self, key, value):
+        """Filter cases for targeted evaluation."""
+        return [c for c in self.cases
+                if getattr(c, key, c.metadata.get(key)) == value]
+
+    def sample(self, n, stratified_by="category"):
+        """Stratified sampling for cost-efficient evaluation."""
+        from collections import defaultdict
+        import random
+        groups = defaultdict(list)
+        for c in self.cases:
+            groups[getattr(c, stratified_by)].append(c)
+        per_group = max(1, n // len(groups))
+        return [c for g in groups.values()
+                for c in random.sample(g, min(per_group, len(g)))]
+
+# Build a suite
+suite = EvalSuite(
+    name="customer_support_v2",
+    version="2.0.0",
+    cases=[
+        EvalCase("cs_001", "How do I reset my password?",
+                 "Navigate to Settings > Security > Reset Password...",
+                 None, "factual", "easy", {"topic": "account"}),
+        EvalCase("cs_002", "I was charged twice for my order!",
+                 None, None, "complaint", "hard",
+                 {"topic": "billing", "sentiment": "angry"}),
+    ],
+    created_at="2025-11-15"
+)`}/>
+  <JudgePatternSimulator/>
+  <CodeBlock language="python" label="LLM-as-Judge with Rubric" code={`async def llm_judge(question, answer, rubric, model="claude-sonnet-4-20250514"):
+    """Score an answer using an LLM judge with a structured rubric."""
+    prompt = f"""You are an expert evaluator. Score this answer on a 1-5 scale
+for each criterion in the rubric. Be strict and consistent.
+
+QUESTION: {question}
+ANSWER: {answer}
+
+RUBRIC:
+{rubric}
+
+Return JSON only:
+{{"scores": {{"criterion_name": score, ...}},
+  "reasoning": "brief explanation for each score",
+  "overall": weighted_average_score}}"""
+
+    response = await call_llm(model, prompt)
+    return parse_json(response)
+
+# Define domain-specific rubric
+SUPPORT_RUBRIC = """
+- accuracy (weight 0.3): Is the information factually correct?
+- completeness (weight 0.25): Does it address all parts of the question?
+- tone (weight 0.2): Is the tone professional and empathetic?
+- actionability (weight 0.25): Can the user follow the instructions?
+Each criterion scored 1-5 where:
+  1=Terrible, 2=Poor, 3=Acceptable, 4=Good, 5=Excellent"""
+
+result = await llm_judge(question, answer, SUPPORT_RUBRIC)`}/>
+  <ExpandableSection title="Agreement Metrics: Cohen's Kappa" icon="📏">
+
+When multiple judges (human or LLM) score the same output, you need to measure how much they agree beyond chance. **Cohen's kappa** is the standard metric.
+
+
+**kappa = (observed_agreement - expected_agreement) / (1 - expected_agreement)**
+
+
+Interpretation: &lt;0.20 = poor, 0.21-0.40 = fair, 0.41-0.60 = moderate, 0.61-0.80 = substantial, 0.81-1.00 = near-perfect.
+
+
+If your LLM judges have kappa &lt; 0.4 with human raters, the LLM judge is not reliable enough to use autonomously -- you need to calibrate prompts or add human review.
+
+  </ExpandableSection>
+  <Quiz question="You are building an eval suite for a RAG system. Which principle is MOST important for the test dataset?" options={["Include as many cases as possible regardless of quality","Ensure test cases are never contaminated into retrieval context or prompt examples","Only test easy cases to get high scores","Use the same cases for training and evaluation"]} correctIndex={1} explanation="Data contamination is the most critical risk. If your eval cases leak into training data or retrieval context, your evals become meaningless -- the system passes by memorization, not capability."/>
+  <Quiz question="Your LLM judge gives Cohen's kappa of 0.35 against human raters. What should you do?" options={["Ship it -- 0.35 is fine","Calibrate the judge prompt with examples, add rubric detail, and re-measure","Replace the LLM judge with random scoring","Use more expensive models only"]} correctIndex={1} explanation="Kappa of 0.35 is only 'fair' agreement -- the LLM judge disagrees with humans too often. Calibrate by adding scoring examples, making the rubric more specific, and testing with different prompt structures until kappa exceeds 0.6."/>

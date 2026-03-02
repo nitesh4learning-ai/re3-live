@@ -1,0 +1,29 @@
+---
+label: "Eval & Deploy"
+icon: "\uD83D\uDE80"
+---
+
+## Evaluation & Deployment
+  <CodeBlock title="Fine-Tuning Evaluation Pipeline" code={`def evaluate_fine_tuned_model(base_model, ft_model, test_set):
+    results = {"base": [], "finetuned": []}
+    for example in test_set:
+        base_response = base_model.generate(example["prompt"])
+        ft_response = ft_model.generate(example["prompt"])
+
+        # Score on multiple dimensions
+        for name, model_resp in [("base", base_response), ("finetuned", ft_response)]:
+            results[name].append({
+                "relevance": score_relevance(model_resp, example["reference"]),
+                "style_match": score_style(model_resp, target_style),
+                "factuality": score_facts(model_resp, example["facts"]),
+                "toxicity": score_toxicity(model_resp),
+            })
+
+    # Compare
+    for metric in ["relevance", "style_match", "factuality"]:
+        base_avg = mean([r[metric] for r in results["base"]])
+        ft_avg = mean([r[metric] for r in results["finetuned"]])
+        print(f"{metric}: base={base_avg:.2f} ft={ft_avg:.2f} delta={ft_avg-base_avg:+.2f}")`}/>
+  <ExpandableSection title="Deployment Checklist" icon="✅">{['A/B test fine-tuned vs base model on 10% of traffic','Monitor for regression on general capabilities','Set up rollback mechanism (swap back to base model)','Track domain-specific metrics (style score, accuracy)','Re-evaluate monthly as base models improve'].map((r,i)=>
+- {r}
+)}</ExpandableSection>

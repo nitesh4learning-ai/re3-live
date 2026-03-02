@@ -1,0 +1,125 @@
+---
+label: "Advanced Retrieval"
+icon: "🔎"
+---
+
+## Advanced Retrieval
+
+Basic single-query retrieval often fails on complex questions. Advanced retrieval techniques reformulate queries, generate hypothetical answers, and use hierarchical chunk structures to dramatically improve retrieval quality.
+
+<ExpandableSection title="Multi-Query Retrieval" icon="🔀" defaultOpen={true}>
+
+**Multi-query retrieval** uses the LLM to generate 3-5 alternative versions of the user's question, runs separate retrieval for each, and merges the results. Different phrasings capture different aspects of the question, improving recall.
+
+**Example:** User asks "How does authentication work in the API?"
+
+Generated queries: (1) "API authentication methods and setup" (2) "OAuth 2.0 implementation in the API" (3) "API key management and security" (4) "How to authenticate requests to the API endpoint"
+
+Each query retrieves slightly different relevant chunks, and the union provides more comprehensive coverage than any single query.
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="HyDE and multi-query retrieval" code={`from openai import OpenAI
+from typing import List, Set
+
+client = OpenAI()
+
+def multi_query_retrieval(question: str, search_fn, k_per_query=5):
+    """Generate multiple query variants and merge retrieval results."""
+    # Step 1: Generate query variants
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{
+            "role": "system",
+            "content": "Generate 4 alternative search queries for the given question. "
+                       "Each should capture a different aspect or phrasing. "
+                       "Return one query per line, no numbering."
+        }, {
+            "role": "user",
+            "content": question
+        }],
+        temperature=0.7
+    )
+    queries = [question] + response.choices[0].message.content.strip().split("\\n")
+
+    # Step 2: Retrieve for each query and deduplicate
+    seen_ids: Set[str] = set()
+    all_results = []
+    for query in queries:
+        results = search_fn(query, top_k=k_per_query)
+        for r in results:
+            if r["id"] not in seen_ids:
+                seen_ids.add(r["id"])
+                all_results.append(r)
+
+    # Step 3: Sort by best score across any query
+    return sorted(all_results, key=lambda x: x["score"], reverse=True)
+
+def hyde_retrieval(question: str, search_fn, k=5):
+    """
+    HyDE: Hypothetical Document Embeddings.
+    Generate a hypothetical answer, embed THAT, and search.
+    """
+    # Step 1: Generate hypothetical answer
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{
+            "role": "system",
+            "content": "Write a short, factual paragraph that would answer "
+                       "the following question. Write as if you are a "
+                       "technical documentation page."
+        }, {
+            "role": "user",
+            "content": question
+        }],
+        temperature=0.0
+    )
+    hypothetical_doc = response.choices[0].message.content
+
+    # Step 2: Embed the hypothetical document (not the question!)
+    # The hypothesis is closer in embedding space to real answers
+    # than the question itself would be
+    return search_fn(hypothetical_doc, top_k=k)
+
+def parent_child_retrieval(question: str, search_fn, doc_store, k=5):
+    """
+    Retrieve small chunks (children) for precision,
+    return their parent sections for context.
+    """
+    # Search over small chunks (e.g., 200 tokens)
+    child_results = search_fn(question, top_k=k)
+
+    # For each child, fetch the parent section (e.g., 1000 tokens)
+    parent_ids = set()
+    parents = []
+    for child in child_results:
+        parent_id = child.get("parent_id")
+        if parent_id and parent_id not in parent_ids:
+            parent_ids.add(parent_id)
+            parent_doc = doc_store.get(parent_id)
+            if parent_doc:
+                parents.append(parent_doc)
+
+    return parents  # Larger, context-rich sections`} />
+
+<ExpandableSection title="HyDE: Hypothetical Document Embeddings" icon="💡">
+
+**HyDE** flips the retrieval paradigm: instead of embedding the question and searching for similar documents, it generates a hypothetical answer and embeds that. The hypothesis is in the same "document space" as the actual answers, leading to better similarity matches.
+
+**Why it works:** Questions and answers occupy different regions of embedding space. "How does authentication work?" is far from "To authenticate, send an API key in the Authorization header..." in embedding space. But a hypothetical answer to that question IS close to the real answer.
+
+**Limitation:** HyDE adds an LLM call before every search, increasing latency by 500-2000ms. Use it when retrieval quality matters more than speed.
+
+</ExpandableSection>
+
+<ExpandableSection title="Step-Back Prompting for Retrieval" icon="⏪">
+
+**Step-back prompting** generates a more general version of the question before retrieval. For "Why did the stock price of AAPL drop on March 15?", the step-back query is "What factors affect Apple's stock price?"
+
+The broader query retrieves background context that helps the LLM answer the specific question. This is especially useful when the exact answer is not in the knowledge base but can be inferred from general knowledge + specific data points.
+
+</ExpandableSection>
+
+<Quiz question="A user asks 'What is the refund policy for orders placed during the holiday sale?' Standard vector search retrieves the general refund policy but misses the holiday-specific exceptions. Which retrieval technique would most likely fix this?" options={["Increase top-k to retrieve more documents","Use multi-query retrieval to generate variants like 'holiday sale return policy' and 'seasonal order refund exceptions'","Use HyDE to generate a hypothetical answer","Lower the similarity threshold"]} correctIndex={1} explanation="Multi-query retrieval generates multiple phrasings that capture different aspects of the question. The variant 'holiday sale return policy' or 'seasonal order refund exceptions' is more likely to match the holiday-specific policy document that the original query missed. This is a recall improvement technique." />
+
+<ArchitectureDecision scenario="Your RAG system answers questions about a 10,000-page technical manual. Users ask both precise questions ('What is the torque specification for bolt M12?') and broad questions ('Explain the maintenance procedure for the hydraulic system'). Which retrieval architecture handles both?" options={[{label:'Small chunks (200 tokens) with high top-k for broad queries',tradeoff:'Precise questions answered well, but broad queries get fragmented context from many tiny chunks'},{label:'Large chunks (1000 tokens) for comprehensive context',tradeoff:'Broad questions answered well, but precise questions get diluted with irrelevant surrounding content'},{label:'Parent-child indexing: small chunks for retrieval, return parent sections for context',tradeoff:'Best of both: precise retrieval via small chunks, rich context via parent sections. Requires dual indexing.'}]} correctIndex={2} explanation="Parent-child indexing solves the chunk size dilemma. Index small chunks (200 tokens) for precise retrieval -- the torque spec chunk matches exactly. But return the parent section (1000+ tokens) to the LLM for context. For broad questions, multiple child matches from the same parent section naturally aggregate into comprehensive context." />

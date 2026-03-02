@@ -1,0 +1,16 @@
+{
+  "tier": 1,
+  "icon": "📋",
+  "title": "JSON Mode & Structured Outputs",
+  "description": "JSON mode, Instructor, Pydantic, schema enforcement. Getting reliable structured data from AI.",
+  "difficulty": "Beginner",
+  "timeMinutes": 35,
+  "exerciseCount": 7,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "JSON Mode & Structured Outputs — Re³ Academy",
+    "metaDescription": "Get reliable structured data from AI: JSON mode, Instructor, Pydantic, and schema enforcement."
+  }
+}

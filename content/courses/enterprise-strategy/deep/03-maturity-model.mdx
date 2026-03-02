@@ -1,0 +1,45 @@
+---
+label: "Maturity Model"
+icon: "\uD83D\uDCCA"
+---
+
+## AI Maturity Assessment
+
+<ComparisonTable title="Enterprise AI Maturity Model" columns={['Level','Name','Characteristics','Focus']} rows={[
+  ['1','Exploring','Ad-hoc experiments, no strategy, individual champions','Awareness & education'],
+  ['2','Experimenting','Multiple PoCs, some executive sponsorship, basic data infra','Use case validation'],
+  ['3','Operationalizing','Models in production, MLOps basics, governance starting','Scaling & reliability'],
+  ['4','Scaling','AI platform, CoE, systematic deployment pipeline','Enterprise-wide adoption'],
+  ['5','Transforming','AI-native workflows, continuous improvement, competitive moat','Business model innovation'],
+]}/>
+
+<CodeBlock language="yaml" label="AI Maturity Self-Assessment" code={`assessment:
+  strategy:
+    - question: "Is there a board-approved AI strategy?"
+      level_1: "No formal strategy"
+      level_3: "Strategy exists but loosely followed"
+      level_5: "Strategy drives all AI investment decisions"
+
+  data:
+    - question: "How accessible is data for AI projects?"
+      level_1: "Data in silos, no catalog"
+      level_3: "Central data lake, basic governance"
+      level_5: "Self-service data platform, real-time streaming"
+
+  talent:
+    - question: "What AI skills exist in-house?"
+      level_1: "No dedicated AI roles"
+      level_3: "Small ML team, some citizen developers"
+      level_5: "AI literacy org-wide, specialized teams per domain"
+
+  operations:
+    - question: "How are models deployed and monitored?"
+      level_1: "Manual, ad-hoc deployments"
+      level_3: "CI/CD for models, basic monitoring"
+      level_5: "Full MLOps, automated retraining, A/B testing"`}/>
+
+<ArchitectureDecision scenario="Your enterprise is at maturity Level 2 (Experimenting). You have 5 PoCs running with mixed results. The CEO wants to 'scale AI across the company' by next quarter. What do you recommend?" options={[
+  {label:"Scale the most successful PoC to 10 departments",tradeoff:"Fastest visible progress but risks scaling without proper infrastructure"},
+  {label:"Pause new PoCs, invest in Level 3 infrastructure first",tradeoff:"Right long-term move but looks like 'slowing down' to leadership"},
+  {label:"Productionize 2 best PoCs while building platform in parallel",tradeoff:"Balanced approach -- delivers wins while building foundation; requires careful resource allocation"},
+]} correctIndex={2} explanation="The parallel approach balances quick wins (keeping leadership engaged) with infrastructure investment (enabling sustainable scale). Scaling without infrastructure leads to fragile deployments; pausing everything loses organizational momentum."/>

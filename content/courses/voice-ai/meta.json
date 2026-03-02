@@ -1,0 +1,16 @@
+{
+  "tier": 3,
+  "icon": "🎙️",
+  "title": "Voice AI & Conversational Agents",
+  "description": "STT, TTS, real-time conversation, contact center AI. Building voice-first experiences.",
+  "difficulty": "Advanced",
+  "timeMinutes": 40,
+  "exerciseCount": 6,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Voice AI & Conversational Agents — Re³ Academy",
+    "metaDescription": "Build voice AI: speech-to-text, text-to-speech, real-time conversation systems."
+  }
+}

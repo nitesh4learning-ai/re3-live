@@ -1,0 +1,12 @@
+---
+label: "Playground"
+icon: "🎮"
+---
+
+## ACP Playground
+
+<ArchitectureDecision scenario="You are building a document processing pipeline for a bank. Documents arrive, need OCR, classification, entity extraction, compliance check, and human review. 500 documents/day, strict audit requirements." options={[
+  {label:'Direct API calls between agents (synchronous pipeline)',tradeoff:'Simple but brittle -- if compliance agent is down, entire pipeline stops. No audit trail.'},
+  {label:'ACP event bus: each step publishes completion event, next agent subscribes',tradeoff:'Resilient, auditable, scalable. Each agent works independently. Full event history for compliance.'},
+  {label:'Batch processing: collect all documents, process overnight',tradeoff:"Simplest but doesn't meet real-time requirements. Banks need same-day processing."},
+]} correctIndex={1} explanation="ACP's event-driven architecture is ideal here. Each processing step publishes a completion event. If compliance review is slow, documents queue up without blocking OCR/extraction. The full event history satisfies audit requirements. Agents can scale independently." />

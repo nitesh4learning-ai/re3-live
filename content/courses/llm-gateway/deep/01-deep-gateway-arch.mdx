@@ -1,0 +1,61 @@
+---
+label: "Gateway Architecture"
+icon: "🏗️"
+---
+
+## Gateway Architecture
+
+An LLM gateway can be deployed in three architectural patterns: **reverse proxy**, **sidecar**, or **embedded SDK**. Each pattern has different implications for <JargonTip term="latency">latency</JargonTip>, operational complexity, and feature richness.
+
+  <ComparisonTable title="Gateway Deployment Patterns" columns={['Pattern','How It Works','Latency Impact','Best For']} rows={[
+    ['Reverse Proxy','Standalone service between app and LLM providers','Adds network hop (1-5ms)','Multi-service architectures, centralized control'],
+    ['Sidecar','Co-located process alongside each app instance','Minimal (~0.5ms)','Kubernetes deployments, per-service policies'],
+    ['Embedded SDK','Library imported directly into application code','Zero network overhead','Simple apps, serverless, edge deployments'],
+  ]}/>
+  <CodeBlock language="python" label="Reverse Proxy Gateway Implementation" code={`from fastapi import FastAPI, HTTPException
+import httpx
+
+app = FastAPI()
+
+PROVIDERS = {
+    "anthropic": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "headers": {"x-api-key": ANTHROPIC_KEY,
+                     "anthropic-version": "2023-06-01"},
+        "transform": transform_to_anthropic},
+    "openai": {
+        "url": "https://api.openai.com/v1/chat/completions",
+        "headers": {"Authorization": f"Bearer \\$\\{OPENAI_KEY\\}"},
+        "transform": transform_to_openai},
+}
+
+class GatewayMiddleware:
+    def __init__(self):
+        self.request_log = []
+        self.circuit_breakers = {p: CircuitBreaker() for p in PROVIDERS}
+
+    async def route_request(self, request, strategy):
+        # 1. Rate limiting
+        if not await self.check_rate_limit(request.get("user_id")):
+            raise HTTPException(429, "Rate limit exceeded")
+        # 2. Select provider
+        provider = self.select_provider(strategy)
+        config = PROVIDERS[provider]
+        transformed = config["transform"](request)
+        # 3. Circuit breaker check
+        if self.circuit_breakers[provider].is_open:
+            provider = self.select_fallback(provider)
+            config = PROVIDERS[provider]
+            transformed = config["transform"](request)
+        # 4. Forward request
+        async with httpx.AsyncClient(timeout=30) as client:
+            response = await client.post(
+                config["url"], json=transformed,
+                headers=config["headers"])
+        # 5. Log and return
+        self.request_log.append({
+            "provider": provider,
+            "tokens": extract_tokens(response.json()),
+            "status": response.status_code})
+        return response.json()`}/>
+  <Quiz question="When should you choose a sidecar gateway over a reverse proxy?" options={["Single monolithic app","Kubernetes with per-service routing policies and minimal latency","Simplest possible setup","Deploying to serverless"]} correctIndex={1} explanation="The sidecar pattern excels in Kubernetes where each service needs its own gateway instance co-located in the same pod. This minimizes latency while allowing per-service routing policies and rate limits."/>

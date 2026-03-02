@@ -1,0 +1,60 @@
+---
+label: "Safety Architecture"
+icon: "\uD83D\uDEE1\uFE0F"
+---
+
+## Safety Architecture for Autonomous Agents
+
+<CodeBlock language="python" label="Action Safety Layer" code={`class SafetyLayer:
+    """Filter and gate agent actions before execution"""
+
+    IRREVERSIBLE_ACTIONS = {
+        "purchase", "delete", "send_email",
+        "submit_form", "transfer_funds",
+        "publish", "share_externally"
+    }
+
+    BLOCKED_DOMAINS = {
+        "bank.*", "*.gov", "admin.*",
+        "payment.*", "oauth.*"
+    }
+
+    def __init__(self, allowed_domains=None):
+        self.allowed_domains = allowed_domains or ["*"]
+        self.action_log = []
+
+    def check_action(self, action, context):
+        """Returns (allowed, reason, needs_confirmation)"""
+        # Check domain allowlist
+        if not self._domain_allowed(context["url"]):
+            return False, "Domain not in allowlist", False
+
+        # Check for irreversible actions
+        if action.get("type") in self.IRREVERSIBLE_ACTIONS:
+            return True, "Irreversible action", True  # needs confirmation
+
+        # Check for sensitive data in typed text
+        if action.get("type") == "type":
+            if self._contains_pii(action.get("value", "")):
+                return True, "Contains PII", True
+
+        # Rate limiting
+        if len(self.action_log) > 100:
+            return False, "Rate limit exceeded", False
+
+        return True, "OK", False
+
+    def _domain_allowed(self, url):
+        import re
+        domain = url.split("//")[-1].split("/")[0]
+        for pattern in self.BLOCKED_DOMAINS:
+            if re.match(pattern.replace("*", ".*"), domain):
+                return False
+        if self.allowed_domains == ["*"]:
+            return True
+        return any(
+            re.match(p.replace("*", ".*"), domain)
+            for p in self.allowed_domains
+        )`}/>
+
+<Quiz question="An AI browser agent encounters a page with a 'Delete All Records' button during a data export task. What should it do?" options={["Click it if it seems relevant to the task","Skip it silently and continue","Halt execution and request human confirmation","Add it to the action queue for later"]} correctIndex={2} explanation="Any irreversible action like deletion must trigger a confirmation gate. The agent should halt, present the situation to the human operator with full context (what page, what button, why it's relevant), and only proceed with explicit approval. This is the core safety principle for autonomous agents."/>

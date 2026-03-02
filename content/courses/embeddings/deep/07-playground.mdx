@@ -1,0 +1,20 @@
+---
+label: "Deep Playground"
+icon: "🎮"
+---
+
+## Deep Playground
+
+Architecture decision exercises and production pipeline design challenges for embeddings and vector search.
+
+<ExpandableSection title="Scenario 1: Index Selection" icon="🏗️" defaultOpen={true}>
+  <ArchitectureDecision scenario="You are building a product recommendation engine for an e-commerce site with 50 million products. Each product has a 768-dim embedding. Users expect sub-50ms search latency. Your server has 128GB RAM. Which index strategy?" options={[{label:'HNSW with float32 vectors',tradeoff:'50M x 768 x 4B = ~143 GB -- exceeds 128 GB RAM. Would require disk-based search or multiple servers.'},{label:'HNSW with scalar quantization (int8)',tradeoff:'50M x 768 x 1B = ~36 GB + ~2 GB index = ~38 GB. Fits easily in 128 GB with room for application overhead. ~2% accuracy loss.'},{label:'IVF-PQ with 32-byte codes',tradeoff:'50M x 32B = ~1.5 GB. Fits trivially but ~8% accuracy loss. Fastest search but lowest quality.'}]} correctIndex={1} explanation="HNSW with int8 scalar quantization strikes the ideal balance: fits in 128 GB RAM with plenty of headroom (38 GB / 128 GB), maintains ~98% accuracy, and delivers sub-10ms latency. IVF-PQ's 8% accuracy loss is too much for recommendations where relevance directly impacts revenue."/>
+</ExpandableSection>
+
+<ExpandableSection title="Scenario 2: Embedding Model Migration" icon="🔄">
+  <Quiz question="You want to upgrade from text-embedding-ada-002 (1536d) to text-embedding-3-large (3072d) for better retrieval quality. Your vector database has 10M vectors. What is the migration plan?" options={["Just start using the new model for new documents; old and new vectors are compatible","Re-embed all 10M documents with the new model, then swap the index atomically","Gradually re-embed in batches while maintaining two indexes, then cut over when complete","Use Matryoshka truncation to make the new model output 1536d (matching the old model)"]} correctIndex={2} explanation="Vectors from different models are NOT compatible -- you cannot mix them in the same index. Gradual re-embedding with dual indexes ensures zero downtime: new queries hit both indexes and results are merged. Once all documents are re-embedded, cut over to the new index and decommission the old one."/>
+</ExpandableSection>
+
+<ExpandableSection title="Scenario 3: Pipeline Design" icon="🔧">
+  <ArchitectureDecision scenario="Your company has a mix of PDFs (scanned images), Word documents, HTML pages, and Slack messages to search across. How do you build a unified search pipeline?" options={[{label:'Use a single document processor that handles all formats',tradeoff:'Simplest architecture, but PDF OCR quality, HTML cleaning, and Slack formatting each have unique challenges'},{label:'Format-specific processors feeding into a unified embedding and indexing pipeline',tradeoff:'Best quality per format, modular (add new formats easily), slightly more complex but maintainable'},{label:'Convert everything to plain text first, then process uniformly',tradeoff:'Simple processing but loses formatting, tables, images, and structure that may be relevant for search'}]} correctIndex={1} explanation="Format-specific processors maximize extraction quality (OCR for scanned PDFs, HTML cleaning for web pages, thread reconstruction for Slack). All processors output clean text + metadata that feeds into a unified embedding pipeline. This modular design makes it easy to add new document types later."/>
+</ExpandableSection>

@@ -1,0 +1,143 @@
+---
+label: "MCP at Scale"
+icon: "🔌"
+---
+
+## MCP at Scale
+
+Course 5 introduced <JargonTip term="MCP">MCP</JargonTip> basics. In production you will wire **many servers** together, choose the right transport for each boundary, manage session lifecycles, and handle composition gracefully when individual servers fail or timeout.
+
+      <AnalogyBox emoji="🔌" title="Think of MCP servers like power strips">
+        A power strip (MCP host) exposes many sockets (tools). Each appliance you plug in (MCP server) contributes its own capabilities. The host does not care what brand the appliances are — it just routes electricity (JSON-RPC messages). You can add or remove appliances at runtime.
+      </AnalogyBox>
+      <ComparisonTable title="Transport Selection Guide" columns={['Transport','Latency','Auth','Streaming','Best For']} rows={[
+        ['STDIO','Lowest — same process/host','OS-level isolation','Limited (line-buffered)','Local tools, CLI integrations, dev'],
+        ['Streamable HTTP (SSE)','Low-medium — network','OAuth 2.1 / API keys','Full SSE streaming','Remote servers, cloud, multi-tenant'],
+        ['WebSocket','Very low — persistent','Token-based','Bidirectional','Real-time tools, high-frequency calls'],
+        ['In-process','Zero overhead','None needed','Synchronous','Embedded servers, testing, monorepos'],
+      ]}/>
+      <CodeBlock language="json" label="Multi-Server MCP Host Configuration" code={`{
+  "mcpServers": {
+    "filesystem": {
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/workspace"],
+      "env": { "READ_ONLY": "false" }
+    },
+    "database": {
+      "transport": "http",
+      "url": "https://mcp.internal.company.com/db",
+      "headers": {
+        "Authorization": "Bearer ${DB_MCP_TOKEN}"
+      },
+      "timeout": 30000
+    },
+    "search": {
+      "transport": "http",
+      "url": "https://mcp.internal.company.com/search",
+      "headers": {
+        "Authorization": "Bearer ${SEARCH_MCP_TOKEN}"
+      },
+      "capabilities": ["tools", "resources"]
+    },
+    "notifications": {
+      "transport": "stdio",
+      "command": "node",
+      "args": ["./servers/notifications/index.js"],
+      "capabilities": ["tools", "sampling"]
+    }
+  }
+}`}/>
+      <ExpandableSection title="Session Management Lifecycle" icon="🔄">
+
+MCP sessions follow a strict lifecycle. Understanding each phase is critical for handling reconnects, cleanups, and resource leaks.
+
+        <CodeBlock language="python" label="Session Lifecycle (Python SDK)" code={`import asyncio
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+
+async def managed_mcp_session():
+    params = StdioServerParameters(
+        command="npx", args=["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
+    )
+
+    async with stdio_client(params) as (read, write):
+        async with ClientSession(read, write) as session:
+            # 1. Initialize — exchange capabilities
+            result = await session.initialize()
+            print(f"Server: {result.serverInfo.name} v{result.serverInfo.version}")
+            print(f"Capabilities: {result.capabilities}")
+
+            # 2. Discover tools
+            tools = await session.list_tools()
+            for tool in tools.tools:
+                print(f"  Tool: {tool.name} — {tool.description}")
+
+            # 3. Call tools in the session
+            response = await session.call_tool(
+                "read_file",
+                {"path": "/tmp/data.json"}
+            )
+
+            # 4. Session auto-closes on context exit
+            # Resources cleaned up, subprocess terminated
+            return response.content`}/>
+      </ExpandableSection>
+      <ExpandableSection title="Composing Multiple Servers in One Host" icon="🧩">
+        <CodeBlock language="javascript" label="Multi-Server Composition (Node.js)" code={`import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+
+class MCPCompositeHost {
+  constructor() {
+    this.clients = new Map();   // serverId -> Client
+    this.toolIndex = new Map(); // toolName -> serverId
+  }
+
+  async addServer(serverId, transportConfig) {
+    const transport = transportConfig.type === 'stdio'
+      ? new StdioClientTransport(transportConfig)
+      : new StreamableHTTPClientTransport(new URL(transportConfig.url));
+
+    const client = new Client(
+      { name: 'composite-host', version: '1.0.0' },
+      { capabilities: { sampling: {} } }
+    );
+    await client.connect(transport);
+
+    // Index all tools from this server
+    const { tools } = await client.listTools();
+    for (const tool of tools) {
+      // Namespace to avoid collisions: "filesystem__read_file"
+      const qualifiedName = \`\${serverId}__\${tool.name}\`;
+      this.toolIndex.set(qualifiedName, { serverId, originalName: tool.name });
+    }
+    this.clients.set(serverId, client);
+    return tools;
+  }
+
+  async callTool(qualifiedName, args) {
+    const entry = this.toolIndex.get(qualifiedName);
+    if (!entry) throw new Error(\`Unknown tool: \${qualifiedName}\`);
+    const client = this.clients.get(entry.serverId);
+    return client.callTool({ name: entry.originalName, arguments: args });
+  }
+
+  async shutdown() {
+    for (const client of this.clients.values()) {
+      await client.close();
+    }
+  }
+}
+
+// Usage
+const host = new MCPCompositeHost();
+await host.addServer('filesystem', { type: 'stdio', command: 'npx',
+  args: ['-y', '@modelcontextprotocol/server-filesystem', '/workspace'] });
+await host.addServer('database', { type: 'http',
+  url: 'https://mcp.internal.company.com/db' });
+
+const result = await host.callTool('filesystem__read_file', { path: '/workspace/config.json' });`}/>
+      </ExpandableSection>
+      <ArchitectureDesigner/>
+      <Quiz question="When should you choose Streamable HTTP transport over STDIO for an MCP server?" options={["When you want the lowest possible latency","When the server needs to be remotely accessible, support OAuth, or serve multiple clients","STDIO is always better — HTTP adds overhead","When the tools return very large responses"]} correctIndex={1} explanation="Streamable HTTP is the right choice when the MCP server must be accessible over the network — enabling remote deployment, cloud hosting, OAuth 2.1 authentication, and multi-tenant access from many different host processes simultaneously."/>

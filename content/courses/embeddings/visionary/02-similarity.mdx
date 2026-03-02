@@ -1,0 +1,20 @@
+---
+label: "Similarity & Distance"
+icon: "📏"
+---
+
+## Similarity & Distance
+
+Once text is converted to vectors, we can measure how **similar** two pieces of text are by comparing their vectors. The most common method is **<JargonTip term="cosine similarity">cosine similarity</JargonTip>**, which measures the angle between two vectors.
+
+Cosine similarity ranges from -1 (opposite meanings) to 1 (identical meanings). In practice, most text pairs fall between 0 and 1.
+
+| Metric | Range | Best For |
+|--------|-------|----------|
+| Cosine Similarity | -1 to 1 | Most NLP tasks, semantic search |
+| Euclidean Distance | 0 to infinity | Clustering, when magnitude matters |
+| Dot Product | -infinity to infinity | Normalized vectors, fast computation |
+
+<SimilarityCalculator/>
+
+<Quiz question="Two sentences have cosine similarity of 0.95. What does this tell you?" options={["They use the exact same words","They have very similar meanings","They are about different topics","One is a translation of the other"]} correctIndex={1} explanation="A cosine similarity of 0.95 (close to 1.0) indicates the sentences have very similar semantic meaning, even if they use completely different words."/>

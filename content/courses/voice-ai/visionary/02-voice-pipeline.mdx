@@ -1,0 +1,26 @@
+---
+label: "Pipeline"
+icon: "\uD83D\uDD27"
+---
+
+## Voice Pipeline Architecture
+  <CodeBlock title="Real-Time Voice Pipeline" code={`class VoicePipeline:
+    def __init__(self, stt_model, llm, tts_model):
+        self.stt = stt_model    # e.g., Whisper, Deepgram
+        self.llm = llm          # e.g., GPT-4o-mini (fast!)
+        self.tts = tts_model    # e.g., ElevenLabs, OpenAI TTS
+
+    async def process_utterance(self, audio_chunk):
+        # Step 1: STT (50-200ms)
+        text = await self.stt.transcribe(audio_chunk)
+
+        # Step 2: LLM response (100-500ms with streaming)
+        response_stream = self.llm.stream(text)
+
+        # Step 3: TTS with streaming (start speaking before LLM finishes)
+        async for chunk in response_stream:
+            audio = await self.tts.synthesize(chunk)
+            yield audio  # Stream audio back to user
+
+    # Total latency: ~300-700ms with streaming overlap`}/>
+  <ComparisonTable title="Voice AI Providers" headers={['Component','Provider','Latency','Quality']} rows={[['STT','Whisper (local)','100-200ms','Excellent'],['STT','Deepgram','50-100ms','Very Good'],['LLM','GPT-4o-mini','100-300ms','Good'],['TTS','ElevenLabs','150-300ms','Excellent'],['TTS','OpenAI TTS','100-200ms','Very Good']]}/>

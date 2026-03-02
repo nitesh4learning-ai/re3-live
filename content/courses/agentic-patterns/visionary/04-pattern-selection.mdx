@@ -1,0 +1,20 @@
+---
+label: "Pattern Selection"
+icon: "🎮"
+---
+
+## Pattern Selection
+
+<ComparisonTable title="When to Use Which Pattern" columns={['Pattern','Best For','Complexity','Reliability']} rows={[
+  ['ReAct','General tool use, information gathering','Low','Good'],
+  ['Plan-and-Execute','Multi-step tasks, research, analysis','Medium','Very Good'],
+  ['Reflection','Writing, code generation, quality-critical tasks','Medium','Excellent'],
+  ['Tool-Use Loop','Data processing, API orchestration','Low','Good'],
+  ['Multi-Agent','Complex problems needing diverse expertise','High','Variable'],
+]}/>
+
+<ArchitectureDecision scenario="You need to build an agent that researches a topic, gathers data from 5 different APIs, and writes a comprehensive report. Which pattern?" options={[
+  {label:'ReAct: reason, call APIs one by one, iterate',tradeoff:'Flexible but may lose track of the overall goal after many tool calls'},
+  {label:'Plan-and-Execute: plan the research strategy, then execute each API call, then synthesize',tradeoff:'Structured approach ensures comprehensive coverage. Replanning handles failed API calls.'},
+  {label:'Simple tool loop: call all 5 APIs, pass results to the model',tradeoff:'Fastest but no reasoning about what data to gather or how to combine it'},
+]} correctIndex={1} explanation="Research tasks with multiple data sources benefit from upfront planning. The agent plans which APIs to call, what data to extract, and how to structure the report -- then executes systematically." />

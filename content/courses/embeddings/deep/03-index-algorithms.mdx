@@ -1,0 +1,91 @@
+---
+label: "Vector Index Algorithms"
+icon: "⚡"
+---
+
+## Vector Index Algorithms
+
+Exact nearest neighbor search over millions of high-dimensional vectors is prohibitively slow (O(n*d) per query). Approximate Nearest Neighbor (ANN) algorithms trade a small amount of accuracy for orders-of-magnitude speedup. Understanding the internals of each algorithm helps you choose the right index for your workload.
+
+<ComparisonTable title="Index Algorithm Comparison" columns={['Algorithm','Search Speed','Build Time','Memory','Accuracy','Best For']} rows={[
+  ['HNSW','Very Fast','Moderate','High (graph)','~95-99%','General purpose, production default'],
+  ['IVF-Flat','Fast','Fast','Low','~90-95%','Large datasets, memory-constrained'],
+  ['IVF-PQ','Very Fast','Moderate','Very Low','~85-92%','Billions of vectors, cost-sensitive'],
+  ['LSH','Moderate','Fast','Low','~80-90%','Streaming data, simple implementation'],
+  ['Flat (brute-force)','Slow','None','Vectors only','100%','Small datasets (<100K), ground truth'],
+  ['ScaNN','Very Fast','Moderate','Moderate','~95-98%','Google-scale, anisotropic quantization'],
+]}/>
+
+<ExpandableSection title="HNSW Internals" icon="🌐" defaultOpen={true}>
+
+**HNSW (Hierarchical Navigable Small World)** builds a multi-layer proximity graph. The key parameters are:
+
+**M (connections per node):** How many edges each node has. Higher M = better recall but more memory. Typical: 16-64.
+
+**ef_construction:** Controls build-time quality. Higher = better graph quality but slower indexing. Typical: 200-400.
+
+**ef_search:** Controls search-time quality vs speed trade-off. Higher = better recall but slower queries. Typical: 50-200.
+
+Search algorithm: Start at the entry point in the top layer. Greedily navigate to the nearest neighbor. Drop down one layer and repeat. At the bottom layer, the local neighborhood contains the approximate nearest neighbors.
+
+**Memory overhead:** HNSW stores the graph structure alongside vectors. For M=16, each vector adds ~128 bytes of graph metadata. For 1M vectors with 1536-dim float32 embeddings: vectors = 5.7GB, graph = 128MB.
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="HNSW index tuning with Qdrant" code={`from qdrant_client import QdrantClient
+from qdrant_client.models import (
+    VectorParams, Distance, HnswConfigDiff,
+    OptimizersConfigDiff, QuantizationConfig,
+    ScalarQuantization, ScalarQuantizationConfig
+)
+
+client = QdrantClient("localhost", port=6333)
+
+# Create collection with tuned HNSW parameters
+client.create_collection(
+    collection_name="production_docs",
+    vectors_config=VectorParams(
+        size=1536,           # Embedding dimensions
+        distance=Distance.COSINE,
+    ),
+    hnsw_config=HnswConfigDiff(
+        m=16,                # Connections per node (16-64)
+        ef_construct=200,    # Build quality (100-400)
+        full_scan_threshold=10000,  # Use flat search below this count
+    ),
+    optimizers_config=OptimizersConfigDiff(
+        indexing_threshold=20000,  # Start HNSW after N vectors
+    ),
+    # Scalar quantization: 4x memory reduction, ~2% quality loss
+    quantization_config=QuantizationConfig(
+        scalar=ScalarQuantization(
+            scalar=ScalarQuantizationConfig(
+                type="int8",       # Quantize float32 to int8
+                quantile=0.99,     # Clip outliers
+                always_ram=True,   # Keep quantized vectors in RAM
+            )
+        )
+    ),
+)
+
+# Search with tunable ef parameter
+results = client.search(
+    collection_name="production_docs",
+    query_vector=query_embedding,
+    limit=10,
+    search_params={"hnsw_ef": 128},  # Higher = better recall, slower
+)`}/>
+
+<ExpandableSection title="Quantization: PQ and SQ" icon="🗜️">
+
+**Product Quantization (PQ):** Splits each vector into sub-vectors and quantizes each sub-vector independently using a codebook. Reduces memory by 4-32x with 5-10% accuracy loss. Essential for billion-scale datasets.
+
+**Scalar Quantization (SQ):** Converts float32 values to int8 (4x compression) or binary (32x compression). Simpler than PQ, less compression but better accuracy retention.
+
+**Rule of thumb:** Start with SQ (int8) for 4x compression with ~2% quality loss. Use PQ only when you need to fit billions of vectors in limited memory.
+
+</ExpandableSection>
+
+<Quiz question="You have 10 million vectors with 1536 dimensions (float32). How much memory do they require without any compression?" options={["~1.5 GB","~15 GB","~57 GB","~150 GB"]} correctIndex={2} explanation="10M vectors x 1536 dimensions x 4 bytes (float32) = 61.4 billion bytes = ~57 GB. This is just for the raw vectors -- the HNSW graph index adds another ~1-2 GB. This is why quantization (int8 = ~14 GB, PQ = ~3-5 GB) is essential at scale."/>
+
+<ArchitectureDecision scenario="You are building a semantic search system for 500 million product descriptions. Budget allows for 64GB of RAM on the search servers. Which index strategy fits?" options={[{label:'HNSW with float32 vectors (full precision)',tradeoff:'Best accuracy, but 500M x 1536 x 4B = ~2.9 TB -- far exceeds 64GB RAM'},{label:'HNSW with scalar quantization (int8)',tradeoff:'500M x 1536 x 1B = ~720 GB + index -- still too large for 64GB'},{label:'IVF-PQ with 64-byte quantized vectors + HNSW on centroids',tradeoff:'500M x 64B = ~30 GB for vectors, fits in 64GB with room for the index, ~90% recall'}]} correctIndex={2} explanation="At 500M vectors, Product Quantization is necessary to fit in 64GB RAM. IVF-PQ compresses each 1536-dim vector to 64 bytes (24x compression), bringing the total to ~30 GB. The IVF index clusters vectors and searches only relevant clusters, maintaining fast search times. Recall of ~90% is acceptable for product search."/>

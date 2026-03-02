@@ -1,0 +1,94 @@
+---
+label: "Advanced Few-Shot"
+icon: "🔎"
+---
+
+## Advanced Few-Shot
+
+Production few-shot prompting goes beyond manually selecting examples. Advanced techniques dynamically select the best examples for each query, optimize example ordering, and use retrieval-augmented example selection to maximize pattern transfer.
+
+<ExpandableSection title="Dynamic Few-Shot Selection (KATE)" icon="🎯" defaultOpen={true}>
+
+**KATE (K-nearest Adjusted to Examples)** uses embeddings to dynamically select the most relevant few-shot examples for each incoming query. Instead of static examples, you maintain an example bank and retrieve the closest matches.
+
+This dramatically improves performance because the model sees examples most similar to the current task, rather than generic ones. Research shows dynamic selection can improve accuracy by 10-20% over static few-shot.
+
+**Implementation:** Embed all your example inputs. At query time, embed the new input, find the k-nearest example embeddings, and include those examples in the prompt.
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="Dynamic few-shot selection with embeddings" code={`from openai import OpenAI
+import numpy as np
+
+client = OpenAI()
+
+# Your example bank (in production, store embeddings in a vector DB)
+example_bank = [
+    {"input": "The product arrived damaged", "output": "complaint", "embedding": None},
+    {"input": "When will my order ship?", "output": "order_status", "embedding": None},
+    {"input": "Can I return this item?", "output": "return_request", "embedding": None},
+    {"input": "What colors does this come in?", "output": "product_question", "embedding": None},
+    {"input": "I was charged twice", "output": "billing_issue", "embedding": None},
+    {"input": "This is the worst quality ever", "output": "complaint", "embedding": None},
+    {"input": "Do you have size XL?", "output": "product_question", "embedding": None},
+    {"input": "My package says delivered but I didn't get it", "output": "delivery_issue", "embedding": None},
+]
+
+def embed(text):
+    resp = client.embeddings.create(input=text, model="text-embedding-3-small")
+    return np.array(resp.data[0].embedding)
+
+# Pre-compute embeddings for all examples
+for ex in example_bank:
+    ex["embedding"] = embed(ex["input"])
+
+def get_dynamic_examples(query, k=3):
+    """Select k most relevant examples for the query."""
+    query_emb = embed(query)
+    # Compute cosine similarity
+    similarities = [
+        np.dot(query_emb, ex["embedding"]) /
+        (np.linalg.norm(query_emb) * np.linalg.norm(ex["embedding"]))
+        for ex in example_bank
+    ]
+    # Get top-k indices
+    top_k = np.argsort(similarities)[-k:][::-1]
+    return [example_bank[i] for i in top_k]
+
+# Usage
+query = "The item I received is broken"
+examples = get_dynamic_examples(query, k=3)
+# Returns examples most similar to complaints about damaged items
+
+prompt = "Classify the following customer message.\\n\\n"
+for ex in examples:
+    prompt += f"Input: {ex['input']}\\nCategory: {ex['output']}\\n\\n"
+prompt += f"Input: {query}\\nCategory:"`}/>
+
+<ExpandableSection title="Example Ordering Effects" icon="🔢">
+
+The order of few-shot examples significantly impacts performance. Research findings:
+
+- **Recency bias:** The last example has disproportionate influence on the output pattern. Place your most representative example last.
+- **Diversity matters:** If all examples have the same label, the model is biased toward that label. Ensure balanced representation.
+- **Increasing complexity:** Ordering from simple to complex examples can improve performance on complex queries (curriculum effect).
+
+**Best practice:** For classification tasks, alternate labels in examples. For generation tasks, place the example most similar to the expected output last.
+
+</ExpandableSection>
+
+<ExpandableSection title="Chain-of-Examples Pattern" icon="🔗">
+
+Combine few-shot with chain-of-thought by including reasoning in your examples:
+
+**Standard few-shot:** Input: "..." => Output: "positive"
+
+**Chain-of-examples:** Input: "..." => Reasoning: "The customer mentions 'love' and 'excellent' indicating satisfaction. No negative indicators." => Output: "positive"
+
+This teaches the model both the pattern and the reasoning process, leading to more robust classification on edge cases.
+
+</ExpandableSection>
+
+<Quiz question="You have a few-shot prompt for sentiment classification with 5 examples: 4 positive and 1 negative. Users report the model almost always predicts 'positive.' What is the most likely cause and fix?" options={["The model is broken -- switch providers","The examples are imbalanced (4:1 positive:negative). Balance them 2-3 positive and 2-3 negative.","The temperature is too low","The examples need to be longer"]} correctIndex={1} explanation="Few-shot examples create a prior distribution. With 4:1 positive:negative ratio, the model learns that positive is 4x more likely. Balancing the examples (e.g., 3:2 or 2:3) removes this bias and leads to more accurate classification."/>
+
+<Quiz question="When should you use dynamic few-shot selection (KATE) over static examples?" options={["Always -- it's strictly better","When you have a large example bank (50+) covering diverse scenarios","Only when using embedding models from the same provider","Only for classification tasks"]} correctIndex={1} explanation="Dynamic selection shines when you have a large, diverse example bank. The retrieval step finds the most relevant examples for each specific query, which is much more effective than static examples that may not be relevant to every input. With only 3-5 total examples, static selection is fine."/>

@@ -1,0 +1,19 @@
+---
+label: "Routing Strategies"
+icon: "\uD83D\uDD00"
+---
+
+## Routing Strategies
+
+Different routing strategies optimize for different goals. The gateway also manages <JargonTip term="streaming">streaming</JargonTip> connections to reduce perceived latency. The best strategy depends on your priorities.
+
+
+
+      | Strategy | How It Works | Best For
+
+        {[['Cost-Optimized','Route to cheapest available provider','Budget-constrained applications'],['Latency-Optimized','Route to fastest available provider','Real-time applications, chatbots'],['Quality-Optimized','Route to best model for the task type','High-stakes applications'],['Round-Robin','Distribute evenly across providers','Load balancing, rate limit spreading'],['Fallback Chain','Try primary, fall back to secondary','Maximum reliability']].map(([s,h,b],i)=>| {s} | {h} | {b} )}
+
+
+
+  <GatewaySimulator/>
+  <Quiz question="Your app needs maximum reliability. Which routing strategy?" options={["Cost-optimized","Round-robin","Fallback chain","Random"]} correctIndex={2} explanation="Fallback chain provides maximum reliability: try the primary provider first, and if it fails, automatically try the next one. This ensures your app stays up even during provider outages."/>

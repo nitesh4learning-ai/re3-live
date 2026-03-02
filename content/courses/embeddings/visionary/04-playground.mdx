@@ -1,0 +1,16 @@
+---
+label: "Playground"
+icon: "🎮"
+---
+
+## Playground
+
+Test your embeddings knowledge!
+
+<ExpandableSection title="Exercise 1: Embedding Intuition" icon="🧠" defaultOpen={true}>
+  <Quiz question="Which pair of sentences would have the HIGHEST cosine similarity?" options={["'The dog is sleeping' and 'The cat is sleeping'","'The dog is sleeping' and 'Markets closed higher today'","'Buy stocks now' and 'The weather is nice'","'Hello world' and 'Goodbye universe'"]} correctIndex={0} explanation="'The dog is sleeping' and 'The cat is sleeping' share nearly identical structure and meaning (animal + resting). The other pairs have minimal semantic overlap."/>
+</ExpandableSection>
+
+<ExpandableSection title="Exercise 2: Vector DB Selection" icon="🗄️">
+  <Quiz question="Your team already uses PostgreSQL and needs to add semantic search to an existing app. Which vector DB is best?" options={["Pinecone -- it's the most popular","pgvector -- extends your existing PostgreSQL","Chroma -- it's the simplest","Build a custom solution from scratch"]} correctIndex={1} explanation="pgvector is a PostgreSQL extension that adds vector operations to your existing database. No new infrastructure needed -- just install the extension and add a vector column."/>
+</ExpandableSection>

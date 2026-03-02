@@ -1,0 +1,29 @@
+---
+label: "Fairness"
+icon: "\u2696\uFE0F"
+---
+
+## Understanding AI Fairness
+
+<AnalogyBox emoji={'\u2696\uFE0F'} title="Fairness is like a multisided die">There are many valid definitions of fairness -- and they often conflict mathematically. You can't satisfy all of them simultaneously. The key is choosing which definition fits your context and being transparent about the trade-offs.</AnalogyBox>
+
+<ExpandableSection title="Types of Bias in AI" icon={'\uD83D\uDD0D'} defaultOpen>
+
+- **Historical bias:** Training data reflects past discrimination (e.g., hiring data from biased organizations)
+- **Representation bias:** Some groups underrepresented in training data
+- **Measurement bias:** Features that are poor proxies (e.g., zip code as proxy for race)
+- **Aggregation bias:** One model for diverse subpopulations that behave differently
+- **Evaluation bias:** Test set doesn't represent deployment population
+
+</ExpandableSection>
+
+<ExpandableSection title="Fairness Definitions" icon={'\uD83D\uDCCF'}>
+
+- **Demographic Parity:** Equal selection rates across groups
+- **Equalized Odds:** Equal true positive and false positive rates
+- **Calibration:** When model says 80% confidence, it's right 80% for all groups
+- **Individual Fairness:** Similar individuals get similar outcomes
+
+</ExpandableSection>
+
+<Quiz question="Why is it mathematically impossible to satisfy all fairness definitions simultaneously?" options={["It's actually possible with enough data","Different fairness metrics optimize for conflicting objectives","Only because of compute limitations","It's a theoretical claim that doesn't apply in practice"]} correctIndex={1} explanation="This is the 'impossibility theorem of fairness' -- demographic parity, equalized odds, and calibration cannot all be satisfied simultaneously except in trivial cases. Organizations must choose which definition matters most for their context."/>

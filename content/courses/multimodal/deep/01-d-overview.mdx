@@ -1,0 +1,17 @@
+---
+label: "Multimodal"
+icon: "\uD83D\uDDBC\uFE0F"
+---
+
+## What Is Multimodal AI?
+  <AnalogyBox emoji={'D83EDDE0'} title="The Five Senses">{`Multimodal AI gives models multiple senses \u2014 text is like hearing, vision is like seeing, audio is like listening. Combining modalities lets AI understand the world more like humans do.`}</AnalogyBox>
+
+<JargonTip term="multimodal">Multimodal</JargonTip> AI systems built on <JargonTip term="transformer">transformer</JargonTip> architectures use <JargonTip term="attention">attention</JargonTip> mechanisms to process inputs across vision, audio, and text. Key capabilities include <JargonTip term="STT">speech-to-text</JargonTip> and <JargonTip term="TTS">text-to-speech</JargonTip> conversion.
+
+  {[
+    {icon:'\uD83D\uDDBC\uFE0F',title:'Vision',desc:'Image understanding, document OCR, chart analysis'},{icon:'\uD83C\uDF99\uFE0F',title:'Audio',desc:'Speech-to-text, sound classification, music analysis'},{icon:'\uD83C\uDFA5',title:'Video',desc:'Scene understanding, action recognition, temporal reasoning'},
+  ].map((m,i)=><div key={i}>{m.icon}
+####
+{m.desc}
+)}
+  <Quiz question="Which multimodal capability is most mature in 2025?" options={["Video understanding","Image/document understanding (vision + text)","Audio generation","3D scene understanding"]} correctIndex={1} explanation="Vision + text (image understanding, document OCR, chart analysis) is the most mature multimodal capability, supported by GPT-4o, Claude 3.5, and Gemini 1.5 with high accuracy."/>

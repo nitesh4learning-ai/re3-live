@@ -1,0 +1,7 @@
+---
+label: "Playground"
+icon: "\uD83C\uDFAE"
+---
+
+## Fine-Tuning Playground
+  <ArchitectureDecision scenario="You want your customer support AI to always respond in your company's tone (friendly but professional, never use 'sorry', always offer next steps). You have 200 real support conversations showing the ideal tone." options={[{label:'System prompt with style instructions + few examples',tradeoff:'Works but uses 500+ tokens per call. Style drift over long conversations.'},{label:'Fine-tune a small model (Llama 8B) on the 200 examples + 800 synthetic',tradeoff:'Consistent style baked into weights. Lower inference cost. But locked to one style.'},{label:'RAG with style guide document',tradeoff:'Flexible but the model may not consistently follow the style guide'}]} correctIndex={1} explanation="Consistent tone/style is a perfect fine-tuning use case. The 200 real examples + synthetic expansion gives enough training data. The fine-tuned model produces the right style automatically without consuming prompt tokens."/>

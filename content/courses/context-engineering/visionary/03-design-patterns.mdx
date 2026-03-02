@@ -1,0 +1,45 @@
+---
+label: "Design Patterns"
+icon: "\uD83D\uDEE0\uFE0F"
+---
+
+## Context Design Patterns
+
+<ExpandableSection title="Stuffing vs Selective Retrieval" icon={'\uD83D\uDCE6'} defaultOpen>
+**Stuffing**: dump everything possibly relevant. Simple but wasteful — dilutes signal with noise.
+
+**Selective**: pick only the most relevant chunks via similarity + <JargonTip term="reranking">reranking</JargonTip>. More work but much better results.
+</ExpandableSection>
+
+<ExpandableSection title="Instruction Positioning" icon={'\uD83D\uDCCD'}>
+**Primacy effect**: models attend strongly to the beginning. Put critical instructions in system prompt. **Recency effect**: also attend to the end. Repeat key constraints before the user query. The middle gets least attention.
+</ExpandableSection>
+
+<ExpandableSection title="Context Compression" icon={'\uD83D\uDDDC\uFE0F'}>
+Summarize old turns, compress docs into key facts, use structured formats (bullets, tables) over prose. A 500-token summary of 10 turns preserves meaning while saving 80% of tokens.
+</ExpandableSection>
+
+<CodeBlock title="Context Assembly Function" code={`def assemble_context(system_prompt, query, docs, convo, max_tokens=4096):
+    budget = max_tokens
+    context = [{"role": "system", "content": system_prompt}]
+    budget -= count_tokens(system_prompt)
+
+    # Recent conversation (last 3 turns verbatim)
+    recent = convo[-6:]
+    for msg in recent:
+        budget -= count_tokens(msg["content"])
+
+    # Retrieved docs (fill remaining budget)
+    doc_ctx = ""
+    for doc in docs:
+        t = count_tokens(doc["text"])
+        if t <= budget - 200:  # Reserve 200 for query
+            doc_ctx += f"\\n---\\n{doc['text']}"
+            budget -= t
+    if doc_ctx:
+        context.append({"role":"user","content":f"Reference docs:{doc_ctx}"})
+    context.extend(recent)
+    context.append({"role": "user", "content": query})
+    return context`}/>
+
+<Quiz question="Where should you place critical instructions in a long context?" options={["In the middle, surrounded by supporting text","At the very beginning or very end","It does not matter with modern models","Only at the end"]} correctIndex={1} explanation="Due to primacy and recency effects, models attend most to the start and end of context. Put critical instructions in the system prompt (beginning) and repeat before the final user query (end)." />

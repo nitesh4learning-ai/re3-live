@@ -1,0 +1,47 @@
+---
+label: "JSON Schema Deep Dive"
+icon: "🔍"
+---
+
+## JSON Schema Deep Dive
+
+<CodeBlock title="Complex JSON Schema" code={`{
+  "type": "object",
+  "properties": {
+    "analysis": {
+      "type": "object",
+      "properties": {
+        "sentiment": {
+          "type": "string",
+          "enum": ["positive", "negative", "neutral", "mixed"]
+        },
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "relevance": {"type": "number", "minimum": 0, "maximum": 1}
+            },
+            "required": ["name", "relevance"]
+          }
+        },
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2}$"
+        }
+      },
+      "required": ["sentiment", "topics"]
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "word_count": {"type": "integer"},
+        "processing_note": {"type": "string"}
+      }
+    }
+  },
+  "required": ["analysis"]
+}`}/>
+
+<Quiz question="What does 'pattern: ^[a-z]{2}$' enforce in a JSON Schema string field?" options={["Exactly 2 lowercase letters (like language codes 'en', 'fr')","Any string with at least 2 characters","A regex match anywhere in the string","It is not valid JSON Schema"]} correctIndex={0} explanation="The pattern property uses regex to validate string format. ^[a-z]{2}$ means: start (^), exactly 2 lowercase letters ([a-z]{2}), end ($). Perfect for ISO 639-1 language codes."/>

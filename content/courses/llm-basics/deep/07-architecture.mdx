@@ -1,0 +1,57 @@
+---
+label: "Model Architecture"
+icon: "\uD83E\uDDE9"
+---
+
+## Model Architecture
+
+Modern LLMs are all <JargonTip term="transformer">transformer</JargonTip>-based but differ significantly in architectural choices. Understanding these differences helps you evaluate models, predict performance characteristics, and make informed decisions about which model to use for specific tasks.
+
+<ExpandableSection title="Transformer Block Internals" icon="\uD83E\uDDE9" defaultOpen={true}>
+
+Each transformer block consists of:
+
+**1. Layer Normalization:** Normalizes the input to stabilize training. Modern models use **RMSNorm** (Root Mean Square normalization) instead of LayerNorm -- it is simpler and equally effective. Pre-norm (normalize before attention) is now standard, replacing post-norm.
+
+**2. Multi-Head Attention:** Computes Q/K/V attention as discussed. Modern variants include GQA (Grouped Query Attention) which shares KV heads to reduce <JargonTip term="KV cache">KV cache</JargonTip> memory.
+
+**3. Feed-Forward Network (FFN):** A two-layer MLP with a non-linearity. Modern models use **SwiGLU** activation (Swish-Gated Linear Unit) instead of ReLU or GELU, improving performance at the same parameter count.
+
+**4. Residual connections:** Each sub-layer has a skip connection: output = sublayer(x) + x. This enables training very deep networks (80+ layers).
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="Simplified transformer block" code={`import torch\nimport torch.nn as nn\n\nclass TransformerBlock(nn.Module):\n    def __init__(self, d_model=4096, n_heads=32, n_kv_heads=8, ffn_dim=11008):\n        super().__init__()\n        # Pre-norm with RMSNorm\n        self.attn_norm = RMSNorm(d_model)\n        self.ffn_norm = RMSNorm(d_model)\n\n        # Grouped-Query Attention (GQA)\n        self.attn = GroupedQueryAttention(d_model, n_heads, n_kv_heads)\n\n        # SwiGLU Feed-Forward Network\n        self.ffn = SwiGLUFFN(d_model, ffn_dim)\n\n    def forward(self, x, freqs_cis, mask=None):\n        # Attention with residual connection\n        h = x + self.attn(self.attn_norm(x), freqs_cis, mask)\n\n        # FFN with residual connection\n        out = h + self.ffn(self.ffn_norm(h))\n        return out\n\nclass RMSNorm(nn.Module):\n    def __init__(self, dim, eps=1e-6):\n        super().__init__()\n        self.eps = eps\n        self.weight = nn.Parameter(torch.ones(dim))\n\n    def forward(self, x):\n        rms = torch.sqrt(torch.mean(x ** 2, dim=-1, keepdim=True) + self.eps)\n        return x / rms * self.weight`}/>
+
+<ExpandableSection title="Mixture of Experts (MoE)" icon="\uD83E\uDDE0">
+
+**MoE** is an architecture where the FFN layer is replaced by multiple "expert" FFN networks, and a gating network selects which experts process each token. Only a subset of experts (typically 2 out of 8) are active for any given token.
+
+**Advantage:** The model can have far more total parameters while only using a fraction for each token. Mixtral 8x7B has 47B total parameters but only activates 13B per token, achieving performance competitive with 70B dense models.
+
+**Trade-off:** All parameters must be loaded into memory (47B), even though only 13B are "active." This means MoE models require more memory than their active parameter count suggests.
+
+GPT-4 is widely believed to be a MoE model. DeepSeek-V2 uses a variant called DeepSeekMoE with finer-grained experts for improved efficiency.
+
+</ExpandableSection>
+
+<ExpandableSection title="Multi-head Latent Attention (MLA)" icon="\uD83D\uDD2C">
+
+**MLA**, introduced in DeepSeek-V2, compresses the KV cache by projecting K and V into a lower-dimensional latent space before caching. During attention, the latent representations are projected back up.
+
+This achieves similar KV cache compression as GQA but with better performance retention. MLA reduces KV cache memory by 93.3% compared to standard MHA while maintaining or improving quality.
+
+</ExpandableSection>
+
+<ComparisonTable title="Architecture Variants in Production Models" columns={['Model','Params','Attention','FFN','Positional Encoding']} rows={[
+  ['LLaMA 3','8B / 70B / 405B','GQA (8 KV heads)','SwiGLU','RoPE'],
+  ['Mistral / Mixtral','7B / 8x7B','GQA + Sliding Window','SwiGLU (MoE)','RoPE'],
+  ['GPT-4o','Undisclosed','Likely MoE + MHA','Undisclosed','Undisclosed'],
+  ['DeepSeek-V3','671B (37B active)','MLA','DeepSeekMoE','RoPE + YaRN'],
+  ['Gemini 1.5','Undisclosed','Likely MoE','Undisclosed','Undisclosed'],
+  ['Phi-3','3.8B / 14B','Full MHA','SwiGLU','RoPE (LongRoPE)'],
+]}/>
+
+<Quiz question="Mixtral 8x7B has 47B total parameters but performance similar to a 70B dense model. Why does it need less compute per token?" options={["It uses a smaller vocabulary","Only 2 of 8 expert FFNs are activated per token, so only ~13B parameters are used per forward pass","It skips attention layers for some tokens","It uses 8-bit quantization by default"]} correctIndex={1} explanation="In Mixture of Experts, a gating network selects a subset of experts (typically 2 out of 8) for each token. This means each token only activates ~13B of the 47B total parameters, giving high capacity with proportionally lower compute cost."/>
+
+<ArchitectureDecision scenario="You need to serve a model on a single consumer GPU (24GB VRAM). You need performance comparable to LLaMA 3 70B. What approach is most feasible?" options={[{label:'Quantize LLaMA 3 70B to 4-bit (GPTQ/AWQ) to fit in 24GB',tradeoff:'Fits in memory (~35GB at 4-bit, still too large for 24GB), significant quality loss at aggressive quantization'},{label:'Use Mixtral 8x7B quantized to 4-bit (~24GB)',tradeoff:'Fits in 24GB at 4-bit, strong performance from MoE architecture, but slower due to expert routing overhead'},{label:'Use LLaMA 3 8B with extensive fine-tuning on your domain',tradeoff:'Easily fits in 24GB, fast inference, but may not match 70B general capability even with fine-tuning'}]} correctIndex={1} explanation="Mixtral 8x7B at 4-bit quantization (~24GB) fits in a single 24GB GPU while providing performance competitive with much larger dense models. The MoE architecture gives you more 'capacity per VRAM dollar' than either a highly quantized 70B model (which still does not fit) or a small 8B model."/>

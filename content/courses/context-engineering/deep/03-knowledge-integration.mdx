@@ -1,0 +1,12 @@
+---
+label: "Knowledge Integration"
+icon: "\uD83D\uDCDA"
+---
+
+## Knowledge Integration
+
+<ExpandableSection title="Chunk Ordering Strategies" icon={'\uD83D\uDCCA'} defaultOpen>
+**Relevance-first**: Most relevant first. Best for direct questions. **Chronological**: By date. Best for time-sensitive topics. **Diverse-first**: Alternate sources. Best for comprehensive analysis.
+</ExpandableSection>
+
+<ArchitectureDecision scenario="Your RAG retrieves 5 chunks about a medical topic. Chunks 1 and 3 contain conflicting treatment recommendations from different years. How handle this?" options={[{label:'Include both, let the model figure it out',tradeoff:'Simple but risky — model may pick the wrong one or hallucinate a compromise'},{label:'Include both with metadata (source, date) and instruct model to prefer newer sources',tradeoff:'Transparent — model reasons about recency and authority'},{label:'Only include the most recent chunk',tradeoff:'Clean context but loses potentially valuable historical perspective'}]} correctIndex={1} explanation="Including conflicting sources WITH metadata lets the model make informed decisions. Instruct it to prefer recent peer-reviewed sources and note disagreements." />

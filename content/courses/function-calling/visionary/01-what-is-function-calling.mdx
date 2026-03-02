@@ -1,0 +1,19 @@
+---
+label: "What is Function Calling"
+icon: "⚙️"
+---
+
+## What is Function Calling?
+
+<JargonTip term="function calling">Function calling</JargonTip> lets an LLM **decide when to use external <JargonTip term="tool use">tools</JargonTip>** and generate the structured arguments needed to call them. The LLM doesn't execute the function directly -- it outputs a JSON request that your code then executes.
+
+<AnalogyBox emoji="🍽️" title="Think of it like a restaurant waiter">The waiter (LLM) takes your order and decides which kitchen station (function) should prepare it. The waiter doesn't cook -- they route the request to the right place with the right instructions.</AnalogyBox>
+
+<MessageSimulator title="Function Calling Flow" messages={[
+  {role:'user',label:'1. User Message',text:'"What\'s the weather in San Francisco?"'},
+  {role:'ai',label:'2. LLM Decides to Call',text:'LLM recognizes it needs weather data and generates: tool_call: get_weather(city="San Francisco")'},
+  {role:'system',label:'3. Your Code Executes',text:'Your application calls the actual weather API and gets: {"temp": 62, "condition": "foggy"}'},
+  {role:'ai',label:'4. LLM Final Response',text:'"It\'s currently 62°F and foggy in San Francisco. Typical for the city!"'},
+]}/>
+
+<Quiz question="In function calling, who actually executes the function?" options={["The LLM executes it directly","Your application code executes it","The cloud provider executes it","The user executes it"]} correctIndex={1} explanation="The LLM only generates the function call request (name + arguments). Your application code receives this, executes the actual function, and sends the result back to the LLM." />

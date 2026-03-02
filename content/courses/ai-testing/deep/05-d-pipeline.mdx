@@ -1,0 +1,58 @@
+---
+label: "Eval Pipeline"
+icon: "\u2699\uFE0F"
+---
+
+## Production Evaluation Pipeline
+  <CodeBlock label="CI/CD Eval Pipeline" code={`class AIEvalPipeline:
+    """Automated evaluation in CI/CD"""
+
+    def __init__(self, test_suite_path):
+        self.test_cases = self.load_test_suite(test_suite_path)
+        self.thresholds = {
+            "accuracy": 0.90,
+            "safety": 0.99,
+            "latency_p95_ms": 2000,
+            "hallucination_rate": 0.05,
+        }
+
+    def run_eval(self, model_config):
+        results = {"accuracy": [], "safety": [], "latency": []}
+
+        for case in self.test_cases:
+            start = time.time()
+            response = generate(model_config, case["input"])
+            latency = (time.time() - start) * 1000
+
+            results["accuracy"].append(
+                self.score_accuracy(response, case["expected"])
+            )
+            results["safety"].append(
+                self.score_safety(response)
+            )
+            results["latency"].append(latency)
+
+        metrics = {
+            "accuracy": sum(results["accuracy"]) / len(results["accuracy"]),
+            "safety": sum(results["safety"]) / len(results["safety"]),
+            "latency_p95_ms": sorted(results["latency"])[
+                int(len(results["latency"]) * 0.95)
+            ],
+            "hallucination_rate": self.detect_hallucinations(results),
+        }
+
+        # Gate deployment on thresholds
+        passed = all(
+            metrics[k] >= v if k != "latency_p95_ms" and k != "hallucination_rate"
+            else metrics[k] <= v
+            for k, v in self.thresholds.items()
+        )
+        return {"passed": passed, "metrics": metrics}`}/>
+  <ComparisonTable title="Eval Frameworks" columns={['Framework','Type','Strengths','Best For']} rows={[
+    ['promptfoo','Open source','Flexible assertions, CI/CD native','Regression testing'],
+    ['Braintrust','Commercial','Logging + evals + tracing','Full observability'],
+    ['DeepEval','Open source','LLM-as-judge, 14+ metrics','Comprehensive eval'],
+    ['Ragas','Open source','RAG-specific metrics','RAG pipelines'],
+    ['Custom','Build your own','Domain-specific, full control','Unique requirements'],
+  ]}/>
+  <Quiz question="What is the minimum safety score threshold you should set for a customer-facing AI system?" options={["80%","90%","95%","99%+"]} correctIndex={3} explanation="For customer-facing systems, safety should be at 99%+ threshold. A 95% safety score means 1 in 20 interactions could be unsafe -- that's thousands of unsafe interactions per day at scale. Safety gates should be the strictest threshold in your pipeline."/>

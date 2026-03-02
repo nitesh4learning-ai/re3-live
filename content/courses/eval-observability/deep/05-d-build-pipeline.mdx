@@ -1,0 +1,159 @@
+---
+label: "Build a Pipeline"
+icon: "\u2699\uFE0F"
+---
+
+## Build an Eval Pipeline
+
+A production eval pipeline ties together everything from this course: metrics, judges, test suites, and thresholds into an automated system that gates deployments and monitors quality. Let us build one step by step.
+
+  <AnalogyBox emoji="🚀" title="Think of it like a launch checklist">Before a rocket launches, engineers run through hundreds of checks: fuel pressure, navigation alignment, weather conditions. Each has a go/no-go threshold. An eval pipeline is your AI system's launch checklist -- systematic, automated, and non-negotiable.</AnalogyBox>
+  <CodeBlock language="python" label="Complete Eval Pipeline" code={`from dataclasses import dataclass
+from typing import List, Callable
+import asyncio
+
+@dataclass
+class EvalStep:
+    name: str
+    metric_fn: Callable    # async fn(input, output, context) -> float
+    threshold: float       # minimum passing score
+    is_gate: bool          # if True, failure blocks deployment
+    weight: float          # weight in composite score
+
+class EvalPipeline:
+    """End-to-end evaluation pipeline for LLM systems."""
+
+    def __init__(self, steps: List[EvalStep], test_suite: list):
+        self.steps = steps
+        self.test_suite = test_suite
+
+    async def run(self, system_fn: Callable) -> dict:
+        """Run full evaluation against the test suite."""
+        all_results = []
+
+        for case in self.test_suite:
+            # Generate output from the system under test
+            output = await system_fn(case["input"])
+
+            # Run each eval step
+            case_scores = {}
+            for step in self.steps:
+                score = await step.metric_fn(
+                    case["input"], output, case.get("context")
+                )
+                case_scores[step.name] = score
+            all_results.append(case_scores)
+
+        # Aggregate results
+        report = {}
+        for step in self.steps:
+            scores = [r[step.name] for r in all_results]
+            report[step.name] = {
+                "mean": sum(scores) / len(scores),
+                "min": min(scores),
+                "max": max(scores),
+                "threshold": step.threshold,
+                "passed": sum(scores) / len(scores) >= step.threshold,
+                "is_gate": step.is_gate
+            }
+
+        # Gate check
+        gate_failures = [
+            name for name, r in report.items()
+            if r["is_gate"] and not r["passed"]
+        ]
+
+        # Composite score
+        composite = sum(
+            report[s.name]["mean"] * s.weight
+            for s in self.steps if s.weight > 0
+        )
+
+        return {
+            "metrics": report,
+            "composite_score": round(composite, 4),
+            "gate_failures": gate_failures,
+            "deploy_decision": "GO" if not gate_failures else "NO-GO",
+            "cases_evaluated": len(self.test_suite)
+        }
+
+# Configure pipeline
+pipeline = EvalPipeline(
+    steps=[
+        EvalStep("faithfulness", eval_faithfulness, 0.80, True, 0.35),
+        EvalStep("relevance", eval_relevance, 0.75, True, 0.30),
+        EvalStep("coherence", eval_coherence, 0.70, False, 0.20),
+        EvalStep("toxicity", eval_toxicity, 0.95, True, 0.15),
+    ],
+    test_suite=load_test_suite("v2.1")
+)
+report = await pipeline.run(my_rag_system)`}/>
+  <EvalPipelineBuilder/>
+  <CodeBlock language="yaml" label="CI/CD Integration (GitHub Actions)" code={`# .github/workflows/eval-gate.yml
+name: LLM Eval Gate
+on:
+  pull_request:
+    paths: ['prompts/**', 'config/models.yml']
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run eval suite
+        env:
+          ANTHROPIC_API_KEY: \${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python -m eval.run_pipeline \\
+            --suite tests/eval_suite_v2.json \\
+            --judge claude-sonnet-4-20250514 \\
+            --output results/eval_report.json
+
+      - name: Check gates
+        run: |
+          python -m eval.check_gates \\
+            --report results/eval_report.json \\
+            --min-faithfulness 0.80 \\
+            --min-relevance 0.75 \\
+            --max-toxicity 0.05 \\
+            --min-composite 0.75
+
+      - name: Post results to PR
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const report = require('./results/eval_report.json');
+            const body = \`## Eval Results
+            | Metric | Score | Threshold | Status |
+            |--------|-------|-----------|--------|
+            \${Object.entries(report.metrics).map(([k,v]) =>
+              \`| \${k} | \${v.mean.toFixed(3)} | \${v.threshold} | \${v.passed ? "PASS" : "FAIL"} |\`
+            ).join('\\n')}
+
+            **Composite:** \${report.composite_score}
+            **Decision:** \${report.deploy_decision}\`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });`}/>
+  <ExpandableSection title="Eval Pipeline Anti-Patterns" icon="⚠️">
+
+**Testing on training data:** If your eval cases overlap with few-shot examples or retrieval context, you are testing memorization, not capability.
+
+
+**Overfitting to evals:** If you tweak prompts specifically to pass eval cases, you are overfitting. Use held-out test sets you never optimize against.
+
+
+**Single metric obsession:** Optimizing one metric (e.g., faithfulness) at the expense of others (e.g., helpfulness) creates a system that is technically correct but useless.
+
+
+**Static eval suites:** If your eval suite never changes while your users evolve, you are testing yesterday's problems. Continuously add real failure cases.
+
+  </ExpandableSection>
+  <Quiz question="Your eval pipeline passes in CI but users complain about quality in production. What is wrong?" options={["The CI server is faster","Your eval suite does not represent real production queries -- it is testing known scenarios but missing the long tail of real usage","Users are too picky","The model is different in production"]} correctIndex={1} explanation="This is the 'eval-production gap.' Curated test suites cover known scenarios but miss the infinite variety of real queries. Supplement offline evals with online monitoring that samples and evaluates production traffic."/>
+  <Quiz question="A developer adds a new test case to the eval suite every time they fix a production bug. What principle does this follow?" options={["Test-driven development","Regression testing -- ensuring fixed bugs never reoccur","Over-engineering","Code review"]} correctIndex={1} explanation="Adding a test case for every production bug is regression testing. It ensures the same failure mode never slips through again and continuously grows the eval suite with real-world failure cases."/>
+  <SeeItInRe3 text="Re\u00b3's debate flow is itself an eval pipeline: Forge selects the panel (input), agents debate (generation), Atlas moderates and scores (evaluation), and only high-quality arguments make it into The Loom (gating). This is evaluation-driven synthesis." targetPage="forge"/>

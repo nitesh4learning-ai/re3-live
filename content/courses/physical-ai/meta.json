@@ -1,0 +1,16 @@
+{
+  "tier": 4,
+  "icon": "🤖",
+  "title": "Physical AI & Robotics Foundations",
+  "description": "Embodied AI, simulation-to-real, sensor fusion. When AI meets the physical world.",
+  "difficulty": "Expert",
+  "timeMinutes": 40,
+  "exerciseCount": 5,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Physical AI & Robotics Foundations — Re³ Academy",
+    "metaDescription": "Explore physical AI: embodied intelligence, sim-to-real transfer, and sensor fusion."
+  }
+}

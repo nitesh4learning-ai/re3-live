@@ -1,0 +1,39 @@
+---
+label: "Tool Definitions"
+icon: "📝"
+---
+
+## Tool Definitions (JSON Schema)
+
+To use function calling, you define your tools using **JSON Schema**. This <JargonTip term="tool schema">tool schema</JargonTip> tells the LLM what functions are available, what parameters they accept, and what each parameter means.
+
+<CodeBlock language="json" label="OpenAI Tool Definition Format" code={`{
+  "type": "function",
+  "function": {
+    "name": "search_products",
+    "description": "Search the product catalog by query",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Search query text"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["electronics", "clothing", "food"],
+          "description": "Product category filter"
+        },
+        "max_price": {
+          "type": "number",
+          "description": "Maximum price in USD"
+        }
+      },
+      "required": ["query"]
+    }
+  }
+}`}/>
+
+<Quiz question="What does the 'enum' field in a parameter definition do?" options={["Makes the parameter required","Limits the parameter to specific allowed values","Sets a default value","Marks the parameter as optional"]} correctIndex={1} explanation="'enum' constrains the parameter to a fixed list of allowed values. The LLM will only generate values from this list, preventing invalid inputs." />
+
+<Quiz question="A good tool description should:" options={["Be as short as possible","Describe exactly when to use the tool and what it returns","Include the implementation code","List all possible errors"]} correctIndex={1} explanation="The description is the primary way the LLM decides WHEN to call the tool. A clear description of the tool's purpose and return value helps the LLM make better routing decisions." />

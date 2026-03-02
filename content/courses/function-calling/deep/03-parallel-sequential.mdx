@@ -1,0 +1,72 @@
+---
+label: "Parallel & Sequential"
+icon: "⚡"
+---
+
+## Parallel & Sequential Tool Execution
+
+Modern LLMs can request multiple tool calls in a single response. Understanding when to execute them in parallel versus sequentially is critical for performance and correctness.
+
+<ExpandableSection title="Parallel Execution" icon="⚡" defaultOpen={true}>
+
+When the LLM requests multiple independent tool calls (e.g., fetching weather for 3 cities), execute them all simultaneously using Promise.all. This dramatically reduces latency.
+
+</ExpandableSection>
+
+<ExpandableSection title="Sequential Chaining" icon="🔗">
+
+Some tool calls depend on results of previous calls. For example: search for a user, then fetch their orders. The LLM naturally handles this by issuing one call, receiving results, then issuing the next.
+
+</ExpandableSection>
+
+<CodeBlock language="javascript" label="Parallel Tool Execution Engine" code={`async function executeToolCalls(toolCalls, registry) {
+  // Check for dependencies between calls
+  const independent = toolCalls.every(
+    (call, i) => !toolCalls.slice(0, i).some(
+      prev => JSON.stringify(call.args).includes(prev.name)
+    )
+  );
+
+  if (independent) {
+    // Execute all in parallel
+    return await Promise.all(
+      toolCalls.map(async (call) => {
+        const tool = registry[call.name];
+        if (!tool) return { id: call.id, error: "Unknown tool" };
+        try {
+          return { id: call.id, result: await tool.handler(call.args) };
+        } catch (err) {
+          return { id: call.id, error: err.message };
+        }
+      })
+    );
+  }
+
+  // Sequential for dependent calls
+  const results = [];
+  for (const call of toolCalls) {
+    try {
+      results.push({ id: call.id, result: await registry[call.name].handler(call.args) });
+    } catch (err) {
+      results.push({ id: call.id, error: err.message });
+    }
+  }
+  return results;
+}`}/>
+
+<CodeBlock language="javascript" label="Tool-Use Loop Pattern" code={`async function agentLoop(messages, tools, maxIter = 10) {
+  for (let i = 0; i < maxIter; i++) {
+    const response = await callLLM(messages, tools);
+    const calls = extractToolCalls(response);
+    if (calls.length === 0) return response;
+
+    const results = await executeToolCalls(calls, tools);
+    messages.push({ role: "assistant", content: response });
+    for (const r of results) {
+      messages.push({ role: "tool", tool_call_id: r.id, content: JSON.stringify(r.result || r.error) });
+    }
+  }
+  throw new Error("Max iterations reached");
+}`}/>
+
+<Quiz question="When should you execute tool calls in parallel?" options={["Always","Only when calls are independent of each other","Never","Only with exactly 2 calls"]} correctIndex={1} explanation="Parallel execution is safe when tool calls are independent -- no call depends on the result of another." />

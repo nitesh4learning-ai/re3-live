@@ -1,0 +1,27 @@
+---
+label: "Cost & Rate Limiting"
+icon: "\uD83D\uDCB0"
+---
+
+## Cost & Rate Limiting
+
+LLM costs can spiral quickly in production. A gateway provides **token budgeting**, **rate limiting**, and **caching** to keep costs under control.
+
+  <ExpandableSection title="Token Budgeting" icon="💰" defaultOpen={true}>
+
+Set maximum tokens per request, per user, per day, or per month. If a user exhausts their budget, the gateway returns a friendly error instead of an expensive API call.
+
+  </ExpandableSection>
+  <ExpandableSection title="Semantic Caching" icon="⚡">
+
+Cache responses for similar queries. If a user asks "What's the capital of France?" and someone asked the same thing 5 minutes ago, return the cached response instead of making a new API call. This can reduce costs by 30-50% for repetitive workloads.
+
+  </ExpandableSection>
+  <ExpandableSection title="Rate Limiting" icon="🚦">
+
+Limit requests per minute/hour per user or API key. Prevents runaway loops, abusive users, and unexpected cost spikes. Typically: 60 req/min for free tier, 300 req/min for paid.
+
+  </ExpandableSection>
+  <CostCalculator/>
+  <Quiz question="Which technique can reduce LLM costs by 30-50% for repetitive queries?" options={["Using smaller models","Semantic caching","Increasing temperature","Adding more providers"]} correctIndex={1} explanation="Semantic caching stores responses for similar queries. Instead of calling the LLM again for the same (or semantically similar) question, it returns the cached response instantly."/>
+  <SeeItInRe3 text="Re\u00b3's lib/llm-router.js IS a gateway pattern -- it routes requests across Anthropic, OpenAI, Gemini, and Groq with automatic fallback, 30-second timeouts, and provider-specific handling." targetPage="forge"/>

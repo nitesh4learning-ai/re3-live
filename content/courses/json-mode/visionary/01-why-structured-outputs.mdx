@@ -1,0 +1,22 @@
+---
+label: "Why Structured Outputs?"
+icon: "📋"
+---
+
+## Why Structured Outputs?
+
+<AnalogyBox emoji="📋" title="Forms vs Blank Pages">{`Structured outputs are like a form vs a blank page — forms ensure you get exactly the data fields you need, in a format your code can process. Without structure, you are parsing free text and praying.`}</AnalogyBox>
+
+The problem: LLMs output free text, but applications need structured data — <JargonTip term="JSON mode">JSON</JargonTip>, typed objects, database records.
+
+<ExpandableSection title="Common Failure Modes" icon="⚠️" defaultOpen>
+
+- Missing fields — model forgets to include required data
+- Wrong types — returns string "42" instead of number 42
+- Extra text — wraps JSON in markdown code blocks or explanation
+- Nested quotes — unescaped quotes inside strings break JSON parsing
+- Inconsistent format — sometimes returns array, sometimes object
+
+</ExpandableSection>
+
+<Quiz question="You ask an LLM to output JSON but it wraps it in markdown code blocks. Safest fix?" options={["Strip the markdown manually with regex","Use the provider's JSON mode / structured output feature","Tell the model 'no markdown please'","Parse with eval()"]} correctIndex={1} explanation="Provider-level JSON mode (response_format or structured output) guarantees valid JSON at the API level. Manual stripping is fragile, prompt instructions are unreliable, and eval() is a security risk."/>

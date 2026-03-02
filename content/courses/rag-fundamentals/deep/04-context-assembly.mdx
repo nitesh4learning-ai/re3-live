@@ -1,0 +1,120 @@
+---
+label: "Context Assembly"
+icon: "📦"
+---
+
+## Context Assembly
+
+After retrieval, the retrieved chunks must be assembled into a prompt for the LLM. Context assembly determines the order of chunks, how they are formatted, how sources are attributed, and how much context fits in the available window. This step directly impacts answer quality and hallucination rates.
+
+<CodeBlock language="python" label="Production context assembly with source attribution" code={`def assemble_rag_context(
+    query: str,
+    retrieved_chunks: list,
+    system_prompt: str = None,
+    max_context_tokens: int = 6000,
+    attribution: bool = True
+) -> list:
+    """
+    Assemble retrieved chunks into an LLM prompt with source attribution.
+    Places most relevant chunks first (primacy effect).
+    """
+    # Default system prompt with RAG instructions
+    if not system_prompt:
+        system_prompt = """You are a helpful assistant that answers questions
+based on the provided context. Follow these rules:
+1. Only use information from the provided context to answer.
+2. If the context doesn't contain the answer, say "I don't have
+   enough information to answer this question."
+3. Cite your sources using [Source N] notation.
+4. Do not make up information not present in the context."""
+
+    # Format chunks with source numbers
+    context_parts = []
+    total_tokens = 0
+
+    for i, chunk in enumerate(retrieved_chunks):
+        # Estimate tokens (rough: 1 token per 4 chars)
+        chunk_tokens = len(chunk["text"]) // 4
+        if total_tokens + chunk_tokens > max_context_tokens:
+            break
+
+        source_label = f"[Source {i+1}]"
+        source_meta = ""
+        if chunk.get("metadata"):
+            meta = chunk["metadata"]
+            source_meta = f" (from: {meta.get('title', 'Unknown')})"
+
+        context_parts.append(
+            f"{source_label}{source_meta}:\\n{chunk['text']}"
+        )
+        total_tokens += chunk_tokens
+
+    context_block = "\\n\\n---\\n\\n".join(context_parts)
+
+    # Assemble messages
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": f"""Context:
+{context_block}
+
+---
+
+Question: {query}
+
+Answer the question using only the context above. Cite sources."""}
+    ]
+
+    return messages
+
+# Long-context vs RAG decision function
+def should_use_long_context(
+    document_length_tokens: int,
+    query_complexity: str,  # "simple" | "complex" | "multi-hop"
+    budget_per_query: float = 0.01,
+) -> dict:
+    """Decide whether to use full context or RAG retrieval."""
+    # GPT-4o pricing: $2.50/1M input tokens
+    full_context_cost = document_length_tokens * 2.50 / 1_000_000
+    rag_cost = 0.001  # ~1000 tokens retrieved + embedding
+
+    if query_complexity == "multi-hop":
+        # Multi-hop questions often need full document context
+        return {
+            "strategy": "long_context" if full_context_cost < budget_per_query else "rag",
+            "cost": full_context_cost if full_context_cost < budget_per_query else rag_cost,
+            "reason": "Multi-hop queries benefit from full document access"
+        }
+    elif document_length_tokens < 10000:
+        return {"strategy": "long_context", "cost": full_context_cost,
+                "reason": "Document is short enough for full context"}
+    else:
+        return {"strategy": "rag", "cost": rag_cost,
+                "reason": "Document is long; RAG is more cost-effective"}`} />
+
+<ExpandableSection title="Context Window Packing" icon="📦" defaultOpen={true}>
+
+With limited context window space, you need to pack the most valuable information. Strategies include:
+
+**Relevance ordering:** Place the most relevant chunks first (primacy effect) or last (recency effect). Avoid burying critical information in the middle (lost-in-the-middle problem).
+
+**Deduplication:** If multiple chunks contain overlapping information, deduplicate before assembly. Redundant context wastes tokens without improving answer quality.
+
+**Compression:** For less critical context, use an LLM to compress chunks into shorter summaries before including them.
+
+</ExpandableSection>
+
+<ExpandableSection title="Long-Context vs RAG: When to Choose" icon="⚖️">
+
+With context windows reaching 128K-1M tokens, a common question is: "Do we still need RAG, or can we just stuff everything in the context?"
+
+**Use long-context when:** Documents are < 50 pages, queries require reasoning across the full document, cost per query is acceptable, and accuracy on middle-of-document content is not critical.
+
+**Use RAG when:** Corpus is large (many documents), cost matters (10-100x cheaper per query), you need precise source attribution, or the corpus changes frequently.
+
+**Hybrid approach:** Use RAG to select relevant document sections, then load those sections + surrounding context into a long-context window. This combines the precision of RAG with the comprehension of long-context.
+
+</ExpandableSection>
+
+<Quiz question="Your RAG system places retrieved sources in the prompt but users complain that answers rarely cite sources. What is the most effective fix?" options={["Add 'cite your sources' to the prompt","Format each source with a clear label like [Source 1] and instruct the model to use [Source N] notation in the answer","Use a different LLM model","Increase the number of retrieved sources"]} correctIndex={1} explanation="Explicit source labeling in the context ([Source 1], [Source 2]) with matching instructions to 'cite using [Source N] notation' gives the model a clear, consistent format to follow. Vague instructions like 'cite sources' do not tell the model HOW to cite. The format must be demonstrated in the prompt structure." />
+
+<ArchitectureDecision scenario="A user asks a multi-hop question: 'Which of our products launched in Q3 that had feature X AND were mentioned in the CEO's earnings call?' This requires information from product docs, launch timelines, and earnings transcripts." options={[{label:'Retrieve from all three sources independently and stuff all chunks into context',tradeoff:'Simple, but 3x the retrieval results may overflow context window and dilute relevant information'},{label:'Sequential retrieval: first find Q3 products, then filter for feature X, then check earnings mentions',tradeoff:'Most precise, builds answer step-by-step, but requires 3 LLM calls and orchestration logic'},{label:'Single retrieval with query decomposition: break the question into sub-queries, retrieve for each, merge',tradeoff:'Balanced approach, parallel retrieval for speed, merge for comprehensiveness, moderate complexity'}]} correctIndex={1} explanation="Sequential (pipeline) retrieval handles multi-hop questions best because each step narrows the search space for the next step. Step 1 retrieves Q3 product launches. Step 2 filters for feature X among those products. Step 3 checks if the filtered products appear in earnings transcripts. Each step operates on a much smaller candidate set, improving precision." />

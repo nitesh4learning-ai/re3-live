@@ -1,0 +1,34 @@
+---
+label: "Sampling Strategies"
+icon: "\uD83C\uDFB2"
+---
+
+## Sampling Strategies
+
+After the model computes logits (raw scores) for the next token, sampling strategies determine which token is actually selected. The right combination of parameters can dramatically affect output quality, creativity, and consistency. Production systems often need different sampling configurations for different tasks.
+
+<ComparisonTable title="Sampling Parameter Reference" columns={['Parameter','Range','Effect','Typical Use']} rows={[
+  ['temperature','0.0 - 2.0','Scales logits before softmax. Higher = more random','0.0 for factual, 0.7 for chat, 1.0+ for creative'],
+  ['top_p (nucleus)','0.0 - 1.0','Only sample from tokens covering top p probability mass','0.9-0.95 for most tasks, 1.0 to disable'],
+  ['top_k','1 - vocab_size','Only sample from the k most likely tokens','50 for balanced, 1 for greedy'],
+  ['min_p','0.0 - 1.0','Filter tokens below min_p * max_probability','0.05-0.1, dynamic threshold relative to top token'],
+  ['frequency_penalty','-2.0 to 2.0','Reduces probability of tokens that already appeared','0.5-1.0 to reduce repetition'],
+  ['presence_penalty','-2.0 to 2.0','Reduces probability of tokens that appeared at all (binary)','0.5-1.0 to encourage topic diversity'],
+  ['repetition_penalty','0.0 - 2.0','Multiplicative penalty on repeated tokens (HuggingFace)','1.1-1.3 for open-source models'],
+]}/>
+
+<CodeBlock language="python" label="Implementing sampling from scratch" code={`import numpy as np\n\ndef sample_next_token(logits, temperature=1.0, top_p=0.9, top_k=50, min_p=0.0):\n    """Sample a token from logits with various strategies."""\n    # Step 1: Apply temperature\n    if temperature == 0:\n        return np.argmax(logits)  # Greedy decoding\n    scaled = logits / temperature\n\n    # Step 2: Convert to probabilities\n    probs = np.exp(scaled) / np.exp(scaled).sum()\n\n    # Step 3: Apply min_p filter (relative to max probability)\n    if min_p > 0:\n        max_prob = probs.max()\n        probs[probs < min_p * max_prob] = 0\n        probs = probs / probs.sum()  # Re-normalize\n\n    # Step 4: Apply top_k filter\n    if top_k > 0 and top_k < len(probs):\n        indices = np.argsort(probs)[::-1]\n        probs[indices[top_k:]] = 0\n        probs = probs / probs.sum()\n\n    # Step 5: Apply top_p (nucleus) filter\n    if top_p < 1.0:\n        sorted_idx = np.argsort(probs)[::-1]\n        cumsum = np.cumsum(probs[sorted_idx])\n        cutoff = np.searchsorted(cumsum, top_p) + 1\n        probs[sorted_idx[cutoff:]] = 0\n        probs = probs / probs.sum()\n\n    # Step 6: Sample from filtered distribution\n    return np.random.choice(len(probs), p=probs)\n\n# Example: simulate sampling\nvocab = ["the", "a", "cat", "dog", "sat", "ran", "on", "mat", "quickly", "lazily"]\nlogits = np.array([3.2, 1.5, 2.8, 2.7, 1.0, 0.5, 1.8, 0.3, 0.2, 0.1])\n\n# Greedy: always picks "the"\nprint(f"Greedy: {vocab[sample_next_token(logits, temperature=0)]}")\n\n# Creative: might pick less likely tokens\nfor i in range(5):\n    idx = sample_next_token(logits, temperature=1.0, top_p=0.9)\n    print(f"Sampled (t=1.0): {vocab[idx]}")`}/>
+
+<ExpandableSection title="min_p: The Modern Alternative" icon="\u2728">
+
+**min\_p** is a newer sampling strategy that addresses limitations of top\_p and top\_k. Instead of a fixed cutoff, min\_p sets a dynamic threshold relative to the most probable token.
+
+If the top token has probability 0.8, min\_p=0.1 means only tokens with probability >= 0.08 (10% of 0.8) are candidates. If the top token has probability 0.2, the threshold drops to 0.02.
+
+This adaptive behavior means: when the model is confident, sampling is restrictive (safe). When the model is uncertain, sampling is permissive (creative). This matches human intuition better than fixed cutoffs.
+
+</ExpandableSection>
+
+<Quiz question="You are building a code generation tool. Users report that output sometimes contains repeated lines of code. Which parameter combination is most effective?" options={["temperature=0.0 only","temperature=0.2, frequency_penalty=0.5","temperature=1.5, top_p=0.95","temperature=0.7, no penalties"]} correctIndex={1} explanation="Low temperature (0.2) keeps code generation focused and deterministic. Adding a moderate frequency_penalty (0.5) discourages repetition of already-generated tokens. Temperature 0.0 would work but is overly rigid for code that may need slight variation."/>
+
+<Quiz question="What is the key advantage of min_p over top_p sampling?" options={["min_p is faster to compute","min_p adapts its threshold based on the model's confidence level","min_p always produces better text","min_p uses less memory"]} correctIndex={1} explanation="min_p sets its threshold relative to the top token's probability, making it adaptive. When the model is confident (high top probability), sampling is restrictive. When uncertain (low top probability), sampling allows more diversity. top_p uses a fixed cumulative threshold regardless of confidence."/>

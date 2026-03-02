@@ -1,0 +1,51 @@
+---
+label: "Documentation"
+icon: "\uD83D\uDCDD"
+---
+
+## Documentation & Model Cards
+
+High-risk AI systems require comprehensive technical documentation. <JargonTip term="model card">Model cards</JargonTip> and system cards are the industry standard for transparency.
+
+<CodeBlock language="yaml" label="Model Card Template (EU AI Act Compliant)" code={`model_card:
+  model_details:
+    name: "ResumeScreener-v2.1"
+    version: "2.1.0"
+    type: "Classification (binary: advance/reject)"
+    developers: "TalentAI Inc."
+    release_date: "2025-03-15"
+
+  intended_use:
+    primary: "First-pass resume screening for technical roles"
+    out_of_scope: "Final hiring decisions, performance evaluation"
+    users: "HR teams with AI training certification"
+
+  training_data:
+    sources: "500K anonymized resumes from 2020-2024"
+    demographics: "Balanced across gender, ethnicity, age"
+    preprocessing: "Name/photo/address redaction, skill normalization"
+
+  performance:
+    overall_accuracy: 0.89
+    false_positive_rate: 0.08
+    false_negative_rate: 0.12
+
+  fairness_metrics:
+    demographic_parity:
+      gender: {male: 0.45, female: 0.44, non_binary: 0.43}
+      ethnicity: {max_disparity: 0.03}
+    equalized_odds:
+      tpr_gap: 0.02
+      fpr_gap: 0.01
+
+  limitations:
+    - "Not validated for non-English resumes"
+    - "Performance degrades for roles with < 100 training examples"
+    - "Cannot assess soft skills or cultural fit"
+
+  human_oversight:
+    mechanism: "All rejections reviewed by human within 48hrs"
+    override_rate: "12% of AI rejections reversed by human review"
+    escalation: "Candidates can request human-only review"`}/>
+
+<Quiz question="Why should a model card include fairness metrics broken down by demographic groups?" options={["It's only needed for marketing purposes","To identify disparate impact before deployment and satisfy regulatory requirements","Demographic data improves model accuracy","It's optional and rarely useful"]} correctIndex={1} explanation="Fairness metrics by demographic group are essential to identify disparate impact -- where a model performs differently across protected groups. This is required under the EU AI Act for high-risk systems and helps prevent discrimination."/>

@@ -1,0 +1,40 @@
+---
+label: "Complex Extraction"
+icon: "📂"
+---
+
+## Complex Extraction
+
+<CodeBlock title="Invoice Data Extraction" code={`from pydantic import BaseModel
+from typing import Optional
+import instructor
+
+class LineItem(BaseModel):
+    description: str
+    quantity: int
+    unit_price: float
+    total: float
+
+class Invoice(BaseModel):
+    invoice_number: str
+    date: str
+    vendor_name: str
+    vendor_address: Optional[str]
+    line_items: list[LineItem]
+    subtotal: float
+    tax: float
+    total: float
+    currency: str = "USD"
+
+# Extract structured invoice data from raw text
+result = client.chat.completions.create(
+    model="gpt-4o",
+    response_model=Invoice,
+    messages=[{
+        "role": "user",
+        "content": f"Extract invoice data:\\n\\n{raw_invoice_text}"
+    }]
+)
+# Returns fully typed Invoice object with validated line items`}/>
+
+<ArchitectureDecision scenario="You need to extract structured data from legal documents (contracts). Documents have variable format, nested clauses, cross-references, and legal jargon. Which approach?" options={[{label:'Single large schema covering all possible fields',tradeoff:'Comprehensive but many fields will be empty or hallucinated for simpler documents'},{label:'Multi-pass: first extract document type, then use type-specific schemas',tradeoff:'Higher quality — each schema is focused. But 2x API calls and latency'},{label:'Flat key-value extraction with no schema',tradeoff:'Flexible but no type safety, harder to process downstream'}]} correctIndex={1} explanation="Multi-pass extraction first classifies the document type (NDA, employment contract, sales agreement), then applies a focused schema for that type. This avoids the 'empty field' problem and reduces hallucination since the schema only asks for relevant fields."/>

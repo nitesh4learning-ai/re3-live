@@ -1,0 +1,16 @@
+{
+  "tier": 4,
+  "icon": "📈",
+  "title": "AI Economics & ROI",
+  "description": "Cost modeling, build vs buy, GPU economics, inference optimization. The business of AI.",
+  "difficulty": "Expert",
+  "timeMinutes": 35,
+  "exerciseCount": 5,
+  "tabCount": 3,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "AI Economics & ROI — Re³ Academy",
+    "metaDescription": "Master AI economics: cost modeling, build vs buy decisions, GPU economics, and inference optimization."
+  }
+}

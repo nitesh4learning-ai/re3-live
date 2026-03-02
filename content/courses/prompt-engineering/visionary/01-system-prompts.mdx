@@ -1,0 +1,32 @@
+---
+label: "System Prompts"
+icon: "📝"
+---
+
+## System Prompts
+
+A <JargonTip term="system prompt">system prompt</JargonTip> is a hidden instruction given to the AI before any user input. It defines the AI's **role**, **personality**, **constraints**, and **output format**. Think of it as the "job description" the AI reads before starting work.
+
+Well-crafted system prompts are the single most impactful way to control AI behavior consistently across all interactions.
+
+<AnalogyBox emoji="🎬" title="Think of it like a director's brief">A director gives actors their role, motivation, and boundaries before filming begins. The system prompt does the same for the AI -- setting expectations before any user interaction.</AnalogyBox>
+
+<CodeBlock language="text" label="Anatomy of a System Prompt" code={`Role:        "You are a senior financial analyst..."
+Constraints: "Never provide specific investment advice."
+Format:      "Respond in bullet points with citations."
+Tone:        "Be professional but approachable."
+Examples:    "When asked about trends, structure as..."
+
+Full example:
+"You are a senior financial analyst specializing in market trends.
+Provide data-driven insights in bullet-point format.
+Always cite your reasoning. Never give specific buy/sell advice.
+If uncertain, say 'I don't have enough data to assess this.'"`}/>
+
+<PromptBuilder/>
+
+<Quiz question="What is the most reliable way to ensure consistent AI behavior across different users?" options={["Ask each user to state their preferences","Use a well-crafted system prompt","Set temperature to 0","Use the newest model available"]} correctIndex={1} explanation="System prompts are applied to every interaction automatically. They define role, constraints, and format before any user input, making them the most reliable consistency mechanism."/>
+
+<Quiz question="Which element should NOT typically be in a system prompt?" options={["Role definition","Output format requirements","The user's private data","Behavioral constraints"]} correctIndex={2} explanation="System prompts should define role, format, and constraints -- never include private user data, which could leak in outputs or logs."/>
+
+<SeeItInRe3 text="In the Debate Lab, each debater agent receives a detailed system prompt defining their persona, expertise area, and debate style. This is why each agent argues differently." targetPage="forge"/>

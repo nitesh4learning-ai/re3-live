@@ -1,0 +1,16 @@
+{
+  "tier": 1,
+  "icon": "💬",
+  "title": "Prompt Engineering",
+  "description": "System prompts, few-shot, chain-of-thought, structured outputs. The art of communicating with AI.",
+  "difficulty": "Beginner",
+  "timeMinutes": 40,
+  "exerciseCount": 10,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Prompt Engineering — Re³ Academy",
+    "metaDescription": "Master prompt engineering: system prompts, few-shot learning, chain-of-thought, and structured outputs."
+  }
+}

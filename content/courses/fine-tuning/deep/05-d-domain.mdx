@@ -1,0 +1,44 @@
+---
+label: "Domain Adaptation"
+icon: "\uD83C\uDFAF"
+---
+
+## Domain Adaptation Strategies
+
+Domain adaptation goes beyond simple fine-tuning. It covers the full spectrum from continued pre-training on domain text to <JargonTip term="RLHF">RLHF</JargonTip>-based alignment and task-specific instruction tuning.
+
+  <ComparisonTable title="Domain Adaptation Approaches" headers={['Approach','What It Does','Data Needed','Use Case']} rows={[['Continued Pre-Training','Expose model to domain text (no labels)','10K-1M domain documents','Medical, legal, financial terminology'],['Instruction Tuning','Teach model to follow domain-specific instructions','500-5K instruction pairs','Customer support, code review'],['RLHF / DPO','Align model outputs with human preferences','1K-10K preference pairs','Safety, tone, quality alignment'],['Adapter Stacking','Multiple LoRA adapters for different sub-tasks','Varies per adapter','Multi-tenant: same base, different clients']]}/>
+  <CodeBlock title="DPO Training (Preference Alignment)" code={`from trl import DPOTrainer, DPOConfig
+from datasets import load_dataset
+
+# Preference data format:
+# Each example has: prompt, chosen (good response), rejected (bad)
+# Example: {"prompt": "Summarize this report",
+#           "chosen": "concise professional summary",
+#           "rejected": "overly verbose casual response"}
+
+dpo_config = DPOConfig(
+    output_dir="./dpo_output",
+    num_train_epochs=3,
+    per_device_train_batch_size=4,
+    learning_rate=5e-7,           # DPO uses lower LR
+    beta=0.1,                      # KL penalty strength
+    max_length=1024,
+    max_prompt_length=512,
+)
+
+trainer = DPOTrainer(
+    model=model,
+    ref_model=ref_model,           # Frozen copy of base model
+    args=dpo_config,
+    train_dataset=preference_data,
+    tokenizer=tokenizer,
+)
+
+trainer.train()
+# Model now prefers "chosen" style outputs over "rejected"`}/>
+  <ArchitectureDecision scenario="A legal firm wants AI that understands legal terminology, follows their house style, and never generates harmful advice. They have 200 real Q&A pairs and access to 50,000 legal documents." options={[
+    {label:'Instruction-tune on the 200 Q&A pairs only',tradeoff:'Quick but the model may not understand deep legal terminology. Limited style learning from 200 examples.'},
+    {label:'Continued pre-training on 50K legal docs, then instruction-tune on expanded Q&A (200 real + 800 synthetic), then DPO for safety alignment',tradeoff:'Three-stage pipeline gives best results: domain knowledge, task performance, and safety. Most expensive but highest quality.'},
+    {label:'RAG with the 50K docs and prompt engineering for style',tradeoff:'No training needed but inconsistent style, higher inference cost per query, and citations may be wrong.'},
+  ]} correctIndex={1} explanation="The three-stage approach is ideal for domain-critical applications: (1) Continued pre-training teaches terminology, (2) Instruction tuning teaches task format, (3) DPO aligns safety and quality. The legal firm needs all three for a production-grade system."/>

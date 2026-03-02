@@ -1,0 +1,38 @@
+---
+label: "Saga Orchestration"
+icon: "🔄"
+---
+
+## Saga Orchestration
+
+<CodeBlock title="Saga Coordinator" code={`class SagaCoordinator:
+    def __init__(self, steps):
+        self.steps = steps  # [{execute, compensate, agent}]
+        self.completed = []
+
+    async def run(self, context):
+        for step in self.steps:
+            try:
+                result = await step["agent"].execute(context)
+                self.completed.append(step)
+                context.update(result)
+                await self.publish_event(
+                    f"saga.step.completed",
+                    {"step": step["agent"].name, "result": result}
+                )
+            except Exception as e:
+                await self.publish_event(
+                    "saga.step.failed",
+                    {"step": step["agent"].name, "error": str(e)}
+                )
+                # Compensate in reverse order
+                for completed_step in reversed(self.completed):
+                    await completed_step["agent"].compensate(context)
+                    await self.publish_event(
+                        "saga.step.compensated",
+                        {"step": completed_step["agent"].name}
+                    )
+                raise SagaFailedError(f"Failed at {step['agent'].name}")
+        return context`}/>
+
+<Quiz question="Why use the Saga pattern instead of distributed transactions for multi-agent workflows?" options={["Sagas are faster","Distributed transactions require all agents to be available simultaneously and lock resources","Sagas are simpler to implement","There is no difference"]} correctIndex={1} explanation="Distributed transactions (2PC) require all participants to be available and lock resources until commit. Sagas allow each agent to work independently and compensate on failure -- much better for loosely coupled agent systems." />

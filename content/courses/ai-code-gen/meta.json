@@ -1,0 +1,16 @@
+{
+  "tier": 3,
+  "icon": "💻",
+  "title": "AI-Powered Code Generation",
+  "description": "Agentic coding, Claude Code, Cursor, vibe coding patterns. AI as your programming partner.",
+  "difficulty": "Advanced",
+  "timeMinutes": 45,
+  "exerciseCount": 9,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "AI-Powered Code Generation — Re³ Academy",
+    "metaDescription": "Master AI-powered coding: agentic coding, Claude Code, Cursor, and vibe coding patterns."
+  }
+}

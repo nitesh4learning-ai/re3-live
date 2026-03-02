@@ -1,0 +1,22 @@
+---
+label: "Bias & Fairness"
+icon: "⚖️"
+---
+
+## Bias & Fairness
+
+AI systems inherit and amplify biases present in their training data. Understanding bias types is the first step to building <JargonTip term="fairness">fairer</JargonTip> systems.
+
+- **Training Data Bias** — Biases baked into the data the model learned from (historical discrimination, underrepresentation)
+- **Selection Bias** — Non-representative sampling — training on English-only data, or only data from certain demographics
+- **Automation Bias** — Humans over-trusting AI decisions, not questioning AI-generated output
+- **Representation Bias** — Some groups are underrepresented in training data, leading to worse performance for those groups
+
+<BiasDetectorGame />
+
+<Quiz
+  question="An AI hiring tool trained on a company's 10-year hiring history (which was mostly male) learns to downrank female candidates. This is:"
+  options={["Intentional discrimination", "Training data bias", "A feature, not a bug", "Overfitting"]}
+  correctIndex={1}
+  explanation="The model learned patterns from biased historical data. It encoded the company's past hiring bias into its predictions, even though nobody explicitly programmed it to discriminate."
+/>

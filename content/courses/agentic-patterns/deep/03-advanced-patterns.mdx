@@ -1,0 +1,32 @@
+---
+label: "Advanced Patterns"
+icon: "⚡"
+---
+
+## Advanced Patterns
+
+<ExpandableSection title="Router Pattern" icon="🔀" defaultOpen={true}>
+
+A lightweight model classifies the query and routes to a specialized <JargonTip term="agent">agent</JargonTip> or tool chain. Different queries take different paths through the system -- this is the <JargonTip term="agentic loop">agentic loop</JargonTip> in action.
+
+</ExpandableSection>
+
+<ExpandableSection title="Parallelization" icon="⚡">
+
+When multiple sub-tasks are independent, run them in parallel. Fan-out to multiple agents, fan-in results. Dramatically reduces latency for complex tasks.
+
+</ExpandableSection>
+
+<ExpandableSection title="Orchestrator-Worker" icon="👨‍💻">
+
+An <JargonTip term="orchestration">orchestrator</JargonTip> agent breaks the task into sub-tasks, assigns them to worker agents, monitors progress, and synthesizes results. The orchestrator is the brain, workers are the hands.
+
+</ExpandableSection>
+
+<ComparisonTable title="Pattern Complexity Matrix" columns={['Pattern','Setup Effort','Runtime Cost','Reliability','Best Use']} rows={[
+  ['Single prompt','Minimal','Lowest','Lowest','Simple Q&A'],
+  ['ReAct','Low','Medium','Good','Tool-using tasks'],
+  ['Plan+Execute','Medium','Medium','Very good','Research, analysis'],
+  ['Reflection','Medium','Higher','Excellent','Quality-critical output'],
+  ['Multi-agent','High','Highest','Variable','Complex problems'],
+]}/>

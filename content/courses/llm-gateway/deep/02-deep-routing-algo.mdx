@@ -1,0 +1,94 @@
+---
+label: "Routing Algorithms"
+icon: "🛤️"
+---
+
+## Advanced Routing Algorithms
+
+Beyond simple cost or latency routing, production gateways use sophisticated algorithms. **Semantic routing** analyzes request content to select the best model via <JargonTip term="model cascading">model cascading</JargonTip>, while **canary deployments** gradually shift traffic to test new models safely.
+
+  <CodeBlock language="python" label="Semantic Router with Model-Task Matching" code={`from dataclasses import dataclass
+from typing import List
+
+@dataclass
+class ModelProfile:
+    name: str
+    provider: str
+    strengths: List[str]
+    cost_per_1k: float
+    avg_latency_ms: int
+    quality_scores: dict  # task -> score
+
+MODELS = [
+    ModelProfile("claude-3-opus", "anthropic",
+        ["reasoning", "analysis", "coding"],
+        15.0, 3000, {"reasoning": 0.95, "coding": 0.92,
+                     "creative": 0.88, "simple_qa": 0.90}),
+    ModelProfile("gpt-4o", "openai",
+        ["coding", "creative", "multilingual"],
+        5.0, 1500, {"reasoning": 0.90, "coding": 0.93,
+                    "creative": 0.91, "simple_qa": 0.88}),
+    ModelProfile("gemini-pro", "google",
+        ["multilingual", "simple_qa"],
+        1.25, 1200, {"reasoning": 0.82, "coding": 0.78,
+                     "creative": 0.80, "simple_qa": 0.85}),
+    ModelProfile("llama-3-70b", "groq",
+        ["simple_qa", "summarization"],
+        0.59, 200, {"reasoning": 0.78, "coding": 0.72,
+                    "creative": 0.75, "simple_qa": 0.82}),
+]
+
+class SemanticRouter:
+    def __init__(self, classifier_llm):
+        self.classifier = classifier_llm
+
+    async def classify_task(self, request):
+        response = await self.classifier.invoke(
+            system="Classify into: reasoning, coding, creative, "
+                   "simple_qa, summarization. Return only the category.",
+            user=request)
+        return response.content.strip().lower()
+
+    async def route(self, request, budget="balanced"):
+        task = await self.classify_task(request)
+        if budget == "quality":
+            return max(MODELS,
+                key=lambda m: m.quality_scores.get(task, 0))
+        elif budget == "cost":
+            ok = [m for m in MODELS
+                  if m.quality_scores.get(task, 0) > 0.75]
+            return min(ok, key=lambda m: m.cost_per_1k)
+        else:  # balanced
+            return max(MODELS,
+                key=lambda m: m.quality_scores.get(task, 0) / m.cost_per_1k)`}/>
+  <CodeBlock language="python" label="Canary Deployment for Model Upgrades" code={`import random
+import numpy as np
+
+class CanaryRouter:
+    """Gradually shift traffic to test new models."""
+    def __init__(self, old_model, new_model, initial_pct=5):
+        self.old_model = old_model
+        self.new_model = new_model
+        self.canary_pct = initial_pct
+        self.metrics = {"old": [], "new": []}
+
+    def route(self):
+        if random.randint(1, 100) <= self.canary_pct:
+            return self.new_model
+        return self.old_model
+
+    def record_result(self, model, quality_score, latency_ms):
+        key = "new" if model == self.new_model else "old"
+        self.metrics[key].append({"quality": quality_score,
+                                   "latency": latency_ms})
+
+    def should_promote(self):
+        if len(self.metrics["new"]) < 100:
+            return False
+        old_q = np.mean([m["quality"] for m in self.metrics["old"]])
+        new_q = np.mean([m["quality"] for m in self.metrics["new"]])
+        return new_q >= old_q * 0.95  # within 5% of old quality
+
+    def increase_traffic(self, increment=5):
+        self.canary_pct = min(100, self.canary_pct + increment)`}/>
+  <Quiz question="A semantic router misclassifies a complex math proof as 'simple_qa' and routes to the cheapest model. How do you fix this?" options={["Remove cheap model","Add a confidence threshold -- if low confidence, route to highest quality model","Always use expensive model","Disable routing"]} correctIndex={1} explanation="A confidence threshold prevents misclassification from degrading quality. Uncertain classifications route to the highest-quality model, while clear-cut simple queries still go to cheaper models."/>

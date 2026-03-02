@@ -1,0 +1,28 @@
+---
+label: "Hallucination"
+icon: "👻"
+---
+
+## Hallucination & Factuality
+
+<JargonTip term="hallucination">Hallucination</JargonTip> is when an AI generates information that sounds plausible but is factually incorrect. It is the most common AI safety issue.
+
+<ExpandableSection title="Why Models Hallucinate" icon="🧠" defaultOpen>
+
+- Training data gaps — model fills in what it doesn't know with plausible-sounding guesses
+- Statistical patterns without understanding — models predict likely next tokens, not truth
+- Sycophancy — models trained on human feedback learn to agree with users
+- Overconfidence — models rarely express uncertainty proportional to their actual knowledge
+
+</ExpandableSection>
+
+<ExpandableSection title="Types of Hallucination" icon="📋">
+
+- Factual errors — wrong dates, numbers, attributions
+- Fabricated citations — papers, cases, URLs that don't exist
+- Confident nonsense — detailed explanations of things that aren't true
+- Partial truths — mixing real facts with invented details
+
+</ExpandableSection>
+
+<SeeItInRe3 text="Re³'s debate system combats hallucination through multi-agent verification — when 5 agents discuss a topic, they naturally cross-check each other's claims." />

@@ -1,0 +1,45 @@
+---
+label: "Training Deep Dive"
+icon: "\uD83C\uDF93"
+---
+
+## Training Deep Dive
+
+LLM training is a multi-stage process that transforms random neural network weights into a capable assistant. Each stage uses different data, objectives, and compute budgets. Understanding these stages is essential for knowing when to <JargonTip term="fine-tuning">fine-tune</JargonTip>, when to use <JargonTip term="RLHF">RLHF</JargonTip> alternatives, and how training data shapes model behavior.
+
+<ExpandableSection title="Pre-training Data Curation" icon="\uD83D\uDCDA" defaultOpen={true}>
+
+Pre-training data determines everything. Key datasets and their scale:
+
+- **Common Crawl:** Petabytes of web data, heavily filtered for quality. Models like LLaMA 3 use ~15 trillion tokens.
+- **Books, academic papers, code:** High-quality sources weighted more heavily in the training mix.
+- **Data quality > quantity:** Phi models (Microsoft) showed that carefully curated textbook-quality data can outperform 10x larger datasets.
+- **Deduplication:** Removing duplicate content reduces memorization and improves generalization. MinHash and exact dedup are standard.
+
+**Data mix matters:** The ratio of code:text:math:multilingual content in pre-training directly determines the model's relative strengths in each domain.
+
+</ExpandableSection>
+
+<CodeBlock language="python" label="SFT data format (ChatML)" code={`# Supervised Fine-Tuning (SFT) data format\n# Each example is a multi-turn conversation with ideal assistant responses\n\nsft_examples = [\n    {\n        "messages": [\n            {"role": "system", "content": "You are a helpful coding assistant."},\n            {"role": "user", "content": "Write a Python function to merge two sorted lists."},\n            {"role": "assistant", "content": """def merge_sorted(a, b):\n    result = []\n    i = j = 0\n    while i < len(a) and j < len(b):\n        if a[i] <= b[j]:\n            result.append(a[i])\n            i += 1\n        else:\n            result.append(b[j])\n            j += 1\n    result.extend(a[i:])\n    result.extend(b[j:])\n    return result"""}\n        ]\n    }\n]\n\n# For fine-tuning via OpenAI API:\n# openai api fine_tuning.jobs.create \\\\\n#   -t "training_data.jsonl" \\\\\n#   -m "gpt-4o-mini-2024-07-18"\n\n# JSONL format: one JSON object per line\nimport json\nwith open("training_data.jsonl", "w") as f:\n    for ex in sft_examples:\n        f.write(json.dumps(ex) + "\\\\n")`}/>
+
+<ComparisonTable title="Alignment Methods Compared" columns={['Method','Mechanism','Data Required','Pros','Cons']} rows={[
+  ['RLHF','Train reward model, then PPO optimization','Human preference rankings (50K-100K)','Gold standard, well-studied','Expensive, unstable training, reward hacking'],
+  ['DPO','Direct preference optimization on chosen/rejected pairs','Human preference pairs (10K-50K)','Simpler, no reward model needed, stable','May be less effective on complex tasks'],
+  ['RLAIF','AI generates preferences instead of humans','AI-labeled preference data','Much cheaper, scalable','Quality limited by the labeling AI'],
+  ['Constitutional AI','AI self-critiques based on principles','Set of principles + AI iteration','Scalable, principled','Relies on AI\'s ability to self-evaluate'],
+  ['KTO','Kahneman-Tversky optimization, binary good/bad','Binary quality labels','Simpler data collection','Newer, less validated'],
+]}/>
+
+<ExpandableSection title="Why DPO is Replacing RLHF" icon="\uD83D\uDD04">
+
+RLHF requires training a separate reward model, then using Proximal Policy Optimization (PPO) to fine-tune the LLM against that reward model. This is complex, expensive, and prone to reward hacking (the model finds shortcuts to maximize reward without actually being more helpful).
+
+**DPO (Direct Preference Optimization)** skips the reward model entirely. Instead, it directly optimizes the policy model using paired examples of preferred and rejected responses. The loss function implicitly defines the reward as the log-ratio of policy probabilities.
+
+Most open-source models (LLaMA 3, Mistral) now use DPO or its variants (IPO, cDPO) because it is simpler to implement, more stable to train, and produces comparable results to RLHF.
+
+</ExpandableSection>
+
+<Quiz question="Why did Microsoft's Phi-2 (2.7B params) outperform LLaMA 2 (7B params) on many benchmarks despite being much smaller?" options={["Phi-2 used a better architecture","Phi-2 used higher quality, curated 'textbook-quality' training data","Phi-2 trained for longer","Phi-2 used RLHF while LLaMA 2 did not"]} correctIndex={1} explanation="Phi-2 demonstrated that training data quality matters more than quantity. By using carefully curated, 'textbook-quality' synthetic and filtered data, Microsoft achieved strong performance with a fraction of the parameters and training data."/>
+
+<ArchitectureDecision scenario="You want to align a fine-tuned open-source model to be more helpful and refuse harmful requests. You have a small team and limited budget. Which alignment approach?" options={[{label:'Full RLHF pipeline with human annotators',tradeoff:'Best-studied approach, highest quality, but requires training a reward model + PPO, expensive human labeling ($50K+)'},{label:'DPO with synthetic preference data from a stronger model',tradeoff:'Much simpler pipeline, use GPT-4 to generate chosen/rejected pairs, cost-effective ($500-$2K), good quality'},{label:'Constitutional AI with self-critique prompts',tradeoff:'Cheapest, most scalable, but hardest to validate quality and may produce subtle errors'}]} correctIndex={1} explanation="DPO with synthetic preferences is the sweet spot for small teams. Using a stronger model (GPT-4) to generate preference data is cost-effective and produces good results. Full RLHF is overkill for most teams, and Constitutional AI requires careful validation."/>

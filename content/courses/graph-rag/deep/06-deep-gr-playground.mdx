@@ -1,0 +1,23 @@
+---
+label: "Deep Playground"
+icon: "🎮"
+---
+
+## Deep Playground
+
+Apply your Graph RAG knowledge to production architecture decisions.
+
+  <ExpandableSection title="Exercise 1: Graph Schema Design" icon="📀" defaultOpen={true}>
+    <ArchitectureDecision scenario="You are designing a knowledge graph for a biomedical research platform. Documents describe drugs, diseases, genes, clinical trials, and side effects. Which schema approach?" options={[
+      {label:'Flat schema: all entities are generic nodes with a type property',tradeoff:'Simple but loses type-specific properties. Hard to enforce constraints.'},
+      {label:'Rich ontology: typed nodes (Drug, Disease, Gene) with typed relations (TREATS, CAUSES, TARGETS)',tradeoff:'More complex to build but enables precise queries like "find all drugs that target gene X and treat disease Y".'},
+      {label:'Document-centric: documents as nodes, entities as properties',tradeoff:'Loses entity relationships. Cannot traverse between entities across documents.'},
+      {label:'Triple store with RDF/OWL ontology',tradeoff:'Most semantically rich but highest complexity. Best for interoperability with existing biomedical ontologies (SNOMED, UMLS).'}
+    ]} correctIndex={1} explanation="Biomedical data has well-defined entity types and relationships. A rich typed ontology enables the precise multi-hop queries researchers need (drug -> targets -> gene -> associated_with -> disease) while keeping the graph navigable and queryable."/>
+  </ExpandableSection>
+  <ExpandableSection title="Exercise 2: Retrieval Strategy" icon="🔍">
+    <Quiz question="A user asks 'What is the relationship between transformer architecture and recent advances in protein folding?' This spans two domains. Which retrieval approach?" options={["Keyword search for 'transformer' AND 'protein folding'","Graph traversal from 'Transformer' node through intermediate concepts to 'Protein Folding'","Vector search for the full question","Graph traversal first to find connecting concepts, then vector search for supporting detail"]} correctIndex={3} explanation="The optimal approach is graph traversal first (Transformer -> used_in -> AlphaFold -> applied_to -> Protein Folding) to discover the connecting concepts, then vector search to retrieve detailed text about each connection. This combines structural knowledge with textual detail."/>
+  </ExpandableSection>
+  <ExpandableSection title="Exercise 3: Entity Resolution Trade-off" icon="⚖️">
+    <Quiz question="Your entity resolver aggressively merges entities, causing 'Java (programming language)' and 'Java (island)' to merge into one node. What fix preserves disambiguation?" options={["Lower the similarity threshold from 0.85 to 0.5","Add entity type as a disambiguation signal: only merge if both name AND type match","Disable entity resolution entirely","Require exact string match for merging"]} correctIndex={1} explanation="Using entity type as a disambiguation signal prevents merging entities with the same name but different types. 'Java (Technology)' and 'Java (Location)' have different types and will not be merged, while 'ML' and 'Machine Learning' (both Technology) will correctly merge."/>
+  </ExpandableSection>

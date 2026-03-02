@@ -1,0 +1,39 @@
+---
+label: "Chain-of-Thought"
+icon: "🔗"
+---
+
+## Chain-of-Thought Reasoning
+
+<JargonTip term="chain-of-thought">Chain-of-Thought</JargonTip> (CoT) prompting asks the model to **show its reasoning step-by-step** before giving a final answer. This dramatically improves accuracy on complex tasks like math, logic, and multi-step analysis.
+
+The magic phrase? Simply adding **"Let's think step by step"** to your prompt can improve accuracy by 20-40% on reasoning tasks.
+
+<AnalogyBox emoji="🧩" title="Think of it like showing your work">In math class, showing your work helps catch errors. CoT does the same for AI -- by reasoning step-by-step, the model is less likely to jump to an incorrect conclusion.</AnalogyBox>
+
+<MessageSimulator title="Direct vs Chain-of-Thought" messages={[
+  {role:'user',label:'Direct Prompt',text:'"A store has 15 apples. 3 customers each buy 2 apples, then a delivery adds 10 more. How many apples are left?"'},
+  {role:'ai',label:'Direct Answer (often wrong)',text:'"There are 19 apples." (Just guessed without reasoning)'},
+  {role:'user',label:'CoT Prompt',text:'"A store has 15 apples. 3 customers each buy 2 apples, then a delivery adds 10 more. How many apples are left? Let\'s think step by step."'},
+  {role:'ai',label:'CoT Answer (correct)',text:'"Step 1: Start with 15 apples.\nStep 2: 3 customers \u00d7 2 apples = 6 apples sold.\nStep 3: 15 - 6 = 9 apples remaining.\nStep 4: Delivery adds 10: 9 + 10 = 19 apples.\n\nAnswer: 19 apples."'},
+]}/>
+
+<ExpandableSection title="Structured Output Prompting" icon="📋">
+
+Beyond CoT, you can control the exact output format:
+
+**JSON mode:** "Respond with valid JSON matching this schema: {'{'}name, score, reasoning{'}'}"
+
+**Markdown:** "Format your response as a markdown table with columns: Feature, Pro, Con"
+
+**XML tags:** "Wrap your analysis in {'<analysis>'} tags and your answer in {'<answer>'} tags"
+
+Structured outputs are especially useful when the AI's response will be parsed by code downstream.
+
+</ExpandableSection>
+
+<Quiz question="When does Chain-of-Thought prompting provide the biggest improvement?" options={["Simple factual questions","Complex multi-step reasoning tasks","Creative writing","Translation between languages"]} correctIndex={1} explanation="CoT provides the biggest gains on tasks requiring multi-step reasoning -- math, logic, analysis, and planning. For simple recall or creative tasks, it adds little value."/>
+
+<Quiz question="What is the simplest way to activate chain-of-thought reasoning?" options={["Use a larger model","Set temperature to 1.0","Add 'Let\'s think step by step' to your prompt","Use few-shot examples"]} correctIndex={2} explanation="Research shows that simply adding 'Let\'s think step by step' to the end of a prompt can trigger chain-of-thought reasoning, improving accuracy on complex tasks by 20-40%."/>
+
+<SeeItInRe3 text="Re\u00b3's Hypatia agent uses chain-of-thought reasoning when synthesizing debate arguments into The Loom -- breaking down complex multi-perspective analysis into structured steps." targetPage="loom"/>

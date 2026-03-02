@@ -1,0 +1,45 @@
+---
+label: "Why Evaluate?"
+icon: "\uD83C\uDFAF"
+---
+
+## Why Evaluate?
+
+Most teams ship AI features based on **"vibes"** -- they read a few outputs, decide it looks good, and push to production. This works until it does not. A prompt change that improves creative writing might silently break factual accuracy. A model upgrade that feels snappier might hallucinate 3x more. Without systematic <JargonTip term="eval">evaluation</JargonTip>, you are flying blind.
+
+  <AnalogyBox emoji="🏭" title="Think of it like quality control in manufacturing">A factory does not ship products because one engineer glanced at them. They measure tolerances, run stress tests, and sample from every batch. AI evaluation is quality control for non-deterministic software -- you cannot inspect every output, but you can systematically measure quality across representative samples.</AnalogyBox>
+
+The shift from vibes to systematic evaluation is called **Evaluation-Driven Development (EDD)**. Just as Test-Driven Development changed how we write code, EDD changes how we build AI systems: define quality criteria first, build evals, then iterate on prompts and models until evals pass.
+
+  <ComparisonTable title="Offline vs Online Evaluation" columns={['Dimension','Offline Eval','Online Eval']} rows={[
+    ['When','Before deployment, in CI/CD','After deployment, in production'],
+    ['Data','Curated test sets, golden datasets','Real user queries and responses'],
+    ['Speed','Minutes to hours','Continuous, real-time'],
+    ['Coverage','Known scenarios only','Unknown/emerging scenarios'],
+    ['Cost','Fixed per run','Proportional to traffic'],
+    ['Purpose','Catch regressions, validate changes','Detect drift, monitor quality'],
+  ]}/>
+  <CodeBlock language="text" label="Evaluation-Driven Development Cycle" code={`1. DEFINE   \u2500\u2500>  What does "good" look like?
+   \u2502            - Accuracy > 90%
+   \u2502            - Faithfulness > 0.85
+   \u2502            - Latency p95 < 3s
+   \u2502
+2. BUILD    \u2500\u2500>  Create eval datasets & metrics
+   \u2502            - 200+ test cases across scenarios
+   \u2502            - Automated scoring (LLM-as-judge + heuristics)
+   \u2502
+3. ITERATE  \u2500\u2500>  Change prompt/model, run evals
+   \u2502            - Compare before/after scores
+   \u2502            - Reject changes that regress
+   \u2502
+4. DEPLOY   \u2500\u2500>  Gate on eval thresholds
+   \u2502            - CI blocks deploy if evals fail
+   \u2502            - Canary with online evals
+   \u2502
+5. MONITOR  \u2500\u2500>  Continuous online evaluation
+                - Detect drift from baseline
+                - Alert on quality degradation`}/>
+  <EvalMaturityQuiz/>
+  <Quiz question="Why is vibes-based evaluation dangerous for production AI?" options={["It is too slow","It cannot detect subtle regressions across hundreds of edge cases","It is too expensive","It requires too many engineers"]} correctIndex={1} explanation="Vibes-based evaluation only catches obvious failures. A human reading 5 outputs cannot detect a 5% increase in hallucination rate or a subtle regression in edge case handling that affects thousands of users."/>
+  <Quiz question="What is the key difference between offline and online evaluation?" options={["Offline is cheaper","Online uses real production traffic while offline uses curated test sets","Offline is faster","Online requires more engineers"]} correctIndex={1} explanation="Offline evaluation tests against curated datasets before deployment. Online evaluation monitors real production traffic after deployment. Both are necessary -- offline catches known issues, online catches unknown ones."/>
+  <SeeItInRe3 text="Re\u00b3's moderator agent (Atlas) performs online evaluation of debate quality -- scoring each argument for depth, relevance, and accuracy in real time. This is evaluation-driven design applied to multi-agent debates." targetPage="forge"/>

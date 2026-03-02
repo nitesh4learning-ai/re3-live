@@ -1,0 +1,119 @@
+---
+label: "Production Multi-Agent"
+icon: "\u2699\uFE0F"
+---
+
+## Production Multi-Agent
+
+Moving multi-agent systems from prototype to production requires solving error handling, cost control, <JargonTip term="observability">observability</JargonTip>, and graceful degradation. Most multi-agent failures in production come from cascading errors and unbounded token usage.
+
+  <CodeBlock language="python" label="Production Error Handling & Cost Control" code={`import asyncio
+import time
+from dataclasses import dataclass
+
+@dataclass
+class AgentBudget:
+    max_tokens_per_call: int = 2000
+    max_calls_per_task: int = 10
+    max_total_cost_usd: float = 1.0
+    timeout_seconds: int = 30
+
+class ProductionAgentRunner:
+    def __init__(self, agents: list, budget: AgentBudget):
+        self.agents = agents
+        self.budget = budget
+        self.metrics = {
+            "total_tokens": 0, "total_cost": 0.0,
+            "calls": 0, "errors": 0, "retries": 0
+        }
+
+    async def run_agent_with_guardrails(self, agent, input_data):
+        """Execute an agent with budget, timeout, and retry guards."""
+        for attempt in range(3):  # Max 3 retries
+            try:
+                # Check budget before calling
+                if self.metrics["total_cost"] >= self.budget.max_total_cost_usd:
+                    raise BudgetExceededError(
+                        "Budget exhausted: $%.2f" % self.metrics['total_cost'])
+                if self.metrics["calls"] >= self.budget.max_calls_per_task:
+                    raise BudgetExceededError(
+                        f"Max calls reached: {self.metrics['calls']}")
+
+                # Execute with timeout
+                result = await asyncio.wait_for(
+                    agent.invoke(input_data,
+                        max_tokens=self.budget.max_tokens_per_call),
+                    timeout=self.budget.timeout_seconds
+                )
+
+                # Track metrics
+                self.metrics["total_tokens"] += result.usage.total_tokens
+                self.metrics["total_cost"] += result.usage.cost_usd
+                self.metrics["calls"] += 1
+
+                return result
+
+            except asyncio.TimeoutError:
+                self.metrics["retries"] += 1
+                if attempt == 2:
+                    return self._fallback_response(agent, "timeout")
+
+            except Exception as e:
+                self.metrics["errors"] += 1
+                if attempt == 2:
+                    return self._fallback_response(agent, str(e))
+                await asyncio.sleep(2 ** attempt)  # Exponential backoff
+
+    def _fallback_response(self, agent, error_type):
+        """Graceful degradation when an agent fails."""
+        return {
+            "agent": agent.id,
+            "status": "degraded",
+            "error": error_type,
+            "fallback": f"[{agent.role}] Unable to contribute: {error_type}",
+            "metrics": dict(self.metrics)
+        }`}/>
+  <CodeBlock language="javascript" label="Multi-Agent Observability (Node.js)" code={`class AgentTracer {
+  constructor(traceId) {
+    this.traceId = traceId;
+    this.spans = [];
+    this.startTime = Date.now();
+  }
+
+  startSpan(agentId, operation) {
+    const span = {
+      spanId: crypto.randomUUID(),
+      traceId: this.traceId,
+      agentId, operation,
+      startTime: Date.now(),
+      metadata: {}
+    };
+    this.spans.push(span);
+    return span;
+  }
+
+  endSpan(span, result) {
+    span.endTime = Date.now();
+    span.duration = span.endTime - span.startTime;
+    span.tokenUsage = result.usage || {};
+    span.status = result.error ? 'error' : 'success';
+    span.cost = this.calculateCost(result.usage);
+  }
+
+  getSummary() {
+    return {
+      traceId: this.traceId,
+      totalDuration: Date.now() - this.startTime,
+      agentCount: new Set(this.spans.map(s => s.agentId)).size,
+      totalTokens: this.spans.reduce((s, sp) =>
+        s + (sp.tokenUsage?.total || 0), 0),
+      totalCost: this.spans.reduce((s, sp) => s + (sp.cost || 0), 0),
+      errors: this.spans.filter(s => s.status === 'error').length,
+      spanTimeline: this.spans.map(s => ({
+        agent: s.agentId, op: s.operation,
+        ms: s.duration, status: s.status
+      }))
+    };
+  }
+}`}/>
+  <Quiz question="Your multi-agent system costs spiked 20x on a single request. Investigation shows one agent called another in a loop. What production guard would have prevented this?" options={["Using a faster model to complete the loop sooner","Adding a max_calls_per_task budget limit","Making the agents stateless","Removing the looping agent from the system"]} correctIndex={1} explanation="A max_calls_per_task budget guard limits how many LLM calls any single task can make. When the budget is exhausted, the system returns a degraded response instead of spiraling into infinite cost. This is a fundamental production safety mechanism."/>

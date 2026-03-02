@@ -1,0 +1,101 @@
+---
+label: "Security & Auth"
+icon: "🔒"
+---
+
+## Security & Auth
+
+MCP servers often access sensitive systems -- databases, APIs, internal tools. Security is not optional. The protocol supports **OAuth 2.0** for authentication, and servers must implement input sanitization, rate limiting, and <JargonTip term="guardrails">trust verification</JargonTip>.
+
+<CodeBlock language="python" label="Input Sanitization and Rate Limiting" code={`import time
+from collections import defaultdict
+
+# Simple rate limiter
+class RateLimiter:
+    def __init__(self, max_calls: int, window_seconds: int):
+        self.max_calls = max_calls
+        self.window = window_seconds
+        self.calls: dict[str, list[float]] = defaultdict(list)
+
+    def check(self, client_id: str) -> bool:
+        now = time.time()
+        # Remove old entries outside the window
+        self.calls[client_id] = [
+            t for t in self.calls[client_id]
+            if now - t < self.window
+        ]
+        if len(self.calls[client_id]) >= self.max_calls:
+            return False
+        self.calls[client_id].append(now)
+        return True
+
+limiter = RateLimiter(max_calls=100, window_seconds=60)
+
+@app.tool()
+async def query_database(sql_query: str) -> str:
+    """Run a read-only SQL query against the analytics database.
+
+    Args:
+        sql_query: SQL SELECT query (read-only, no mutations allowed)
+    """
+    # 1. Rate limit
+    if not limiter.check("default"):
+        return json.dumps({"error": "Rate limit exceeded. Try again in 60s."})
+
+    # 2. Input sanitization -- block dangerous patterns
+    blocked = ["DROP", "DELETE", "UPDATE", "INSERT", "ALTER", "EXEC", "--", ";"]
+    upper = sql_query.upper()
+    for pattern in blocked:
+        if pattern in upper:
+            return json.dumps({"error": f"Blocked: query contains '{pattern}'. Only SELECT queries are allowed."})
+
+    # 3. Enforce read-only at DB level too (defense in depth)
+    try:
+        result = await db.execute_readonly(sql_query, timeout=10)
+        return json.dumps({"rows": result, "count": len(result)})
+    except Exception as e:
+        return json.dumps({"error": str(e)})`}/>
+
+<CodeBlock language="python" label="OAuth 2.0 Token Verification" code={`from mcp.server.auth import oauth2_required
+import jwt
+
+# Verify OAuth tokens on MCP connections
+async def verify_token(token: str) -> dict:
+    """Verify and decode an OAuth 2.0 bearer token."""
+    try:
+        payload = jwt.decode(
+            token,
+            key=PUBLIC_KEY,
+            algorithms=["RS256"],
+            audience="mcp-knowledge-server"
+        )
+        return {
+            "user_id": payload["sub"],
+            "scopes": payload.get("scope", "").split(),
+            "expires": payload["exp"]
+        }
+    except jwt.ExpiredSignatureError:
+        raise ValueError("Token expired")
+    except jwt.InvalidTokenError:
+        raise ValueError("Invalid token")
+
+# Check scopes before tool execution
+async def require_scope(token_info: dict, scope: str):
+    if scope not in token_info["scopes"]:
+        raise PermissionError(f"Missing required scope: {scope}")
+
+@app.tool()
+async def delete_document(doc_id: str) -> str:
+    """Delete a document from the knowledge base. Requires 'write' scope."""
+    token_info = get_current_token()  # From auth middleware
+    await require_scope(token_info, "write")
+    await db.delete(doc_id)
+    return json.dumps({"deleted": doc_id})`}/>
+
+<Quiz question="Why implement both SQL pattern blocking AND a read-only database connection?" options={["Redundancy is wasteful -- pick one","Defense in depth: if one layer fails, the other still protects","It makes the code look more secure","For compliance documentation only"]} correctIndex={1} explanation="Defense in depth means multiple independent security layers. If a creative SQL injection bypasses pattern matching, the read-only database connection still prevents mutations. Neither layer alone is sufficient." />
+
+<ArchitectureDecision scenario="Your MCP server accesses a customer database. A user asks: 'Show me all customers who spent over $10,000.' Should the MCP server execute this query?" options={[
+  {label:'Yes -- the user asked for it',tradeoff:'Violates principle of least privilege. The LLM may not have authorization to access all customer data'},
+  {label:'No -- verify the user has permission to access customer financial data first',tradeoff:'Adds latency for auth check but prevents unauthorized data access. This is the correct approach'},
+  {label:'Return aggregated data only (count, average) to avoid exposing individual records',tradeoff:'Good privacy practice but does not answer the user question and may frustrate legitimate authorized users'},
+]} correctIndex={1} explanation="Always verify authorization before returning sensitive data. The MCP server should check the user's permissions against the requested data scope. Never assume the LLM user is authorized for all data the server can access." />

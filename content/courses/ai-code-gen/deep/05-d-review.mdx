@@ -1,0 +1,52 @@
+---
+label: "Code Review"
+icon: "\uD83D\uDD0D"
+---
+
+## AI Code Review & Quality
+  <ExpandableSection title="When AI Code Goes Wrong" icon="⚠️" defaultOpen>
+
+Common failure modes of AI-generated code:
+
+
+      - **Plausible but wrong:** Code that looks correct, passes a quick review, but has subtle logic bugs
+      - **Outdated patterns:** Using deprecated APIs or old library versions from training data
+      - **Security blind spots:** Missing input validation, SQL injection, XSS vulnerabilities
+      - **Over-engineering:** AI adds unnecessary abstractions or patterns you didn{"'"}t ask for
+      - **Hallucinated APIs:** Calling functions or methods that don{"'"}t exist in the library
+
+  </ExpandableSection>
+  <CodeBlock label="AI Code Review Checklist" code={`# Review AI-Generated Code With This Checklist
+
+## 1. Does it actually work?
+- [ ] Run the code -- don't just read it
+- [ ] Test edge cases (empty input, null, large data)
+- [ ] Verify API calls against current documentation
+
+## 2. Security
+- [ ] Input validation on all user data
+- [ ] No secrets or credentials hardcoded
+- [ ] SQL/NoSQL injection prevention
+- [ ] Authentication checks on protected routes
+
+## 3. Fits the codebase
+- [ ] Follows existing patterns (not introducing new ones)
+- [ ] Uses existing utilities instead of reimplementing
+- [ ] Consistent naming conventions
+- [ ] Appropriate error handling style
+
+## 4. Performance
+- [ ] No unnecessary loops or database queries
+- [ ] Appropriate data structures
+- [ ] Pagination for list endpoints
+- [ ] No memory leaks (event listeners, subscriptions)
+
+## 5. Maintainability
+- [ ] Code is readable (not over-clever)
+- [ ] Functions are focused (single responsibility)
+- [ ] No dead code or unused imports`}/>
+  <ArchitectureDecision scenario="Your team is using AI to write code. A senior developer raises concerns about code quality. How do you establish a quality framework?" options={[
+    {label:"Ban AI code generation -- go back to manual",tradeoff:"Safest but forfeits 30-50% productivity gain; team morale drops"},
+    {label:"Require human review of all AI-generated code + automated tests must pass before merge",tradeoff:"Balanced -- AI generates, human validates, tests verify. Maintains quality with productivity gains"},
+    {label:"Trust the AI output and only review when bugs are found",tradeoff:"Maximum velocity but quality debt accumulates; bugs found in production are 10x more expensive"},
+  ]} correctIndex={1} explanation="Human review + test gates is the industry standard. AI dramatically speeds up the 'write first draft' phase. Human reviewers catch the subtle issues AI misses (wrong business logic, security gaps, codebase inconsistencies). Automated tests verify correctness. This captures most of the productivity gain while maintaining quality."/>

@@ -1,0 +1,57 @@
+---
+label: "Browser Agents"
+icon: "\uD83C\uDF10"
+---
+
+## Browser Agents
+
+Browser <JargonTip term="agent">agents</JargonTip> are AI systems that can navigate the web, interact with websites, and complete tasks autonomously -- a leap beyond traditional <JargonTip term="RPA">RPA</JargonTip>. They represent the intersection of LLMs, browser automation, and agentic reasoning.
+
+<ExpandableSection title="Browser Agent Architecture" icon={'\uD83C\uDFD7\uFE0F'} defaultOpen>
+
+- **Perception:** Read DOM, take screenshots, extract accessibility tree
+- **Planning:** Break task into steps, identify which elements to interact with
+- **Action:** Click, type, scroll, navigate, wait for page loads
+- **Verification:** Confirm action succeeded, handle errors or unexpected states
+- **Memory:** Track what's been done, what pages visited, what data collected
+
+</ExpandableSection>
+
+<CodeBlock language="javascript" label="Browser Agent Loop (Conceptual)" code={`async function browserAgentLoop(task, browser) {
+  const history = [];
+  let step = 0;
+
+  while (step < MAX_STEPS) {
+    // 1. Perceive current state
+    const screenshot = await browser.screenshot();
+    const dom = await browser.getAccessibilityTree();
+
+    // 2. Plan next action
+    const action = await llm.decide({
+      task: task,
+      currentPage: dom,
+      screenshot: screenshot,
+      history: history,
+      prompt: "What should I do next to complete this task?"
+    });
+
+    // 3. Execute action
+    if (action.type === "click") {
+      await browser.click(action.selector);
+    } else if (action.type === "type") {
+      await browser.type(action.selector, action.text);
+    } else if (action.type === "navigate") {
+      await browser.goto(action.url);
+    } else if (action.type === "done") {
+      return { success: true, result: action.result };
+    }
+
+    // 4. Record and verify
+    history.push(action);
+    await browser.waitForNavigation();
+    step++;
+  }
+  return { success: false, reason: "Max steps exceeded" };
+}`}/>
+
+<Quiz question="Why do browser agents need both DOM/accessibility tree access AND screenshot capability?" options={["Screenshots are just for debugging","DOM gives structure but screenshots help with visual elements the DOM doesn't describe well","They always use screenshots, DOM is optional","Browser agents don't actually need both"]} correctIndex={1} explanation="DOM provides structured, reliable element data (text, roles, properties), but some UI elements are better understood visually (icons, layouts, visual state indicators). The combination gives the agent both structural understanding and visual context."/>

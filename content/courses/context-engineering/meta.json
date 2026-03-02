@@ -1,0 +1,16 @@
+{
+  "tier": 1,
+  "icon": "🧩",
+  "title": "Context Engineering",
+  "description": "The meta-skill of AI: prompt + memory + retrieval + tools = context. Design what the model sees.",
+  "difficulty": "Beginner",
+  "timeMinutes": 40,
+  "exerciseCount": 7,
+  "tabCount": 4,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Context Engineering — Re³ Academy",
+    "metaDescription": "Master context engineering: prompt, memory, retrieval, and tools. Design what the AI model sees."
+  }
+}

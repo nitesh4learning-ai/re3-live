@@ -1,0 +1,19 @@
+---
+label: "Patterns"
+icon: "\uD83D\uDCCB"
+---
+
+## Effective Patterns
+  <ExpandableSection title="1. Spec-First Development" icon="📋" defaultOpen>
+Write a detailed spec or pseudocode, then have AI implement it. Whether you are doing <JargonTip term="vibe coding">vibe coding</JargonTip> or spec-driven development, the spec acts as a contract \u2014 AI generates code that matches your design, not its own interpretation.
+</ExpandableSection>
+  <ExpandableSection title="2. Test-Driven AI" icon="✅">
+Write tests first, then tell AI: "Generate code that passes these tests." The tests constrain the AI's output and make verification automatic.
+</ExpandableSection>
+  <ExpandableSection title="3. Incremental Generation" icon="🔄">
+Build in small steps. Generate one function, verify it works, then generate the next. Avoid asking AI to generate entire systems at once \u2014 errors compound and waste <JargonTip term="token">tokens</JargonTip>.
+</ExpandableSection>
+  <ExpandableSection title="4. Context Loading" icon="📚">
+Give the AI relevant context: existing code patterns, type definitions, API docs. Good <JargonTip term="prompt engineering">prompt engineering</JargonTip> with codebase conventions produces code that matches your style. Some tools use <JargonTip term="RAG">RAG</JargonTip> to automatically retrieve relevant files.
+</ExpandableSection>
+  <Quiz question="You need to add a new feature to a 50-file project. Best approach with AI?" options={["Ask AI to generate the entire feature at once","Write a spec, generate incrementally, test each piece","Just start coding and let autocomplete help","Copy-paste from Stack Overflow"]} correctIndex={1} explanation="Spec-first + incremental generation is most reliable. The spec ensures the AI understands your intent. Generating and testing in small steps catches errors early before they compound across files."/>

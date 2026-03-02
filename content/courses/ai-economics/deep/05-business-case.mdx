@@ -1,0 +1,48 @@
+---
+label: "Business Case"
+icon: "\uD83D\uDCBC"
+---
+
+## Building an AI Business Case
+
+<CodeBlock language="yaml" label="AI Business Case Template" code={`ai_business_case:
+  executive_summary:
+    problem: "Manual invoice processing costs $45/invoice, 15 FTE"
+    solution: "AI-powered invoice extraction and matching"
+    investment: "$180K first year ($80K dev + $100K infra/ops)"
+    return: "$540K annual savings (12 FTE equivalent redeployed)"
+    payback: "4 months"
+
+  current_state:
+    process: "Manual data entry from PDF invoices"
+    volume: "3,000 invoices/month"
+    error_rate: "8%"
+    cost_per_invoice: "$45"
+    annual_cost: "$1,620,000"
+
+  proposed_state:
+    process: "AI extraction with human review of low-confidence"
+    automation_rate: "85% fully automated"
+    error_rate: "2%"
+    cost_per_invoice: "$12"
+    annual_cost: "$432,000"
+
+  risk_factors:
+    - risk: "Invoice format variability"
+      mitigation: "Train on 50+ formats, human fallback for new"
+      probability: "Medium"
+    - risk: "Vendor pushback on automated payments"
+      mitigation: "Phased rollout, human approval > $10K"
+      probability: "Low"
+
+  success_metrics:
+    - "Automation rate > 80% within 3 months"
+    - "Error rate < 3%"
+    - "Cost per invoice < $15"
+    - "Employee satisfaction (redeployed staff) > 75%"`}/>
+
+<ArchitectureDecision scenario="Your CFO asks: 'Should we build AI invoice processing in-house or buy an off-the-shelf solution at $8/invoice?' Your current cost is $45/invoice." options={[
+  {label:"Buy the SaaS solution at $8/invoice",tradeoff:"Immediate savings (82%), zero dev cost, but you're dependent on vendor and your data leaves your systems"},
+  {label:"Build custom for $12/invoice target",tradeoff:"Higher upfront cost but full control, better long-term economics at scale, data stays in-house"},
+  {label:"Start with SaaS now, build custom later if volume justifies",tradeoff:"Fastest time-to-savings; evaluate real needs before committing to build; risk of migration cost later"},
+]} correctIndex={2} explanation="Starting with SaaS gives immediate 82% cost reduction with zero development risk. If your volume grows or you need more control, you can build custom later with real production data to inform the design. This 'crawl-walk-run' approach minimizes risk while capturing value quickly."/>

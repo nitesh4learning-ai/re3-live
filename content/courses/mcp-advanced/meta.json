@@ -1,0 +1,16 @@
+{
+  "tier": 3,
+  "icon": "🔌",
+  "title": "MCP — Advanced Patterns",
+  "description": "Multi-server composition, custom tool design, resource & sampling patterns, OAuth security for production MCP.",
+  "difficulty": "Advanced",
+  "timeMinutes": 50,
+  "exerciseCount": 9,
+  "tabCount": 5,
+  "status": "available",
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "MCP Advanced Patterns — Re³ Academy",
+    "metaDescription": "Advanced MCP: multi-server composition, custom tool design, and OAuth security patterns."
+  }
+}

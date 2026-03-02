@@ -1,0 +1,46 @@
+---
+label: "JSON Mode Basics"
+icon: "📤"
+---
+
+## JSON Mode Basics
+
+<CodeBlock title="OpenAI JSON Mode" code={`from openai import OpenAI
+client = OpenAI()
+
+response = client.chat.completions.create(
+    model="gpt-4o",
+    response_format={"type": "json_object"},
+    messages=[
+        {"role": "system", "content": "Respond in JSON with fields: sentiment, confidence, reasoning"},
+        {"role": "user", "content": "Analyze: 'This product exceeded my expectations!'"}
+    ]
+)
+# Guaranteed valid JSON:
+# {"sentiment": "positive", "confidence": 0.95, "reasoning": "..."}`}/>
+
+<CodeBlock title="Anthropic Structured Output via Tool Use" code={`import anthropic
+client = anthropic.Anthropic()
+
+response = client.messages.create(
+    model="claude-3-5-sonnet-20241022",
+    max_tokens=1024,
+    tools=[{
+        "name": "analyze_sentiment",
+        "description": "Analyze text sentiment",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "sentiment": {"type": "string", "enum": ["positive","negative","neutral"]},
+                "confidence": {"type": "number"},
+                "reasoning": {"type": "string"}
+            },
+            "required": ["sentiment", "confidence"]
+        }
+    }],
+    tool_choice={"type": "tool", "name": "analyze_sentiment"},
+    messages=[{"role":"user","content":"Analyze: 'This is amazing!'"}]
+)
+# Returns structured tool_use result with guaranteed schema`}/>
+
+<ComparisonTable title="Provider JSON Support" headers={['Provider','Method','Guarantees','Notes']} rows={[['OpenAI','response_format + json_schema','Valid JSON matching schema','Best schema support'],['Anthropic','tool_use with input_schema','Valid JSON matching tool schema','Uses function calling as structured output trick'],['Gemini','response_schema parameter','Valid JSON matching schema','Native schema support'],['Open-source','Outlines / guidance libraries','Constrained decoding','Requires local hosting']]}/>
