@@ -471,7 +471,7 @@ export default function OrchestrationPage({ user, onNavigate, runId }) {
       }}
     >
       {/* Header */}
-      <div style={{ marginBottom: 32 }}>
+      <div style={{ marginBottom: 32, textAlign: "center" }}>
         <div
           style={{
             fontSize: 12,
