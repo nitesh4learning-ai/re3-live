@@ -129,7 +129,7 @@ function DepthSelector({depth,onChangeDepth}){
 }
 
 // ==================== COURSE SHELL ====================
-function CourseShell({id,onBack,onNavigate,progress,onComplete,depth,onChangeDepth,visionaryTabs,deepTabs,renderTab}){
+function CourseShell({id,onBack,onNavigate,progress,onComplete,depth,onChangeDepth,visionaryTabs=[],deepTabs=[],renderTab}){
   const[activeTab,setActiveTab]=useState(0);
   const tabs=depth==='deep'?deepTabs:visionaryTabs;
   // Reset tab when switching depth if current tab exceeds new tab count

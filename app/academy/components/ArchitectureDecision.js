@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { GIM } from "../constants";
 
-export default function ArchitectureDecision({ scenario, options, correctIndex, explanation, onAnswer }) {
+export default function ArchitectureDecision({ scenario, options = [], correctIndex, explanation, onAnswer }) {
   const [selected, setSelected] = useState(null);
   const answered = selected !== null;
   const correct = selected === correctIndex;

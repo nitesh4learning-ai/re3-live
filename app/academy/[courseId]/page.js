@@ -38,7 +38,7 @@ export default async function CoursePage({ params }) {
   ]);
 
   // Serialize tab data for client (content stays as React elements)
-  const serializeTabs = (tabs) => tabs.map(t => ({
+  const serializeTabs = (tabs) => (tabs || []).map(t => ({
     id: t.slug,
     label: t.label,
     icon: t.icon,
