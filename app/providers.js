@@ -81,7 +81,7 @@ export function AppProvider({ children }) {
         const [fc, ft, fa, ffs, fag, fp] = results.map(r => r.status === 'fulfilled' ? r.value : null);
         // Firestore-authoritative: when Firestore returns data, it REPLACES local state.
         // Only merge INIT_CONTENT seeds that aren't in Firestore yet.
-        if (fc?.source === 'firestore' && fc.data.length > 0) {
+        if (fc?.source === 'firestore' && fc?.data?.length > 0) {
           firestoreActive.current = true;
           const fsIds = new Set(fc.data.map(p => p.id));
           const seeds = INIT_CONTENT.filter(p => !fsIds.has(p.id));
@@ -90,7 +90,7 @@ export function AppProvider({ children }) {
         if (ft?.source === 'firestore') setThemes(ft.data);
         if (fa?.source === 'firestore') setArticles(fa.data);
         if (ffs?.source === 'firestore') setForgeSessions(ffs.data);
-        if (fag?.source === 'firestore') {
+        if (fag?.source === 'firestore' && fag?.data?.length > 0) {
           const fsAgentIds = new Set(fag.data.map(a => a.id));
           const seedAgents = INIT_AGENTS.filter(a => !fsAgentIds.has(a.id));
           setAgents(seedAgents.length > 0 ? [...fag.data, ...seedAgents] : fag.data);

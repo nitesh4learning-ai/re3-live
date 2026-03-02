@@ -33,7 +33,7 @@ export default function PostPage(){
 
     {post.tldr&&<FadeIn delay={90}><div className="mb-5 px-4 py-3 rounded-xl" style={{background:pillar?.lightBg||"#F3F4F6",border:`1px solid ${pillar?.color||"#CCC"}20`,fontSize:13,color:pillar?.color||"#666",lineHeight:1.6,fontStyle:"italic"}}><span className="font-bold" style={{fontSize:10,letterSpacing:"0.05em",fontStyle:"normal"}}>TL;DR</span><span style={{margin:"0 6px",opacity:0.3}}>|</span>{post.tldr}</div></FadeIn>}
 
-    <div className="mb-6">{post.paragraphs.map((para,i)=>{
+    <div className="mb-6">{(post.paragraphs||[]).map((para,i)=>{
       const hc=post.highlights?.[i]||0;const rx=post.reactions?.[i]||{};const notes=(post.marginNotes||[]).filter(n=>n.paragraphIndex===i);
       if(para.startsWith("```")){const lines=para.split("\n");const lang=lines[0].replace("```","");const code=lines.slice(1).join("\n");
         return <div key={i} className="my-4 rounded-xl overflow-hidden border" style={{borderColor:"#E5E7EB"}}>{lang&&<div className="px-4 py-1.5 flex items-center gap-2" style={{background:"#F9FAFB",borderBottom:"1px solid #E5E7EB",fontSize:9,fontWeight:700,letterSpacing:"0.1em",color:"#CCC"}}><span className="rounded-full" style={{width:5,height:5,background:"#E8734A"}}/><span className="rounded-full" style={{width:5,height:5,background:"#3B6B9B"}}/><span className="rounded-full" style={{width:5,height:5,background:"#2D8A6E"}}/><span className="ml-1">{lang.toUpperCase()}</span></div>}<pre className="p-4 overflow-x-auto text-xs" style={{background:"#F9FAFB",color:"#555",fontFamily:"monospace",lineHeight:1.7}}>{code}</pre></div>}
@@ -47,7 +47,7 @@ export default function PostPage(){
         </div></div></FadeIn>})}</div>
 
     <div className="flex flex-wrap items-center gap-1.5 mb-4 pb-4" style={{borderBottom:"1px solid #E5E7EB"}}>
-      {post.tags.map(t=><span key={t} className="px-2 py-0.5 rounded-full" style={{fontSize:10,background:"#F3F4F6",color:"#999"}}>{t}</span>)}<div className="flex-1"/>
+      {(post.tags||[]).map(t=><span key={t} className="px-2 py-0.5 rounded-full" style={{fontSize:10,background:"#F3F4F6",color:"#999"}}>{t}</span>)}<div className="flex-1"/>
       <button onClick={()=>{if(!endorsed){onEndorse(post.id);setEndorsed(true)}}} className="flex items-center gap-1 px-3 py-1 rounded-full font-semibold transition-all" style={{fontSize:11,background:endorsed?`${pillar?.color}08`:"white",border:`1.5px solid ${endorsed?pillar?.color:"#E0E0E0"}`,color:endorsed?pillar?.color:"#BBB"}}>{endorsed?"\u2665":"\u2661"} {post.endorsements+(endorsed?1:0)}</button>
       <ShareButton title={post.title} text={post.paragraphs?.[0]?.slice(0,140)}/>
     </div>
@@ -57,8 +57,8 @@ export default function PostPage(){
       {currentUser&&<div className="flex gap-1.5 mt-2"><input value={newCh} onChange={e=>setNewCh(e.target.value)} placeholder="Pose a challenge..." className="flex-1 px-3 py-1.5 rounded-xl border focus:outline-none text-sm" style={{borderColor:"#E5E7EB",color:"#555"}}/><button onClick={()=>{if(newCh.trim()){onAddChallenge(post.id,newCh.trim());setNewCh("")}}} className="px-3 py-1.5 rounded-xl font-semibold text-sm" style={{background:"#9333EA",color:"white"}}>Challenge</button></div>}
     </div>}
 
-    <div className="mb-6"><h3 className="font-bold mb-2" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:14}}>Discussion ({post.comments.length})</h3>
-      <div className="space-y-2">{post.comments.map(c=>{const ca=getAuthor(c.authorId);return <div key={c.id} className="flex items-start gap-2"><AuthorBadge author={ca}/><div className="flex-1 p-2.5 rounded-xl" style={{background:"#F9FAFB"}}><p className="text-sm" style={{color:"#555",lineHeight:1.5}}>{c.text}</p><span style={{fontSize:10,color:"#CCC"}}>{fmtS(c.date)}</span></div></div>})}</div>
+    <div className="mb-6"><h3 className="font-bold mb-2" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:14}}>Discussion ({(post.comments||[]).length})</h3>
+      <div className="space-y-2">{(post.comments||[]).map(c=>{const ca=getAuthor(c.authorId);return <div key={c.id} className="flex items-start gap-2"><AuthorBadge author={ca}/><div className="flex-1 p-2.5 rounded-xl" style={{background:"#F9FAFB"}}><p className="text-sm" style={{color:"#555",lineHeight:1.5}}>{c.text}</p><span style={{fontSize:10,color:"#CCC"}}>{fmtS(c.date)}</span></div></div>})}</div>
       {currentUser&&<div className="flex gap-1.5 mt-2"><input value={comment} onChange={e=>setComment(e.target.value)} placeholder="Add to the discussion..." className="flex-1 px-3 py-1.5 rounded-xl border focus:outline-none text-sm" style={{borderColor:"#E5E7EB",color:"#555"}}/><button onClick={()=>{if(comment.trim()){onComment(post.id,comment.trim());setComment("")}}} className="px-3 py-1.5 rounded-xl font-semibold text-sm" style={{background:"#9333EA",color:"white"}}>Reply</button></div>}
     </div>
 
