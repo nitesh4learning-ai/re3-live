@@ -26,7 +26,7 @@ export function Header() {
   }, []);
 
   const [moreOpen, setMoreOpen] = useState(false);
-  const navItems = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🏗️"], ["academy", "Academy", "🎓"], ["loom", "Archive", "🧵"], ["studio", "My Studio", "📝"]];
+  const navItems = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🏗️"], ["academy", "Academy", "🎓"], ["loom", "The Loom", "🧵"], ["studio", "My Studio", "📝"]];
   const moreItems = [["agent-community", "Team", "🤖"], ["search", "Search", "🔍"]];
   const bottomTabs = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🏗️"], ["academy", "Learn", "🎓"], ["studio", "Studio", "📝"]];
 
@@ -136,7 +136,7 @@ export default function AppShell({ children }) {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-4">
           <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: "#9CA3AF" }}>&copy; {new Date().getFullYear()} Re{'\u00b3'} &mdash; Built by Nitesh Srivastava</span>
           <div className="flex items-center gap-4">
-            {[["forge","Debate"],["arena","Arena"],["academy","Academy"],["loom","Archive"],["agent-community","Agents"]].map(([pg,label]) =>
+            {[["forge","Debate"],["arena","Arena"],["academy","Academy"],["loom","The Loom"],["agent-community","Agents"]].map(([pg,label]) =>
               <button key={pg} onClick={() => nav(pg)} className="transition-colors" style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: "#9CA3AF" }} onMouseEnter={e => { e.currentTarget.style.color = "#9333EA"; }} onMouseLeave={e => { e.currentTarget.style.color = "#9CA3AF"; }}>{label}</button>
             )}
           </div>

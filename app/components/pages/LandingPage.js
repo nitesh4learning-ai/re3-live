@@ -19,7 +19,6 @@ export default function LandingPage({ onSignIn, onNavigate }) {
       <div className="flex items-center gap-3">
         <button onClick={() => onNavigate?.("academy")} className="text-sm font-medium px-3 py-1.5 rounded-lg transition-all hover:bg-gray-100" style={{ color: GIM.bodyText }}>Academy</button>
         <button onClick={() => onNavigate?.("agents")} className="text-sm font-medium px-3 py-1.5 rounded-lg transition-all hover:bg-gray-100" style={{ color: GIM.bodyText }}>Agents</button>
-        <button onClick={onSignIn} className="text-sm font-semibold px-4 py-2 rounded-lg transition-all hover:shadow-md" style={{ background: GIM.primary, color: 'white' }}>Sign in</button>
       </div>
     </nav>
 
@@ -43,7 +42,7 @@ export default function LandingPage({ onSignIn, onNavigate }) {
 
         <FadeIn delay={130}>
           <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
-            <button onClick={() => onNavigate?.("forge")} className="px-6 py-3 font-semibold text-sm transition-all hover:shadow-md rounded-xl" style={{ background: '#E8734A', color: 'white' }}>Debate Lab</button>
+            <button onClick={() => onNavigate?.("loom")} className="px-6 py-3 font-semibold text-sm transition-all hover:shadow-md rounded-xl" style={{ background: '#E8734A', color: 'white' }}>The Loom</button>
             <button onClick={() => onNavigate?.("arena")} className="px-6 py-3 font-semibold text-sm transition-all hover:shadow-md rounded-xl" style={{ background: GIM.primary, color: 'white' }}>Arena</button>
             <button onClick={() => onNavigate?.("academy")} className="px-6 py-3 font-semibold text-sm transition-all hover:shadow-md rounded-xl" style={{ background: '#2D8A6E', color: 'white' }}>Academy</button>
           </div>
