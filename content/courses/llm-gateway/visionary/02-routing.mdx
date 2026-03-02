@@ -9,9 +9,13 @@ Different routing strategies optimize for different goals. The gateway also mana
 
 
 
-      | Strategy | How It Works | Best For
-
-        {[['Cost-Optimized','Route to cheapest available provider','Budget-constrained applications'],['Latency-Optimized','Route to fastest available provider','Real-time applications, chatbots'],['Quality-Optimized','Route to best model for the task type','High-stakes applications'],['Round-Robin','Distribute evenly across providers','Load balancing, rate limit spreading'],['Fallback Chain','Try primary, fall back to secondary','Maximum reliability']].map(([s,h,b],i)=>| {s} | {h} | {b} )}
+| Strategy | How It Works | Best For |
+|----------|-------------|----------|
+| Cost-Optimized | Route to cheapest available provider | Budget-constrained applications |
+| Latency-Optimized | Route to fastest available provider | Real-time applications, chatbots |
+| Quality-Optimized | Route to best model for the task type | High-stakes applications |
+| Round-Robin | Distribute evenly across providers | Load balancing, rate limit spreading |
+| Fallback Chain | Try primary, fall back to secondary | Maximum reliability |
 
 
 
