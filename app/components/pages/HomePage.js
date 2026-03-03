@@ -11,8 +11,8 @@ const LandingPage = lazy(() => import('./LandingPage'));
 
 export default function HomePage(){
   const app = useApp();
-  const { content, themes, articles, forgeSessions, agents, registry } = app;
-  const { user: currentUser, nav: onNavigate, voteTheme: onVoteTheme, addTheme: onAddTheme, editTheme: onEditTheme, deleteTheme: onDeleteTheme, navToForge } = app;
+  const { content, themes, articles, forgeSessions, agents, registry, editorPicks } = app;
+  const { user: currentUser, nav: onNavigate, voteTheme: onVoteTheme, addTheme: onAddTheme, editTheme: onEditTheme, deleteTheme: onDeleteTheme, addEditorPick, removeEditorPick, navToForge } = app;
   const onSubmitTopic = app.addTheme;
 
   const cycles = getCycles(content);
@@ -22,6 +22,8 @@ export default function HomePage(){
   const[newThemeTxt,setNewThemeTxt]=useState("");
   const[editingTheme,setEditingTheme]=useState(null);
   const[editThemeTxt,setEditThemeTxt]=useState("");
+  const[showPickModal,setShowPickModal]=useState(false);
+  const[pickTab,setPickTab]=useState("debate");
 
   // Show landing page for logged-out visitors
   if (!currentUser) {
@@ -180,85 +182,171 @@ export default function HomePage(){
       </section>;
     })()}
 
-    {/* ===== LATEST ACTIVITY ===== */}
+    {/* ===== EDITOR'S PICKS ===== */}
     <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-10">
-      <FadeIn><h2 className="font-bold mb-1" style={{fontFamily:GIM.fontMain,color:GIM.headingText,fontSize:20}}>Recent Debates &amp; Builds</h2><p className="mb-4" style={{fontFamily:GIM.fontMain,fontSize:12,color:GIM.mutedText}}>The latest from the community</p></FadeIn>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <FadeIn><div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="font-bold mb-0.5" style={{fontFamily:GIM.fontMain,color:GIM.headingText,fontSize:20}}>Editor&rsquo;s Picks</h2>
+          <p style={{fontFamily:GIM.fontMain,fontSize:12,color:GIM.mutedText}}>Hand-picked highlights from the platform</p>
+        </div>
+        {isAdmin(currentUser)&&<button onClick={()=>setShowPickModal(true)} className="px-4 py-2 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:GIM.primary,color:"white",boxShadow:"0 2px 12px rgba(147,51,234,0.2)"}}>+ Add Pick</button>}
+      </div></FadeIn>
 
-        {/* Col 1: Latest Cycle / Loom */}
-        <FadeIn delay={20}><div className="glass-card rounded-xl overflow-hidden">
-          <div className="px-4 py-3 flex items-center justify-between" style={{borderBottom:"1px solid rgba(255,255,255,0.3)"}}>
-            <div className="flex items-center gap-2"><span style={{fontSize:14}}>{"\ud83e\uddf5"}</span><span className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:13,color:GIM.headingText}}>The Loom</span></div>
-            <button onClick={()=>onNavigate("loom")} className="text-xs font-semibold" style={{color:GIM.primary}}>All &rarr;</button>
-          </div>
-          {hero?<div className="p-4 cursor-pointer transition-all hover:bg-white/30" onClick={()=>onNavigate(hero.isJourney?"loom-cycle":"post",hero.isJourney?hero.id:hero.posts[0]?.id)}>
-            <div className="font-bold mb-1" style={{fontSize:14,color:GIM.headingText,fontFamily:GIM.fontMain}}>{hero.label||"Latest Edition"}</div>
-            <div className="flex flex-wrap gap-1.5 mb-2">{hero.posts.slice(0,3).map(p=><span key={p.id} className="px-2 py-0.5 rounded-full" style={{fontSize:9,fontWeight:600,background:`${PILLARS[p.pillar]?.color||GIM.primary}10`,color:PILLARS[p.pillar]?.color||GIM.primary}}>{p.title?.slice(0,30)}{p.title?.length>30?"...":""}</span>)}</div>
-            <div className="flex items-center gap-3" style={{fontSize:11,color:GIM.mutedText}}><span>{hero.posts.length} posts</span>{hero.posts.some(p=>p.debate?.loom)&&<span className="font-semibold" style={{color:"#2D8A6E"}}>Loom woven</span>}</div>
-          </div>:<div className="p-4 text-center"><p style={{fontSize:12,color:GIM.mutedText}}>No editions yet</p></div>}
-          {/* Recent debates */}
-          <div style={{borderTop:"1px solid rgba(255,255,255,0.3)"}}>
-            {(forgeSessions||[]).slice(0,3).map(s=>{
-              const modeColors={debate:"#E8734A",ideate:"#3B6B9B",implement:"#2D8A6E"};
-              return <div key={s.id} onClick={()=>onNavigate("forge",s.id)} className="px-4 py-2.5 cursor-pointer transition-all hover:bg-white/30" style={{borderBottom:"1px solid rgba(255,255,255,0.2)"}}>
-                <div className="flex items-center gap-2"><span className="font-bold" style={{fontSize:9,color:modeColors[s.mode]||GIM.mutedText,textTransform:"uppercase"}}>{s.mode}</span><span style={{fontSize:9,color:GIM.mutedText}}>{new Date(s.date).toLocaleDateString()}</span></div>
-                <div className="font-medium" style={{fontSize:11,color:GIM.headingText,display:"-webkit-box",WebkitLineClamp:1,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{s.topic?.title||"Untitled"}</div>
-              </div>})}
-            {(!forgeSessions||forgeSessions.length===0)&&<div className="px-4 py-4 text-center"><button onClick={()=>onNavigate("forge")} className="text-xs font-semibold" style={{color:GIM.primary}}>Start a debate &rarr;</button></div>}
-          </div>
-        </div></FadeIn>
-
-        {/* Col 2: Arena Runs */}
-        <FadeIn delay={40}><div className="glass-card rounded-xl overflow-hidden">
-          <div className="px-4 py-3 flex items-center justify-between" style={{borderBottom:"1px solid rgba(255,255,255,0.3)"}}>
-            <div className="flex items-center gap-2"><span style={{fontSize:14}}>{"\ud83c\udfd7\ufe0f"}</span><span className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:13,color:GIM.headingText}}>Arena</span></div>
-            <button onClick={()=>onNavigate("arena")} className="text-xs font-semibold" style={{color:"#9333EA"}}>All &rarr;</button>
-          </div>
-          {arenaRuns.length>0?arenaRuns.slice(0,4).map(run=><div key={run.runId} onClick={()=>onNavigate("arena",run.runId)} className="px-4 py-3 cursor-pointer transition-all hover:bg-white/30" style={{borderBottom:"1px solid rgba(255,255,255,0.2)"}}>
-            <div className="font-medium mb-1" style={{fontSize:12,color:GIM.headingText,fontFamily:GIM.fontMain,display:"-webkit-box",WebkitLineClamp:1,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{run.useCase?.title||"Untitled Build"}</div>
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1" style={{fontSize:10,color:GIM.mutedText}}>
-                <span style={{fontSize:8}}>{"\ud83d\udc65"}</span> {run.team?.length||0} agents
-              </span>
-              {run.metrics?.elapsedMs&&<span style={{fontSize:10,color:GIM.mutedText}}>{Math.round(run.metrics.elapsedMs/1000)}s</span>}
-              {run.completedAt&&<span style={{fontSize:10,color:GIM.mutedText}}>{new Date(run.completedAt).toLocaleDateString()}</span>}
-            </div>
-          </div>)
-          :<div className="p-6 text-center">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{background:"rgba(147,51,234,0.06)",fontSize:20,border:"1px solid rgba(147,51,234,0.1)"}}>{"\ud83c\udfd7\ufe0f"}</div>
-            <p className="font-medium mb-1" style={{fontSize:13,color:GIM.headingText,fontFamily:GIM.fontMain}}>Multi-Agent Building</p>
-            <p className="mb-3" style={{fontSize:11,color:GIM.mutedText,lineHeight:1.5}}>Agent teams auto-assemble, architect, and deliver prototypes.</p>
-            <button onClick={()=>onNavigate("arena")} className="px-4 py-1.5 rounded-lg font-semibold text-xs transition-all hover:shadow-sm" style={{background:"rgba(147,51,234,0.08)",color:"#9333EA",border:"1px solid rgba(147,51,234,0.12)"}}>Launch a Build &rarr;</button>
-          </div>}
-        </div></FadeIn>
-
-        {/* Col 3: Academy Featured */}
-        <FadeIn delay={60}><div className="glass-card rounded-xl overflow-hidden">
-          <div className="px-4 py-3 flex items-center justify-between" style={{borderBottom:"1px solid rgba(255,255,255,0.3)"}}>
-            <div className="flex items-center gap-2"><span style={{fontSize:14}}>{"\ud83c\udf93"}</span><span className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:13,color:GIM.headingText}}>Academy</span></div>
-            <button onClick={()=>onNavigate("academy")} className="text-xs font-semibold" style={{color:"#2D8A6E"}}>All Courses &rarr;</button>
-          </div>
-          {/* Featured courses — one from each tier */}
-          {[1,2,3,4].map(tier=>{
-            const tierCourse = availableCourses.find(c=>c.tier===tier);
-            if(!tierCourse) return null;
-            const tierLabels={1:"Foundations",2:"Protocols",3:"Production",4:"Frontier"};
+      {editorPicks.length>0 ? <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {editorPicks.map((pick,i)=>{
+          const admin = isAdmin(currentUser);
+          // Resolve live data from source
+          let data;
+          if(pick.type==="debate"){
+            const session = forgeSessions?.find(s=>s.id===pick.sourceId);
+            const post = content?.find(p=>p.id===pick.sourceId);
+            const src = session||post;
+            const modeColors={debate:"#E8734A",ideate:"#3B6B9B",implement:"#2D8A6E"};
+            data={
+              title: src?.topic?.title||src?.title||pick.title,
+              icon:"\ud83e\uddf5", color: modeColors[session?.mode]||"#E8734A",
+              badge: session?.mode?.toUpperCase()||"DEBATE",
+              subtitle: session ? `${session.results?.panel?.agents?.length||0} agents \u00b7 ${session.results?.rounds?.length||0} rounds` : null,
+              date: session?.date ? new Date(session.date).toLocaleDateString() : null,
+              onClick: ()=>onNavigate(session?"forge":"post",pick.sourceId),
+            };
+          } else if(pick.type==="arena"){
+            const run = arenaRuns.find(r=>r.runId===pick.sourceId);
+            data={
+              title: run?.useCase?.title||pick.title,
+              icon:"\ud83c\udfd7\ufe0f", color:"#9333EA", badge:"ARENA",
+              subtitle: run ? `${run.team?.length||0} agents${run.metrics?.elapsedMs?" \u00b7 "+Math.round(run.metrics.elapsedMs/1000)+"s":""}` : null,
+              date: run?.completedAt ? new Date(run.completedAt).toLocaleDateString() : null,
+              onClick: ()=>onNavigate("arena",pick.sourceId),
+            };
+          } else {
+            const course = ACADEMY_COURSES?.find(c=>c.id===pick.sourceId);
             const tierColors={1:"#3B6B9B",2:"#E8734A",3:"#9333EA",4:"#2D8A6E"};
-            return <div key={tier} onClick={()=>onNavigate("academy")} className="px-4 py-2.5 cursor-pointer transition-all hover:bg-white/30" style={{borderBottom:"1px solid rgba(255,255,255,0.2)"}}>
-              <div className="flex items-center gap-2 mb-0.5">
-                <span style={{fontSize:12}}>{tierCourse.icon}</span>
-                <span className="font-bold" style={{fontSize:9,color:tierColors[tier],letterSpacing:"0.04em"}}>TIER {tier}: {tierLabels[tier]?.toUpperCase()}</span>
+            data={
+              title: course?.title||pick.title,
+              icon: course?.icon||"\ud83c\udf93", color: tierColors[course?.tier]||"#2D8A6E",
+              badge: course ? `TIER ${course.tier}` : "COURSE",
+              subtitle: course ? `${course.timeMinutes}min \u00b7 ${course.difficulty}` : null,
+              date: null,
+              onClick: ()=>onNavigate("academy"),
+            };
+          }
+          return <FadeIn key={pick.id} delay={i*40}><div className="glass-card rounded-xl overflow-hidden cursor-pointer transition-all hover:shadow-md group relative" onClick={data.onClick} style={{borderLeft:`3px solid ${data.color}`}}>
+            {admin&&<button onClick={e=>{e.stopPropagation();if(window.confirm("Remove this pick?"))removeEditorPick(pick.id)}} className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50" style={{fontSize:12,color:GIM.mutedText,background:"rgba(255,255,255,0.8)",backdropFilter:"blur(4px)",zIndex:2}} title="Remove pick">{"\u2715"}</button>}
+            <div className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="font-bold px-2 py-0.5 rounded-full" style={{fontSize:9,letterSpacing:"0.04em",background:`${data.color}10`,color:data.color,border:`1px solid ${data.color}20`}}>{data.badge}</span>
+                {data.date&&<span style={{fontSize:10,color:GIM.mutedText}}>{data.date}</span>}
               </div>
-              <div className="font-medium" style={{fontSize:12,color:GIM.headingText,fontFamily:GIM.fontMain}}>{tierCourse.title}</div>
-              <div style={{fontSize:10,color:GIM.mutedText}}>{tierCourse.timeMinutes}min &middot; {tierCourse.difficulty}</div>
+              <div className="flex items-center gap-2.5">
+                <span style={{fontSize:18}}>{data.icon}</span>
+                <h4 className="font-semibold" style={{fontFamily:GIM.fontMain,fontSize:14,color:GIM.headingText,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{data.title}</h4>
+              </div>
+              {data.subtitle&&<p className="mt-2" style={{fontSize:11,color:GIM.mutedText}}>{data.subtitle}</p>}
             </div>
-          })}
-          <div className="p-3 text-center" style={{background:"rgba(45,138,110,0.03)"}}>
-            <span style={{fontSize:11,color:GIM.mutedText,fontFamily:GIM.fontMain}}>{courseCount} courses across 4 tiers</span>
-          </div>
-        </div></FadeIn>
+          </div></FadeIn>;
+        })}
       </div>
+      : <FadeIn><div className="glass-card rounded-2xl p-8 text-center">
+          <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{background:"rgba(147,51,234,0.06)",fontSize:24,border:"1px solid rgba(147,51,234,0.1)"}}>{"\ud83d\udccc"}</div>
+          <p className="font-medium mb-1" style={{fontSize:14,color:GIM.headingText,fontFamily:GIM.fontMain}}>
+            {isAdmin(currentUser) ? "No picks yet" : "Curated picks coming soon"}
+          </p>
+          <p className="mb-4" style={{fontSize:12,color:GIM.mutedText,lineHeight:1.5}}>
+            {isAdmin(currentUser) ? "Showcase the best debates, builds, and courses from the platform." : "The editor is curating the best content from the platform."}
+          </p>
+          {isAdmin(currentUser)&&<button onClick={()=>setShowPickModal(true)} className="px-5 py-2 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:GIM.primary,color:"white",boxShadow:"0 2px 12px rgba(147,51,234,0.2)"}}>Add your first pick &rarr;</button>}
+        </div></FadeIn>}
     </section>
+
+    {/* ===== ADD PICK MODAL ===== */}
+    {showPickModal&&<div className="fixed inset-0 z-50 flex items-center justify-center" style={{background:"rgba(0,0,0,0.4)",backdropFilter:"blur(4px)",WebkitBackdropFilter:"blur(4px)"}} onClick={e=>{if(e.target===e.currentTarget)setShowPickModal(false)}}>
+      <div className="glass-card rounded-2xl w-full mx-4" style={{maxWidth:540,maxHeight:"85vh",display:"flex",flexDirection:"column",boxShadow:"0 20px 60px rgba(0,0,0,0.15)"}}>
+        {/* Header */}
+        <div className="p-5 pb-3 flex items-center justify-between" style={{borderBottom:"1px solid rgba(255,255,255,0.3)"}}>
+          <div>
+            <h3 className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:17,color:GIM.headingText}}>Add Editor&rsquo;s Pick</h3>
+            <p style={{fontSize:11,color:GIM.mutedText}}>Select content to feature on the homepage</p>
+          </div>
+          <button onClick={()=>setShowPickModal(false)} className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-white/50" style={{fontSize:16,color:GIM.mutedText}}>{"\u2715"}</button>
+        </div>
+        {/* Tab bar */}
+        <div className="flex gap-1 px-5 pt-3">
+          {[{key:"debate",label:"Debates",icon:"\ud83e\uddf5",color:"#E8734A"},{key:"arena",label:"Arena",icon:"\ud83c\udfd7\ufe0f",color:"#9333EA"},{key:"course",label:"Academy",icon:"\ud83c\udf93",color:"#2D8A6E"}].map(tab=>
+            <button key={tab.key} onClick={()=>setPickTab(tab.key)} className="px-3 py-2 rounded-lg font-semibold text-xs transition-all" style={{background:pickTab===tab.key?`${tab.color}12`:"transparent",color:pickTab===tab.key?tab.color:GIM.mutedText,border:pickTab===tab.key?`1px solid ${tab.color}20`:"1px solid transparent"}}>
+              <span style={{marginRight:4}}>{tab.icon}</span>{tab.label}
+            </button>
+          )}
+        </div>
+        {/* Scrollable list */}
+        <div className="flex-1 overflow-y-auto px-5 py-3" style={{maxHeight:400}}>
+          {pickTab==="debate"&&(()=>{
+            const items = (forgeSessions||[]).filter(s=>s.topic?.title);
+            if(items.length===0) return <div className="py-8 text-center"><p style={{fontSize:12,color:GIM.mutedText}}>No debates available yet</p></div>;
+            return items.map(s=>{
+              const already = editorPicks.some(p=>p.sourceId===s.id);
+              const modeColors={debate:"#E8734A",ideate:"#3B6B9B",implement:"#2D8A6E"};
+              return <div key={s.id} className="flex items-center justify-between py-3" style={{borderBottom:"1px solid rgba(0,0,0,0.05)"}}>
+                <div className="flex-1 min-w-0 pr-3">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="font-bold" style={{fontSize:9,color:modeColors[s.mode]||GIM.mutedText,textTransform:"uppercase"}}>{s.mode}</span>
+                    <span style={{fontSize:9,color:GIM.mutedText}}>{new Date(s.date).toLocaleDateString()}</span>
+                  </div>
+                  <div className="font-medium" style={{fontSize:13,color:GIM.headingText,fontFamily:GIM.fontMain,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.topic?.title}</div>
+                  <div style={{fontSize:10,color:GIM.mutedText}}>{s.results?.panel?.agents?.length||0} agents &middot; {s.results?.rounds?.length||0} rounds</div>
+                </div>
+                {already
+                  ? <span className="px-3 py-1.5 rounded-lg font-semibold text-xs" style={{color:"#2D8A6E",background:"rgba(45,138,110,0.06)",border:"1px solid rgba(45,138,110,0.1)"}}>Added {"\u2713"}</span>
+                  : <button onClick={()=>addEditorPick({id:"ep_"+Date.now(),type:"debate",sourceId:s.id,title:s.topic?.title||"Untitled",addedAt:Date.now()})} className="px-3 py-1.5 rounded-lg font-semibold text-xs transition-all hover:shadow-sm" style={{background:GIM.primary,color:"white"}}>Add</button>
+                }
+              </div>;
+            });
+          })()}
+          {pickTab==="arena"&&(()=>{
+            if(arenaRuns.length===0) return <div className="py-8 text-center"><p style={{fontSize:12,color:GIM.mutedText}}>No arena runs available yet</p></div>;
+            return arenaRuns.map(run=>{
+              const already = editorPicks.some(p=>p.sourceId===run.runId);
+              return <div key={run.runId} className="flex items-center justify-between py-3" style={{borderBottom:"1px solid rgba(0,0,0,0.05)"}}>
+                <div className="flex-1 min-w-0 pr-3">
+                  <div className="font-medium" style={{fontSize:13,color:GIM.headingText,fontFamily:GIM.fontMain,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{run.useCase?.title||"Untitled Build"}</div>
+                  <div className="flex items-center gap-2" style={{fontSize:10,color:GIM.mutedText}}>
+                    <span>{run.team?.length||0} agents</span>
+                    {run.metrics?.elapsedMs&&<span>{Math.round(run.metrics.elapsedMs/1000)}s</span>}
+                    {run.completedAt&&<span>{new Date(run.completedAt).toLocaleDateString()}</span>}
+                  </div>
+                </div>
+                {already
+                  ? <span className="px-3 py-1.5 rounded-lg font-semibold text-xs" style={{color:"#2D8A6E",background:"rgba(45,138,110,0.06)",border:"1px solid rgba(45,138,110,0.1)"}}>Added {"\u2713"}</span>
+                  : <button onClick={()=>addEditorPick({id:"ep_"+Date.now(),type:"arena",sourceId:run.runId,title:run.useCase?.title||"Untitled",addedAt:Date.now()})} className="px-3 py-1.5 rounded-lg font-semibold text-xs transition-all hover:shadow-sm" style={{background:"#9333EA",color:"white"}}>Add</button>
+                }
+              </div>;
+            });
+          })()}
+          {pickTab==="course"&&(()=>{
+            const courses = ACADEMY_COURSES?.filter(c=>c.status==="available")||[];
+            if(courses.length===0) return <div className="py-8 text-center"><p style={{fontSize:12,color:GIM.mutedText}}>No courses available yet</p></div>;
+            const tierColors={1:"#3B6B9B",2:"#E8734A",3:"#9333EA",4:"#2D8A6E"};
+            return courses.map(c=>{
+              const already = editorPicks.some(p=>p.sourceId===c.id);
+              return <div key={c.id} className="flex items-center justify-between py-3" style={{borderBottom:"1px solid rgba(0,0,0,0.05)"}}>
+                <div className="flex-1 min-w-0 pr-3">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span style={{fontSize:13}}>{c.icon}</span>
+                    <span className="font-bold" style={{fontSize:9,color:tierColors[c.tier],letterSpacing:"0.04em"}}>TIER {c.tier}</span>
+                  </div>
+                  <div className="font-medium" style={{fontSize:13,color:GIM.headingText,fontFamily:GIM.fontMain}}>{c.title}</div>
+                  <div style={{fontSize:10,color:GIM.mutedText}}>{c.timeMinutes}min &middot; {c.difficulty}</div>
+                </div>
+                {already
+                  ? <span className="px-3 py-1.5 rounded-lg font-semibold text-xs" style={{color:"#2D8A6E",background:"rgba(45,138,110,0.06)",border:"1px solid rgba(45,138,110,0.1)"}}>Added {"\u2713"}</span>
+                  : <button onClick={()=>addEditorPick({id:"ep_"+Date.now(),type:"course",sourceId:c.id,title:c.title,addedAt:Date.now()})} className="px-3 py-1.5 rounded-lg font-semibold text-xs transition-all hover:shadow-sm" style={{background:"#2D8A6E",color:"white"}}>Add</button>
+                }
+              </div>;
+            });
+          })()}
+        </div>
+      </div>
+    </div>}
 
     {/* ===== ON THE HORIZON (compact) ===== */}
     <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-10">

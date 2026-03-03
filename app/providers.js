@@ -28,6 +28,7 @@ export function AppProvider({ children }) {
   const [registry, setRegistry] = useState(null);
   const [registryIndex, setRegistryIndex] = useState({ byDomain: {}, byId: {}, bySpec: {} });
   const [forgeSessions, setForgeSessions] = useState([]);
+  const [editorPicks, setEditorPicks] = useState([]);
   const [forgePreload, setForgePreload] = useState(null);
 
   // UI state
@@ -68,6 +69,8 @@ export function AppProvider({ children }) {
       setProjects(missingProjects.length > 0 ? [...sp, ...missingProjects] : sp);
     }
     if (sfs) setForgeSessions(sfs);
+    const sep = DB.get("editor_picks_v1", null);
+    if (sep) setEditorPicks(sep);
     setLoaded(true);
   }, []);
 
@@ -82,8 +85,9 @@ export function AppProvider({ children }) {
         mod.loadContent(null), mod.loadThemes(null),
         mod.loadArticles(null), mod.loadForgeSessions(null),
         mod.loadAgents(null), mod.loadProjects(null),
+        mod.loadEditorPicks(null),
       ]).then(results => {
-        const [fc, ft, fa, ffs, fag, fp] = results.map(r => r.status === 'fulfilled' ? r.value : null);
+        const [fc, ft, fa, ffs, fag, fp, fep] = results.map(r => r.status === 'fulfilled' ? r.value : null);
         // Firestore-authoritative: when Firestore returns data, it REPLACES local state.
         // Only merge INIT_CONTENT seeds that aren't in Firestore yet.
         if (fc?.source === 'firestore' && fc?.data?.length > 0) {
@@ -114,6 +118,7 @@ export function AppProvider({ children }) {
             return [...fpData, ...localOnly, ...seeds];
           });
         }
+        if (fep?.source === 'firestore') setEditorPicks(fep.data || []);
       });
     }).catch(() => {});
   }, [loaded]);
@@ -134,6 +139,7 @@ export function AppProvider({ children }) {
   useEffect(() => { if (loaded) persistWithTimestamp("agents_v1", agents, "agents"); }, [agents, loaded, persistWithTimestamp]);
   useEffect(() => { if (loaded) persistWithTimestamp("projects_v1", projects, "projects"); }, [projects, loaded, persistWithTimestamp]);
   useEffect(() => { if (loaded) persistWithTimestamp("forge_sessions_v1", forgeSessions, "forge_sessions"); }, [forgeSessions, loaded, persistWithTimestamp]);
+  useEffect(() => { if (loaded) persistWithTimestamp("editor_picks_v1", editorPicks, "editor_picks"); }, [editorPicks, loaded, persistWithTimestamp]);
 
   // Cross-tab conflict detection: reload state when another tab writes to localStorage.
   // The 'storage' event only fires in OTHER tabs, not the one that wrote.
@@ -145,6 +151,7 @@ export function AppProvider({ children }) {
       re3_agents_v1: (d) => { if (Array.isArray(d) && d.length > 0) setAgents(d); },
       re3_projects_v1: setProjects,
       re3_forge_sessions_v1: setForgeSessions,
+      re3_editor_picks_v1: setEditorPicks,
     };
 
     const handleStorage = (e) => {
@@ -249,13 +256,15 @@ export function AppProvider({ children }) {
   const deleteProject = (id) => setProjects(prev => prev.filter(p => p.id !== id));
   const saveForgeSession = (session) => setForgeSessions(prev => [session, ...prev]);
   const deleteForgeSession = (id) => setForgeSessions(prev => prev.filter(s => s.id !== id));
+  const addEditorPick = (pick) => setEditorPicks(prev => [pick, ...prev]);
+  const removeEditorPick = (id) => setEditorPicks(prev => prev.filter(p => p.id !== id));
   const navToForge = (topic) => { setForgePreload(topic); nav("forge"); };
   const logout = async () => { await firebaseSignOut(); setUser(null); DB.clear("user"); };
 
   const value = {
     // State
     user, content, themes, articles, agents, projects,
-    registry, registryIndex, forgeSessions, forgePreload,
+    registry, registryIndex, forgeSessions, editorPicks, forgePreload,
     showLogin, loaded,
     // Setters (for login modal etc.)
     setUser, setShowLogin, setForgePreload,
@@ -264,7 +273,7 @@ export function AppProvider({ children }) {
     archiveCycle, autoComment, voteTheme, addTheme, editTheme,
     deleteTheme, saveArticle, deleteArticle, saveAgent, deleteAgent,
     saveProject, deleteProject, saveForgeSession, deleteForgeSession,
-    navToForge, logout,
+    addEditorPick, removeEditorPick, navToForge, logout,
   };
 
   if (!loaded) return null;

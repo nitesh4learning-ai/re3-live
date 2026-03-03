@@ -28,6 +28,7 @@ export function syncToFirestore(type, data) {
       case 'agents': mod.saveAgents(data); break;
       case 'projects': mod.saveProjects(data); break;
       case 'forge_sessions': mod.saveForgeSessions(data); break;
+      case 'editor_picks': mod.saveEditorPicks(data); break;
     }
   }).catch(() => {});
 }
