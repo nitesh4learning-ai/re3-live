@@ -7,7 +7,7 @@ export function pageToPath(pg, id) {
     case "studio": return "/studio";
     case "agent-community": return "/agents";
     case "forge": return id ? `/forge/${id}` : "/forge";
-    case "academy": return "/academy";
+    case "academy": return id ? `/academy/${id}` : "/academy";
     case "write": return "/write";
     case "debates": return "/debates";
     case "search": return "/search";
@@ -29,6 +29,7 @@ export function pathToPage(pathname) {
   if (p === "/agents") return { page: "agent-community", pageId: null };
   if (p.startsWith("/forge/")) return { page: "forge", pageId: p.slice(7) };
   if (p === "/forge") return { page: "forge", pageId: null };
+  if (p.startsWith("/academy/")) return { page: "academy", pageId: p.slice(9) };
   if (p === "/academy") return { page: "academy", pageId: null };
   if (p === "/write") return { page: "write", pageId: null };
   if (p === "/debates") return { page: "debates", pageId: null };

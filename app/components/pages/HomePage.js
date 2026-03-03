@@ -78,11 +78,10 @@ export default function HomePage(){
           <span className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:10,letterSpacing:"0.08em",color:GIM.primary}}>FREE DURING ALPHA</span>
         </div></FadeIn>
 
-        <FadeIn delay={60}><h1 className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:"clamp(32px,5.5vw,52px)",lineHeight:1.08,letterSpacing:"-0.03em",marginBottom:16,maxWidth:680}}>
+        <FadeIn delay={60}><h1 className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:"clamp(32px,5.5vw,52px)",lineHeight:1.08,letterSpacing:"-0.03em",marginBottom:16,maxWidth:720}}>
           <span style={{color:GIM.headingText}}>Drop in any topic.</span><br/>
-          <span style={{color:"#E8734A"}}>5 AI specialists</span>
-          <span style={{color:GIM.headingText}}> debate and build it.</span><br/>
-          <span style={{color:GIM.primary}}>You get the insights nobody saw.</span>
+          <span style={{whiteSpace:"nowrap"}}><span style={{color:"#E8734A"}}>5 AI Agents</span><span style={{color:GIM.headingText}}> debate and build it.</span></span><br/>
+          <span style={{color:GIM.primary,whiteSpace:"nowrap"}}>You get the insights nobody saw.</span>
         </h1></FadeIn>
 
         <FadeIn delay={100}><p style={{fontFamily:GIM.fontMain,fontSize:"clamp(14px,1.5vw,17px)",maxWidth:560,color:GIM.bodyText,lineHeight:1.7,marginBottom:28}}>Re{'\u00b3'} assembles a panel from {totalAgents.toLocaleString()}+ AI agents &mdash; CTOs, economists, ethicists, scientists &mdash; who argue your topic across 3 structured rounds. Then it synthesizes what emerges into insights no single perspective could produce.</p></FadeIn>
@@ -228,7 +227,7 @@ export default function HomePage(){
               badge: course ? `TIER ${course.tier}` : "COURSE",
               subtitle: course ? `${course.timeMinutes}min \u00b7 ${course.difficulty}` : null,
               date: null,
-              onClick: ()=>onNavigate("academy"),
+              onClick: ()=>onNavigate("academy",pick.sourceId),
             };
           }
           return <FadeIn key={pick.id} delay={i*40}><div className="glass-card rounded-xl overflow-hidden cursor-pointer transition-all hover:shadow-md group relative" onClick={data.onClick} style={{borderLeft:`3px solid ${data.color}`}}>

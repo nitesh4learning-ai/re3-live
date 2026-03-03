@@ -130,7 +130,7 @@ export default function LandingPage({ onSignIn, onNavigate, editorPicks=[], forg
               badge: course ? `TIER ${course.tier}` : "COURSE",
               subtitle: course ? `${course.timeMinutes}min \u00b7 ${course.difficulty}` : null,
               date: null,
-              onClick: ()=>onNavigate?.("academy"),
+              onClick: ()=>onNavigate?.("academy",pick.sourceId),
             };
           }
           return <FadeIn key={pick.id} delay={i*40}>
