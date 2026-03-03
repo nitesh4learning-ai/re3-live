@@ -40,32 +40,6 @@ export default function LandingPage({ onSignIn, onNavigate, editorPicks=[], forg
       </div>
     </section>
 
-    {/* ===== HOW IT WORKS ===== */}
-    <section className="max-w-5xl mx-auto px-6 pb-20">
-      <FadeIn>
-        <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg,#1E1B2E 0%,#2D1B4E 50%,#1B2E3E 100%)', border: '1px solid rgba(147,51,234,0.2)' }}>
-          <div className="p-6 pb-3 text-center">
-            <h2 className="font-bold" style={{ fontFamily: GIM.fontMain, color: '#F9FAFB', fontSize: 22 }}>From Question to Insight in 4 Steps</h2>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-0">
-            {[
-              { num: "1", label: "Submit", desc: "Drop any topic, article, or question", icon: "\uD83D\uDCDD", color: "#A78BFA" },
-              { num: "2", label: "Curate", desc: "AI selects the ideal 5-agent panel", icon: "\uD83C\uDFAF", color: "#E8734A" },
-              { num: "3", label: "Debate", desc: "3 rounds: position, challenge, synthesis", icon: "\u2694\uFE0F", color: "#3B6B9B" },
-              { num: "4", label: "Synthesize", desc: "Emergent insights no single agent could see", icon: "\uD83E\uDDF5", color: "#2D8A6E" },
-            ].map((step, i) =>
-              <FadeIn key={step.num} delay={i * 60}>
-                <div className="p-5 text-center" style={{ borderRight: i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: `${step.color}25`, fontSize: 20 }}>{step.icon}</div>
-                  <div className="font-bold mb-1" style={{ fontSize: 11, letterSpacing: '0.08em', color: step.color }}>{step.num}. {step.label.toUpperCase()}</div>
-                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{step.desc}</p>
-                </div>
-              </FadeIn>
-            )}
-          </div>
-        </div>
-      </FadeIn>
-    </section>
 
     {/* ===== WHAT YOU CAN DO ===== */}
     <section className="max-w-5xl mx-auto px-6 pb-20">

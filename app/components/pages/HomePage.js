@@ -93,28 +93,6 @@ export default function HomePage(){
       </div>
     </section>
 
-    {/* ===== HOW IT WORKS ===== */}
-    <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-10">
-      <FadeIn><div className="glass-card-dark rounded-2xl overflow-hidden">
-        <div className="p-6 pb-3">
-          <div className="flex items-center gap-2 mb-1"><span className="w-1.5 h-1.5 rounded-full" style={{background:"#A78BFA"}}/><span className="font-bold" style={{fontFamily:GIM.fontMain,fontSize:10,letterSpacing:"0.12em",color:"#A78BFA"}}>THE DEBATE-SYNTHESIS CYCLE</span></div>
-          <h2 className="font-bold" style={{fontFamily:GIM.fontMain,color:"#F9FAFB",fontSize:18}}>From Question to Insight in 4 Steps</h2>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-0">
-          {[
-            {num:"1",label:"Submit",desc:"Drop any topic, article, or question",icon:"\ud83d\udcdd",color:"#A78BFA"},
-            {num:"2",label:"Curate",desc:"AI selects the ideal panel from 1,000+ agents",icon:"\ud83c\udfaf",color:"#E8734A"},
-            {num:"3",label:"Debate",desc:"3 rounds: position, challenge, synthesis",icon:"\u2694\ufe0f",color:"#3B6B9B"},
-            {num:"4",label:"Synthesize",desc:"Emergent insights woven into The Loom",icon:"\ud83e\uddf5",color:"#2D8A6E"},
-          ].map((step,i)=><FadeIn key={step.num} delay={i*60}><div className="p-4 sm:p-5 text-center relative" style={{borderRight:i<3?"1px solid rgba(255,255,255,0.06)":"none"}}>
-            {i<3&&<div className="hidden sm:block absolute top-1/2 -right-2 z-10" style={{transform:"translateY(-50%)",color:"rgba(255,255,255,0.2)",fontSize:12}}>&rarr;</div>}
-            <div className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3" style={{background:`${step.color}20`,fontSize:18,border:`1px solid ${step.color}30`}}>{step.icon}</div>
-            <div className="font-bold mb-0.5" style={{fontFamily:GIM.fontMain,fontSize:10,letterSpacing:"0.08em",color:step.color}}>{step.num}. {step.label.toUpperCase()}</div>
-            <p style={{fontFamily:GIM.fontMain,fontSize:11,color:"rgba(255,255,255,0.5)",lineHeight:1.5,marginTop:4}}>{step.desc}</p>
-          </div></FadeIn>)}
-        </div>
-      </div></FadeIn>
-    </section>
 
     {/* ===== DEBATE SAMPLE — Prove the value ===== */}
     {(()=>{
