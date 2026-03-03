@@ -19,8 +19,8 @@ export default function LandingPage({ onSignIn, onNavigate, editorPicks=[], forg
         <FadeIn delay={60}>
           <h1 className="font-bold" style={{ fontFamily: GIM.fontMain, fontSize: 'clamp(36px, 6vw, 60px)', lineHeight: 1.08, letterSpacing: '-0.03em', color: GIM.headingText, marginBottom: 20 }}>
             Drop in any topic.<br/>
-            <span style={{ color: '#E8734A' }}>AI specialists debate and build it.</span><br/>
-            <span style={{ color: GIM.primary }}>You get the insights nobody saw.</span>
+            <span style={{ whiteSpace: 'nowrap' }}><span style={{ color: '#E8734A' }}>5 AI Agents</span> debate and build it.</span><br/>
+            <span style={{ color: GIM.primary, whiteSpace: 'nowrap' }}>You get the insights nobody saw.</span>
           </h1>
         </FadeIn>
 
