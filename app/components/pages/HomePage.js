@@ -264,10 +264,26 @@ export default function HomePage(){
     <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-10">
       <FadeIn><div className="flex items-center justify-between mb-2"><h3 className="font-bold" style={{fontFamily:GIM.fontMain,color:GIM.headingText,fontSize:16}}>Trending Topics</h3><p style={{fontSize:11,color:GIM.mutedText}}>Vote on what we explore next</p></div></FadeIn>
       <FadeIn delay={20}><div className="flex flex-wrap gap-2">
-        {themes.slice(0,6).map(th=><button key={th.id} onClick={()=>onVoteTheme(th.id)} className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-all" style={{background:th.voted?"rgba(232,115,74,0.08)":"rgba(255,255,255,0.55)",backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)",border:`1px solid ${th.voted?"rgba(232,115,74,0.25)":"rgba(255,255,255,0.5)"}`,boxShadow:"0 2px 8px rgba(0,0,0,0.04)"}} onMouseEnter={e=>{if(!th.voted)e.currentTarget.style.background="rgba(255,255,255,0.75)"}} onMouseLeave={e=>{if(!th.voted)e.currentTarget.style.background=th.voted?"rgba(232,115,74,0.08)":"rgba(255,255,255,0.55)"}}>
-          <span className="font-medium" style={{fontFamily:GIM.fontMain,color:GIM.headingText,fontSize:13}}>{th.title}</span>
-          <span className="font-bold px-1.5 py-0.5 rounded-full" style={{fontSize:10,background:th.voted?"rgba(232,115,74,0.15)":"rgba(0,0,0,0.04)",color:th.voted?"#E8734A":GIM.mutedText}}>{th.votes}</span>
-        </button>)}
+        {themes.slice(0,6).map(th=>{
+          const admin = isAdmin(currentUser);
+          // Inline edit mode
+          if(admin && editingTheme===th.id) return <div key={th.id} className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded-xl" style={{background:"rgba(255,255,255,0.75)",backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)",border:"1px solid rgba(147,51,234,0.25)",boxShadow:"0 2px 12px rgba(147,51,234,0.08)"}}>
+            <input autoFocus value={editThemeTxt} onChange={e=>setEditThemeTxt(e.target.value)} className="px-2 py-1 rounded-lg text-sm focus:outline-none" style={{fontFamily:GIM.fontMain,fontSize:13,color:GIM.headingText,background:"rgba(255,255,255,0.6)",border:"1px solid rgba(147,51,234,0.15)",width:Math.max(120,editThemeTxt.length*8+20)}} onKeyDown={e=>{if(e.key==="Enter"&&editThemeTxt.trim()){onEditTheme(th.id,editThemeTxt.trim());setEditingTheme(null)}if(e.key==="Escape")setEditingTheme(null)}}/>
+            <button onClick={()=>{if(editThemeTxt.trim()){onEditTheme(th.id,editThemeTxt.trim());setEditingTheme(null)}}} title="Save" className="p-1 rounded-md transition-all hover:bg-green-50" style={{fontSize:13,lineHeight:1}}>✓</button>
+            <button onClick={()=>setEditingTheme(null)} title="Cancel" className="p-1 rounded-md transition-all hover:bg-red-50" style={{fontSize:13,lineHeight:1,color:GIM.mutedText}}>✕</button>
+          </div>;
+          // Normal topic pill with admin controls
+          return <div key={th.id} className="inline-flex items-center gap-0 rounded-xl transition-all group" style={{background:th.voted?"rgba(232,115,74,0.08)":"rgba(255,255,255,0.55)",backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)",border:`1px solid ${th.voted?"rgba(232,115,74,0.25)":"rgba(255,255,255,0.5)"}`,boxShadow:"0 2px 8px rgba(0,0,0,0.04)"}} onMouseEnter={e=>{if(!th.voted)e.currentTarget.style.background="rgba(255,255,255,0.75)"}} onMouseLeave={e=>{e.currentTarget.style.background=th.voted?"rgba(232,115,74,0.08)":"rgba(255,255,255,0.55)"}}>
+            <button onClick={()=>onVoteTheme(th.id)} className="inline-flex items-center gap-2 px-3 py-2 text-sm">
+              <span className="font-medium" style={{fontFamily:GIM.fontMain,color:GIM.headingText,fontSize:13}}>{th.title}</span>
+              <span className="font-bold px-1.5 py-0.5 rounded-full" style={{fontSize:10,background:th.voted?"rgba(232,115,74,0.15)":"rgba(0,0,0,0.04)",color:th.voted?"#E8734A":GIM.mutedText}}>{th.votes}</span>
+            </button>
+            {admin&&<span className="inline-flex items-center gap-0.5 pr-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button onClick={e=>{e.stopPropagation();setEditingTheme(th.id);setEditThemeTxt(th.title)}} title="Edit topic" className="p-1 rounded-md transition-all hover:bg-purple-50" style={{fontSize:11,lineHeight:1,color:GIM.mutedText}}>✏️</button>
+              <button onClick={e=>{e.stopPropagation();if(window.confirm(`Delete "${th.title}"?`))onDeleteTheme(th.id)}} title="Delete topic" className="p-1 rounded-md transition-all hover:bg-red-50" style={{fontSize:11,lineHeight:1,color:GIM.mutedText}}>🗑️</button>
+            </span>}
+          </div>;
+        })}
         {themes.length>6&&<span className="self-center text-xs" style={{color:GIM.mutedText}}>+{themes.length-6} more</span>}
       </div></FadeIn>
       {currentUser&&<FadeIn delay={40}><div className="mt-3 flex gap-2">
