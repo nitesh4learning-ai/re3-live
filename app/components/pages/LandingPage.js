@@ -1,5 +1,6 @@
 "use client";
 import { FadeIn } from '../shared/UIComponents';
+import { listRuns as listArenaRuns } from '../../../lib/orchestration/run-store';
 
 const GIM = {
   primary:'#9333EA', fontMain:"'Inter',system-ui,sans-serif",
@@ -7,7 +8,8 @@ const GIM = {
   border:'#E5E7EB', cardBg:'#FFFFFF',
 };
 
-export default function LandingPage({ onSignIn, onNavigate }) {
+export default function LandingPage({ onSignIn, onNavigate, editorPicks=[], forgeSessions=[], content=[], academyCourses=[] }) {
+  const arenaRuns = listArenaRuns();
   return <div className="min-h-screen" style={{ background: '#FAFAFA', paddingTop: 56 }}>
 
     {/* ===== HERO ===== */}
@@ -87,6 +89,68 @@ export default function LandingPage({ onSignIn, onNavigate }) {
         )}
       </div>
     </section>
+
+    {/* ===== EDITOR'S PICKS ===== */}
+    {editorPicks.length>0&&<section className="max-w-5xl mx-auto px-6 pb-20">
+      <FadeIn>
+        <h2 className="font-bold text-center mb-2" style={{fontFamily:GIM.fontMain,fontSize:22,color:GIM.headingText}}>Editor&rsquo;s Picks</h2>
+        <p className="text-center mb-8" style={{fontSize:13,color:GIM.mutedText}}>Hand-picked highlights from the platform</p>
+      </FadeIn>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {editorPicks.map((pick,i)=>{
+          let data;
+          if(pick.type==="debate"){
+            const session = forgeSessions?.find(s=>s.id===pick.sourceId);
+            const post = content?.find(p=>p.id===pick.sourceId);
+            const src = session||post;
+            const modeColors={debate:"#E8734A",ideate:"#3B6B9B",implement:"#2D8A6E"};
+            data={
+              title: src?.topic?.title||src?.title||pick.title,
+              icon:"\ud83e\uddf5", color: modeColors[session?.mode]||"#E8734A",
+              badge: session?.mode?.toUpperCase()||"DEBATE",
+              subtitle: session ? `${session.results?.panel?.agents?.length||0} agents \u00b7 ${session.results?.rounds?.length||0} rounds` : null,
+              date: session?.date ? new Date(session.date).toLocaleDateString() : null,
+              onClick: ()=>onNavigate?.(session?"forge":"post",pick.sourceId),
+            };
+          } else if(pick.type==="arena"){
+            const run = arenaRuns.find(r=>r.runId===pick.sourceId);
+            data={
+              title: run?.useCase?.title||pick.title,
+              icon:"\ud83c\udfd7\ufe0f", color:"#9333EA", badge:"ARENA",
+              subtitle: run ? `${run.team?.length||0} agents${run.metrics?.elapsedMs?" \u00b7 "+Math.round(run.metrics.elapsedMs/1000)+"s":""}` : null,
+              date: run?.completedAt ? new Date(run.completedAt).toLocaleDateString() : null,
+              onClick: ()=>onNavigate?.("arena",pick.sourceId),
+            };
+          } else {
+            const course = academyCourses?.find(c=>c.id===pick.sourceId);
+            const tierColors={1:"#3B6B9B",2:"#E8734A",3:"#9333EA",4:"#2D8A6E"};
+            data={
+              title: course?.title||pick.title,
+              icon: course?.icon||"\ud83c\udf93", color: tierColors[course?.tier]||"#2D8A6E",
+              badge: course ? `TIER ${course.tier}` : "COURSE",
+              subtitle: course ? `${course.timeMinutes}min \u00b7 ${course.difficulty}` : null,
+              date: null,
+              onClick: ()=>onNavigate?.("academy"),
+            };
+          }
+          return <FadeIn key={pick.id} delay={i*40}>
+            <div className="rounded-xl overflow-hidden cursor-pointer transition-all hover:shadow-md" onClick={data.onClick} style={{background:GIM.cardBg,border:`1px solid ${GIM.border}`,borderLeft:`3px solid ${data.color}`}}>
+              <div className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="font-bold px-2 py-0.5 rounded-full" style={{fontSize:9,letterSpacing:"0.04em",background:`${data.color}10`,color:data.color,border:`1px solid ${data.color}20`}}>{data.badge}</span>
+                  {data.date&&<span style={{fontSize:10,color:GIM.mutedText}}>{data.date}</span>}
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <span style={{fontSize:18}}>{data.icon}</span>
+                  <h4 className="font-semibold" style={{fontFamily:GIM.fontMain,fontSize:14,color:GIM.headingText,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{data.title}</h4>
+                </div>
+                {data.subtitle&&<p className="mt-2" style={{fontSize:11,color:GIM.mutedText}}>{data.subtitle}</p>}
+              </div>
+            </div>
+          </FadeIn>;
+        })}
+      </div>
+    </section>}
 
     {/* ===== AGENT ROSTER TEASER ===== */}
     <section className="max-w-5xl mx-auto px-6 pb-20">

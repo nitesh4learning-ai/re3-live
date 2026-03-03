@@ -28,7 +28,7 @@ export default function HomePage(){
   // Show landing page for logged-out visitors
   if (!currentUser) {
     return <Suspense fallback={null}>
-      <LandingPage onSignIn={() => app.setShowLogin(true)} onNavigate={onNavigate} />
+      <LandingPage onSignIn={() => app.setShowLogin(true)} onNavigate={onNavigate} editorPicks={editorPicks||[]} forgeSessions={forgeSessions} content={content} academyCourses={ACADEMY_COURSES} />
     </Suspense>;
   }
 
