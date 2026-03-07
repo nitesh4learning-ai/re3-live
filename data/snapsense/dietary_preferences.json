@@ -1,0 +1,223 @@
+{
+  "version": "1.0.0",
+  "description": "Dietary preferences on-device storage schema for SnapSense. Stored ONLY in Hive (local), NEVER synced to Firestore. Passed to Claude as ephemeral context.",
+  "last_updated": "2026-03-07",
+  "privacy_policy": {
+    "storage": "device_only",
+    "sync_to_cloud": false,
+    "shared_with_third_parties": false,
+    "passed_to_llm": "ephemeral_context_only",
+    "llm_retention": "none",
+    "user_can_delete": true,
+    "delete_action": "clear_all_preferences",
+    "gdpr_compliant": true,
+    "hipaa_note": "Not a medical device. No PHI stored."
+  },
+  "storage_schema": {
+    "hive_box": "snapsense_dietary_prefs",
+    "schema_version": 1,
+    "fields": {
+      "allergens": {
+        "type": "list<string>",
+        "description": "User's declared food allergens",
+        "values": [
+          "peanuts",
+          "tree_nuts",
+          "milk",
+          "eggs",
+          "wheat",
+          "soy",
+          "fish",
+          "shellfish",
+          "sesame",
+          "mustard",
+          "celery",
+          "lupin",
+          "mollusks",
+          "sulfites",
+          "gluten",
+          "corn",
+          "latex_fruit"
+        ],
+        "ui": "multi_select_chips",
+        "required": false,
+        "default": []
+      },
+      "diet_type": {
+        "type": "string",
+        "description": "User's primary diet type",
+        "values": [
+          "none",
+          "vegetarian",
+          "vegan",
+          "pescatarian",
+          "keto",
+          "paleo",
+          "mediterranean",
+          "low_carb",
+          "low_fat",
+          "low_sodium",
+          "dash",
+          "whole30",
+          "gluten_free",
+          "kosher",
+          "halal",
+          "diabetic_friendly"
+        ],
+        "ui": "single_select_dropdown",
+        "required": false,
+        "default": "none"
+      },
+      "health_goals": {
+        "type": "list<string>",
+        "description": "User's health and nutrition goals",
+        "values": [
+          "weight_loss",
+          "weight_gain",
+          "muscle_building",
+          "heart_health",
+          "blood_sugar_control",
+          "gut_health",
+          "energy_boost",
+          "anti_inflammatory",
+          "bone_health",
+          "general_wellness"
+        ],
+        "ui": "multi_select_chips",
+        "max_selections": 3,
+        "required": false,
+        "default": []
+      },
+      "avoid_ingredients": {
+        "type": "list<string>",
+        "description": "Specific ingredients user wants to avoid (free-text)",
+        "ui": "tag_input",
+        "max_items": 20,
+        "required": false,
+        "default": [],
+        "examples": ["high fructose corn syrup", "MSG", "artificial sweeteners", "palm oil", "red dye 40"]
+      },
+      "household_members": {
+        "type": "list<object>",
+        "description": "Other household members whose allergens should trigger warnings",
+        "max_items": 6,
+        "item_schema": {
+          "name": "string",
+          "relationship": "string (child | partner | parent | pet_dog | pet_cat | other)",
+          "allergens": "list<string>",
+          "age_group": "string (infant | toddler | child | teen | adult | senior)"
+        },
+        "ui": "expandable_card_list",
+        "required": false,
+        "default": []
+      },
+      "has_pets": {
+        "type": "boolean",
+        "description": "Whether user has pets (triggers plant toxicity warnings for pets)",
+        "ui": "toggle",
+        "required": false,
+        "default": false
+      },
+      "pet_types": {
+        "type": "list<string>",
+        "description": "Types of pets owned",
+        "values": ["dog", "cat", "bird", "rabbit", "hamster", "fish", "reptile", "horse"],
+        "ui": "multi_select_chips",
+        "condition": "has_pets == true",
+        "required": false,
+        "default": []
+      },
+      "calorie_target_daily": {
+        "type": "number",
+        "description": "Optional daily calorie target",
+        "min": 800,
+        "max": 5000,
+        "ui": "number_input_with_slider",
+        "required": false,
+        "default": null
+      },
+      "prefer_organic": {
+        "type": "boolean",
+        "description": "Prefer organic alternatives when suggesting swaps",
+        "ui": "toggle",
+        "required": false,
+        "default": false
+      },
+      "eco_conscious": {
+        "type": "boolean",
+        "description": "Show eco-score and prefer eco-friendly alternatives",
+        "ui": "toggle",
+        "required": false,
+        "default": false
+      }
+    }
+  },
+  "allergen_detection_rules": {
+    "description": "How allergen data from preferences maps to product scans",
+    "trigger": "product.allergens intersects user.allergens",
+    "ui_response": {
+      "type": "warning_pill",
+      "color": "#D32F2F",
+      "icon": "warning",
+      "template": "Contains {allergen_name}",
+      "position": "top_of_card",
+      "dismissible": false,
+      "haptic_feedback": "heavy"
+    },
+    "allergen_label_mapping": {
+      "peanuts": ["peanut", "peanuts", "groundnut", "arachis hypogaea", "monkey nuts"],
+      "tree_nuts": ["almond", "almonds", "cashew", "walnut", "pecan", "pistachio", "macadamia", "hazelnut", "brazil nut", "pine nut", "chestnut", "tree nut", "tree nuts", "praline", "marzipan", "nougat"],
+      "milk": ["milk", "dairy", "lactose", "casein", "whey", "cream", "butter", "cheese", "yogurt", "ghee", "lactalbumin"],
+      "eggs": ["egg", "eggs", "albumin", "globulin", "lysozyme", "mayonnaise", "meringue", "ovalbumin", "ovomucin"],
+      "wheat": ["wheat", "flour", "bread", "breadcrumbs", "bulgur", "couscous", "durum", "einkorn", "emmer", "farina", "kamut", "semolina", "spelt", "triticale"],
+      "soy": ["soy", "soya", "soybean", "edamame", "miso", "tempeh", "tofu", "soy lecithin", "soy sauce"],
+      "fish": ["fish", "anchovy", "bass", "catfish", "cod", "flounder", "haddock", "hake", "halibut", "herring", "mahi", "perch", "pike", "pollock", "salmon", "sardine", "snapper", "sole", "swordfish", "tilapia", "trout", "tuna"],
+      "shellfish": ["shellfish", "crab", "crawfish", "crayfish", "lobster", "shrimp", "prawn", "clam", "mussel", "oyster", "scallop", "squid", "octopus"],
+      "sesame": ["sesame", "tahini", "halvah", "hummus"],
+      "gluten": ["gluten", "wheat", "barley", "rye", "oat", "spelt", "kamut", "triticale", "malt"]
+    },
+    "cross_contamination_phrases": [
+      "may contain",
+      "produced in a facility that also processes",
+      "manufactured on shared equipment",
+      "traces of",
+      "made in a factory"
+    ]
+  },
+  "claude_prompt_injection": {
+    "description": "How dietary preferences are passed to Claude Haiku as ephemeral context",
+    "template": "User dietary context (private, do not store): Allergens: [{allergens}]. Diet: {diet_type}. Goals: [{health_goals}]. Avoids: [{avoid_ingredients}]. Has pets: {has_pets} ({pet_types}). Consider these when making recommendations. Flag any allergen matches prominently.",
+    "max_tokens_for_context": 150,
+    "inject_only_when": ["product_recommendation", "alternative_suggestion", "meal_planning"],
+    "never_inject_when": ["animal_identification", "plant_identification_only", "barcode_lookup_only"]
+  },
+  "onboarding_flow": {
+    "description": "First-time user setup for dietary preferences",
+    "screens": [
+      {
+        "step": 1,
+        "title": "Any Allergies?",
+        "subtitle": "We'll warn you about products containing these allergens",
+        "field": "allergens",
+        "skip_allowed": true
+      },
+      {
+        "step": 2,
+        "title": "Following a Diet?",
+        "subtitle": "We'll personalize recommendations",
+        "field": "diet_type",
+        "skip_allowed": true
+      },
+      {
+        "step": 3,
+        "title": "Do You Have Pets?",
+        "subtitle": "We'll warn about plants and foods toxic to your pets",
+        "fields": ["has_pets", "pet_types"],
+        "skip_allowed": true
+      }
+    ],
+    "show_on_first_launch": true,
+    "can_edit_later": true,
+    "settings_path": "Settings > Dietary Preferences"
+  }
+}

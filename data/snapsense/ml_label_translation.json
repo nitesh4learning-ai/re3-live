@@ -1,0 +1,399 @@
+{
+  "version": "1.0.0",
+  "description": "ML Kit label → API search term translation layer. Bridges generic ML Kit labels to specific API query terms for USDA, Nutritionix, Open Food Facts, PlantNet, etc.",
+  "last_updated": "2026-03-07",
+  "strategy": {
+    "priority_order": [
+      "exact_match",
+      "label_map",
+      "compound_label_merge",
+      "claude_haiku_refine"
+    ],
+    "claude_haiku_cost_per_call": 0.0002,
+    "claude_haiku_timeout_ms": 2000,
+    "cache_translations": true,
+    "cache_ttl_hours": 720
+  },
+  "food_labels": {
+    "chocolate": {
+      "api_terms": {
+        "usda": "chocolate bar dark",
+        "nutritionix": "chocolate bar",
+        "open_food_facts": "chocolate"
+      },
+      "modifiers": {
+        "dark": { "usda": "dark chocolate bar 70% cocoa", "nutritionix": "dark chocolate" },
+        "milk": { "usda": "milk chocolate bar", "nutritionix": "milk chocolate" },
+        "white": { "usda": "white chocolate bar", "nutritionix": "white chocolate" },
+        "wrapper": { "use_barcode": true }
+      }
+    },
+    "bread": {
+      "api_terms": {
+        "usda": "bread white enriched",
+        "nutritionix": "white bread slice",
+        "open_food_facts": "bread"
+      },
+      "modifiers": {
+        "whole wheat": { "usda": "bread whole wheat", "nutritionix": "whole wheat bread" },
+        "sourdough": { "usda": "bread sourdough", "nutritionix": "sourdough bread" },
+        "rye": { "usda": "bread rye", "nutritionix": "rye bread" },
+        "baguette": { "usda": "bread french baguette", "nutritionix": "french baguette" }
+      }
+    },
+    "apple": {
+      "api_terms": {
+        "usda": "apple raw with skin",
+        "nutritionix": "apple",
+        "open_food_facts": "apple"
+      },
+      "modifiers": {
+        "green": { "usda": "apple granny smith raw", "nutritionix": "granny smith apple" },
+        "red": { "usda": "apple red delicious raw", "nutritionix": "red delicious apple" },
+        "juice": { "usda": "apple juice unsweetened", "nutritionix": "apple juice" }
+      }
+    },
+    "banana": {
+      "api_terms": {
+        "usda": "banana raw",
+        "nutritionix": "banana medium",
+        "open_food_facts": "banana"
+      }
+    },
+    "orange": {
+      "api_terms": {
+        "usda": "orange raw navel",
+        "nutritionix": "orange",
+        "open_food_facts": "orange"
+      },
+      "modifiers": {
+        "juice": { "usda": "orange juice fresh squeezed", "nutritionix": "orange juice" },
+        "mandarin": { "usda": "mandarin orange raw", "nutritionix": "mandarin orange" }
+      }
+    },
+    "pizza": {
+      "api_terms": {
+        "usda": "pizza cheese frozen",
+        "nutritionix": "cheese pizza slice",
+        "open_food_facts": "pizza"
+      },
+      "modifiers": {
+        "pepperoni": { "usda": "pizza pepperoni frozen", "nutritionix": "pepperoni pizza slice" },
+        "margherita": { "usda": "pizza margherita", "nutritionix": "margherita pizza slice" },
+        "veggie": { "usda": "pizza vegetable", "nutritionix": "veggie pizza slice" }
+      }
+    },
+    "hamburger": {
+      "api_terms": {
+        "usda": "hamburger beef patty bun",
+        "nutritionix": "hamburger",
+        "open_food_facts": "hamburger"
+      },
+      "modifiers": {
+        "cheese": { "usda": "cheeseburger", "nutritionix": "cheeseburger" },
+        "chicken": { "usda": "chicken burger patty", "nutritionix": "chicken burger" }
+      }
+    },
+    "salad": {
+      "api_terms": {
+        "usda": "salad greens raw",
+        "nutritionix": "garden salad",
+        "open_food_facts": "salad"
+      },
+      "modifiers": {
+        "caesar": { "usda": "caesar salad with dressing", "nutritionix": "caesar salad" },
+        "greek": { "usda": "greek salad", "nutritionix": "greek salad" }
+      }
+    },
+    "rice": {
+      "api_terms": {
+        "usda": "rice white long grain cooked",
+        "nutritionix": "white rice cooked",
+        "open_food_facts": "rice"
+      },
+      "modifiers": {
+        "brown": { "usda": "rice brown cooked", "nutritionix": "brown rice cooked" },
+        "fried": { "usda": "fried rice", "nutritionix": "fried rice" },
+        "sushi": { "usda": "rice sushi", "nutritionix": "sushi rice" }
+      }
+    },
+    "pasta": {
+      "api_terms": {
+        "usda": "pasta cooked enriched",
+        "nutritionix": "pasta cooked",
+        "open_food_facts": "pasta"
+      },
+      "modifiers": {
+        "spaghetti": { "usda": "spaghetti cooked", "nutritionix": "spaghetti" },
+        "penne": { "usda": "penne pasta cooked", "nutritionix": "penne pasta" },
+        "whole wheat": { "usda": "pasta whole wheat cooked", "nutritionix": "whole wheat pasta" }
+      }
+    },
+    "chicken": {
+      "api_terms": {
+        "usda": "chicken breast cooked roasted",
+        "nutritionix": "chicken breast grilled",
+        "open_food_facts": "chicken"
+      },
+      "modifiers": {
+        "fried": { "usda": "chicken fried breaded", "nutritionix": "fried chicken" },
+        "nuggets": { "usda": "chicken nuggets frozen cooked", "nutritionix": "chicken nuggets" },
+        "wings": { "usda": "chicken wing cooked", "nutritionix": "chicken wings" },
+        "thigh": { "usda": "chicken thigh cooked", "nutritionix": "chicken thigh" }
+      }
+    },
+    "egg": {
+      "api_terms": {
+        "usda": "egg whole cooked scrambled",
+        "nutritionix": "scrambled eggs",
+        "open_food_facts": "eggs"
+      },
+      "modifiers": {
+        "boiled": { "usda": "egg whole cooked hard boiled", "nutritionix": "hard boiled egg" },
+        "fried": { "usda": "egg whole cooked fried", "nutritionix": "fried egg" },
+        "raw": { "usda": "egg whole raw", "nutritionix": "raw egg" }
+      }
+    },
+    "milk": {
+      "api_terms": {
+        "usda": "milk whole 3.25%",
+        "nutritionix": "whole milk",
+        "open_food_facts": "milk"
+      },
+      "modifiers": {
+        "skim": { "usda": "milk nonfat skim", "nutritionix": "skim milk" },
+        "2%": { "usda": "milk reduced fat 2%", "nutritionix": "2% milk" },
+        "almond": { "usda": "almond milk unsweetened", "nutritionix": "almond milk" },
+        "oat": { "usda": "oat milk", "nutritionix": "oat milk" }
+      }
+    },
+    "cheese": {
+      "api_terms": {
+        "usda": "cheese cheddar",
+        "nutritionix": "cheddar cheese",
+        "open_food_facts": "cheese"
+      },
+      "modifiers": {
+        "mozzarella": { "usda": "cheese mozzarella whole milk", "nutritionix": "mozzarella cheese" },
+        "swiss": { "usda": "cheese swiss", "nutritionix": "swiss cheese" },
+        "cream": { "usda": "cream cheese", "nutritionix": "cream cheese" },
+        "parmesan": { "usda": "cheese parmesan grated", "nutritionix": "parmesan cheese" }
+      }
+    },
+    "yogurt": {
+      "api_terms": {
+        "usda": "yogurt plain whole milk",
+        "nutritionix": "plain yogurt",
+        "open_food_facts": "yogurt"
+      },
+      "modifiers": {
+        "greek": { "usda": "yogurt greek plain nonfat", "nutritionix": "greek yogurt" },
+        "fruit": { "usda": "yogurt fruit flavored lowfat", "nutritionix": "fruit yogurt" }
+      }
+    },
+    "cereal": {
+      "api_terms": {
+        "usda": "cereal ready to eat",
+        "nutritionix": "cereal",
+        "open_food_facts": "cereal"
+      },
+      "use_barcode_preferred": true
+    },
+    "chips": {
+      "api_terms": {
+        "usda": "potato chips plain salted",
+        "nutritionix": "potato chips",
+        "open_food_facts": "chips"
+      },
+      "modifiers": {
+        "tortilla": { "usda": "tortilla chips plain", "nutritionix": "tortilla chips" },
+        "barbecue": { "usda": "potato chips barbecue flavor", "nutritionix": "bbq chips" }
+      },
+      "use_barcode_preferred": true
+    },
+    "cookie": {
+      "api_terms": {
+        "usda": "cookie chocolate chip commercially prepared",
+        "nutritionix": "chocolate chip cookie",
+        "open_food_facts": "cookies"
+      },
+      "use_barcode_preferred": true
+    },
+    "candy": {
+      "api_terms": {
+        "usda": "candy hard",
+        "nutritionix": "candy",
+        "open_food_facts": "candy"
+      },
+      "use_barcode_preferred": true
+    },
+    "soda": {
+      "api_terms": {
+        "usda": "carbonated beverage cola",
+        "nutritionix": "cola soda",
+        "open_food_facts": "soda"
+      },
+      "use_barcode_preferred": true
+    },
+    "coffee": {
+      "api_terms": {
+        "usda": "coffee brewed",
+        "nutritionix": "black coffee",
+        "open_food_facts": "coffee"
+      },
+      "modifiers": {
+        "latte": { "usda": "coffee latte", "nutritionix": "latte" },
+        "cappuccino": { "usda": "coffee cappuccino", "nutritionix": "cappuccino" },
+        "iced": { "usda": "coffee iced", "nutritionix": "iced coffee" }
+      }
+    },
+    "steak": {
+      "api_terms": {
+        "usda": "beef steak cooked broiled",
+        "nutritionix": "steak",
+        "open_food_facts": "steak"
+      },
+      "modifiers": {
+        "ribeye": { "usda": "beef ribeye steak cooked", "nutritionix": "ribeye steak" },
+        "sirloin": { "usda": "beef sirloin steak cooked", "nutritionix": "sirloin steak" }
+      }
+    },
+    "fish": {
+      "api_terms": {
+        "usda": "fish fillet cooked",
+        "nutritionix": "fish fillet",
+        "open_food_facts": "fish"
+      },
+      "modifiers": {
+        "salmon": { "usda": "salmon atlantic cooked", "nutritionix": "salmon fillet" },
+        "tuna": { "usda": "tuna light canned", "nutritionix": "tuna" },
+        "cod": { "usda": "cod atlantic cooked", "nutritionix": "cod fillet" }
+      }
+    },
+    "sandwich": {
+      "api_terms": {
+        "usda": "sandwich with meat",
+        "nutritionix": "sandwich",
+        "open_food_facts": "sandwich"
+      },
+      "modifiers": {
+        "turkey": { "usda": "turkey sandwich", "nutritionix": "turkey sandwich" },
+        "ham": { "usda": "ham sandwich", "nutritionix": "ham sandwich" },
+        "grilled cheese": { "usda": "grilled cheese sandwich", "nutritionix": "grilled cheese" }
+      }
+    },
+    "ice cream": {
+      "api_terms": {
+        "usda": "ice cream vanilla",
+        "nutritionix": "vanilla ice cream",
+        "open_food_facts": "ice cream"
+      },
+      "modifiers": {
+        "chocolate": { "usda": "ice cream chocolate", "nutritionix": "chocolate ice cream" },
+        "strawberry": { "usda": "ice cream strawberry", "nutritionix": "strawberry ice cream" }
+      },
+      "use_barcode_preferred": true
+    }
+  },
+  "animal_labels": {
+    "dog": {
+      "search_terms": {
+        "akc": "{breed_name}",
+        "google": "{breed_name} dog breed care guide"
+      },
+      "breed_detection_flow": "ml_label → dog_breeds.json lookup → breed card"
+    },
+    "cat": {
+      "search_terms": {
+        "cfa": "{breed_name}",
+        "google": "{breed_name} cat breed care guide"
+      },
+      "breed_detection_flow": "ml_label → cat_breeds.json lookup → breed card"
+    },
+    "bird": {
+      "search_terms": {
+        "audubon": "{species_name}",
+        "google": "{species_name} bird identification"
+      }
+    },
+    "snake": {
+      "search_terms": {
+        "google": "{label} snake identification venomous"
+      },
+      "always_warn": true,
+      "warning": "Do not approach. Some snakes are venomous."
+    },
+    "spider": {
+      "search_terms": {
+        "google": "{label} spider identification dangerous"
+      },
+      "always_warn": true,
+      "warning": "Do not touch. Some spiders have medically significant bites."
+    }
+  },
+  "plant_labels": {
+    "_default": {
+      "search_terms": {
+        "plantnet": "{label}",
+        "google": "{label} plant identification"
+      },
+      "toxicity_check_flow": "ml_label → toxic_plants.json lookup → toxicity card"
+    },
+    "flower": {
+      "search_terms": {
+        "plantnet": "{label} flower",
+        "google": "{label} flower identification care"
+      }
+    },
+    "mushroom": {
+      "search_terms": {
+        "google": "{label} mushroom identification edible poisonous"
+      },
+      "always_warn": true,
+      "warning": "Never eat wild mushrooms without expert identification. Many deadly mushrooms resemble edible ones."
+    },
+    "tree": {
+      "search_terms": {
+        "plantnet": "{label} tree",
+        "google": "{label} tree identification"
+      }
+    }
+  },
+  "compound_label_rules": {
+    "description": "When ML Kit returns multiple labels for the same object, merge them into a more specific search term",
+    "rules": [
+      { "labels": ["food", "chocolate", "dark"], "merged_term": "dark chocolate bar" },
+      { "labels": ["food", "chocolate", "bar"], "merged_term": "chocolate candy bar" },
+      { "labels": ["food", "bread", "toast"], "merged_term": "toasted bread" },
+      { "labels": ["food", "cake", "chocolate"], "merged_term": "chocolate cake" },
+      { "labels": ["food", "soup", "bowl"], "merged_term": "bowl of soup" },
+      { "labels": ["drink", "bottle", "water"], "merged_term": "bottled water" },
+      { "labels": ["drink", "coffee", "cup"], "merged_term": "cup of coffee" },
+      { "labels": ["drink", "juice", "orange"], "merged_term": "orange juice" },
+      { "labels": ["animal", "dog", "puppy"], "merged_term": "puppy" },
+      { "labels": ["plant", "flower", "rose"], "merged_term": "rose flower" },
+      { "labels": ["plant", "cactus", "succulent"], "merged_term": "cactus succulent" },
+      { "labels": ["food", "meat", "raw"], "merged_term": "raw meat" },
+      { "labels": ["food", "vegetable", "green"], "merged_term": "green vegetables" },
+      { "labels": ["food", "fruit", "berry"], "merged_term": "mixed berries" },
+      { "labels": ["food", "noodle", "soup"], "merged_term": "noodle soup" },
+      { "labels": ["food", "sushi", "rice"], "merged_term": "sushi roll" },
+      { "labels": ["food", "taco", "meat"], "merged_term": "beef taco" },
+      { "labels": ["food", "burrito", "wrap"], "merged_term": "burrito" },
+      { "labels": ["food", "donut", "pastry"], "merged_term": "donut" },
+      { "labels": ["food", "muffin", "baked"], "merged_term": "muffin" }
+    ]
+  },
+  "claude_haiku_fallback": {
+    "description": "When label_map and compound rules fail, send labels to Claude Haiku for term refinement",
+    "enabled": true,
+    "model": "claude-haiku-4-5-20251001",
+    "max_input_tokens": 100,
+    "max_output_tokens": 50,
+    "estimated_cost_per_call": 0.0002,
+    "daily_budget_cap": 1.00,
+    "prompt_template": "You are a food/product identification assistant. Given these ML Kit labels: [{labels}] and confidence scores: [{scores}], return ONLY a specific search term for a nutrition API. Be specific (e.g., 'dark chocolate bar 70% cocoa' not 'chocolate'). Return just the search term, nothing else.",
+    "cache_results": true,
+    "cache_key_format": "haiku_translate_{sorted_labels_hash}"
+  }
+}

@@ -1,0 +1,239 @@
+{
+  "version": "1.0.0",
+  "description": "Conflict resolution rules when on-device score engine (Level 2) disagrees with Claude LLM (Level 3). Defines who wins in each scenario.",
+  "last_updated": "2026-03-07",
+  "architecture": {
+    "level_1": "ML Kit detection (POINT) — what is the object?",
+    "level_2": "On-device rule engine (SEE/SNAP) — score, flag, classify",
+    "level_3": "Claude LLM (SNAP/ACT) — contextual reasoning, recommendations",
+    "conflict_point": "Level 2 says 'swap' (score < 50) but Level 3 says 'product_buy' — who wins?"
+  },
+  "resolution_rules": [
+    {
+      "id": "cr_001",
+      "name": "safety_always_wins",
+      "description": "Safety-related flags from ANY level override purchase recommendations",
+      "priority": 0,
+      "condition": {
+        "any_level_flags": ["allergen_detected", "toxic", "recalled", "choking_hazard", "medication_interaction"]
+      },
+      "resolution": "block_action",
+      "winner": "safety_system",
+      "ui_action": "show_safety_warning_modal",
+      "override_allowed": false,
+      "example": "User allergic to peanuts → even if Claude says 'great product', show allergen warning"
+    },
+    {
+      "id": "cr_002",
+      "name": "score_low_llm_buy",
+      "description": "Score engine says unhealthy (< 50), Claude recommends buying",
+      "priority": 1,
+      "condition": {
+        "score_range": [0, 49],
+        "llm_action": "product_buy"
+      },
+      "resolution": "llm_overrides_if_delta_gt_20",
+      "details": {
+        "if_llm_explains_context": true,
+        "explanation": "If Claude provides contextual reasoning (e.g., 'good for post-workout recovery despite sugar content'), LLM wins. Otherwise score wins.",
+        "score_delta_threshold": 20,
+        "require_llm_justification": true,
+        "fallback_if_no_justification": "score_wins"
+      },
+      "winner": "conditional",
+      "ui_action": "show_both_perspectives",
+      "ui_template": {
+        "score_view": "Health Score: {score}/100 — Consider alternatives",
+        "llm_view": "{llm_explanation}",
+        "user_choice": true
+      }
+    },
+    {
+      "id": "cr_003",
+      "name": "score_high_llm_swap",
+      "description": "Score engine says healthy (>= 70), Claude recommends swapping",
+      "priority": 2,
+      "condition": {
+        "score_range": [70, 100],
+        "llm_action": "product_swap"
+      },
+      "resolution": "llm_wins",
+      "details": {
+        "explanation": "Claude may have dietary preference context (e.g., user is keto, so high-carb item should be swapped even if generally healthy)",
+        "require_user_prefs": true
+      },
+      "winner": "llm",
+      "ui_action": "show_swap_suggestion_with_score",
+      "ui_template": {
+        "score_view": "Health Score: {score}/100",
+        "llm_view": "Based on your {diet_type} diet: {llm_swap_reason}",
+        "alternative": "{llm_alternative}"
+      }
+    },
+    {
+      "id": "cr_004",
+      "name": "score_mid_llm_agree",
+      "description": "Both agree the product is moderate (score 50-69)",
+      "priority": 3,
+      "condition": {
+        "score_range": [50, 69],
+        "llm_action": ["product_info", "product_buy", "product_swap"]
+      },
+      "resolution": "merge_both",
+      "winner": "combined",
+      "ui_action": "show_balanced_card",
+      "ui_template": {
+        "score_view": "Health Score: {score}/100",
+        "llm_view": "{llm_summary}",
+        "actions": ["buy", "find_alternative", "learn_more"]
+      }
+    },
+    {
+      "id": "cr_005",
+      "name": "no_score_llm_only",
+      "description": "Score engine has no data (fresh produce, unpackaged food), LLM provides info",
+      "priority": 4,
+      "condition": {
+        "score": null,
+        "llm_response_present": true
+      },
+      "resolution": "llm_wins",
+      "winner": "llm",
+      "ui_action": "show_llm_card_only",
+      "cache_llm_response": true
+    },
+    {
+      "id": "cr_006",
+      "name": "no_llm_score_only",
+      "description": "LLM call failed or timed out, only score engine data available",
+      "priority": 5,
+      "condition": {
+        "score_present": true,
+        "llm_response": null
+      },
+      "resolution": "score_wins",
+      "winner": "score",
+      "ui_action": "show_score_card_with_retry_button",
+      "retry_llm": true,
+      "retry_delay_ms": 5000
+    },
+    {
+      "id": "cr_007",
+      "name": "both_agree_buy",
+      "description": "Score high (>= 70) and Claude says buy — full green light",
+      "priority": 6,
+      "condition": {
+        "score_range": [70, 100],
+        "llm_action": "product_buy"
+      },
+      "resolution": "both_agree",
+      "winner": "combined",
+      "ui_action": "show_green_card",
+      "ui_template": {
+        "badge": "Great Choice!",
+        "score_view": "Health Score: {score}/100",
+        "actions": ["buy", "save_to_favorites"]
+      }
+    },
+    {
+      "id": "cr_008",
+      "name": "both_agree_swap",
+      "description": "Score low (< 50) and Claude says swap — clear swap recommendation",
+      "priority": 7,
+      "condition": {
+        "score_range": [0, 49],
+        "llm_action": "product_swap"
+      },
+      "resolution": "both_agree",
+      "winner": "combined",
+      "ui_action": "show_swap_card",
+      "ui_template": {
+        "badge": "Consider Swapping",
+        "badge_color": "#FF9800",
+        "score_view": "Health Score: {score}/100",
+        "alternative": "{llm_alternative}",
+        "actions": ["buy_alternative", "buy_anyway", "learn_more"]
+      }
+    },
+    {
+      "id": "cr_009",
+      "name": "animal_detection_no_conflict",
+      "description": "Animal detections don't have score vs LLM conflicts",
+      "priority": 10,
+      "condition": {
+        "category": "animal"
+      },
+      "resolution": "sequential",
+      "details": {
+        "step_1": "breed identification from local JSON",
+        "step_2": "care info from LLM if requested",
+        "step_3": "safety warning if wildlife/dangerous"
+      },
+      "winner": "n/a"
+    },
+    {
+      "id": "cr_010",
+      "name": "plant_toxicity_override",
+      "description": "If toxic_plants.json says toxic, it overrides any LLM 'safe' response",
+      "priority": 0,
+      "condition": {
+        "category": "plant",
+        "local_db_flag": "toxic"
+      },
+      "resolution": "local_db_wins",
+      "winner": "local_database",
+      "ui_action": "show_toxicity_warning",
+      "override_allowed": false,
+      "explanation": "Curated toxicity data is more reliable than LLM for safety-critical plant identification"
+    },
+    {
+      "id": "cr_011",
+      "name": "medication_never_recommend",
+      "description": "Never let LLM recommend taking or buying medication",
+      "priority": 0,
+      "condition": {
+        "category": "medication",
+        "llm_action": ["product_buy", "take_medication"]
+      },
+      "resolution": "block_action",
+      "winner": "safety_system",
+      "ui_action": "show_medical_disclaimer",
+      "disclaimer": "SnapSense does not provide medical advice. Consult your healthcare provider.",
+      "override_allowed": false
+    },
+    {
+      "id": "cr_012",
+      "name": "unknown_item_llm_decides",
+      "description": "For unknown/unrecognized items, LLM is the sole decision maker",
+      "priority": 8,
+      "condition": {
+        "category": "unknown",
+        "ml_confidence": { "lt": 0.5 }
+      },
+      "resolution": "llm_wins",
+      "winner": "llm",
+      "ui_action": "show_llm_identification_card",
+      "prompt_user_for_photo_retry": true
+    }
+  ],
+  "precedence_order": [
+    "safety_always_wins (priority 0 — allergens, toxicity, recalls)",
+    "plant_toxicity_override (priority 0 — curated DB over LLM)",
+    "medication_never_recommend (priority 0 — never recommend meds)",
+    "score_low_llm_buy (priority 1 — conditional, show both)",
+    "score_high_llm_swap (priority 2 — LLM wins with diet context)",
+    "score_mid_llm_agree (priority 3 — merge both views)",
+    "no_score_llm_only (priority 4 — LLM solo)",
+    "no_llm_score_only (priority 5 — score solo with retry)",
+    "both_agree_buy (priority 6 — green light)",
+    "both_agree_swap (priority 7 — swap card)",
+    "unknown_item_llm_decides (priority 8 — LLM identifies)",
+    "animal_detection_no_conflict (priority 10 — no conflict)"
+  ],
+  "user_override": {
+    "allow_user_to_dismiss_warnings": true,
+    "except": ["allergen_detected", "medication_interaction", "toxic_plant_extreme"],
+    "log_overrides": true,
+    "analytics_event": "user_override_safety_warning"
+  }
+}

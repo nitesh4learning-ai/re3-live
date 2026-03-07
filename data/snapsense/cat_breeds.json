@@ -1,0 +1,2738 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-03-07",
+  "total_breeds": 70,
+  "breeds": [
+    {
+      "id": "persian",
+      "name": "Persian",
+      "ml_labels": [
+        "persian cat",
+        "persian",
+        "longhair"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.2,
+        5.4
+      ],
+      "energy_level": "low",
+      "temperament": [
+        "calm",
+        "affectionate",
+        "gentle"
+      ],
+      "common_health_issues": [
+        "polycystic kidney disease",
+        "breathing difficulties",
+        "dental issues"
+      ],
+      "life_expectancy_years": [
+        12,
+        17
+      ],
+      "grooming_needs": "very_high",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "long",
+      "shedding_level": "heavy",
+      "vocalization": "low",
+      "origin": "Iran",
+      "hypoallergenic": false
+    },
+    {
+      "id": "siamese",
+      "name": "Siamese",
+      "ml_labels": [
+        "siamese cat",
+        "siamese",
+        "seal point"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.0,
+        5.0
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "vocal",
+        "social",
+        "intelligent",
+        "playful"
+      ],
+      "common_health_issues": [
+        "amyloidosis",
+        "asthma",
+        "congenital heart defects"
+      ],
+      "life_expectancy_years": [
+        12,
+        20
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "very_high",
+      "origin": "Thailand",
+      "hypoallergenic": false
+    },
+    {
+      "id": "maine_coon",
+      "name": "Maine Coon",
+      "ml_labels": [
+        "maine coon",
+        "maine coon cat",
+        "coon cat"
+      ],
+      "size": "large",
+      "weight_range_kg": [
+        5.4,
+        11.3
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "gentle",
+        "friendly",
+        "intelligent",
+        "playful"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "hip dysplasia",
+        "spinal muscular atrophy"
+      ],
+      "life_expectancy_years": [
+        10,
+        16
+      ],
+      "grooming_needs": "high",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "long",
+      "shedding_level": "heavy",
+      "vocalization": "medium",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "ragdoll",
+      "name": "Ragdoll",
+      "ml_labels": [
+        "ragdoll cat",
+        "ragdoll",
+        "rag doll"
+      ],
+      "size": "large",
+      "weight_range_kg": [
+        4.5,
+        9.1
+      ],
+      "energy_level": "low",
+      "temperament": [
+        "docile",
+        "affectionate",
+        "gentle",
+        "relaxed"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "bladder stones",
+        "feline infectious peritonitis"
+      ],
+      "life_expectancy_years": [
+        12,
+        17
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "long",
+      "shedding_level": "moderate",
+      "vocalization": "low",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "british_shorthair",
+      "name": "British Shorthair",
+      "ml_labels": [
+        "british shorthair",
+        "british blue",
+        "british shorthair cat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        4.0,
+        8.0
+      ],
+      "energy_level": "low",
+      "temperament": [
+        "calm",
+        "easygoing",
+        "loyal",
+        "independent"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "obesity",
+        "dental disease"
+      ],
+      "life_expectancy_years": [
+        12,
+        20
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "moderate",
+      "vocalization": "low",
+      "origin": "United Kingdom",
+      "hypoallergenic": false
+    },
+    {
+      "id": "sphynx",
+      "name": "Sphynx",
+      "ml_labels": [
+        "sphynx cat",
+        "sphynx",
+        "hairless cat",
+        "sphinx cat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.5,
+        6.0
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "energetic",
+        "affectionate",
+        "social",
+        "curious"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "skin conditions",
+        "respiratory issues"
+      ],
+      "life_expectancy_years": [
+        9,
+        15
+      ],
+      "grooming_needs": "high",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "hairless",
+      "shedding_level": "none",
+      "vocalization": "medium",
+      "origin": "Canada",
+      "hypoallergenic": true
+    },
+    {
+      "id": "bengal",
+      "name": "Bengal",
+      "ml_labels": [
+        "bengal cat",
+        "bengal",
+        "spotted cat",
+        "leopard cat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        6.8
+      ],
+      "energy_level": "very_high",
+      "temperament": [
+        "active",
+        "playful",
+        "intelligent",
+        "curious"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "progressive retinal atrophy",
+        "patellar luxation"
+      ],
+      "life_expectancy_years": [
+        12,
+        16
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "medium",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "abyssinian",
+      "name": "Abyssinian",
+      "ml_labels": [
+        "abyssinian cat",
+        "abyssinian",
+        "aby"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.2,
+        5.5
+      ],
+      "energy_level": "very_high",
+      "temperament": [
+        "active",
+        "playful",
+        "curious",
+        "intelligent"
+      ],
+      "common_health_issues": [
+        "renal amyloidosis",
+        "progressive retinal atrophy",
+        "pyruvate kinase deficiency"
+      ],
+      "life_expectancy_years": [
+        9,
+        15
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "low",
+      "origin": "Ethiopia",
+      "hypoallergenic": false
+    },
+    {
+      "id": "scottish_fold",
+      "name": "Scottish Fold",
+      "ml_labels": [
+        "scottish fold",
+        "scottish fold cat",
+        "folded ear cat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        2.7,
+        6.0
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "gentle",
+        "sweet",
+        "adaptable",
+        "affectionate"
+      ],
+      "common_health_issues": [
+        "osteochondrodysplasia",
+        "cardiomyopathy",
+        "polycystic kidney disease"
+      ],
+      "life_expectancy_years": [
+        11,
+        15
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "moderate",
+      "vocalization": "low",
+      "origin": "Scotland",
+      "hypoallergenic": false
+    },
+    {
+      "id": "russian_blue",
+      "name": "Russian Blue",
+      "ml_labels": [
+        "russian blue",
+        "russian blue cat",
+        "archangel blue"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        6.8
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "shy",
+        "gentle",
+        "loyal",
+        "intelligent"
+      ],
+      "common_health_issues": [
+        "obesity",
+        "bladder stones",
+        "urinary tract issues"
+      ],
+      "life_expectancy_years": [
+        15,
+        20
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "moderate",
+      "vocalization": "low",
+      "origin": "Russia",
+      "hypoallergenic": true
+    },
+    {
+      "id": "norwegian_forest",
+      "name": "Norwegian Forest Cat",
+      "ml_labels": [
+        "norwegian forest cat",
+        "norwegian forest",
+        "wegie",
+        "skogkatt"
+      ],
+      "size": "large",
+      "weight_range_kg": [
+        4.5,
+        9.0
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "gentle",
+        "friendly",
+        "independent",
+        "adventurous"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "hip dysplasia",
+        "glycogen storage disease"
+      ],
+      "life_expectancy_years": [
+        14,
+        16
+      ],
+      "grooming_needs": "high",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "long",
+      "shedding_level": "heavy",
+      "vocalization": "low",
+      "origin": "Norway",
+      "hypoallergenic": false
+    },
+    {
+      "id": "birman",
+      "name": "Birman",
+      "ml_labels": [
+        "birman cat",
+        "birman",
+        "sacred cat of burma"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        6.8
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "gentle",
+        "affectionate",
+        "social",
+        "quiet"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "kidney disease",
+        "corneal dermoid"
+      ],
+      "life_expectancy_years": [
+        12,
+        16
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "long",
+      "shedding_level": "moderate",
+      "vocalization": "low",
+      "origin": "Myanmar",
+      "hypoallergenic": false
+    },
+    {
+      "id": "oriental_shorthair",
+      "name": "Oriental Shorthair",
+      "ml_labels": [
+        "oriental shorthair",
+        "oriental cat",
+        "oriental"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.2,
+        5.4
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "social",
+        "playful",
+        "intelligent",
+        "vocal"
+      ],
+      "common_health_issues": [
+        "amyloidosis",
+        "asthma",
+        "megaesophagus"
+      ],
+      "life_expectancy_years": [
+        12,
+        15
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "very_high",
+      "origin": "Thailand",
+      "hypoallergenic": true
+    },
+    {
+      "id": "devon_rex",
+      "name": "Devon Rex",
+      "ml_labels": [
+        "devon rex",
+        "devon rex cat",
+        "pixie cat"
+      ],
+      "size": "small",
+      "weight_range_kg": [
+        2.3,
+        4.5
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "playful",
+        "mischievous",
+        "social",
+        "affectionate"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "patellar luxation",
+        "hereditary myopathy"
+      ],
+      "life_expectancy_years": [
+        10,
+        15
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "medium",
+      "origin": "England",
+      "hypoallergenic": true
+    },
+    {
+      "id": "cornish_rex",
+      "name": "Cornish Rex",
+      "ml_labels": [
+        "cornish rex",
+        "cornish rex cat"
+      ],
+      "size": "small",
+      "weight_range_kg": [
+        2.7,
+        4.5
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "active",
+        "playful",
+        "adventurous",
+        "affectionate"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "patellar luxation",
+        "hypotrichosis"
+      ],
+      "life_expectancy_years": [
+        11,
+        15
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "very_low",
+      "vocalization": "medium",
+      "origin": "England",
+      "hypoallergenic": true
+    },
+    {
+      "id": "burmese",
+      "name": "Burmese",
+      "ml_labels": [
+        "burmese cat",
+        "burmese"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        5.4
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "social",
+        "playful",
+        "affectionate",
+        "vocal"
+      ],
+      "common_health_issues": [
+        "diabetes mellitus",
+        "hypokalemia",
+        "cranial deformities"
+      ],
+      "life_expectancy_years": [
+        10,
+        17
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "high",
+      "origin": "Myanmar",
+      "hypoallergenic": false
+    },
+    {
+      "id": "tonkinese",
+      "name": "Tonkinese",
+      "ml_labels": [
+        "tonkinese cat",
+        "tonkinese",
+        "tonk"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        2.7,
+        5.4
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "social",
+        "active",
+        "affectionate",
+        "intelligent"
+      ],
+      "common_health_issues": [
+        "amyloidosis",
+        "asthma",
+        "inflammatory bowel disease"
+      ],
+      "life_expectancy_years": [
+        12,
+        16
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "high",
+      "origin": "Canada",
+      "hypoallergenic": false
+    },
+    {
+      "id": "ragamuffin",
+      "name": "RagaMuffin",
+      "ml_labels": [
+        "ragamuffin cat",
+        "ragamuffin"
+      ],
+      "size": "large",
+      "weight_range_kg": [
+        4.5,
+        9.1
+      ],
+      "energy_level": "low",
+      "temperament": [
+        "calm",
+        "friendly",
+        "affectionate",
+        "patient"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "polycystic kidney disease",
+        "obesity"
+      ],
+      "life_expectancy_years": [
+        12,
+        16
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "long",
+      "shedding_level": "moderate",
+      "vocalization": "low",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "exotic_shorthair",
+      "name": "Exotic Shorthair",
+      "ml_labels": [
+        "exotic shorthair",
+        "exotic shorthair cat",
+        "exotic"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.5,
+        6.0
+      ],
+      "energy_level": "low",
+      "temperament": [
+        "calm",
+        "affectionate",
+        "gentle",
+        "playful"
+      ],
+      "common_health_issues": [
+        "polycystic kidney disease",
+        "brachycephalic airway syndrome",
+        "dental malocclusion"
+      ],
+      "life_expectancy_years": [
+        12,
+        15
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "moderate",
+      "vocalization": "low",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "american_shorthair",
+      "name": "American Shorthair",
+      "ml_labels": [
+        "american shorthair",
+        "american shorthair cat",
+        "domestic shorthair"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        6.8
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "easygoing",
+        "gentle",
+        "adaptable",
+        "independent"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "obesity",
+        "dental disease"
+      ],
+      "life_expectancy_years": [
+        15,
+        20
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "moderate",
+      "vocalization": "low",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "somali",
+      "name": "Somali",
+      "ml_labels": [
+        "somali cat",
+        "somali",
+        "fox cat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.2,
+        5.4
+      ],
+      "energy_level": "very_high",
+      "temperament": [
+        "active",
+        "playful",
+        "curious",
+        "social"
+      ],
+      "common_health_issues": [
+        "renal amyloidosis",
+        "pyruvate kinase deficiency",
+        "progressive retinal atrophy"
+      ],
+      "life_expectancy_years": [
+        11,
+        16
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "long",
+      "shedding_level": "moderate",
+      "vocalization": "medium",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "siberian",
+      "name": "Siberian",
+      "ml_labels": [
+        "siberian cat",
+        "siberian",
+        "siberian forest cat"
+      ],
+      "size": "large",
+      "weight_range_kg": [
+        4.5,
+        9.0
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "affectionate",
+        "playful",
+        "adventurous",
+        "intelligent"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "hereditary cancer",
+        "pyruvate kinase deficiency"
+      ],
+      "life_expectancy_years": [
+        11,
+        18
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "long",
+      "shedding_level": "heavy",
+      "vocalization": "medium",
+      "origin": "Russia",
+      "hypoallergenic": true
+    },
+    {
+      "id": "balinese",
+      "name": "Balinese",
+      "ml_labels": [
+        "balinese cat",
+        "balinese",
+        "long-haired siamese"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        2.7,
+        5.0
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "vocal",
+        "social",
+        "intelligent",
+        "affectionate"
+      ],
+      "common_health_issues": [
+        "amyloidosis",
+        "asthma",
+        "progressive retinal atrophy"
+      ],
+      "life_expectancy_years": [
+        12,
+        20
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "long",
+      "shedding_level": "low",
+      "vocalization": "very_high",
+      "origin": "United States",
+      "hypoallergenic": true
+    },
+    {
+      "id": "turkish_angora",
+      "name": "Turkish Angora",
+      "ml_labels": [
+        "turkish angora",
+        "turkish angora cat",
+        "angora cat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        2.7,
+        5.0
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "playful",
+        "intelligent",
+        "social",
+        "determined"
+      ],
+      "common_health_issues": [
+        "deafness",
+        "hypertrophic cardiomyopathy",
+        "ataxia"
+      ],
+      "life_expectancy_years": [
+        12,
+        18
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "long",
+      "shedding_level": "moderate",
+      "vocalization": "medium",
+      "origin": "Turkey",
+      "hypoallergenic": false
+    },
+    {
+      "id": "turkish_van",
+      "name": "Turkish Van",
+      "ml_labels": [
+        "turkish van",
+        "turkish van cat",
+        "swimming cat"
+      ],
+      "size": "large",
+      "weight_range_kg": [
+        4.5,
+        9.0
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "energetic",
+        "playful",
+        "independent",
+        "affectionate"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "deafness",
+        "obesity"
+      ],
+      "life_expectancy_years": [
+        12,
+        17
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": false,
+      "indoor_outdoor": "both",
+      "coat_type": "long",
+      "shedding_level": "moderate",
+      "vocalization": "medium",
+      "origin": "Turkey",
+      "hypoallergenic": false
+    },
+    {
+      "id": "chartreux",
+      "name": "Chartreux",
+      "ml_labels": [
+        "chartreux cat",
+        "chartreux",
+        "french blue cat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.0,
+        7.5
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "quiet",
+        "gentle",
+        "loyal",
+        "observant"
+      ],
+      "common_health_issues": [
+        "patellar luxation",
+        "polycystic kidney disease",
+        "struvite crystals"
+      ],
+      "life_expectancy_years": [
+        12,
+        15
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "moderate",
+      "vocalization": "low",
+      "origin": "France",
+      "hypoallergenic": false
+    },
+    {
+      "id": "manx",
+      "name": "Manx",
+      "ml_labels": [
+        "manx cat",
+        "manx",
+        "tailless cat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        5.4
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "playful",
+        "social",
+        "intelligent",
+        "gentle"
+      ],
+      "common_health_issues": [
+        "manx syndrome",
+        "spina bifida",
+        "arthritis"
+      ],
+      "life_expectancy_years": [
+        9,
+        13
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "moderate",
+      "vocalization": "low",
+      "origin": "Isle of Man",
+      "hypoallergenic": false
+    },
+    {
+      "id": "havana_brown",
+      "name": "Havana Brown",
+      "ml_labels": [
+        "havana brown",
+        "havana brown cat",
+        "havana"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        2.7,
+        4.5
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "intelligent",
+        "affectionate",
+        "playful",
+        "curious"
+      ],
+      "common_health_issues": [
+        "calcium oxalate stones",
+        "upper respiratory infections",
+        "obesity"
+      ],
+      "life_expectancy_years": [
+        10,
+        15
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "medium",
+      "origin": "England",
+      "hypoallergenic": false
+    },
+    {
+      "id": "bombay",
+      "name": "Bombay",
+      "ml_labels": [
+        "bombay cat",
+        "bombay",
+        "black bombay",
+        "mini panther"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        5.0
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "affectionate",
+        "social",
+        "playful",
+        "intelligent"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "craniofacial defect",
+        "breathing issues"
+      ],
+      "life_expectancy_years": [
+        12,
+        18
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "medium",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "himalayan",
+      "name": "Himalayan",
+      "ml_labels": [
+        "himalayan cat",
+        "himalayan",
+        "himmie",
+        "colorpoint persian"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        5.4
+      ],
+      "energy_level": "low",
+      "temperament": [
+        "calm",
+        "affectionate",
+        "gentle",
+        "sweet"
+      ],
+      "common_health_issues": [
+        "polycystic kidney disease",
+        "breathing difficulties",
+        "progressive retinal atrophy"
+      ],
+      "life_expectancy_years": [
+        9,
+        15
+      ],
+      "grooming_needs": "very_high",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "long",
+      "shedding_level": "heavy",
+      "vocalization": "low",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "ocicat",
+      "name": "Ocicat",
+      "ml_labels": [
+        "ocicat",
+        "ocicat cat",
+        "spotted ocicat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        2.7,
+        6.3
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "social",
+        "active",
+        "confident",
+        "playful"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "renal amyloidosis",
+        "periodontal disease"
+      ],
+      "life_expectancy_years": [
+        12,
+        18
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "medium",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "egyptian_mau",
+      "name": "Egyptian Mau",
+      "ml_labels": [
+        "egyptian mau",
+        "egyptian mau cat",
+        "mau"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        2.7,
+        5.0
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "loyal",
+        "active",
+        "playful",
+        "intelligent"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "leukodystrophy",
+        "urolithiasis"
+      ],
+      "life_expectancy_years": [
+        12,
+        15
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": false,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "medium",
+      "origin": "Egypt",
+      "hypoallergenic": false
+    },
+    {
+      "id": "american_curl",
+      "name": "American Curl",
+      "ml_labels": [
+        "american curl",
+        "american curl cat",
+        "curled ear cat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        2.3,
+        4.5
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "playful",
+        "affectionate",
+        "curious",
+        "gentle"
+      ],
+      "common_health_issues": [
+        "ear infections",
+        "narrowed ear canals",
+        "obesity"
+      ],
+      "life_expectancy_years": [
+        12,
+        16
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "medium",
+      "shedding_level": "moderate",
+      "vocalization": "low",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "japanese_bobtail",
+      "name": "Japanese Bobtail",
+      "ml_labels": [
+        "japanese bobtail",
+        "japanese bobtail cat",
+        "bobtail cat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        2.7,
+        4.5
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "active",
+        "intelligent",
+        "social",
+        "playful"
+      ],
+      "common_health_issues": [
+        "obesity",
+        "urinary tract issues",
+        "dental disease"
+      ],
+      "life_expectancy_years": [
+        9,
+        15
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "high",
+      "origin": "Japan",
+      "hypoallergenic": false
+    },
+    {
+      "id": "korat",
+      "name": "Korat",
+      "ml_labels": [
+        "korat cat",
+        "korat",
+        "si-sawat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        2.7,
+        4.5
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "intelligent",
+        "loyal",
+        "gentle",
+        "playful"
+      ],
+      "common_health_issues": [
+        "gangliosidosis",
+        "low body fat",
+        "respiratory issues"
+      ],
+      "life_expectancy_years": [
+        10,
+        15
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": false,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "medium",
+      "origin": "Thailand",
+      "hypoallergenic": false
+    },
+    {
+      "id": "singapura",
+      "name": "Singapura",
+      "ml_labels": [
+        "singapura cat",
+        "singapura",
+        "kucinta"
+      ],
+      "size": "small",
+      "weight_range_kg": [
+        1.8,
+        3.6
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "curious",
+        "playful",
+        "affectionate",
+        "mischievous"
+      ],
+      "common_health_issues": [
+        "pyruvate kinase deficiency",
+        "uterine inertia",
+        "hypothermia sensitivity"
+      ],
+      "life_expectancy_years": [
+        11,
+        15
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "medium",
+      "origin": "Singapore",
+      "hypoallergenic": false
+    },
+    {
+      "id": "selkirk_rex",
+      "name": "Selkirk Rex",
+      "ml_labels": [
+        "selkirk rex",
+        "selkirk rex cat",
+        "curly cat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        7.0
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "patient",
+        "loving",
+        "social",
+        "tolerant"
+      ],
+      "common_health_issues": [
+        "polycystic kidney disease",
+        "hypertrophic cardiomyopathy",
+        "hip dysplasia"
+      ],
+      "life_expectancy_years": [
+        10,
+        15
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "medium",
+      "shedding_level": "moderate",
+      "vocalization": "low",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "burmilla",
+      "name": "Burmilla",
+      "ml_labels": [
+        "burmilla cat",
+        "burmilla"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.0,
+        5.4
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "gentle",
+        "playful",
+        "affectionate",
+        "social"
+      ],
+      "common_health_issues": [
+        "polycystic kidney disease",
+        "allergies",
+        "dental issues"
+      ],
+      "life_expectancy_years": [
+        10,
+        15
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "moderate",
+      "vocalization": "low",
+      "origin": "United Kingdom",
+      "hypoallergenic": false
+    },
+    {
+      "id": "sokoke",
+      "name": "Sokoke",
+      "ml_labels": [
+        "sokoke cat",
+        "sokoke",
+        "african shorthair"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        2.5,
+        5.0
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "active",
+        "intelligent",
+        "social",
+        "vocal"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "cardiac issues",
+        "skin sensitivity"
+      ],
+      "life_expectancy_years": [
+        9,
+        15
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "high",
+      "origin": "Kenya",
+      "hypoallergenic": false
+    },
+    {
+      "id": "khao_manee",
+      "name": "Khao Manee",
+      "ml_labels": [
+        "khao manee",
+        "khao manee cat",
+        "diamond eye cat",
+        "white gem"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        5.0
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "social",
+        "active",
+        "intelligent",
+        "curious"
+      ],
+      "common_health_issues": [
+        "deafness",
+        "skin cancer risk",
+        "kinked tail"
+      ],
+      "life_expectancy_years": [
+        10,
+        12
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "high",
+      "origin": "Thailand",
+      "hypoallergenic": false
+    },
+    {
+      "id": "peterbald",
+      "name": "Peterbald",
+      "ml_labels": [
+        "peterbald cat",
+        "peterbald",
+        "petersburg hairless"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.0,
+        5.0
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "affectionate",
+        "social",
+        "intelligent",
+        "vocal"
+      ],
+      "common_health_issues": [
+        "skin sensitivity",
+        "sunburn",
+        "respiratory infections"
+      ],
+      "life_expectancy_years": [
+        12,
+        15
+      ],
+      "grooming_needs": "high",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "hairless",
+      "shedding_level": "none",
+      "vocalization": "medium",
+      "origin": "Russia",
+      "hypoallergenic": true
+    },
+    {
+      "id": "donskoy",
+      "name": "Donskoy",
+      "ml_labels": [
+        "donskoy cat",
+        "donskoy",
+        "don sphynx",
+        "russian hairless"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        2.7,
+        5.0
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "friendly",
+        "intelligent",
+        "social",
+        "loyal"
+      ],
+      "common_health_issues": [
+        "skin sensitivity",
+        "dental issues",
+        "ectodermal dysplasia"
+      ],
+      "life_expectancy_years": [
+        12,
+        15
+      ],
+      "grooming_needs": "high",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "hairless",
+      "shedding_level": "none",
+      "vocalization": "medium",
+      "origin": "Russia",
+      "hypoallergenic": true
+    },
+    {
+      "id": "lykoi",
+      "name": "Lykoi",
+      "ml_labels": [
+        "lykoi cat",
+        "lykoi",
+        "werewolf cat",
+        "wolf cat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        2.7,
+        4.5
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "intelligent",
+        "playful",
+        "loyal",
+        "curious"
+      ],
+      "common_health_issues": [
+        "skin sensitivity",
+        "sunburn",
+        "potential heart issues"
+      ],
+      "life_expectancy_years": [
+        12,
+        15
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "heavy",
+      "vocalization": "low",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "savannah",
+      "name": "Savannah",
+      "ml_labels": [
+        "savannah cat",
+        "savannah",
+        "serval hybrid"
+      ],
+      "size": "large",
+      "weight_range_kg": [
+        5.4,
+        11.0
+      ],
+      "energy_level": "very_high",
+      "temperament": [
+        "active",
+        "adventurous",
+        "loyal",
+        "intelligent"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "hybrid male infertility",
+        "sensitive digestion"
+      ],
+      "life_expectancy_years": [
+        12,
+        20
+      ],
+      "grooming_needs": "low",
+      "good_with_children": false,
+      "good_with_other_pets": false,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "high",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "chausie",
+      "name": "Chausie",
+      "ml_labels": [
+        "chausie cat",
+        "chausie",
+        "jungle curl"
+      ],
+      "size": "large",
+      "weight_range_kg": [
+        5.4,
+        10.0
+      ],
+      "energy_level": "very_high",
+      "temperament": [
+        "athletic",
+        "intelligent",
+        "loyal",
+        "fearless"
+      ],
+      "common_health_issues": [
+        "intestinal issues",
+        "food allergies",
+        "hybrid sterility"
+      ],
+      "life_expectancy_years": [
+        12,
+        14
+      ],
+      "grooming_needs": "low",
+      "good_with_children": false,
+      "good_with_other_pets": false,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "medium",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "toyger",
+      "name": "Toyger",
+      "ml_labels": [
+        "toyger cat",
+        "toyger",
+        "toy tiger"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        6.8
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "friendly",
+        "intelligent",
+        "easygoing",
+        "social"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "heart murmurs",
+        "obesity"
+      ],
+      "life_expectancy_years": [
+        10,
+        15
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "low",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "munchkin",
+      "name": "Munchkin",
+      "ml_labels": [
+        "munchkin cat",
+        "munchkin",
+        "short-legged cat"
+      ],
+      "size": "small",
+      "weight_range_kg": [
+        2.7,
+        4.1
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "playful",
+        "outgoing",
+        "curious",
+        "affectionate"
+      ],
+      "common_health_issues": [
+        "lordosis",
+        "pectus excavatum",
+        "osteoarthritis"
+      ],
+      "life_expectancy_years": [
+        12,
+        15
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "moderate",
+      "vocalization": "medium",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "cymric",
+      "name": "Cymric",
+      "ml_labels": [
+        "cymric cat",
+        "cymric",
+        "longhair manx"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        5.4
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "gentle",
+        "intelligent",
+        "playful",
+        "loyal"
+      ],
+      "common_health_issues": [
+        "manx syndrome",
+        "spina bifida",
+        "megacolon"
+      ],
+      "life_expectancy_years": [
+        8,
+        14
+      ],
+      "grooming_needs": "high",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "long",
+      "shedding_level": "heavy",
+      "vocalization": "low",
+      "origin": "Isle of Man",
+      "hypoallergenic": false
+    },
+    {
+      "id": "nebelung",
+      "name": "Nebelung",
+      "ml_labels": [
+        "nebelung cat",
+        "nebelung",
+        "longhair russian blue"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        6.8
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "shy",
+        "gentle",
+        "loyal",
+        "reserved"
+      ],
+      "common_health_issues": [
+        "obesity",
+        "bladder stones",
+        "urinary issues"
+      ],
+      "life_expectancy_years": [
+        11,
+        18
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "long",
+      "shedding_level": "moderate",
+      "vocalization": "low",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "snowshoe",
+      "name": "Snowshoe",
+      "ml_labels": [
+        "snowshoe cat",
+        "snowshoe",
+        "silver laces"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.2,
+        5.4
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "affectionate",
+        "social",
+        "vocal",
+        "intelligent"
+      ],
+      "common_health_issues": [
+        "polycystic kidney disease",
+        "dental issues",
+        "crossed eyes"
+      ],
+      "life_expectancy_years": [
+        14,
+        20
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "moderate",
+      "vocalization": "high",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "european_burmese",
+      "name": "European Burmese",
+      "ml_labels": [
+        "european burmese",
+        "european burmese cat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.0,
+        5.4
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "affectionate",
+        "intelligent",
+        "gentle",
+        "social"
+      ],
+      "common_health_issues": [
+        "diabetes mellitus",
+        "hypokalemia",
+        "craniofacial defect"
+      ],
+      "life_expectancy_years": [
+        10,
+        15
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "medium",
+      "origin": "Myanmar",
+      "hypoallergenic": false
+    },
+    {
+      "id": "laperm",
+      "name": "LaPerm",
+      "ml_labels": [
+        "laperm cat",
+        "laperm",
+        "curly haired cat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        2.3,
+        4.5
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "affectionate",
+        "curious",
+        "gentle",
+        "active"
+      ],
+      "common_health_issues": [
+        "fleas",
+        "ear infections",
+        "skin allergies"
+      ],
+      "life_expectancy_years": [
+        10,
+        15
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "medium",
+      "shedding_level": "low",
+      "vocalization": "medium",
+      "origin": "United States",
+      "hypoallergenic": true
+    },
+    {
+      "id": "javanese",
+      "name": "Javanese",
+      "ml_labels": [
+        "javanese cat",
+        "javanese",
+        "colorpoint longhair"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        2.3,
+        4.5
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "intelligent",
+        "playful",
+        "social",
+        "vocal"
+      ],
+      "common_health_issues": [
+        "amyloidosis",
+        "asthma",
+        "crossed eyes"
+      ],
+      "life_expectancy_years": [
+        10,
+        15
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "long",
+      "shedding_level": "low",
+      "vocalization": "very_high",
+      "origin": "United States",
+      "hypoallergenic": true
+    },
+    {
+      "id": "kurilian_bobtail",
+      "name": "Kurilian Bobtail",
+      "ml_labels": [
+        "kurilian bobtail",
+        "kurilian bobtail cat",
+        "kuril islands bobtail"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.0,
+        6.8
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "gentle",
+        "social",
+        "intelligent",
+        "independent"
+      ],
+      "common_health_issues": [
+        "tail vertebrae issues",
+        "digestive problems",
+        "urinary issues"
+      ],
+      "life_expectancy_years": [
+        14,
+        20
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "moderate",
+      "vocalization": "low",
+      "origin": "Russia",
+      "hypoallergenic": false
+    },
+    {
+      "id": "american_bobtail",
+      "name": "American Bobtail",
+      "ml_labels": [
+        "american bobtail",
+        "american bobtail cat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.2,
+        7.3
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "adaptable",
+        "affectionate",
+        "intelligent",
+        "playful"
+      ],
+      "common_health_issues": [
+        "hip dysplasia",
+        "spinal issues",
+        "obesity"
+      ],
+      "life_expectancy_years": [
+        11,
+        15
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "medium",
+      "shedding_level": "moderate",
+      "vocalization": "low",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "american_wirehair",
+      "name": "American Wirehair",
+      "ml_labels": [
+        "american wirehair",
+        "american wirehair cat",
+        "wirehair cat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        5.4
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "calm",
+        "adaptable",
+        "affectionate",
+        "playful"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "skin allergies",
+        "obesity"
+      ],
+      "life_expectancy_years": [
+        14,
+        18
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "low",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "british_longhair",
+      "name": "British Longhair",
+      "ml_labels": [
+        "british longhair",
+        "british longhair cat",
+        "lowlander"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        4.0,
+        7.5
+      ],
+      "energy_level": "low",
+      "temperament": [
+        "calm",
+        "easygoing",
+        "affectionate",
+        "independent"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "obesity",
+        "polycystic kidney disease"
+      ],
+      "life_expectancy_years": [
+        12,
+        16
+      ],
+      "grooming_needs": "high",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "long",
+      "shedding_level": "heavy",
+      "vocalization": "low",
+      "origin": "United Kingdom",
+      "hypoallergenic": false
+    },
+    {
+      "id": "colorpoint_shorthair",
+      "name": "Colorpoint Shorthair",
+      "ml_labels": [
+        "colorpoint shorthair",
+        "colorpoint shorthair cat",
+        "colorpoint"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        2.7,
+        5.0
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "vocal",
+        "affectionate",
+        "social",
+        "sensitive"
+      ],
+      "common_health_issues": [
+        "amyloidosis",
+        "asthma",
+        "congenital heart defects"
+      ],
+      "life_expectancy_years": [
+        12,
+        16
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "very_high",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "turkish_vankedisi",
+      "name": "Turkish Vankedisi",
+      "ml_labels": [
+        "turkish vankedisi",
+        "vankedisi",
+        "all-white turkish van"
+      ],
+      "size": "large",
+      "weight_range_kg": [
+        4.0,
+        8.5
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "independent",
+        "active",
+        "loyal",
+        "intelligent"
+      ],
+      "common_health_issues": [
+        "deafness",
+        "hypertrophic cardiomyopathy",
+        "skin sensitivity"
+      ],
+      "life_expectancy_years": [
+        12,
+        17
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": false,
+      "indoor_outdoor": "both",
+      "coat_type": "long",
+      "shedding_level": "moderate",
+      "vocalization": "medium",
+      "origin": "Turkey",
+      "hypoallergenic": false
+    },
+    {
+      "id": "thai",
+      "name": "Thai",
+      "ml_labels": [
+        "thai cat",
+        "thai",
+        "wichien maat",
+        "old-style siamese"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        5.4
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "social",
+        "vocal",
+        "intelligent",
+        "affectionate"
+      ],
+      "common_health_issues": [
+        "amyloidosis",
+        "crossed eyes",
+        "kinked tail"
+      ],
+      "life_expectancy_years": [
+        12,
+        16
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "very_high",
+      "origin": "Thailand",
+      "hypoallergenic": false
+    },
+    {
+      "id": "chantilly_tiffany",
+      "name": "Chantilly-Tiffany",
+      "ml_labels": [
+        "chantilly-tiffany",
+        "chantilly cat",
+        "tiffany cat"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        5.4
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "devoted",
+        "gentle",
+        "affectionate",
+        "moderate"
+      ],
+      "common_health_issues": [
+        "ear wax buildup",
+        "digestive issues",
+        "obesity"
+      ],
+      "life_expectancy_years": [
+        11,
+        16
+      ],
+      "grooming_needs": "high",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "long",
+      "shedding_level": "moderate",
+      "vocalization": "medium",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "pixie_bob",
+      "name": "Pixie-Bob",
+      "ml_labels": [
+        "pixie-bob cat",
+        "pixie-bob",
+        "pixiebob"
+      ],
+      "size": "large",
+      "weight_range_kg": [
+        5.0,
+        8.0
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "loyal",
+        "social",
+        "bold",
+        "dog-like"
+      ],
+      "common_health_issues": [
+        "hypertrophic cardiomyopathy",
+        "cryptorchidism",
+        "cystic endometrial hyperplasia"
+      ],
+      "life_expectancy_years": [
+        13,
+        16
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "moderate",
+      "vocalization": "low",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "highlander",
+      "name": "Highlander",
+      "ml_labels": [
+        "highlander cat",
+        "highlander",
+        "highland lynx"
+      ],
+      "size": "large",
+      "weight_range_kg": [
+        4.5,
+        11.0
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "social",
+        "playful",
+        "confident",
+        "energetic"
+      ],
+      "common_health_issues": [
+        "ear infections",
+        "polydactyly complications",
+        "heart issues"
+      ],
+      "life_expectancy_years": [
+        10,
+        15
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "moderate",
+      "vocalization": "medium",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "serengeti",
+      "name": "Serengeti",
+      "ml_labels": [
+        "serengeti cat",
+        "serengeti"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        6.8
+      ],
+      "energy_level": "very_high",
+      "temperament": [
+        "active",
+        "confident",
+        "social",
+        "agile"
+      ],
+      "common_health_issues": [
+        "urinary crystals",
+        "obesity",
+        "dental disease"
+      ],
+      "life_expectancy_years": [
+        10,
+        15
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "high",
+      "origin": "United States",
+      "hypoallergenic": false
+    },
+    {
+      "id": "oriental_longhair",
+      "name": "Oriental Longhair",
+      "ml_labels": [
+        "oriental longhair",
+        "oriental longhair cat",
+        "mandarin"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.2,
+        5.4
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "social",
+        "playful",
+        "intelligent",
+        "vocal"
+      ],
+      "common_health_issues": [
+        "amyloidosis",
+        "asthma",
+        "megaesophagus"
+      ],
+      "life_expectancy_years": [
+        12,
+        15
+      ],
+      "grooming_needs": "moderate",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "long",
+      "shedding_level": "moderate",
+      "vocalization": "very_high",
+      "origin": "United Kingdom",
+      "hypoallergenic": true
+    },
+    {
+      "id": "australian_mist",
+      "name": "Australian Mist",
+      "ml_labels": [
+        "australian mist",
+        "australian mist cat",
+        "spotted mist"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        6.0
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "gentle",
+        "affectionate",
+        "easygoing",
+        "tolerant"
+      ],
+      "common_health_issues": [
+        "obesity",
+        "skin allergies",
+        "gingivitis"
+      ],
+      "life_expectancy_years": [
+        14,
+        19
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "low",
+      "origin": "Australia",
+      "hypoallergenic": false
+    },
+    {
+      "id": "ukrainian_levkoy",
+      "name": "Ukrainian Levkoy",
+      "ml_labels": [
+        "ukrainian levkoy",
+        "ukrainian levkoy cat",
+        "levkoy"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.5,
+        5.5
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "gentle",
+        "social",
+        "intelligent",
+        "playful"
+      ],
+      "common_health_issues": [
+        "skin sensitivity",
+        "ear infections",
+        "heart issues"
+      ],
+      "life_expectancy_years": [
+        9,
+        15
+      ],
+      "grooming_needs": "high",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "indoor",
+      "coat_type": "hairless",
+      "shedding_level": "none",
+      "vocalization": "low",
+      "origin": "Ukraine",
+      "hypoallergenic": true
+    },
+    {
+      "id": "chinese_li_hua",
+      "name": "Chinese Li Hua",
+      "ml_labels": [
+        "chinese li hua",
+        "dragon li",
+        "li hua mao"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.6,
+        5.4
+      ],
+      "energy_level": "medium",
+      "temperament": [
+        "intelligent",
+        "loyal",
+        "gentle",
+        "independent"
+      ],
+      "common_health_issues": [
+        "obesity",
+        "dental disease",
+        "urinary issues"
+      ],
+      "life_expectancy_years": [
+        12,
+        15
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "low",
+      "origin": "China",
+      "hypoallergenic": false
+    },
+    {
+      "id": "brazilian_shorthair",
+      "name": "Brazilian Shorthair",
+      "ml_labels": [
+        "brazilian shorthair",
+        "brazilian shorthair cat",
+        "pelo curto brasileiro"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        3.0,
+        5.0
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "social",
+        "playful",
+        "affectionate",
+        "intelligent"
+      ],
+      "common_health_issues": [
+        "obesity",
+        "dental disease",
+        "skin allergies"
+      ],
+      "life_expectancy_years": [
+        14,
+        20
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": true,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "medium",
+      "origin": "Brazil",
+      "hypoallergenic": false
+    },
+    {
+      "id": "arabian_mau",
+      "name": "Arabian Mau",
+      "ml_labels": [
+        "arabian mau",
+        "arabian mau cat",
+        "street cat arabia"
+      ],
+      "size": "medium",
+      "weight_range_kg": [
+        4.0,
+        8.0
+      ],
+      "energy_level": "high",
+      "temperament": [
+        "affectionate",
+        "energetic",
+        "loyal",
+        "territorial"
+      ],
+      "common_health_issues": [
+        "obesity",
+        "dental disease",
+        "heatstroke sensitivity"
+      ],
+      "life_expectancy_years": [
+        12,
+        14
+      ],
+      "grooming_needs": "low",
+      "good_with_children": true,
+      "good_with_other_pets": false,
+      "indoor_outdoor": "both",
+      "coat_type": "short",
+      "shedding_level": "low",
+      "vocalization": "medium",
+      "origin": "Arabian Peninsula",
+      "hypoallergenic": false
+    }
+  ]
+}

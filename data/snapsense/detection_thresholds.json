@@ -1,0 +1,101 @@
+{
+  "version": "1.0.0",
+  "description": "ML Kit detection confidence thresholds for SnapSense POINT stage",
+  "last_updated": "2026-03-07",
+  "global_defaults": {
+    "min_confidence": 0.5,
+    "high_confidence": 0.85,
+    "auto_action_threshold": 0.92,
+    "max_labels_per_frame": 5,
+    "debounce_ms": 300,
+    "frame_sample_rate": 3
+  },
+  "category_thresholds": {
+    "food": {
+      "min_confidence": 0.55,
+      "high_confidence": 0.82,
+      "prefer_barcode": true,
+      "barcode_boost": 0.3,
+      "sub_categories": {
+        "packaged_food": { "min_confidence": 0.5, "barcode_required_for_nutrition": true },
+        "fresh_produce": { "min_confidence": 0.6, "use_color_heuristic": true },
+        "prepared_meal": { "min_confidence": 0.65, "multi_label_required": false },
+        "beverage": { "min_confidence": 0.5, "barcode_preferred": true },
+        "snack": { "min_confidence": 0.55, "barcode_preferred": true }
+      }
+    },
+    "animal": {
+      "min_confidence": 0.6,
+      "high_confidence": 0.88,
+      "prefer_barcode": false,
+      "sub_categories": {
+        "dog": { "min_confidence": 0.55, "breed_confidence_min": 0.45 },
+        "cat": { "min_confidence": 0.55, "breed_confidence_min": 0.45 },
+        "bird": { "min_confidence": 0.6, "species_confidence_min": 0.5 },
+        "wildlife": { "min_confidence": 0.65, "safety_warning_threshold": 0.5 },
+        "insect": { "min_confidence": 0.6, "danger_check_always": true },
+        "reptile": { "min_confidence": 0.6, "danger_check_always": true }
+      }
+    },
+    "plant": {
+      "min_confidence": 0.55,
+      "high_confidence": 0.85,
+      "prefer_barcode": false,
+      "toxicity_check_always": true,
+      "sub_categories": {
+        "houseplant": { "min_confidence": 0.5, "toxicity_priority": "high" },
+        "garden_plant": { "min_confidence": 0.55, "toxicity_priority": "high" },
+        "tree": { "min_confidence": 0.6, "toxicity_priority": "medium" },
+        "flower": { "min_confidence": 0.55, "toxicity_priority": "high" },
+        "weed": { "min_confidence": 0.6, "toxicity_priority": "medium" },
+        "mushroom": { "min_confidence": 0.5, "toxicity_priority": "critical", "always_warn": true }
+      }
+    },
+    "household": {
+      "min_confidence": 0.6,
+      "high_confidence": 0.88,
+      "prefer_barcode": true,
+      "sub_categories": {
+        "cleaning_product": { "min_confidence": 0.55, "safety_warning_always": true, "barcode_preferred": true },
+        "electronics": { "min_confidence": 0.6, "barcode_preferred": true },
+        "furniture": { "min_confidence": 0.65, "barcode_preferred": false },
+        "tool": { "min_confidence": 0.6, "barcode_preferred": false },
+        "toy": { "min_confidence": 0.6, "age_safety_check": true }
+      }
+    },
+    "medication": {
+      "min_confidence": 0.7,
+      "high_confidence": 0.92,
+      "prefer_barcode": true,
+      "always_warn": true,
+      "disclaimer_required": true,
+      "sub_categories": {
+        "otc": { "min_confidence": 0.65, "interaction_check": true },
+        "prescription": { "min_confidence": 0.75, "never_recommend": true, "disclaimer": "Consult your healthcare provider" },
+        "supplement": { "min_confidence": 0.6, "interaction_check": true }
+      }
+    },
+    "unknown": {
+      "min_confidence": 0.0,
+      "fallback_to_llm": true,
+      "llm_model": "claude_haiku",
+      "max_llm_cost_per_scan": 0.0005,
+      "retry_with_different_angle": true,
+      "max_retries": 2
+    }
+  },
+  "barcode_config": {
+    "formats_supported": ["ean_13", "ean_8", "upc_a", "upc_e", "qr_code", "code_128", "code_39"],
+    "scan_timeout_ms": 5000,
+    "vibrate_on_scan": true,
+    "auto_focus_interval_ms": 1500,
+    "multi_barcode_enabled": false
+  },
+  "performance": {
+    "max_inference_time_ms": 200,
+    "skip_frames_if_slow": true,
+    "low_memory_mode_threshold_mb": 100,
+    "battery_saver_sample_rate": 1,
+    "cache_predictions_count": 10
+  }
+}
