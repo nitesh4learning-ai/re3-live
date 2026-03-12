@@ -8,7 +8,7 @@ const GIM = {
   border:'#E5E7EB', cardBg:'#FFFFFF',
 };
 
-export default function LandingPage({ onSignIn, onNavigate, editorPicks=[], forgeSessions=[], content=[], academyCourses=[] }) {
+export default function LandingPage({ onSignIn, onNavigate, editorPicks=[], forgeSessions=[], content=[], academyCourses=[], visitCount=null }) {
   const arenaRuns = listArenaRuns();
   return <div className="min-h-screen" style={{ background: '#FAFAFA', paddingTop: 56 }}>
 
@@ -37,6 +37,15 @@ export default function LandingPage({ onSignIn, onNavigate, editorPicks=[], forg
             <button onClick={() => onNavigate?.("academy")} className="px-6 py-3 font-semibold text-sm transition-all hover:shadow-md rounded-xl" style={{ background: '#2D8A6E', color: 'white' }}>Academy</button>
           </div>
         </FadeIn>
+
+        {visitCount!==null&&<FadeIn delay={160}>
+          <div className="flex justify-center mt-2">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full" style={{background:"rgba(255,255,255,0.7)",backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)",border:"1px solid rgba(0,0,0,0.06)",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
+              <span className="w-2 h-2 rounded-full" style={{background:"#2D8A6E"}}/>
+              <span className="font-semibold" style={{fontFamily:GIM.fontMain,fontSize:13,color:GIM.bodyText}}>Site Visits: {visitCount.toLocaleString()}</span>
+            </div>
+          </div>
+        </FadeIn>}
       </div>
     </section>
 

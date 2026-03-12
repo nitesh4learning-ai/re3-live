@@ -1,5 +1,5 @@
 "use client";
-import { useState, lazy, Suspense } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useApp } from '../../providers';
 import { GIM, PILLARS, isAdmin } from '../../constants';
 import { getCycles } from '../../utils/helpers';
@@ -24,11 +24,19 @@ export default function HomePage(){
   const[editThemeTxt,setEditThemeTxt]=useState("");
   const[showPickModal,setShowPickModal]=useState(false);
   const[pickTab,setPickTab]=useState("debate");
+  const[visitCount,setVisitCount]=useState(null);
+
+  useEffect(()=>{
+    fetch("/api/visits",{method:"POST"})
+      .then(r=>r.json())
+      .then(data=>{if(data.count)setVisitCount(data.count)})
+      .catch(()=>{});
+  },[]);
 
   // Show landing page for logged-out visitors
   if (!currentUser) {
     return <Suspense fallback={null}>
-      <LandingPage onSignIn={() => app.setShowLogin(true)} onNavigate={onNavigate} editorPicks={editorPicks||[]} forgeSessions={forgeSessions} content={content} academyCourses={ACADEMY_COURSES} />
+      <LandingPage onSignIn={() => app.setShowLogin(true)} onNavigate={onNavigate} editorPicks={editorPicks||[]} forgeSessions={forgeSessions} content={content} academyCourses={ACADEMY_COURSES} visitCount={visitCount} />
     </Suspense>;
   }
 
@@ -90,6 +98,11 @@ export default function HomePage(){
           <button onClick={()=>onNavigate("forge")} className="px-6 py-3 font-semibold text-sm transition-all hover:shadow-lg" style={{fontFamily:GIM.fontMain,background:GIM.primary,color:"white",borderRadius:GIM.buttonRadius,boxShadow:"0 4px 16px rgba(147,51,234,0.25)"}}>Start a Debate &rarr;</button>
           <button onClick={()=>onNavigate("loom")} className="px-6 py-3 font-semibold text-sm transition-all hover:shadow-sm glass-pill" style={{fontFamily:GIM.fontMain,color:GIM.bodyText,borderRadius:GIM.buttonRadius}}>See past debates</button>
         </div></FadeIn>
+
+        {visitCount!==null&&<FadeIn delay={160}><div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-pill" style={{background:"rgba(255,255,255,0.55)",backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)",border:"1px solid rgba(255,255,255,0.5)"}}>
+          <span className="w-2 h-2 rounded-full" style={{background:"#2D8A6E"}}/>
+          <span className="font-semibold" style={{fontFamily:GIM.fontMain,fontSize:13,color:GIM.bodyText}}>Site Visits: {visitCount.toLocaleString()}</span>
+        </div></FadeIn>}
       </div>
     </section>
 
