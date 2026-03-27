@@ -26,9 +26,12 @@ export function Header() {
   }, []);
 
   const [moreOpen, setMoreOpen] = useState(false);
-  const navItems = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🏗️"], ["academy", "Academy", "🎓"], ["loom", "The Loom", "🧵"], ["studio", "My Studio", "📝"]];
+  const allNavItems = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🏗️"], ["academy", "Academy", "🎓"], ["loom", "The Loom", "🧵"], ["studio", "My Studio", "📝"]];
   const moreItems = [["agent-community", "Team", "🤖"], ["search", "Search", "🔍"]];
-  const bottomTabs = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🏗️"], ["academy", "Learn", "🎓"], ["studio", "Studio", "📝"]];
+  const allBottomTabs = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🏗️"], ["academy", "Learn", "🎓"], ["studio", "Studio", "📝"]];
+  const guestHidden = ["forge"];
+  const navItems = user ? allNavItems : allNavItems.filter(([pg]) => !guestHidden.includes(pg));
+  const bottomTabs = user ? allBottomTabs : allBottomTabs.filter(([pg]) => !guestHidden.includes(pg));
 
   return <>
     <header className="fixed top-0 left-0 right-0 z-50" style={{ background: "#FFFFFF", borderBottom: "0.8px solid #E5E7EB" }}>
