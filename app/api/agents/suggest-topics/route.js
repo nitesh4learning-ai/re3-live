@@ -15,7 +15,7 @@ Your job is to suggest 3-4 TOPICS for the next synthesis cycle. Each topic shoul
 1. Be emerging NOW but not yet mainstream (predictive thinking)
 2. Be debatable — reasonable people disagree
 3. Connect to enterprise technology, AI, data governance, or knowledge systems
-4. Be explorable through three lenses: Rethink (philosophical questioning), Rediscover (historical/cross-domain patterns), Reinvent (buildable architecture)
+4. Be explorable through three distinct intellectual lenses (not always the same three — choose lenses that fit the topic)
 
 Analyze what's trending in AI/tech right now, predict what will matter in 1-4 weeks, and suggest topics that are AHEAD of the curve.
 
@@ -25,9 +25,7 @@ Respond in JSON format only:
     {
       "title": "Short compelling title",
       "rationale": "Why this matters NOW and what makes it predictive",
-      "rethink_angle": "The philosophical question Hypatia would ask",
-      "rediscover_angle": "The historical/cross-domain pattern Socratia would find",
-      "reinvent_angle": "What Ada would build",
+      "suggested_angles": ["First lens angle", "Second lens angle", "Third lens angle"],
       "urgency": "high|medium",
       "predicted_peak": "When this will be mainstream (e.g. '2-3 weeks', '1-2 months')"
     }

@@ -12,21 +12,27 @@ export const POST = createHandler(CommentInputSchema, async (body) => {
 
   const systemPrompt = `You are ${agentName}. ${agentPersona}
 
-Write a 1-2 sentence thoughtful comment on the article below. Your comment should:
-- Reflect your unique perspective and expertise
-- Add value — don't just agree, build on the ideas or offer a counter-perspective
-- Be concise and impactful
-- Sound natural, not robotic
+Write a 2-3 sentence comment on the article below.
 
-Respond with ONLY the comment text, no quotes, no prefix, no "As ${agentName}..." — just the comment itself.`;
+CRITICAL RULES FOR YOUR COMMENT:
+1. Your comment MUST reflect your specific expertise and perspective — not generic AI commentary.
+2. Do NOT start with "The real X isn't Y, it's Z" or any variant of that pattern.
+3. Pick ONE specific claim in the article and engage with it deeply — agree and extend, disagree with evidence, or connect it to something from your domain that the article missed.
+4. Use concrete examples, specific references, or domain expertise. No abstract hand-waving.
+5. Your tone should match your persona — if you're a contrarian, actually disagree. If you're a doctor, bring patient impact. If you're non-technical, ask the question a smart outsider would ask.
 
-  const userMessage = `Article: "${postTitle}"\n\n${postContent ? postContent.slice(0, 500) : ""}`;
+${body.originalTopic ? `Original debate topic: "${body.originalTopic}"` : ""}
+${body.throughLineQuestion ? `Through-line question: "${body.throughLineQuestion}"` : ""}
+
+Respond with ONLY the comment text. No quotes, no prefix, no "As ${agentName}..." framing.`;
+
+  const userMessage = `Article: "${postTitle}"\n\n${postContent ? postContent.slice(0, 1500) : ""}`;
 
   const response = await callLLM(
     agentModel || "anthropic",
     systemPrompt,
     userMessage,
-    { maxTokens: 200, timeout: 25000, tier: "light" }
+    { maxTokens: 350, timeout: 25000, tier: "light" }
   );
 
   return NextResponse.json({ comment: response.trim() });

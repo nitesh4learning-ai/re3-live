@@ -12,7 +12,7 @@ service cloud.firestore {
     function isAdmin() {
       return request.auth != null && (
         request.auth.token.admin == true ||
-        request.auth.token.email == 'nitesh4learning@gmail.com'
+        request.auth.token.email == 'einsteinrethink@gmail.com'
       );
     }
 

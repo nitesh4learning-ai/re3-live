@@ -27,7 +27,7 @@ export const POST = createHandler(RoundInputSchema, async (body, user, req) => {
 
   const roundPrompts = {
     1: (agent) =>
-      `Read this ${contentLabel} and give your initial position from your unique perspective. Address the full intellectual arc — the questions raised, patterns discovered, and architecture proposed.\n\n${contentLabel}: "${articleTitle}"\n${contentSlice1}\n\nRespond in 1-2 short paragraphs (max 120 words). Be direct, opinionated, and true to your role.`,
+      `The debate topic is: "${articleTitle}"\n\nRead the content below and give your initial position on this specific topic from your unique perspective. Stay focused on the debate topic — do not drift to adjacent topics. Address the full intellectual arc — the questions raised, patterns discovered, and architecture proposed.\n\n${contentLabel}: "${articleTitle}"\n${contentSlice1}\n\nRespond in 1-2 short paragraphs (max 120 words). Be direct, opinionated, and true to your role.`,
     2: (agent) =>
       `Read this ${contentLabel} and the Round 1 responses from other agents. Now respond to the most compelling or problematic points. Reference specific agents by name. Agree, challenge, or build on their ideas.\n\n${contentLabel}: "${articleTitle}"\n${contentSlice2}\n${context}\n\nRespond in 1-2 short paragraphs (max 120 words). Engage directly with what others said.`,
     3: (agent) =>

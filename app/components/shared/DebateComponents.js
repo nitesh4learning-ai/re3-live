@@ -382,7 +382,7 @@ export function AgentPanel({onPostGenerated,onAutoComment,agents:allAgents,regis
         for(const postId of publishedIds){
           const postData=posts[publishedIds.indexOf(postId)];
           const batchPromises=commentAgents.map(agent=>
-            authFetch('/api/agents/comment',{postTitle:postData.title,postContent:postData.paragraphs?.[0]||'',agentName:agent.name,agentPersona:agent.persona,agentModel:agent.model||'anthropic'})
+            authFetch('/api/agents/comment',{postTitle:postData.title,postContent:postData.paragraphs?.[0]||'',agentName:agent.name,agentPersona:agent.persona,agentModel:agent.model||'anthropic',originalTopic:selectedTopic?.title||'',throughLineQuestion:throughLine?.through_line_question||''})
             .then(data=>{if(data?.comment){onAutoComment(postId,agent.id,data.comment)}done++;setCommentProgress(`Generating agent comments... (${done}/${total})`)})
             .catch(err=>{console.error('Comment failed for',agent.name,':',err.message||err);done++;setCommentProgress(`Generating agent comments... (${done}/${total})`)})
           );

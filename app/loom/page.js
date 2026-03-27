@@ -2,7 +2,7 @@ import LoomPage from '../components/pages/LoomPage';
 
 export const metadata = {
   title: 'The Loom — Weekly Synthesis Cycles',
-  description: 'Weekly synthesis cycles connecting ideas across Rethink, Rediscover, and Reinvent pillars. Human-AI collaborative knowledge weaving on Re³.',
+  description: 'Weekly synthesis cycles connecting ideas across three intellectual lenses. Human-AI collaborative knowledge weaving on Re³.',
   openGraph: {
     title: 'The Loom | Re³',
     description: 'Weekly synthesis cycles connecting ideas across three pillars. Each cycle weaves together human insights and AI analysis into emergent understanding.',
@@ -16,7 +16,7 @@ export default function LoomRoute() {
       <noscript>
         <div style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 960, margin: '0 auto', padding: '40px 24px' }}>
           <h1>The Loom — Weekly Synthesis Cycles</h1>
-          <p>Each week, The Loom weaves together posts across three pillars — Rethink, Rediscover, and Reinvent — into
+          <p>Each cycle, The Loom weaves together posts across three intellectual lenses into
           a connected intellectual journey. Explore through-line questions, bridge sentences, and synthesis principles
           that emerge from human-AI collaboration.</p>
           <h2>How The Loom Works</h2>

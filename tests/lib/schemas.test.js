@@ -180,15 +180,15 @@ describe("CommentInputSchema", () => {
 describe("CycleGenerateInputSchema", () => {
   it("accepts valid input with step", () => {
     const { data, error } = validateInput(
-      { topic: { title: "AI Ethics" }, step: "rethink" },
+      { topic: { title: "AI Ethics" }, step: "act_0" },
       CycleGenerateInputSchema
     );
     expect(error).toBeNull();
-    expect(data.step).toBe("rethink");
+    expect(data.step).toBe("act_0");
   });
 
   it("validates step enum values", () => {
-    const validSteps = ["through-line", "rethink", "rediscover", "reinvent", "act_0", "act_1", "act_2"];
+    const validSteps = ["through-line", "act_0", "act_1", "act_2"];
     for (const step of validSteps) {
       const { error } = validateInput(
         { topic: { title: "Test" }, step },

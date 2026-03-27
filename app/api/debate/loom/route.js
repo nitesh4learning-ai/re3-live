@@ -25,7 +25,9 @@ export const POST = createHandler(LoomInputSchema, async (body, user, req) => {
   const contentLabel = isCycleDebate ? `Re3 Cycle (connected articles — ${pillarLabel})` : "Article";
 
   const loomSystem = sagePersona || "You are Hypatia, the synthesizer for Re³. You read entire debates and weave them into a reflective conclusion called The Loom. You find unity beneath contradictions, honor perspectives that disagreed, identify emergent insights no individual stated, and end with an open question. Write in simple, clear language that anyone can follow. Avoid fancy words and academic jargon — use plain English. If you must use a technical term, explain it in simple words.";
-  const loomUser = `${contentLabel}: "${articleTitle}"
+  const loomUser = `CRITICAL: Your synthesis must directly address the original debate topic: "${articleTitle}". Do not synthesize around a different or adjacent topic.
+
+${contentLabel}: "${articleTitle}"
 ${contentSlice}
 
 Ada selected this panel: ${panelNames.join(", ")}

@@ -20,7 +20,7 @@ export const POST = createHandler(ModerateInputSchema, async (body) => {
   const response = await callLLM(
     "anthropic",
     atlasPersona || "You are Socratia, the debate moderator for Re³. Your job is to ensure the discussion stays focused on the core question raised by the article. You intervene only when necessary.",
-    `Article topic: "${articleTitle}"
+    `DEBATE TOPIC (agents must address this): "${articleTitle}"
 
 Full debate transcript:
 ${transcript.slice(0, 4000)}

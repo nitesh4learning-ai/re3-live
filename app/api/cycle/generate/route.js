@@ -1,5 +1,5 @@
 import { createHandler } from "../../../../lib/api-handler";
-import { CycleGenerateInputSchema, ThroughLineSchema, CycleRethinkSchema, CycleRediscoverSchema, CycleReinventSchema } from "../../../../lib/schemas";
+import { CycleGenerateInputSchema, ThroughLineSchema, CycleActSchema } from "../../../../lib/schemas";
 import { callLLM, callLLMWithRetry } from "../../../../lib/llm-router";
 import { parseLLMResponse } from "../../../../lib/llm-parse";
 import { NextResponse } from "next/server";
@@ -7,13 +7,13 @@ import { NextResponse } from "next/server";
 // Shared writing style rules injected into all agent prompts
 const WRITING_STYLE_RULES = `
 WRITING STYLE (MANDATORY):
-- HARD LIMIT: Each article must be UNDER 100 words total (excluding code blocks). Count carefully.
+- TARGET LENGTH: Each article should be 250-400 words (excluding code blocks). Be substantive — every claim needs evidence or reasoning, not just assertions.
 - Use bullet points for every list. **Bold** key terms on first use.
-- Max 15 words per sentence. No filler. Every word must earn its place.
+- Max 20 words per sentence. No filler. Every word must earn its place.
 - Use simple, everyday words. Write like you are explaining to a smart 15-year-old. Avoid jargon unless absolutely necessary — when you must use a technical term, define it in plain English in parentheses.
 - Prefer short, clear sentences over complex ones. Replace fancy words with common ones (e.g. "use" not "utilize", "start" not "initiate", "show" not "demonstrate").
 - In JSON paragraphs array, use \\n for line breaks within a single paragraph string.
-- Each paragraph string in the array should be short — 1-3 sentences or a bullet list.`;
+- Each paragraph string in the array should be short — 2-4 sentences or a bullet list.`;
 
 // Default color palette for dynamic pillars
 const PILLAR_COLORS = [
@@ -24,9 +24,9 @@ const PILLAR_COLORS = [
 
 // Orchestrator assignments for each act position
 const ORCHESTRATORS = [
-  { name: "Hypatia", id: "agent_sage", role: "deconstructs and questions" },
-  { name: "Socratia", id: "agent_atlas", role: "finds hidden patterns and connections" },
-  { name: "Ada", id: "agent_forge", role: "builds concrete solutions and architectures" },
+  { name: "Hypatia", id: "agent_sage" },
+  { name: "Socratia", id: "agent_atlas" },
+  { name: "Ada", id: "agent_forge" },
 ];
 
 // ==================== STEP 0: Through-Line + Dynamic Pillars ====================
@@ -42,41 +42,49 @@ Each pillar should:
 - Create productive tension with the other pillars
 - Have a short, memorable label (1-2 words)
 - Have a tagline (under 10 words)
-- Have an angle describing what the agent should explore`,
-    `Topic: "${topic.title}"
+- Have an angle describing what the agent should explore
+- Have a structure describing the CONTENT FORMAT for that pillar's article
+
+CRITICAL CONSTRAINT: The through-line question MUST directly address the user's original topic.
+- Do NOT reinterpret, generalize, or drift to adjacent topics.
+- The through-line question should be a SHARPER, more provocative version of the user's topic — not a different topic entirely.
+- Every pillar angle MUST be a lens through which to examine the user's SPECIFIC topic, not a related topic.
+
+Each pillar's "structure" field should describe the CONTENT FORMAT for that pillar's article.
+The structure must match the pillar's intellectual purpose.
+Do NOT use the same structure template for every cycle.
+Different topics demand different structures.
+For example:
+- A pillar examining legal liability might use: "Case analysis → Precedent comparison → Risk mapping"
+- A pillar examining organizational impact might use: "Stakeholder map → Impact analysis → Transition scenarios"
+- A pillar examining technical architecture might use: "Current state → Proposed design → Code prototype"
+- A pillar examining human impact might use: "Personal narratives → Systemic patterns → Policy implications"`,
+    `USER'S EXACT TOPIC (do NOT change or reinterpret this): "${topic.title}"
 Context: "${topic.rationale || ""}"
+
+Your through-line question must be about "${topic.title}" specifically.
+Your 3 pillars must each examine "${topic.title}" from a different angle.
+Do NOT drift to adjacent or broader topics.
 
 Return JSON only:
 {
   "through_line_question": "The single question driving this cycle",
   "pillars": [
-    { "label": "Pillar 1 Name", "tagline": "Brief description", "angle": "What should the first agent explore?" },
-    { "label": "Pillar 2 Name", "tagline": "Brief description", "angle": "What should the second agent explore?" },
-    { "label": "Pillar 3 Name", "tagline": "Brief description", "angle": "What should the third agent explore?" }
-  ],
-  "rethink_angle": "Same as pillars[0].angle (for backward compat)",
-  "rediscover_angle": "Same as pillars[1].angle (for backward compat)",
-  "reinvent_angle": "Same as pillars[2].angle (for backward compat)"
+    { "label": "Pillar 1 Name", "tagline": "Brief description", "angle": "What should the first agent explore?", "structure": "Content format for this pillar" },
+    { "label": "Pillar 2 Name", "tagline": "Brief description", "angle": "What should the second agent explore?", "structure": "Content format for this pillar" },
+    { "label": "Pillar 3 Name", "tagline": "Brief description", "angle": "What should the third agent explore?", "structure": "Content format for this pillar" }
+  ]
 }`,
-    { maxTokens: 1000, timeout: 30000, tier: "light" }
+    { maxTokens: 1200, timeout: 30000, tier: "light" }
   );
 
   const { data, error } = parseLLMResponse(response, ThroughLineSchema);
   if (!data) throw new Error("Failed to parse through-line question: " + error);
 
-  // Ensure backward compat: if pillars not returned, build from classic angles
+  // If pillars somehow missing, retry would be better but fall back gracefully
   if (!data.pillars || data.pillars.length < 3) {
-    data.pillars = [
-      { label: "Rethink", tagline: "Deconstruct assumptions", angle: data.rethink_angle },
-      { label: "Rediscover", tagline: "Find hidden patterns", angle: data.rediscover_angle },
-      { label: "Reinvent", tagline: "Build what's next", angle: data.reinvent_angle },
-    ];
+    throw new Error("Through-line generation did not return 3 pillars — please retry");
   }
-
-  // Backfill classic angles from dynamic pillars
-  if (!data.rethink_angle && data.pillars[0]) data.rethink_angle = data.pillars[0].angle;
-  if (!data.rediscover_angle && data.pillars[1]) data.rediscover_angle = data.pillars[1].angle;
-  if (!data.reinvent_angle && data.pillars[2]) data.reinvent_angle = data.pillars[2].angle;
 
   return data;
 }
@@ -90,70 +98,40 @@ async function generateAct(actIndex, topic, throughLine, previousActs) {
 
   // Build context from previous acts
   let previousContext = "";
-  let previousQuestions = "";
-  let previousPrinciple = "";
+  let previousInsights = "";
   previousActs.forEach((act, i) => {
     const prevPillar = throughLine.pillars[i];
     previousContext += `\n--- ${prevPillar.label} (by ${ORCHESTRATORS[i].name}) ---\n`;
     previousContext += act.paragraphs.join("\n\n") + "\n";
-    if (act.open_questions?.length) previousQuestions = act.open_questions.join("\n- ");
-    if (act.synthesis_principle) previousPrinciple = act.synthesis_principle;
+    if (act.open_questions?.length) previousInsights += `\nOpen questions from ${prevPillar.label}:\n- ${act.open_questions.join("\n- ")}`;
+    if (act.key_insights?.length) previousInsights += `\nKey insights from ${prevPillar.label}:\n- ${act.key_insights.join("\n- ")}`;
   });
 
-  // Different prompts per act position
-  const actPrompts = {
-    0: {
-      system: `You are ${orch.name}, writing the "${pillarLabel}" lens for a Re3 cycle. You ${orch.role}. Act 1 of 3 — you create tension for the next two acts (${allPillarLabels[1]}, ${allPillarLabels[2]}).
+  const isFirst = actIndex === 0;
+  const isLast = actIndex === 2;
+  const nextPillar = !isLast ? allPillarLabels[actIndex + 1] : null;
+  const otherPillars = allPillarLabels.filter((_, i) => i !== actIndex).join(", ");
 
-YOUR OUTPUT (follow exactly — UNDER 100 WORDS TOTAL):
-1. THE CONSENSUS: 1-2 bullet points stating what everyone believes. **Bold** key terms.
-2. THE FRACTURE: 2-3 bullet points breaking that consensus. Why is it wrong or incomplete?
-3. OPEN QUESTIONS: 2-3 bullet-point questions the consensus cannot answer.
-4. BRIDGE: 1 sentence pointing to ${allPillarLabels[1]}.
+  const system = `You are ${orch.name}, writing the "${pillarLabel}" lens for a Re3 cycle.
+Your role for this pillar: ${pillar.angle}
+Your tagline: ${pillar.tagline}
+Act ${actIndex + 1} of 3.${isFirst ? ` You create tension for the next two acts (${otherPillars}).` : isLast ? " This is the resolution — synthesize and build." : ""}
 
-RULES:
-- Reference the through-line question.
-- Leave room for ${allPillarLabels[1]} and ${allPillarLabels[2]}.
-- Tone: Provocative, Socratic, honest.
-${WRITING_STYLE_RULES}`,
-      user: `Topic: "${topic.title}"
-Through-Line Question: "${throughLine.through_line_question}"
-Your lens: "${pillarLabel}" — ${pillar.tagline}
-Your angle: "${pillar.angle}"
+${previousInsights ? `CONTEXT FROM PREVIOUS ACTS:\n${previousInsights}` : ""}
 
-Return JSON:
-{
-  "title": "Short, provocative title (under 10 words)",
-  "tldr": "One sentence (15 words max).",
-  "paragraphs": ["- Consensus point 1\\n- Consensus point 2", "- Fracture point 1\\n- Fracture point 2\\n- Fracture point 3", "- Question 1?\\n- Question 2?\\n- Question 3?", "Bridge sentence to ${allPillarLabels[1]}."],
-  "open_questions": ["Question 1", "Question 2", "Question 3"],
-  "bridge_sentence": "Bridge sentence",
-  "tags": ["tag1", "tag2"],
-  "artifact": {
-    "type": "questions",
-    "items": ["Question 1", "Question 2", "Question 3"]
-  }
-}`,
-      schema: CycleRethinkSchema,
-    },
-    1: {
-      system: `You are ${orch.name}, writing the "${pillarLabel}" lens for a Re3 cycle. You ${orch.role}. Act 2 of 3.
+YOUR CONTENT STRUCTURE (follow this, not a generic template):
+${pillar.structure || "Raise the core tension, explore it from your angle, and end with open questions for the next pillar."}
 
-${previousQuestions ? `QUESTIONS FROM ${allPillarLabels[0].toUpperCase()} TO ADDRESS:\n- ${previousQuestions}` : ""}
-
-YOUR OUTPUT (follow exactly — UNDER 100 WORDS TOTAL):
-1. CALLBACK: 1 sentence referencing ${allPillarLabels[0]}'s question.
-2. PATTERN 1: **Bold** the name. Include domain, year, and key insight as 2-3 bullets.
-3. PATTERN 2: Different field entirely. 2-3 bullets with specifics.
-4. PRINCIPLE: 1 bold sentence — "What both reveal: [principle]."
-5. BRIDGE: 1 sentence to ${allPillarLabels[2]}.
+ORIGINAL USER TOPIC (do NOT deviate): "${topic.title}"
 
 RULES:
-- Build on ${allPillarLabels[0]}'s work. Do not repeat it.
-- Use specific, dated, named examples. No vague analogies.
-- Tone: Detective-like, surprising connections.
-${WRITING_STYLE_RULES}`,
-      user: `Topic: "${topic.title}"
+- Reference the through-line question throughout.
+- ${isFirst ? `Leave room for the other two pillars: ${otherPillars}.` : `Build on previous acts. Do not repeat them.`}
+- ${nextPillar ? `End with a bridge sentence pointing to ${nextPillar}.` : "End with an open thread — one question seeding the next cycle."}
+- Tone: Direct, opinionated, substantive.
+${WRITING_STYLE_RULES}`;
+
+  const user = `ORIGINAL USER TOPIC (you MUST address this directly — do not deviate): "${topic.title}"
 Through-Line Question: "${throughLine.through_line_question}"
 Your lens: "${pillarLabel}" — ${pillar.tagline}
 Your angle: "${pillar.angle}"
@@ -161,74 +139,24 @@ ${previousContext}
 
 Return JSON:
 {
-  "title": "Short title hinting at the surprising connection (under 10 words)",
+  "title": "Short, compelling title (under 10 words)",
   "tldr": "One sentence (15 words max).",
-  "paragraphs": ["Callback sentence.", "**Pattern Name** (year):\\n- Key insight 1\\n- Key insight 2", "**Cross-domain term**:\\n- Insight 1\\n- Insight 2", "**Principle:** What both cases reveal is: [principle].", "Bridge sentence to ${allPillarLabels[2]}."],
-  "patterns": [
-    {"domain": "Domain", "year": "Year", "principle": "Key principle", "summary": "One-line"},
-    {"domain": "Domain", "principle": "Key principle", "summary": "One-line"}
-  ],
-  "synthesis_principle": "The principle in one sentence",
-  "bridge_sentence": "Bridge sentence",
+  "paragraphs": ["paragraph 1", "paragraph 2", "..."],
+  "key_insights": ["insight 1", "insight 2"],
+  "open_questions": ["question for the next pillar or the community"],
+  "bridge_sentence": "${nextPillar ? `Bridge to ${nextPillar}` : "Open thread for next cycle"}",
   "tags": ["tag1", "tag2"],
   "artifact": {
-    "type": "principle",
-    "statement": "The principle in one sentence",
-    "evidence": ["Pattern 1 summary", "Pattern 2 summary"]
+    "type": "questions|principle|blueprint|analysis|framework",
+    "items": ["item 1", "item 2"]
   }
-}`,
-      schema: CycleRediscoverSchema,
-    },
-    2: {
-      system: `You are ${orch.name}, writing the "${pillarLabel}" lens for a Re3 cycle. You ${orch.role}. Act 3 of 3 — the resolution.
+}`;
 
-${previousPrinciple ? `PRINCIPLE FROM ${allPillarLabels[1].toUpperCase()} TO BUILD ON:\n${previousPrinciple}` : ""}
-
-YOUR OUTPUT (follow exactly — UNDER 100 WORDS for prose, code block is separate):
-1. FOUNDATION: 1 sentence threading the arc. "${allPillarLabels[0]} broke [X]. ${allPillarLabels[1]} found [Y]. Now we build."
-2. ARCHITECTURE: 3-4 bullet-point components. **Bold** each name. Be opinionated.
-3. CODE ANCHOR: A short working Python snippet (10-20 lines). Embodies the principle.
-4. INTEGRATION: 2-3 bullet steps. "Start with X, not Y."
-5. OPEN THREAD: 1 sentence seeding the next cycle.
-
-RULES:
-- Build on both previous acts. Do not repeat them.
-- Working Python code, not pseudocode.
-- Tone: Builder, pragmatic, opinionated.
-${WRITING_STYLE_RULES}
-
-For code blocks, use \`\`\`python at the start of the paragraph.`,
-      user: `Topic: "${topic.title}"
-Through-Line Question: "${throughLine.through_line_question}"
-Your lens: "${pillarLabel}" — ${pillar.tagline}
-Your angle: "${pillar.angle}"
-${previousContext}
-
-Return JSON:
-{
-  "title": "Short, buildable title (under 10 words)",
-  "tldr": "One sentence (15 words max).",
-  "paragraphs": ["Foundation sentence.", "**Component 1**: description\\n**Component 2**: description\\n**Component 3**: description", "\`\`\`python\\ncode here\\n\`\`\`", "- Integration step 1\\n- Integration step 2\\n- Integration step 3", "Open thread sentence."],
-  "architecture_components": ["Component 1", "Component 2", "Component 3"],
-  "open_thread": "Next question this raises",
-  "tags": ["tag1", "tag2"],
-  "artifact": {
-    "type": "blueprint",
-    "components": ["Component 1", "Component 2"],
-    "principle_applied": "Principle from ${allPillarLabels[1]}",
-    "code_summary": "What the code demonstrates"
-  }
-}`,
-      schema: CycleReinventSchema,
-    },
-  };
-
-  const prompt = actPrompts[actIndex];
-  const maxTokens = actIndex === 2 ? 1500 : 1200;
+  const maxTokens = actIndex === 2 ? 2000 : 1500;
   const timeout = actIndex === 2 ? 45000 : 30000;
 
-  const response = await callLLMWithRetry("anthropic", prompt.system, prompt.user, { maxTokens, timeout, retries: 2, tier: "standard" });
-  const { data, error } = parseLLMResponse(response, prompt.schema);
+  const response = await callLLMWithRetry("anthropic", system, user, { maxTokens, timeout, retries: 2, tier: "standard" });
+  const { data, error } = parseLLMResponse(response, CycleActSchema);
   if (!data) throw new Error(`Failed to parse ${orch.name} response for "${pillarLabel}": ` + error);
   return data;
 }
@@ -249,26 +177,26 @@ export const POST = createHandler(CycleGenerateInputSchema, async (body, user, r
     return NextResponse.json({ step: "through-line", data: { ...throughLine, pillars: pillarsWithMeta } });
   }
 
-  if (step === "rethink" || step === "act_0") {
+  if (step === "act_0") {
     const throughLine = previousData?.throughLine;
     if (!throughLine) return NextResponse.json({ error: "throughLine required" }, { status: 400 });
-    const pillarKey = throughLine.pillars?.[0]?.key || "rethink";
+    const pillarKey = throughLine.pillars?.[0]?.key || "pillar_1";
     const sage = await generateAct(0, topic, throughLine, []);
     return NextResponse.json({ step: "act_0", data: { ...sage, agent: ORCHESTRATORS[0].name, pillar: pillarKey, authorId: ORCHESTRATORS[0].id } });
   }
 
-  if (step === "rediscover" || step === "act_1") {
+  if (step === "act_1") {
     const { throughLine, sage } = previousData || {};
     if (!throughLine || !sage) return NextResponse.json({ error: "throughLine and sage required" }, { status: 400 });
-    const pillarKey = throughLine.pillars?.[1]?.key || "rediscover";
+    const pillarKey = throughLine.pillars?.[1]?.key || "pillar_2";
     const atlas = await generateAct(1, topic, throughLine, [sage]);
     return NextResponse.json({ step: "act_1", data: { ...atlas, agent: ORCHESTRATORS[1].name, pillar: pillarKey, authorId: ORCHESTRATORS[1].id } });
   }
 
-  if (step === "reinvent" || step === "act_2") {
+  if (step === "act_2") {
     const { throughLine, sage, atlas } = previousData || {};
     if (!throughLine || !sage || !atlas) return NextResponse.json({ error: "throughLine, sage, and atlas required" }, { status: 400 });
-    const pillarKey = throughLine.pillars?.[2]?.key || "reinvent";
+    const pillarKey = throughLine.pillars?.[2]?.key || "pillar_3";
     const forge = await generateAct(2, topic, throughLine, [sage, atlas]);
     return NextResponse.json({ step: "act_2", data: { ...forge, agent: ORCHESTRATORS[2].name, pillar: pillarKey, authorId: ORCHESTRATORS[2].id } });
   }
@@ -295,17 +223,17 @@ export const POST = createHandler(CycleGenerateInputSchema, async (body, user, r
 
           send({ type: "step", step: "act_0", status: "started", agent: ORCHESTRATORS[0].name });
           const sage = await generateAct(0, topic, tlWithMeta, []);
-          const sagePost = { ...sage, agent: ORCHESTRATORS[0].name, pillar: pillarsWithMeta[0]?.key || "rethink", authorId: ORCHESTRATORS[0].id };
+          const sagePost = { ...sage, agent: ORCHESTRATORS[0].name, pillar: pillarsWithMeta[0]?.key || "pillar_1", authorId: ORCHESTRATORS[0].id };
           send({ type: "step", step: "act_0", status: "done", data: sagePost });
 
           send({ type: "step", step: "act_1", status: "started", agent: ORCHESTRATORS[1].name });
           const atlas = await generateAct(1, topic, tlWithMeta, [sage]);
-          const atlasPost = { ...atlas, agent: ORCHESTRATORS[1].name, pillar: pillarsWithMeta[1]?.key || "rediscover", authorId: ORCHESTRATORS[1].id };
+          const atlasPost = { ...atlas, agent: ORCHESTRATORS[1].name, pillar: pillarsWithMeta[1]?.key || "pillar_2", authorId: ORCHESTRATORS[1].id };
           send({ type: "step", step: "act_1", status: "done", data: atlasPost });
 
           send({ type: "step", step: "act_2", status: "started", agent: ORCHESTRATORS[2].name });
           const forge = await generateAct(2, topic, tlWithMeta, [sage, atlas]);
-          const forgePost = { ...forge, agent: ORCHESTRATORS[2].name, pillar: pillarsWithMeta[2]?.key || "reinvent", authorId: ORCHESTRATORS[2].id };
+          const forgePost = { ...forge, agent: ORCHESTRATORS[2].name, pillar: pillarsWithMeta[2]?.key || "pillar_3", authorId: ORCHESTRATORS[2].id };
           send({ type: "step", step: "act_2", status: "done", data: forgePost });
 
           send({ type: "done", data: { throughLine: tlWithMeta, posts: [sagePost, atlasPost, forgePost] } });
@@ -338,9 +266,9 @@ export const POST = createHandler(CycleGenerateInputSchema, async (body, user, r
   return NextResponse.json({
     throughLine: tlWithMeta,
     posts: [
-      { ...sage, agent: ORCHESTRATORS[0].name, pillar: pillarsWithMeta[0]?.key || "rethink", authorId: ORCHESTRATORS[0].id },
-      { ...atlas, agent: ORCHESTRATORS[1].name, pillar: pillarsWithMeta[1]?.key || "rediscover", authorId: ORCHESTRATORS[1].id },
-      { ...forge, agent: ORCHESTRATORS[2].name, pillar: pillarsWithMeta[2]?.key || "reinvent", authorId: ORCHESTRATORS[2].id },
+      { ...sage, agent: ORCHESTRATORS[0].name, pillar: pillarsWithMeta[0]?.key || "pillar_1", authorId: ORCHESTRATORS[0].id },
+      { ...atlas, agent: ORCHESTRATORS[1].name, pillar: pillarsWithMeta[1]?.key || "pillar_2", authorId: ORCHESTRATORS[1].id },
+      { ...forge, agent: ORCHESTRATORS[2].name, pillar: pillarsWithMeta[2]?.key || "pillar_3", authorId: ORCHESTRATORS[2].id },
     ],
   });
 });

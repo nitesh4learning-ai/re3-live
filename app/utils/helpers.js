@@ -28,10 +28,13 @@ export function getCycles(content) {
     const posts = cycleGroups[key];
     const date = posts[0]?.sundayCycle || key;
     const id = posts[0]?.cycleId || key;
-    const rethink = posts.find(p => p.pillar === "rethink");
-    const rediscover = posts.find(p => p.pillar === "rediscover");
-    const reinvent = posts.find(p => p.pillar === "reinvent");
-    const extra = posts.filter(p => !["rethink", "rediscover", "reinvent"].includes(p.pillar));
+    const dynamicPillarsData = posts[0]?.dynamicPillars || null;
+    // Dynamic pillars: use positional mapping (pillar_1, pillar_2, pillar_3)
+    // Classic pillars: use key mapping (rethink, rediscover, reinvent)
+    const rethink = dynamicPillarsData ? null : posts.find(p => p.pillar === "rethink");
+    const rediscover = dynamicPillarsData ? null : posts.find(p => p.pillar === "rediscover");
+    const reinvent = dynamicPillarsData ? null : posts.find(p => p.pillar === "reinvent");
+    const extra = dynamicPillarsData ? [] : posts.filter(p => !["rethink", "rediscover", "reinvent"].includes(p.pillar));
     const headline = deriveHeadline(rethink, rediscover, reinvent, posts);
     // Journey metadata (from connected cycle generation)
     const throughLineQuestion = rethink?.throughLineQuestion || rediscover?.throughLineQuestion || reinvent?.throughLineQuestion || posts[0]?.throughLineQuestion || null;
