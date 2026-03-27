@@ -58,6 +58,20 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Orchestration runs — anyone can read, authenticated users can create/update
+    match /orchestration_runs/{runId} {
+      allow read: if true;
+      allow create, update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    // Counters (visit tracking, etc.) — anyone can read, authenticated users can update
+    match /counters/{counterId} {
+      allow read: if true;
+      allow create, update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
     // Cycles collection (future) — anyone can read, admin can write
     match /cycles/{cycleId} {
       allow read: if true;
