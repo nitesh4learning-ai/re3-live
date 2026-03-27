@@ -21,7 +21,7 @@ export function getFirestoreModuleSync() { return _firestoreModule; }
 let _authReady = null;
 export function waitForAuth() {
   if (_authReady) return _authReady;
-  _authReady = getFirebase().then(({ auth }) => {
+  _authReady = getFirebase().then(async ({ auth }) => {
     if (!auth) return null;
     // If currentUser already exists, auth is ready
     if (auth.currentUser) return auth.currentUser;
