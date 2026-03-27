@@ -17,10 +17,34 @@ export async function getFirestoreModule() {
 // Synchronous access to already-loaded module (for beforeunload flush)
 export function getFirestoreModuleSync() { return _firestoreModule; }
 
+// Wait for Firebase Auth to be ready (restored from persistence)
+let _authReady = null;
+export function waitForAuth() {
+  if (_authReady) return _authReady;
+  _authReady = getFirebase().then(({ auth }) => {
+    if (!auth) return null;
+    // If currentUser already exists, auth is ready
+    if (auth.currentUser) return auth.currentUser;
+    // Otherwise wait for onAuthStateChanged to fire (session restore)
+    const { onAuthStateChanged } = await import("firebase/auth");
+    return new Promise((resolve) => {
+      const unsub = onAuthStateChanged(auth, (user) => {
+        unsub();
+        resolve(user);
+      });
+      // Timeout: don't block forever if user isn't signed in
+      setTimeout(() => resolve(null), 3000);
+    });
+  });
+  return _authReady;
+}
+
 // Background Firestore sync (non-blocking)
+// Waits for Firebase Auth to be ready so Firestore security rules can verify the user.
 export function syncToFirestore(type, data) {
-  getFirestoreModule().then(mod => {
+  Promise.all([getFirestoreModule(), waitForAuth()]).then(([mod, user]) => {
     if (!mod) return;
+    if (!user) { console.warn('syncToFirestore: no authenticated user, skipping Firestore write'); return; }
     switch (type) {
       case 'content': mod.saveContent(data); break;
       case 'themes': mod.saveThemes(data); break;
@@ -30,7 +54,7 @@ export function syncToFirestore(type, data) {
       case 'forge_sessions': mod.saveForgeSessions(data); break;
       case 'editor_picks': mod.saveEditorPicks(data); break;
     }
-  }).catch(() => {});
+  }).catch((e) => { console.warn('syncToFirestore error:', e.message); });
 }
 
 let firebaseAuth = null;
