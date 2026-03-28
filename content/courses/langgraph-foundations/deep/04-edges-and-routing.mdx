@@ -1,0 +1,127 @@
+---
+label: "Edges & Conditional Routing"
+icon: "🔀"
+---
+
+## Edges: The Control Plane of Your Agent
+
+If nodes are the workers, edges are the manager deciding who works next. LangGraph supports three types of edges, each serving a different purpose.
+
+<ComparisonTable title="LangGraph Edge Types" columns={['Edge Type','Syntax','When to Use','Enterprise Analogy']} rows={[
+  ['Regular Edge','graph.add_edge("A", "B")','Fixed flow — A always goes to B','Assembly line: step 1 always feeds step 2'],
+  ['Conditional Edge','graph.add_conditional_edges("A", fn, {...})','Dynamic routing based on state','MDM routing: validate vs update based on match score'],
+  ['Entry Edge','graph.add_edge(START, "A")','Defines where the graph begins','Intake: every new request starts at triage'],
+  ['Terminal Edge','graph.add_edge("A", END)','Exits the graph','Completed: record written to master'],
+]}/>
+
+### The Routing Function: Where Intelligence Lives
+
+The routing function is a plain Python function. It receives the current state and returns a **string** — the name of the next node. Simple, testable, debuggable.
+
+<CodeBlock language="python" label="Routing Function — The Agent's Decision Brain" code={`from typing import Literal
+
+def should_retry(state: ResearchState) -> Literal["summarize", "rewrite", "end"]:
+    """
+    Called after grade_node. Inspects state, returns next node name.
+    
+    CRITICAL: Every possible return value MUST have a 
+    matching entry in the conditional_edges mapping.
+    Missing a return value = runtime crash.
+    """
+    if state["quality_score"] >= 7.0:
+        return "summarize"     # Good results → summarize
+    
+    if state["retry_count"] >= state.get("max_retries", 3):
+        return "end"           # Safety limit → stop gracefully
+    
+    return "rewrite"           # Poor results → rewrite & retry
+
+
+# ─── Wiring it into the graph ───
+graph.add_conditional_edges(
+    "grade",              # Source node
+    should_retry,         # Routing function
+    {
+        "summarize": "summarize",
+        "rewrite": "rewrite",
+        "end": END          # Map EVERY return value!
+    }
+)`}/>
+
+<AnalogyBox emoji="🚦" title="Smart Traffic Light">
+A conditional edge is like a smart traffic light that reads sensors instead of following fixed timing. How many cars are waiting? Is an ambulance approaching? Based on this state, it decides which direction gets green. Your routing function reads agent state and decides which node executes next.
+</AnalogyBox>
+
+### Assembling the Complete Graph
+
+<CodeBlock language="python" label="Complete Graph Assembly — Research Agent" code={`from langgraph.graph import StateGraph, END, START
+
+# 1. Create graph with state schema
+graph = StateGraph(ResearchState)
+
+# 2. Register all nodes
+graph.add_node("search", search_node)
+graph.add_node("grade", grade_node)
+graph.add_node("rewrite", rewrite_node)
+graph.add_node("summarize", summarize_node)
+
+# 3. Fixed edges
+graph.add_edge(START, "search")        # Always search first
+graph.add_edge("search", "grade")      # Always grade after search
+graph.add_edge("rewrite", "search")    # Rewrite → search again (CYCLE!)
+graph.add_edge("summarize", END)       # Summary → done
+
+# 4. Conditional edge (the decision point)
+graph.add_conditional_edges(
+    "grade", should_retry,
+    {"summarize": "summarize", "rewrite": "rewrite", "end": END}
+)
+
+# 5. Compile & run
+app = graph.compile()
+result = app.invoke({
+    "query": "Latest AI governance frameworks 2026",
+    "original_query": "Latest AI governance frameworks 2026",
+    "search_results": [], "quality_score": 0.0,
+    "summary": "", "sources": [], "retry_count": 0,
+    "max_retries": 3, "current_node": "", "error": None,
+    "messages": []
+})
+print(result["summary"])`}/>
+
+Notice `graph.add_edge("rewrite", "search")` — this is the **cycle**. After rewriting, we go back to search. This is impossible in a LangChain chain (DAGs have no cycles). This single capability is why LangGraph exists.
+
+### Common Pitfall: The Missing Route Bug
+
+<CodeBlock language="python" label="🐛 Bug: Missing Route Mapping" code={`# THIS WILL CRASH at runtime:
+graph.add_conditional_edges(
+    "grade", should_retry,
+    {
+        "summarize": "summarize",
+        "rewrite": "rewrite",
+        # ❌ Missing "end" mapping!
+        # When retry_count >= 3, should_retry returns "end"
+        # but no mapping exists → KeyError at runtime
+    }
+)
+
+# ✅ FIX: Map EVERY possible return value
+graph.add_conditional_edges(
+    "grade", should_retry,
+    {
+        "summarize": "summarize",
+        "rewrite": "rewrite",
+        "end": END   # ← Always handle ALL routes!
+    }
+)`}/>
+
+> **Production Rule**: Use Python's `Literal` type hint on routing functions. `def should_retry(...) -> Literal["summarize", "rewrite", "end"]` catches missing routes before runtime.
+
+<Quiz
+  question="Your routing function returns three values: 'approve', 'reject', 'escalate'. Your mapping only includes 'approve' and 'reject'. What happens when it returns 'escalate'?"
+  options={["The graph silently ends", "A KeyError crashes the graph at runtime", "LangGraph auto-creates an 'escalate' node", "The graph defaults to the first mapped node"]}
+  correctIndex={1}
+  explanation="LangGraph raises a KeyError when a routing function returns an unmapped value. The graph compiles fine but crashes during execution. Always map every return value, and use Literal type hints to catch this at development time."
+/>
+
+<SeeItInRe3 text="Re³'s debate pipeline uses conditional routing after Atlas moderation: if quality is high → proceed to Hypatia's Loom synthesis. If quality is low → inject a provocative prompt and loop for another round." />

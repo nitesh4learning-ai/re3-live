@@ -1,0 +1,262 @@
+---
+label: "Build & Exercises"
+icon: "🔨"
+---
+
+## Week 1 Build: Self-Correcting Research Agent
+
+This is the hands-on project that ties everything together. By the end, you'll have a working agent that demonstrates stateful workflows, self-correction loops, and LLM-as-judge evaluation — the exact patterns interviewers ask about for Director-level AI roles.
+
+### Architecture
+
+<CodeBlock language="text" label="Agent Flow Diagram" code={`┌─────────┐
+│  START  │
+└────┬────┘
+     │
+┌────▼─────┐
+│  Search  │◄──────────────┐
+└────┬─────┘               │
+     │                     │
+┌────▼─────┐         ┌────┴─────┐
+│  Grade   │────────►│ Rewrite  │
+└────┬─────┘ score<7 └──────────┘
+     │ score≥7
+┌────▼──────┐
+│ Summarize │
+└────┬──────┘
+     │
+┌────▼────┐
+│   END   │
+└─────────┘`}/>
+
+### Requirements Checklist
+
+1. Agent accepts a research topic as string input
+2. Searches the web using Tavily (or mock search for testing)
+3. LLM grades relevance of results on a 0-10 scale
+4. If score < 7, LLM rewrites the query and retries (max 3 attempts)
+5. Generates a structured summary with key findings
+6. Tracks sources/URLs in state for citation
+
+### Complete Working Implementation
+
+<CodeBlock language="python" label="research_agent.py — Full Implementation" code={`"""
+Self-Correcting Research Agent — LangGraph Week 1 Build
+Uses Claude API via langchain-anthropic.
+
+Install: pip install langgraph langchain-anthropic langchain-community
+Set: ANTHROPIC_API_KEY environment variable
+"""
+from typing import TypedDict, Annotated, List, Optional, Literal
+from langgraph.graph import StateGraph, END, START, add_messages
+from langchain_anthropic import ChatAnthropic
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
+
+# ══════════════════════════════════════════════
+# 1. STATE DEFINITION
+# ══════════════════════════════════════════════
+class ResearchState(TypedDict):
+    messages: Annotated[list[BaseMessage], add_messages]
+    query: str
+    original_query: str
+    search_results: List[str]
+    quality_score: float
+    summary: str
+    sources: List[str]
+    retry_count: int
+    max_retries: int
+    current_node: str
+    error: Optional[str]
+
+# ══════════════════════════════════════════════
+# 2. LLM SETUP
+# ══════════════════════════════════════════════
+llm = ChatAnthropic(
+    model="claude-sonnet-4-20250514",
+    temperature=0,       # Deterministic for grading
+    max_tokens=1024
+)
+
+# ══════════════════════════════════════════════
+# 3. NODE FUNCTIONS
+# ══════════════════════════════════════════════
+def search_node(state: ResearchState) -> dict:
+    query = state["query"]
+    print(f"  🔍 Searching: {query}")
+    
+    # Production: use Tavily, SerpAPI, etc.
+    # For testing, mock the search:
+    try:
+        from langchain_community.tools.tavily_search import (
+            TavilySearchResults
+        )
+        tool = TavilySearchResults(max_results=3)
+        results = tool.invoke(query)
+        texts = [r.get("content", "") for r in results]
+        urls = [r.get("url", "") for r in results]
+    except Exception:
+        # Fallback mock for testing without API key
+        texts = [f"Mock result for: {query}"]
+        urls = ["https://example.com"]
+    
+    return {
+        "search_results": texts,
+        "sources": urls,
+        "current_node": "search"
+    }
+
+def grade_node(state: ResearchState) -> dict:
+    print("  📊 Grading results...")
+    response = llm.invoke([
+        SystemMessage(content=(
+            "You evaluate search result quality. "
+            "Score relevance to the query from 0-10. "
+            "Return ONLY the number."
+        )),
+        HumanMessage(content=(
+            f"Query: {state['query']}\\n\\n"
+            f"Results: {str(state['search_results'])[:2000]}"
+        ))
+    ])
+    try:
+        score = float(response.content.strip())
+    except ValueError:
+        score = 5.0  # Default if parsing fails
+    
+    print(f"  📊 Quality score: {score}/10")
+    return {"quality_score": score, "current_node": "grade"}
+
+def rewrite_node(state: ResearchState) -> dict:
+    print(f"  ✏️  Rewriting query (attempt {state['retry_count'] + 1})...")
+    response = llm.invoke([
+        SystemMessage(content=(
+            "The search results were not relevant. "
+            "Rewrite the query to get better results. "
+            "Return ONLY the improved query string."
+        )),
+        HumanMessage(content=(
+            f"Original: {state['original_query']}\\n"
+            f"Current: {state['query']}\\n"
+            f"Poor results: {str(state['search_results'])[:500]}"
+        ))
+    ])
+    new_query = response.content.strip()
+    print(f"  ✏️  New query: {new_query}")
+    return {
+        "query": new_query,
+        "retry_count": state["retry_count"] + 1,
+        "current_node": "rewrite"
+    }
+
+def summarize_node(state: ResearchState) -> dict:
+    print("  📝 Generating summary...")
+    response = llm.invoke([
+        SystemMessage(content=(
+            "Synthesize these search results into a clear "
+            "summary. Include key findings. Be comprehensive "
+            "but concise."
+        )),
+        HumanMessage(content=(
+            f"Topic: {state['original_query']}\\n\\n"
+            f"Results: {str(state['search_results'])}"
+        ))
+    ])
+    return {"summary": response.content, "current_node": "summarize"}
+
+# ══════════════════════════════════════════════
+# 4. ROUTING FUNCTION
+# ══════════════════════════════════════════════
+def should_retry(state: ResearchState) -> Literal["summarize", "rewrite", "end"]:
+    if state["quality_score"] >= 7.0:
+        return "summarize"
+    if state["retry_count"] >= state.get("max_retries", 3):
+        print("  ⚠️  Max retries reached, stopping.")
+        return "end"
+    return "rewrite"
+
+# ══════════════════════════════════════════════
+# 5. GRAPH ASSEMBLY
+# ══════════════════════════════════════════════
+graph = StateGraph(ResearchState)
+graph.add_node("search", search_node)
+graph.add_node("grade", grade_node)
+graph.add_node("rewrite", rewrite_node)
+graph.add_node("summarize", summarize_node)
+
+graph.add_edge(START, "search")
+graph.add_edge("search", "grade")
+graph.add_conditional_edges(
+    "grade", should_retry,
+    {"summarize": "summarize", "rewrite": "rewrite", "end": END}
+)
+graph.add_edge("rewrite", "search")
+graph.add_edge("summarize", END)
+
+app = graph.compile()
+
+# ══════════════════════════════════════════════
+# 6. RUN
+# ══════════════════════════════════════════════
+if __name__ == "__main__":
+    topic = "AI governance frameworks and enterprise adoption 2026"
+    print(f"\\n🚀 Research Agent starting: '{topic}'\\n")
+    
+    result = app.invoke({
+        "query": topic,
+        "original_query": topic,
+        "search_results": [],
+        "quality_score": 0.0,
+        "summary": "",
+        "sources": [],
+        "retry_count": 0,
+        "max_retries": 3,
+        "current_node": "",
+        "error": None,
+        "messages": []
+    })
+    
+    print(f"\\n{'='*60}")
+    print(f"📋 SUMMARY:\\n{result['summary']}")
+    print(f"\\n🔗 Sources: {result['sources']}")
+    print(f"🔄 Retries used: {result['retry_count']}")`}/>
+
+### Stretch Goals
+
+Once the base agent works, try these enhancements:
+
+1. **Streaming**: Use `app.stream()` instead of `app.invoke()` to see each node execute in real-time
+2. **Checkpointing**: Add `SqliteSaver` so the agent can resume from failures — `app = graph.compile(checkpointer=SqliteSaver("research.db"))`
+3. **Visualization**: Call `app.get_graph().draw_mermaid_png()` to generate a visual diagram of your graph
+4. **FastAPI**: Wrap the agent in a REST endpoint that accepts topics via POST
+
+---
+
+## Exercises
+
+<Quiz
+  question="In the Research Agent graph, which edge creates the self-correction cycle?"
+  options={["graph.add_edge(START, 'search')", "graph.add_edge('search', 'grade')", "graph.add_edge('rewrite', 'search')", "graph.add_edge('summarize', END)"]}
+  correctIndex={2}
+  explanation="The edge from 'rewrite' back to 'search' creates the cycle. After rewriting the query, the agent goes back to search with the improved query. This loop (search → grade → rewrite → search) is what makes the agent self-correcting — impossible in linear LangChain chains."
+/>
+
+<Quiz
+  question="Why does the Research Agent track original_query separately from query?"
+  options={["LangGraph requires two query fields", "The original_query is used as the search query", "The query gets rewritten during retries, but the summary should reference the user's original intent", "It's a naming convention from LangChain"]}
+  correctIndex={2}
+  explanation="When the agent rewrites the query for better search results, the 'query' field changes. But the final summary needs to answer the USER's original question, not the rewritten version. Preserving original_query ensures the output stays anchored to what the user actually asked. This is a production best practice."
+/>
+
+<ArchitectureDecision scenario="You're building an MDM data quality agent for McKesson's S/4HANA migration. New supplier records arrive from 3 business units (Specialty, Pharma, 3PL). The agent must: validate required fields, check for duplicates against SAP master data, enrich with D&B data, and route ambiguous matches to a human data steward." options={[
+  {label:'Single linear chain: Validate → Dedupe → Enrich → Write', tradeoff:'Simple but cannot handle the case where D&B enrichment changes the record enough to affect duplicate detection. No retry loop. Human review requires external orchestration.'},
+  {label:'LangGraph with conditional routing and human-in-the-loop', tradeoff:'Validate → Dedupe → conditional edge (match_score > 0.85 → Enrich, 0.5-0.85 → Human Review, < 0.5 → Auto-Create). After enrichment → re-validate cycle. Built-in interrupt() for human steward approval. Most flexible.'},
+  {label:'CrewAI with Validator Agent, Deduplication Agent, Enrichment Agent', tradeoff:'Clean role separation, but you lose fine-grained control over the re-validation loop after enrichment. Human-in-the-loop is harder to implement cleanly.'},
+]}/>
+
+### Career Positioning
+
+> **Interview soundbite**: *"I built stateful agent workflows with self-correction loops using LangGraph — the agent evaluates its own retrieval quality and retries autonomously. This maps directly to enterprise data quality workflows where validation, enrichment, and human review form a continuous improvement cycle."*
+
+This connects your hands-on build to your MDM governance expertise. Most Director candidates can describe agent architectures abstractly. You can point to working code and draw the parallel to data steward workflows. That's the differentiator.
+
+<SeeItInRe3 text="The complete Research Agent architecture mirrors Re³'s debate pipeline: Forge selects agents (search), Atlas evaluates quality (grade), poor rounds loop back for refinement (rewrite → search), and Hypatia synthesizes the final output (summarize)." />

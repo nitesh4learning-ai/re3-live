@@ -1,0 +1,21 @@
+---
+label: "Build & Practice"
+icon: "🔨"
+---
+
+## Week 1 Build: Research Agent
+
+Build a self-correcting Research Agent: topic in → web search → LLM grades relevance → rewrites query if poor → generates summary. Uses Claude API.
+
+The graph: `START → Search → Grade → [score≥7: Summarize → END] [score<7: Rewrite → Search (cycle)]`
+
+<Quiz
+  question="Which edge creates the self-correction cycle in the Research Agent?"
+  options={["START → search", "search → grade", "rewrite → search", "summarize → END"]}
+  correctIndex={2}
+  explanation="The edge from 'rewrite' back to 'search' creates the cycle — after rewriting the query, the agent searches again with the improved query. This loop is what makes the agent self-correcting."
+/>
+
+> **Interview soundbite**: "I built stateful agent workflows with self-correction loops — the agent evaluates its own retrieval quality and retries autonomously."
+
+<SeeItInRe3 text="The Research Agent mirrors Re³'s pipeline: Forge selects (search), Atlas evaluates (grade), poor rounds loop back (rewrite), Hypatia synthesizes (summarize)." />

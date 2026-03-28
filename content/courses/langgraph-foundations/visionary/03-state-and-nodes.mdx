@@ -1,0 +1,23 @@
+---
+label: "State & Nodes"
+icon: "🧱"
+---
+
+## State: Your Agent's Memory
+
+State is a Python `TypedDict` — the shared whiteboard every node reads and writes. Design it like an MDM master record: core attributes, decision fields, and audit metadata.
+
+<AnalogyBox emoji="📋" title="Master Data Record">
+A master record has core attributes (name, address), derived fields (match score), and audit fields (source_system). LangGraph state follows the same pattern: core data, decision fields, and observability metadata.
+</AnalogyBox>
+
+### Nodes: Single-Responsibility Workers
+
+Each node does **one thing**: search, grade, rewrite, or summarize. Nodes return **partial state updates** (dicts) — LangGraph merges them with existing state. You patch, not replace.
+
+<Quiz
+  question="Why do nodes return partial dicts instead of full state objects?"
+  options={["Python limitation", "LangGraph merges partial updates — you only patch what changed", "Performance optimization", "Claude API requirement"]}
+  correctIndex={1}
+  explanation="LangGraph merges your partial dict with existing state, like a SQL UPDATE. The 'messages' field uses a reducer for append behavior; other fields use last-write-wins."
+/>

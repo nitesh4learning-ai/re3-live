@@ -1,0 +1,18 @@
+---
+label: "Why LangGraph?"
+icon: "📐"
+---
+
+## Why LangGraph?
+
+<JargonTip term="LangGraph">LangGraph</JargonTip> is a framework for building AI agents that can **loop, retry, and self-correct** — things regular LangChain chains can't do.
+
+<AnalogyBox emoji="🗺️" title="GPS vs Conveyor Belt">
+LangChain is a conveyor belt: A → B → C, fixed path. LangGraph is GPS navigation: it continuously evaluates conditions and reroutes when needed. That's the power of cyclic graphs.
+</AnalogyBox>
+
+### Three Building Blocks
+
+Every LangGraph app has **State** (shared memory), **Nodes** (actions), and **Edges** (flow control). Conditional edges let the graph make decisions — routing to different nodes based on what's in state.
+
+<SeeItInRe3 text="Re³'s Forge orchestrator uses graph-based state management — state flows between debater agents through conditional routing, exactly like LangGraph." />

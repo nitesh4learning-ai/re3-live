@@ -1,0 +1,16 @@
+---
+label: "ReAct Pattern"
+icon: "🔄"
+---
+
+## The ReAct Loop
+
+ReAct (Reason + Act) is the foundational pattern for agentic AI: **Reason** about what to do → **Act** (call a tool) → **Observe** the result → **Repeat** until done.
+
+<AnalogyBox emoji="🔍" title="Detective Method">
+A detective reasons about clues, takes investigative actions, observes results, and loops until the case is solved. Each cycle adds to the case file (state) and informs the next action. LangGraph implements this as nodes connected by conditional edges.
+</AnalogyBox>
+
+In LangGraph, each ReAct step is a **node**. The decision to continue or stop is a **conditional edge**. The agent's "case file" is the **state**.
+
+<SeeItInRe3 text="Hypatia's Loom synthesis mirrors ReAct: Reason about debate positions → Act (synthesize) → Observe quality → Loop if needed." />

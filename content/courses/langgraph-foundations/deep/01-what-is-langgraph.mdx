@@ -1,0 +1,57 @@
+---
+label: "What is LangGraph?"
+icon: "📐"
+---
+
+## What is LangGraph?
+
+<JargonTip term="LangGraph">LangGraph</JargonTip> is a low-level orchestration framework for building **stateful, multi-actor AI applications** using graph-based workflows. Built by LangChain Inc., it extends LangChain by enabling something chains can't do: **cycles**.
+
+Unlike LangChain's linear chains (A→B→C), LangGraph lets your agent **loop back, retry, and self-correct**. This is the fundamental difference between a chatbot and an agent — agents can reason about their own output and decide what to do next.
+
+<AnalogyBox emoji="🏭" title="Conveyor Belt vs GPS">
+Think of LangChain as a conveyor belt: raw material moves through Process A → Process B → Output. If Process B produces bad results, the whole line stops. Now think of LangGraph as GPS navigation: Start → Evaluate route → Drive → Hit traffic? → Reroute → Drive → Arrive. The system continuously adapts based on current state. That's what "cyclic" means in practice.
+</AnalogyBox>
+
+### The Three Building Blocks
+
+Every LangGraph application has exactly three primitives:
+
+**STATE** — A shared data structure (Python `TypedDict` or Pydantic model) that flows through the graph. Think of it as the shared whiteboard that every node can read and write to.
+
+**NODES** — Python functions that perform actions. Each node receives state, does work (calls an LLM, searches the web, grades a document), and returns an updated state.
+
+**EDGES** — Connections between nodes that define flow. Regular edges are fixed paths. **Conditional edges** let the graph decide which node to visit next based on state — this is where the intelligence lives.
+
+<AnalogyBox emoji="🏥" title="Hospital Emergency Room">
+Imagine a hospital ER. **STATE** is the patient's chart — vitals, symptoms, test results, updated at every station. **NODES** are stations: Triage → Examination → Lab Tests → Treatment. **EDGES** are the clinical decisions: "If fever exceeds 103°F, route to ICU" — that's a conditional edge. **CYCLES** happen when lab results are inconclusive: re-examine, retest. The doctor loops back. This is exactly how agentic AI works.
+</AnalogyBox>
+
+### Why LangGraph Matters for Your Career
+
+If you're targeting Director-level roles in data governance or AI, LangGraph is the framework that demonstrates you understand **production agent architecture**, not just prompt engineering. When interviewers ask "How would you build an AI system that self-corrects?", you answer with state graphs, conditional routing, and evaluation loops — the vocabulary of LangGraph.
+
+<SeeItInRe3 text="Re³'s Forge orchestrator uses graph-based state management: state flows between debater agents through conditional routing, exactly like LangGraph nodes connected by edges." />
+
+---
+
+## LangGraph vs The Ecosystem
+
+Understanding where LangGraph sits relative to other frameworks is critical for architecture decisions.
+
+<ComparisonTable title="Agent Framework Comparison" columns={['Feature','LangChain','LangGraph','CrewAI','OpenAI Agents SDK']} rows={[
+  ['Flow Type','Linear DAG','Cyclic Graph','Agent Roles','Guardrails + Handoffs'],
+  ['State Management','Memory modules','Built-in TypedDict','Shared context','Thread state'],
+  ['Cycles / Loops','❌ No','✅ Yes','⚠️ Limited','⚠️ Via handoffs'],
+  ['Control Level','High-level','Low-level','High-level','Medium'],
+  ['Human-in-the-Loop','Manual','Built-in interrupt()','Callbacks','Built-in'],
+  ['Best For','Quick prototypes','Complex agents','Multi-agent teams','OpenAI-native apps'],
+]}/>
+
+<ArchitectureDecision scenario="You're building an AI system at McKesson that validates incoming supplier records. It needs to: check for duplicates, grade data quality, auto-correct formatting issues, and escalate ambiguous matches to a human steward. The system must retry validation if data enrichment changes the record." options={[
+  {label:'LangChain chain',tradeoff:'Linear flow — cannot loop back after enrichment changes the record. Would need to call the entire chain again externally.'},
+  {label:'LangGraph state graph',tradeoff:'Natural fit: validate → enrich → re-validate cycle. Conditional edges route to human review. State tracks retry count. Built-in interrupt() for human-in-the-loop.'},
+  {label:'CrewAI multi-agent',tradeoff:'Could work with Validator Agent + Enrichment Agent + Steward Agent, but you lose fine-grained control over the retry loop and state transitions.'},
+]}/>
+
+> **Key Takeaway**: LangGraph gives you maximum control over agent behavior. It's the difference between using a website builder (LangChain) and writing your own React components (LangGraph). For enterprise use cases where reliability matters more than speed-to-prototype, LangGraph is the right choice.

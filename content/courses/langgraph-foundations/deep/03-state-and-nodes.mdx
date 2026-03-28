@@ -1,0 +1,185 @@
+---
+label: "State & Nodes Deep Dive"
+icon: "🧱"
+---
+
+## Designing State: Your Agent's Memory Architecture
+
+State design is the most important architectural decision in any LangGraph application. Get it wrong and every node becomes a mess of workarounds. Get it right and the graph practically builds itself.
+
+### The State Contract
+
+<CodeBlock language="python" label="Research Agent State — Production Pattern" code={`from typing import TypedDict, Annotated, List, Optional
+from langgraph.graph import add_messages
+from langchain_core.messages import BaseMessage
+
+class ResearchState(TypedDict):
+    """
+    Production state design for a self-correcting research agent.
+    
+    Design principles:
+    1. Every field the agent needs to make decisions → in state
+    2. Fields that track loop behavior (retry_count) → in state
+    3. Fields for observability (timestamps, scores) → in state
+    4. Use Annotated + reducer for append-only fields (messages)
+    
+    Think of this like designing a database schema for your
+    workflow — except it's all in-memory and flows through nodes.
+    """
+    # ── Core data fields ──
+    messages: Annotated[list[BaseMessage], add_messages]
+    query: str                    # Current search query (may be rewritten)
+    original_query: str           # Preserved original for comparison
+    search_results: List[str]     # Raw results from search
+    
+    # ── Decision-making fields ──
+    quality_score: float          # LLM-graded relevance (0-10)
+    retry_count: int              # How many rewrites attempted
+    max_retries: int              # Safety limit (default: 3)
+    
+    # ── Output fields ──
+    summary: str                  # Final generated summary
+    sources: List[str]            # URLs/citations tracked
+    
+    # ── Observability ──
+    current_node: str             # Which node is executing
+    error: Optional[str]          # Error message if any`}/>
+
+### State Design Principles
+
+**Principle 1: If the agent needs it to decide, put it in state.**
+The routing function can only inspect state. If you want the agent to decide based on quality, `quality_score` must be in state.
+
+**Principle 2: Track loop behavior explicitly.**
+`retry_count` and `max_retries` prevent infinite loops. In production, this is non-negotiable. An agent without a safety limit is a liability.
+
+**Principle 3: Preserve the original.**
+When the agent rewrites a query, keep `original_query` unchanged. This is crucial for debugging and for the final summary to reference the user's actual intent.
+
+<AnalogyBox emoji="📋" title="MDM Master Record">
+If you've worked with MDM golden records, state design will feel familiar. A master record has core attributes (name, address), derived fields (match score, confidence), and audit fields (last_updated, source_system). LangGraph state follows the same pattern: core data, decision fields, and observability metadata. Your data governance instincts apply directly here.
+</AnalogyBox>
+
+### The Reducer Pattern: add_messages
+
+<CodeBlock language="python" label="How Reducers Work" code={`# WITHOUT a reducer:
+# Each node's return REPLACES the field
+# Node 1 returns: {"query": "AI governance"}
+# Node 2 returns: {"query": "AI governance frameworks 2026"}
+# Result: query = "AI governance frameworks 2026" (replaced)
+
+# WITH a reducer (add_messages):
+# Each node's return is MERGED using the reducer function
+# Node 1 returns: {"messages": [HumanMessage("Hello")]}
+# Node 2 returns: {"messages": [AIMessage("Hi there!")]}  
+# Result: messages = [HumanMessage("Hello"), AIMessage("Hi there!")]
+# The reducer APPENDED instead of replacing.
+
+# This is why messages uses Annotated[list, add_messages]
+# while query uses plain str — different merge strategies.`}/>
+
+### Writing Nodes: The Single-Responsibility Principle
+
+Each node should do **one thing well**. This makes your graph modular, testable, and debuggable.
+
+<CodeBlock language="python" label="Four Nodes for a Research Agent" code={`from langchain_anthropic import ChatAnthropic
+from langchain_core.messages import HumanMessage, SystemMessage
+
+llm = ChatAnthropic(model="claude-sonnet-4-20250514")
+
+# ─── Node 1: Search ───
+def search_node(state: ResearchState) -> dict:
+    """
+    Takes query from state, performs web search.
+    Returns PARTIAL state update — only the fields that changed.
+    """
+    query = state["query"]
+    results = tavily_search.invoke(query)  # Tavily, SerpAPI, etc.
+    return {
+        "search_results": results,
+        "current_node": "search"
+    }
+
+# ─── Node 2: Grade ───
+def grade_node(state: ResearchState) -> dict:
+    """
+    LLM evaluates search result relevance.
+    Returns a quality score that the routing function uses.
+    """
+    response = llm.invoke([
+        SystemMessage(content=(
+            "You are a research quality evaluator. "
+            "Score the relevance of these search results "
+            "to the query on a scale of 0-10. "
+            "Return ONLY the number, nothing else."
+        )),
+        HumanMessage(content=(
+            f"Query: {state['query']}\\n\\n"
+            f"Results: {state['search_results'][:2000]}"
+        ))
+    ])
+    score = float(response.content.strip())
+    return {
+        "quality_score": score,
+        "current_node": "grade"
+    }
+
+# ─── Node 3: Rewrite Query ───
+def rewrite_node(state: ResearchState) -> dict:
+    """
+    If results were poor, LLM rewrites the query.
+    Increments retry_count for the safety limit check.
+    """
+    response = llm.invoke([
+        SystemMessage(content=(
+            "The search results below were not relevant "
+            "to the original query. Rewrite the query to "
+            "get better results. Return ONLY the new query."
+        )),
+        HumanMessage(content=(
+            f"Original query: {state['original_query']}\\n"
+            f"Current query: {state['query']}\\n"
+            f"Poor results: {state['search_results'][:500]}"
+        ))
+    ])
+    return {
+        "query": response.content.strip(),
+        "retry_count": state["retry_count"] + 1,
+        "current_node": "rewrite"
+    }
+
+# ─── Node 4: Summarize ───
+def summarize_node(state: ResearchState) -> dict:
+    """
+    With high-quality results, generate the final summary.
+    This is a terminal node — after this, the graph ends.
+    """
+    response = llm.invoke([
+        SystemMessage(content=(
+            "Synthesize these search results into a clear, "
+            "comprehensive summary. Include key findings "
+            "and cite sources where possible."
+        )),
+        HumanMessage(content=(
+            f"Research topic: {state['original_query']}\\n\\n"
+            f"Results: {state['search_results']}"
+        ))
+    ])
+    return {
+        "summary": response.content,
+        "current_node": "summarize"
+    }`}/>
+
+<Quiz
+  question="Why does each node return a Python dict (partial state) instead of the full ResearchState object?"
+  options={["Python TypedDict doesn't support full object returns", "LangGraph merges partial updates with existing state — you only patch what changed", "It's a performance optimization to reduce memory usage", "The dict format is required by the Claude API"]}
+  correctIndex={1}
+  explanation="LangGraph uses a merge strategy: your partial dict is merged with existing state. This is like a SQL UPDATE — you specify only the columns changing. The 'messages' field uses a custom reducer (add_messages) for append behavior, while other fields use last-write-wins."
+/>
+
+<Quiz
+  question="You're designing state for an MDM data quality agent. The agent validates supplier records, checks for duplicates, and escalates ambiguous matches. Which state design is most complete?"
+  options={["{ record: dict, is_valid: bool }", "{ record: dict, is_valid: bool, duplicate_candidates: list, match_score: float, needs_escalation: bool, retry_count: int, validation_errors: list }", "{ messages: list, record: dict }", "{ record: dict, is_valid: bool, duplicate_candidates: list }"]}
+  correctIndex={1}
+  explanation="Option B includes everything the agent needs to make decisions: match_score for routing, needs_escalation for human-in-the-loop, retry_count for safety limits, and validation_errors for observability. This mirrors how you'd design a master data validation workflow — every decision point needs a corresponding state field."
+/>

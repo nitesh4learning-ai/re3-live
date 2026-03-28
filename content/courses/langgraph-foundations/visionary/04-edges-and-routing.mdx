@@ -1,0 +1,18 @@
+---
+label: "Edges & Routing"
+icon: "🔀"
+---
+
+## Conditional Edges: The Agent's Brain
+
+Routing functions are plain Python: they receive state, return a string (the next node's name). That's where the agent's decision intelligence lives.
+
+<AnalogyBox emoji="🚦" title="Smart Traffic Light">
+A conditional edge is like a smart traffic light that reads sensors instead of following fixed timing. Based on current conditions, it decides which direction gets green. Your routing function reads agent state and decides which node executes next.
+</AnalogyBox>
+
+The key insight: `graph.add_edge("rewrite", "search")` creates a **cycle**. This is impossible in LangChain. This one capability is why LangGraph exists.
+
+> **Production rule**: Always use `Literal` type hints on routing functions and map every possible return value in `conditional_edges`. Missing routes crash at runtime.
+
+<SeeItInRe3 text="Re³ uses conditional routing after Atlas moderation: high quality → synthesis, low quality → loop back for another debate round." />

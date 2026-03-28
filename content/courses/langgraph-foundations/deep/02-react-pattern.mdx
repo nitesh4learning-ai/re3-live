@@ -1,0 +1,124 @@
+---
+label: "The ReAct Pattern"
+icon: "🔄"
+---
+
+## The ReAct Pattern: How Agents Think
+
+<JargonTip term="ReAct">ReAct</JargonTip> (Reason + Act) is THE foundational pattern for agentic AI. Published by Yao et al. at Princeton, it's a loop where the agent cycles through three phases:
+
+1. **REASON** — Think about what to do next based on current state
+2. **ACT** — Execute an action (call a tool, search, compute)
+3. **OBSERVE** — Look at the result and update state
+4. **REPEAT** — Loop back to Reason until the task is complete
+
+This is exactly how LangGraph models agent behavior. Each step in the ReAct loop is a **node**. The decision to continue or stop is a **conditional edge**.
+
+<AnalogyBox emoji="🔍" title="The Detective Method">
+It's how a detective solves a case. **REASON**: "The victim was last seen at the restaurant. I should check security footage." **ACT**: Reviews security footage. **OBSERVE**: "Footage shows the victim leaving with an unknown person at 9 PM." **REASON**: "I need to identify this person. Let me check nearby cameras." **ACT**: Checks neighboring business cameras. **OBSERVE**: "Got a license plate number." **REASON**: "I have enough to run a search." → End loop. Each cycle adds to the detective's state (case file) and informs the next action.
+</AnalogyBox>
+
+### ReAct in LangGraph Code
+
+Here's how the ReAct loop maps to LangGraph primitives:
+
+<CodeBlock language="python" label="ReAct Pattern as a LangGraph State Machine" code={`from typing import TypedDict, Annotated, Literal
+from langgraph.graph import StateGraph, END, START, add_messages
+from langchain_anthropic import ChatAnthropic
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
+
+# ─── STATE: The detective's case file ───
+class AgentState(TypedDict):
+    """
+    State = the shared memory for the entire graph.
+    Every node can read and write to these fields.
+    
+    Think of it as a patient's chart in an ER — 
+    updated at every station, read by every doctor.
+    """
+    messages: Annotated[list[BaseMessage], add_messages]
+    # add_messages is a REDUCER — it appends new messages
+    # instead of replacing the list. This preserves history.
+    
+    current_step: str        # What phase are we in?
+    observation: str         # What did the last action return?
+    reasoning: str           # What does the agent think?
+    action_count: int        # How many actions taken (safety limit)
+    is_complete: bool        # Should we stop?
+
+# ─── NODES: The detective's actions ───
+llm = ChatAnthropic(model="claude-sonnet-4-20250514")
+
+def reason_node(state: AgentState) -> dict:
+    """
+    REASON: The agent thinks about what to do next.
+    Returns partial state update — LangGraph merges it.
+    """
+    response = llm.invoke([
+        SystemMessage(content="Based on the conversation so far, "
+            "decide what action to take next. If you have "
+            "enough information, say DONE."),
+        *state["messages"]
+    ])
+    return {
+        "reasoning": response.content,
+        "current_step": "reason"
+    }
+
+def act_node(state: AgentState) -> dict:
+    """
+    ACT: Execute the action the reasoner decided on.
+    In production, this calls tools (search, database, API).
+    """
+    # Simplified — in real code, parse reasoning to pick a tool
+    result = execute_tool(state["reasoning"])
+    return {
+        "observation": result,
+        "action_count": state["action_count"] + 1,
+        "current_step": "act"
+    }
+
+# ─── CONDITIONAL EDGE: Should we continue? ───
+def should_continue(state: AgentState) -> Literal["reason", "end"]:
+    """
+    The routing function — LangGraph's decision maker.
+    Returns the NAME of the next node to execute.
+    """
+    if "DONE" in state["reasoning"]:
+        return "end"
+    if state["action_count"] >= 5:      # Safety limit
+        return "end"
+    return "reason"                      # Loop back!
+
+# ─── GRAPH ASSEMBLY ───
+graph = StateGraph(AgentState)
+graph.add_node("reason", reason_node)
+graph.add_node("act", act_node)
+graph.add_edge(START, "reason")         # Always start by reasoning
+graph.add_edge("reason", "act")         # After reasoning, act
+graph.add_conditional_edges(            # After acting, decide:
+    "act", should_continue,
+    {"reason": "reason", "end": END}    # Loop or stop
+)
+app = graph.compile()`}/>
+
+Notice the key pattern: **nodes return partial state updates** (Python dicts), not the full state. LangGraph merges your update with existing state. This is like a database UPDATE — you only specify the fields you're changing.
+
+### Why ReAct Matters for Enterprise AI
+
+In enterprise MDM, the ReAct pattern maps directly to data steward workflows:
+
+- **REASON**: "This new supplier record looks like a potential duplicate of Supplier #4521"
+- **ACT**: Run fuzzy matching against master data, check D&B enrichment
+- **OBSERVE**: "85% match on name + address, but different Tax ID"
+- **REASON**: "High similarity but Tax ID mismatch — escalate to human steward"
+- **ACT**: Route to human-in-the-loop approval node
+
+<SeeItInRe3 text="Hypatia's Loom synthesis engine mirrors ReAct: Reason about debate positions → Act (synthesize) → Observe quality → Loop if synthesis needs refinement." />
+
+<Quiz 
+  question="In a LangGraph ReAct implementation, where does the 'intelligence' live — the part that decides what to do next?"
+  options={["In the nodes (functions)", "In the conditional edges (routing functions)", "In the state definition", "In the LLM provider configuration"]}
+  correctIndex={1}
+  explanation="Conditional edges are where the agent 'reasons' about flow. The routing function inspects state and returns the name of the next node. Nodes do work; edges make decisions. This separation is what makes LangGraph architecturally clean."
+/>

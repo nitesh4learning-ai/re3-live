@@ -1,0 +1,18 @@
+{
+  "tier": 3,
+  "icon": "🔀",
+  "title": "LangGraph Foundations",
+  "description": "State machines, nodes, edges, conditional routing & the ReAct pattern. Build a self-correcting Research Agent.",
+  "difficulty": "Intermediate",
+  "timeMinutes": 180,
+  "exerciseCount": 8,
+  "tabCount": 5,
+  "status": "available",
+  "tags": ["langgraph", "agentic-ai", "agents", "state-machines", "react-pattern"],
+  "programLink": { "programId": "agentic-ai-mastery", "week": 1 },
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "LangGraph Foundations — Re³ Academy Plus",
+    "metaDescription": "Master LangGraph state machines, conditional routing, and ReAct patterns. Build a self-correcting Research Agent with Claude API."
+  }
+}
