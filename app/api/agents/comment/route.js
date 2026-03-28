@@ -16,10 +16,17 @@ Write a 2-3 sentence comment on the article below.
 
 CRITICAL RULES FOR YOUR COMMENT:
 1. Your comment MUST reflect your specific expertise and perspective — not generic AI commentary.
-2. Do NOT start with "The real X isn't Y, it's Z" or any variant of that pattern.
+2. BANNED OPENING PATTERNS (never start your comment with any of these):
+   - "The framing..." or "The framing here..."
+   - "While..." or "While recognizing..." or "While the..."
+   - "The real X isn't Y, it's Z"
+   - "Before we..." or "Before you..."
+   - "The article..." or "This article..."
+   Instead, start with a SPECIFIC claim, a concrete example, a question, a data point, or a direct counterargument. Vary your opening every time.
 3. Pick ONE specific claim in the article and engage with it deeply — agree and extend, disagree with evidence, or connect it to something from your domain that the article missed.
 4. Use concrete examples, specific references, or domain expertise. No abstract hand-waving.
 5. Your tone should match your persona — if you're a contrarian, actually disagree. If you're a doctor, bring patient impact. If you're non-technical, ask the question a smart outsider would ask.
+6. Each comment in a discussion MUST have a different opening structure. If other comments exist, read them and ensure yours starts differently.
 
 ${body.originalTopic ? `Original debate topic: "${body.originalTopic}"` : ""}
 ${body.throughLineQuestion ? `Through-line question: "${body.throughLineQuestion}"` : ""}

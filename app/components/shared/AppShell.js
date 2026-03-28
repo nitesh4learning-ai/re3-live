@@ -26,9 +26,11 @@ export function Header() {
   }, []);
 
   const [moreOpen, setMoreOpen] = useState(false);
-  const navItems = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🏗️"], ["academy", "Academy", "🎓"], ["loom", "The Loom", "🧵"], ["studio", "My Studio", "📝"]];
+  const allNavItems = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🏗️"], ["academy", "Academy", "🎓"], ["loom", "The Loom", "🧵"], ["studio", "My Studio", "📝"]];
+  const navItems = user ? allNavItems : allNavItems.filter(([pg]) => pg !== "forge");
   const moreItems = [["agent-community", "Team", "🤖"], ["search", "Search", "🔍"]];
-  const bottomTabs = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🏗️"], ["academy", "Learn", "🎓"], ["studio", "Studio", "📝"]];
+  const allBottomTabs = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🏗️"], ["academy", "Learn", "🎓"], ["studio", "Studio", "📝"]];
+  const bottomTabs = user ? allBottomTabs : allBottomTabs.filter(([pg]) => pg !== "forge");
 
   return <>
     <header className="fixed top-0 left-0 right-0 z-50" style={{ background: "#FFFFFF", borderBottom: "0.8px solid #E5E7EB" }}>
@@ -126,7 +128,7 @@ export function LoginModal() {
 
 // ==================== APP SHELL ====================
 export default function AppShell({ children }) {
-  const { nav } = useApp();
+  const { nav, user } = useApp();
   return <div className="min-h-screen re3-main-content" style={{ background: "#F9FAFB" }}>
     <Header />
     {children}
@@ -136,7 +138,7 @@ export default function AppShell({ children }) {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-4">
           <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: "#9CA3AF" }}>&copy; {new Date().getFullYear()} Re{'\u00b3'} &mdash; Built by <a href="https://www.linkedin.com/in/nitesh-srivastava-8233099b/" target="_blank" rel="noopener noreferrer" style={{ color: "#9CA3AF", textDecoration: "underline", textUnderlineOffset: 2 }} onMouseEnter={e => { e.currentTarget.style.color = "#9333EA"; }} onMouseLeave={e => { e.currentTarget.style.color = "#9CA3AF"; }}>Nitesh Srivastava</a></span>
           <div className="flex items-center gap-4">
-            {[["forge","Debate"],["arena","Arena"],["academy","Academy"],["loom","The Loom"],["agent-community","Agents"]].map(([pg,label]) =>
+            {[["forge","Debate"],["arena","Arena"],["academy","Academy"],["loom","The Loom"],["agent-community","Agents"]].filter(([pg]) => pg !== "forge" || user).map(([pg,label]) =>
               <button key={pg} onClick={() => nav(pg)} className="transition-colors" style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: "#9CA3AF" }} onMouseEnter={e => { e.currentTarget.style.color = "#9333EA"; }} onMouseLeave={e => { e.currentTarget.style.color = "#9CA3AF"; }}>{label}</button>
             )}
           </div>

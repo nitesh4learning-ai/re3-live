@@ -45,6 +45,12 @@ Each pillar should:
 - Have an angle describing what the agent should explore
 - Have a structure describing the CONTENT FORMAT for that pillar's article
 
+PILLAR ORDERING IS CRITICAL:
+- Pillar 1 MUST be the TENSION-SETTER: raise the core problem, challenge assumptions, create intellectual friction. This pillar asks "what's broken?" or "what are we not seeing?"
+- Pillar 2 MUST be the EVIDENCE-FINDER: cross-domain patterns, historical precedents, unexpected connections. This pillar asks "where have we seen this before?"
+- Pillar 3 MUST be the BUILDER/RESOLVER: synthesize insights from Pillars 1 and 2 into actionable frameworks, architectures, or proposals. This pillar asks "so what do we build?"
+Do NOT put the builder first or the tension-setter last.
+
 CRITICAL CONSTRAINT: The through-line question MUST directly address the user's original topic.
 - Do NOT reinterpret, generalize, or drift to adjacent topics.
 - The through-line question should be a SHARPER, more provocative version of the user's topic — not a different topic entirely.
@@ -54,11 +60,17 @@ Each pillar's "structure" field should describe the CONTENT FORMAT for that pill
 The structure must match the pillar's intellectual purpose.
 Do NOT use the same structure template for every cycle.
 Different topics demand different structures.
-For example:
-- A pillar examining legal liability might use: "Case analysis → Precedent comparison → Risk mapping"
-- A pillar examining organizational impact might use: "Stakeholder map → Impact analysis → Transition scenarios"
-- A pillar examining technical architecture might use: "Current state → Proposed design → Code prototype"
-- A pillar examining human impact might use: "Personal narratives → Systemic patterns → Policy implications"`,
+
+CRITICAL: All 3 pillars MUST have DIFFERENT writing structures. If one uses bullet lists, another must use narrative prose, and another must use a different format entirely.
+Choose from these structure styles (use at least 3 DIFFERENT ones across the 3 pillars):
+- "Provocative questions → Evidence against assumptions → Reframed problem statement" (interrogative)
+- "Case study deep-dive → Cross-domain pattern matching → Extracted principle" (inductive)
+- "Thesis statement → Supporting evidence → Counterargument → Synthesis" (argumentative)
+- "Current state audit → Gap analysis → Proposed architecture → Code prototype" (technical)
+- "Stakeholder perspectives → Tension mapping → Transition scenarios" (organizational)
+- "Historical precedent → Modern parallel → Future projection" (temporal)
+- "Concrete example → Abstracted principle → Applied framework" (example-first)
+Do NOT default to the same bullet-point-heavy format for all 3 pillars.`,
     `USER'S EXACT TOPIC (do NOT change or reinterpret this): "${topic.title}"
 Context: "${topic.rationale || ""}"
 
