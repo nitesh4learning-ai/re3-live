@@ -99,6 +99,32 @@ export default function AcademyHub({ courses: serverCourses }) {
           </div>
         </FadeIn>
 
+        {/* Academy Plus — Admin Only */}
+        {isAdmin && (
+          <FadeIn delay={40}>
+            <Link href="/academy/plus">
+              <div className="mb-8 rounded-2xl p-5 cursor-pointer transition-all hover:shadow-lg" style={{
+                background: 'linear-gradient(135deg, #1a1a1a 0%, #2d1f3d 50%, #1a2332 100%)',
+                border: '1px solid rgba(147,51,234,0.3)',
+              }}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span style={{ fontSize: 28 }}>{'\u26A1'}</span>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold" style={{ fontFamily: GIM.fontMain, fontSize: 16, color: 'white' }}>Academy Plus</span>
+                        <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: '#F59E0B', color: '#1a1a1a', fontSize: 9 }}>ADMIN</span>
+                      </div>
+                      <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>Structured multi-week learning programs with hands-on builds & career positioning</p>
+                    </div>
+                  </div>
+                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 20 }}>{'\u2192'}</span>
+                </div>
+              </div>
+            </Link>
+          </FadeIn>
+        )}
+
         {/* Quick Stats */}
         <FadeIn delay={50}>
           <div className="flex flex-wrap gap-3 mb-8">
