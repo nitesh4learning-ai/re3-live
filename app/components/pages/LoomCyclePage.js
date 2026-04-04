@@ -63,7 +63,6 @@ export default function LoomCyclePage(){
       <button onClick={()=>onNavigate("loom")} className="text-xs font-semibold px-3 py-1.5 rounded-lg" style={{border:"1px solid rgba(0,0,0,0.1)",color:"rgba(0,0,0,0.5)"}}>&larr; Back to The Loom</button>
       <div className="flex gap-2">
         <ShareButton title={`Re³ Edition ${cycle.number}${cycle.headline?': '+cycle.headline:''}`} text="Explore this edition on Re³" url={cycleShareUrl}/>
-        {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"",text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date,cycleId:cycle.id})} className="text-xs font-semibold px-3 py-1.5 rounded-lg" style={{background:"#9333EA",color:"white"}}>Debate Full Edition</button>}
       </div>
     </div></FadeIn>
 
@@ -182,6 +181,5 @@ export default function LoomCyclePage(){
       {allRounds.map((round,ri)=><div key={ri} className="mb-4"><h4 className="font-bold text-xs mb-2" style={{color:"#8B5CF6"}}>Round {ri+1}</h4><div className="space-y-2">{(Array.isArray(round)?round:[]).filter(r=>r.status==="success"&&r.response).map((r,idx)=>{const agent=[...INIT_AGENTS,...Object.values(ORCHESTRATORS)].find(a=>a.id===r.id);return <div key={idx} className="p-3 rounded-xl" style={{background:"#F9FAFB",borderLeft:`3px solid ${agent?.color||"#999"}`}}><div className="flex items-center gap-2 mb-1"><span className="font-bold text-xs" style={{color:agent?.color||"#666"}}>{r.name||agent?.name||"Agent"}</span><span className="text-xs" style={{color:"#CCC"}}>{agent?.role||agent?.category||""}</span></div><p className="text-xs" style={{color:"#555",lineHeight:1.6}}>{r.response}</p></div>})}</div></div>)}
     </div></FadeIn>}
     {debatePanel?.rationale&&<FadeIn delay={340}><div className="mb-8 p-4 rounded-xl" style={{background:"#FAF5FF",border:"1px solid #E9D5FF"}}><h4 className="font-bold text-xs mb-1" style={{color:"#8B5CF6"}}>Panel Selection Rationale</h4><p className="text-xs" style={{color:"#666",lineHeight:1.6}}>{debatePanel.rationale}</p></div></FadeIn>}
-    {!isJourney&&onForge&&pillars[0]&&<FadeIn delay={360}><button onClick={()=>onForge({title:pillars[0].title,text:pillars[0].paragraphs?.[0]||"",sourceType:"loom"})} className="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white"}}>Continue in Debate Lab &rarr;</button></FadeIn>}
   </div></div>;
 }

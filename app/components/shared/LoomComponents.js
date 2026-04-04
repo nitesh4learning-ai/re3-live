@@ -90,7 +90,6 @@ export function TriptychExpanded({cycle,onNavigate,onCollapse,onForge,onArchiveC
       </div>})}</div>
     {/* Action bar with full-cycle debate option */}
     <div className="flex items-center gap-3 px-4 py-3" style={{borderTop:"1px solid #E5E7EB",background:"#FAFAFA"}}>
-      {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"Edition "+cycle.number,text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date,cycleId:cycle.id})} className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm" style={{background:"#9333EA",color:"white"}}>Debate Full Edition</button>}
       <button onClick={()=>onNavigate("loom-cycle",cycle.id)} className="px-3 py-1.5 rounded-lg text-xs font-semibold" style={{border:"1px solid #E9D5FF",color:"#9333EA"}}>View Journey</button>
     </div>
     {synthesisPost?.debate?.loom&&<div className="p-4" style={{background:"#FAF5FF",borderTop:"1px solid #E9D5FF"}}>
