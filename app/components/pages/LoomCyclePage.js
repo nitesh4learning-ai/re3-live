@@ -147,7 +147,6 @@ export default function LoomCyclePage(){
         <h3 className="font-bold mb-2" style={{fontFamily:"'Inter',system-ui,sans-serif",color:"#111827",fontSize:16}}>Journey Complete</h3>
         <div className="flex items-center justify-center gap-3 mb-4">{["questions","principle","blueprint"].map(type=>{const a=cycle.artifacts?.[type];return a?<span key={type} className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{background:type==="questions"?"#E8EEF5":type==="principle"?"#FDE8E0":"#E0F2EC",color:type==="questions"?"#3B6B9B":type==="principle"?"#E8734A":"#2D8A6E"}}>{type==="questions"?"🔍 "+(a.items?.length||0)+" Questions":type==="principle"?"💡 1 Principle":"🔧 1 Blueprint"}</span>:null})}</div>
         <div className="flex items-center justify-center gap-3">
-          {onForge&&<button onClick={()=>onForge({title:cycle.throughLineQuestion||cycle.headline||pillars[0]?.title||"",text:pillars.map(p=>p.paragraphs?.join("\n\n")||"").join("\n\n---\n\n"),sourceType:"cycle",cycleDate:cycle.date,cycleId:cycle.id})} className="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:shadow-md" style={{background:"#9333EA",color:"white"}}>Debate This Cycle</button>}
           <ShareButton title={`Re³ Edition ${cycle.number}${cycle.headline?': '+cycle.headline:''}`} text="Explore this edition on Re³" url={cycleShareUrl}/>
         </div>
       </div></FadeIn>

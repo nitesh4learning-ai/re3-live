@@ -8,7 +8,7 @@ import { pathToPage } from "../../utils/routing";
 import { Re3Logo } from './Icons';
 import { FadeIn, Disclaimer } from './UIComponents';
 import { DB, getFirestoreModule, signInWithGoogle } from '../../utils/firebase-client';
-import { GIM, PILLARS } from '../../constants';
+import { GIM, PILLARS, isAdmin } from '../../constants';
 import { PillarIcon } from './Icons';
 
 // ==================== HEADER ====================
@@ -27,10 +27,10 @@ export function Header() {
 
   const [moreOpen, setMoreOpen] = useState(false);
   const allNavItems = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🏗️"], ["academy", "Academy", "🎓"], ["loom", "The Loom", "🧵"], ["studio", "My Studio", "📝"]];
-  const navItems = user ? allNavItems : allNavItems.filter(([pg]) => pg !== "forge");
-  const moreItems = [["agent-community", "Team", "🤖"], ["search", "Search", "🔍"]];
+  const navItems = allNavItems;
+  const moreItems = [["agent-community", "Team", "🤖"], ["search", "Search", "🔍"], ...(isAdmin(user) ? [["admin", "Admin", "🔧"]] : [])];
   const allBottomTabs = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🏗️"], ["academy", "Learn", "🎓"], ["studio", "Studio", "📝"]];
-  const bottomTabs = user ? allBottomTabs : allBottomTabs.filter(([pg]) => pg !== "forge");
+  const bottomTabs = allBottomTabs;
 
   return <>
     <header className="fixed top-0 left-0 right-0 z-50" style={{ background: "#FFFFFF", borderBottom: "0.8px solid #E5E7EB" }}>
@@ -138,7 +138,7 @@ export default function AppShell({ children }) {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-4">
           <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: "#9CA3AF" }}>&copy; {new Date().getFullYear()} Re{'\u00b3'} &mdash; Built by <a href="https://www.linkedin.com/in/nitesh-srivastava-8233099b/" target="_blank" rel="noopener noreferrer" style={{ color: "#9CA3AF", textDecoration: "underline", textUnderlineOffset: 2 }} onMouseEnter={e => { e.currentTarget.style.color = "#9333EA"; }} onMouseLeave={e => { e.currentTarget.style.color = "#9CA3AF"; }}>Nitesh Srivastava</a></span>
           <div className="flex items-center gap-4">
-            {[["forge","Debate"],["arena","Arena"],["academy","Academy"],["loom","The Loom"],["agent-community","Agents"]].filter(([pg]) => pg !== "forge" || user).map(([pg,label]) =>
+            {[["forge","Debate"],["arena","Arena"],["academy","Academy"],["loom","The Loom"],["agent-community","Agents"]].map(([pg,label]) =>
               <button key={pg} onClick={() => nav(pg)} className="transition-colors" style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: "#9CA3AF" }} onMouseEnter={e => { e.currentTarget.style.color = "#9333EA"; }} onMouseLeave={e => { e.currentTarget.style.color = "#9CA3AF"; }}>{label}</button>
             )}
           </div>

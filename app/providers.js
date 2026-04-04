@@ -30,6 +30,8 @@ export function AppProvider({ children }) {
   const [forgeSessions, setForgeSessions] = useState([]);
   const [editorPicks, setEditorPicks] = useState([]);
   const [forgePreload, setForgePreload] = useState(null);
+  const [userAccess, setUserAccess] = useState({ arena: false, loom_extras: false });
+  const [accessRequests, setAccessRequests] = useState([]);
 
   // UI state
   const [showLogin, setShowLogin] = useState(false);
@@ -259,12 +261,49 @@ export function AppProvider({ children }) {
   const addEditorPick = (pick) => setEditorPicks(prev => [pick, ...prev]);
   const removeEditorPick = (id) => setEditorPicks(prev => prev.filter(p => p.id !== id));
   const navToForge = (topic) => { setForgePreload(topic); nav("forge"); };
-  const logout = async () => { await firebaseSignOut(); setUser(null); DB.clear("user"); };
+  const logout = async () => { await firebaseSignOut(); setUser(null); DB.clear("user"); setUserAccess({ arena: false, loom_extras: false }); setAccessRequests([]); };
+
+  // Fetch user access status when user logs in
+  useEffect(() => {
+    if (!user?.email) { setUserAccess({ arena: false, loom_extras: false }); setAccessRequests([]); return; }
+    (async () => {
+      try {
+        const { auth } = await getFirebase();
+        const token = auth?.currentUser ? await auth.currentUser.getIdToken() : null;
+        if (!token) return;
+        const res = await fetch("/api/access/status", { headers: { Authorization: `Bearer ${token}` } });
+        if (res.ok) {
+          const data = await res.json();
+          setUserAccess(data.access || { arena: false, loom_extras: false });
+          setAccessRequests(data.requests || []);
+        }
+      } catch (e) { console.warn("Failed to fetch access status:", e.message); }
+    })();
+  }, [user?.email]);
+
+  const requestAccess = async (feature) => {
+    try {
+      const res = await authFetch("/api/access/request", { feature });
+      // Refresh access status
+      const { auth } = await getFirebase();
+      const token = auth?.currentUser ? await auth.currentUser.getIdToken() : null;
+      if (token) {
+        const statusRes = await fetch("/api/access/status", { headers: { Authorization: `Bearer ${token}` } });
+        if (statusRes.ok) {
+          const data = await statusRes.json();
+          setUserAccess(data.access || { arena: false, loom_extras: false });
+          setAccessRequests(data.requests || []);
+        }
+      }
+      return res;
+    } catch (e) { console.error("Request access failed:", e); throw e; }
+  };
 
   const value = {
     // State
     user, content, themes, articles, agents, projects,
     registry, registryIndex, forgeSessions, editorPicks, forgePreload,
+    userAccess, accessRequests,
     showLogin, loaded,
     // Setters (for login modal etc.)
     setUser, setShowLogin, setForgePreload,
@@ -273,7 +312,7 @@ export function AppProvider({ children }) {
     archiveCycle, autoComment, voteTheme, addTheme, editTheme,
     deleteTheme, saveArticle, deleteArticle, saveAgent, deleteAgent,
     saveProject, deleteProject, saveForgeSession, deleteForgeSession,
-    addEditorPick, removeEditorPick, navToForge, logout,
+    addEditorPick, removeEditorPick, navToForge, logout, requestAccess,
   };
 
   if (!loaded) return null;
