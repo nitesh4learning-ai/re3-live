@@ -51,7 +51,7 @@ const COMPLEXITY_LABELS = {
   "exceeds-limit": "Exceeds Limit",
 };
 
-export default function IntakeForm({ onSubmit, isRunning, isAdmin = false }) {
+export default function IntakeForm({ onSubmit, isRunning, isAdmin = false, readOnly = false }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState("");
@@ -434,7 +434,7 @@ export default function IntakeForm({ onSubmit, isRunning, isAdmin = false }) {
       )}
 
       {/* Submit */}
-      {isAdmin ? (
+      {(isAdmin || !readOnly) ? (
         <button
           onClick={handleSubmit}
           disabled={isRunning || isBlocked}
@@ -479,7 +479,9 @@ export default function IntakeForm({ onSubmit, isRunning, isAdmin = false }) {
             lineHeight: 1.5,
           }}
         >
-          Orchestration runs are currently admin-only. Browse the completed runs below to see what the Arena can do!
+          {readOnly
+            ? "Sign in and request access to run orchestrations. Browse completed runs below to see what the Arena can do!"
+            : "Your access request is being reviewed. Browse the completed runs below to see what the Arena can do!"}
         </div>
       )}
     </div>
