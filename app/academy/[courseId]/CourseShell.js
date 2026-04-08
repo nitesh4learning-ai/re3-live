@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { GIM } from "../constants";
+import { GIM, ADMIN_EMAIL } from "../constants";
+import { useApp } from "../../providers";
 import FadeIn from "../components/FadeIn";
 import ProgressBar from "../components/ProgressBar";
 import useAcademyProgress from "../hooks/useAcademyProgress";
@@ -34,6 +35,24 @@ function DepthSelector({ depth, onChangeDepth }) {
 }
 
 export default function CourseShell({ courseId, meta, visionaryTabs = [], deepTabs = [] }) {
+  const { user } = useApp();
+  const isPlusCourse = !!meta?.programLink;
+  const isAdmin = user?.email === ADMIN_EMAIL;
+
+  // Gate Plus courses behind admin auth
+  if (isPlusCourse && !isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: GIM.pageBg }}>
+        <div className="text-center px-6">
+          <span style={{ fontSize: 48 }}>🔒</span>
+          <h1 className="font-bold mt-4" style={{ fontSize: 20, color: GIM.headingText, fontFamily: GIM.fontMain }}>Academy Plus Content</h1>
+          <p className="mt-2" style={{ fontSize: 14, color: GIM.bodyText }}>This course is part of Academy Plus and requires admin access.</p>
+          <Link href="/academy" className="inline-block mt-4 px-5 py-2 rounded-lg text-sm font-semibold" style={{ background: GIM.primary, color: "white" }}>← Back to Academy</Link>
+        </div>
+      </div>
+    );
+  }
+
   const [getDepth, setDepth] = useDepthPreference();
   const [progress, updateProgress] = useAcademyProgress(COURSES);
   const depth = getDepth(courseId);
@@ -80,9 +99,10 @@ export default function CourseShell({ courseId, meta, visionaryTabs = [], deepTa
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <FadeIn>
           <div className="flex items-center gap-3 mb-4">
-            <Link href="/academy" className="px-3 py-1.5 rounded-lg font-medium text-xs transition-all hover:shadow-sm" style={{ border: `1px solid ${GIM.border}`, color: GIM.bodyText }}>{'\u2190'} All Courses</Link>
+            <Link href={isPlusCourse ? `/academy/plus/${meta.programLink.programId}` : "/academy"} className="px-3 py-1.5 rounded-lg font-medium text-xs transition-all hover:shadow-sm" style={{ border: `1px solid ${GIM.border}`, color: GIM.bodyText }}>{'\u2190'} {isPlusCourse ? 'Back to Program' : 'All Courses'}</Link>
             <span style={{ fontSize: 24 }}>{meta.icon}</span>
             <h1 className="font-bold" style={{ fontFamily: GIM.fontMain, fontSize: 'clamp(20px,4vw,28px)', color: GIM.headingText }}>{meta.title}</h1>
+            {isPlusCourse && <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: '#E8590C18', color: '#E8590C', fontSize: 9, letterSpacing: '0.5px' }}>ACADEMY PLUS</span>}
           </div>
           <ProgressBar percent={cp} size="md" />
           <p className="mt-1 mb-4" style={{ fontSize: 12, color: GIM.mutedText }}>
