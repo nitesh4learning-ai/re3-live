@@ -1,0 +1,126 @@
+---
+label: "Build & Exercises"
+icon: "🔨"
+---
+
+## Week 2 Build: Full Agentic RAG Pipeline
+
+Extend your Week 1 Research Agent into a complete Agentic RAG system with document grading, hallucination checking, and ChromaDB storage.
+
+### Architecture
+
+<CodeBlock language="text" label="Agentic RAG Pipeline" code={`┌─────────┐
+│  START  │
+└────┬────┘
+     │
+┌────▼──────┐
+│   Route   │ ← Decide: vector store or web search
+└────┬──────┘
+     │
+┌────▼──────┐
+│ Retrieve  │◄──────────────────┐
+└────┬──────┘                   │
+     │                          │
+┌────▼──────┐            ┌──────┴──────┐
+│   Grade   │───────────►│  Rewrite    │
+└────┬──────┘ <2 relevant └─────────────┘
+     │ ≥2 relevant
+┌────▼──────┐
+│ Generate  │◄──────────────────┐
+└────┬──────┘                   │
+     │                          │
+┌────▼──────────────┐    ┌──────┴──────┐
+│ Hallucination Chk │───►│ Regenerate  │
+└────┬──────────────┘    └─────────────┘
+     │ score ≥ 0.7         score < 0.7
+┌────▼────┐
+│   END   │
+└─────────┘`}/>
+
+### Requirements Checklist
+
+1. Load documents into ChromaDB with sentence-transformer embeddings
+2. Router node decides between vector retrieval and web search
+3. Grade each retrieved document with LLM-as-judge (binary: relevant/irrelevant)
+4. If fewer than 2 relevant docs, rewrite query and retry (max 3 retries)
+5. Generate answer from relevant docs only
+6. Hallucination check scores grounding (0-1 scale)
+7. If grounding score < 0.7, regenerate with stricter prompt
+8. Track sources for citation
+
+### Data Loading Script
+
+<CodeBlock language="python" label="Seed ChromaDB with Sample Documents" code={`import chromadb
+from chromadb.utils import embedding_functions
+
+client = chromadb.PersistentClient(path="./chroma_db")
+embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
+    model_name="all-MiniLM-L6-v2"
+)
+
+collection = client.get_or_create_collection(
+    name="knowledge_base",
+    embedding_function=embedding_fn
+)
+
+# Seed with sample documents about AI governance
+documents = [
+    "The NIST AI Risk Management Framework provides four core functions: Govern, Map, Measure, and Manage for responsible AI deployment.",
+    "ISO 42001 establishes requirements for AI management systems using Plan-Do-Check-Act methodology aligned with ISO 27001.",
+    "The EU AI Act classifies AI systems into four risk tiers: Unacceptable, High, Limited, and Minimal risk.",
+    "Agentic AI systems require special governance considerations including tool-use auditing and multi-step action approval.",
+    "Master Data Management ensures golden record quality through matching, merging, and survivorship rules.",
+]
+
+metadatas = [
+    {"source": "nist.gov", "topic": "governance"},
+    {"source": "iso.org", "topic": "governance"},
+    {"source": "eu-ai-act.com", "topic": "regulation"},
+    {"source": "anthropic.com", "topic": "agents"},
+    {"source": "gartner.com", "topic": "mdm"},
+]
+
+collection.add(
+    documents=documents,
+    metadatas=metadatas,
+    ids=[f"doc_{i}" for i in range(len(documents))]
+)
+
+print(f"Loaded {collection.count()} documents into ChromaDB")`}/>
+
+### Stretch Goals
+
+1. **Multi-source routing**: Route to different ChromaDB collections based on query topic (governance → governance_collection, technical → technical_collection)
+2. **Batch document grading**: Send all docs in one LLM call instead of grading individually — reduces cost by ~80%
+3. **Citation tracking**: Include source URLs in the final answer, traced back to specific documents
+4. **LangSmith observability**: Add LangSmith tracing to see the full execution flow and grade distribution
+
+---
+
+## Exercises
+
+<Quiz
+  question="Your Agentic RAG retrieves 5 documents about FDA regulations. Grading marks 3 as relevant. The generated answer includes a claim about 'EU MDR compliance requirements.' What type of error is this?"
+  options={["Retrieval error — wrong documents retrieved", "Grading error — irrelevant docs passed grading", "Hallucination — the LLM generated content not in the source documents", "Routing error — query went to wrong data source"]}
+  correctIndex={2}
+  explanation="The retrieved docs are about FDA (US), but the answer mentions EU MDR (European regulation). This is a hallucination — the LLM introduced information that wasn't in any source document. The hallucination checker should catch this and route back to regeneration with a stricter prompt."
+/>
+
+<Quiz
+  question="You're building Agentic RAG for McKesson's supplier onboarding. The system retrieves supplier records from SAP MDM. What's the right grading threshold?"
+  options={["Low threshold — accept any loosely related supplier record", "Medium threshold — standard relevance check", "High threshold with scored grading (8+/10)", "No grading — SAP MDM data is always clean"]}
+  correctIndex={2}
+  explanation="Supplier onboarding has real business consequences — duplicate records, wrong payment terms, compliance risks. A high grading threshold ensures only highly relevant matches proceed. This maps to your SimpleMDG experience: match confidence scores determine auto-merge vs human review."
+/>
+
+<ArchitectureDecision scenario="You're designing an Agentic RAG system for McKesson's contract analysis team. They need to answer questions about supplier agreements, pricing terms, and compliance clauses. Documents range from 2-page amendments to 200-page master agreements." options={[
+  {label:'Single ChromaDB collection with fixed chunk size (500 tokens)',tradeoff:'Simple but 200-page contracts get split into hundreds of chunks. Short amendments might be a single chunk. Retrieval quality will vary wildly.'},
+  {label:'Hierarchical retrieval: document summary index + detailed chunk index',tradeoff:'Two-stage: first find the right document via summaries, then retrieve relevant chunks within it. More accurate for large docs but requires pre-processing.'},
+  {label:'Agentic chunking with LLM-determined boundaries',tradeoff:'LLM identifies logical sections (pricing, compliance, termination) during ingestion. Higher upfront cost but much better retrieval since chunks align with business concepts.'},
+]}/>
+
+### Career Positioning
+
+> **Interview soundbite**: *"I built a self-correcting RAG system with dual validation loops — document grading filters irrelevant sources before generation, and hallucination checking validates that the answer is grounded in retrieved documents. This maps directly to enterprise data quality workflows where validation happens at both ingestion and output."*
+
+<SeeItInRe3 text="The complete Agentic RAG architecture mirrors SnapSense's product lookup pipeline: barcode scan → data source retrieval (OFF, OBF) → quality grading → if data incomplete, fallback to name-based search → generate tiles only from validated data." />

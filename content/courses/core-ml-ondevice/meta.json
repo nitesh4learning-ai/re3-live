@@ -1,0 +1,31 @@
+{
+  "tier": 3,
+  "icon": "\ud83e\udde0",
+  "title": "Core ML & On-Device Classification",
+  "description": "Apple's ML pipeline, model conversion to .mlmodel, on-device vs cloud trade-offs for mobile AI.",
+  "difficulty": "Advanced",
+  "timeMinutes": 180,
+  "exerciseCount": 6,
+  "tabCount": 5,
+  "status": "available",
+  "tags": [
+    "core-ml",
+    "on-device",
+    "mobile-ai",
+    "apple",
+    "ios"
+  ],
+  "programLink": {
+    "programId": "agentic-ai-mastery",
+    "week": 9
+  },
+  "createdBy": {
+    "name": "Nitesh",
+    "avatar": "NP",
+    "color": "#9333EA"
+  },
+  "seo": {
+    "metaTitle": "Core ML On-Device AI \u2014 Re\u00b3 Academy Plus",
+    "metaDescription": "Build on-device image classifiers with Core ML. Benchmark against cloud inference."
+  }
+}

@@ -1,0 +1,16 @@
+---
+label: "Query Rewriting"
+icon: "🔄"
+---
+
+## The Self-Correction Loop
+
+When grading reveals poor retrieval, the agent rewrites the query and retries. This is the same rewrite → search → grade loop from Week 1, now applied to RAG.
+
+<AnalogyBox emoji="🗄️" title="MDM Semantic Matchcode">
+ChromaDB is like an SAP matchcode (search help) for semantic meaning. A matchcode finds "McKesson Corp" from "McKesson." A vector store finds documents about "drug supply chain problems" from "pharmaceutical distribution challenges."
+</AnalogyBox>
+
+The routing function decides: enough relevant docs → generate, too few → rewrite, max retries → best effort.
+
+<SeeItInRe3 text="SnapSense uses the same retry pattern — if Open Food Facts returns no data, it falls back to name-based search, then UPCitemdb." />

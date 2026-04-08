@@ -1,0 +1,128 @@
+---
+label: "Query Rewriting & Retrieval Loop"
+icon: "🔄"
+---
+
+## The Self-Correction Loop: Rewrite → Retrieve → Grade
+
+When grading reveals poor retrieval quality, the agent doesn't give up — it rewrites the query and tries again. This is the "agentic" part of Agentic RAG.
+
+### The Query Rewriting Node
+
+<CodeBlock language="python" label="Intelligent Query Rewriting" code={`def rewrite_query(state: RAGState) -> dict:
+    """
+    When retrieved docs are mostly irrelevant, the LLM
+    analyzes what went wrong and rewrites the query.
+    
+    This mirrors what a data steward does when initial
+    supplier search returns poor matches — they refine
+    the search criteria based on what they've seen.
+    """
+    response = llm.invoke([
+        SystemMessage(content=(
+            "You are a search query optimizer. The previous "
+            "search returned mostly irrelevant results. "
+            "Analyze the original query and the poor results, "
+            "then rewrite the query to get better results. "
+            "Consider: synonyms, more specific terms, "
+            "different phrasing, or breaking into sub-queries. "
+            "Return ONLY the improved query."
+        )),
+        HumanMessage(content=(
+            f"Original query: {state['query']}\\n\\n"
+            f"Documents that were irrelevant:\\n"
+            f"{str([d['content'][:200] for d in state['documents'] if d not in state['relevant_docs']])[:500]}"
+        ))
+    ])
+    
+    new_query = response.content.strip()
+    print(f"  ✏️  Rewritten: '{state['query']}' → '{new_query}'")
+    
+    return {
+        "query": new_query,
+        "retry_count": state["retry_count"] + 1,
+    }`}/>
+
+### The Routing Function
+
+<CodeBlock language="python" label="Conditional Routing After Grading" code={`def route_after_grading(state: RAGState) -> Literal["generate", "rewrite", "end"]:
+    """
+    After grading, decide the next step:
+    
+    - Enough relevant docs → generate answer
+    - Too few relevant docs → rewrite query and retry
+    - Max retries hit → generate with whatever we have
+    
+    The threshold (e.g., 2 relevant docs minimum) is a
+    design decision based on your quality requirements.
+    """
+    relevant_count = len(state["relevant_docs"])
+    
+    # Enough good docs to generate a quality answer
+    if relevant_count >= 2:
+        return "generate"
+    
+    # Safety limit on retries
+    if state["retry_count"] >= 3:
+        print("  ⚠️  Max retries — generating with available docs")
+        return "generate"  # Best effort with what we have
+    
+    # Not enough good docs — rewrite and retry
+    print(f"  🔄 Only {relevant_count} relevant docs — rewriting query")
+    return "rewrite"`}/>
+
+### Vector Store Integration with ChromaDB
+
+<CodeBlock language="python" label="ChromaDB Retriever Node" code={`import chromadb
+from chromadb.utils import embedding_functions
+
+# Initialize ChromaDB with sentence-transformer embeddings
+chroma_client = chromadb.PersistentClient(path="./chroma_db")
+embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
+    model_name="all-MiniLM-L6-v2"
+)
+
+collection = chroma_client.get_or_create_collection(
+    name="knowledge_base",
+    embedding_function=embedding_fn,
+    metadata={"hnsw:space": "cosine"}  # Cosine similarity
+)
+
+def retrieve_documents(state: RAGState) -> dict:
+    """
+    Query ChromaDB for relevant documents.
+    Returns top-k results with content and metadata.
+    
+    Think of ChromaDB as a specialized index — like
+    SAP's matchcode objects but for semantic similarity
+    instead of exact field matching.
+    """
+    results = collection.query(
+        query_texts=[state["query"]],
+        n_results=5,
+        include=["documents", "metadatas", "distances"]
+    )
+    
+    documents = []
+    for i, doc in enumerate(results["documents"][0]):
+        documents.append({
+            "content": doc,
+            "source": results["metadatas"][0][i].get("source", "unknown"),
+            "distance": results["distances"][0][i],
+        })
+    
+    print(f"  📚 Retrieved {len(documents)} documents from ChromaDB")
+    return {"documents": documents}`}/>
+
+<AnalogyBox emoji="🗄️" title="Vector Store = Semantic Matchcode">
+If you've worked with SAP matchcode objects (search helps), a vector store serves the same purpose but for semantic meaning instead of exact field values. A matchcode finds "McKesson Corp" when you type "McKesson." A vector store finds documents about "pharmaceutical distribution challenges" when you search "drug supply chain problems." Both are indexes that speed up searching — they just operate on different dimensions.
+</AnalogyBox>
+
+<Quiz
+  question="Your Agentic RAG system retrieves 5 documents but grading marks 4 as irrelevant. What should the routing function do?"
+  options={["Generate anyway — 1 document is enough", "Immediately fail and return an error", "Rewrite the query and retry retrieval (if under retry limit)", "Remove the vector store and switch to web search"]}
+  correctIndex={2}
+  explanation="When most documents are irrelevant, the query likely needs refinement. The routing function should trigger a rewrite → retrieve → grade cycle. This is the core value of Agentic RAG — it self-corrects instead of generating a poor answer from irrelevant sources. The safety limit on retries prevents infinite loops."
+/>
+
+<SeeItInRe3 text="SnapSense uses the same retry pattern — if Open Food Facts returns no data for a barcode, it falls back to name-based search, then to UPCitemdb. Each fallback is a query rewrite targeting a different data source." />

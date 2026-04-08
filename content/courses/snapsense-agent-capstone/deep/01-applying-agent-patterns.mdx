@@ -1,0 +1,55 @@
+---
+label: "Applying Agent Patterns"
+icon: "📱"
+---
+
+## From Theory to Product: The SnapSense Agent Layer
+
+Weeks 1-3 taught you LangGraph, Agentic RAG, and Multi-Agent patterns. This week, you apply everything to a real product: SnapSense AI.
+
+### The Current SnapSense Pipeline
+
+<CodeBlock language="text" label="Current Architecture (No Agent Layer)" code={`Camera Scan → ML Kit (on-device) → Cloud Vision → LLM (Gemini/Haiku)
+                                                        ↓
+                                               Smart Capture Tiles
+                                                        ↓
+                                               Deep Analysis`}/>
+
+This is a linear pipeline — no self-correction, no quality evaluation, no dynamic routing. If ML Kit misclassifies an object (sabudana as "plant"), the entire downstream output is wrong.
+
+### The Agent-Enhanced Pipeline
+
+<CodeBlock language="text" label="Proposed Agent Architecture" code={`Camera Scan
+     │
+┌────▼──────────┐
+│ Category Agent │ ← Classifies into 16 categories
+└────┬──────────┘   Uses ML Kit + LLM override
+     │
+┌────▼──────────┐
+│ Router Agent   │ ← Routes to category-specific handler
+└────┬──────────┘
+     │
+┌────▼──────────────┐
+│ Data Quality Agent │ ← Grades API data (OFF, OBF, ASPCA)
+└────┬──────────────┘   If poor → fallback search → retry
+     │
+┌────▼──────────┐
+│ Tile Generator │ ← Generates Smart Capture tiles
+└────┬──────────┘   from validated data only
+     │
+┌────▼──────────┐
+│ Quality Gate   │ ← Scores output, loops if needed
+└───────────────┘`}/>
+
+<AnalogyBox emoji="🏭" title="MDM Data Pipeline vs AI Agent Pipeline">
+The SnapSense agent layer mirrors an MDM data pipeline: ingest (camera scan) → classify (category routing) → validate (data quality grading) → enrich (API lookups) → quality gate (human review for edge cases) → publish (generate tiles). Every MDM pipeline principle applies here.
+</AnalogyBox>
+
+<Quiz
+  question="SnapSense currently misclassifies TERRO ant bait as 'food' via the barcode path. Which agent layer component would fix this?"
+  options={["Better camera hardware", "The Category Agent using LLM override of ML Kit classification", "A larger LLM model", "More training data for ML Kit"]}
+  correctIndex={1}
+  explanation="The Category Agent receives ML Kit's classification AND the LLM's assessment, then decides the final category. If ML Kit says 'food' but the LLM recognizes 'TERRO ant bait' as a pest control product, the LLM override corrects the category before routing. This is the exclusion engine fix."
+/>
+
+<SeeItInRe3 text="Re³'s Forge agent does exactly this: it evaluates the topic, classifies it, and routes to the right specialists — not blindly, but with quality-checked classification." />

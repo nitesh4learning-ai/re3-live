@@ -1,0 +1,30 @@
+{
+  "tier": 3,
+  "icon": "\ud83c\udfdb\ufe0f",
+  "title": "NIST AI RMF Deep Dive",
+  "description": "Four core functions: Govern, Map, Measure, Manage. Mapping NIST to your GIM Framework.",
+  "difficulty": "Advanced",
+  "timeMinutes": 180,
+  "exerciseCount": 6,
+  "tabCount": 5,
+  "status": "available",
+  "tags": [
+    "nist",
+    "governance",
+    "risk",
+    "gim"
+  ],
+  "programLink": {
+    "programId": "agentic-ai-mastery",
+    "week": 5
+  },
+  "createdBy": {
+    "name": "Nitesh",
+    "avatar": "NP",
+    "color": "#9333EA"
+  },
+  "seo": {
+    "metaTitle": "NIST AI RMF \u2014 Re\u00b3 Academy Plus",
+    "metaDescription": "Master NIST AI Risk Management Framework. Map to GIM Framework pillars."
+  }
+}

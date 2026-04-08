@@ -1,0 +1,27 @@
+---
+label: "Why On-Device AI?"
+icon: "🧠"
+---
+
+## Why On-Device AI?
+
+
+
+### Why On-Device AI Matters
+
+Cloud AI has three costs: money (API calls), latency (network round-trips), and privacy (data leaves the device). On-device inference eliminates all three for suitable workloads.
+
+<AnalogyBox emoji="🧠" title="Edge Computing = Local Data Processing">
+On-device AI is to cloud AI what edge computing is to cloud computing in enterprise architecture. At McKesson, you wouldn't send every barcode scan to a central server for validation — the warehouse scanner validates locally. Similarly, SnapSense doesn't need to send every image to the cloud for basic category detection.
+</AnalogyBox>
+
+<ComparisonTable title="Cloud vs On-Device Inference" columns={['Factor','Cloud (Current)','On-Device (Target)']} rows={[
+  ['Cost','$0.019/scan','$0 after model download'],
+  ['Latency','1-3s (network + inference)','50-200ms (inference only)'],
+  ['Privacy','Image sent to server','Image stays on device'],
+  ['Offline','Requires internet','Works offline'],
+  ['Model updates','Instant (server-side)','Requires app update'],
+  ['Accuracy','Higher (larger models)','Lower (compressed models)'],
+]}/>
+
+<SeeItInRe3 text="SnapSense already uses ML Kit for on-device detection as the first tier. This week explores going deeper — replacing Cloud Vision with a custom on-device model for category routing." />

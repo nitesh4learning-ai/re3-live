@@ -1,0 +1,24 @@
+---
+label: "TFLite for Mobile"
+icon: "📲"
+---
+
+## TFLite for Mobile
+
+
+
+### TFLite: On-Device AI for Cross-Platform
+
+While Core ML is Apple-only, <JargonTip term="TFLite">TensorFlow Lite</JargonTip> runs on both iOS and Android — critical for SnapSense's Flutter (cross-platform) architecture. TFLite provides the path from "cloud API calls" to "on-device inference" without platform lock-in.
+
+<AnalogyBox emoji="📲" title="Cross-Platform = Cross-System Integration">
+Choosing TFLite over Core ML for SnapSense is like choosing MuleSoft over a platform-specific integration tool at McKesson. MuleSoft works across SAP, Salesforce, and Oracle. TFLite works across iOS and Android. Cross-platform tools trade some platform-specific optimization for universal compatibility.
+</AnalogyBox>
+
+<ComparisonTable title="Core ML vs TFLite for SnapSense" columns={['Factor','Core ML','TFLite']} rows={[
+  ['Platform','iOS only','iOS + Android (Flutter)'],
+  ['Flutter support','Requires native bridge','tflite_flutter plugin (direct)'],
+  ['Model format','.mlmodel','.tflite'],
+  ['Quantization','Built-in','INT8, FP16, dynamic range'],
+  ['Best for','iOS-only apps','Cross-platform Flutter apps'],
+]}/>

@@ -1,0 +1,18 @@
+{
+  "tier": 3,
+  "icon": "🤖",
+  "title": "Multi-Agent Systems + MCP",
+  "description": "Multi-agent orchestration patterns, Anthropic's Model Context Protocol, and Claude Agent SDK for building connected agent systems.",
+  "difficulty": "Advanced",
+  "timeMinutes": 210,
+  "exerciseCount": 8,
+  "tabCount": 5,
+  "status": "available",
+  "tags": ["multi-agent", "mcp", "orchestration", "claude-agent-sdk", "tools"],
+  "programLink": { "programId": "agentic-ai-mastery", "week": 3 },
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Multi-Agent Systems + MCP — Re³ Academy Plus",
+    "metaDescription": "Build multi-agent collaboration systems with MCP integration. Researcher → Analyst → Writer pipeline with tool connectivity."
+  }
+}

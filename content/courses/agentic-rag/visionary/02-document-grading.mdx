@@ -1,0 +1,19 @@
+---
+label: "Document Grading"
+icon: "📊"
+---
+
+## LLM-as-Judge
+
+The core innovation: use an LLM to evaluate whether each retrieved document actually answers the question. Documents that fail grading get filtered out before generation.
+
+<AnalogyBox emoji="🔬" title="Academic Peer Review">
+A researcher doesn't cite every paper they find — they evaluate each source for relevance. Agentic RAG does the same with retrieved documents.
+</AnalogyBox>
+
+<Quiz
+  question="Why grade documents individually instead of sending all to the generator?"
+  options={["Reduces token cost", "Prevents the LLM from being confused by irrelevant context", "Both — filtering reduces cost AND improves quality", "It doesn't matter either way"]}
+  correctIndex={2}
+  explanation="Filtering irrelevant docs both reduces token cost (fewer docs in context) AND improves generation quality (the LLM isn't distracted by off-topic content)."
+/>

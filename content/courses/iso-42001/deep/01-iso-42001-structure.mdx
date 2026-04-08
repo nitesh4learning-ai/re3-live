@@ -1,0 +1,35 @@
+---
+label: "ISO 42001 Structure"
+icon: "📜"
+---
+
+## ISO 42001 Structure
+
+
+
+<JargonTip term="ISO 42001">ISO/IEC 42001:2023</JargonTip> is the world's first international standard for **AI Management Systems (AIMS)**. It provides a certifiable framework using Plan-Do-Check-Act methodology — the same structure as ISO 27001 (information security) and ISO 9001 (quality management).
+
+<AnalogyBox emoji="📜" title="ISO 27001 for AI">
+If your organization has ISO 27001 certification, ISO 42001 will feel familiar. Same PDCA cycle, same management system approach, same audit structure. The difference: 27001 manages information security risks. 42001 manages AI-specific risks like bias, transparency, and autonomous decision-making.
+</AnalogyBox>
+
+### Key Clauses
+
+<ComparisonTable title="ISO 42001 Key Clauses" columns={['Clause','Topic','What It Requires']} rows={[
+  ['4','Context of the organization','Understand your AI landscape and stakeholder needs'],
+  ['5','Leadership','Top management commitment to AI governance'],
+  ['6','Planning','AI risk assessment and treatment planning'],
+  ['7','Support','Resources, competence, awareness, communication'],
+  ['8','Operation','AI system lifecycle management, impact assessment'],
+  ['9','Performance evaluation','Monitoring, measurement, internal audit'],
+  ['10','Improvement','Nonconformity handling, continual improvement'],
+]}/>
+
+<Quiz
+  question="ISO 42001 uses Plan-Do-Check-Act. Which phase does 'AI impact assessment' fall under?"
+  options={["Plan — it's part of risk planning", "Do — it's an operational activity", "Check — it's a measurement activity", "Act — it's a corrective action"]}
+  correctIndex={1}
+  explanation="AI impact assessment is an operational activity under Clause 8 (Operation). You PLAN what assessments to do, then DO the assessments during system development. The results feed into CHECK (Clause 9 — evaluation) and ACT (Clause 10 — improvement)."
+/>
+
+<SeeItInRe3 text="GIM Framework's Pillar 5 (Compliance & Audit) directly maps to ISO 42001's Clause 9 (Performance evaluation) and Clause 10 (Improvement)." />

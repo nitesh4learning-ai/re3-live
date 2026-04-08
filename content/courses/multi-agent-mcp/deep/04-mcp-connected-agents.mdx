@@ -1,0 +1,154 @@
+---
+label: "MCP-Connected Agents"
+icon: "🔗"
+---
+
+## Connecting Agents to the Real World via MCP
+
+The power of MCP is that once you build an MCP server, **any** MCP-compatible agent can use it. Your supplier validation server works with Claude Desktop, with your custom LangGraph agent, with VS Code Copilot — all without changing a line of server code.
+
+### Building a 3-Agent System with MCP
+
+<CodeBlock language="python" label="Complete 3-Agent Pipeline with MCP Tools" code={`from langgraph.graph import StateGraph, END, START
+from langchain_anthropic import ChatAnthropic
+from langchain_core.messages import SystemMessage, HumanMessage
+
+llm = ChatAnthropic(model="claude-sonnet-4-20250514")
+
+# ── Agent 1: Researcher with web search tool ──
+def researcher_agent(state):
+    """
+    Researcher has access to web search.
+    Gathers raw information about the topic.
+    """
+    response = llm.invoke(
+        [
+            SystemMessage(content=(
+                "You are a research agent. Search for and "
+                "compile key facts about the given topic. "
+                "Be thorough and cite sources."
+            )),
+            HumanMessage(content=f"Research: {state['topic']}")
+        ],
+        # In production: bind web search tool via MCP
+    )
+    return {"research_output": response.content}
+
+# ── Agent 2: Analyst with data analysis tools ──
+def analyst_agent(state):
+    """
+    Analyst has access to data processing tools.
+    Identifies patterns and strategic implications.
+    """
+    response = llm.invoke([
+        SystemMessage(content=(
+            "You are a strategic analyst. Given research "
+            "findings, identify patterns, risks, opportunities, "
+            "and actionable insights. Structure your analysis "
+            "with clear sections."
+        )),
+        HumanMessage(content=(
+            f"Topic: {state['topic']}\\n\\n"
+            f"Research findings:\\n{state['research_output']}"
+        ))
+    ])
+    return {"analysis_output": response.content}
+
+# ── Agent 3: Writer with document tools ──
+def writer_agent(state):
+    """
+    Writer synthesizes research + analysis into a
+    polished deliverable. Has access to document
+    formatting tools via MCP.
+    """
+    response = llm.invoke([
+        SystemMessage(content=(
+            "You are an expert writer. Create a clear, "
+            "compelling report that synthesizes the research "
+            "and analysis. Include: executive summary, key "
+            "findings, recommendations, and next steps."
+        )),
+        HumanMessage(content=(
+            f"Topic: {state['topic']}\\n\\n"
+            f"Research:\\n{state['research_output']}\\n\\n"
+            f"Analysis:\\n{state['analysis_output']}"
+        ))
+    ])
+    return {"final_report": response.content}
+
+# ── Quality Gate ──
+def quality_check(state):
+    response = llm.invoke([
+        SystemMessage(content=(
+            "Rate this report's quality 0-10. Consider: "
+            "completeness, accuracy, actionability, clarity. "
+            "Return ONLY the number."
+        )),
+        HumanMessage(content=state["final_report"])
+    ])
+    try:
+        score = float(response.content.strip())
+    except ValueError:
+        score = 5.0
+    return {"quality_score": score, "iteration": state["iteration"] + 1}
+
+def route_quality(state):
+    if state["quality_score"] >= 7.0:
+        return "done"
+    if state["iteration"] >= 2:
+        return "done"
+    return "revise"
+
+# ── Graph ──
+graph = StateGraph(dict)  # Simple dict state for clarity
+graph.add_node("researcher", researcher_agent)
+graph.add_node("analyst", analyst_agent)
+graph.add_node("writer", writer_agent)
+graph.add_node("quality", quality_check)
+
+graph.add_edge(START, "researcher")
+graph.add_edge("researcher", "analyst")
+graph.add_edge("analyst", "writer")
+graph.add_edge("writer", "quality")
+graph.add_conditional_edges(
+    "quality", route_quality,
+    {"done": END, "revise": "writer"}  # Writer revises if quality low
+)
+
+app = graph.compile()`}/>
+
+### MCP Server Configuration for Claude Desktop
+
+<CodeBlock language="json" label="claude_desktop_config.json — Connect to Your MCP Servers" code={`{
+  "mcpServers": {
+    "knowledge-base": {
+      "command": "python3",
+      "args": ["/path/to/kb_server.py"],
+      "description": "Internal knowledge base search"
+    },
+    "supplier-validation": {
+      "command": "python3",
+      "args": ["/path/to/supplier_server.py"],
+      "description": "Supplier data validation and enrichment"
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem",
+               "/Users/nitesh/projects"],
+      "description": "Read/write project files"
+    }
+  }
+}`}/>
+
+<AnalogyBox emoji="🌐" title="API Gateway Pattern">
+MCP configuration is like setting up an API gateway. Each server entry is a microservice that the AI agent can discover and call. The agent doesn't need to know implementation details — it just sees the tools, resources, and prompts each server exposes. This is exactly how enterprise API management works: register services → discover capabilities → call what you need.
+</AnalogyBox>
+
+<Quiz
+  question="In a 3-agent system (Researcher → Analyst → Writer), the Writer produces a report that scores 5/10 on quality. What should happen?"
+  options={["Restart from the Researcher", "Send back to the Writer for revision with the quality feedback", "End and return the low-quality report", "Replace the Writer with a different LLM model"]}
+  correctIndex={1}
+  explanation="Revision should go back to the Writer, not restart from scratch. The research and analysis are likely fine — the writing just needs improvement. This is the same principle as document revision in any organization: you don't redo the research when the draft needs editing."
+/>
+
+<SeeItInRe3 text="Re³'s debate pipeline is essentially a 3-agent system with quality gates: Forge (researcher/curator) → Debater agents (analysts) → Sage/Hypatia (writers/synthesizers), with Atlas acting as the quality gate between rounds." />

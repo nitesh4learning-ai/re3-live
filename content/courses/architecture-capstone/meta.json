@@ -1,0 +1,31 @@
+{
+  "tier": 4,
+  "icon": "\ud83c\udfc6",
+  "title": "Capstone \u2014 Architecture Decision Document",
+  "description": "Synthesize all 12 weeks into a comprehensive portfolio piece. ADR methodology for career positioning.",
+  "difficulty": "Advanced",
+  "timeMinutes": 180,
+  "exerciseCount": 4,
+  "tabCount": 5,
+  "status": "available",
+  "tags": [
+    "capstone",
+    "architecture",
+    "portfolio",
+    "career",
+    "adr"
+  ],
+  "programLink": {
+    "programId": "agentic-ai-mastery",
+    "week": 12
+  },
+  "createdBy": {
+    "name": "Nitesh",
+    "avatar": "NP",
+    "color": "#9333EA"
+  },
+  "seo": {
+    "metaTitle": "Architecture Capstone \u2014 Re\u00b3 Academy Plus",
+    "metaDescription": "Synthesize 12 weeks of learning into a Director-level portfolio piece."
+  }
+}

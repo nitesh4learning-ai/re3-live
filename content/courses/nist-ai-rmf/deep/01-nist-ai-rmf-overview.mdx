@@ -1,0 +1,32 @@
+---
+label: "NIST AI RMF Overview"
+icon: "🏛️"
+---
+
+## NIST AI RMF Overview
+
+
+
+The NIST AI Risk Management Framework (AI RMF 1.0) provides a structured approach to managing AI risks. Released in January 2023, it's voluntary but rapidly becoming the de facto standard for US enterprises.
+
+<AnalogyBox emoji="🏛️" title="NIST = Building Codes for AI">
+Building codes don't tell you what to build — they tell you how to build safely. NIST AI RMF does the same for AI: it doesn't dictate what models to use, but how to manage the risks of using them. Just as building inspectors verify compliance, AI governance teams verify AI systems meet the framework's guidelines.
+</AnalogyBox>
+
+### Four Core Functions
+
+<ComparisonTable title="NIST AI RMF Core Functions" columns={['Function','Purpose','Key Activities','GIM Parallel']} rows={[
+  ['GOVERN','Cross-cutting governance','Policies, roles, culture, accountability','GIM Pillar 1: Strategy & Policy'],
+  ['MAP','Context & scope','Use case inventory, stakeholder analysis, risk identification','GIM Pillar 2: Data Architecture'],
+  ['MEASURE','Assessment & metrics','Risk measurement, bias testing, performance monitoring','GIM Pillar 3: Quality & Stewardship'],
+  ['MANAGE','Treatment & response','Risk prioritization, mitigation, incident response','GIM Pillar 4: Operations'],
+]}/>
+
+<SeeItInRe3 text="The GIM Framework's 5 pillars map naturally to NIST's 4 functions — this crosswalk is Week 5's deliverable." />
+
+<Quiz
+  question="NIST AI RMF's GOVERN function is described as 'cross-cutting.' What does that mean?"
+  options={["It only applies to government agencies", "It operates independently of the other three functions", "It spans and informs all other functions — governance is embedded everywhere", "It's optional for commercial organizations"]}
+  correctIndex={2}
+  explanation="GOVERN is cross-cutting because governance principles (accountability, transparency, risk culture) must be embedded in every MAP, MEASURE, and MANAGE activity. It's not a standalone step — it's the foundation everything else sits on. In GIM terms, this is why Strategy & Policy is Pillar 1."
+/>

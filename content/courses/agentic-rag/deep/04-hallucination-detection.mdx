@@ -1,0 +1,127 @@
+---
+label: "Hallucination Detection"
+icon: "🛡️"
+---
+
+## Grounding Checks: Catching Hallucinations Before They Ship
+
+Even with relevant documents, LLMs can hallucinate — generating plausible-sounding claims that aren't supported by the retrieved sources. Agentic RAG adds a **grounding check** after generation: does the answer actually come from the documents?
+
+### The Hallucination Checker Node
+
+<CodeBlock language="python" label="Post-Generation Hallucination Check" code={`HALLUCINATION_PROMPT = """You are a hallucination detector.
+
+Given a generated answer and the source documents it was based on,
+determine if the answer is FULLY GROUNDED in the sources.
+
+Score from 0.0 to 1.0:
+- 1.0 = Every claim in the answer is directly supported by sources
+- 0.5 = Some claims are supported, others are inferred or added
+- 0.0 = The answer contains significant unsupported claims
+
+Return ONLY the number (e.g., 0.8).
+
+Source documents:
+{sources}
+
+Generated answer:
+{answer}
+"""
+
+def check_hallucination(state: RAGState) -> dict:
+    """
+    After generation, verify the answer is grounded
+    in the retrieved documents.
+    
+    This is the quality gate — like a data steward
+    reviewing an auto-enriched record before it gets
+    promoted to the golden record.
+    """
+    sources_text = "\\n---\\n".join(
+        [d["content"][:500] for d in state["relevant_docs"]]
+    )
+    
+    response = llm.invoke([
+        HumanMessage(content=HALLUCINATION_PROMPT.format(
+            sources=sources_text,
+            answer=state["generation"]
+        ))
+    ])
+    
+    try:
+        score = float(response.content.strip())
+    except ValueError:
+        score = 0.5  # Default if parsing fails
+    
+    print(f"  🛡️ Hallucination check: {score:.1f}/1.0")
+    
+    return {"hallucination_score": score}
+
+
+def route_after_hallucination(state: RAGState):
+    """
+    If grounding score is high → return the answer.
+    If low → regenerate with stricter instructions,
+    or rewrite and retrieve different sources.
+    """
+    if state["hallucination_score"] >= 0.7:
+        return "complete"      # Answer is grounded — ship it
+    
+    if state["retry_count"] >= 3:
+        return "complete"      # Best effort after max retries
+    
+    return "regenerate"        # Try again with stricter prompt`}/>
+
+<AnalogyBox emoji="✅" title="Audit Trail in Financial Reporting">
+Hallucination checking is like an auditor verifying that every number in a financial report traces back to a source transaction. If a figure appears in the report but can't be traced to the general ledger, it's flagged. Similarly, if a claim appears in the RAG answer but can't be traced to a retrieved document, it's a hallucination. In Bhavya's world at PCAOB — this is exactly what inspection work validates.
+</AnalogyBox>
+
+### The Complete Agentic RAG Graph
+
+<CodeBlock language="python" label="Full Agentic RAG Assembly" code={`from langgraph.graph import StateGraph, END, START
+
+graph = StateGraph(RAGState)
+
+# Nodes
+graph.add_node("route", route_query)           # Decide: vector search or web
+graph.add_node("retrieve", retrieve_documents)  # Get docs from ChromaDB
+graph.add_node("grade", grade_documents)         # LLM grades each doc
+graph.add_node("rewrite", rewrite_query)         # Rewrite poor queries
+graph.add_node("generate", generate_answer)      # LLM generates answer
+graph.add_node("hallucination_check", check_hallucination)
+
+# Flow
+graph.add_edge(START, "route")
+graph.add_edge("route", "retrieve")
+graph.add_edge("retrieve", "grade")
+
+# After grading: generate, rewrite, or give up
+graph.add_conditional_edges(
+    "grade", route_after_grading,
+    {"generate": "generate", "rewrite": "rewrite", "end": END}
+)
+
+# Rewrite loops back to retrieve
+graph.add_edge("rewrite", "retrieve")
+
+# After generation: check for hallucinations
+graph.add_edge("generate", "hallucination_check")
+
+# After hallucination check: complete or regenerate
+graph.add_conditional_edges(
+    "hallucination_check", route_after_hallucination,
+    {"complete": END, "regenerate": "generate"}
+)
+
+app = graph.compile()`}/>
+
+Notice this graph has **two loops**: the retrieval loop (grade → rewrite → retrieve) and the hallucination loop (generate → check → regenerate). This double self-correction is what makes Agentic RAG production-grade.
+
+<Quiz
+  question="Your Agentic RAG system generates an answer about FDA drug labeling that includes a specific regulation number. The hallucination checker scores it 0.4 (low grounding). What happened?"
+  options={["The LLM made up a regulation number that doesn't exist in the source documents", "The ChromaDB embedding model is broken", "The hallucination checker is too strict", "The query was poorly written"]}
+  correctIndex={0}
+  explanation="A low grounding score means the answer contains claims not supported by retrieved sources. LLMs are notorious for inventing plausible-sounding but incorrect regulatory citations. The hallucination checker caught this before it shipped — exactly why this node exists. In a compliance context, a fabricated regulation number could have serious consequences."
+/>
+
+<SeeItInRe3 text="Re³ implements this pattern in its debate synthesis — Hypatia's Loom checks that synthesized arguments actually trace back to specific agent contributions, not fabricated consensus." />

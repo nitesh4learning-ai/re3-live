@@ -1,0 +1,102 @@
+---
+label: "Model Context Protocol"
+icon: "🔌"
+---
+
+## MCP: The Universal Connector for AI
+
+<JargonTip term="MCP">Model Context Protocol</JargonTip> is Anthropic's open standard for connecting AI agents to external tools and data sources. Think of it as **USB-C for AI** — one protocol, any tool, any model.
+
+Before MCP, every AI integration was custom: bespoke API wrappers, custom authentication, fragile prompt-parsing. MCP standardizes this with three primitives.
+
+### MCP's Three Primitives
+
+<ComparisonTable title="MCP Primitives" columns={['Primitive','What It Does','Direction','Enterprise Analogy']} rows={[
+  ['Tools','Functions the LLM can call','Server → Client','API endpoints — the actions an agent can take'],
+  ['Resources','Data the LLM can read','Server → Client','Database views — structured data available to the agent'],
+  ['Prompts','Templates the server suggests','Server → Client','Stored procedures — pre-built workflows the server offers'],
+]}/>
+
+### MCP Architecture: Host → Client → Server
+
+<CodeBlock language="text" label="MCP Communication Flow" code={`┌──────────────────────────────────┐
+│  HOST (Claude Desktop / IDE)     │
+│                                  │
+│  ┌────────────────────────────┐  │
+│  │  CLIENT (MCP Client)       │  │
+│  │  Maintains 1:1 connections │  │
+│  └──────┬─────────┬───────────┘  │
+│         │         │              │
+└─────────┼─────────┼──────────────┘
+          │         │
+    ┌─────▼───┐ ┌───▼──────┐
+    │ Server  │ │ Server   │
+    │ (Files) │ │ (GitHub) │
+    └─────────┘ └──────────┘
+
+Each server exposes tools/resources/prompts
+via JSON-RPC 2.0 over stdio or HTTP.`}/>
+
+<AnalogyBox emoji="🔌" title="MuleSoft Anypoint for AI">
+If you've worked with MuleSoft at McKesson, MCP will feel familiar. MuleSoft provides a universal API layer that connects any system (SAP, Salesforce, Oracle) through standardized connectors. MCP does the same for AI: any agent can connect to any data source through standardized tool/resource/prompt interfaces. The difference? MuleSoft connects applications. MCP connects intelligence.
+</AnalogyBox>
+
+### Building an MCP Server
+
+<CodeBlock language="python" label="Simple MCP Server — Knowledge Base" code={`from mcp.server import Server
+from mcp.server.stdio import stdio_server
+from mcp.types import Tool, TextContent
+import json
+
+app = Server("knowledge-base-server")
+
+# Define a tool the LLM can call
+@app.list_tools()
+async def list_tools():
+    return [
+        Tool(
+            name="search_knowledge",
+            description="Search the internal knowledge base",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Search query"
+                    }
+                },
+                "required": ["query"]
+            }
+        )
+    ]
+
+@app.call_tool()
+async def call_tool(name: str, arguments: dict):
+    if name == "search_knowledge":
+        query = arguments["query"]
+        # In production: query your actual knowledge base
+        results = search_internal_kb(query)
+        return [TextContent(type="text", text=json.dumps(results))]
+
+# Run with stdio transport
+async def main():
+    async with stdio_server() as (read, write):
+        await app.run(read, write, 
+            app.create_initialization_options())
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())`}/>
+
+### Why MCP Matters Now
+
+Apple added MCP support to Xcode. OpenAI added it to ChatGPT. Google is integrating it. This isn't a niche Anthropic thing — it's becoming the industry standard for AI tool connectivity. Understanding MCP positions you as someone who grasps the infrastructure layer, not just the prompt layer.
+
+<SeeItInRe3 text="Re³'s multi-provider LLM router (lib/llm-router.js) predates MCP but solves a similar problem — standardized interfaces across Anthropic, OpenAI, Gemini, and Groq. MCP takes this further by standardizing tool connectivity, not just model access." />
+
+<Quiz
+  question="You're designing an MCP server for McKesson's supplier data. Which MCP primitive would you use to expose a 'validate_tax_id' function that the AI agent can call?"
+  options={["Resource — it provides data to the agent", "Prompt — it suggests a workflow", "Tool — it's a function the agent can execute", "All three combined"]}
+  correctIndex={2}
+  explanation="Tools are functions the LLM can call — actions with inputs and outputs. 'validate_tax_id' takes a tax ID as input and returns validation results. Resources would be appropriate for exposing the supplier database as readable data. Prompts would be templates like 'run full supplier due diligence.'"
+/>

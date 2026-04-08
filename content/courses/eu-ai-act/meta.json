@@ -1,0 +1,30 @@
+{
+  "tier": 4,
+  "icon": "\ud83c\uddea\ud83c\uddfa",
+  "title": "EU AI Act & Regulatory Landscape",
+  "description": "Risk tiers, GPAI obligations, and building an AI Risk Classification Tool with Claude API.",
+  "difficulty": "Advanced",
+  "timeMinutes": 180,
+  "exerciseCount": 6,
+  "tabCount": 5,
+  "status": "available",
+  "tags": [
+    "eu-ai-act",
+    "regulation",
+    "risk-classification",
+    "compliance"
+  ],
+  "programLink": {
+    "programId": "agentic-ai-mastery",
+    "week": 7
+  },
+  "createdBy": {
+    "name": "Nitesh",
+    "avatar": "NP",
+    "color": "#9333EA"
+  },
+  "seo": {
+    "metaTitle": "EU AI Act \u2014 Re\u00b3 Academy Plus",
+    "metaDescription": "EU AI Act risk classification, GPAI obligations, and compliance tools."
+  }
+}

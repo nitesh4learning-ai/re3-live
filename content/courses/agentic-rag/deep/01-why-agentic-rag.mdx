@@ -1,0 +1,44 @@
+---
+label: "Why Agentic RAG?"
+icon: "🔍"
+---
+
+## Beyond Naive RAG: Why Loops Beat Pipelines
+
+<JargonTip term="RAG">Retrieval-Augmented Generation (RAG)</JargonTip> in its simplest form is a pipeline: Query → Retrieve → Generate. It works for basic Q&A, but fails catastrophically when retrieval quality is poor — the LLM hallucinates confidently from irrelevant documents.
+
+**Agentic RAG** adds self-correction: the system evaluates its own retrieval quality and retries autonomously. Instead of a pipeline, it's a loop — exactly the pattern you learned in Week 1 with LangGraph.
+
+<AnalogyBox emoji="📚" title="Library Research vs Google Search">
+Naive RAG is like Googling a question and reading the first result. Agentic RAG is like a research librarian: they search, evaluate whether the sources actually answer your question, try different search terms if results are poor, cross-reference multiple sources, and only hand you a synthesis when they're confident in the quality. The librarian loops. Google doesn't.
+</AnalogyBox>
+
+### The Five-Stage Agentic RAG Pipeline
+
+<ComparisonTable title="Naive RAG vs Agentic RAG" columns={['Stage','Naive RAG','Agentic RAG']} rows={[
+  ['1. Route','Fixed retriever','Router decides: web search, vector store, or direct LLM'],
+  ['2. Retrieve','Single query, top-k results','Query → retrieve → evaluate → rewrite → retry loop'],
+  ['3. Grade','None — trust whatever comes back','LLM-as-judge scores relevance of each document'],
+  ['4. Generate','Single LLM call on retrieved docs','Generate + hallucination check against sources'],
+  ['5. Validate','None','Check answer is grounded in retrieved docs, retry if not'],
+]}/>
+
+<AnalogyBox emoji="🏭" title="MDM Data Quality Pipeline">
+If you've built data quality workflows at McKesson, Agentic RAG will feel familiar. It's the same pattern: ingest data → validate against rules → if validation fails, route to enrichment/correction → re-validate → only promote to golden record when quality threshold is met. The "promote to golden record" moment is when the RAG system finally generates its answer.
+</AnalogyBox>
+
+### When to Use Agentic RAG vs Naive RAG
+
+Not every use case needs self-correction. Use the simpler approach when it's sufficient:
+
+- **Naive RAG**: Internal FAQ bots, simple document Q&A, low-stakes queries where "close enough" is fine
+- **Agentic RAG**: Contract analysis, regulatory compliance, medical information, supplier onboarding — anywhere wrong answers have real consequences
+
+<SeeItInRe3 text="Re³'s debate pipeline is Agentic RAG at scale — multiple agents retrieve, evaluate, and argue about information quality before Hypatia synthesizes the final answer." />
+
+<Quiz
+  question="What is the fundamental difference between Naive RAG and Agentic RAG?"
+  options={["Agentic RAG uses better embedding models", "Agentic RAG adds self-correction loops that evaluate and retry retrieval", "Agentic RAG uses more documents in the context window", "Agentic RAG requires a vector database while Naive RAG doesn't"]}
+  correctIndex={1}
+  explanation="The key difference is the loop. Naive RAG is a linear pipeline (retrieve → generate). Agentic RAG adds evaluation nodes that grade retrieval quality and loop back to retry with rewritten queries when results are poor. This self-correction capability comes from LangGraph's cyclic graph support."
+/>

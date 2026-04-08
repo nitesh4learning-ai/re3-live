@@ -1,0 +1,142 @@
+---
+label: "Multi-Agent Patterns"
+icon: "🤖"
+---
+
+## Why Multiple Agents?
+
+A single agent hits limits: context window constraints, tool overload (too many tools degrade performance), and the inability to hold conflicting perspectives simultaneously. Multi-agent systems solve this by specializing — each agent has a focused role, limited tools, and clear responsibilities.
+
+<AnalogyBox emoji="🏢" title="Division of Labor at McKesson">
+A single data steward can't handle all of MDM alone — you need specialists: one for supplier matching, one for material master data, one for regulatory compliance. Each has their own tools (SAP screens, D&B lookups, FDA databases) and domain expertise. Multi-agent AI follows the same principle: specialization through division of labor.
+</AnalogyBox>
+
+### Three Orchestration Patterns
+
+<ComparisonTable title="Multi-Agent Orchestration Patterns" columns={['Pattern','How It Works','Pros','Cons','Re³ Example']} rows={[
+  ['Pipeline','Agent A → Agent B → Agent C (sequential)','Simple, predictable','No parallelism, single point of failure','Not used — too rigid'],
+  ['Hierarchical','Supervisor delegates to worker agents','Clear control, organized','Supervisor is bottleneck, single vision','Forge (supervisor) → 5 debater agents'],
+  ['Collaborative','Agents communicate as peers, negotiate','Diverse perspectives, emergent insight','Complex coordination, harder to debug','Re³ debate rounds — agents argue as peers'],
+]}/>
+
+### The Supervisor Pattern in LangGraph
+
+<CodeBlock language="python" label="Supervisor Agent Orchestrating Workers" code={`from typing import TypedDict, Annotated, List, Literal
+from langgraph.graph import StateGraph, END, START, add_messages
+from langchain_anthropic import ChatAnthropic
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
+
+class MultiAgentState(TypedDict):
+    messages: Annotated[list[BaseMessage], add_messages]
+    topic: str
+    research: str          # Output from researcher
+    analysis: str          # Output from analyst
+    draft: str             # Output from writer
+    current_agent: str     # Who's working now
+    quality_score: float   # Supervisor's quality assessment
+    iteration: int
+
+llm = ChatAnthropic(model="claude-sonnet-4-20250514")
+
+# ── Supervisor: decides who works next ──
+def supervisor_node(state: MultiAgentState) -> dict:
+    """
+    The supervisor evaluates current state and decides
+    which worker agent should act next.
+    
+    This mirrors Forge's role in Re³ — curating which
+    agents participate and in what order.
+    """
+    response = llm.invoke([
+        SystemMessage(content=(
+            "You are a project supervisor. Based on the current "
+            "state of work, decide who should act next:\\n"
+            "- 'researcher': gather information\\n"
+            "- 'analyst': analyze findings\\n"
+            "- 'writer': draft the final output\\n"
+            "- 'done': work is complete\\n"
+            "Return ONLY the agent name."
+        )),
+        HumanMessage(content=(
+            f"Topic: {state['topic']}\\n"
+            f"Research done: {'Yes' if state['research'] else 'No'}\\n"
+            f"Analysis done: {'Yes' if state['analysis'] else 'No'}\\n"
+            f"Draft done: {'Yes' if state['draft'] else 'No'}\\n"
+            f"Quality: {state.get('quality_score', 0)}"
+        ))
+    ])
+    return {"current_agent": response.content.strip().lower()}
+
+def route_to_agent(state: MultiAgentState):
+    agent = state["current_agent"]
+    if agent in ["researcher", "analyst", "writer"]:
+        return agent
+    return "end"
+
+# ── Worker Agents ──
+def researcher_node(state: MultiAgentState) -> dict:
+    response = llm.invoke([
+        SystemMessage(content="You are a thorough researcher. "
+            "Gather key facts and data about the topic."),
+        HumanMessage(content=f"Research this topic: {state['topic']}")
+    ])
+    return {"research": response.content, "current_agent": "researcher"}
+
+def analyst_node(state: MultiAgentState) -> dict:
+    response = llm.invoke([
+        SystemMessage(content="You are a strategic analyst. "
+            "Identify patterns, implications, and insights."),
+        HumanMessage(content=(
+            f"Topic: {state['topic']}\\n"
+            f"Research: {state['research']}"
+        ))
+    ])
+    return {"analysis": response.content, "current_agent": "analyst"}
+
+def writer_node(state: MultiAgentState) -> dict:
+    response = llm.invoke([
+        SystemMessage(content="You are a skilled writer. "
+            "Create a clear, compelling synthesis."),
+        HumanMessage(content=(
+            f"Topic: {state['topic']}\\n"
+            f"Research: {state['research']}\\n"
+            f"Analysis: {state['analysis']}"
+        ))
+    ])
+    return {"draft": response.content, "current_agent": "writer"}`}/>
+
+### Graph Assembly
+
+<CodeBlock language="python" label="Multi-Agent Graph with Supervisor Loop" code={`graph = StateGraph(MultiAgentState)
+
+graph.add_node("supervisor", supervisor_node)
+graph.add_node("researcher", researcher_node)
+graph.add_node("analyst", analyst_node)
+graph.add_node("writer", writer_node)
+
+graph.add_edge(START, "supervisor")
+
+# Supervisor routes to the right worker
+graph.add_conditional_edges(
+    "supervisor", route_to_agent,
+    {"researcher": "researcher", "analyst": "analyst",
+     "writer": "writer", "end": END}
+)
+
+# All workers report back to supervisor
+graph.add_edge("researcher", "supervisor")
+graph.add_edge("analyst", "supervisor")
+graph.add_edge("writer", "supervisor")
+
+app = graph.compile()`}/>
+
+Notice the hub-and-spoke pattern: every worker reports back to the supervisor, who decides what happens next. This is the same pattern as Forge in Re³.
+
+<SeeItInRe3 text="Re³ implements the hierarchical pattern: Forge (supervisor) selects 5 debater agents from 25, then agents argue as peers (collaborative pattern), and Atlas moderates quality (another supervisor layer)." />
+
+<Quiz
+  question="You're building a multi-agent system for supplier due diligence at McKesson. Which orchestration pattern best fits: one agent checks sanctions lists, one verifies financial health, one reviews compliance history, and a human steward makes the final decision?"
+  options={["Pipeline — sanctions → financial → compliance → human", "Hierarchical — supervisor delegates to specialist agents, then routes to human", "Collaborative — all agents discuss the supplier simultaneously", "Single agent with multiple tools"]}
+  correctIndex={1}
+  explanation="Hierarchical fits best: a supervisor can delegate checks in parallel to specialists, aggregate their findings, and route to human review only when needed. Pipeline is too rigid (what if sanctions check needs re-running after financial data arrives?). Collaborative adds complexity without benefit since the checks are independent."
+/>

@@ -1,0 +1,30 @@
+---
+label: "Measure & Manage Functions"
+icon: "📏"
+---
+
+## Measure & Manage Functions
+
+
+
+### MEASURE: Quantifying AI Risk
+
+MEASURE answers: *How do we know if our AI systems are performing safely and effectively?*
+
+<ComparisonTable title="AI Risk Metrics" columns={['Metric Type','Example','Measurement Method','Frequency']} rows={[
+  ['Accuracy','Model prediction accuracy','Test set evaluation','Monthly'],
+  ['Fairness','Demographic parity across groups','Bias audit toolkits (Fairlearn)','Quarterly'],
+  ['Robustness','Performance under adversarial inputs','Red team testing','Semi-annual'],
+  ['Explainability','Feature importance transparency','SHAP/LIME analysis','Per-model'],
+  ['Privacy','Data leakage risk','Membership inference tests','Annual'],
+]}/>
+
+### MANAGE: Acting on Findings
+
+MANAGE closes the loop: prioritize risks identified by MEASURE, implement mitigations, monitor effectiveness, respond to incidents.
+
+<AnalogyBox emoji="🔧" title="CAPA in Quality Management">
+If you've worked with CAPA (Corrective and Preventive Action) in quality management, MANAGE follows the same pattern: identify the issue (from MEASURE), determine root cause, implement corrective action, verify effectiveness, prevent recurrence. NIST just applies this to AI risk.
+</AnalogyBox>
+
+<SeeItInRe3 text="GIM's Pillar 3 (Quality & Stewardship) maps to MEASURE, and Pillar 4 (Operations) maps to MANAGE — the operational side of governance." />

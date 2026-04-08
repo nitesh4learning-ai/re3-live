@@ -1,0 +1,14 @@
+---
+label: "Build & Practice"
+icon: "🔨"
+---
+## Week 3 Build: 3-Agent + MCP
+Build Researcher → Analyst → Writer with supervisor orchestration and at least one MCP server connection. Add a quality gate that loops Writer for revision.
+<Quiz
+  question="In a supervisor pattern, the Writer produces a score of 5/10. What should happen?"
+  options={["Restart from Researcher","Send back to Writer for revision","Return low-quality report","Switch LLM models"]}
+  correctIndex={1}
+  explanation="Research and analysis are fine — only the writing needs revision. Don't redo work that's already good."
+/>
+> **Interview soundbite**: "I built multi-agent systems with MCP integration — specialized agents connected through Anthropic's Model Context Protocol with supervisor orchestration and quality gates."
+<SeeItInRe3 text="This week's build is a simplified Re³ — Forge selects, agents work, Atlas quality-checks, Hypatia synthesizes." />

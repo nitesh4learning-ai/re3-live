@@ -128,7 +128,8 @@
             }
           ],
           "careerAngle": "This maps to enterprise use cases like 'AI-powered contract analysis' or 'intelligent supplier onboarding.' Use your MDM domain to frame the story.",
-          "snapSenseAngle": "Pattern directly applicable to SnapSense's product lookup pipeline \u2014 if OFF data is incomplete, rewrite the search or fallback to name-based lookup."
+          "snapSenseAngle": "Pattern directly applicable to SnapSense's product lookup pipeline \u2014 if OFF data is incomplete, rewrite the search or fallback to name-based lookup.",
+          "courseLink": "agentic-rag"
         },
         {
           "week": 3,
@@ -185,7 +186,8 @@
             }
           ],
           "careerAngle": "MCP is becoming the USB-C of AI tool connectivity. Apple added it to Xcode, OpenAI added it to ChatGPT. Knowing MCP positions you as someone who understands the infrastructure layer, not just the prompt layer.",
-          "snapSenseAngle": "MCP could become SnapSense's integration standard \u2014 connect to Open Food Facts, Open Beauty Facts, and ASPCA databases through a single protocol."
+          "snapSenseAngle": "MCP could become SnapSense's integration standard \u2014 connect to Open Food Facts, Open Beauty Facts, and ASPCA databases through a single protocol.",
+          "courseLink": "multi-agent-mcp"
         },
         {
           "week": 4,
@@ -209,7 +211,8 @@
           },
           "resources": [],
           "careerAngle": "Directors who build > Directors who only strategize. This capstone proves you can take theory to product.",
-          "snapSenseAngle": "Even if you don't ship this immediately, having the architecture documented positions SnapSense for its next major evolution."
+          "snapSenseAngle": "Even if you don't ship this immediately, having the architecture documented positions SnapSense for its next major evolution.",
+          "courseLink": "snapsense-agent-capstone"
         }
       ]
     },
@@ -261,7 +264,8 @@
             }
           ],
           "careerAngle": "When asked 'How would you implement AI governance?', you answer with NIST functions AND your own GIM framework. That's a 1-2 punch nobody else has.",
-          "snapSenseAngle": "Document how SnapSense's privacy-by-design (on-device only) maps to NIST's trustworthiness characteristics."
+          "snapSenseAngle": "Document how SnapSense's privacy-by-design (on-device only) maps to NIST's trustworthiness characteristics.",
+          "courseLink": "nist-ai-rmf"
         },
         {
           "week": 6,
@@ -297,7 +301,8 @@
             }
           ],
           "careerAngle": "ISO 42001 Lead Implementer certification is rare. Having it immediately signals 'I can operationalize AI governance, not just talk about it.'",
-          "snapSenseAngle": "N/A \u2014 this is purely career-focused but strengthens your overall positioning."
+          "snapSenseAngle": "N/A \u2014 this is purely career-focused but strengthens your overall positioning.",
+          "courseLink": "iso-42001"
         },
         {
           "week": 7,
@@ -334,7 +339,8 @@
             }
           ],
           "careerAngle": "EU AI Act enforcement starts Aug 2026. Companies are scrambling NOW. You become the person who can lead readiness.",
-          "snapSenseAngle": "Classify SnapSense itself \u2014 it's likely 'Limited Risk' given health-adjacent analysis. Document this proactively."
+          "snapSenseAngle": "Classify SnapSense itself \u2014 it's likely 'Limited Risk' given health-adjacent analysis. Document this proactively.",
+          "courseLink": "eu-ai-act"
         },
         {
           "week": 8,
@@ -357,7 +363,8 @@
           },
           "resources": [],
           "careerAngle": "This turns GIM from 'a project I built' into 'an enterprise-grade AI governance framework aligned with international standards.' Director-level statement.",
-          "snapSenseAngle": "N/A"
+          "snapSenseAngle": "N/A",
+          "courseLink": "gim-framework-2"
         }
       ]
     },
@@ -404,7 +411,8 @@
             }
           ],
           "careerAngle": "On-device AI + privacy-by-design is compelling for healthcare/pharma Director roles. Your Hive local storage constraint already demonstrates this thinking.",
-          "snapSenseAngle": "Could let SnapSense do category detection without any API call \u2014 huge cost and latency win."
+          "snapSenseAngle": "Could let SnapSense do category detection without any API call \u2014 huge cost and latency win.",
+          "courseLink": "core-ml-ondevice"
         },
         {
           "week": 10,
@@ -441,7 +449,8 @@
             }
           ],
           "careerAngle": "'I benchmarked cloud vs edge inference and made a data-driven architecture decision' \u2014 shows technical depth beyond typical Director candidates.",
-          "snapSenseAngle": "Direct input into SnapSense's architecture evolution. Could ship this."
+          "snapSenseAngle": "Direct input into SnapSense's architecture evolution. Could ship this.",
+          "courseLink": "tflite-flutter"
         },
         {
           "week": 11,
@@ -479,7 +488,8 @@
             }
           ],
           "careerAngle": "Most people 'do prompting.' Very few have a systematic evaluation framework. This shows engineering discipline, not enthusiasm.",
-          "snapSenseAngle": "Directly improves SnapSense scan quality and reduces API costs."
+          "snapSenseAngle": "Directly improves SnapSense scan quality and reduces API costs.",
+          "courseLink": "prompt-engineering-scale"
         },
         {
           "week": 12,
@@ -500,7 +510,8 @@
           },
           "resources": [],
           "careerAngle": "This document IS the Director portfolio piece. Period.",
-          "snapSenseAngle": "Doubles as SnapSense's technical architecture documentation."
+          "snapSenseAngle": "Doubles as SnapSense's technical architecture documentation.",
+          "courseLink": "architecture-capstone"
         }
       ]
     }

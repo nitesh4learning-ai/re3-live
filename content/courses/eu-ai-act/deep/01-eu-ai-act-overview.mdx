@@ -1,0 +1,30 @@
+---
+label: "EU AI Act Overview"
+icon: "🇪🇺"
+---
+
+## EU AI Act Overview
+
+
+
+The EU AI Act is the world's first comprehensive AI regulation. Entering enforcement in stages (August 2024 → August 2027), it classifies AI systems into four risk tiers and imposes specific obligations on each.
+
+<AnalogyBox emoji="🇪🇺" title="GDPR for AI">
+The EU AI Act is to AI what GDPR was to data privacy — a comprehensive regulation that will ripple globally. Just as GDPR forced every company handling EU citizen data to comply, the AI Act will force every company deploying AI in the EU to classify their systems and meet tier-specific requirements.
+</AnalogyBox>
+
+<ComparisonTable title="EU AI Act Risk Tiers" columns={['Tier','Risk Level','Examples','Requirements']} rows={[
+  ['Unacceptable','Banned','Social scoring, real-time biometric surveillance','Prohibited — cannot deploy'],
+  ['High','Stringent controls','Medical diagnosis, credit scoring, hiring','Conformity assessment, audit trail, human oversight'],
+  ['Limited','Transparency only','Chatbots, deepfake generators','Must disclose AI use to users'],
+  ['Minimal','No requirements','Spam filters, video game AI','No obligations (voluntary codes)'],
+]}/>
+
+<Quiz
+  question="SnapSense AI analyzes product images and provides health/safety information. Which EU AI Act risk tier does it fall under?"
+  options={["Unacceptable — it involves surveillance", "High — it provides health-related analysis", "Limited — it uses AI but isn't making critical decisions", "Minimal — it's a consumer utility app"]}
+  correctIndex={2}
+  explanation="SnapSense provides informational analysis (surfacing existing scores like Nutri-Score, ASPCA toxicity), not autonomous medical decisions. It falls under 'Limited' risk — requiring transparency (users must know AI is involved) but not full conformity assessment. However, if SnapSense ever made treatment recommendations, it could shift to 'High' risk."
+/>
+
+<SeeItInRe3 text="Classifying Re³ itself: it's likely 'Minimal' risk (AI-generated debate content for informational purposes), but the classification exercise is valuable practice." />

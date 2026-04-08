@@ -1,0 +1,16 @@
+---
+label: "Hallucination Detection"
+icon: "🛡️"
+---
+
+## Grounding Checks
+
+Even with relevant documents, LLMs can hallucinate. The grounding check verifies every claim in the answer traces back to a source document.
+
+<AnalogyBox emoji="✅" title="Financial Audit Trail">
+Like an auditor verifying every number traces to a source transaction. If a claim can't be traced to a retrieved document, it's flagged as a hallucination.
+</AnalogyBox>
+
+The graph has **two loops**: retrieval loop (grade → rewrite → retrieve) and hallucination loop (generate → check → regenerate). Double self-correction makes it production-grade.
+
+<SeeItInRe3 text="Hypatia's Loom checks that synthesized arguments trace back to specific agent contributions, not fabricated consensus." />

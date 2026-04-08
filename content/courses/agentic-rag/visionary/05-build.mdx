@@ -1,0 +1,21 @@
+---
+label: "Build & Practice"
+icon: "🔨"
+---
+
+## Week 2 Build: Agentic RAG Pipeline
+
+Extend Week 1's Research Agent: add ChromaDB for document storage, LLM-as-judge for grading, query rewriting loop, and hallucination checking.
+
+Pipeline: `Route → Retrieve → Grade → [rewrite loop] → Generate → Hallucination Check → [regenerate loop] → END`
+
+<Quiz
+  question="Your system retrieves 5 docs, grades 3 as relevant, generates an answer, but hallucination check scores 0.4. What should happen?"
+  options={["Return the answer anyway", "Regenerate with stricter grounding instructions", "Retrieve completely different documents", "Fail with an error"]}
+  correctIndex={1}
+  explanation="A low grounding score means the answer contains unsupported claims. Regeneration with a stricter prompt ('only state facts directly from the sources') usually fixes this without needing new retrieval."
+/>
+
+> **Interview soundbite**: "I built a self-correcting RAG system with dual validation loops — document grading at retrieval and hallucination checking at output."
+
+<SeeItInRe3 text="The Agentic RAG architecture mirrors SnapSense's product lookup: scan → retrieve (OFF, OBF) → grade data quality → fallback search → generate tiles from validated data only." />

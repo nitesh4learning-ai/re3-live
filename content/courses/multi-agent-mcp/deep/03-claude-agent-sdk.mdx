@@ -1,0 +1,137 @@
+---
+label: "Claude Agent SDK"
+icon: "🛠️"
+---
+
+## Claude Agent SDK: Subagents, Hooks, and Tool Search
+
+The <JargonTip term="Claude Agent SDK">Claude Agent SDK</JargonTip> (evolved from Claude Code SDK) provides a production-ready framework for building agents with Claude. It adds three capabilities beyond raw API calls: **subagents** (agents spawning other agents), **hooks** (lifecycle callbacks), and **tool search** (dynamic tool discovery).
+
+### Subagents: Agents Spawning Agents
+
+<CodeBlock language="python" label="Subagent Pattern — Delegating Work" code={`from anthropic import Anthropic
+
+client = Anthropic()
+
+def run_research_subagent(topic: str) -> str:
+    """
+    Spawn a focused subagent for research.
+    The parent agent delegates a specific task,
+    the subagent completes it independently.
+    
+    Like a Director delegating a data quality analysis
+    to a senior analyst — clear scope, independent execution,
+    results roll up to the parent.
+    """
+    response = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=2048,
+        system=(
+            "You are a research specialist. "
+            "Thoroughly research the given topic. "
+            "Return structured findings with sources."
+        ),
+        messages=[{
+            "role": "user",
+            "content": f"Research this topic: {topic}"
+        }]
+    )
+    return response.content[0].text
+
+
+def run_analysis_subagent(research: str) -> str:
+    """
+    Second subagent analyzes the research output.
+    Each subagent has its own context window and 
+    system prompt — they're isolated specialists.
+    """
+    response = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=2048,
+        system=(
+            "You are a strategic analyst. "
+            "Identify patterns, risks, and opportunities."
+        ),
+        messages=[{
+            "role": "user",
+            "content": f"Analyze these findings:\\n{research}"
+        }]
+    )
+    return response.content[0].text`}/>
+
+### Connecting Agents to MCP Servers
+
+<CodeBlock language="python" label="Agent with MCP Tool Access" code={`from anthropic import Anthropic
+
+client = Anthropic()
+
+# Define tools that map to your MCP server's capabilities
+tools = [
+    {
+        "name": "search_supplier_db",
+        "description": "Search McKesson's supplier master database",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Supplier name or ID"},
+                "match_type": {
+                    "type": "string",
+                    "enum": ["exact", "fuzzy"],
+                    "description": "Match strategy"
+                }
+            },
+            "required": ["query"]
+        }
+    },
+    {
+        "name": "validate_tax_id",
+        "description": "Validate a US Tax ID (EIN) against IRS database",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "tax_id": {"type": "string", "description": "EIN to validate"}
+            },
+            "required": ["tax_id"]
+        }
+    }
+]
+
+# Agent with tool use
+response = client.messages.create(
+    model="claude-sonnet-4-20250514",
+    max_tokens=1024,
+    tools=tools,
+    messages=[{
+        "role": "user",
+        "content": "Check if supplier 'Acme Pharma Inc' exists "
+                   "and validate their tax ID 12-3456789"
+    }]
+)
+
+# Process tool use responses
+for block in response.content:
+    if block.type == "tool_use":
+        tool_name = block.name
+        tool_input = block.input
+        print(f"Agent wants to call: {tool_name}({tool_input})")
+        # Route to your MCP server or direct implementation`}/>
+
+<AnalogyBox emoji="🔧" title="Tool Use = API Orchestration">
+Claude's tool use is conceptually identical to MuleSoft API orchestration — the agent discovers available tools (APIs), selects the right one for the task, formats the request, and processes the response. The difference is the agent decides which tools to use based on the conversation, rather than following a pre-defined integration flow.
+</AnalogyBox>
+
+### Best Practices for Multi-Agent Tool Design
+
+1. **Narrow tools over broad ones**: `validate_tax_id(id)` beats `process_supplier(data)` — narrow tools are easier for the LLM to select correctly
+2. **Clear descriptions**: The LLM picks tools based on their description string. Write descriptions like documentation, not code comments
+3. **Schema precision**: Use `enum` for known value sets, `required` for mandatory fields, `description` for every property
+4. **Error handling**: Tools should return structured error messages the agent can reason about and retry
+
+<Quiz
+  question="You're designing tools for a supplier onboarding agent. Which tool definition will the LLM select most accurately?"
+  options={["{ name: 'do_stuff', description: 'handles supplier things' }", "{ name: 'supplier_operations', description: 'CRUD operations on supplier records' }", "{ name: 'validate_supplier_address', description: 'Validate and standardize a supplier mailing address using USPS API. Returns standardized address or validation errors.' }", "{ name: 'supplier_tool_v2', description: 'Updated supplier tool' }"]}
+  correctIndex={2}
+  explanation="The LLM selects tools based on how well the description matches the task. Narrow scope ('validate supplier address'), clear action ('validate and standardize'), specific method ('using USPS API'), and explicit output ('returns standardized address or validation errors') all help the LLM make the right choice."
+/>
+
+<SeeItInRe3 text="Re³'s 25 debater agents each have specialized 'tools' — their domain expertise and configured model provider. Forge's panel selection is essentially tool selection: picking the right 5 agents (tools) for the topic at hand." />

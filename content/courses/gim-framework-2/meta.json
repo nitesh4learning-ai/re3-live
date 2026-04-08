@@ -1,0 +1,30 @@
+{
+  "tier": 4,
+  "icon": "\ud83d\udd78\ufe0f",
+  "title": "Capstone \u2014 GIM Framework 2.0",
+  "description": "Upgrade GIM with NIST alignment, ISO 42001 mapping, and EU AI Act classification. Publish as thought leadership.",
+  "difficulty": "Advanced",
+  "timeMinutes": 180,
+  "exerciseCount": 6,
+  "tabCount": 5,
+  "status": "available",
+  "tags": [
+    "gim",
+    "governance",
+    "capstone",
+    "thought-leadership"
+  ],
+  "programLink": {
+    "programId": "agentic-ai-mastery",
+    "week": 8
+  },
+  "createdBy": {
+    "name": "Nitesh",
+    "avatar": "NP",
+    "color": "#9333EA"
+  },
+  "seo": {
+    "metaTitle": "GIM Framework 2.0 Capstone \u2014 Re\u00b3 Academy Plus",
+    "metaDescription": "Upgrade GIM Framework to v2.0 with NIST, ISO 42001, and EU AI Act alignment."
+  }
+}

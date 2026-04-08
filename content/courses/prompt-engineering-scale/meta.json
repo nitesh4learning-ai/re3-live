@@ -1,0 +1,30 @@
+{
+  "tier": 3,
+  "icon": "\u26a1",
+  "title": "Prompt Engineering at Scale",
+  "description": "Structured outputs, prompt chaining, evaluation frameworks (RAGAS, DeepEval), and model routing cost optimization.",
+  "difficulty": "Advanced",
+  "timeMinutes": 180,
+  "exerciseCount": 8,
+  "tabCount": 5,
+  "status": "available",
+  "tags": [
+    "prompt-engineering",
+    "evaluation",
+    "cost-optimization",
+    "structured-output"
+  ],
+  "programLink": {
+    "programId": "agentic-ai-mastery",
+    "week": 11
+  },
+  "createdBy": {
+    "name": "Nitesh",
+    "avatar": "NP",
+    "color": "#9333EA"
+  },
+  "seo": {
+    "metaTitle": "Prompt Engineering at Scale \u2014 Re\u00b3 Academy Plus",
+    "metaDescription": "Systematic prompt engineering with evaluation frameworks, cost optimization, and A/B testing."
+  }
+}

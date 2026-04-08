@@ -1,0 +1,16 @@
+---
+label: "Why Agentic RAG?"
+icon: "🔍"
+---
+
+## Beyond Naive RAG
+
+Naive RAG is a pipeline: Query → Retrieve → Generate. It fails when retrieval quality is poor — the LLM hallucinates from irrelevant documents.
+
+<AnalogyBox emoji="📚" title="Library Research vs Google Search">
+Naive RAG is Googling and reading the first result. Agentic RAG is a research librarian: search, evaluate sources, try different terms if results are poor, and only synthesize when confident in quality.
+</AnalogyBox>
+
+Agentic RAG adds self-correction loops: grade documents, rewrite queries, check for hallucinations. It's the LangGraph cyclic graph pattern applied to retrieval.
+
+<SeeItInRe3 text="Re³'s debate pipeline is Agentic RAG at scale — agents retrieve, evaluate, and argue about information before synthesis." />

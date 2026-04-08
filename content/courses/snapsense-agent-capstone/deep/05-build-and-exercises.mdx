@@ -1,0 +1,46 @@
+---
+label: "Build & Exercises"
+icon: "🔨"
+---
+
+## Week 4 Capstone: SnapSense Agent Layer
+
+Design and prototype an agent layer for SnapSense. Even if you don't ship it immediately, the architecture documentation is your interview portfolio piece.
+
+### Deliverables
+
+1. **Architecture Decision Record** — ADR documenting the agent layer design
+2. **Working Prototype** — LangGraph graph with at least Category Agent + Quality Gate
+3. **Cost Model** — Per-scan cost breakdown with model routing
+4. **Evaluation Suite** — 10+ test cases covering known edge cases (TERRO, Tylenol, sabudana)
+5. **LangSmith Dashboard** — Tracing setup showing agent execution flow
+
+### Stretch Goals
+
+1. Deploy the prototype as a FastAPI endpoint
+2. Add cost alerts when per-scan cost exceeds threshold
+3. Build a comparison dashboard: current pipeline vs agent pipeline (accuracy, cost, latency)
+4. Create a presentation deck summarizing Phase 1 learnings for leadership
+
+---
+
+## Exercises
+
+<ArchitectureDecision scenario="SnapSense processes ~100 scans/day during beta. You're deciding whether to add the agent quality gate (adds $0.005/scan and ~500ms latency). The current misclassification rate is ~5%." options={[
+  {label:'Skip the quality gate — cost and latency matter more in beta',tradeoff:'Saves $0.50/day but 5 out of 100 scans show wrong data. Users in beta are early adopters whose trust you need most. A bad first impression is hard to reverse.'},
+  {label:'Add the quality gate — accuracy matters more than cost in beta',tradeoff:'Costs $0.50/day extra and adds 500ms. But beta users see correct data 99% of the time, building trust that drives retention and word-of-mouth. The $15/month cost is negligible.'},
+  {label:'Quality gate only for high-risk categories (food, medicine, chemicals)',tradeoff:'Balanced approach: quality gate activates for categories where errors have safety implications. Electronics and clothing skip it. Reduces cost to ~$0.20/day while protecting the categories that matter most.'},
+]}/>
+
+<Quiz
+  question="Phase 1 covered LangGraph, Agentic RAG, Multi-Agent + MCP, and this capstone. Which concept is the thread connecting all four weeks?"
+  options={["Using Claude API for everything", "Self-correction loops — agents that evaluate and retry their own work", "Vector databases for storage", "Streaming responses to users"]}
+  correctIndex={1}
+  explanation="The unifying concept is self-correction: LangGraph enables it (Week 1), Agentic RAG applies it to retrieval (Week 2), multi-agent systems apply it to collaboration quality (Week 3), and the capstone applies it to a real product (Week 4). Self-correction is what separates agents from chatbots."
+/>
+
+### Career Positioning
+
+> **Phase 1 Summary**: *"Over four weeks, I built production-grade agentic AI systems: a self-correcting research agent (LangGraph), an Agentic RAG pipeline with hallucination detection, a multi-agent system with MCP integration, and applied it all to design an agent layer for my own mobile app. I can take agentic AI from theory to product."*
+
+<SeeItInRe3 text="This capstone mirrors the evolution of Re³ itself — starting with simple LLM calls, evolving to multi-agent debate with quality gates, and ultimately building a production platform with cost optimization and observability." />

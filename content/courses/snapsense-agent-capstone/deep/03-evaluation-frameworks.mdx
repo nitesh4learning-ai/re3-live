@@ -1,0 +1,89 @@
+---
+label: "Evaluation Frameworks"
+icon: "📏"
+---
+
+## Measuring Agent Quality: LangSmith & Custom Evals
+
+You can't improve what you don't measure. Agent evaluation answers three questions: **Is the output correct?** (accuracy), **Is it worth the cost?** (efficiency), and **Does it degrade over time?** (monitoring).
+
+### LangSmith for Agent Tracing
+
+<CodeBlock language="python" label="Adding LangSmith Tracing" code={`import os
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
+os.environ["LANGCHAIN_API_KEY"] = "your-langsmith-key"
+os.environ["LANGCHAIN_PROJECT"] = "snapsense-agent-eval"
+
+# That's it — LangGraph automatically traces every node,
+# edge, and LLM call. You can see:
+# - Which nodes executed and in what order
+# - Token usage per node
+# - Latency per node
+# - Full input/output at each step
+# - Where retries happened and why`}/>
+
+### Custom Evaluation Framework
+
+<CodeBlock language="python" label="SnapSense Scan Evaluation Suite" code={`class ScanEvaluation:
+    """
+    Evaluate agent performance across test cases.
+    
+    Each test case: known product → expected category,
+    expected rating, expected safety flags.
+    """
+    
+    test_cases = [
+        {
+            "input": "Tylenol Extra Strength 500mg",
+            "expected_category": "Medicine",
+            "expected_has_rating": False,  # Medicines excluded
+            "expected_safety_flag": True,
+        },
+        {
+            "input": "Organic Baby Spinach",
+            "expected_category": "Food",
+            "expected_has_rating": True,
+            "expected_nutri_score": "A",
+        },
+        {
+            "input": "TERRO Ant Bait",
+            "expected_category": "Household Chemical",
+            "expected_has_rating": False,
+            "expected_safety_flag": True,
+        },
+    ]
+    
+    def run_eval(self, agent_fn):
+        results = []
+        for tc in self.test_cases:
+            output = agent_fn(tc["input"])
+            
+            # Check category accuracy
+            cat_correct = output["category"] == tc["expected_category"]
+            
+            # Check rating presence
+            rating_correct = bool(output.get("rating")) == tc["expected_has_rating"]
+            
+            results.append({
+                "input": tc["input"],
+                "category_correct": cat_correct,
+                "rating_correct": rating_correct,
+                "latency_ms": output["latency_ms"],
+                "cost_usd": output["cost_usd"],
+            })
+        
+        accuracy = sum(r["category_correct"] for r in results) / len(results)
+        avg_latency = sum(r["latency_ms"] for r in results) / len(results)
+        total_cost = sum(r["cost_usd"] for r in results)
+        
+        print(f"Accuracy: {accuracy:.0%}")
+        print(f"Avg latency: {avg_latency:.0f}ms")
+        print(f"Total cost: ${total_cost:.4f}")
+        
+        return results`}/>
+
+<AnalogyBox emoji="📊" title="Data Quality Scorecard">
+This evaluation framework is the AI equivalent of your MDM data quality scorecard — measuring accuracy, completeness, timeliness, and conformity. Instead of golden record quality, you're measuring agent output quality. The principles are identical; the domain is different.
+</AnalogyBox>
+
+<SeeItInRe3 text="Re³ could benefit from the same evaluation approach — automated tests for debate quality, synthesis accuracy, and agent contribution relevance." />

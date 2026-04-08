@@ -1,0 +1,47 @@
+---
+label: "Architecture Documentation"
+icon: "📄"
+---
+
+## Architecture Decision Records (ADRs)
+
+The capstone deliverable is an **Architecture Decision Document** — the single artifact that tells your story to interviewers and stakeholders.
+
+### ADR Template
+
+<CodeBlock language="text" label="Architecture Decision Record Format" code={`# ADR-001: Agent Layer for SnapSense AI
+
+## Status: Proposed
+
+## Context
+SnapSense currently uses a linear pipeline (ML Kit → Cloud Vision → LLM)
+with no self-correction. Misclassification errors propagate to user-facing
+tiles. The exclusion engine has known bugs (TERRO ant bait as "food",
+Tylenol showing "UNKNOWN" instead of safety shield).
+
+## Decision
+Introduce an agent layer using LangGraph with:
+1. Category Agent: LLM overrides ML Kit classification
+2. Router Agent: Routes to category-specific handler
+3. Data Quality Agent: Grades API data, retries on poor quality
+4. Quality Gate: Scores final output, loops if needed
+
+Model routing: Gemini Flash for classification ($0.003/1K),
+Haiku for quality grading ($0.005/1K), Sonnet for deep analysis only.
+
+## Consequences
+- Pro: Self-correction reduces misclassification from ~5% to <1%
+- Pro: Model routing keeps cost increase to ~$0.005/scan
+- Con: Adds ~500ms latency for the quality gate loop
+- Con: More complex debugging (mitigated by LangSmith tracing)
+
+## Alternatives Considered
+1. Better ML Kit training data (rejected: doesn't fix LLM-level errors)
+2. Single larger model for everything (rejected: cost prohibitive)
+3. Rule-based exclusion engine (current approach: insufficient)`}/>
+
+<AnalogyBox emoji="📋" title="MDM Architecture Decision Record">
+If you've written architecture decisions for SAP S/4HANA or Informatica MDM projects, ADRs follow the same structure: Context (why), Decision (what), Consequences (trade-offs), Alternatives (what else we considered). The format is familiar — the domain is new.
+</AnalogyBox>
+
+<SeeItInRe3 text="The Re³ ARCHITECTURE.md file follows this exact pattern — documenting why specific orchestration patterns, model providers, and agent roles were chosen." />

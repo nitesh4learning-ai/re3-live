@@ -1,0 +1,18 @@
+{
+  "tier": 3,
+  "icon": "📱",
+  "title": "Capstone — SnapSense Agent Architecture",
+  "description": "Apply agentic patterns to real product architecture. Agent cost optimization, model routing, and evaluation with LangSmith.",
+  "difficulty": "Advanced",
+  "timeMinutes": 180,
+  "exerciseCount": 6,
+  "tabCount": 5,
+  "status": "available",
+  "tags": ["capstone", "architecture", "cost-optimization", "evaluation", "snapsense"],
+  "programLink": { "programId": "agentic-ai-mastery", "week": 4 },
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "SnapSense Agent Architecture Capstone — Re³ Academy Plus",
+    "metaDescription": "Design and prototype an agent layer for a real product. Model routing, cost optimization, and evaluation frameworks."
+  }
+}

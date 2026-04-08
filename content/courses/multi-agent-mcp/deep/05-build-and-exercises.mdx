@@ -1,0 +1,81 @@
+---
+label: "Build & Exercises"
+icon: "🔨"
+---
+
+## Week 3 Build: 3-Agent Collaboration System
+
+Build a Researcher → Analyst → Writer pipeline where each agent has specialized tools via MCP. Connect at least one MCP server (filesystem, web search, or a custom API wrapper).
+
+### Architecture
+
+<CodeBlock language="text" label="Multi-Agent + MCP Architecture" code={`┌─────────────────────────────────────────┐
+│           SUPERVISOR                     │
+│  (decides who acts next)                 │
+└──────┬──────────┬──────────┬────────────┘
+       │          │          │
+┌──────▼───┐ ┌───▼────┐ ┌───▼──────┐
+│RESEARCHER│ │ANALYST │ │ WRITER   │
+│          │ │        │ │          │
+│ Tools:   │ │ Tools: │ │ Tools:   │
+│ •Search  │ │ •Data  │ │ •Format  │
+│ •Fetch   │ │ •Chart │ │ •Export  │
+└──────────┘ └────────┘ └──────────┘
+       │          │          │
+       └──────────┼──────────┘
+                  │
+          ┌───────▼───────┐
+          │ MCP SERVERS   │
+          │ •Filesystem   │
+          │ •Web Search   │
+          │ •Custom API   │
+          └───────────────┘`}/>
+
+### Requirements Checklist
+
+1. Three specialized agents: Researcher, Analyst, Writer
+2. Supervisor node that decides agent execution order
+3. Each agent has its own system prompt and focused role
+4. At least one MCP server connected (filesystem is easiest to start)
+5. Quality gate after Writer — loop back for revision if score < 7
+6. State tracks each agent's output independently
+7. Final output is a structured report
+
+### Stretch Goals
+
+1. **Parallel execution**: Run Researcher + secondary Researcher in parallel using LangGraph's `Send` API
+2. **Agent memory**: Add short-term memory so agents can reference each other's previous outputs
+3. **MCP server**: Build a custom MCP server that wraps one of your existing APIs (Open Food Facts, supplier database)
+4. **Human-in-the-loop**: Add `interrupt()` before the final output for human review
+
+---
+
+## Exercises
+
+<Quiz
+  question="What's the main advantage of the supervisor pattern over a fixed pipeline for multi-agent systems?"
+  options={["Supervisors are faster than pipelines", "The supervisor can dynamically decide agent order and skip unnecessary steps", "Supervisors use less compute than pipelines", "Pipelines can't use tools"]}
+  correctIndex={1}
+  explanation="The supervisor inspects state and decides what's needed next. If research is already sufficient, it can skip to analysis. If the draft needs more research, it can loop back. A fixed pipeline always runs every step in order, even when unnecessary."
+/>
+
+<Quiz
+  question="You're building an MCP server for SnapSense. Which tools would you expose?"
+  options={["One big 'analyze_product' tool that does everything", "Separate tools: scan_barcode, lookup_off, lookup_obf, check_aspca_toxicity, get_nutri_score", "Just a 'search' tool that accepts any query", "No tools — use resources instead"]}
+  correctIndex={1}
+  explanation="Narrow, focused tools perform better than broad ones. The LLM can select 'check_aspca_toxicity' precisely when analyzing a plant, without invoking barcode lookup. Each tool has a clear purpose, input schema, and output format. This mirrors SnapSense's existing tiered pipeline architecture."
+/>
+
+<ArchitectureDecision scenario="You're designing a multi-agent system for McKesson's supplier due diligence. The system needs to: (1) search SAP MDM for existing records, (2) check OFAC sanctions lists, (3) verify D&B financial health, (4) review compliance history, and (5) generate a recommendation. A human steward must approve high-risk suppliers." options={[
+  {label:'Single agent with 5 tools',tradeoff:'Simpler to build but the agent may struggle to manage 5 different tools effectively. Context window fills fast. No specialization.'},
+  {label:'5 specialist agents with supervisor + human-in-the-loop',tradeoff:'Each agent masters one domain. Supervisor orchestrates flow. LangGraph interrupt() pauses for human approval on high-risk cases. More complex but more reliable.'},
+  {label:'3 agents: DataAgent (SAP + D&B), ComplianceAgent (OFAC + history), ReportAgent (synthesis)',tradeoff:'Balanced grouping. Related checks are co-located. Fewer agent handoffs than 5-agent version. Human-in-the-loop at the report stage.'},
+]}/>
+
+### Career Positioning
+
+> **Interview soundbite**: *"I built a multi-agent system with MCP integration — three specialized agents (researcher, analyst, writer) connected to external data sources through Anthropic's Model Context Protocol. The supervisor pattern with quality gates ensures reliable output. This maps directly to enterprise workflows where specialist teams collaborate through standardized interfaces."*
+
+> **MCP positioning**: *"MCP is becoming the USB-C of AI connectivity. Apple added it to Xcode, OpenAI to ChatGPT. I can build MCP servers that expose enterprise data to any AI agent through a standardized protocol — exactly what organizations need as they scale from single-agent demos to production multi-agent systems."*
+
+<SeeItInRe3 text="This week's build is a simplified version of Re³ itself — Forge selects specialists, debater agents do focused work, Atlas quality-checks, and Hypatia synthesizes. The key architectural insight: specialization through role separation with a quality gate between stages." />

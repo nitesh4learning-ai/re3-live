@@ -1,0 +1,18 @@
+{
+  "tier": 3,
+  "icon": "🔍",
+  "title": "Agentic RAG — Self-Correcting Retrieval",
+  "description": "Agentic RAG vs Naive RAG. Document grading, hallucination checking, query rewriting with LLM-as-judge and ChromaDB.",
+  "difficulty": "Advanced",
+  "timeMinutes": 180,
+  "exerciseCount": 8,
+  "tabCount": 5,
+  "status": "available",
+  "tags": ["agentic-rag", "retrieval", "chromadb", "hallucination-detection", "langgraph"],
+  "programLink": { "programId": "agentic-ai-mastery", "week": 2 },
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Agentic RAG — Re³ Academy Plus",
+    "metaDescription": "Build self-correcting RAG systems with document grading, hallucination checking, and query rewriting using LangGraph and Claude."
+  }
+}

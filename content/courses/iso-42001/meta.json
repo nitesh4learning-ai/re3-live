@@ -1,0 +1,30 @@
+{
+  "tier": 3,
+  "icon": "\ud83d\udcdc",
+  "title": "ISO 42001 \u2014 AI Management Systems",
+  "description": "Plan-Do-Check-Act for AI. Key clauses, certification process, and AIMS policy drafting.",
+  "difficulty": "Advanced",
+  "timeMinutes": 180,
+  "exerciseCount": 6,
+  "tabCount": 5,
+  "status": "available",
+  "tags": [
+    "iso-42001",
+    "governance",
+    "certification",
+    "aims"
+  ],
+  "programLink": {
+    "programId": "agentic-ai-mastery",
+    "week": 6
+  },
+  "createdBy": {
+    "name": "Nitesh",
+    "avatar": "NP",
+    "color": "#9333EA"
+  },
+  "seo": {
+    "metaTitle": "ISO 42001 \u2014 Re\u00b3 Academy Plus",
+    "metaDescription": "ISO 42001 AI Management Systems certification. PDCA methodology and AIMS policy."
+  }
+}

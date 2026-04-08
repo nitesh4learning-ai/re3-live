@@ -1,0 +1,13 @@
+---
+label: "Claude Agent SDK"
+icon: "🛠️"
+---
+## Subagents, Hooks, Tool Search
+The Claude Agent SDK adds three capabilities: **subagents** (agents spawning agents), **hooks** (lifecycle callbacks), **tool search** (dynamic tool discovery). Key insight: narrow tools beat broad ones — `validate_tax_id` outperforms `process_supplier`.
+<Quiz
+  question="Which tool definition will the LLM select most accurately?"
+  options={["{ name: 'do_stuff', description: 'handles things' }", "{ name: 'validate_supplier_address', description: 'Validate and standardize a supplier mailing address using USPS API' }","{ name: 'supplier_tool', description: 'supplier operations' }","{ name: 'tool_v2', description: 'updated tool' }"]  }
+  correctIndex={1}
+  explanation="Narrow scope + clear description + specific method + explicit output = accurate tool selection."
+/>
+<SeeItInRe3 text="Re³'s 25 agents are essentially specialized tools. Forge's panel selection is tool selection — picking the right 5 for the topic." />

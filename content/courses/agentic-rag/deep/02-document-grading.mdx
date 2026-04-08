@@ -1,0 +1,99 @@
+---
+label: "Document Grading"
+icon: "📊"
+---
+
+## LLM-as-Judge: Grading Retrieval Quality
+
+The core innovation of Agentic RAG is using an LLM to evaluate whether retrieved documents actually answer the user's question. This is the **LLM-as-judge** pattern — the same LLM that generates answers also grades the inputs it receives.
+
+### The Grading Node
+
+<CodeBlock language="python" label="Document Grading Node — LLM Evaluates Relevance" code={`from langchain_anthropic import ChatAnthropic
+from langchain_core.messages import SystemMessage, HumanMessage
+from typing import TypedDict, List, Literal
+
+class RAGState(TypedDict):
+    query: str
+    documents: List[dict]        # Retrieved docs with content + metadata
+    relevant_docs: List[dict]    # Docs that passed grading
+    irrelevant_count: int        # How many docs failed grading
+    generation: str              # Final generated answer
+    retry_count: int
+    hallucination_score: float
+
+llm = ChatAnthropic(model="claude-sonnet-4-20250514", temperature=0)
+
+GRADING_PROMPT = """You are a document relevance grader.
+Given a user question and a retrieved document, determine if 
+the document contains information relevant to answering the question.
+
+Return ONLY "relevant" or "irrelevant" — nothing else.
+
+User question: {query}
+
+Document content:
+{document}
+"""
+
+def grade_documents(state: RAGState) -> dict:
+    """
+    Grade each retrieved document for relevance.
+    
+    This is where Agentic RAG diverges from Naive RAG.
+    Instead of blindly passing all docs to the generator,
+    we filter out irrelevant ones first.
+    
+    In MDM terms: this is the validation step before
+    promoting data to the golden record.
+    """
+    query = state["query"]
+    relevant = []
+    irrelevant_count = 0
+    
+    for doc in state["documents"]:
+        response = llm.invoke([
+            HumanMessage(content=GRADING_PROMPT.format(
+                query=query,
+                document=doc["content"][:1000]  # Truncate for cost
+            ))
+        ])
+        
+        grade = response.content.strip().lower()
+        
+        if "relevant" in grade and "irrelevant" not in grade:
+            relevant.append(doc)
+        else:
+            irrelevant_count += 1
+            print(f"  ❌ Filtered: {doc.get('source', 'unknown')[:50]}")
+    
+    print(f"  📊 {len(relevant)}/{len(state['documents'])} docs passed grading")
+    
+    return {
+        "relevant_docs": relevant,
+        "irrelevant_count": irrelevant_count,
+    }`}/>
+
+### Why Grade Individual Documents?
+
+<AnalogyBox emoji="🔬" title="Peer Review in Academia">
+Think of document grading like academic peer review. A researcher doesn't cite every paper they find — they evaluate each source for relevance, methodology quality, and applicability to their specific question. Papers that don't meet the bar get excluded. The final paper is stronger because every citation was vetted. Agentic RAG does the same thing with retrieved documents.
+</AnalogyBox>
+
+### Grading Strategies
+
+<ComparisonTable title="Document Grading Approaches" columns={['Strategy','How It Works','Cost','Accuracy','Best For']} rows={[
+  ['Binary (relevant/irrelevant)','LLM returns yes/no per doc','Medium','Good','Most use cases'],
+  ['Scored (0-10 scale)','LLM scores each doc, threshold filters','Medium','Better','When you need ranking'],
+  ['Batch grading','Send all docs at once, LLM picks relevant ones','Lower','Variable','Cost-sensitive, small doc sets'],
+  ['Embedding similarity','Cosine similarity threshold, no LLM needed','Lowest','Lower','High-volume, low-stakes'],
+]}/>
+
+<Quiz
+  question="You're building an Agentic RAG system for McKesson's regulatory compliance team. They need to answer questions about FDA drug labeling requirements. Which grading strategy would you recommend?"
+  options={["Embedding similarity — fastest and cheapest", "Binary grading — simple relevant/irrelevant per document", "Scored grading (0-10) with a high threshold of 8+", "No grading needed — regulatory docs are always relevant"]}
+  correctIndex={2}
+  explanation="For regulatory compliance, wrong answers have real consequences. Scored grading with a high threshold ensures only highly relevant documents reach the generator. The cost increase is justified by the risk reduction. In MDM terms, this is like setting strict match confidence thresholds for golden record promotion."
+/>
+
+<SeeItInRe3 text="Atlas (Re³'s moderator) grades debate quality using the same LLM-as-judge pattern — evaluating each agent's argument for relevance, depth, and originality before deciding if the debate needs another round." />
