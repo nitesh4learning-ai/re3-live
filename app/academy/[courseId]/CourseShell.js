@@ -39,20 +39,7 @@ export default function CourseShell({ courseId, meta, visionaryTabs = [], deepTa
   const isPlusCourse = !!meta?.programLink;
   const isAdmin = user?.email === ADMIN_EMAIL;
 
-  // Gate Plus courses behind admin auth
-  if (isPlusCourse && !isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: GIM.pageBg }}>
-        <div className="text-center px-6">
-          <span style={{ fontSize: 48 }}>🔒</span>
-          <h1 className="font-bold mt-4" style={{ fontSize: 20, color: GIM.headingText, fontFamily: GIM.fontMain }}>Academy Plus Content</h1>
-          <p className="mt-2" style={{ fontSize: 14, color: GIM.bodyText }}>This course is part of Academy Plus and requires admin access.</p>
-          <Link href="/academy" className="inline-block mt-4 px-5 py-2 rounded-lg text-sm font-semibold" style={{ background: GIM.primary, color: "white" }}>← Back to Academy</Link>
-        </div>
-      </div>
-    );
-  }
-
+  // All hooks must be called before any early return (React rules)
   const [getDepth, setDepth] = useDepthPreference();
   const [progress, updateProgress] = useAcademyProgress(COURSES);
   const depth = getDepth(courseId);
@@ -68,6 +55,20 @@ export default function CourseShell({ courseId, meta, visionaryTabs = [], deepTa
       setActiveTab(tabs.length - 1);
     }
   }, [activeTab, tabs.length]);
+
+  // Gate Plus courses behind admin auth (after all hooks)
+  if (isPlusCourse && !isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: GIM.pageBg }}>
+        <div className="text-center px-6">
+          <span style={{ fontSize: 48 }}>🔒</span>
+          <h1 className="font-bold mt-4" style={{ fontSize: 20, color: GIM.headingText, fontFamily: GIM.fontMain }}>Academy Plus Content</h1>
+          <p className="mt-2" style={{ fontSize: 14, color: GIM.bodyText }}>This course is part of Academy Plus and requires admin access.</p>
+          <Link href="/academy" className="inline-block mt-4 px-5 py-2 rounded-lg text-sm font-semibold" style={{ background: GIM.primary, color: "white" }}>← Back to Academy</Link>
+        </div>
+      </div>
+    );
+  }
 
   // Placeholder when no MDX content exists yet
   if (!hasTabs) {
