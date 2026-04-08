@@ -136,6 +136,22 @@ function WeekCard({ module, phaseColor, phaseAccent, isExpanded, onToggle }) {
               <p className="text-xs" style={{ color: '#166534', lineHeight: 1.5 }}>{module.snapSenseAngle}</p>
             </div>
           )}
+
+          {/* Start Course Link */}
+          {module.courseLink && (
+            <Link
+              href={`/academy/${module.courseLink}`}
+              className="block w-full text-center rounded-xl py-3 mt-4 font-bold text-sm transition-all hover:shadow-md"
+              style={{
+                background: phaseColor,
+                color: 'white',
+                fontFamily: GIM.fontMain,
+                textDecoration: 'none',
+              }}
+            >
+              📖 Start Course →
+            </Link>
+          )}
         </div>
       )}
     </div>

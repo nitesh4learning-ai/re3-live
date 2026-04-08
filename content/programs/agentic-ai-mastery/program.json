@@ -1,24 +1,37 @@
 {
   "id": "agentic-ai-mastery",
   "title": "AI Mastery: Agentic Architecture to Production",
-  "subtitle": "12-Week Personal Roadmap — Career + Builds",
+  "subtitle": "12-Week Personal Roadmap \u2014 Career + Builds",
   "description": "A structured learning program bridging your MDM/governance expertise with cutting-edge agentic AI. Each week produces a tangible artifact for your portfolio or SnapSense.",
-  "icon": "🚀",
+  "icon": "\ud83d\ude80",
   "status": "active",
   "visibility": "admin",
-  "tags": ["agentic-ai", "governance", "on-device-ml", "prompt-engineering", "career"],
+  "tags": [
+    "agentic-ai",
+    "governance",
+    "on-device-ml",
+    "prompt-engineering",
+    "career"
+  ],
   "totalWeeks": 12,
   "hoursPerWeek": "10+",
-  "learningStyle": ["hands-on", "tutorials"],
-  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "learningStyle": [
+    "hands-on",
+    "tutorials"
+  ],
+  "createdBy": {
+    "name": "Nitesh",
+    "avatar": "NP",
+    "color": "#9333EA"
+  },
   "phases": [
     {
       "id": "phase-1",
       "title": "Agentic AI Architecture",
-      "weeks": "Weeks 1–4",
+      "weeks": "Weeks 1\u20134",
       "color": "#E8590C",
       "accent": "#FFF4E6",
-      "goal": "Build production-grade multi-agent systems. Strengthens your Re³ narrative and is the #1 topic in Director-level AI interviews right now.",
+      "goal": "Build production-grade multi-agent systems. Strengthens your Re\u00b3 narrative and is the #1 topic in Director-level AI interviews right now.",
       "modules": [
         {
           "week": 1,
@@ -26,50 +39,96 @@
           "status": "current",
           "estimatedHours": 10,
           "learn": [
-            "LangGraph state machines — nodes, edges, conditional routing",
+            "LangGraph state machines \u2014 nodes, edges, conditional routing",
             "How LangGraph differs from LangChain DAGs (cyclic vs linear)",
-            "ReAct pattern: Reason → Act → Observe loop",
+            "ReAct pattern: Reason \u2192 Act \u2192 Observe loop",
             "State management with TypedDict and reducers"
           ],
           "build": {
             "title": "Research Agent with Self-Correction",
             "description": "Build an agent that takes a topic, searches for information, evaluates relevance of results, rewrites query if results are poor, and generates a summary. Use Claude API as the LLM via langchain-anthropic.",
-            "stack": ["Python", "LangGraph", "langchain-anthropic", "Claude API"],
-            "deliverable": "Working Python script with a 3-node graph (Router → Searcher → Evaluator) that loops on failure"
+            "stack": [
+              "Python",
+              "LangGraph",
+              "langchain-anthropic",
+              "Claude API"
+            ],
+            "deliverable": "Working Python script with a 3-node graph (Router \u2192 Searcher \u2192 Evaluator) that loops on failure"
           },
           "resources": [
-            { "title": "LangGraph Official Quickstart (uses Claude)", "url": "https://docs.langchain.com/oss/python/langgraph/quickstart", "type": "docs", "priority": "start-here" },
-            { "title": "LangGraph GitHub — Source + Examples", "url": "https://github.com/langchain-ai/langgraph", "type": "repo", "priority": "reference" },
-            { "title": "IBM/Coursera — Agentic AI with LangGraph (free audit)", "url": "https://www.coursera.org/learn/agentic-ai-with-langchain-and-langgraph", "type": "course", "priority": "optional" },
-            { "title": "Rahul Kolekar — Agentic RAG with LangGraph (2026)", "url": "https://rahulkolekar.com/building-agentic-rag-systems-with-langgraph/", "type": "tutorial", "priority": "deep-dive" },
-            { "title": "MarkTechPost — Adaptive Deliberation + Memory Graphs", "url": "https://www.marktechpost.com/2026/01/06/how-to-design-an-agentic-ai-architecture-with-langgraph-and-openai-using-adaptive-deliberation-memory-graphs-and-reflexion-loops/", "type": "tutorial", "priority": "deep-dive" }
+            {
+              "title": "LangGraph Official Quickstart (uses Claude)",
+              "url": "https://docs.langchain.com/oss/python/langgraph/quickstart",
+              "type": "docs",
+              "priority": "start-here"
+            },
+            {
+              "title": "LangGraph GitHub \u2014 Source + Examples",
+              "url": "https://github.com/langchain-ai/langgraph",
+              "type": "repo",
+              "priority": "reference"
+            },
+            {
+              "title": "IBM/Coursera \u2014 Agentic AI with LangGraph (free audit)",
+              "url": "https://www.coursera.org/learn/agentic-ai-with-langchain-and-langgraph",
+              "type": "course",
+              "priority": "optional"
+            },
+            {
+              "title": "Rahul Kolekar \u2014 Agentic RAG with LangGraph (2026)",
+              "url": "https://rahulkolekar.com/building-agentic-rag-systems-with-langgraph/",
+              "type": "tutorial",
+              "priority": "deep-dive"
+            },
+            {
+              "title": "MarkTechPost \u2014 Adaptive Deliberation + Memory Graphs",
+              "url": "https://www.marktechpost.com/2026/01/06/how-to-design-an-agentic-ai-architecture-with-langgraph-and-openai-using-adaptive-deliberation-memory-graphs-and-reflexion-loops/",
+              "type": "tutorial",
+              "priority": "deep-dive"
+            }
           ],
-          "careerAngle": "In interviews, describe this as: 'I built stateful agent workflows with self-correction loops — the agent evaluates its own retrieval quality and retries autonomously.' This maps directly to your Re³ orchestrators (Hypatia, Socratia, Ada).",
-          "snapSenseAngle": "This is the foundation for SnapSense's future agent layer — routing scans to category-specific handlers with quality checks."
+          "careerAngle": "In interviews, describe this as: 'I built stateful agent workflows with self-correction loops \u2014 the agent evaluates its own retrieval quality and retries autonomously.' This maps directly to your Re\u00b3 orchestrators (Hypatia, Socratia, Ada).",
+          "snapSenseAngle": "This is the foundation for SnapSense's future agent layer \u2014 routing scans to category-specific handlers with quality checks.",
+          "courseLink": "langgraph-foundations"
         },
         {
           "week": 2,
-          "title": "Agentic RAG — Self-Correcting Retrieval",
+          "title": "Agentic RAG \u2014 Self-Correcting Retrieval",
           "status": "upcoming",
           "estimatedHours": 10,
           "learn": [
-            "Agentic RAG vs Naive RAG — why loops beat pipelines",
+            "Agentic RAG vs Naive RAG \u2014 why loops beat pipelines",
             "Document grading with LLM-as-judge",
             "Hallucination checking and query rewriting",
             "ChromaDB / vector store integration"
           ],
           "build": {
             "title": "Full Agentic RAG Pipeline",
-            "description": "Extend Week 1 agent: Router → Retriever → Grader → Generator → Hallucination Checker. If grading fails, auto-rewrite query and loop. Add ChromaDB for document storage.",
-            "stack": ["Python", "LangGraph", "ChromaDB", "Claude API"],
+            "description": "Extend Week 1 agent: Router \u2192 Retriever \u2192 Grader \u2192 Generator \u2192 Hallucination Checker. If grading fails, auto-rewrite query and loop. Add ChromaDB for document storage.",
+            "stack": [
+              "Python",
+              "LangGraph",
+              "ChromaDB",
+              "Claude API"
+            ],
             "deliverable": "Agentic RAG system that self-corrects on retrieval failures and validates its own outputs"
           },
           "resources": [
-            { "title": "Rahul Kolekar — Production Agentic RAG Guide", "url": "https://rahulkolekar.com/building-agentic-rag-systems-with-langgraph/", "type": "tutorial", "priority": "start-here" },
-            { "title": "LangGraph — Agentic RAG Examples", "url": "https://github.com/langchain-ai/langgraph", "type": "repo", "priority": "reference" }
+            {
+              "title": "Rahul Kolekar \u2014 Production Agentic RAG Guide",
+              "url": "https://rahulkolekar.com/building-agentic-rag-systems-with-langgraph/",
+              "type": "tutorial",
+              "priority": "start-here"
+            },
+            {
+              "title": "LangGraph \u2014 Agentic RAG Examples",
+              "url": "https://github.com/langchain-ai/langgraph",
+              "type": "repo",
+              "priority": "reference"
+            }
           ],
           "careerAngle": "This maps to enterprise use cases like 'AI-powered contract analysis' or 'intelligent supplier onboarding.' Use your MDM domain to frame the story.",
-          "snapSenseAngle": "Pattern directly applicable to SnapSense's product lookup pipeline — if OFF data is incomplete, rewrite the search or fallback to name-based lookup."
+          "snapSenseAngle": "Pattern directly applicable to SnapSense's product lookup pipeline \u2014 if OFF data is incomplete, rewrite the search or fallback to name-based lookup."
         },
         {
           "week": 3,
@@ -78,40 +137,74 @@
           "estimatedHours": 12,
           "learn": [
             "Multi-agent orchestration patterns (hierarchical, collaborative, supervisor)",
-            "Anthropic's Model Context Protocol (MCP) — universal AI connector standard",
-            "Claude Agent SDK — subagents, hooks, tool search",
+            "Anthropic's Model Context Protocol (MCP) \u2014 universal AI connector standard",
+            "Claude Agent SDK \u2014 subagents, hooks, tool search",
             "MCP's three primitives: tools, resources, prompts"
           ],
           "build": {
             "title": "3-Agent Collaboration System",
-            "description": "Build Researcher → Analyst → Writer agent system. Connect to at least one MCP server (filesystem or API wrapper). Each agent has its own tools and state.",
-            "stack": ["Python", "LangGraph", "Claude Agent SDK", "MCP"],
+            "description": "Build Researcher \u2192 Analyst \u2192 Writer agent system. Connect to at least one MCP server (filesystem or API wrapper). Each agent has its own tools and state.",
+            "stack": [
+              "Python",
+              "LangGraph",
+              "Claude Agent SDK",
+              "MCP"
+            ],
             "deliverable": "Multi-agent system with MCP integration, demonstrating agent-to-agent communication"
           },
           "resources": [
-            { "title": "Anthropic — MCP Course (Official, Free)", "url": "https://anthropic.skilljar.com/introduction-to-model-context-protocol", "type": "course", "priority": "start-here" },
-            { "title": "Anthropic — Code Execution with MCP", "url": "https://www.anthropic.com/engineering/code-execution-with-mcp", "type": "article", "priority": "deep-dive" },
-            { "title": "Anthropic — Advanced Tool Use", "url": "https://www.anthropic.com/engineering/advanced-tool-use", "type": "article", "priority": "deep-dive" },
-            { "title": "Claude Agent SDK Tutorial", "url": "https://letsdatascience.com/blog/claude-agent-sdk-tutorial", "type": "tutorial", "priority": "reference" },
-            { "title": "Anthropic Webinar — Claude Code Advanced Patterns", "url": "https://www.anthropic.com/webinars/claude-code-advanced-patterns", "type": "video", "priority": "optional" }
+            {
+              "title": "Anthropic \u2014 MCP Course (Official, Free)",
+              "url": "https://anthropic.skilljar.com/introduction-to-model-context-protocol",
+              "type": "course",
+              "priority": "start-here"
+            },
+            {
+              "title": "Anthropic \u2014 Code Execution with MCP",
+              "url": "https://www.anthropic.com/engineering/code-execution-with-mcp",
+              "type": "article",
+              "priority": "deep-dive"
+            },
+            {
+              "title": "Anthropic \u2014 Advanced Tool Use",
+              "url": "https://www.anthropic.com/engineering/advanced-tool-use",
+              "type": "article",
+              "priority": "deep-dive"
+            },
+            {
+              "title": "Claude Agent SDK Tutorial",
+              "url": "https://letsdatascience.com/blog/claude-agent-sdk-tutorial",
+              "type": "tutorial",
+              "priority": "reference"
+            },
+            {
+              "title": "Anthropic Webinar \u2014 Claude Code Advanced Patterns",
+              "url": "https://www.anthropic.com/webinars/claude-code-advanced-patterns",
+              "type": "video",
+              "priority": "optional"
+            }
           ],
           "careerAngle": "MCP is becoming the USB-C of AI tool connectivity. Apple added it to Xcode, OpenAI added it to ChatGPT. Knowing MCP positions you as someone who understands the infrastructure layer, not just the prompt layer.",
-          "snapSenseAngle": "MCP could become SnapSense's integration standard — connect to Open Food Facts, Open Beauty Facts, and ASPCA databases through a single protocol."
+          "snapSenseAngle": "MCP could become SnapSense's integration standard \u2014 connect to Open Food Facts, Open Beauty Facts, and ASPCA databases through a single protocol."
         },
         {
           "week": 4,
-          "title": "Capstone — SnapSense Agent Architecture",
+          "title": "Capstone \u2014 SnapSense Agent Architecture",
           "status": "upcoming",
           "estimatedHours": 10,
           "learn": [
             "Applying agentic patterns to real product architecture",
-            "Agent cost optimization — model routing, token management",
+            "Agent cost optimization \u2014 model routing, token management",
             "Evaluation: measuring agent quality with LangSmith and custom evals"
           ],
           "build": {
             "title": "SnapSense Agent Layer Design",
             "description": "Design and prototype an agent layer for SnapSense: multi-step agent that takes a camera scan, routes to category handler, calls external APIs (OFF, OBF), grades data quality, assembles tile response.",
-            "stack": ["Python", "LangGraph", "Architecture Documentation"],
+            "stack": [
+              "Python",
+              "LangGraph",
+              "Architecture Documentation"
+            ],
             "deliverable": "Architecture design doc + working prototype. This is your 'I applied agentic AI to my own product' interview story."
           },
           "resources": [],
@@ -123,10 +216,10 @@
     {
       "id": "phase-2",
       "title": "AI Governance & Risk Frameworks",
-      "weeks": "Weeks 5–8",
+      "weeks": "Weeks 5\u20138",
       "color": "#1971C2",
       "accent": "#E7F5FF",
-      "goal": "Formalize your GIM Framework with industry standards. This is your unique differentiator — most data leaders don't have governance + hands-on AI.",
+      "goal": "Formalize your GIM Framework with industry standards. This is your unique differentiator \u2014 most data leaders don't have governance + hands-on AI.",
       "modules": [
         {
           "week": 5,
@@ -135,26 +228,44 @@
           "estimatedHours": 10,
           "learn": [
             "Four core functions: Govern, Map, Measure, Manage",
-            "NIST AI RMF Generative AI Profile — LLM-specific risks",
+            "NIST AI RMF Generative AI Profile \u2014 LLM-specific risks",
             "Mapping NIST AI RMF to your GIM Framework's 5 pillars"
           ],
           "build": {
-            "title": "GIM ↔ NIST Crosswalk",
+            "title": "GIM \u2194 NIST Crosswalk",
             "description": "Create a crosswalk document: GIM Framework (58 nodes) mapped to NIST AI RMF functions. Identify gaps and enhancement opportunities. This becomes a portfolio artifact.",
-            "stack": ["Documentation", "Analysis"],
-            "deliverable": "Published crosswalk document — shareable on LinkedIn"
+            "stack": [
+              "Documentation",
+              "Analysis"
+            ],
+            "deliverable": "Published crosswalk document \u2014 shareable on LinkedIn"
           },
           "resources": [
-            { "title": "NIST AI RMF 1.0 (Official Document)", "url": "https://www.nist.gov/artificial-intelligence", "type": "docs", "priority": "start-here" },
-            { "title": "reconn.io — ISO 42001 vs NIST Comparison", "url": "https://orbit.reconn.io/iso-42001-vs-nist/", "type": "guide", "priority": "reference" },
-            { "title": "Certified Info Security — NIST AI RMF Certification", "url": "https://www.certifiedinfosec.com/", "type": "cert", "priority": "optional" }
+            {
+              "title": "NIST AI RMF 1.0 (Official Document)",
+              "url": "https://www.nist.gov/artificial-intelligence",
+              "type": "docs",
+              "priority": "start-here"
+            },
+            {
+              "title": "reconn.io \u2014 ISO 42001 vs NIST Comparison",
+              "url": "https://orbit.reconn.io/iso-42001-vs-nist/",
+              "type": "guide",
+              "priority": "reference"
+            },
+            {
+              "title": "Certified Info Security \u2014 NIST AI RMF Certification",
+              "url": "https://www.certifiedinfosec.com/",
+              "type": "cert",
+              "priority": "optional"
+            }
           ],
           "careerAngle": "When asked 'How would you implement AI governance?', you answer with NIST functions AND your own GIM framework. That's a 1-2 punch nobody else has.",
           "snapSenseAngle": "Document how SnapSense's privacy-by-design (on-device only) maps to NIST's trustworthiness characteristics."
         },
         {
           "week": 6,
-          "title": "ISO 42001 — Certifiable AI Management",
+          "title": "ISO 42001 \u2014 Certifiable AI Management",
           "status": "upcoming",
           "estimatedHours": 10,
           "learn": [
@@ -165,15 +276,28 @@
           "build": {
             "title": "AI Management System (AIMS) Policy Draft",
             "description": "Draft an AIMS policy document for an enterprise. Include: scope, AI risk register, roles/responsibilities, KPIs, continuous improvement process.",
-            "stack": ["Documentation", "Policy Framework"],
+            "stack": [
+              "Documentation",
+              "Policy Framework"
+            ],
             "deliverable": "Enterprise-grade AIMS policy document"
           },
           "resources": [
-            { "title": "EC-Council — EU AI Act vs NIST vs ISO 42001", "url": "https://www.eccouncil.org/cybersecurity-exchange/responsible-ai-governance/eu-ai-act-nist-ai-rmf-and-iso-iec-42001-a-plain-english-comparison/", "type": "article", "priority": "start-here" },
-            { "title": "PECB — ISO 42001 Lead Implementer Cert (~$899)", "url": "https://orbit.reconn.io/iso-42001-vs-nist/", "type": "cert", "priority": "consider" }
+            {
+              "title": "EC-Council \u2014 EU AI Act vs NIST vs ISO 42001",
+              "url": "https://www.eccouncil.org/cybersecurity-exchange/responsible-ai-governance/eu-ai-act-nist-ai-rmf-and-iso-iec-42001-a-plain-english-comparison/",
+              "type": "article",
+              "priority": "start-here"
+            },
+            {
+              "title": "PECB \u2014 ISO 42001 Lead Implementer Cert (~$899)",
+              "url": "https://orbit.reconn.io/iso-42001-vs-nist/",
+              "type": "cert",
+              "priority": "consider"
+            }
           ],
           "careerAngle": "ISO 42001 Lead Implementer certification is rare. Having it immediately signals 'I can operationalize AI governance, not just talk about it.'",
-          "snapSenseAngle": "N/A — this is purely career-focused but strengthens your overall positioning."
+          "snapSenseAngle": "N/A \u2014 this is purely career-focused but strengthens your overall positioning."
         },
         {
           "week": 7,
@@ -188,19 +312,33 @@
           "build": {
             "title": "AI Risk Classification Tool",
             "description": "Build a web app: input an AI use case, get risk tier classification under EU AI Act, required controls from ISO 42001, and mapped NIST AI RMF functions. Claude API powers the classification.",
-            "stack": ["Next.js", "Claude API", "React"],
-            "deliverable": "Working web tool — deployable as a standalone app or Re³ feature"
+            "stack": [
+              "Next.js",
+              "Claude API",
+              "React"
+            ],
+            "deliverable": "Working web tool \u2014 deployable as a standalone app or Re\u00b3 feature"
           },
           "resources": [
-            { "title": "CSA — ISO 42001 & NIST for EU AI Act", "url": "https://cloudsecurityalliance.org/blog/2025/01/29/how-can-iso-iec-42001-nist-ai-rmf-help-comply-with-the-eu-ai-act", "type": "article", "priority": "start-here" },
-            { "title": "Mindgard — Best AI Risk Certifications", "url": "https://mindgard.ai/blog/best-ai-risk-management-certifications", "type": "guide", "priority": "reference" }
+            {
+              "title": "CSA \u2014 ISO 42001 & NIST for EU AI Act",
+              "url": "https://cloudsecurityalliance.org/blog/2025/01/29/how-can-iso-iec-42001-nist-ai-rmf-help-comply-with-the-eu-ai-act",
+              "type": "article",
+              "priority": "start-here"
+            },
+            {
+              "title": "Mindgard \u2014 Best AI Risk Certifications",
+              "url": "https://mindgard.ai/blog/best-ai-risk-management-certifications",
+              "type": "guide",
+              "priority": "reference"
+            }
           ],
           "careerAngle": "EU AI Act enforcement starts Aug 2026. Companies are scrambling NOW. You become the person who can lead readiness.",
-          "snapSenseAngle": "Classify SnapSense itself — it's likely 'Limited Risk' given health-adjacent analysis. Document this proactively."
+          "snapSenseAngle": "Classify SnapSense itself \u2014 it's likely 'Limited Risk' given health-adjacent analysis. Document this proactively."
         },
         {
           "week": 8,
-          "title": "Capstone — GIM Framework 2.0",
+          "title": "Capstone \u2014 GIM Framework 2.0",
           "status": "upcoming",
           "estimatedHours": 10,
           "learn": [
@@ -210,7 +348,11 @@
           "build": {
             "title": "GIM Framework 2.0 Release",
             "description": "Upgrade GIM to v2.0: NIST AI RMF alignment layer, ISO 42001 control mapping, EU AI Act risk classification. Update Gimmy chatbot. Publish on LinkedIn as thought leadership.",
-            "stack": ["React", "Firebase", "Claude API"],
+            "stack": [
+              "React",
+              "Firebase",
+              "Claude API"
+            ],
             "deliverable": "Published GIM 2.0 with LinkedIn article"
           },
           "resources": [],
@@ -222,7 +364,7 @@
     {
       "id": "phase-3",
       "title": "On-Device AI + Prompt Engineering at Scale",
-      "weeks": "Weeks 9–12",
+      "weeks": "Weeks 9\u201312",
       "color": "#2F9E44",
       "accent": "#EBFBEE",
       "goal": "Directly applicable to SnapSense. Reduce API costs, enable offline classification, and formalize prompt engineering into a repeatable system.",
@@ -233,22 +375,36 @@
           "status": "upcoming",
           "estimatedHours": 10,
           "learn": [
-            "Core ML framework — Apple's ML pipeline",
+            "Core ML framework \u2014 Apple's ML pipeline",
             "Converting models to .mlmodel format",
             "On-device vs cloud inference trade-offs"
           ],
           "build": {
             "title": "On-Device Image Classifier",
             "description": "Take a pre-trained model (MobileNet/EfficientNet), convert to Core ML, run in a simple iOS app. Benchmark inference time, accuracy, model size.",
-            "stack": ["Swift", "Core ML", "Create ML"],
+            "stack": [
+              "Swift",
+              "Core ML",
+              "Create ML"
+            ],
             "deliverable": "Working iOS app with benchmarks + decision doc for SnapSense implications"
           },
           "resources": [
-            { "title": "Apple — Core ML Documentation", "url": "https://developer.apple.com/documentation/coreml", "type": "docs", "priority": "start-here" },
-            { "title": "Apple — Create ML", "url": "https://developer.apple.com/machine-learning/create-ml/", "type": "tool", "priority": "reference" }
+            {
+              "title": "Apple \u2014 Core ML Documentation",
+              "url": "https://developer.apple.com/documentation/coreml",
+              "type": "docs",
+              "priority": "start-here"
+            },
+            {
+              "title": "Apple \u2014 Create ML",
+              "url": "https://developer.apple.com/machine-learning/create-ml/",
+              "type": "tool",
+              "priority": "reference"
+            }
           ],
           "careerAngle": "On-device AI + privacy-by-design is compelling for healthcare/pharma Director roles. Your Hive local storage constraint already demonstrates this thinking.",
-          "snapSenseAngle": "Could let SnapSense do category detection without any API call — huge cost and latency win."
+          "snapSenseAngle": "Could let SnapSense do category detection without any API call \u2014 huge cost and latency win."
         },
         {
           "week": 10,
@@ -256,21 +412,35 @@
           "status": "upcoming",
           "estimatedHours": 10,
           "learn": [
-            "TFLite for mobile — more relevant for Flutter cross-platform",
+            "TFLite for mobile \u2014 more relevant for Flutter cross-platform",
             "tflite_flutter plugin integration",
-            "Model quantization — shrinking models for mobile"
+            "Model quantization \u2014 shrinking models for mobile"
           ],
           "build": {
             "title": "Cloud vs Edge Benchmark",
             "description": "Integrate TFLite object detection into Flutter test app. Compare: Cloud Vision API (current SnapSense) vs on-device TFLite inference. Measure latency, accuracy, cost.",
-            "stack": ["Flutter", "TensorFlow Lite", "Dart"],
+            "stack": [
+              "Flutter",
+              "TensorFlow Lite",
+              "Dart"
+            ],
             "deliverable": "Benchmark report with data-driven architecture recommendation"
           },
           "resources": [
-            { "title": "TensorFlow Lite Guide", "url": "https://www.tensorflow.org/lite", "type": "docs", "priority": "start-here" },
-            { "title": "tflite_flutter Plugin", "url": "https://pub.dev/packages/tflite_flutter", "type": "package", "priority": "reference" }
+            {
+              "title": "TensorFlow Lite Guide",
+              "url": "https://www.tensorflow.org/lite",
+              "type": "docs",
+              "priority": "start-here"
+            },
+            {
+              "title": "tflite_flutter Plugin",
+              "url": "https://pub.dev/packages/tflite_flutter",
+              "type": "package",
+              "priority": "reference"
+            }
           ],
-          "careerAngle": "'I benchmarked cloud vs edge inference and made a data-driven architecture decision' — shows technical depth beyond typical Director candidates.",
+          "careerAngle": "'I benchmarked cloud vs edge inference and made a data-driven architecture decision' \u2014 shows technical depth beyond typical Director candidates.",
           "snapSenseAngle": "Direct input into SnapSense's architecture evolution. Could ship this."
         },
         {
@@ -282,24 +452,38 @@
             "Structured output patterns (JSON mode, XML scaffolding)",
             "Prompt chaining architectures (sequential, parallel, conditional)",
             "Evaluation frameworks: RAGAS, DeepEval",
-            "Cost optimization: model routing (Haiku → Sonnet → Opus)"
+            "Cost optimization: model routing (Haiku \u2192 Sonnet \u2192 Opus)"
           ],
           "build": {
             "title": "SnapSense Prompt Evaluation Suite",
             "description": "Formalize every SnapSense prompt template. Create eval suite (20+ test cases per category). Measure accuracy/cost/latency per model tier. Build A/B testing harness.",
-            "stack": ["Python", "DeepEval", "Claude API"],
+            "stack": [
+              "Python",
+              "DeepEval",
+              "Claude API"
+            ],
             "deliverable": "Documented prompt architecture + evaluation framework"
           },
           "resources": [
-            { "title": "Anthropic — Prompt Engineering Guide", "url": "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview", "type": "docs", "priority": "start-here" },
-            { "title": "DeepEval — LLM Evaluation", "url": "https://github.com/confident-ai/deepeval", "type": "repo", "priority": "reference" }
+            {
+              "title": "Anthropic \u2014 Prompt Engineering Guide",
+              "url": "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview",
+              "type": "docs",
+              "priority": "start-here"
+            },
+            {
+              "title": "DeepEval \u2014 LLM Evaluation",
+              "url": "https://github.com/confident-ai/deepeval",
+              "type": "repo",
+              "priority": "reference"
+            }
           ],
           "careerAngle": "Most people 'do prompting.' Very few have a systematic evaluation framework. This shows engineering discipline, not enthusiasm.",
           "snapSenseAngle": "Directly improves SnapSense scan quality and reduces API costs."
         },
         {
           "week": 12,
-          "title": "Capstone — Architecture Decision Document",
+          "title": "Capstone \u2014 Architecture Decision Document",
           "status": "upcoming",
           "estimatedHours": 10,
           "learn": [
@@ -309,7 +493,9 @@
           "build": {
             "title": "SnapSense + Career Architecture Document",
             "description": "Comprehensive doc covering: (1) Agent layer from Phase 1, (2) AI governance compliance from Phase 2, (3) On-device vs cloud matrix from Phase 3, (4) Prompt evaluation system. This IS your interview portfolio piece.",
-            "stack": ["Documentation"],
+            "stack": [
+              "Documentation"
+            ],
             "deliverable": "The single document that tells your complete story: 'I can build AI products, govern them responsibly, optimize their cost, and make principled architecture decisions.'"
           },
           "resources": [],
@@ -320,9 +506,37 @@
     }
   ],
   "certifications": [
-    { "name": "NIST AI RMF Architect", "provider": "Certified Info Security", "effort": "~40 hrs", "priority": "HIGH", "note": "Maps directly to GIM + governance positioning", "week": 5 },
-    { "name": "ISO 42001 Lead Implementer", "provider": "PECB", "effort": "~$899 + 32 hrs", "priority": "HIGH", "note": "Rare credential, instant credibility", "week": 6 },
-    { "name": "Anthropic MCP Course", "provider": "Anthropic Skilljar", "effort": "Free, ~4 hrs", "priority": "MEDIUM", "note": "Anthropic ecosystem fluency", "week": 3 },
-    { "name": "IAPP AIGP", "provider": "IAPP", "effort": "~$500 + 60 hrs", "priority": "STRETCH", "note": "Gold standard for AI governance", "week": 8 }
+    {
+      "name": "NIST AI RMF Architect",
+      "provider": "Certified Info Security",
+      "effort": "~40 hrs",
+      "priority": "HIGH",
+      "note": "Maps directly to GIM + governance positioning",
+      "week": 5
+    },
+    {
+      "name": "ISO 42001 Lead Implementer",
+      "provider": "PECB",
+      "effort": "~$899 + 32 hrs",
+      "priority": "HIGH",
+      "note": "Rare credential, instant credibility",
+      "week": 6
+    },
+    {
+      "name": "Anthropic MCP Course",
+      "provider": "Anthropic Skilljar",
+      "effort": "Free, ~4 hrs",
+      "priority": "MEDIUM",
+      "note": "Anthropic ecosystem fluency",
+      "week": 3
+    },
+    {
+      "name": "IAPP AIGP",
+      "provider": "IAPP",
+      "effort": "~$500 + 60 hrs",
+      "priority": "STRETCH",
+      "note": "Gold standard for AI governance",
+      "week": 8
+    }
   ]
 }
