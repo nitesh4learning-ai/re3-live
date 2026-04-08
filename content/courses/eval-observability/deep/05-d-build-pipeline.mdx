@@ -8,7 +8,8 @@ icon: "\u2699\uFE0F"
 A production eval pipeline ties together everything from this course: metrics, judges, test suites, and thresholds into an automated system that gates deployments and monitors quality. Let us build one step by step.
 
   <AnalogyBox emoji="🚀" title="Think of it like a launch checklist">Before a rocket launches, engineers run through hundreds of checks: fuel pressure, navigation alignment, weather conditions. Each has a go/no-go threshold. An eval pipeline is your AI system's launch checklist -- systematic, automated, and non-negotiable.</AnalogyBox>
-  <CodeBlock language="python" label="Complete Eval Pipeline" code={`from dataclasses import dataclass
+  <CodeBlock>
+{`from dataclasses import dataclass
 from typing import List, Callable
 import asyncio
 
@@ -36,7 +37,7 @@ class EvalPipeline:
             output = await system_fn(case["input"])
 
             # Run each eval step
-            case_scores = {}
+            case_scores = {'{'{'}'}{'}'}
             for step in self.steps:
                 score = await step.metric_fn(
                     case["input"], output, case.get("context")
@@ -45,17 +46,17 @@ class EvalPipeline:
             all_results.append(case_scores)
 
         # Aggregate results
-        report = {}
+        report = {'{'{'}'}{'}'}
         for step in self.steps:
             scores = [r[step.name] for r in all_results]
-            report[step.name] = {
+            report[step.name] = {'{'{'}'}
                 "mean": sum(scores) / len(scores),
                 "min": min(scores),
                 "max": max(scores),
                 "threshold": step.threshold,
                 "passed": sum(scores) / len(scores) >= step.threshold,
                 "is_gate": step.is_gate
-            }
+            {'}'}
 
         # Gate check
         gate_failures = [
@@ -69,13 +70,13 @@ class EvalPipeline:
             for s in self.steps if s.weight > 0
         )
 
-        return {
+        return {'{'{'}'}
             "metrics": report,
             "composite_score": round(composite, 4),
             "gate_failures": gate_failures,
             "deploy_decision": "GO" if not gate_failures else "NO-GO",
             "cases_evaluated": len(self.test_suite)
-        }
+        {'}'}
 
 # Configure pipeline
 pipeline = EvalPipeline(
@@ -87,9 +88,11 @@ pipeline = EvalPipeline(
     ],
     test_suite=load_test_suite("v2.1")
 )
-report = await pipeline.run(my_rag_system)`}/>
+report = await pipeline.run(my_rag_system)`}
+</CodeBlock>
   <EvalPipelineBuilder/>
-  <CodeBlock language="yaml" label="CI/CD Integration (GitHub Actions)" code={`# .github/workflows/eval-gate.yml
+  <CodeBlock>
+{`# .github/workflows/eval-gate.yml
 name: LLM Eval Gate
 on:
   pull_request:
@@ -103,7 +106,7 @@ jobs:
 
       - name: Run eval suite
         env:
-          ANTHROPIC_API_KEY: \${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_API_KEY: \${'{'{'}'}{'{'{'}'} secrets.ANTHROPIC_API_KEY {'}'}{'}'}
         run: |
           python -m eval.run_pipeline \\
             --suite tests/eval_suite_v2.json \\
@@ -128,18 +131,19 @@ jobs:
             const body = \`## Eval Results
             | Metric | Score | Threshold | Status |
             |--------|-------|-----------|--------|
-            \${Object.entries(report.metrics).map(([k,v]) =>
-              \`| \${k} | \${v.mean.toFixed(3)} | \${v.threshold} | \${v.passed ? "PASS" : "FAIL"} |\`
-            ).join('\\n')}
+            \${'{'{'}'}Object.entries(report.metrics).map(([k,v]) =>
+              \`| \${'{'{'}'}k{'}'} | \${'{'{'}'}v.mean.toFixed(3){'}'} | \${'{'{'}'}v.threshold{'}'} | \${'{'{'}'}v.passed ? "PASS" : "FAIL"{'}'} |\`
+            ).join('\\n'){'}'}
 
-            **Composite:** \${report.composite_score}
-            **Decision:** \${report.deploy_decision}\`;
-            github.rest.issues.createComment({
+            **Composite:** \${'{'{'}'}report.composite_score{'}'}
+            **Decision:** \${'{'{'}'}report.deploy_decision{'}'}\`;
+            github.rest.issues.createComment({'{'{'}'}
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body
-            });`}/>
+            {'}'});`}
+</CodeBlock>
   <ExpandableSection title="Eval Pipeline Anti-Patterns" icon="⚠️">
 
 **Testing on training data:** If your eval cases overlap with few-shot examples or retrieval context, you are testing memorization, not capability.

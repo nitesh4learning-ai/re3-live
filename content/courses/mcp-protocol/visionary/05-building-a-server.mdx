@@ -7,7 +7,8 @@ icon: "💻"
 
 Building an MCP server is surprisingly simple. Here's a minimal Python server that exposes a single tool.
 
-<CodeBlock language="python" label="Minimal MCP Server (Python)" code={`from mcp.server import Server
+<CodeBlock>
+{`from mcp.server import Server
 from mcp.types import Tool, TextContent
 
 app = Server("my-server")
@@ -15,13 +16,14 @@ app = Server("my-server")
 @app.tool()
 async def get_greeting(name: str) -> str:
     """Generate a personalized greeting."""
-    return f"Hello, {name}! Welcome to MCP."
+    return f"Hello, {'{'{'}'}name{'}'}! Welcome to MCP."
 
 # That's it! The decorator handles:
 # - Tool registration and schema generation
 # - Input validation
 # - JSON-RPC message handling
-# - Error responses`}/>
+# - Error responses`}
+</CodeBlock>
 
 <ExpandableSection title="How tool definitions are auto-generated" icon="⚙️">
 

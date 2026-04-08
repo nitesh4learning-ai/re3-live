@@ -11,7 +11,8 @@ Apply everything from this course. Three hands-on exercises.
 
 Review this production MCP server implementation. Check each production requirement as you verify it's implemented.
 
-<CodeBlock language="python" label="Production MCP Server — Re3 Article Search" code={`import asyncio
+<CodeBlock>
+{`import asyncio
 import logging
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
@@ -34,61 +35,62 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="search_articles",
             description="Search Re3 articles by query. Returns titles, excerpts, and URIs.",
-            inputSchema={
+            inputSchema={'{'{'}'}
                 "type": "object",
-                "properties": {
-                    "query": {"type": "string", "description": "Search query", "maxLength": 500},
-                    "pillar": {
+                "properties": {'{'{'}'}
+                    "query": {'{'{'}'}"type": "string", "description": "Search query", "maxLength": 500{'}'},
+                    "pillar": {'{'{'}'}
                         "type": "string",
                         "enum": ["rethink", "rediscover", "reinvent"],
                         "description": "Filter by philosophical pillar"
-                    },
-                    "limit": {"type": "integer", "minimum": 1, "maximum": 20, "default": 10}
-                },
+                    {'}'},
+                    "limit": {'{'{'}'}"type": "integer", "minimum": 1, "maximum": 20, "default": 10{'}'}
+                {'}'},
                 "required": ["query"]
-            }
+            {'}'}
         )
     ]
 
 @server.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     if name != "search_articles":
-        return [TextContent(type="text", text=json.dumps({
-            "error": {"code": INVALID_PARAMS, "message": f"Unknown tool: {name}"}
-        }))]
+        return [TextContent(type="text", text=json.dumps({'{'{'}'}
+            "error": {'{'{'}'}"code": INVALID_PARAMS, "message": f"Unknown tool: {'{'{'}'}name{'}'}"{'}'}
+        {'}'}))]
 
     # Input validation
     query = arguments.get("query", "").strip()
     if not query:
-        return [TextContent(type="text", text=json.dumps({
-            "error": {"code": INVALID_PARAMS, "message": "query is required and cannot be empty"}
-        }))]
+        return [TextContent(type="text", text=json.dumps({'{'{'}'}
+            "error": {'{'{'}'}"code": INVALID_PARAMS, "message": "query is required and cannot be empty"{'}'}
+        {'}'}))]
 
     pillar = arguments.get("pillar")
     limit = min(int(arguments.get("limit", 10)), 20)
 
-    logger.info(f"Tool call: search_articles query={query!r} pillar={pillar} limit={limit}")
+    logger.info(f"Tool call: search_articles query={'{'{'}'}query!r{'}'} pillar={'{'{'}'}pillar{'}'} limit={'{'{'}'}limit{'}'}")
 
     try:
         results = await search_articles_db(query, pillar=pillar, limit=limit)
-        return [TextContent(type="text", text=json.dumps({
+        return [TextContent(type="text", text=json.dumps({'{'{'}'}
             "results": results,
             "count": len(results),
             "query": query
-        }, indent=2))]
+        {'}'}, indent=2))]
     except Exception as e:
-        logger.error(f"search_articles failed: {e}", exc_info=True)
-        return [TextContent(type="text", text=json.dumps({
-            "error": {"code": INTERNAL_ERROR, "message": "Search temporarily unavailable"}
+        logger.error(f"search_articles failed: {'{'{'}'}e{'}'}", exc_info=True)
+        return [TextContent(type="text", text=json.dumps({'{'{'}'}
+            "error": {'{'{'}'}"code": INTERNAL_ERROR, "message": "Search temporarily unavailable"{'}'}
             # Never leak internal error details to the LLM
-        }))]
+        {'}'}))]
 
 async def main():
     async with stdio_server() as (read, write):
         await server.run(read, write, server.create_initialization_options())
 
 if __name__ == "__main__":
-    asyncio.run(main())`}/>
+    asyncio.run(main())`}
+</CodeBlock>
 
 **Verify production requirements:**
 

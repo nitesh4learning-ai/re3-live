@@ -18,39 +18,40 @@ rows={[
 ['NetworkX', 'In-memory graph', 'Python API', 'Millions of nodes', 'No (library)', 'Prototyping, research'],
 ]}
 />
-<CodeBlock language="cypher" label="Advanced Cypher Queries for GraphRAG" code={`// 1. ENTITY NEIGHBORHOOD (Local Search context)
+<CodeBlock>
+{`// 1. ENTITY NEIGHBORHOOD (Local Search context)
 // Get all entities within 2 hops of a query entity
-MATCH (start:Entity {name: "Geoffrey Hinton"})
-CALL apoc.path.subgraphAll(start, {
+MATCH (start:Entity {'{'{'}'}name: "Geoffrey Hinton"{'}'})
+CALL apoc.path.subgraphAll(start, {'{'{'}'}
     maxLevel: 2,
     relationshipFilter: ">",
     labelFilter: "+Entity"
-})
+{'}'})
 YIELD nodes, relationships
 RETURN nodes, relationships
 
 // 2. SHORTEST PATH (Multi-hop connection)
 // Find how two entities are connected
-MATCH (a:Entity {name: "OpenAI"}),
-      (b:Entity {name: "Turing Award"})
+MATCH (a:Entity {'{'{'}'}name: "OpenAI"{'}'}),
+      (b:Entity {'{'{'}'}name: "Turing Award"{'}'})
 MATCH path = shortestPath((a)-[*..5]-(b))
 RETURN path, length(path) as hops,
        [n in nodes(path) | n.name] as entity_chain
 
 // 3. COMMUNITY QUERY (Global Search context)
 // Get all entities in a community with their relationships
-MATCH (e:Entity {community_id: 3})
+MATCH (e:Entity {'{'{'}'}community_id: 3{'}'})
 WITH collect(e) as community_nodes
 MATCH (n)-[r]->(m)
 WHERE n IN community_nodes AND m IN community_nodes
 RETURN n.name, type(r), m.name
 
 // 4. PAGERANK for entity importance
-CALL gds.pageRank.stream('entityGraph', {
+CALL gds.pageRank.stream('entityGraph', {'{'{'}'}
     dampingFactor: 0.85,
     maxIterations: 20,
     relationshipWeightProperty: 'weight'
-})
+{'}'})
 YIELD nodeId, score
 WITH gds.util.asNode(nodeId) AS entity, score
 ORDER BY score DESC
@@ -58,14 +59,16 @@ LIMIT 20
 RETURN entity.name, entity.type, score as importance
 
 // 5. SIMILARITY via shared neighbors (entity co-occurrence)
-MATCH (a:Entity {name: "Transformer"})-[:CO_OCCURS_WITH]->(shared)
+MATCH (a:Entity {'{'{'}'}name: "Transformer"{'}'})-[:CO_OCCURS_WITH]->(shared)
       <-[:CO_OCCURS_WITH]-(b:Entity)
 WHERE a <> b
 WITH b, count(shared) as shared_count
 ORDER BY shared_count DESC
 LIMIT 10
-RETURN b.name, shared_count as similarity_score`} />
-<CodeBlock language="python" label="AWS Neptune with Python (Gremlin)" code={`from gremlin_python.driver import client, serializer
+RETURN b.name, shared_count as similarity_score`}
+</CodeBlock>
+<CodeBlock>
+{`from gremlin_python.driver import client, serializer
 from gremlin_python.process.anonymous_traversal import traversal
 from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
 
@@ -119,9 +122,11 @@ community_graph = (g.V()
   .by(__.label())
   .by(__.valueMap('name'))
   .toList()
-)`} />
+)`}
+</CodeBlock>
 <ExpandableSection title="Vector + Graph: Weaviate Setup" icon="\uD83D\uDD27">
-<CodeBlock language="python" label="Weaviate Hybrid Schema for GraphRAG" code={`import weaviate
+<CodeBlock>
+{`import weaviate
 import weaviate.classes as wvc
 
 client = weaviate.connect_to_local()
@@ -160,7 +165,8 @@ result = entities.query.hybrid(
         )
     ],
     limit=10
-)`} />
+)`}
+</CodeBlock>
 </ExpandableSection>
 <Quiz
 question="For a large-scale production GraphRAG deployment, why choose AWS Neptune over self-hosted Neo4j?"

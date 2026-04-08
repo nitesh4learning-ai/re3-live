@@ -7,7 +7,8 @@ icon: "💻"
 
 A production MCP server registers tools with input validation, handles errors gracefully, and manages resources. Here is a complete Python server with multiple tools, resource handlers, and proper error handling.
 
-<CodeBlock language="python" label="Production MCP Server (Python)" code={`from mcp.server import Server
+<CodeBlock>
+{`from mcp.server import Server
 from mcp.types import Tool, TextContent, Resource, ResourceTemplate
 import json, httpx, logging
 
@@ -28,11 +29,11 @@ async def search_documents(query: str, limit: int = 10, category: str = None) ->
         raise ValueError("limit must be between 1 and 50")
     valid_cats = ["engineering", "product", "design", None]
     if category not in valid_cats:
-        raise ValueError(f"category must be one of: {valid_cats}")
+        raise ValueError(f"category must be one of: {'{'{'}'}valid_cats{'}'}")
 
     # In production: query your vector DB or search index
     results = await _do_search(query, limit, category)
-    return json.dumps({"results": results, "total": len(results)})
+    return json.dumps({'{'{'}'}"results": results, "total": len(results){'}'})
 
 # --- Tool 2: Create a document ---
 @app.tool()
@@ -47,7 +48,7 @@ async def create_document(title: str, content: str, category: str) -> str:
     if len(title) > 200:
         raise ValueError("Title must be 200 characters or less")
     doc_id = await _save_document(title, content, category)
-    return json.dumps({"id": doc_id, "status": "created"})
+    return json.dumps({'{'{'}'}"id": doc_id, "status": "created"{'}'})
 
 # --- Resource: Expose category listing ---
 @app.resource("kb://categories")
@@ -61,44 +62,47 @@ async def review_prompt(doc_id: str) -> list:
     """Generate a review prompt for a specific document."""
     doc = await _get_document(doc_id)
     return [
-        {"role": "user", "content": f"Review this document for clarity and accuracy:\\n\\n{doc['content']}"}
-    ]`}/>
+        {'{'{'}'}"role": "user", "content": f"Review this document for clarity and accuracy:\\n\\n{'{'{'}'}doc['content']{'}'}"{'}'}
+    ]`}
+</CodeBlock>
 
-<CodeBlock language="typescript" label="MCP Server in TypeScript" code={`import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { z } from "zod";
+<CodeBlock>
+{`import {'{'{'}'} Server {'}'} from "@modelcontextprotocol/sdk/server/index.js";
+import {'{'{'}'} StdioServerTransport {'}'} from "@modelcontextprotocol/sdk/server/stdio.js";
+import {'{'{'}'} z {'}'} from "zod";
 
-const server = new Server({ name: "ts-kb-server", version: "1.0.0" }, {
-  capabilities: { tools: {}, resources: {} }
-});
+const server = new Server({'{'{'}'} name: "ts-kb-server", version: "1.0.0" {'}'}, {'{'{'}'}
+  capabilities: {'{'{'}'} tools: {'{'{'}'}{'}'}, resources: {'{'{'}'}{'}'} {'}'}
+{'}'});
 
 // Register a tool with Zod schema validation
-server.setRequestHandler("tools/list", async () => ({
-  tools: [{
+server.setRequestHandler("tools/list", async () => ({'{'{'}'}
+  tools: [{'{'{'}'}
     name: "search_documents",
     description: "Search knowledge base by query",
-    inputSchema: {
+    inputSchema: {'{'{'}'}
       type: "object",
-      properties: {
-        query: { type: "string", description: "Search terms" },
-        limit: { type: "number", description: "Max results (1-50)" }
-      },
+      properties: {'{'{'}'}
+        query: {'{'{'}'} type: "string", description: "Search terms" {'}'},
+        limit: {'{'{'}'} type: "number", description: "Max results (1-50)" {'}'}
+      {'}'},
       required: ["query"]
-    }
-  }]
-}));
+    {'}'}
+  {'}'}]
+{'}'}));
 
-server.setRequestHandler("tools/call", async (request) => {
-  const { name, arguments: args } = request.params;
-  if (name === "search_documents") {
+server.setRequestHandler("tools/call", async (request) => {'{'{'}'}
+  const {'{'{'}'} name, arguments: args {'}'} = request.params;
+  if (name === "search_documents") {'{'{'}'}
     const results = await doSearch(args.query, args.limit ?? 10);
-    return { content: [{ type: "text", text: JSON.stringify(results) }] };
-  }
-  throw new Error(\`Unknown tool: \${name}\`);
-});
+    return {'{'{'}'} content: [{'{'{'}'} type: "text", text: JSON.stringify(results) {'}'}] {'}'};
+  {'}'}
+  throw new Error(\`Unknown tool: \${'{'{'}'}name{'}'}\`);
+{'}'});
 
 const transport = new StdioServerTransport();
-await server.connect(transport);`}/>
+await server.connect(transport);`}
+</CodeBlock>
 
 <Quiz question="In the Python MCP SDK, how are tool input schemas generated?" options={["You write JSON Schema manually","From function type hints, parameter names, and docstrings","From a separate schema file","From a database of tool definitions"]} correctIndex={1} explanation="The Python SDK inspects type hints for parameter types, parameter names for property names, docstrings for descriptions, and default values to determine required vs optional. Convention over configuration." />
 

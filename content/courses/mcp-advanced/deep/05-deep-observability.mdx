@@ -14,7 +14,8 @@ Debugging an MCP server in production requires structured logs correlated by ses
         ['Health','MCP ping + /health endpoint','Server reachability, DB connectivity','Any health check failure'],
         ['Audit','Append-only audit log','Who called what tool, when, with what args','Unusual access patterns'],
       ]}/>
-      <CodeBlock language="python" label="OpenTelemetry Instrumentation for MCP Server" code={`from opentelemetry import trace
+      <CodeBlock>
+{`from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
@@ -39,14 +40,14 @@ class ObservableServer(Server):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.metrics = {
-            "tool_calls_total": {},
-            "tool_errors_total": {},
-            "tool_latency_ms": {},
-        }
+        self.metrics = {'{'{'}'}
+            "tool_calls_total": {'{'{'}'}{'}'},
+            "tool_errors_total": {'{'{'}'}{'}'},
+            "tool_latency_ms": {'{'{'}'}{'}'},
+        {'}'}
 
     async def traced_call_tool(self, name: str, arguments: dict, session_id: str):
-        with tracer.start_as_current_span(f"mcp.tool.{name}") as span:
+        with tracer.start_as_current_span(f"mcp.tool.{'{'{'}'}name{'}'}") as span:
             span.set_attribute("mcp.tool.name", name)
             span.set_attribute("mcp.session.id", session_id)
             span.set_attribute("mcp.server.name", self.name)
@@ -91,16 +92,18 @@ class ObservableServer(Server):
         self.metrics[metric][label] = self.metrics[metric].get(label, 0) + value
 
     def get_metrics(self) -> dict:
-        return {
+        return {'{'{'}'}
             "tool_calls_total": self.metrics["tool_calls_total"],
             "tool_errors_total": self.metrics["tool_errors_total"],
-            "avg_latency_ms": {
+            "avg_latency_ms": {'{'{'}'}
                 k: v / self.metrics["tool_calls_total"].get(k, 1)
                 for k, v in self.metrics["tool_latency_ms"].items()
-            }
-        }`}/>
+            {'}'}
+        {'}'}`}
+</CodeBlock>
       <ExpandableSection title="Health Check Endpoint" icon="❤️">
-        <CodeBlock language="python" label="MCP Health Check with Capability Probing" code={`from fastapi import FastAPI
+        <CodeBlock>
+{`from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 import asyncio
 
@@ -109,42 +112,44 @@ app = FastAPI()
 @app.get("/health")
 async def health_check():
     """Deep health check: verifies each subsystem."""
-    checks = {}
+    checks = {'{'{'}'}{'}'}
     overall = "healthy"
 
     # 1. Database connectivity
     try:
         await db.ping()
-        checks["database"] = {"status": "ok", "latency_ms": await db.ping_latency()}
+        checks["database"] = {'{'{'}'}"status": "ok", "latency_ms": await db.ping_latency(){'}'}
     except Exception as e:
-        checks["database"] = {"status": "error", "error": str(e)}
+        checks["database"] = {'{'{'}'}"status": "error", "error": str(e){'}'}
         overall = "degraded"
 
     # 2. LLM provider (for sampling capability)
     try:
         await llm_client.ping()
-        checks["llm_provider"] = {"status": "ok"}
+        checks["llm_provider"] = {'{'{'}'}"status": "ok"{'}'}
     except Exception as e:
-        checks["llm_provider"] = {"status": "error", "error": str(e)}
+        checks["llm_provider"] = {'{'{'}'}"status": "error", "error": str(e){'}'}
         # Sampling capability degraded but server still functional
         checks["llm_provider"]["capability_impact"] = "sampling_unavailable"
 
     # 3. Server info
-    checks["server"] = {
+    checks["server"] = {'{'{'}'}
         "name": "re3-article-search",
         "version": "1.0.0",
         "uptime_seconds": get_uptime(),
         "active_sessions": len(active_sessions),
-    }
+    {'}'}
 
     status_code = 200 if overall == "healthy" else 503
     return JSONResponse(
-        {"status": overall, "checks": checks, "timestamp": datetime.utcnow().isoformat()},
+        {'{'{'}'}"status": overall, "checks": checks, "timestamp": datetime.utcnow().isoformat(){'}'},
         status_code=status_code
-    )`}/>
+    )`}
+</CodeBlock>
       </ExpandableSection>
       <ExpandableSection title="Graceful Shutdown & Session Draining" icon="🔌">
-        <CodeBlock language="python" label="Zero-Downtime MCP Server Restart" code={`import signal
+        <CodeBlock>
+{`import signal
 import asyncio
 
 class GracefulMCPServer:
@@ -174,11 +179,12 @@ class GracefulMCPServer:
         while self.active_requests > 0:
             remaining = deadline - asyncio.get_event_loop().time()
             if remaining <= 0:
-                print(f"Shutdown timeout: {self.active_requests} requests still active")
+                print(f"Shutdown timeout: {'{'{'}'}self.active_requests{'}'} requests still active")
                 break
             await asyncio.sleep(0.1)
 
         print("Shutdown complete")
-        asyncio.get_event_loop().stop()`}/>
+        asyncio.get_event_loop().stop()`}
+</CodeBlock>
       </ExpandableSection>
       <Quiz question="Your MCP server's p99 tool call latency spikes from 200ms to 8 seconds at 9am every weekday. What does this pattern most likely indicate?" options={["A DDoS attack targeting the MCP server","A scheduled job (e.g., batch report) running at 9am consuming DB resources and causing resource contention","The MCP specification requires a daily restart","OAuth token expiry causing re-authentication overhead"]} correctIndex={1} explanation="A consistent weekday morning latency spike is a classic resource contention pattern. A scheduled job (batch report, data sync, analytics query) is competing for the same DB resources as the MCP server. The solution is to give the MCP server a read replica, throttle the batch job, or schedule it outside business hours."/>

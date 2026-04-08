@@ -17,21 +17,22 @@ This dramatically improves performance because the model sees examples most simi
 
 </ExpandableSection>
 
-<CodeBlock language="python" label="Dynamic few-shot selection with embeddings" code={`from openai import OpenAI
+<CodeBlock>
+{`from openai import OpenAI
 import numpy as np
 
 client = OpenAI()
 
 # Your example bank (in production, store embeddings in a vector DB)
 example_bank = [
-    {"input": "The product arrived damaged", "output": "complaint", "embedding": None},
-    {"input": "When will my order ship?", "output": "order_status", "embedding": None},
-    {"input": "Can I return this item?", "output": "return_request", "embedding": None},
-    {"input": "What colors does this come in?", "output": "product_question", "embedding": None},
-    {"input": "I was charged twice", "output": "billing_issue", "embedding": None},
-    {"input": "This is the worst quality ever", "output": "complaint", "embedding": None},
-    {"input": "Do you have size XL?", "output": "product_question", "embedding": None},
-    {"input": "My package says delivered but I didn't get it", "output": "delivery_issue", "embedding": None},
+    {'{'{'}'}"input": "The product arrived damaged", "output": "complaint", "embedding": None{'}'},
+    {'{'{'}'}"input": "When will my order ship?", "output": "order_status", "embedding": None{'}'},
+    {'{'{'}'}"input": "Can I return this item?", "output": "return_request", "embedding": None{'}'},
+    {'{'{'}'}"input": "What colors does this come in?", "output": "product_question", "embedding": None{'}'},
+    {'{'{'}'}"input": "I was charged twice", "output": "billing_issue", "embedding": None{'}'},
+    {'{'{'}'}"input": "This is the worst quality ever", "output": "complaint", "embedding": None{'}'},
+    {'{'{'}'}"input": "Do you have size XL?", "output": "product_question", "embedding": None{'}'},
+    {'{'{'}'}"input": "My package says delivered but I didn't get it", "output": "delivery_issue", "embedding": None{'}'},
 ]
 
 def embed(text):
@@ -62,8 +63,9 @@ examples = get_dynamic_examples(query, k=3)
 
 prompt = "Classify the following customer message.\\n\\n"
 for ex in examples:
-    prompt += f"Input: {ex['input']}\\nCategory: {ex['output']}\\n\\n"
-prompt += f"Input: {query}\\nCategory:"`}/>
+    prompt += f"Input: {'{'{'}'}ex['input']{'}'}\\nCategory: {'{'{'}'}ex['output']{'}'}\\n\\n"
+prompt += f"Input: {'{'{'}'}query{'}'}\\nCategory:"`}
+</CodeBlock>
 
 <ExpandableSection title="Example Ordering Effects" icon="🔢">
 

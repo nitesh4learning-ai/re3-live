@@ -11,25 +11,27 @@ ACP uses a central message bus (or broker) through which all agent communication
 
 </ExpandableSection>
 
-<CodeBlock title="ACP Event Publishing" code={`# Agent publishes an event to the message bus
-event = {
+<CodeBlock>
+{`# Agent publishes an event to the message bus
+event = {'{'{'}'}
     "type": "document.analyzed",
     "source": "agent://doc-analyzer/v1",
     "subject": "doc-12345",
-    "data": {
+    "data": {'{'{'}'}
         "entities_found": 15,
         "sentiment": "neutral",
         "risk_flags": ["pii_detected", "compliance_review"]
-    },
-    "metadata": {
+    {'}'},
+    "metadata": {'{'{'}'}
         "timestamp": "2025-01-15T10:30:00Z",
         "trace_id": "abc-123",
         "correlation_id": "workflow-789"
-    }
-}
+    {'}'}
+{'}'}
 
 # Other agents subscribed to "document.analyzed" receive this
-# e.g., ComplianceAgent, SummaryAgent, NotificationAgent`}/>
+# e.g., ComplianceAgent, SummaryAgent, NotificationAgent`}
+</CodeBlock>
 
 <ComparisonTable title="ACP vs A2A vs MCP" columns={['Feature','ACP','A2A','MCP']} rows={[
   ['Communication','Pub/sub events','Bilateral conversation','Client-server tools'],

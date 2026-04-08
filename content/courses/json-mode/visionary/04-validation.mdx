@@ -5,7 +5,8 @@ icon: "✅"
 
 ## Validation & Error Handling
 
-<CodeBlock title="Robust JSON Parsing with Retry" code={`import json
+<CodeBlock>
+{`import json
 
 def parse_llm_json(response_text, schema=None, max_retries=2):
     """Parse JSON from LLM response with fallbacks."""
@@ -18,15 +19,15 @@ def parse_llm_json(response_text, schema=None, max_retries=2):
             if schema:
                 validate(data, schema)
 
-            return {"success": True, "data": data}
+            return {'{'{'}'}"success": True, "data": data{'}'}
 
         except json.JSONDecodeError:
             # Try extracting JSON from markdown
-            match = re.search(r'\\{[\\s\\S]*\\}', response_text)
+            match = re.search(r'\\{'{'{'}'}[\\s\\S]*\\{'}'}', response_text)
             if match:
                 try:
                     data = json.loads(match.group())
-                    return {"success": True, "data": data}
+                    return {'{'{'}'}"success": True, "data": data{'}'}
                 except:
                     pass
 
@@ -36,14 +37,15 @@ def parse_llm_json(response_text, schema=None, max_retries=2):
                     "Return ONLY valid JSON, no markdown or text."
                 )
             else:
-                return {"success": False, "error": "Failed to parse JSON"}
+                return {'{'{'}'}"success": False, "error": "Failed to parse JSON"{'}'}
 
         except ValidationError as e:
             if attempt < max_retries:
                 response_text = retry_with_prompt(
-                    f"Fix this JSON error: {e.message}"
+                    f"Fix this JSON error: {'{'{'}'}e.message{'}'}"
                 )
             else:
-                return {"success": False, "error": str(e)}`}/>
+                return {'{'{'}'}"success": False, "error": str(e){'}'}`}
+</CodeBlock>
 
 <SeeItInRe3 text="Re³ uses regex JSON extraction with fallback handling in its LLM router — response.match(/\{[\s\S]*\}/) extracts JSON from any wrapper text."/>

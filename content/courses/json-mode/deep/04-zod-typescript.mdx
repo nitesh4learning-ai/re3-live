@@ -5,28 +5,30 @@ icon: "🟦"
 
 ## Zod & TypeScript
 
-<CodeBlock title="Zod + Vercel AI SDK" code={`import { generateObject } from 'ai';
-import { openai } from '@ai-sdk/openai';
-import { z } from 'zod';
+<CodeBlock>
+{`import {'{'{'}'} generateObject {'}'} from 'ai';
+import {'{'{'}'} openai {'}'} from '@ai-sdk/openai';
+import {'{'{'}'} z {'}'} from 'zod';
 
 // Define schema with Zod
-const SentimentSchema = z.object({
+const SentimentSchema = z.object({'{'{'}'}
   sentiment: z.enum(['positive', 'negative', 'neutral']),
   confidence: z.number().min(0).max(1),
   keyPhrases: z.array(z.string()),
   reasoning: z.string().optional(),
-});
+{'}'});
 
 // Generate structured output
-const { object } = await generateObject({
+const {'{'{'}'} object {'}'} = await generateObject({'{'{'}'}
   model: openai('gpt-4o'),
   schema: SentimentSchema,
   prompt: 'Analyze: "This is the best thing ever!"',
-});
+{'}'});
 
-// object is fully typed: { sentiment, confidence, keyPhrases, reasoning }
+// object is fully typed: {'{'{'}'} sentiment, confidence, keyPhrases, reasoning {'}'}
 console.log(object.sentiment);    // "positive" (type: "positive"|"negative"|"neutral")
-console.log(object.confidence);   // 0.97 (type: number)`}/>
+console.log(object.confidence);   // 0.97 (type: number)`}
+</CodeBlock>
 
 <ExpandableSection title="Zod vs Pydantic" icon="🔄">
 

@@ -24,14 +24,16 @@ Alignment is ensuring AI systems actually do what we intend, not just what we me
   ]}
 />
 
-<CodeBlock title="Simple Reward Scoring" code={`def score_response(response, criteria):
+<CodeBlock>
+{`def score_response(response, criteria):
     """Score a model response against safety criteria."""
-    scores = {}
+    scores = {'{'{'}'}{'}'}
     scores["helpful"] = evaluate_helpfulness(response)  # 0-1
     scores["harmless"] = evaluate_safety(response)       # 0-1
     scores["honest"] = evaluate_factuality(response)     # 0-1
 
     # Weighted combination (safety gets highest weight)
-    weights = {"helpful": 0.3, "harmless": 0.5, "honest": 0.2}
+    weights = {'{'{'}'}"helpful": 0.3, "harmless": 0.5, "honest": 0.2{'}'}
     total = sum(scores[k] * weights[k] for k in scores)
-    return {"scores": scores, "overall": total}`} />
+    return {'{'{'}'}"scores": scores, "overall": total{'}'}`}
+</CodeBlock>

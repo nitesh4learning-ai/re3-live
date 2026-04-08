@@ -32,7 +32,8 @@ Search algorithm: Start at the entry point in the top layer. Greedily navigate t
 
 </ExpandableSection>
 
-<CodeBlock language="python" label="HNSW index tuning with Qdrant" code={`from qdrant_client import QdrantClient
+<CodeBlock>
+{`from qdrant_client import QdrantClient
 from qdrant_client.models import (
     VectorParams, Distance, HnswConfigDiff,
     OptimizersConfigDiff, QuantizationConfig,
@@ -73,8 +74,9 @@ results = client.search(
     collection_name="production_docs",
     query_vector=query_embedding,
     limit=10,
-    search_params={"hnsw_ef": 128},  # Higher = better recall, slower
-)`}/>
+    search_params={'{'{'}'}"hnsw_ef": 128{'}'},  # Higher = better recall, slower
+)`}
+</CodeBlock>
 
 <ExpandableSection title="Quantization: PQ and SQ" icon="🗜️">
 

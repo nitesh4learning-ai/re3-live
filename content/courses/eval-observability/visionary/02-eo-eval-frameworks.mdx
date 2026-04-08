@@ -22,7 +22,8 @@ Building a robust eval framework requires three pillars: **benchmark design** (w
 **Contamination:** Never include eval examples in your training data, few-shot examples, or system prompts.
 
   </ExpandableSection>
-  <CodeBlock language="python" label="Building an Eval Test Suite" code={`from dataclasses import dataclass
+  <CodeBlock>
+{`from dataclasses import dataclass
 from typing import List, Optional
 
 @dataclass
@@ -67,29 +68,31 @@ suite = EvalSuite(
     cases=[
         EvalCase("cs_001", "How do I reset my password?",
                  "Navigate to Settings > Security > Reset Password...",
-                 None, "factual", "easy", {"topic": "account"}),
+                 None, "factual", "easy", {'{'{'}'}"topic": "account"{'}'}),
         EvalCase("cs_002", "I was charged twice for my order!",
                  None, None, "complaint", "hard",
-                 {"topic": "billing", "sentiment": "angry"}),
+                 {'{'{'}'}"topic": "billing", "sentiment": "angry"{'}'}),
     ],
     created_at="2025-11-15"
-)`}/>
+)`}
+</CodeBlock>
   <JudgePatternSimulator/>
-  <CodeBlock language="python" label="LLM-as-Judge with Rubric" code={`async def llm_judge(question, answer, rubric, model="claude-sonnet-4-20250514"):
+  <CodeBlock>
+{`async def llm_judge(question, answer, rubric, model="claude-sonnet-4-20250514"):
     """Score an answer using an LLM judge with a structured rubric."""
     prompt = f"""You are an expert evaluator. Score this answer on a 1-5 scale
 for each criterion in the rubric. Be strict and consistent.
 
-QUESTION: {question}
-ANSWER: {answer}
+QUESTION: {'{'{'}'}question{'}'}
+ANSWER: {'{'{'}'}answer{'}'}
 
 RUBRIC:
-{rubric}
+{'{'{'}'}rubric{'}'}
 
 Return JSON only:
-{{"scores": {{"criterion_name": score, ...}},
+{'{'{'}'}{'{'{'}'}"scores": {'{'{'}'}{'{'{'}'}"criterion_name": score, ...{'}'}{'}'},
   "reasoning": "brief explanation for each score",
-  "overall": weighted_average_score}}"""
+  "overall": weighted_average_score{'}'}{'}'}"""
 
     response = await call_llm(model, prompt)
     return parse_json(response)
@@ -103,7 +106,8 @@ SUPPORT_RUBRIC = """
 Each criterion scored 1-5 where:
   1=Terrible, 2=Poor, 3=Acceptable, 4=Good, 5=Excellent"""
 
-result = await llm_judge(question, answer, SUPPORT_RUBRIC)`}/>
+result = await llm_judge(question, answer, SUPPORT_RUBRIC)`}
+</CodeBlock>
   <ExpandableSection title="Agreement Metrics: Cohen's Kappa" icon="📏">
 
 When multiple judges (human or LLM) score the same output, you need to measure how much they agree beyond chance. **Cohen's kappa** is the standard metric.

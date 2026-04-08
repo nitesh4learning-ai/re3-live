@@ -36,7 +36,8 @@ GraphRAG systems require evaluation at two levels: **graph quality** (is the kno
 - Graph freshness (update lag)
 
 
-<CodeBlock language="python" label="GraphRAG Evaluation with RAGAS" code={`from ragas import evaluate
+<CodeBlock>
+{`from ragas import evaluate
 from ragas.metrics import (
     faithfulness,
     answer_relevancy,
@@ -60,7 +61,7 @@ def evaluate_graphrag(
         # Run GraphRAG retrieval + generation
         response = graphrag_pipeline.query(question)
 
-        results.append({
+        results.append({'{'{'}'}
             "question": question,
             "answer": response.answer,
             "contexts": response.retrieved_contexts,
@@ -68,7 +69,7 @@ def evaluate_graphrag(
             "query_type": response.query_type,  # local/global/hybrid
             "retrieval_methods": response.methods_used,
             "graph_hops": response.max_hops_traversed,
-        })
+        {'}'})
 
     df = pd.DataFrame(results)
 
@@ -86,35 +87,37 @@ def evaluate_graphrag(
     single_hop_questions = df[df['graph_hops'] <= 1]
 
     print("\\n=== GraphRAG Evaluation Results ===")
-    print(f"Overall faithfulness:      {ragas_scores['faithfulness']:.3f}")
-    print(f"Overall answer relevancy:  {ragas_scores['answer_relevancy']:.3f}")
-    print(f"Context recall:            {ragas_scores['context_recall']:.3f}")
+    print(f"Overall faithfulness:      {'{'{'}'}ragas_scores['faithfulness']:.3f{'}'}")
+    print(f"Overall answer relevancy:  {'{'{'}'}ragas_scores['answer_relevancy']:.3f{'}'}")
+    print(f"Context recall:            {'{'{'}'}ragas_scores['context_recall']:.3f{'}'}")
     print(f"\\nBy query type:")
     for qtype in df['query_type'].unique():
         subset = df[df['query_type'] == qtype]
-        print(f"  {qtype}: {len(subset)} questions")
+        print(f"  {'{'{'}'}qtype{'}'}: {'{'{'}'}len(subset){'}'} questions")
 
-    print(f"\\nMulti-hop accuracy: {_compute_accuracy(multi_hop_questions):.2%}")
-    print(f"Single-hop accuracy: {_compute_accuracy(single_hop_questions):.2%}")
+    print(f"\\nMulti-hop accuracy: {'{'{'}'}_compute_accuracy(multi_hop_questions):.2%{'}'}")
+    print(f"Single-hop accuracy: {'{'{'}'}_compute_accuracy(single_hop_questions):.2%{'}'}")
 
     return df, ragas_scores
 
 # Multi-hop specific evaluation dataset
 MULTIHOP_BENCHMARK = [
-    {
+    {'{'{'}'}
         "question": "What organizations are connected to Geoffrey Hinton through his PhD students?",
         "expected_hops": 3,  # Hinton -> supervised -> students -> works_at -> orgs
         "ground_truth": "MIT, Google, NYU, Montreal Institute for Learning Algorithms...",
         "type": "chain_reasoning"
-    },
-    {
+    {'}'},
+    {'{'{'}'}
         "question": "What are the dominant research themes in the AI safety literature?",
         "expected_mode": "global",  # Requires community summaries
         "ground_truth": "Alignment, interpretability, robustness, RLHF...",
         "type": "global_synthesis"
-    },
-]`} />
-<CodeBlock language="python" label="Graph-Specific Precision & Recall" code={`def evaluate_graph_quality(
+    {'}'},
+]`}
+</CodeBlock>
+<CodeBlock>
+{`def evaluate_graph_quality(
     extracted_entities: list,
     extracted_relations: list,
     gold_entities: list,
@@ -124,8 +127,8 @@ MULTIHOP_BENCHMARK = [
     Evaluate knowledge graph quality against gold standard annotations.
     """
     # Entity precision/recall
-    extracted_names = {e['canonical'].lower() for e in extracted_entities}
-    gold_names = {e['canonical'].lower() for e in gold_entities}
+    extracted_names = {'{'{'}'}e['canonical'].lower() for e in extracted_entities{'}'}
+    gold_names = {'{'{'}'}e['canonical'].lower() for e in gold_entities{'}'}
 
     entity_tp = len(extracted_names & gold_names)
     entity_precision = entity_tp / len(extracted_names) if extracted_names else 0
@@ -136,15 +139,15 @@ MULTIHOP_BENCHMARK = [
     def normalize_relation(r):
         return (r['source'].lower(), r['relation'].lower(), r['target'].lower())
 
-    extracted_rels = {normalize_relation(r) for r in extracted_relations}
-    gold_rels = {normalize_relation(r) for r in gold_relations}
+    extracted_rels = {'{'{'}'}normalize_relation(r) for r in extracted_relations{'}'}
+    gold_rels = {'{'{'}'}normalize_relation(r) for r in gold_relations{'}'}
 
     rel_tp = len(extracted_rels & gold_rels)
     rel_precision = rel_tp / len(extracted_rels) if extracted_rels else 0
     rel_recall = rel_tp / len(gold_rels) if gold_rels else 0
     rel_f1 = 2 * rel_precision * rel_recall / (rel_precision + rel_recall + 1e-9)
 
-    return {
+    return {'{'{'}'}
         "entity_precision": entity_precision,
         "entity_recall": entity_recall,
         "entity_f1": entity_f1,
@@ -153,7 +156,8 @@ MULTIHOP_BENCHMARK = [
         "relation_f1": rel_f1,
         "hallucinated_relations": len(extracted_rels - gold_rels),
         "missed_relations": len(gold_rels - extracted_rels),
-    }`} />
+    {'}'}`}
+</CodeBlock>
 <ExpandableSection title="GraphRAG vs Naive RAG Benchmarks" icon="\uD83D\uDCCA">
 
 Microsoft's original GraphRAG paper (Edge et al., 2024) benchmarked against naive RAG across question types. The results show a clear pattern: GraphRAG dominates on global and multi-hop queries, while naive RAG holds its own on local factoid queries where vector similarity is sufficient.

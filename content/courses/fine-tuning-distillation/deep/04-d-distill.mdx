@@ -9,7 +9,8 @@ Model distillation compresses knowledge from a large **teacher** model into a sm
 
   <AnalogyBox emoji="🎓" title="Think of it like a mentor-apprentice relationship">A senior expert (teacher) doesn't just tell the apprentice (student) the answer. They explain their reasoning, what alternatives they considered, and why they were ruled out. This "dark knowledge" -- the probability distribution over all possible answers -- is what makes distillation so powerful.</AnalogyBox>
   <DistillationSimulator/>
-  <CodeBlock title="Knowledge distillation loss function" language="python" code={`import torch
+  <CodeBlock>
+{`import torch
 import torch.nn.functional as F
 
 def distillation_loss(student_logits, teacher_logits, labels,
@@ -35,25 +36,28 @@ def distillation_loss(student_logits, teacher_logits, labels,
     hard_loss = F.cross_entropy(student_logits, labels)
 
     # Weighted combination
-    return alpha * soft_loss + (1 - alpha) * hard_loss`}/>
+    return alpha * soft_loss + (1 - alpha) * hard_loss`}
+</CodeBlock>
   <ExpandableSection title="Distilling Chain-of-Thought" icon="💭">
 
 You can distill not just final answers but reasoning chains. Have the teacher generate step-by-step explanations, then train the student to produce similar reasoning. This is how smaller models learn to "think" like larger ones.
 
-    <CodeBlock title="CoT distillation data generation" language="python" code={`# Generate reasoning chains from teacher
+    <CodeBlock>
+{`# Generate reasoning chains from teacher
 def create_cot_training_data(teacher_model, problems):
     training_pairs = []
     for problem in problems:
         response = teacher_model.generate(
-            f"Solve step by step: {problem['question']}"
+            f"Solve step by step: {'{'{'}'}problem['question']{'}'}"
         )
-        training_pairs.append({
+        training_pairs.append({'{'{'}'}
             "messages": [
-                {"role": "user", "content": problem["question"]},
-                {"role": "assistant", "content": response}  # Full CoT
+                {'{'{'}'}"role": "user", "content": problem["question"]{'}'},
+                {'{'{'}'}"role": "assistant", "content": response{'}'}  # Full CoT
             ]
-        })
-    return training_pairs`}/>
+        {'}'})
+    return training_pairs`}
+</CodeBlock>
   </ExpandableSection>
   <ComparisonTable title="Distillation Approaches" columns={['Method','What Transfers','Best For']} rows={[
     ['Logit Distillation','Full probability distributions','Classification, token prediction'],

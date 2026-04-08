@@ -8,7 +8,8 @@ icon: "\uD83D\uDE80"
 Putting it all together: configure a complete fine-tuning pipeline, from model selection through training to evaluation. Experiment with different configurations to understand the tradeoffs.
 
   <PipelineBuilder/>
-  <CodeBlock title="Complete fine-tuning pipeline" language="python" code={`from datasets import load_dataset
+  <CodeBlock>
+{`from datasets import load_dataset
 from peft import LoraConfig, get_peft_model
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from trl import SFTTrainer, SFTConfig
@@ -57,7 +58,8 @@ model.save_pretrained("./ft-adapter")
 # 6. Evaluate
 from evaluate import load
 results = trainer.evaluate(dataset["test"])
-print(f"Eval loss: {results['eval_loss']:.4f}")`}/>
+print(f"Eval loss: {'{'{'}'}results['eval_loss']:.4f{'}'}")`}
+</CodeBlock>
   <ExpandableSection title="Post-Training Checklist" icon="✅">
 
 

@@ -16,7 +16,8 @@ Common failure modes of AI-generated code:
       - **Hallucinated APIs:** Calling functions or methods that don{"'"}t exist in the library
 
   </ExpandableSection>
-  <CodeBlock label="AI Code Review Checklist" code={`# Review AI-Generated Code With This Checklist
+  <CodeBlock>
+{`# Review AI-Generated Code With This Checklist
 
 ## 1. Does it actually work?
 - [ ] Run the code -- don't just read it
@@ -44,7 +45,8 @@ Common failure modes of AI-generated code:
 ## 5. Maintainability
 - [ ] Code is readable (not over-clever)
 - [ ] Functions are focused (single responsibility)
-- [ ] No dead code or unused imports`}/>
+- [ ] No dead code or unused imports`}
+</CodeBlock>
   <ArchitectureDecision scenario="Your team is using AI to write code. A senior developer raises concerns about code quality. How do you establish a quality framework?" options={[
     {label:"Ban AI code generation -- go back to manual",tradeoff:"Safest but forfeits 30-50% productivity gain; team morale drops"},
     {label:"Require human review of all AI-generated code + automated tests must pass before merge",tradeoff:"Balanced -- AI generates, human validates, tests verify. Maintains quality with productivity gains"},

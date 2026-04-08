@@ -14,7 +14,8 @@ Constructing a knowledge graph from unstructured text is a multi-stage pipeline:
 Raw Text → Chunking → NER + RE → Entity Resolution → Ontology Validation → Graph Store → Index
 
 
-<CodeBlock language="python" label="Production Entity Extraction Pipeline" code={`import anthropic
+<CodeBlock>
+{`import anthropic
 from pydantic import BaseModel
 from typing import List
 
@@ -58,16 +59,16 @@ def extract_knowledge(chunk: str) -> ExtractionOutput:
         - source_span: copy exact text supporting the relation
 
         Respond ONLY with valid JSON matching the schema.""",
-        messages=[{
+        messages=[{'{'{'}'}
             "role": "user",
-            "content": f"Extract knowledge from:\\n\\n{chunk}"
-        }]
+            "content": f"Extract knowledge from:\\n\\n{'{'{'}'}chunk{'}'}"
+        {'}'}]
     )
     return ExtractionOutput.model_validate_json(response.content[0].text)
 
 # Entity Resolution: merge duplicates
 def resolve_entities(entities: List[Entity]) -> dict:
-    canonical_map = {}
+    canonical_map = {'{'{'}'}{'}'}
     for entity in entities:
         key = entity.canonical_name.lower()
         if key in canonical_map:
@@ -79,33 +80,35 @@ def resolve_entities(entities: List[Entity]) -> dict:
         # map all aliases to canonical
         for alias in entity.aliases:
             canonical_map[alias.lower()] = canonical_map[key]
-    return canonical_map`} />
-<CodeBlock language="cypher" label="Neo4j: Creating the Graph" code={`// Create entity nodes
-CREATE (p:Person {
+    return canonical_map`}
+</CodeBlock>
+<CodeBlock>
+{`// Create entity nodes
+CREATE (p:Person {'{'{'}'}
   name: "Sam Altman",
   canonical: "sam_altman",
   aliases: ["Altman"],
   confidence: 1.0
-})
+{'}'})
 
-CREATE (o:Organization {
+CREATE (o:Organization {'{'{'}'}
   name: "OpenAI",
   canonical: "openai",
   founded: 2015
-})
+{'}'})
 
 // Create typed relationship with metadata
-MATCH (p:Person {canonical: "sam_altman"})
-MATCH (o:Organization {canonical: "openai"})
-CREATE (p)-[:CEO_OF {
+MATCH (p:Person {'{'{'}'}canonical: "sam_altman"{'}'})
+MATCH (o:Organization {'{'{'}'}canonical: "openai"{'}'})
+CREATE (p)-[:CEO_OF {'{'{'}'}
   since: 2019,
   confidence: 1.0,
   source: "doc_123"
-}]->(o)
+{'}'}]->(o)
 
 // Multi-hop query: find all products created by companies
 // where a given person is CEO
-MATCH (person:Person {name: "Sam Altman"})
+MATCH (person:Person {'{'{'}'}name: "Sam Altman"{'}'})
       -[:CEO_OF]->(org:Organization)
       -[:CREATED]->(product)
 RETURN person.name, org.name, product.name
@@ -115,7 +118,8 @@ CALL gds.louvain.stream('myGraph')
 YIELD nodeId, communityId
 RETURN gds.util.asNode(nodeId).name AS entity,
        communityId
-ORDER BY communityId`} />
+ORDER BY communityId`}
+</CodeBlock>
 <MiniGraphBuilder />
 <Quiz
 question="What is 'entity resolution' in knowledge graph construction?"

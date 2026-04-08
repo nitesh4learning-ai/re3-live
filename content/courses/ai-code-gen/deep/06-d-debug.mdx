@@ -15,7 +15,8 @@ How to get the best debugging help from AI:
       - **Include what you{"'"}ve tried:** Prevents the AI from suggesting things you already ruled out
 
   </ExpandableSection>
-  <CodeBlock label="Debugging Workflow" code={`# Step 1: Reproduce with a minimal test
+  <CodeBlock>
+{`# Step 1: Reproduce with a minimal test
 # Don't paste 500 lines -- isolate the failing case
 
 # Step 2: Give AI the focused context
@@ -24,11 +25,11 @@ Error: TypeError: Cannot read property 'map' of undefined
 at UserList.render (UserList.jsx:15)
 
 Code:
-function UserList({ users }) {
-  return users.map(u => <div key={u.id}>{u.name})
-}
+function UserList({'{'{'}'} users {'}'}) {'{'{'}'}
+  return users.map(u => <div key={'{'{'}'}u.id{'}'}>{'{'{'}'}u.name{'}'})
+{'}'}
 
-Called from: <UserList users={fetchedUsers} />
+Called from: <UserList users={'{'{'}'}fetchedUsers{'}'} />
 fetchedUsers comes from useQuery which returns undefined
 while loading.
 
@@ -43,5 +44,6 @@ parent component passing undefined during loading.
 # "The issue is that users is undefined during the
 # loading state. Add a guard: if (!users) return <Loading/>"
 
-# Step 4: VERIFY the fix yourself -- don't blindly apply`}/>
+# Step 4: VERIFY the fix yourself -- don't blindly apply`}
+</CodeBlock>
   <Quiz question="When asking AI to debug code, what is the most important information to include?" options={["Your entire codebase","The full error message + relevant code + what you expected vs what happened","Just the error message","A description of what the code should do"]} correctIndex={1} explanation="The debugging trifecta: (1) the exact error with stack trace, (2) the relevant code (not the entire codebase), and (3) expected vs actual behavior. This gives the AI enough context to diagnose without noise. Bonus: mention what you've already tried."/>

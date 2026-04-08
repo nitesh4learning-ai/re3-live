@@ -15,7 +15,8 @@ DSPy compiles your program into optimized prompts by trying many variants and se
 
 </ExpandableSection>
 
-<CodeBlock language="python" label="DSPy prompt optimization pipeline" code={`import dspy
+<CodeBlock>
+{`import dspy
 
 # Configure the language model
 lm = dspy.LM("openai/gpt-4o-mini", temperature=0.7)
@@ -60,7 +61,8 @@ optimized_classifier = optimizer.compile(
 
 # Use the optimized classifier
 result = optimized_classifier(ticket_text="My package hasn't arrived yet")
-print(f"Category: {result.category}")`}/>
+print(f"Category: {'{'{'}'}result.category{'}'}")`}
+</CodeBlock>
 
 <ExpandableSection title="Prompt Versioning & A/B Testing" icon="🔬">
 

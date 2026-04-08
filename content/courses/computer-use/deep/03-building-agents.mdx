@@ -5,7 +5,8 @@ icon: "\uD83C\uDFD7\uFE0F"
 
 ## Building a Browser Agent
 
-<CodeBlock language="python" label="Production Browser Agent Framework" code={`from playwright.async_api import async_playwright
+<CodeBlock>
+{`from playwright.async_api import async_playwright
 import anthropic
 
 class BrowserAgent:
@@ -21,7 +22,7 @@ class BrowserAgent:
         tree = await page.accessibility.snapshot()
         url = page.url
         title = await page.title()
-        return {
+        return {'{'{'}'}
             "url": url,
             "title": title,
             "elements": self._flatten_tree(tree),
@@ -32,7 +33,7 @@ class BrowserAgent:
                     "checkbox", "combobox"
                 )
             ]
-        }
+        {'}'}
 
     async def decide_action(self, context):
         """Use LLM to decide next action"""
@@ -40,16 +41,16 @@ class BrowserAgent:
             model="claude-sonnet-4-20250514",
             max_tokens=500,
             system="You are a browser automation agent.",
-            messages=[{
+            messages=[{'{'{'}'}
                 "role": "user",
-                "content": f"""Task: {self.task}
-Current page: {context['title']} ({context['url']})
-History: {self.history[-5:]}
-Interactive elements: {context['interactable'][:30]}
+                "content": f"""Task: {'{'{'}'}self.task{'}'}
+Current page: {'{'{'}'}context['title']{'}'} ({'{'{'}'}context['url']{'}'})
+History: {'{'{'}'}self.history[-5:]{'}'}
+Interactive elements: {'{'{'}'}context['interactable'][:30]{'}'}
 
-Return JSON: {{"action": "click|type|navigate|scroll|done",
-"target": "element description", "value": "text if typing"}}"""
-            }]
+Return JSON: {'{'{'}'}{'{'{'}'}"action": "click|type|navigate|scroll|done",
+"target": "element description", "value": "text if typing"{'}'}{'}'}"""
+            {'}'}]
         )
         return self._parse_action(response)
 
@@ -63,12 +64,13 @@ Return JSON: {{"action": "click|type|navigate|scroll|done",
                 action = await self.decide_action(context)
 
                 if action["action"] == "done":
-                    return {"success": True, "steps": step}
+                    return {'{'{'}'}"success": True, "steps": step{'}'}
 
                 await self._execute(page, action)
                 self.history.append(action)
 
-            return {"success": False, "reason": "max steps"}`}/>
+            return {'{'{'}'}"success": False, "reason": "max steps"{'}'}`}
+</CodeBlock>
 
 <ArchitectureDecision scenario="You're building a browser agent for internal enterprise use (expense reports, HR forms). The agent needs to fill forms that contain employee PII. How should you handle credentials and sensitive data?" options={[
   {label:"Pass credentials to the LLM in the prompt",tradeoff:"Simple but extremely dangerous -- PII in LLM context, potential logging/training exposure"},

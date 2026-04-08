@@ -9,7 +9,8 @@ The capstone deliverable is an **Architecture Decision Document** — the single
 
 ### ADR Template
 
-<CodeBlock language="text" label="Architecture Decision Record Format" code={`# ADR-001: Agent Layer for SnapSense AI
+<CodeBlock>
+{`# ADR-001: Agent Layer for SnapSense AI
 
 ## Status: Proposed
 
@@ -38,7 +39,8 @@ Haiku for quality grading ($0.005/1K), Sonnet for deep analysis only.
 ## Alternatives Considered
 1. Better ML Kit training data (rejected: doesn't fix LLM-level errors)
 2. Single larger model for everything (rejected: cost prohibitive)
-3. Rule-based exclusion engine (current approach: insufficient)`}/>
+3. Rule-based exclusion engine (current approach: insufficient)`}
+</CodeBlock>
 
 <AnalogyBox emoji="📋" title="MDM Architecture Decision Record">
 If you've written architecture decisions for SAP S/4HANA or Informatica MDM projects, ADRs follow the same structure: Context (why), Decision (what), Consequences (trade-offs), Alternatives (what else we considered). The format is familiar — the domain is new.

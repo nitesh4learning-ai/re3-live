@@ -14,7 +14,8 @@ Effective multi-agent memory goes beyond simple chat history. Production systems
     ['Semantic Memory','Global knowledge base','Persistent (vector DB)','Facts, domain knowledge'],
     ['Working Memory','Per agent, per task','Task lifetime','Scratchpad, intermediate results'],
   ]}/>
-  <CodeBlock language="python" label="Multi-Agent Memory Manager" code={`from datetime import datetime
+  <CodeBlock>
+{`from datetime import datetime
 import json
 
 class AgentMemoryManager:
@@ -28,8 +29,8 @@ class AgentMemoryManager:
                                  task: str,
                                  max_tokens: int = 2000) -> dict:
         """Build optimized context for an agent within token budget."""
-        context = {"working": [], "episodic": [], "semantic": [],
-                   "shared": {}}
+        context = {'{'{'}'}"working": [], "episodic": [], "semantic": [],
+                   "shared": {'{'{'}'}{'}'}{'}'}
         budget = max_tokens
 
         # 1. Shared state (highest priority) ~30% budget
@@ -41,7 +42,7 @@ class AgentMemoryManager:
 
         # 2. Relevant episodic memories ~30% budget
         past_tasks = await self.kv_store.range(
-            f"episodic:{agent_id}:", limit=10)
+            f"episodic:{'{'{'}'}agent_id{'}'}:", limit=10)
         for memory in past_tasks:
             if budget <= 0:
                 break
@@ -51,7 +52,7 @@ class AgentMemoryManager:
         # 3. Semantic retrieval ~40% budget
         relevant_docs = await self.vector_store.search(
             query=task, top_k=5,
-            filter={"accessible_by": agent_id})
+            filter={'{'{'}'}"accessible_by": agent_id{'}'})
         for doc in relevant_docs:
             if budget <= 0:
                 break
@@ -63,15 +64,16 @@ class AgentMemoryManager:
     async def save_episode(self, agent_id: str, task: str,
                            result: str, score: float):
         """Save a completed task as episodic memory for future reference."""
-        episode = {
+        episode = {'{'{'}'}
             "task": task, "result": result, "score": score,
             "timestamp": datetime.utcnow().isoformat()
-        }
+        {'}'}
         await self.kv_store.set(
-            f"episodic:{agent_id}:{datetime.utcnow().timestamp()}",
+            f"episodic:{'{'{'}'}agent_id{'}'}:{'{'{'}'}datetime.utcnow().timestamp(){'}'}",
             episode)
         # Also index in vector store for semantic retrieval
         await self.vector_store.upsert(
-            text=f"Task: {task}\\nResult: {result}",
-            metadata={"agent_id": agent_id, "score": score})`}/>
+            text=f"Task: {'{'{'}'}task{'}'}\\nResult: {'{'{'}'}result{'}'}",
+            metadata={'{'{'}'}"agent_id": agent_id, "score": score{'}'})`}
+</CodeBlock>
   <Quiz question="An agent system processes 50 customer requests per day. After a week, agents start exceeding context windows. What memory strategy fixes this?" options={["Give agents the full conversation history for every request","Use summary memory: compress older interactions into summaries","Remove all memory so context stays small","Switch to a model with larger context window"]} correctIndex={1} explanation="Summary memory compresses older interactions into concise summaries while keeping recent interactions in full. This keeps context within bounds while preserving important historical knowledge. Simply using larger context windows is expensive and does not scale."/>

@@ -7,7 +7,8 @@ icon: "🚀"
 
 A production RAG system requires error handling, caching, monitoring, and graceful degradation. This tab presents a complete, production-ready RAG pipeline that you can adapt for your use case.
 
-<CodeBlock language="python" label="Production RAG pipeline with monitoring" code={`import time
+<CodeBlock>
+{`import time
 import hashlib
 import logging
 from typing import Optional, Dict, List
@@ -31,11 +32,11 @@ class ProductionRAGPipeline:
         self.llm = OpenAI()
         self.vector_db = QdrantClient(qdrant_url, port=6333)
         self.collection = collection
-        self.cache: Dict[str, RAGResult] = {}
+        self.cache: Dict[str, RAGResult] = {'{'{'}'}{'}'}
         self.cache_ttl = 3600  # 1 hour
 
     def _cache_key(self, query: str, filters: dict = None) -> str:
-        key = f"{query}:{str(sorted(filters.items()) if filters else '')}"
+        key = f"{'{'{'}'}query{'}'}:{'{'{'}'}str(sorted(filters.items()) if filters else ''){'}'}"
         return hashlib.md5(key.encode()).hexdigest()
 
     def query(
@@ -53,7 +54,7 @@ class ProductionRAGPipeline:
         if use_cache and cache_key in self.cache:
             cached = self.cache[cache_key]
             cached.cached = True
-            logger.info(f"Cache hit for: {question[:50]}")
+            logger.info(f"Cache hit for: {'{'{'}'}question[:50]{'}'}")
             return cached
 
         try:
@@ -85,7 +86,7 @@ class ProductionRAGPipeline:
             # Step 4: Quality check (CRAG-inspired)
             top_score = results[0].score if results else 0
             if top_score < 0.3:  # Low relevance threshold
-                logger.warning(f"Low retrieval score ({top_score:.3f})")
+                logger.warning(f"Low retrieval score ({'{'{'}'}top_score:.3f{'}'})")
                 return RAGResult(
                     answer="I don't have enough relevant information to answer "
                            "this question confidently. Please try rephrasing.",
@@ -98,13 +99,13 @@ class ProductionRAGPipeline:
             sources = []
             context_parts = []
             for i, r in enumerate(results[:top_k]):
-                sources.append({
+                sources.append({'{'{'}'}
                     "text": r.payload["text"][:200],
                     "score": r.score,
                     "doc_id": r.payload.get("doc_id", "unknown"),
-                })
+                {'}'})
                 context_parts.append(
-                    f"[Source {i+1}]: {r.payload['text']}"
+                    f"[Source {'{'{'}'}i+1{'}'}]: {'{'{'}'}r.payload['text']{'}'}"
                 )
             context = "\\n\\n".join(context_parts)
 
@@ -114,12 +115,12 @@ class ProductionRAGPipeline:
                 model="gpt-4o-mini",
                 temperature=0.1,
                 messages=[
-                    {"role": "system", "content":
+                    {'{'{'}'}"role": "system", "content":
                      "Answer based ONLY on the provided context. "
                      "Cite sources using [Source N]. "
-                     "If the context doesn't contain the answer, say so."},
-                    {"role": "user", "content":
-                     f"Context:\\n{context}\\n\\nQuestion: {question}"}
+                     "If the context doesn't contain the answer, say so."{'}'},
+                    {'{'{'}'}"role": "user", "content":
+                     f"Context:\\n{'{'{'}'}context{'}'}\\n\\nQuestion: {'{'{'}'}question{'}'}"{'}'}
                 ],
             )
             answer = response.choices[0].message.content
@@ -127,9 +128,9 @@ class ProductionRAGPipeline:
 
             total_ms = (time.time() - start) * 1000
             logger.info(
-                f"RAG query: embed={embed_ms:.0f}ms, "
-                f"retrieve={retrieve_ms:.0f}ms, "
-                f"generate={gen_ms:.0f}ms, total={total_ms:.0f}ms"
+                f"RAG query: embed={'{'{'}'}embed_ms:.0f{'}'}ms, "
+                f"retrieve={'{'{'}'}retrieve_ms:.0f{'}'}ms, "
+                f"generate={'{'{'}'}gen_ms:.0f{'}'}ms, total={'{'{'}'}total_ms:.0f{'}'}ms"
             )
 
             result = RAGResult(
@@ -141,13 +142,14 @@ class ProductionRAGPipeline:
             return result
 
         except Exception as e:
-            logger.error(f"RAG pipeline error: {e}")
+            logger.error(f"RAG pipeline error: {'{'{'}'}e{'}'}")
             return RAGResult(
                 answer="I encountered an error processing your question. "
                        "Please try again.",
                 sources=[], latency_ms=(time.time()-start)*1000,
                 retrieval_scores=[], error=str(e)
-            )`} />
+            )`}
+</CodeBlock>
 
 <ExpandableSection title="Caching Strategies" icon="⚡" defaultOpen={true}>
 

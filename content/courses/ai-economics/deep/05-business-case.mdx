@@ -5,7 +5,8 @@ icon: "\uD83D\uDCBC"
 
 ## Building an AI Business Case
 
-<CodeBlock language="yaml" label="AI Business Case Template" code={`ai_business_case:
+<CodeBlock>
+{`ai_business_case:
   executive_summary:
     problem: "Manual invoice processing costs $45/invoice, 15 FTE"
     solution: "AI-powered invoice extraction and matching"
@@ -39,7 +40,8 @@ icon: "\uD83D\uDCBC"
     - "Automation rate > 80% within 3 months"
     - "Error rate < 3%"
     - "Cost per invoice < $15"
-    - "Employee satisfaction (redeployed staff) > 75%"`}/>
+    - "Employee satisfaction (redeployed staff) > 75%"`}
+</CodeBlock>
 
 <ArchitectureDecision scenario="Your CFO asks: 'Should we build AI invoice processing in-house or buy an off-the-shelf solution at $8/invoice?' Your current cost is $45/invoice." options={[
   {label:"Buy the SaaS solution at $8/invoice",tradeoff:"Immediate savings (82%), zero dev cost, but you're dependent on vendor and your data leaves your systems"},

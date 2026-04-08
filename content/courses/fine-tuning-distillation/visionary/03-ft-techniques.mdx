@@ -9,7 +9,8 @@ Modern fine-tuning doesn't require updating all model weights. **Parameter-effic
 
   <AnalogyBox emoji="🎹" title="Think of it like learning piano">Full fine-tuning rewires every neural connection (rebuilding the whole piano). LoRA adds a few sticky notes to the sheet music (small adapter matrices) that modify how the existing knowledge is applied. Same performance, much less effort.</AnalogyBox>
   <LoRAVisualizer/>
-  <CodeBlock title="Fine-tuning with LoRA (using PEFT library)" language="python" code={`from peft import LoraConfig, get_peft_model
+  <CodeBlock>
+{`from peft import LoraConfig, get_peft_model
 from transformers import AutoModelForCausalLM, TrainingArguments
 from trl import SFTTrainer
 
@@ -47,7 +48,8 @@ trainer = SFTTrainer(
         logging_steps=10,
     )
 )
-trainer.train()`}/>
+trainer.train()`}
+</CodeBlock>
   <ExpandableSection title="Hyperparameter Guide" icon="⚙️">
     <ComparisonTable title="Key Hyperparameters" columns={['Parameter','Typical Range','Effect of Too High','Effect of Too Low']} rows={[
       ['Learning Rate','1e-5 to 5e-4','Catastrophic forgetting, instability','Slow convergence, wasted compute'],

@@ -7,7 +7,8 @@ icon: "\uD83D\uDCDA"
 
 The quality of AI-generated code depends almost entirely on the <JargonTip term="context window">context</JargonTip> you provide. Context engineering for code means giving the <JargonTip term="agent">AI agent</JargonTip> the right files, patterns, and constraints.
 
-  <CodeBlock label="CLAUDE.md Example (Project Instructions)" code={`# CLAUDE.md
+  <CodeBlock>
+{`# CLAUDE.md
 
 ## Project: E-commerce API
 
@@ -23,8 +24,8 @@ npm run test   # Run all tests
 npm run build  # Production build
 
 ## Conventions
-- All routes in /src/routes/{resource}.ts
-- All business logic in /src/services/{resource}.ts
+- All routes in /src/routes/{'{'{'}'}resource{'}'}.ts
+- All business logic in /src/services/{'{'{'}'}resource{'}'}.ts
 - Use Zod for request validation
 - Error handling: throw AppError(statusCode, message)
 - Database: never raw SQL, always Prisma client
@@ -33,7 +34,8 @@ npm run build  # Production build
 ## Key Patterns
 - Authentication middleware: requireAuth()
 - Pagination: ?page=1&limit=20 on all list endpoints
-- Response format: { data, meta: { page, total } }`}/>
+- Response format: {'{'{'}'} data, meta: {'{'{'}'} page, total {'}'} {'}'}`}
+</CodeBlock>
   <ExpandableSection title="Context Hierarchy for AI Coding" icon="📚" defaultOpen>
 
       - **CLAUDE.md / .cursorrules:** Project-level conventions, stack, patterns

@@ -9,7 +9,8 @@ Extend your Week 1 Research Agent into a complete Agentic RAG system with docume
 
 ### Architecture
 
-<CodeBlock language="text" label="Agentic RAG Pipeline" code={`┌─────────┐
+<CodeBlock>
+{`┌─────────┐
 │  START  │
 └────┬────┘
      │
@@ -35,7 +36,8 @@ Extend your Week 1 Research Agent into a complete Agentic RAG system with docume
      │ score ≥ 0.7         score < 0.7
 ┌────▼────┐
 │   END   │
-└─────────┘`}/>
+└─────────┘`}
+</CodeBlock>
 
 ### Requirements Checklist
 
@@ -50,7 +52,8 @@ Extend your Week 1 Research Agent into a complete Agentic RAG system with docume
 
 ### Data Loading Script
 
-<CodeBlock language="python" label="Seed ChromaDB with Sample Documents" code={`import chromadb
+<CodeBlock>
+{`import chromadb
 from chromadb.utils import embedding_functions
 
 client = chromadb.PersistentClient(path="./chroma_db")
@@ -73,20 +76,21 @@ documents = [
 ]
 
 metadatas = [
-    {"source": "nist.gov", "topic": "governance"},
-    {"source": "iso.org", "topic": "governance"},
-    {"source": "eu-ai-act.com", "topic": "regulation"},
-    {"source": "anthropic.com", "topic": "agents"},
-    {"source": "gartner.com", "topic": "mdm"},
+    {'{'{'}'}"source": "nist.gov", "topic": "governance"{'}'},
+    {'{'{'}'}"source": "iso.org", "topic": "governance"{'}'},
+    {'{'{'}'}"source": "eu-ai-act.com", "topic": "regulation"{'}'},
+    {'{'{'}'}"source": "anthropic.com", "topic": "agents"{'}'},
+    {'{'{'}'}"source": "gartner.com", "topic": "mdm"{'}'},
 ]
 
 collection.add(
     documents=documents,
     metadatas=metadatas,
-    ids=[f"doc_{i}" for i in range(len(documents))]
+    ids=[f"doc_{'{'{'}'}i{'}'}" for i in range(len(documents))]
 )
 
-print(f"Loaded {collection.count()} documents into ChromaDB")`}/>
+print(f"Loaded {'{'{'}'}collection.count(){'}'} documents into ChromaDB")`}
+</CodeBlock>
 
 ### Stretch Goals
 

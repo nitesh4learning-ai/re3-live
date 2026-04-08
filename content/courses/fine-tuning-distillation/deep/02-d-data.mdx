@@ -8,16 +8,18 @@ icon: "\uD83D\uDCCA"
 The quality of your fine-tuned model is determined by the quality of your training data. **Garbage in, garbage out** applies more strongly to fine-tuning than almost any other ML task.
 
   <AnalogyBox emoji="🍳" title="Think of it like cooking">Fine-tuning data is your ingredient list. A master chef with spoiled ingredients produces bad food. Similarly, a powerful model trained on low-quality data produces low-quality outputs. Data preparation is 80% of fine-tuning success.</AnalogyBox>
-  <CodeBlock title="JSONL training format (chat-style)" language="json" code={`{"messages": [
-  {"role": "system", "content": "You are a medical coding assistant."},
-  {"role": "user", "content": "Patient presents with acute bronchitis"},
-  {"role": "assistant", "content": "ICD-10: J20.9 - Acute bronchitis, unspecified"}
-]}
-{"messages": [
-  {"role": "system", "content": "You are a medical coding assistant."},
-  {"role": "user", "content": "Patient has type 2 diabetes with neuropathy"},
-  {"role": "assistant", "content": "ICD-10: E11.40 - Type 2 diabetes with neuropathy, unspecified"}
-]}`}/>
+  <CodeBlock>
+{`{'{'{'}'}"messages": [
+  {'{'{'}'}"role": "system", "content": "You are a medical coding assistant."{'}'},
+  {'{'{'}'}"role": "user", "content": "Patient presents with acute bronchitis"{'}'},
+  {'{'{'}'}"role": "assistant", "content": "ICD-10: J20.9 - Acute bronchitis, unspecified"{'}'}
+]{'}'}
+{'{'{'}'}"messages": [
+  {'{'{'}'}"role": "system", "content": "You are a medical coding assistant."{'}'},
+  {'{'{'}'}"role": "user", "content": "Patient has type 2 diabetes with neuropathy"{'}'},
+  {'{'{'}'}"role": "assistant", "content": "ICD-10: E11.40 - Type 2 diabetes with neuropathy, unspecified"{'}'}
+]{'}'}`}
+</CodeBlock>
   <DataQualityChecker/>
   <ExpandableSection title="Dataset Size Guidelines" icon="📊">
     <ComparisonTable title="How much data do you need?" columns={['Goal','Min Examples','Recommended','Notes']} rows={[
@@ -31,19 +33,20 @@ The quality of your fine-tuned model is determined by the quality of your traini
 
 When you lack enough real data, use a larger model to generate synthetic training data for a smaller model. This is a form of <JargonTip term="distillation">distillation</JargonTip>.
 
-    <CodeBlock title="Generating synthetic training data" language="python" code={`import openai
+    <CodeBlock>
+{`import openai
 
 def generate_synthetic_pair(domain, task_desc):
     """Use GPT-4 to generate training pairs for fine-tuning."""
     response = openai.chat.completions.create(
         model="gpt-4",
-        messages=[{
+        messages=[{'{'{'}'}
             "role": "system",
-            "content": f"Generate a realistic {domain} training example."
-        }, {
+            "content": f"Generate a realistic {'{'{'}'}domain{'}'} training example."
+        {'}'}, {'{'{'}'}
             "role": "user",
-            "content": f"Create an input/output pair for: {task_desc}"
-        }],
+            "content": f"Create an input/output pair for: {'{'{'}'}task_desc{'}'}"
+        {'}'}],
         temperature=0.9  # Higher temp = more diversity
     )
     return response.choices[0].message.content
@@ -51,7 +54,8 @@ def generate_synthetic_pair(domain, task_desc):
 # Generate 500 diverse examples
 pairs = [generate_synthetic_pair("medical coding",
     "Map patient symptoms to ICD-10 codes")
-    for _ in range(500)]`}/>
+    for _ in range(500)]`}
+</CodeBlock>
   </ExpandableSection>
   <Quiz question="What is the most important factor in fine-tuning data quality?" options={["Having millions of examples","Consistency and correctness of outputs","Using only real (not synthetic) data","Making inputs as long as possible"]} correctIndex={1} explanation="Quality beats quantity every time. 200 perfectly consistent, correct examples often outperform 10,000 noisy ones. Each training example teaches the model a pattern -- inconsistent examples teach conflicting patterns."/>
   <Quiz question="What format do most fine-tuning APIs expect?" options={["CSV with headers","JSONL with message arrays","Plain text files","XML documents"]} correctIndex={1} explanation="JSONL (JSON Lines) with chat-format message arrays is the standard format for fine-tuning modern LLMs. Each line contains a complete conversation with system, user, and assistant messages."/>

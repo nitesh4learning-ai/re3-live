@@ -11,36 +11,38 @@ Tools are the bridge between an agent's reasoning and the real world. A well-des
 
 
 ### Function Calling: The Tool Protocol
-  <CodeBlock language="json" label="OpenAI-Style Tool Schema" code={`{
+  <CodeBlock>
+{`{'{'{'}'}
   "type": "function",
-  "function": {
+  "function": {'{'{'}'}
     "name": "search_database",
     "description": "Search the product database by name, category, or price range. Returns up to 10 matching products with name, price, and availability.",
-    "parameters": {
+    "parameters": {'{'{'}'}
       "type": "object",
-      "properties": {
-        "query": {
+      "properties": {'{'{'}'}
+        "query": {'{'{'}'}
           "type": "string",
           "description": "Natural language search query"
-        },
-        "category": {
+        {'}'},
+        "category": {'{'{'}'}
           "type": "string",
           "enum": ["electronics", "clothing", "home", "sports"],
           "description": "Product category to filter by"
-        },
-        "max_price": {
+        {'}'},
+        "max_price": {'{'{'}'}
           "type": "number",
           "description": "Maximum price in USD"
-        },
-        "limit": {
+        {'}'},
+        "limit": {'{'{'}'}
           "type": "integer",
           "description": "Max results to return (default 10, max 50)"
-        }
-      },
+        {'}'}
+      {'}'},
       "required": ["query"]
-    }
-  }
-}`}/>
+    {'}'}
+  {'}'}
+{'}'}`}
+</CodeBlock>
 
   <ExpandableSection title="Tool Design Best Practices" icon="✅" defaultOpen>
 
@@ -61,7 +63,8 @@ Tools are the bridge between an agent's reasoning and the real world. A well-des
 
 
 ### Error Handling & Sandboxing
-  <CodeBlock language="python" label="Safe Tool Execution with Sandboxing" code={`import asyncio
+  <CodeBlock>
+{`import asyncio
 from dataclasses import dataclass
 from typing import Any
 
@@ -80,19 +83,20 @@ async def safe_execute(tool_fn, args, timeout_s=30):
         )
         return ToolResult(success=True, data=result)
     except asyncio.TimeoutError:
-        return ToolResult(success=False, error=f"Tool timed out after {timeout_s}s")
+        return ToolResult(success=False, error=f"Tool timed out after {'{'{'}'}timeout_s{'}'}s")
     except PermissionError as e:
-        return ToolResult(success=False, error=f"Permission denied: {e}")
+        return ToolResult(success=False, error=f"Permission denied: {'{'{'}'}e{'}'}")
     except Exception as e:
-        return ToolResult(success=False, error=f"Tool error: {type(e).__name__}: {e}")
+        return ToolResult(success=False, error=f"Tool error: {'{'{'}'}type(e).__name__{'}'}: {'{'{'}'}e{'}'}")
 
 # Tool execution sandbox: restrict file system, network, memory
-SANDBOX_CONFIG = {
+SANDBOX_CONFIG = {'{'{'}'}
     "max_memory_mb": 512,
     "allowed_paths": ["/tmp/agent_workspace/"],
     "blocked_domains": ["internal.company.com"],
     "max_execution_time_s": 30,
-}`}/>
+{'}'}`}
+</CodeBlock>
 
   <Quiz question="Why should tool descriptions include information about what the tool returns?" options={["It's optional metadata","The LLM uses return descriptions to decide whether a tool's output will be useful for the current task","It makes the JSON schema look more complete","Return descriptions are only for human developers"]} correctIndex={1} explanation="The LLM reads tool descriptions to decide which tool to call. If the description says the tool returns 'product name, price, and availability', the agent knows whether this tool can answer the current question. Without return info, the agent may call the wrong tool or misinterpret results."/>
 

@@ -18,7 +18,8 @@ Production GraphRAG systems face challenges beyond the research prototype: **gra
 - **Generation + Cache** -- LLM with retrieved context. Semantic cache: similar queries return cached responses (TTL 1hr for dynamic content). Answer traced to source graph paths.
 
 
-<CodeBlock language="python" label="Incremental Graph Updates (Delta Processing)" code={`import asyncio
+<CodeBlock>
+{`import asyncio
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -38,14 +39,14 @@ class IncrementalGraphUpdater:
         """Process a new document and update the graph incrementally."""
 
         # 1. Check extraction cache (avoid re-extracting updated docs)
-        cache_key = f"extract:{doc['id']}:{doc['updated_at']}"
+        cache_key = f"extract:{'{'{'}'}doc['id']{'}'}:{'{'{'}'}doc['updated_at']{'}'}"
         cached = await self.cache.get(cache_key)
 
         if cached:
             entities, relations = cached['entities'], cached['relations']
         else:
             entities, relations = await self._extract(doc)
-            await self.cache.set(cache_key, {'entities': entities, 'relations': relations})
+            await self.cache.set(cache_key, {'{'{'}'}'entities': entities, 'relations': relations{'}'})
 
         # 2. Upsert entities (merge with existing, don't duplicate)
         affected_nodes = await self.graph_store.upsert_entities(entities)
@@ -59,8 +60,8 @@ class IncrementalGraphUpdater:
             if community:
                 self.dirty_communities.add(community)
 
-        return {'entities': len(entities), 'relations': len(relations),
-                'affected_communities': len(self.dirty_communities)}
+        return {'{'{'}'}'entities': len(entities), 'relations': len(relations),
+                'affected_communities': len(self.dirty_communities){'}'}
 
     async def refresh_communities(self, max_communities: Optional[int] = None):
         """
@@ -79,8 +80,8 @@ class IncrementalGraphUpdater:
             await self.graph_store.update_community_summary(community_id, summary)
             self.dirty_communities.discard(community_id)
 
-        print(f"Refreshed {len(communities_to_refresh)} communities. "
-              f"{len(self.dirty_communities)} still pending.")
+        print(f"Refreshed {'{'{'}'}len(communities_to_refresh){'}'} communities. "
+              f"{'{'{'}'}len(self.dirty_communities){'}'} still pending.")
 
     async def _extract(self, doc: dict) -> tuple:
         """Tiered extraction: simple docs get NER, complex ones get LLM."""
@@ -97,7 +98,8 @@ class IncrementalGraphUpdater:
         if len(words) < 200:
             return 'simple'
         cap_ratio = sum(1 for w in words if w and w[0].isupper()) / len(words)
-        return 'complex' if cap_ratio > 0.08 else 'simple'`} />
+        return 'complex' if cap_ratio > 0.08 else 'simple'`}
+</CodeBlock>
 <ExpandableSection title="Cost Optimization Strategies" icon="\uD83D\uDCB0">
 
 - **Extraction Caching** (60-80% saving) -- Cache extraction results keyed by doc_id + hash. Re-ingestion of updated docs only re-extracts changed content.
@@ -107,7 +109,8 @@ class IncrementalGraphUpdater:
 
 </ExpandableSection>
 <ExpandableSection title="Observability & Tracing" icon="\uD83D\uDD2C">
-<CodeBlock language="python" label="GraphRAG Query Trace" code={`from dataclasses import dataclass, field
+<CodeBlock>
+{`from dataclasses import dataclass, field
 from typing import List
 
 @dataclass
@@ -123,7 +126,7 @@ class RetrievalTrace:
     graph_path: List[str]      # entity chain followed
 
     # Retrieved context
-    context_sources: List[dict]  # {text, doc_id, retrieval_method, score}
+    context_sources: List[dict]  # {'{'{'}'}text, doc_id, retrieval_method, score{'}'}
     community_summaries_used: List[int]
 
     # Generation
@@ -147,7 +150,8 @@ async def traced_query(graphrag_system, query: str) -> RetrievalTrace:
 
     # Store trace for debugging and evaluation
     await trace_store.save(trace)
-    return trace`} />
+    return trace`}
+</CodeBlock>
 </ExpandableSection>
 <ArchitectureDecision
   scenario="Your GraphRAG system handles 10,000 queries/day. Community detection (Louvain) takes 4 hours to run on your 500K-node graph. How do you keep communities fresh without blocking queries?"

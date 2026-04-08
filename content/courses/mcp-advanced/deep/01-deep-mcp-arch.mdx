@@ -14,104 +14,109 @@ MCP is built on **JSON-RPC 2.0** over a pluggable transport layer. Understanding
         ['Capabilities','MCP capability negotiation','Declare supported features at init','Yes — custom capabilities'],
         ['Protocol','MCP methods (tools, resources, sampling, prompts)','Business logic contract','Yes — via experimental extensions'],
       ]}/>
-      <CodeBlock language="json" label="Raw JSON-RPC 2.0 Wire Messages" code={`// 1. Host → Server: Initialize
-{
+      <CodeBlock>
+{`// 1. Host → Server: Initialize
+{'{'{'}'}
   "jsonrpc": "2.0",
   "id": 1,
   "method": "initialize",
-  "params": {
+  "params": {'{'{'}'}
     "protocolVersion": "2024-11-05",
-    "capabilities": {
-      "sampling": {},
-      "roots": { "listChanged": true }
-    },
-    "clientInfo": { "name": "claude-code", "version": "1.5.0" }
-  }
-}
+    "capabilities": {'{'{'}'}
+      "sampling": {'{'{'}'}{'}'},
+      "roots": {'{'{'}'} "listChanged": true {'}'}
+    {'}'},
+    "clientInfo": {'{'{'}'} "name": "claude-code", "version": "1.5.0" {'}'}
+  {'}'}
+{'}'}
 
 // 2. Server → Host: Initialize response
-{
+{'{'{'}'}
   "jsonrpc": "2.0",
   "id": 1,
-  "result": {
+  "result": {'{'{'}'}
     "protocolVersion": "2024-11-05",
-    "capabilities": {
-      "tools": {},
-      "resources": { "subscribe": true, "listChanged": true },
-      "logging": {}
-    },
-    "serverInfo": { "name": "re3-search", "version": "1.0.0" }
-  }
-}
+    "capabilities": {'{'{'}'}
+      "tools": {'{'{'}'}{'}'},
+      "resources": {'{'{'}'} "subscribe": true, "listChanged": true {'}'},
+      "logging": {'{'{'}'}{'}'}
+    {'}'},
+    "serverInfo": {'{'{'}'} "name": "re3-search", "version": "1.0.0" {'}'}
+  {'}'}
+{'}'}
 
 // 3. Host → Server: Initialized notification (no response expected)
-{
+{'{'{'}'}
   "jsonrpc": "2.0",
   "method": "notifications/initialized"
-}
+{'}'}
 
 // 4. Host → Server: Call a tool
-{
+{'{'{'}'}
   "jsonrpc": "2.0",
   "id": 2,
   "method": "tools/call",
-  "params": {
+  "params": {'{'{'}'}
     "name": "search_articles",
-    "arguments": { "query": "consciousness and AI", "limit": 5 }
-  }
-}
+    "arguments": {'{'{'}'} "query": "consciousness and AI", "limit": 5 {'}'}
+  {'}'}
+{'}'}
 
 // 5. Server → Host: Tool result
-{
+{'{'{'}'}
   "jsonrpc": "2.0",
   "id": 2,
-  "result": {
+  "result": {'{'{'}'}
     "content": [
-      { "type": "text", "text": "{\"results\": [...], \"count\": 5}" }
+      {'{'{'}'} "type": "text", "text": "{'{'{'}'}\"results\": [...], \"count\": 5{'}'}" {'}'}
     ],
     "isError": false
-  }
-}
+  {'}'}
+{'}'}
 
 // 6. Server → Host: Resource change notification (server-initiated)
-{
+{'{'{'}'}
   "jsonrpc": "2.0",
   "method": "notifications/resources/updated",
-  "params": { "uri": "re3://articles/recent" }
-}`}/>
+  "params": {'{'{'}'} "uri": "re3://articles/recent" {'}'}
+{'}'}`}
+</CodeBlock>
       <ExpandableSection title="Capability Negotiation Details" icon="🤝">
 
 At initialization, host and server exchange capability flags. A server must not use capabilities the host did not declare, and vice versa.
 
-        <CodeBlock language="json" label="Capability Flags Reference" code={`// Host capabilities (what the HOST offers the server)
-{
-  "sampling": {},          // Host can process sampling/createMessage requests
-  "roots": {
+        <CodeBlock>
+{`// Host capabilities (what the HOST offers the server)
+{'{'{'}'}
+  "sampling": {'{'{'}'}{'}'},          // Host can process sampling/createMessage requests
+  "roots": {'{'{'}'}
     "listChanged": true    // Host will notify server when roots change
-  },
-  "experimental": {
-    "myCustomExtension": {}
-  }
-}
+  {'}'},
+  "experimental": {'{'{'}'}
+    "myCustomExtension": {'{'{'}'}{'}'}
+  {'}'}
+{'}'}
 
 // Server capabilities (what the SERVER offers the host)
-{
-  "tools": {
+{'{'{'}'}
+  "tools": {'{'{'}'}
     "listChanged": true    // Server will notify when tool list changes
-  },
-  "resources": {
+  {'}'},
+  "resources": {'{'{'}'}
     "subscribe": true,     // Server supports resource subscriptions
     "listChanged": true    // Server will notify when resource list changes
-  },
-  "prompts": {
+  {'}'},
+  "prompts": {'{'{'}'}
     "listChanged": false   // Server has prompts but list won't change
-  },
-  "logging": {},           // Server supports setLoggingLevel requests
-  "experimental": {}
-}`}/>
+  {'}'},
+  "logging": {'{'{'}'}{'}'},           // Server supports setLoggingLevel requests
+  "experimental": {'{'{'}'}{'}'}
+{'}'}`}
+</CodeBlock>
       </ExpandableSection>
       <ExpandableSection title="Streamable HTTP Transport Details" icon="🌐">
-        <CodeBlock language="python" label="Streamable HTTP Server (FastAPI)" code={`from fastapi import FastAPI, Request, Response
+        <CodeBlock>
+{`from fastapi import FastAPI, Request, Response
 from fastapi.responses import StreamingResponse
 from mcp.server.streamable_http import MCPStreamableHTTPHandler
 import asyncio
@@ -134,14 +139,15 @@ async def mcp_endpoint(request: Request):
         # Client wants streaming (for requests that may produce progress events)
         async def event_stream():
             async for chunk in handler.handle_streaming(body, request.headers):
-                yield f"data: {json.dumps(chunk)}\\n\\n"
+                yield f"data: {'{'{'}'}json.dumps(chunk){'}'}\\n\\n"
             yield "data: [DONE]\\n\\n"
         return StreamingResponse(event_stream(), media_type="text/event-stream",
-            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+            headers={'{'{'}'}"Cache-Control": "no-cache", "X-Accel-Buffering": "no"{'}'})
     else:
         # Standard request/response
         result = await handler.handle(body, request.headers)
-        return Response(content=json.dumps(result), media_type="application/json")`}/>
+        return Response(content=json.dumps(result), media_type="application/json")`}
+</CodeBlock>
       </ExpandableSection>
       <ArchitectureDecision
         scenario="You are building an MCP server that must serve 500+ concurrent LLM host processes in a cloud environment. Each host makes 10-50 tool calls per conversation. Which transport architecture fits best?"

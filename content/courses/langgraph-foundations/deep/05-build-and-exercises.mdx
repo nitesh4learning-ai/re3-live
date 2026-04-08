@@ -9,7 +9,8 @@ This is the hands-on project that ties everything together. By the end, you'll h
 
 ### Architecture
 
-<CodeBlock language="text" label="Agent Flow Diagram" code={`┌─────────┐
+<CodeBlock>
+{`┌─────────┐
 │  START  │
 └────┬────┘
      │
@@ -27,7 +28,8 @@ This is the hands-on project that ties everything together. By the end, you'll h
      │
 ┌────▼────┐
 │   END   │
-└─────────┘`}/>
+└─────────┘`}
+</CodeBlock>
 
 ### Requirements Checklist
 
@@ -40,7 +42,8 @@ This is the hands-on project that ties everything together. By the end, you'll h
 
 ### Complete Working Implementation
 
-<CodeBlock language="python" label="research_agent.py — Full Implementation" code={`"""
+<CodeBlock>
+{`"""
 Self-Correcting Research Agent — LangGraph Week 1 Build
 Uses Claude API via langchain-anthropic.
 
@@ -82,7 +85,7 @@ llm = ChatAnthropic(
 # ══════════════════════════════════════════════
 def search_node(state: ResearchState) -> dict:
     query = state["query"]
-    print(f"  🔍 Searching: {query}")
+    print(f"  🔍 Searching: {'{'{'}'}query{'}'}")
     
     # Production: use Tavily, SerpAPI, etc.
     # For testing, mock the search:
@@ -96,14 +99,14 @@ def search_node(state: ResearchState) -> dict:
         urls = [r.get("url", "") for r in results]
     except Exception:
         # Fallback mock for testing without API key
-        texts = [f"Mock result for: {query}"]
+        texts = [f"Mock result for: {'{'{'}'}query{'}'}"]
         urls = ["https://example.com"]
     
-    return {
+    return {'{'{'}'}
         "search_results": texts,
         "sources": urls,
         "current_node": "search"
-    }
+    {'}'}
 
 def grade_node(state: ResearchState) -> dict:
     print("  📊 Grading results...")
@@ -114,8 +117,8 @@ def grade_node(state: ResearchState) -> dict:
             "Return ONLY the number."
         )),
         HumanMessage(content=(
-            f"Query: {state['query']}\\n\\n"
-            f"Results: {str(state['search_results'])[:2000]}"
+            f"Query: {'{'{'}'}state['query']{'}'}\\n\\n"
+            f"Results: {'{'{'}'}str(state['search_results'])[:2000]{'}'}"
         ))
     ])
     try:
@@ -123,11 +126,11 @@ def grade_node(state: ResearchState) -> dict:
     except ValueError:
         score = 5.0  # Default if parsing fails
     
-    print(f"  📊 Quality score: {score}/10")
-    return {"quality_score": score, "current_node": "grade"}
+    print(f"  📊 Quality score: {'{'{'}'}score{'}'}/10")
+    return {'{'{'}'}"quality_score": score, "current_node": "grade"{'}'}
 
 def rewrite_node(state: ResearchState) -> dict:
-    print(f"  ✏️  Rewriting query (attempt {state['retry_count'] + 1})...")
+    print(f"  ✏️  Rewriting query (attempt {'{'{'}'}state['retry_count'] + 1{'}'})...")
     response = llm.invoke([
         SystemMessage(content=(
             "The search results were not relevant. "
@@ -135,18 +138,18 @@ def rewrite_node(state: ResearchState) -> dict:
             "Return ONLY the improved query string."
         )),
         HumanMessage(content=(
-            f"Original: {state['original_query']}\\n"
-            f"Current: {state['query']}\\n"
-            f"Poor results: {str(state['search_results'])[:500]}"
+            f"Original: {'{'{'}'}state['original_query']{'}'}\\n"
+            f"Current: {'{'{'}'}state['query']{'}'}\\n"
+            f"Poor results: {'{'{'}'}str(state['search_results'])[:500]{'}'}"
         ))
     ])
     new_query = response.content.strip()
-    print(f"  ✏️  New query: {new_query}")
-    return {
+    print(f"  ✏️  New query: {'{'{'}'}new_query{'}'}")
+    return {'{'{'}'}
         "query": new_query,
         "retry_count": state["retry_count"] + 1,
         "current_node": "rewrite"
-    }
+    {'}'}
 
 def summarize_node(state: ResearchState) -> dict:
     print("  📝 Generating summary...")
@@ -157,11 +160,11 @@ def summarize_node(state: ResearchState) -> dict:
             "but concise."
         )),
         HumanMessage(content=(
-            f"Topic: {state['original_query']}\\n\\n"
-            f"Results: {str(state['search_results'])}"
+            f"Topic: {'{'{'}'}state['original_query']{'}'}\\n\\n"
+            f"Results: {'{'{'}'}str(state['search_results']){'}'}"
         ))
     ])
-    return {"summary": response.content, "current_node": "summarize"}
+    return {'{'{'}'}"summary": response.content, "current_node": "summarize"{'}'}
 
 # ══════════════════════════════════════════════
 # 4. ROUTING FUNCTION
@@ -187,7 +190,7 @@ graph.add_edge(START, "search")
 graph.add_edge("search", "grade")
 graph.add_conditional_edges(
     "grade", should_retry,
-    {"summarize": "summarize", "rewrite": "rewrite", "end": END}
+    {'{'{'}'}"summarize": "summarize", "rewrite": "rewrite", "end": END{'}'}
 )
 graph.add_edge("rewrite", "search")
 graph.add_edge("summarize", END)
@@ -199,9 +202,9 @@ app = graph.compile()
 # ══════════════════════════════════════════════
 if __name__ == "__main__":
     topic = "AI governance frameworks and enterprise adoption 2026"
-    print(f"\\n🚀 Research Agent starting: '{topic}'\\n")
+    print(f"\\n🚀 Research Agent starting: '{'{'{'}'}topic{'}'}'\\n")
     
-    result = app.invoke({
+    result = app.invoke({'{'{'}'}
         "query": topic,
         "original_query": topic,
         "search_results": [],
@@ -213,12 +216,13 @@ if __name__ == "__main__":
         "current_node": "",
         "error": None,
         "messages": []
-    })
+    {'}'})
     
-    print(f"\\n{'='*60}")
-    print(f"📋 SUMMARY:\\n{result['summary']}")
-    print(f"\\n🔗 Sources: {result['sources']}")
-    print(f"🔄 Retries used: {result['retry_count']}")`}/>
+    print(f"\\n{'{'{'}'}'='*60{'}'}")
+    print(f"📋 SUMMARY:\\n{'{'{'}'}result['summary']{'}'}")
+    print(f"\\n🔗 Sources: {'{'{'}'}result['sources']{'}'}")
+    print(f"🔄 Retries used: {'{'{'}'}result['retry_count']{'}'}")`}
+</CodeBlock>
 
 ### Stretch Goals
 

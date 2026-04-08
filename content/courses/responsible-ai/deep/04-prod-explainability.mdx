@@ -5,7 +5,8 @@ icon: "\u2699\uFE0F"
 
 ## Production Explainability
 
-<CodeBlock language="python" label="SHAP Explanations at Scale" code={`import shap
+<CodeBlock>
+{`import shap
 
 # For tabular models
 explainer = shap.TreeExplainer(model)  # or KernelExplainer for any model
@@ -23,12 +24,12 @@ def explain_decision(shap_vals, feature_names, prediction):
     )
 
     top_reasons = contributions[:3]
-    explanation = f"Decision: {'Approved' if prediction else 'Denied'}\\n"
+    explanation = f"Decision: {'{'{'}'}'Approved' if prediction else 'Denied'{'}'}\\n"
     explanation += "Top factors:\\n"
 
     for feature, value in top_reasons:
         direction = "increased" if value > 0 else "decreased"
-        explanation += f"  - {feature} {direction} likelihood by {abs(value):.1%}\\n"
+        explanation += f"  - {'{'{'}'}feature{'}'} {'{'{'}'}direction{'}'} likelihood by {'{'{'}'}abs(value):.1%{'}'}\\n"
 
     return explanation
 
@@ -37,6 +38,7 @@ def explain_decision(shap_vals, feature_names, prediction):
 # Top factors:
 #   - income decreased likelihood by 23.4%
 #   - credit_history decreased likelihood by 15.1%
-#   - employment_length increased likelihood by 8.2%`}/>
+#   - employment_length increased likelihood by 8.2%`}
+</CodeBlock>
 
 <Quiz question="Why should you use TreeExplainer instead of KernelExplainer for tree-based models?" options={["TreeExplainer works with any model type","TreeExplainer computes exact SHAP values in polynomial time vs. KernelExplainer's approximation","KernelExplainer is deprecated","TreeExplainer doesn't need training data"]} correctIndex={1} explanation="TreeExplainer leverages the tree structure to compute exact SHAP values efficiently (polynomial time), while KernelExplainer uses sampling-based approximation which is slower and less precise. Always use the specialized explainer when available."/>

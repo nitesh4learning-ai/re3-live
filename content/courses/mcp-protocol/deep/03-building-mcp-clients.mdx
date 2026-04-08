@@ -7,7 +7,8 @@ icon: "🔗"
 
 An MCP client manages connections to one or more servers, discovers available tools, and routes tool calls from the LLM to the correct server. Here is a production client implementation.
 
-<CodeBlock language="python" label="MCP Client Session Management" code={`from mcp import ClientSession, StdioServerParameters
+<CodeBlock>
+{`from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 import json
 
@@ -15,8 +16,8 @@ class MCPManager:
     """Manages connections to multiple MCP servers."""
 
     def __init__(self):
-        self.sessions: dict[str, ClientSession] = {}
-        self.tools: dict[str, dict] = {}  # tool_name -> {session, definition}
+        self.sessions: dict[str, ClientSession] = {'{'{'}'}{'}'}
+        self.tools: dict[str, dict] = {'{'{'}'}{'}'}  # tool_name -> {'{'{'}'}session, definition{'}'}
 
     async def connect(self, name: str, command: str, args: list[str] = None):
         """Connect to an MCP server and discover its tools."""
@@ -28,18 +29,18 @@ class MCPManager:
         # Discover tools from this server
         tools_response = await session.list_tools()
         for tool in tools_response.tools:
-            self.tools[tool.name] = {
+            self.tools[tool.name] = {'{'{'}'}
                 "session": session,
                 "definition": tool,
                 "server": name
-            }
+            {'}'}
         self.sessions[name] = session
         return tools_response.tools
 
     async def call_tool(self, tool_name: str, arguments: dict) -> str:
         """Route a tool call to the correct server."""
         if tool_name not in self.tools:
-            raise ValueError(f"Unknown tool: {tool_name}")
+            raise ValueError(f"Unknown tool: {'{'{'}'}tool_name{'}'}")
         entry = self.tools[tool_name]
         result = await entry["session"].call_tool(tool_name, arguments)
         return result.content[0].text
@@ -47,11 +48,11 @@ class MCPManager:
     def get_all_tool_definitions(self) -> list[dict]:
         """Get all tool definitions for LLM function calling."""
         return [
-            {
+            {'{'{'}'}
                 "name": t["definition"].name,
                 "description": t["definition"].description,
                 "input_schema": t["definition"].inputSchema
-            }
+            {'}'}
             for t in self.tools.values()
         ]
 
@@ -62,7 +63,8 @@ await manager.connect("slack", "npx", ["-y", "@modelcontextprotocol/server-slack
 
 # Get unified tool list for the LLM
 all_tools = manager.get_all_tool_definitions()
-# LLM sees tools from both servers as one unified set`}/>
+# LLM sees tools from both servers as one unified set`}
+</CodeBlock>
 
 The key insight is that the client acts as a **router**. The LLM sees a flat list of all tools from all servers. When it calls a tool, the client routes that call to whichever server originally registered it.
 

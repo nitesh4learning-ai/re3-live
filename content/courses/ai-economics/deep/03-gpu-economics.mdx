@@ -26,14 +26,15 @@ icon: "\u26A1"
 
 </ExpandableSection>
 
-<CodeBlock language="python" label="Model Router for Cost Optimization" code={`class CostAwareRouter:
+<CodeBlock>
+{`class CostAwareRouter:
     """Route requests to cheapest capable model"""
 
-    MODELS = {
-        "simple": {"name": "gpt-4o-mini", "cost_per_1k": 0.00015},
-        "medium": {"name": "claude-3-5-haiku", "cost_per_1k": 0.00025},
-        "complex": {"name": "claude-3-5-sonnet", "cost_per_1k": 0.003},
-    }
+    MODELS = {'{'{'}'}
+        "simple": {'{'{'}'}"name": "gpt-4o-mini", "cost_per_1k": 0.00015{'}'},
+        "medium": {'{'{'}'}"name": "claude-3-5-haiku", "cost_per_1k": 0.00025{'}'},
+        "complex": {'{'{'}'}"name": "claude-3-5-sonnet", "cost_per_1k": 0.003{'}'},
+    {'}'}
 
     def classify_complexity(self, prompt):
         """Simple heuristic -- production would use a classifier"""
@@ -55,6 +56,7 @@ icon: "\u26A1"
         return model["name"]
 
 # Result: 70% of requests go to 'simple' tier
-# saving ~90% vs routing everything to complex`}/>
+# saving ~90% vs routing everything to complex`}
+</CodeBlock>
 
 <Quiz question="What is the most impactful cost optimization strategy for most AI applications?" options={["Using the cheapest model for everything","Model routing -- using cheap models for simple tasks and expensive ones only when needed","Training your own model to avoid API costs","Reducing the number of AI features"]} correctIndex={1} explanation="Model routing typically saves 60-80% on inference costs because most requests (70%+) are simple enough for cheap models. The expensive model only handles the 20-30% that actually need it."/>

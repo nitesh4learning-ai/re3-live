@@ -31,7 +31,8 @@ Example: "What are the main research themes in our documents?"
 
 
 
-<CodeBlock language="python" label="Microsoft GraphRAG Indexing Pipeline" code={`# pip install graphrag
+<CodeBlock>
+{`# pip install graphrag
 # graphrag.config.yml setup
 
 import os
@@ -41,38 +42,38 @@ from graphrag.config import create_graphrag_config
 # Initialize project
 os.makedirs("./.graphrag", exist_ok=True)
 
-config = create_graphrag_config({
-    "llm": {
+config = create_graphrag_config({'{'{'}'}
+    "llm": {'{'{'}'}
         "api_key": os.environ["ANTHROPIC_API_KEY"],
         "type": "openai_chat",  # compatible endpoint
         "model": "claude-opus-4-6",
         "max_tokens": 4000,
-    },
-    "embeddings": {
-        "llm": {
+    {'}'},
+    "embeddings": {'{'{'}'}
+        "llm": {'{'{'}'}
             "api_key": os.environ["OPENAI_API_KEY"],
             "type": "openai_embedding",
             "model": "text-embedding-3-small",
-        }
-    },
-    "chunks": {
+        {'}'}
+    {'}'},
+    "chunks": {'{'{'}'}
         "size": 300,
         "overlap": 100,
         "group_by_columns": ["id"],
-    },
-    "entity_extraction": {
+    {'}'},
+    "entity_extraction": {'{'{'}'}
         "prompt": "custom_entity_prompt.txt",
         "entity_types": ["person", "organization", "concept", "technology"],
         "max_gleanings": 1,
-    },
-    "community_reports": {
+    {'}'},
+    "community_reports": {'{'{'}'}
         "max_length": 2000,
         "max_input_length": 8000,
-    },
-    "cluster_graph": {
+    {'}'},
+    "cluster_graph": {'{'{'}'}
         "max_cluster_size": 10,
-    },
-})
+    {'}'},
+{'}'})
 
 # Run the full indexing pipeline
 # This builds: entities → graph → communities → summaries → embeddings
@@ -96,8 +97,8 @@ local_search = LocalSearch(
         text_embedder=text_embedder,
     ),
     token_encoder=token_encoder,
-    llm_params={"max_tokens": 2000, "temperature": 0.0},
-    context_builder_params={
+    llm_params={'{'{'}'}"max_tokens": 2000, "temperature": 0.0{'}'},
+    context_builder_params={'{'{'}'}
         "use_community_summary": False,
         "shuffle_data": True,
         "include_entity_rank": True,
@@ -106,12 +107,14 @@ local_search = LocalSearch(
         "include_relationship_weight": True,
         "relationship_ranking_technique": "pagerank",
         "max_tokens": 12000,
-    },
+    {'}'},
 )
 
 result = await local_search.asearch("What did Geoffrey Hinton work on at Google?")
-print(result.response)`} />
-<CodeBlock language="python" label="Community Detection with NetworkX" code={`import networkx as nx
+print(result.response)`}
+</CodeBlock>
+<CodeBlock>
+{`import networkx as nx
 import community as community_louvain
 
 def detect_communities(entities: list, relations: list) -> dict:
@@ -138,7 +141,7 @@ def detect_communities(entities: list, relations: list) -> dict:
     partition = community_louvain.best_partition(G, weight='weight')
 
     # Group entities by community
-    communities = {}
+    communities = {'{'{'}'}{'}'}
     for node, community_id in partition.items():
         if community_id not in communities:
             communities[community_id] = []
@@ -146,15 +149,15 @@ def detect_communities(entities: list, relations: list) -> dict:
 
     # Calculate modularity (quality metric: higher = better communities)
     modularity = community_louvain.modularity(partition, G)
-    print(f"Community modularity: {modularity:.3f}")  # Good: > 0.3
+    print(f"Community modularity: {'{'{'}'}modularity:.3f{'}'}")  # Good: > 0.3
 
     return communities, partition, modularity
 
 # Generate community summaries with LLM
 async def generate_community_summary(community_entities: list,
                                       relations: list, llm) -> str:
-    entity_desc = "\\n".join([f"- {e}" for e in community_entities])
-    rel_desc = "\\n".join([f"- {r['source']} {r['type']} {r['target']}"
+    entity_desc = "\\n".join([f"- {'{'{'}'}e{'}'}" for e in community_entities])
+    rel_desc = "\\n".join([f"- {'{'{'}'}r['source']{'}'} {'{'{'}'}r['type']{'}'} {'{'{'}'}r['target']{'}'}"
                            for r in relations if r['source'] in community_entities])
 
     return await llm.generate(f"""
@@ -162,13 +165,14 @@ async def generate_community_summary(community_entities: list,
     Explain what unifies them and what role they play in the broader knowledge graph.
 
     Entities:
-    {entity_desc}
+    {'{'{'}'}entity_desc{'}'}
 
     Key relationships:
-    {rel_desc}
+    {'{'{'}'}rel_desc{'}'}
 
     Write a 2-3 sentence summary for use in global search queries.
-    """)`} />
+    """)`}
+</CodeBlock>
 <CommunityExplorer />
 <Quiz
 question="What does GraphRAG's 'global search' enable that local search cannot?"

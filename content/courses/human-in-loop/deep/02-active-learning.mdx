@@ -7,7 +7,8 @@ icon: "🧠"
 
 The most powerful HITL pattern: human corrections don't just fix one response -- they improve the AI for all future responses.
 
-<CodeBlock title="Active Learning Loop" code={`class ActiveLearningSystem:
+<CodeBlock>
+{`class ActiveLearningSystem:
     def __init__(self, model, feedback_store):
         self.model = model
         self.feedback_store = feedback_store
@@ -20,20 +21,21 @@ The most powerful HITL pattern: human corrections don't just fix one response --
         enhanced_prompt = query
         if similar_corrections:
             examples = "\\n".join(
-                f"Q: {c['query']}\\nWrong: {c['ai_response']}\\nCorrect: {c['human_correction']}"
+                f"Q: {'{'{'}'}c['query']{'}'}\\nWrong: {'{'{'}'}c['ai_response']{'}'}\\nCorrect: {'{'{'}'}c['human_correction']{'}'}"
                 for c in similar_corrections
             )
-            enhanced_prompt = f"Learn from these past corrections:\\n{examples}\\n\\nNow answer: {query}"
+            enhanced_prompt = f"Learn from these past corrections:\\n{'{'{'}'}examples{'}'}\\n\\nNow answer: {'{'{'}'}query{'}'}"
 
         response = await self.model.generate(enhanced_prompt)
         return response
 
     def record_correction(self, query, ai_response, human_correction):
         """Store human correction for future learning."""
-        self.feedback_store.add({
+        self.feedback_store.add({'{'{'}'}
             "query": query,
             "ai_response": ai_response,
             "human_correction": human_correction,
             "timestamp": now(),
             "embedding": embed(query)  # For similarity search
-        })`}/>
+        {'}'})`}
+</CodeBlock>

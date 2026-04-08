@@ -15,14 +15,16 @@ Research shows models attend most to the first and last portions. Place importan
 
 <ComparisonTable title="Context Windows by Model" headers={['Model','Window','Sweet Spot','Notes']} rows={[['GPT-4o','128K','~30K','Quality degrades on very long contexts'],['Claude 3.5 Sonnet','200K','~80K','Best long-context benchmarks'],['Gemini 1.5 Pro','2M','~500K','Largest window, variable quality'],['Llama 3.1 70B','128K','~20K','Open-source, self-hostable']]}/>
 
-<CodeBlock title="Token Counting" code={`import tiktoken
+<CodeBlock>
+{`import tiktoken
 
 def count_tokens(text, model="gpt-4o"):
     enc = tiktoken.encoding_for_model(model)
     return len(enc.encode(text))
 
 def estimate_cost(messages, model="gpt-4o"):
-    prices = {"gpt-4o": 2.50, "claude-3.5-sonnet": 3.00}  # per 1M input
+    prices = {'{'{'}'}"gpt-4o": 2.50, "claude-3.5-sonnet": 3.00{'}'}  # per 1M input
     tokens = sum(count_tokens(m["content"]) for m in messages)
     cost = (tokens / 1_000_000) * prices.get(model, 2.50)
-    return {"tokens": tokens, "cost": "$%.4f" % cost}`}/>
+    return {'{'{'}'}"tokens": tokens, "cost": "$%.4f" % cost{'}'}`}
+</CodeBlock>

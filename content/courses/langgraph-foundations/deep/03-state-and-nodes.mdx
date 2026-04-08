@@ -9,7 +9,8 @@ State design is the most important architectural decision in any LangGraph appli
 
 ### The State Contract
 
-<CodeBlock language="python" label="Research Agent State — Production Pattern" code={`from typing import TypedDict, Annotated, List, Optional
+<CodeBlock>
+{`from typing import TypedDict, Annotated, List, Optional
 from langgraph.graph import add_messages
 from langchain_core.messages import BaseMessage
 
@@ -43,7 +44,8 @@ class ResearchState(TypedDict):
     
     # ── Observability ──
     current_node: str             # Which node is executing
-    error: Optional[str]          # Error message if any`}/>
+    error: Optional[str]          # Error message if any`}
+</CodeBlock>
 
 ### State Design Principles
 
@@ -62,27 +64,30 @@ If you've worked with MDM golden records, state design will feel familiar. A mas
 
 ### The Reducer Pattern: add_messages
 
-<CodeBlock language="python" label="How Reducers Work" code={`# WITHOUT a reducer:
+<CodeBlock>
+{`# WITHOUT a reducer:
 # Each node's return REPLACES the field
-# Node 1 returns: {"query": "AI governance"}
-# Node 2 returns: {"query": "AI governance frameworks 2026"}
+# Node 1 returns: {'{'{'}'}"query": "AI governance"{'}'}
+# Node 2 returns: {'{'{'}'}"query": "AI governance frameworks 2026"{'}'}
 # Result: query = "AI governance frameworks 2026" (replaced)
 
 # WITH a reducer (add_messages):
 # Each node's return is MERGED using the reducer function
-# Node 1 returns: {"messages": [HumanMessage("Hello")]}
-# Node 2 returns: {"messages": [AIMessage("Hi there!")]}  
+# Node 1 returns: {'{'{'}'}"messages": [HumanMessage("Hello")]{'}'}
+# Node 2 returns: {'{'{'}'}"messages": [AIMessage("Hi there!")]{'}'}  
 # Result: messages = [HumanMessage("Hello"), AIMessage("Hi there!")]
 # The reducer APPENDED instead of replacing.
 
 # This is why messages uses Annotated[list, add_messages]
-# while query uses plain str — different merge strategies.`}/>
+# while query uses plain str — different merge strategies.`}
+</CodeBlock>
 
 ### Writing Nodes: The Single-Responsibility Principle
 
 Each node should do **one thing well**. This makes your graph modular, testable, and debuggable.
 
-<CodeBlock language="python" label="Four Nodes for a Research Agent" code={`from langchain_anthropic import ChatAnthropic
+<CodeBlock>
+{`from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, SystemMessage
 
 llm = ChatAnthropic(model="claude-sonnet-4-20250514")
@@ -95,10 +100,10 @@ def search_node(state: ResearchState) -> dict:
     """
     query = state["query"]
     results = tavily_search.invoke(query)  # Tavily, SerpAPI, etc.
-    return {
+    return {'{'{'}'}
         "search_results": results,
         "current_node": "search"
-    }
+    {'}'}
 
 # ─── Node 2: Grade ───
 def grade_node(state: ResearchState) -> dict:
@@ -114,15 +119,15 @@ def grade_node(state: ResearchState) -> dict:
             "Return ONLY the number, nothing else."
         )),
         HumanMessage(content=(
-            f"Query: {state['query']}\\n\\n"
-            f"Results: {state['search_results'][:2000]}"
+            f"Query: {'{'{'}'}state['query']{'}'}\\n\\n"
+            f"Results: {'{'{'}'}state['search_results'][:2000]{'}'}"
         ))
     ])
     score = float(response.content.strip())
-    return {
+    return {'{'{'}'}
         "quality_score": score,
         "current_node": "grade"
-    }
+    {'}'}
 
 # ─── Node 3: Rewrite Query ───
 def rewrite_node(state: ResearchState) -> dict:
@@ -137,16 +142,16 @@ def rewrite_node(state: ResearchState) -> dict:
             "get better results. Return ONLY the new query."
         )),
         HumanMessage(content=(
-            f"Original query: {state['original_query']}\\n"
-            f"Current query: {state['query']}\\n"
-            f"Poor results: {state['search_results'][:500]}"
+            f"Original query: {'{'{'}'}state['original_query']{'}'}\\n"
+            f"Current query: {'{'{'}'}state['query']{'}'}\\n"
+            f"Poor results: {'{'{'}'}state['search_results'][:500]{'}'}"
         ))
     ])
-    return {
+    return {'{'{'}'}
         "query": response.content.strip(),
         "retry_count": state["retry_count"] + 1,
         "current_node": "rewrite"
-    }
+    {'}'}
 
 # ─── Node 4: Summarize ───
 def summarize_node(state: ResearchState) -> dict:
@@ -161,14 +166,15 @@ def summarize_node(state: ResearchState) -> dict:
             "and cite sources where possible."
         )),
         HumanMessage(content=(
-            f"Research topic: {state['original_query']}\\n\\n"
-            f"Results: {state['search_results']}"
+            f"Research topic: {'{'{'}'}state['original_query']{'}'}\\n\\n"
+            f"Results: {'{'{'}'}state['search_results']{'}'}"
         ))
     ])
-    return {
+    return {'{'{'}'}
         "summary": response.content,
         "current_node": "summarize"
-    }`}/>
+    {'}'}`}
+</CodeBlock>
 
 <Quiz
   question="Why does each node return a Python dict (partial state) instead of the full ResearchState object?"

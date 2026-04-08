@@ -16,7 +16,8 @@ Without systematic evaluation, you cannot know if your RAG system is improving. 
   ['Answer Similarity','Does the answer match the reference answer?','0-1','How close is the generated answer to the ideal?'],
 ]} />
 
-<CodeBlock language="python" label="RAGAS evaluation pipeline" code={`from ragas import evaluate
+<CodeBlock>
+{`from ragas import evaluate
 from ragas.metrics import (
     faithfulness, answer_relevancy,
     context_precision, context_recall,
@@ -25,7 +26,7 @@ from datasets import Dataset
 
 # Prepare evaluation dataset
 # Each example needs: question, answer, contexts, ground_truth
-eval_data = {
+eval_data = {'{'{'}'}
     "question": [
         "What is the refund policy for digital products?",
         "How do I reset my password?",
@@ -49,7 +50,7 @@ eval_data = {
         "Use the 'Forgot Password' link on the login page to receive a reset email.",
         "Visa, Mastercard, American Express, PayPal, Apple Pay, and Google Pay are accepted.",
     ],
-}
+{'}'}
 
 dataset = Dataset.from_dict(eval_data)
 
@@ -59,16 +60,17 @@ results = evaluate(
     metrics=[faithfulness, answer_relevancy, context_precision, context_recall],
 )
 
-print(f"Faithfulness:      {results['faithfulness']:.3f}")
-print(f"Answer Relevancy:  {results['answer_relevancy']:.3f}")
-print(f"Context Precision: {results['context_precision']:.3f}")
-print(f"Context Recall:    {results['context_recall']:.3f}")
+print(f"Faithfulness:      {'{'{'}'}results['faithfulness']:.3f{'}'}")
+print(f"Answer Relevancy:  {'{'{'}'}results['answer_relevancy']:.3f{'}'}")
+print(f"Context Precision: {'{'{'}'}results['context_precision']:.3f{'}'}")
+print(f"Context Recall:    {'{'{'}'}results['context_recall']:.3f{'}'}")
 
 # Interpreting results:
 # Faithfulness < 0.8: LLM is hallucinating beyond retrieved context
 # Context Recall < 0.7: Retrieval is missing relevant documents
 # Context Precision < 0.7: Retrieval returns too much irrelevant content
-# Answer Relevancy < 0.8: LLM is not addressing the actual question`} />
+# Answer Relevancy < 0.8: LLM is not addressing the actual question`}
+</CodeBlock>
 
 <ExpandableSection title="Building an Evaluation Dataset" icon="📊" defaultOpen={true}>
 

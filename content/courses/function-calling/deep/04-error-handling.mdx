@@ -7,20 +7,21 @@ icon: "🛡️"
 
 Tool calls fail. APIs time out, parameters are invalid, permissions are denied. The key principle: **always return errors to the LLM** rather than crashing. The LLM can often recover by trying a different approach or explaining the issue to the user.
 
-<CodeBlock language="javascript" label="Robust Error Handling Pattern" code={`class ToolExecutor {
-  constructor(opts = {}) {
+<CodeBlock>
+{`class ToolExecutor {'{'{'}'}
+  constructor(opts = {'{'{'}'}{'}'}) {'{'{'}'}
     this.maxRetries = opts.maxRetries || 2;
     this.timeout = opts.timeout || 30000;
-  }
+  {'}'}
 
-  async execute(tool, args) {
-    for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
-      try {
+  async execute(tool, args) {'{'{'}'}
+    for (let attempt = 0; attempt <= this.maxRetries; attempt++) {'{'{'}'}
+      try {'{'{'}'}
         // Validate args against schema first
         const validation = this.validateArgs(tool.schema, args);
-        if (!validation.valid) {
-          return { error: true, message: "Invalid parameters: " + validation.errors.join(", ") };
-        }
+        if (!validation.valid) {'{'{'}'}
+          return {'{'{'}'} error: true, message: "Invalid parameters: " + validation.errors.join(", ") {'}'};
+        {'}'}
 
         // Execute with timeout
         const result = await Promise.race([
@@ -29,26 +30,27 @@ Tool calls fail. APIs time out, parameters are invalid, permissions are denied. 
             setTimeout(() => reject(new Error("Timeout")), this.timeout)
           ),
         ]);
-        return { success: true, data: result };
+        return {'{'{'}'} success: true, data: result {'}'};
 
-      } catch (err) {
-        if (attempt < this.maxRetries && this.isRetryable(err)) {
+      {'}'} catch (err) {'{'{'}'}
+        if (attempt < this.maxRetries && this.isRetryable(err)) {'{'{'}'}
           await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
           continue;
-        }
-        return {
+        {'}'}
+        return {'{'{'}'}
           error: true, code: err.code || "UNKNOWN",
           message: err.message, retried: attempt > 0,
-        };
-      }
-    }
-  }
+        {'}'};
+      {'}'}
+    {'}'}
+  {'}'}
 
-  isRetryable(err) {
+  isRetryable(err) {'{'{'}'}
     return ["ETIMEDOUT", "ECONNRESET", "RATE_LIMITED"].includes(err.code)
       || (err.status >= 500 && err.status < 600);
-  }
-}`}/>
+  {'}'}
+{'}'}`}
+</CodeBlock>
 
 <ExpandableSection title="User Confirmation Pattern" icon="✅">
 

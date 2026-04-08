@@ -7,16 +7,17 @@ icon: "\uD83D\uDD27"
 
 Implementing responsible AI requires tooling, processes, and culture -- from <JargonTip term="fairness">fairness</JargonTip> audits to <JargonTip term="guardrails">guardrails</JargonTip> that prevent <JargonTip term="hallucination">hallucinations</JargonTip>. Here are the practical building blocks.
 
-<CodeBlock language="python" label="Fairness Assessment Pipeline" code={`# Using Fairlearn for bias detection
+<CodeBlock>
+{`# Using Fairlearn for bias detection
 from fairlearn.metrics import MetricFrame
 from sklearn.metrics import accuracy_score, selection_rate
 
 # After training your model
 metric_frame = MetricFrame(
-    metrics={
+    metrics={'{'{'}'}
         "accuracy": accuracy_score,
         "selection_rate": selection_rate
-    },
+    {'}'},
     y_true=y_test,
     y_pred=predictions,
     sensitive_features=demographics["gender"]
@@ -31,7 +32,8 @@ print(metric_frame.by_group)
 # Check if disparity exceeds threshold
 ratio = metric_frame.ratio()  # min/max per metric
 if ratio["selection_rate"] < 0.8:  # 4/5ths rule
-    print("WARNING: Potential disparate impact detected")`}/>
+    print("WARNING: Potential disparate impact detected")`}
+</CodeBlock>
 
 <ExpandableSection title="Responsible AI Checklist" icon={'\u2705'} defaultOpen>
 

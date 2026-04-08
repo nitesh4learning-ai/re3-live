@@ -14,13 +14,14 @@ A2A enables sophisticated multi-agent patterns where an **orchestrator agent** c
   ['Competitive','A -> [B, C] -> pick best','Multiple agents solve same problem, best answer wins','Medium'],
 ]}/>
 
-<CodeBlock language="python" label="Parallel Fan-Out Orchestrator" code={`import asyncio
+<CodeBlock>
+{`import asyncio
 
 class OrchestratorAgent:
     """Orchestrator that delegates subtasks to specialist agents."""
 
     def __init__(self):
-        self.specialists = {}  # name -> agent_card
+        self.specialists = {'{'{'}'}{'}'}  # name -> agent_card
 
     async def discover_agents(self, urls: list[str]):
         """Discover specialist agents from their well-known URLs."""
@@ -37,20 +38,20 @@ class OrchestratorAgent:
         tasks = []
         for agent in relevant:
             task = asyncio.create_task(
-                self.delegate_task(agent, f"Research '{topic}' from your specialty area")
+                self.delegate_task(agent, f"Research '{'{'{'}'}topic{'}'}' from your specialty area")
             )
             tasks.append((agent["name"], task))
 
         # 3. Gather all results (with timeout per agent)
-        results = {}
+        results = {'{'{'}'}{'}'}
         for name, task in tasks:
             try:
                 result = await asyncio.wait_for(task, timeout=120)
-                results[name] = {"status": "completed", "data": result}
+                results[name] = {'{'{'}'}"status": "completed", "data": result{'}'}
             except asyncio.TimeoutError:
-                results[name] = {"status": "timeout"}
+                results[name] = {'{'{'}'}"status": "timeout"{'}'}
             except Exception as e:
-                results[name] = {"status": "error", "error": str(e)}
+                results[name] = {'{'{'}'}"status": "error", "error": str(e){'}'}
 
         # 4. Synthesize results from all specialists
         return await self.synthesize(topic, results)
@@ -59,9 +60,10 @@ class OrchestratorAgent:
         """Send a task to an agent and wait for completion."""
         response = await a2a_client.send_task(
             agent_url=agent_card["url"],
-            message={"role": "user", "parts": [{"type": "text", "text": message}]}
+            message={'{'{'}'}"role": "user", "parts": [{'{'{'}'}"type": "text", "text": message{'}'}]{'}'}
         )
         # Poll or stream until complete
-        return await a2a_client.wait_for_completion(response["id"])`}/>
+        return await a2a_client.wait_for_completion(response["id"])`}
+</CodeBlock>
 
 <Quiz question="In a fan-out pattern, Agent A delegates to Agents B, C, and D in parallel. Agent C fails. What should Agent A do?" options={["Fail the entire task","Return results from B and D only, noting C's failure","Retry C indefinitely","Wait for C to recover"]} correctIndex={1} explanation="Graceful degradation is key. The orchestrator should collect successful results from B and D, note that C failed, and present a partial but useful result. The requester can decide whether to retry." />

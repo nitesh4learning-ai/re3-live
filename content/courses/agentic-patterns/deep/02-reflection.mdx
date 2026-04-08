@@ -5,7 +5,8 @@ icon: "🪞"
 
 ## Reflection Pattern
 
-<CodeBlock title="Self-Reflection Agent" code={`class ReflectionAgent:
+<CodeBlock>
+{`class ReflectionAgent:
     def __init__(self, model, max_iterations=3):
         self.model = model
         self.max_iterations = max_iterations
@@ -13,14 +14,14 @@ icon: "🪞"
     async def generate_with_reflection(self, task):
         # Step 1: Initial generation
         draft = await self.model.generate(
-            f"Complete this task: {task}"
+            f"Complete this task: {'{'{'}'}task{'}'}"
         )
 
         for i in range(self.max_iterations):
             # Step 2: Self-critique
             critique = await self.model.generate(
-                f"Critique this output for the task '{task}':\\n\\n"
-                f"{draft}\\n\\n"
+                f"Critique this output for the task '{'{'{'}'}task{'}'}':\\n\\n"
+                f"{'{'{'}'}draft{'}'}\\n\\n"
                 "List specific issues: accuracy, completeness, "
                 "clarity, edge cases missed."
             )
@@ -32,11 +33,12 @@ icon: "🪞"
             # Step 4: Revise based on critique
             draft = await self.model.generate(
                 f"Revise this output based on the critique:\\n\\n"
-                f"Original: {draft}\\n\\n"
-                f"Critique: {critique}\\n\\n"
+                f"Original: {'{'{'}'}draft{'}'}\\n\\n"
+                f"Critique: {'{'{'}'}critique{'}'}\\n\\n"
                 "Improved version:"
             )
 
-        return draft`}/>
+        return draft`}
+</CodeBlock>
 
 <Quiz question="What is the main risk of reflection loops?" options={["They always improve quality","They can over-optimize and lose the original intent","They are too slow","They require multiple models"]} correctIndex={1} explanation="Reflection loops can 'over-edit' -- the model keeps finding issues and revising until the output is technically correct but has lost its original clarity or intent. Set a max_iterations limit and check for convergence." />

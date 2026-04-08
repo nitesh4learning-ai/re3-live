@@ -17,23 +17,25 @@ icon: "🚀"
 
 </ExpandableSection>
 
-<CodeBlock title="Safety Monitoring Config" code={`monitoring_config = {
-    "metrics": {
-        "hallucination_rate": {"threshold": 0.05, "window": "1h"},
-        "toxicity_score": {"threshold": 0.1, "window": "15m"},
-        "refusal_rate": {"threshold": 0.3, "window": "1h"},
-        "user_reports": {"threshold": 5, "window": "1h"},
-    },
-    "alerts": {
+<CodeBlock>
+{`monitoring_config = {'{'{'}'}
+    "metrics": {'{'{'}'}
+        "hallucination_rate": {'{'{'}'}"threshold": 0.05, "window": "1h"{'}'},
+        "toxicity_score": {'{'{'}'}"threshold": 0.1, "window": "15m"{'}'},
+        "refusal_rate": {'{'{'}'}"threshold": 0.3, "window": "1h"{'}'},
+        "user_reports": {'{'{'}'}"threshold": 5, "window": "1h"{'}'},
+    {'}'},
+    "alerts": {'{'{'}'}
         "channel": "slack:#ai-safety",
         "escalation": "pagerduty:ai-oncall",
-        "auto_disable_threshold": {
+        "auto_disable_threshold": {'{'{'}'}
             "toxicity_score": 0.3,  # Auto-disable if toxicity > 30%
             "user_reports": 20,      # Auto-disable if > 20 reports/hour
-        }
-    },
-    "logging": {
+        {'}'}
+    {'}'},
+    "logging": {'{'{'}'}
         "sample_rate": 0.1,  # Log 10% of interactions
         "full_log_on_flag": True,  # Full log if any metric flagged
-    }
-}`} />
+    {'}'}
+{'}'}`}
+</CodeBlock>

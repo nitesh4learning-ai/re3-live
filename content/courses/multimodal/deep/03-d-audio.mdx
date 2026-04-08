@@ -11,7 +11,8 @@ icon: "\uD83C\uDF99\uFE0F"
     ['Music Generation','MusicLM, Suno, Udio','Background music, composition'],
     ['Speaker Diarization','PyAnnote, AssemblyAI','Who spoke when in meetings'],
   ]}/>
-  <CodeBlock label="Multi-Modal Document Processing" code={`async def process_multimodal_document(file_path):
+  <CodeBlock>
+{`async def process_multimodal_document(file_path):
     """Process documents combining vision, text, and table extraction"""
     pages = pdf_to_images(file_path)
     results = []
@@ -40,5 +41,6 @@ icon: "\uD83C\uDF99\uFE0F"
                 table_to_text(section["table"])
             )
 
-    return combined`}/>
+    return combined`}
+</CodeBlock>
   <Quiz question="For processing a 200-page PDF with mixed text, tables, and charts, what is the most cost-effective approach?" options={["Send every page as an image to GPT-4o","Use OCR for text pages, vision LLM only for pages with charts/tables","Use a custom ML model trained on your document type","Process everything with a cheap text extraction library"]} correctIndex={1} explanation="A hybrid approach is most cost-effective: standard OCR (nearly free) handles text-heavy pages, while expensive vision LLM calls are reserved for pages that contain charts, tables, or complex layouts that OCR can't handle. Page classification first, then appropriate processing."/>

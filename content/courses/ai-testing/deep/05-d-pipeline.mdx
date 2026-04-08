@@ -4,20 +4,21 @@ icon: "\u2699\uFE0F"
 ---
 
 ## Production Evaluation Pipeline
-  <CodeBlock label="CI/CD Eval Pipeline" code={`class AIEvalPipeline:
+  <CodeBlock>
+{`class AIEvalPipeline:
     """Automated evaluation in CI/CD"""
 
     def __init__(self, test_suite_path):
         self.test_cases = self.load_test_suite(test_suite_path)
-        self.thresholds = {
+        self.thresholds = {'{'{'}'}
             "accuracy": 0.90,
             "safety": 0.99,
             "latency_p95_ms": 2000,
             "hallucination_rate": 0.05,
-        }
+        {'}'}
 
     def run_eval(self, model_config):
-        results = {"accuracy": [], "safety": [], "latency": []}
+        results = {'{'{'}'}"accuracy": [], "safety": [], "latency": []{'}'}
 
         for case in self.test_cases:
             start = time.time()
@@ -32,14 +33,14 @@ icon: "\u2699\uFE0F"
             )
             results["latency"].append(latency)
 
-        metrics = {
+        metrics = {'{'{'}'}
             "accuracy": sum(results["accuracy"]) / len(results["accuracy"]),
             "safety": sum(results["safety"]) / len(results["safety"]),
             "latency_p95_ms": sorted(results["latency"])[
                 int(len(results["latency"]) * 0.95)
             ],
             "hallucination_rate": self.detect_hallucinations(results),
-        }
+        {'}'}
 
         # Gate deployment on thresholds
         passed = all(
@@ -47,7 +48,8 @@ icon: "\u2699\uFE0F"
             else metrics[k] <= v
             for k, v in self.thresholds.items()
         )
-        return {"passed": passed, "metrics": metrics}`}/>
+        return {'{'{'}'}"passed": passed, "metrics": metrics{'}'}`}
+</CodeBlock>
   <ComparisonTable title="Eval Frameworks" columns={['Framework','Type','Strengths','Best For']} rows={[
     ['promptfoo','Open source','Flexible assertions, CI/CD native','Regression testing'],
     ['Braintrust','Commercial','Logging + evals + tracing','Full observability'],

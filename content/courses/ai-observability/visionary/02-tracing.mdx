@@ -7,7 +7,8 @@ icon: "\uD83D\uDD0D"
 
 An AI <JargonTip term="tracing">trace</JargonTip> captures the complete journey of a request: from user input through retrieval, LLM calls, tool use, and final response. Each step is a **span** with timing, token counts, and metadata.
 
-  <CodeBlock language="json" label="Example Trace Span" code={`{
+  <CodeBlock>
+{`{'{'{'}'}
   "trace_id": "tr_abc123",
   "span_name": "llm_completion",
   "duration_ms": 2340,
@@ -18,7 +19,8 @@ An AI <JargonTip term="tracing">trace</JargonTip> captures the complete journey 
   "cost_usd": 0.0087,
   "status": "success",
   "parent_span": "rag_pipeline"
-}`}/>
+{'}'}`}
+</CodeBlock>
   <ExpandableSection title="Common tracing tools" icon="🔧">
 
 **LangSmith:** By LangChain. Traces chains, agents, and retrievers with a visual UI.

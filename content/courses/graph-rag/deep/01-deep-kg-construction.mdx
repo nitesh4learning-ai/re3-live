@@ -7,7 +7,8 @@ icon: "🏗️"
 
 Building production knowledge graphs from unstructured text requires LLM-powered entity extraction, relation extraction, and ontology design. The quality of your graph directly determines retrieval accuracy. Entity nodes are often enriched with <JargonTip term="embedding">embedding</JargonTip> vectors to enable semantic matching.
 
-  <CodeBlock language="python" label="LLM-Powered Entity & Relation Extraction" code={`from pydantic import BaseModel
+  <CodeBlock>
+{`from pydantic import BaseModel
 from typing import List, Optional
 
 class Entity(BaseModel):
@@ -35,14 +36,14 @@ async def extract_knowledge(text: str, llm) -> ExtractionResult:
                       Event, Location, Product
         For each relation, include the exact text evidence.
         Rate confidence 0.0-1.0 based on how explicit the relation is.""",
-        user=f"Extract knowledge triples from:\\n\\n{text}",
+        user=f"Extract knowledge triples from:\\n\\n{'{'{'}'}text{'}'}",
         response_format=ExtractionResult
     )
     return response
 
 # Process a document corpus
 async def build_graph_from_docs(documents: list, llm):
-    all_entities = {}
+    all_entities = {'{'{'}'}{'}'}
     all_relations = []
 
     for doc in documents:
@@ -64,30 +65,33 @@ async def build_graph_from_docs(documents: list, llm):
 
     # Deduplicate and resolve relations
     resolved = resolve_relations(all_relations, all_entities)
-    return all_entities, resolved`}/>
-  <CodeBlock language="python" label="Ontology Design for Domain Graphs" code={`# Define a domain ontology for a tech knowledge graph
-ONTOLOGY = {
-    "entity_types": {
-        "Technology": {"properties": ["version", "license", "category"]},
-        "Organization": {"properties": ["founded", "headquarters", "size"]},
-        "Person": {"properties": ["role", "expertise"]},
-        "Concept": {"properties": ["domain", "complexity"]},
-        "Paper": {"properties": ["year", "venue", "citations"]},
-    },
-    "relation_types": {
-        "DEVELOPED_BY": {"from": "Technology", "to": "Organization"},
-        "AUTHORED_BY": {"from": "Paper", "to": "Person"},
-        "DEPENDS_ON": {"from": "Technology", "to": "Technology"},
-        "IMPLEMENTS": {"from": "Technology", "to": "Concept"},
-        "COMPETES_WITH": {"from": "Technology", "to": "Technology"},
-        "WORKS_AT": {"from": "Person", "to": "Organization"},
-    },
+    return all_entities, resolved`}
+</CodeBlock>
+  <CodeBlock>
+{`# Define a domain ontology for a tech knowledge graph
+ONTOLOGY = {'{'{'}'}
+    "entity_types": {'{'{'}'}
+        "Technology": {'{'{'}'}"properties": ["version", "license", "category"]{'}'},
+        "Organization": {'{'{'}'}"properties": ["founded", "headquarters", "size"]{'}'},
+        "Person": {'{'{'}'}"properties": ["role", "expertise"]{'}'},
+        "Concept": {'{'{'}'}"properties": ["domain", "complexity"]{'}'},
+        "Paper": {'{'{'}'}"properties": ["year", "venue", "citations"]{'}'},
+    {'}'},
+    "relation_types": {'{'{'}'}
+        "DEVELOPED_BY": {'{'{'}'}"from": "Technology", "to": "Organization"{'}'},
+        "AUTHORED_BY": {'{'{'}'}"from": "Paper", "to": "Person"{'}'},
+        "DEPENDS_ON": {'{'{'}'}"from": "Technology", "to": "Technology"{'}'},
+        "IMPLEMENTS": {'{'{'}'}"from": "Technology", "to": "Concept"{'}'},
+        "COMPETES_WITH": {'{'{'}'}"from": "Technology", "to": "Technology"{'}'},
+        "WORKS_AT": {'{'{'}'}"from": "Person", "to": "Organization"{'}'},
+    {'}'},
     "constraints": [
         "Every entity must have a unique canonical name",
         "Relations must connect valid entity types per schema",
         "Confidence below 0.5 requires human review",
     ]
-}`}/>
+{'}'}`}
+</CodeBlock>
   <ArchitectureDecision scenario="You are building a knowledge graph for a legal research platform. Documents contain case citations, statutes, judges, courts, and legal concepts. How should you design entity extraction?" options={[
     {label:'Generic NER model (spaCy/BERT)',tradeoff:'Fast and cheap but misses domain-specific entities like case citations and statutory references.'},
     {label:'LLM extraction with domain-specific ontology',tradeoff:'More accurate for legal entities. Higher cost per document but better graph quality.'},

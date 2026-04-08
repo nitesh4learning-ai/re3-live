@@ -15,7 +15,8 @@ Cross-encoders are ~10x more accurate than bi-encoders but ~1000x slower (they c
 
 </ExpandableSection>
 
-<CodeBlock language="python" label="Reranking pipeline with Cohere" code={`import cohere
+<CodeBlock>
+{`import cohere
 from typing import List, Dict
 
 co = cohere.Client("your-api-key")
@@ -44,12 +45,12 @@ def retrieve_and_rerank(
     results = []
     for r in reranked.results:
         original = first_stage_results[r.index]
-        results.append({
+        results.append({'{'{'}'}
             "text": r.document.text,
             "rerank_score": r.relevance_score,
             "original_score": original.get("score"),
-            "metadata": original.get("metadata", {}),
-        })
+            "metadata": original.get("metadata", {'{'{'}'}{'}'}),
+        {'}'})
     return results
 
 # Maximal Marginal Relevance (MMR) for diversity
@@ -96,7 +97,8 @@ def mmr_rerank(
         selected.append(best_idx)
         remaining.remove(best_idx)
 
-    return [documents[i] for i in selected]`} />
+    return [documents[i] for i in selected]`}
+</CodeBlock>
 
 <ExpandableSection title="Metadata Pre-Filtering" icon="🔍">
 

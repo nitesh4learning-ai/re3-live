@@ -18,7 +18,8 @@ If nodes are the workers, edges are the manager deciding who works next. LangGra
 
 The routing function is a plain Python function. It receives the current state and returns a **string** — the name of the next node. Simple, testable, debuggable.
 
-<CodeBlock language="python" label="Routing Function — The Agent's Decision Brain" code={`from typing import Literal
+<CodeBlock>
+{`from typing import Literal
 
 def should_retry(state: ResearchState) -> Literal["summarize", "rewrite", "end"]:
     """
@@ -41,12 +42,13 @@ def should_retry(state: ResearchState) -> Literal["summarize", "rewrite", "end"]
 graph.add_conditional_edges(
     "grade",              # Source node
     should_retry,         # Routing function
-    {
+    {'{'{'}'}
         "summarize": "summarize",
         "rewrite": "rewrite",
         "end": END          # Map EVERY return value!
-    }
-)`}/>
+    {'}'}
+)`}
+</CodeBlock>
 
 <AnalogyBox emoji="🚦" title="Smart Traffic Light">
 A conditional edge is like a smart traffic light that reads sensors instead of following fixed timing. How many cars are waiting? Is an ambulance approaching? Based on this state, it decides which direction gets green. Your routing function reads agent state and decides which node executes next.
@@ -54,7 +56,8 @@ A conditional edge is like a smart traffic light that reads sensors instead of f
 
 ### Assembling the Complete Graph
 
-<CodeBlock language="python" label="Complete Graph Assembly — Research Agent" code={`from langgraph.graph import StateGraph, END, START
+<CodeBlock>
+{`from langgraph.graph import StateGraph, END, START
 
 # 1. Create graph with state schema
 graph = StateGraph(ResearchState)
@@ -74,46 +77,49 @@ graph.add_edge("summarize", END)       # Summary → done
 # 4. Conditional edge (the decision point)
 graph.add_conditional_edges(
     "grade", should_retry,
-    {"summarize": "summarize", "rewrite": "rewrite", "end": END}
+    {'{'{'}'}"summarize": "summarize", "rewrite": "rewrite", "end": END{'}'}
 )
 
 # 5. Compile & run
 app = graph.compile()
-result = app.invoke({
+result = app.invoke({'{'{'}'}
     "query": "Latest AI governance frameworks 2026",
     "original_query": "Latest AI governance frameworks 2026",
     "search_results": [], "quality_score": 0.0,
     "summary": "", "sources": [], "retry_count": 0,
     "max_retries": 3, "current_node": "", "error": None,
     "messages": []
-})
-print(result["summary"])`}/>
+{'}'})
+print(result["summary"])`}
+</CodeBlock>
 
 Notice `graph.add_edge("rewrite", "search")` — this is the **cycle**. After rewriting, we go back to search. This is impossible in a LangChain chain (DAGs have no cycles). This single capability is why LangGraph exists.
 
 ### Common Pitfall: The Missing Route Bug
 
-<CodeBlock language="python" label="🐛 Bug: Missing Route Mapping" code={`# THIS WILL CRASH at runtime:
+<CodeBlock>
+{`# THIS WILL CRASH at runtime:
 graph.add_conditional_edges(
     "grade", should_retry,
-    {
+    {'{'{'}'}
         "summarize": "summarize",
         "rewrite": "rewrite",
         # ❌ Missing "end" mapping!
         # When retry_count >= 3, should_retry returns "end"
         # but no mapping exists → KeyError at runtime
-    }
+    {'}'}
 )
 
 # ✅ FIX: Map EVERY possible return value
 graph.add_conditional_edges(
     "grade", should_retry,
-    {
+    {'{'{'}'}
         "summarize": "summarize",
         "rewrite": "rewrite",
         "end": END   # ← Always handle ALL routes!
-    }
-)`}/>
+    {'}'}
+)`}
+</CodeBlock>
 
 > **Production Rule**: Use Python's `Literal` type hint on routing functions. `def should_retry(...) -> Literal["summarize", "rewrite", "end"]` catches missing routes before runtime.
 

@@ -17,7 +17,8 @@ At McKesson, you wouldn't deploy a data pipeline without testing it against know
 
 ### Structured Output Patterns
 
-<CodeBlock language="python" label="JSON Mode with Claude" code={`from anthropic import Anthropic
+<CodeBlock>
+{`from anthropic import Anthropic
 
 client = Anthropic()
 
@@ -28,17 +29,18 @@ response = client.messages.create(
         "You analyze products and return structured data. "
         "Always respond with valid JSON only, no other text."
     ),
-    messages=[{
+    messages=[{'{'{'}'}
         "role": "user",
         "content": (
             "Analyze this product: Organic Baby Spinach 5oz\n\n"
             "Return JSON with: category, nutri_score (A-E), "
             "is_organic (boolean), safety_flags (array)"
         )
-    }]
+    {'}'}]
 )
 
 import json
 result = json.loads(response.content[0].text)
-# {"category": "Food", "nutri_score": "A", 
-#  "is_organic": true, "safety_flags": []}`}/>
+# {'{'{'}'}"category": "Food", "nutri_score": "A", 
+#  "is_organic": true, "safety_flags": []{'}'}`}
+</CodeBlock>

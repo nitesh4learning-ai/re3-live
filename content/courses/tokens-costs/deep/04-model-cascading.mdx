@@ -5,13 +5,14 @@ icon: "🔀"
 
 ## <JargonTip term="model cascading">Model Cascading</JargonTip> & Routing
 
-<CodeBlock title="Model Router" code={`class ModelRouter:
+<CodeBlock>
+{`class ModelRouter:
     def __init__(self):
         self.classifier = load_model("query-complexity-classifier")
-        self.models = {
-            "simple": {"name": "gpt-4o-mini", "max_tokens": 500},
-            "complex": {"name": "gpt-4o", "max_tokens": 1500},
-        }
+        self.models = {'{'{'}'}
+            "simple": {'{'{'}'}"name": "gpt-4o-mini", "max_tokens": 500{'}'},
+            "complex": {'{'{'}'}"name": "gpt-4o", "max_tokens": 1500{'}'},
+        {'}'}
 
     def route(self, query):
         """Route query to appropriate model based on complexity."""
@@ -39,7 +40,8 @@ icon: "🔀"
             if quality < 0.6:  # Re-route to powerful model
                 response = call_llm("gpt-4o", query, max_tokens=1500)
 
-        return response`}/>
+        return response`}
+</CodeBlock>
 
 <ExpandableSection title="Cascading Examples" icon={'\uD83D\uDD00'}>
   - Customer support: FAQ/status \u2192 mini, complaints/escalation \u2192 full

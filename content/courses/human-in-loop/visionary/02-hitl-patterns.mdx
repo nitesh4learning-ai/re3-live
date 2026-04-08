@@ -5,7 +5,8 @@ icon: "🔄"
 
 ## HITL Patterns
 
-<CodeBlock title="Confidence-Based Routing" code={`class HITLRouter:
+<CodeBlock>
+{`class HITLRouter:
     def __init__(self, auto_threshold=0.9, escalate_threshold=0.5):
         self.auto_threshold = auto_threshold
         self.escalate_threshold = escalate_threshold
@@ -16,19 +17,20 @@ icon: "🔄"
 
         if confidence >= self.auto_threshold:
             # High confidence: auto-respond
-            return {"action": "auto", "response": response.text}
+            return {'{'{'}'}"action": "auto", "response": response.text{'}'}
 
         elif confidence >= self.escalate_threshold:
             # Medium confidence: suggest to human, let them approve/edit
-            return {"action": "suggest", "draft": response.text,
+            return {'{'{'}'}"action": "suggest", "draft": response.text,
                     "confidence": confidence,
-                    "note": "Please review before sending"}
+                    "note": "Please review before sending"{'}'}
 
         else:
             # Low confidence: full escalation to human
-            return {"action": "escalate",
+            return {'{'{'}'}"action": "escalate",
                     "context": query,
-                    "note": "AI is not confident enough to respond"}`}/>
+                    "note": "AI is not confident enough to respond"{'}'}`}
+</CodeBlock>
 
 <ComparisonTable title="HITL Pattern Comparison" columns={['Pattern','Best For','Automation Level','User Experience']} rows={[
   ['Approval Gate','All actions reviewed','Low (0%)','Safe but slow'],

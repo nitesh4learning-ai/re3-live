@@ -11,7 +11,8 @@ icon: "\uD83D\uDD2A"
     ['Agentic','LLM decides chunk boundaries','Best quality boundaries','Expensive, slow'],
     ['Parent-child','Small chunks indexed, large chunks retrieved','Best of both: precise search + full context','More complex indexing'],
   ]}/>
-  <CodeBlock label="Semantic Chunking" code={`from sentence_transformers import SentenceTransformer
+  <CodeBlock>
+{`from sentence_transformers import SentenceTransformer
 import numpy as np
 
 def semantic_chunk(text, threshold=0.75):
@@ -31,5 +32,6 @@ def semantic_chunk(text, threshold=0.75):
         else:
             current_chunk.append(sentences[i])
     chunks.append(". ".join(current_chunk))
-    return chunks`}/>
+    return chunks`}
+</CodeBlock>
   <Quiz question="When should you use parent-child chunking instead of simple fixed-size chunking?" options={["Always -- it's universally better","When you need precise search matching but need surrounding context for the LLM to generate good answers","Only for very large documents","When you want to save storage space"]} correctIndex={1} explanation="Parent-child chunking indexes small chunks (for precise retrieval) but returns their parent chunk (for context). This solves the core tension: small chunks retrieve better, but large chunks generate better answers."/>

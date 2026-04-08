@@ -17,7 +17,8 @@ The key insight is **community detection**: using the Leiden algorithm to cluste
     ['Thematic Queries','Poor -- fragments across chunks','Excellent -- community summaries capture themes'],
     ['Cost','Low (embed once)','High (multiple LLM calls per chunk for extraction)'],
   ]}/>
-  <CodeBlock language="python" label="Microsoft GraphRAG Community Detection Pipeline" code={`import networkx as nx
+  <CodeBlock>
+{`import networkx as nx
 from graspologic.partition import hierarchical_leiden
 
 async def build_graphrag_index(docs, llm):
@@ -47,7 +48,7 @@ async def build_graphrag_index(docs, llm):
     communities = hierarchical_leiden(G, max_cluster_size=10)
 
     # Generate community summaries at each level
-    summaries = {}
+    summaries = {'{'{'}'}{'}'}
     for level in range(communities.num_levels()):
         for cid, members in communities.get_level(level).items():
             descs = [G.nodes[m]["desc"] for m in members if m in G.nodes]
@@ -59,18 +60,19 @@ async def build_graphrag_index(docs, llm):
 
 async def global_search(query, summaries, llm, level=0):
     """Map-reduce over community summaries for thematic queries."""
-    level_sums = {k: v for k, v in summaries.items() if k[0] == level}
+    level_sums = {'{'{'}'}k: v for k, v in summaries.items() if k[0] == level{'}'}
     parts = []
     for (l, c), s in level_sums.items():
         a = await llm.invoke(
             system="Provide relevant info or N/A.",
-            user=f"Summary: \\$\\{s\\}\\nQ: \\$\\{query\\}")
+            user=f"Summary: \\$\\{'{'{'}'}s\\{'}'}\\nQ: \\$\\{'{'{'}'}query\\{'}'}")
         if a.content.strip() != "N/A":
             parts.append(a.content)
     final = await llm.invoke(
         system="Synthesize into a comprehensive answer.",
-        user=f"Q: \\$\\{query\\}\\n" + "\\n---\\n".join(parts))
-    return final.content`}/>
+        user=f"Q: \\$\\{'{'{'}'}query\\{'}'}\\n" + "\\n---\\n".join(parts))
+    return final.content`}
+</CodeBlock>
   <Quiz question="What enables Microsoft GraphRAG to answer broad thematic questions?" options={["Larger embeddings","Hierarchical community detection with summaries at multiple levels","Faster vector search","More chunks"]} correctIndex={1} explanation="The Leiden algorithm clusters entities into communities, then summaries at each level capture themes. Global search via map-reduce enables broad questions traditional RAG cannot handle."/>
   <ArchitectureDecision scenario="Choose between standard Graph RAG and Microsoft GraphRAG for a legal discovery platform needing both specific factual and broad thematic queries." options={[
     {label:'Standard Graph RAG only',tradeoff:'Good for entity queries but not broad themes.'},

@@ -7,7 +7,8 @@ icon: "🚀"
 
 Running MCP servers in production requires monitoring, versioning, multi-server orchestration, and deployment strategies. Here are the patterns used by teams running MCP at scale.
 
-<CodeBlock language="python" label="Structured Logging and Monitoring" code={`import structlog, time
+<CodeBlock>
+{`import structlog, time
 
 logger = structlog.get_logger("mcp-server")
 
@@ -27,12 +28,12 @@ class ToolMetrics:
 
     def get_stats(self, tool_name: str) -> dict:
         lats = self.latencies.get(tool_name, [])
-        return {
+        return {'{'{'}'}
             "calls": self.call_counts[tool_name],
             "errors": self.error_counts[tool_name],
             "p50_ms": sorted(lats)[len(lats)//2] * 1000 if lats else 0,
             "p99_ms": sorted(lats)[int(len(lats)*0.99)] * 1000 if lats else 0,
-        }
+        {'}'}
 
 metrics = ToolMetrics()
 
@@ -49,7 +50,8 @@ def instrumented_tool(func):
             metrics.record(func.__name__, time.time() - start, error=True)
             logger.error("tool_error", tool=func.__name__, error=str(e))
             raise
-    return wrapper`}/>
+    return wrapper`}
+</CodeBlock>
 
 <ComparisonTable title="MCP Deployment Patterns" columns={['Pattern','When to Use','Trade-off']} rows={[
   ['Sidecar (per-user process)','Desktop apps, personal tools','Simple isolation but high resource use per user'],
@@ -58,21 +60,23 @@ def instrumented_tool(func):
   ['Gateway (proxy to multiple servers)','Many servers, unified management','Central control but single point of failure'],
 ]}/>
 
-<CodeBlock language="json" label="MCP Server Versioning (package.json)" code={`{
+<CodeBlock>
+{`{'{'{'}'}
   "name": "@company/mcp-knowledge-server",
   "version": "2.1.0",
-  "mcp": {
+  "mcp": {'{'{'}'}
     "protocolVersion": "2025-03-26",
     "capabilities": ["tools", "resources", "prompts"],
     "minClientVersion": "0.5.0"
-  },
-  "scripts": {
+  {'}'},
+  "scripts": {'{'{'}'}
     "start": "node dist/server.js",
     "build": "tsc",
     "test": "vitest run",
     "test:mcp": "mcp-inspector test"
-  }
-}`}/>
+  {'}'}
+{'}'}`}
+</CodeBlock>
 
 <Quiz question="Your MCP server has a tool that takes 20 seconds on average. You deploy it as a serverless function with a 10-second timeout. What happens?" options={["The tool works fine, serverless handles long tasks","The tool times out on most calls, returning errors to the LLM","The serverless platform automatically extends the timeout","The tool runs in the background and results are returned later"]} correctIndex={1} explanation="Serverless functions have hard timeout limits. If your tool regularly exceeds the timeout, most calls will fail. Either increase the timeout, optimize the tool, or use a different deployment pattern like a shared service." />
 

@@ -19,7 +19,8 @@ This captures token-level semantic matching that single-vector models miss. For 
 
 </ExpandableSection>
 
-<CodeBlock language="python" label="ColBERT-style retrieval with RAGatouille" code={`# RAGatouille provides an easy-to-use ColBERT interface
+<CodeBlock>
+{`# RAGatouille provides an easy-to-use ColBERT interface
 from ragatouille import RAGPretrainedModel
 
 # Load a pre-trained ColBERT model
@@ -48,11 +49,12 @@ results = rag.search(
 )
 
 for r in results:
-    print(f"Score: {r['score']:.4f} | {r['content'][:80]}...")
+    print(f"Score: {'{'{'}'}r['score']:.4f{'}'} | {'{'{'}'}r['content'][:80]{'}'}...")
 
 # ColBERT finds nuanced matches that bi-encoders might miss:
 # "garbage collection" matches "memory cleanup" at the token level
-# "Python" disambiguates from JavaScript/Rust results`}/>
+# "Python" disambiguates from JavaScript/Rust results`}
+</CodeBlock>
 
 <ExpandableSection title="When to Use Multi-Vector vs Single-Vector" icon="⚖️">
 

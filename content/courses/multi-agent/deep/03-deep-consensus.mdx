@@ -14,7 +14,8 @@ When multiple agents analyze the same problem, you need a strategy to combine th
     ['Critic Loop','Agent generates, critic reviews, iterate','High quality output','Latency from iterations'],
     ['Mixture of Agents','Proposers generate, aggregator merges','Diverse perspectives','Complex orchestration'],
   ]}/>
-  <CodeBlock language="python" label="Weighted Consensus with Confidence Scoring" code={`from dataclasses import dataclass
+  <CodeBlock>
+{`from dataclasses import dataclass
 from typing import List
 import numpy as np
 
@@ -29,14 +30,14 @@ def weighted_consensus(votes: List[AgentVote],
                        agent_weights: dict[str, float]) -> dict:
     """Combine agent votes using confidence-weighted scoring."""
     # Group votes by answer
-    answer_scores = {}
+    answer_scores = {'{'{'}'}{'}'}
     for vote in votes:
         base_weight = agent_weights.get(vote.agent_id, 1.0)
         score = base_weight * vote.confidence
         if vote.answer not in answer_scores:
-            answer_scores[vote.answer] = {
+            answer_scores[vote.answer] = {'{'{'}'}
                 "total_score": 0, "voters": [], "reasonings": []
-            }
+            {'}'}
         answer_scores[vote.answer]["total_score"] += score
         answer_scores[vote.answer]["voters"].append(vote.agent_id)
         answer_scores[vote.answer]["reasonings"].append(vote.reasoning)
@@ -45,25 +46,27 @@ def weighted_consensus(votes: List[AgentVote],
     winner = max(answer_scores.items(), key=lambda x: x[1]["total_score"])
     total = sum(v["total_score"] for v in answer_scores.values())
 
-    return {
+    return {'{'{'}'}
         "answer": winner[0],
         "confidence": winner[1]["total_score"] / total,
         "agreement_ratio": len(winner[1]["voters"]) / len(votes),
         "dissenting_views": [
-            {"answer": k, "score": v["total_score"]}
+            {'{'{'}'}"answer": k, "score": v["total_score"]{'}'}
             for k, v in answer_scores.items() if k != winner[0]
         ]
-    }
+    {'}'}
 
 # Usage with calibrated weights
-agent_weights = {
+agent_weights = {'{'{'}'}
     "agent_strategist": 1.2,   # historically accurate
     "agent_ethicist": 1.0,
     "agent_builder": 0.9,
     "agent_wildcard": 0.7,     # creative but less reliable
-}
-result = weighted_consensus(votes, agent_weights)`}/>
-  <CodeBlock language="python" label="Critic Loop Pattern" code={`async def critic_loop(task: str, max_iterations: int = 3) -> str:
+{'}'}
+result = weighted_consensus(votes, agent_weights)`}
+</CodeBlock>
+  <CodeBlock>
+{`async def critic_loop(task: str, max_iterations: int = 3) -> str:
     """Generate-critique-refine loop until quality threshold met."""
     draft = await generator.invoke(task)
 
@@ -71,29 +74,30 @@ result = weighted_consensus(votes, agent_weights)`}/>
         critique = await critic.invoke(f"""
         Evaluate this draft on a 1-10 scale for:
         - Accuracy, Completeness, Clarity
-        Task: {task}
-        Draft: {draft}
+        Task: {'{'{'}'}task{'}'}
+        Draft: {'{'{'}'}draft{'}'}
 
-        Return JSON: {{"scores": {{}}, "issues": [], "suggestion": ""}}
+        Return JSON: {'{'{'}'}{'{'{'}'}"scores": {'{'{'}'}{'{'{'}'}{'}'}{'}'}, "issues": [], "suggestion": ""{'}'}{'}'}
         """)
 
         scores = parse_json(critique)
         avg_score = sum(scores["scores"].values()) / len(scores["scores"])
 
         if avg_score >= 8.0:
-            return {"output": draft, "iterations": i + 1,
-                    "final_score": avg_score}
+            return {'{'{'}'}"output": draft, "iterations": i + 1,
+                    "final_score": avg_score{'}'}
 
         # Refine based on critique
         draft = await generator.invoke(f"""
         Improve this draft based on feedback:
-        Draft: {draft}
-        Issues: {scores["issues"]}
-        Suggestion: {scores["suggestion"]}
+        Draft: {'{'{'}'}draft{'}'}
+        Issues: {'{'{'}'}scores["issues"]{'}'}
+        Suggestion: {'{'{'}'}scores["suggestion"]{'}'}
         """)
 
-    return {"output": draft, "iterations": max_iterations,
-            "final_score": avg_score}`}/>
+    return {'{'{'}'}"output": draft, "iterations": max_iterations,
+            "final_score": avg_score{'}'}`}
+</CodeBlock>
   <ArchitectureDecision scenario="You are building a medical diagnosis support system where 5 specialist AI agents analyze patient symptoms. Incorrect diagnoses could be dangerous. Which consensus mechanism should you use?" options={[
     {label:'Simple majority voting',tradeoff:'Fast and simple, but treats all specialists equally regardless of domain relevance.'},
     {label:'Weighted consensus with confidence thresholds',tradeoff:'Weights specialists by domain relevance and requires minimum confidence. Adds complexity but improves safety.'},

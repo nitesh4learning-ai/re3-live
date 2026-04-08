@@ -12,7 +12,8 @@ AI systems degrade silently. Unlike traditional software that crashes visibly, L
     ['Concept Drift','Meaning of terms changes','Track eval scores on rolling windows','Legal terminology changes after new regulations'],
     ['Prompt Drift','LLM behavior changes across versions','A/B test across model versions','Provider updates model, changing response style'],
   ]}/>
-  <CodeBlock language="python" label="Drift Detection with Alerting" code={`import numpy as np
+  <CodeBlock>
+{`import numpy as np
 from scipy.stats import ks_2samp
 from datetime import datetime, timedelta
 
@@ -33,11 +34,11 @@ class DriftDetector:
 
         drift_ratio = drift_dims / self.baseline.shape[1]
         if drift_ratio > 0.1:  # >10% of dimensions drifted
-            self.alerts.append({
+            self.alerts.append({'{'{'}'}
                 "type": "distribution_drift",
                 "severity": "high" if drift_ratio > 0.3 else "medium",
                 "drift_ratio": drift_ratio,
-                "timestamp": datetime.utcnow().isoformat()})
+                "timestamp": datetime.utcnow().isoformat(){'}'})
             return True
         return False
 
@@ -49,11 +50,12 @@ class DriftDetector:
         recent_mean = np.mean(recent_scores[len(recent_scores)//2:])
         degradation = (baseline_mean - recent_mean) / baseline_mean
         if degradation > 0.1:  # >10% quality drop
-            self.alerts.append({
+            self.alerts.append({'{'{'}'}
                 "type": "quality_drift",
                 "severity": "high" if degradation > 0.2 else "medium",
                 "degradation_pct": degradation * 100,
-                "timestamp": datetime.utcnow().isoformat()})
+                "timestamp": datetime.utcnow().isoformat(){'}'})
             return True
-        return False`}/>
+        return False`}
+</CodeBlock>
   <Quiz question="Faithfulness scores dropped from 0.92 to 0.78 over two weeks but retrieval precision stayed at 0.85. Most likely cause?" options={["Distribution drift","The LLM provider updated their model (prompt drift)","Database crash","Harder questions"]} correctIndex={1} explanation="Stable retrieval quality but dropping faithfulness means the issue is downstream. The LLM provider likely updated their model, changing how it uses context. The same documents are being used less faithfully by the new model version."/>

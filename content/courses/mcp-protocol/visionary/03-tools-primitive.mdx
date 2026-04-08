@@ -7,24 +7,26 @@ icon: "🔧"
 
 Tools are the most commonly used MCP primitive. A tool is a **function the AI can call** -- this is called <JargonTip term="function calling">function calling</JargonTip> -- like searching a database, sending an email, or creating a file. Tools have a name, description, and an input <JargonTip term="tool schema">schema</JargonTip> that defines what parameters they accept.
 
-<CodeBlock language="json" label="MCP Tool Definition" code={`{
+<CodeBlock>
+{`{'{'{'}'}
   "name": "search_documents",
   "description": "Search internal documents by query",
-  "inputSchema": {
+  "inputSchema": {'{'{'}'}
     "type": "object",
-    "properties": {
-      "query": {
+    "properties": {'{'{'}'}
+      "query": {'{'{'}'}
         "type": "string",
         "description": "Search query text"
-      },
-      "limit": {
+      {'}'},
+      "limit": {'{'{'}'}
         "type": "number",
         "description": "Max results to return"
-      }
-    },
+      {'}'}
+    {'}'},
     "required": ["query"]
-  }
-}`}/>
+  {'}'}
+{'}'}`}
+</CodeBlock>
 
 <ToolDefinitionBuilder/>
 

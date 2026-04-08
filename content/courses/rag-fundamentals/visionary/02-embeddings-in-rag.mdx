@@ -9,7 +9,8 @@ RAG uses <JargonTip term="embedding">embeddings</JargonTip> to find relevant doc
 
 This is called **semantic search** -- finding documents by meaning, not just keywords. "How do I fix a flat tire?" will match a document about "tire puncture repair" even though the words are different.
 
-<CodeBlock language="text" label="Semantic vs Keyword Search" code={`QUERY: "How to fix a flat tire?"
+<CodeBlock>
+{`QUERY: "How to fix a flat tire?"
 
 KEYWORD SEARCH finds: Documents containing "fix", "flat", "tire"
   ✗ Misses: "Puncture repair guide" (no matching keywords!)
@@ -17,7 +18,8 @@ KEYWORD SEARCH finds: Documents containing "fix", "flat", "tire"
 SEMANTIC SEARCH finds: Documents with similar MEANING
   ✓ "Puncture repair guide" (similar concept)
   ✓ "Changing a tire step-by-step" (related topic)
-  ✓ "Roadside emergency tire fix" (synonymous intent)`} />
+  ✓ "Roadside emergency tire fix" (synonymous intent)`}
+</CodeBlock>
 
 <Quiz question="Why is semantic search better than keyword search for RAG?" options={["It's faster","It finds documents by meaning, not just matching words","It uses less storage","It doesn't need embeddings"]} correctIndex={1} explanation="Semantic search understands meaning, so 'fix a flat tire' matches 'puncture repair guide' even without shared keywords. This dramatically improves retrieval quality." />
 

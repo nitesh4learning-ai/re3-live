@@ -15,7 +15,8 @@ icon: "\uD83D\uDD04"
 
 </ExpandableSection>
 
-<CodeBlock language="yaml" label="AI Integration Assessment" code={`workflow_assessment:
+<CodeBlock>
+{`workflow_assessment:
   current_process: "Customer support ticket routing"
   current_state:
     volume: "5,000 tickets/day"
@@ -37,6 +38,7 @@ icon: "\uD83D\uDD04"
     level_3_automate:
       action: "AI routes + resolves FAQ tickets autonomously"
       expected_improvement: "40% fully automated resolution"
-      risk: "High - needs quality monitoring"`}/>
+      risk: "High - needs quality monitoring"`}
+</CodeBlock>
 
 <Quiz question="When introducing AI into an existing workflow, what should you do first?" options={["Automate the entire workflow end-to-end","Start with Level 1 (assist) and measure impact before escalating","Skip to Level 3 for maximum ROI","Replace the existing workflow entirely"]} correctIndex={1} explanation="Starting with Level 1 (assist) lets you validate AI quality, build organizational trust, and gather real-world performance data before escalating to augmentation or automation. Jumping straight to full automation risks costly failures."/>

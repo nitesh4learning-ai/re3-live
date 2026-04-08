@@ -22,7 +22,8 @@ rows={[
 ['Domain Model / Ontology', 'Formal definition of entity types and relationships', 'Graph ontology: entity types, relation types, constraints', 'Schema drift: FOUNDED_BY vs CREATED_BY vs ESTABLISHED_BY'],
 ]}
 />
-<CodeBlock language="python" label="MDM-Style Entity Resolution Pipeline" code={`from dataclasses import dataclass
+<CodeBlock>
+{`from dataclasses import dataclass
 from typing import List, Optional
 import hashlib
 
@@ -43,7 +44,7 @@ class GoldenRecord:
 
     # MDM survivorship: which source wins per attribute?
     # Priority: Wikipedia > Authoritative DB > LLM extraction > NER
-    attribute_sources: dict     # {attr_name: {value, source, confidence}}
+    attribute_sources: dict     # {'{'{'}'}attr_name: {'{'{'}'}value, source, confidence{'}'}{'}'}
 
 class EntityResolutionEngine:
     """
@@ -87,8 +88,8 @@ class EntityResolutionEngine:
         # Create golden records via survivorship
         golden_records = [self._survive(cluster) for cluster in clusters]
 
-        print(f"Resolution: {len(normalized)} raw -> {len(golden_records)} golden records")
-        print(f"Auto-merged: {len(auto_merge)} pairs | Review queue: {len(review_queue)}")
+        print(f"Resolution: {'{'{'}'}len(normalized){'}'} raw -> {'{'{'}'}len(golden_records){'}'} golden records")
+        print(f"Auto-merged: {'{'{'}'}len(auto_merge){'}'} pairs | Review queue: {'{'{'}'}len(review_queue){'}'}")
 
         return golden_records, review_queue
 
@@ -124,38 +125,41 @@ class EntityResolutionEngine:
         )
 
         return GoldenRecord(
-            canonical_id=f"ent_{hashlib.md5(best['canonical'].encode()).hexdigest()[:12]}",
+            canonical_id=f"ent_{'{'{'}'}hashlib.md5(best['canonical'].encode()).hexdigest()[:12]{'}'}",
             canonical_name=best['canonical'],
             entity_type=best['type'],
-            aliases=list({e.get('name', '') for e in cluster}),
-            attributes=best.get('attributes', {}),
-            source_documents=list({doc for e in cluster for doc in e.get('sources', [])}),
+            aliases=list({'{'{'}'}e.get('name', '') for e in cluster{'}'}),
+            attributes=best.get('attributes', {'{'{'}'}{'}'}),
+            source_documents=list({'{'{'}'}doc for e in cluster for doc in e.get('sources', []){'}'}),
             confidence=max(e.get('confidence', 0.5) for e in cluster),
             created_at=datetime.utcnow().isoformat(),
             last_updated=datetime.utcnow().isoformat(),
-            attribute_sources={}
-        )`} />
+            attribute_sources={'{'{'}'}{'}'}
+        )`}
+</CodeBlock>
 <ExpandableSection title="Data Lineage for AI Explainability" icon="\uD83D\uDD0D">
 
 One of the most critical MDM practices for AI is **data lineage**: tracing every fact in the graph back to its source document, extraction method, and confidence score. This enables explainability ("Why did the system say X?") and quality control ("This relation came from a low-confidence LLM extraction — flag for review").
 
-<CodeBlock language="cypher" label="Querying Entity Lineage in Neo4j" code={`// For any entity, find all source documents and their confidence
-MATCH (e:Entity {name: "Sam Altman"})
+<CodeBlock>
+{`// For any entity, find all source documents and their confidence
+MATCH (e:Entity {'{'{'}'}name: "Sam Altman"{'}'})
 OPTIONAL MATCH (e)-[:EXTRACTED_FROM]->(doc:Document)
 RETURN e.name,
        e.confidence,
-       collect({
+       collect({'{'{'}'}
          doc_id: doc.id,
          extraction_method: doc.extraction_method,
          extracted_at: doc.extracted_at
-       }) as lineage
+       {'}'}) as lineage
 
 // Find low-confidence relations that need human review
 MATCH (a:Entity)-[r]->(b:Entity)
 WHERE r.confidence < 0.6
 RETURN a.name, type(r), b.name, r.confidence, r.source_doc
 ORDER BY r.confidence ASC
-LIMIT 50`} />
+LIMIT 50`}
+</CodeBlock>
 </ExpandableSection>
 <SeeItInRe3
 text="Re3 articles have relationships — bridges, blind spots, and thematic streams. GraphRAG could connect debate insights across articles through entity relationships rather than just vector similarity. The MDM pattern applies: each debater agent is an entity, each argument is a relation, and The Loom is the community summary — a golden synthesis of the debate graph."

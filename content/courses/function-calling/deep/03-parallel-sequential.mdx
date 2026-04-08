@@ -19,7 +19,8 @@ Some tool calls depend on results of previous calls. For example: search for a u
 
 </ExpandableSection>
 
-<CodeBlock language="javascript" label="Parallel Tool Execution Engine" code={`async function executeToolCalls(toolCalls, registry) {
+<CodeBlock>
+{`async function executeToolCalls(toolCalls, registry) {'{'{'}'}
   // Check for dependencies between calls
   const independent = toolCalls.every(
     (call, i) => !toolCalls.slice(0, i).some(
@@ -27,46 +28,49 @@ Some tool calls depend on results of previous calls. For example: search for a u
     )
   );
 
-  if (independent) {
+  if (independent) {'{'{'}'}
     // Execute all in parallel
     return await Promise.all(
-      toolCalls.map(async (call) => {
+      toolCalls.map(async (call) => {'{'{'}'}
         const tool = registry[call.name];
-        if (!tool) return { id: call.id, error: "Unknown tool" };
-        try {
-          return { id: call.id, result: await tool.handler(call.args) };
-        } catch (err) {
-          return { id: call.id, error: err.message };
-        }
-      })
+        if (!tool) return {'{'{'}'} id: call.id, error: "Unknown tool" {'}'};
+        try {'{'{'}'}
+          return {'{'{'}'} id: call.id, result: await tool.handler(call.args) {'}'};
+        {'}'} catch (err) {'{'{'}'}
+          return {'{'{'}'} id: call.id, error: err.message {'}'};
+        {'}'}
+      {'}'})
     );
-  }
+  {'}'}
 
   // Sequential for dependent calls
   const results = [];
-  for (const call of toolCalls) {
-    try {
-      results.push({ id: call.id, result: await registry[call.name].handler(call.args) });
-    } catch (err) {
-      results.push({ id: call.id, error: err.message });
-    }
-  }
+  for (const call of toolCalls) {'{'{'}'}
+    try {'{'{'}'}
+      results.push({'{'{'}'} id: call.id, result: await registry[call.name].handler(call.args) {'}'});
+    {'}'} catch (err) {'{'{'}'}
+      results.push({'{'{'}'} id: call.id, error: err.message {'}'});
+    {'}'}
+  {'}'}
   return results;
-}`}/>
+{'}'}`}
+</CodeBlock>
 
-<CodeBlock language="javascript" label="Tool-Use Loop Pattern" code={`async function agentLoop(messages, tools, maxIter = 10) {
-  for (let i = 0; i < maxIter; i++) {
+<CodeBlock>
+{`async function agentLoop(messages, tools, maxIter = 10) {'{'{'}'}
+  for (let i = 0; i < maxIter; i++) {'{'{'}'}
     const response = await callLLM(messages, tools);
     const calls = extractToolCalls(response);
     if (calls.length === 0) return response;
 
     const results = await executeToolCalls(calls, tools);
-    messages.push({ role: "assistant", content: response });
-    for (const r of results) {
-      messages.push({ role: "tool", tool_call_id: r.id, content: JSON.stringify(r.result || r.error) });
-    }
-  }
+    messages.push({'{'{'}'} role: "assistant", content: response {'}'});
+    for (const r of results) {'{'{'}'}
+      messages.push({'{'{'}'} role: "tool", tool_call_id: r.id, content: JSON.stringify(r.result || r.error) {'}'});
+    {'}'}
+  {'}'}
   throw new Error("Max iterations reached");
-}`}/>
+{'}'}`}
+</CodeBlock>
 
 <Quiz question="When should you execute tool calls in parallel?" options={["Always","Only when calls are independent of each other","Never","Only with exactly 2 calls"]} correctIndex={1} explanation="Parallel execution is safe when tool calls are independent -- no call depends on the result of another." />

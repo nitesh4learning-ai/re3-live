@@ -7,7 +7,8 @@ icon: "🛡️"
 
 LLM providers experience outages and degraded performance. A production gateway needs **<JargonTip term="circuit breaker">circuit breakers</JargonTip>** to detect unhealthy providers, **automatic failover** to alternatives, and **graceful degradation** when all providers struggle.
 
-  <CodeBlock language="python" label="Circuit Breaker Pattern" code={`from enum import Enum
+  <CodeBlock>
+{`from enum import Enum
 from datetime import datetime, timedelta
 
 class CircuitState(Enum):
@@ -56,7 +57,7 @@ class CircuitBreaker:
 class FailoverGateway:
     def __init__(self, providers):
         self.providers = providers
-        self.breakers = {p.name: CircuitBreaker() for p in providers}
+        self.breakers = {'{'{'}'}p.name: CircuitBreaker() for p in providers{'}'}
 
     async def request(self, payload):
         errors = []
@@ -70,8 +71,9 @@ class FailoverGateway:
                 return response
             except Exception as e:
                 breaker.record_failure()
-                errors.append({"provider": provider.name, "error": str(e)})
-        return {"error": "All providers unavailable",
+                errors.append({'{'{'}'}"provider": provider.name, "error": str(e){'}'})
+        return {'{'{'}'}"error": "All providers unavailable",
                 "fallback": "Please try again shortly.",
-                "provider_errors": errors}`}/>
+                "provider_errors": errors{'}'}`}
+</CodeBlock>
   <Quiz question="A circuit breaker is in HALF_OPEN state. What does this mean?" options={["Partially broken","Testing whether the failed provider has recovered by allowing limited test requests","Half of requests go through","Provider at 50% capacity"]} correctIndex={1} explanation="HALF_OPEN is the recovery testing state. After the recovery timeout, the circuit allows limited test requests. If they succeed, it returns to CLOSED (normal). If they fail, it goes back to OPEN."/>

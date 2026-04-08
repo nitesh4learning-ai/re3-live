@@ -8,7 +8,8 @@ icon: "\uD83D\uDD0D"
 Once your AI system is live, offline evals are no longer enough. You need **production <JargonTip term="observability">observability</JargonTip>**: <JargonTip term="tracing">tracing</JargonTip> every LLM call, logging prompts and completions, <JargonTip term="drift detection">detecting quality drift</JargonTip>, and alerting before users notice problems.
 
   <AnalogyBox emoji="🏥" title="Think of it like a hospital monitoring system">A patient's vitals are continuously tracked: heart rate, blood pressure, oxygen levels. Alarms fire immediately if something crosses a threshold. AI observability does the same for your system -- continuously tracking quality, latency, and cost, with alerts for anomalies.</AnalogyBox>
-  <CodeBlock language="python" label="Span-Based LLM Tracing" code={`import time
+  <CodeBlock>
+{`import time
 import uuid
 from contextlib import contextmanager
 from dataclasses import dataclass, field
@@ -36,7 +37,7 @@ class LLMTracer:
 
     def __init__(self, exporter):
         self.exporter = exporter  # Send to Langfuse, Datadog, etc.
-        self.active_spans: dict = {}
+        self.active_spans: dict = {'{'{'}'}{'}'}
 
     @contextmanager
     def span(self, name: str, parent_id: str = None, **attrs):
@@ -51,7 +52,7 @@ class LLMTracer:
         try:
             yield span
         except Exception as e:
-            span.events.append({"error": str(e), "time": time.time()})
+            span.events.append({'{'{'}'}"error": str(e), "time": time.time(){'}'})
             raise
         finally:
             span.end_time = time.time()
@@ -77,7 +78,8 @@ async def rag_pipeline(query: str):
         with tracer.span("eval", parent_id=root.span_id) as ev:
             score = await evaluate_response(query, response, docs)
             ev.attributes["quality_score"] = score
-    return response`}/>
+    return response`}
+</CodeBlock>
   <ExpandableSection title="What to Log (and What NOT to Log)" icon="📝" defaultOpen={true}>
 
 **Always log:** Trace IDs, span timings, model name/version, token counts, cost, quality scores, error codes, and user session IDs (anonymized).
@@ -90,7 +92,8 @@ async def rag_pipeline(query: str):
 
   </ExpandableSection>
   <DriftDetector/>
-  <CodeBlock language="python" label="Quality Alerting System" code={`from collections import deque
+  <CodeBlock>
+{`from collections import deque
 from datetime import datetime
 
 class QualityMonitor:
@@ -98,20 +101,20 @@ class QualityMonitor:
 
     def __init__(self, window_size=100, alert_config=None):
         self.scores = deque(maxlen=window_size)
-        self.alerts = alert_config or {
+        self.alerts = alert_config or {'{'{'}'}
             "quality_floor": 0.70,     # Alert if avg drops below
             "drop_rate": 0.15,         # Alert if drop > 15% from baseline
             "error_spike": 0.10,       # Alert if error rate > 10%
-        }
+        {'}'}
         self.baseline_mean = None
         self.alert_callbacks = []
 
     def record(self, score: float, metadata: dict = None):
-        self.scores.append({
+        self.scores.append({'{'{'}'}
             "score": score,
             "timestamp": datetime.utcnow(),
-            "metadata": metadata or {}
-        })
+            "metadata": metadata or {'{'{'}'}{'}'}
+        {'}'})
         self._check_alerts()
 
     def _check_alerts(self):
@@ -123,20 +126,21 @@ class QualityMonitor:
         # Floor alert
         if avg < self.alerts["quality_floor"]:
             self._fire("QUALITY_FLOOR",
-                f"Average quality {avg:.3f} below floor "
-                f"{self.alerts['quality_floor']}")
+                f"Average quality {'{'{'}'}avg:.3f{'}'} below floor "
+                f"{'{'{'}'}self.alerts['quality_floor']{'}'}")
 
         # Drop from baseline
         if self.baseline_mean and self.baseline_mean > 0:
             drop = (self.baseline_mean - avg) / self.baseline_mean
             if drop > self.alerts["drop_rate"]:
                 self._fire("QUALITY_DROP",
-                    f"Quality dropped {drop:.1%} from baseline "
-                    f"{self.baseline_mean:.3f}")
+                    f"Quality dropped {'{'{'}'}drop:.1%{'}'} from baseline "
+                    f"{'{'{'}'}self.baseline_mean:.3f{'}'}")
 
     def _fire(self, alert_type, message):
         for cb in self.alert_callbacks:
-            cb(alert_type, message, datetime.utcnow())`}/>
+            cb(alert_type, message, datetime.utcnow())`}
+</CodeBlock>
   <Quiz question="Your production tracing shows that 30% of LLM calls take over 5 seconds while the rest complete in under 1 second. What does this pattern suggest?" options={["The model is too slow","Likely a bimodal distribution -- some queries trigger long-form generation or complex reasoning chains, while simple queries are fast","Network issues","All queries are equally slow"]} correctIndex={1} explanation="A bimodal latency distribution usually indicates two distinct query types: simple queries that resolve quickly and complex queries that need more processing. Investigate what differentiates the slow queries -- they may need separate handling or a different model."/>
   <Quiz question="You detect a gradual 12% quality drop over two weeks. No code changed. What is the most likely cause?" options={["Server hardware degradation","Model provider silently updated or degraded the model","Users became harder to satisfy","Cosmic rays"]} correctIndex={1} explanation="When quality drifts without code changes, the most likely cause is the model itself changing. LLM providers regularly update models, and these updates can subtly change behavior. This is why continuous monitoring and versioned model pinning are essential."/>
   <SeeItInRe3 text="Re\u00b3's debate system logs each agent's response time, token usage, and quality scores from the moderator. This creates an observability trail across the full debate lifecycle -- from panel selection through synthesis." targetPage="agent-community"/>

@@ -17,7 +17,8 @@ Pure vector search excels at semantic matching but struggles with exact terms (p
 
 </ExpandableSection>
 
-<CodeBlock language="python" label="Hybrid search with Reciprocal Rank Fusion" code={`from typing import List, Dict
+<CodeBlock>
+{`from typing import List, Dict
 import numpy as np
 
 def reciprocal_rank_fusion(
@@ -28,7 +29,7 @@ def reciprocal_rank_fusion(
     Fuse multiple ranked result lists using Reciprocal Rank Fusion.
     Each result_list is a list of document IDs ordered by relevance.
     """
-    scores = {}
+    scores = {'{'{'}'}{'}'}
     for result_list in result_lists:
         for rank, doc_id in enumerate(result_list):
             if doc_id not in scores:
@@ -37,7 +38,7 @@ def reciprocal_rank_fusion(
 
     # Sort by fused score (descending)
     fused = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-    return [{"doc_id": doc_id, "rrf_score": score} for doc_id, score in fused]
+    return [{'{'{'}'}"doc_id": doc_id, "rrf_score": score{'}'} for doc_id, score in fused]
 
 # Example: Hybrid search combining BM25 and vector results
 bm25_results = ["doc_42", "doc_7", "doc_15", "doc_3", "doc_88"]
@@ -46,19 +47,20 @@ vector_results = ["doc_7", "doc_42", "doc_99", "doc_15", "doc_23"]
 fused = reciprocal_rank_fusion([bm25_results, vector_results])
 print("Fused results:")
 for r in fused[:5]:
-    print(f"  {r['doc_id']}: RRF score = {r['rrf_score']:.4f}")
+    print(f"  {'{'{'}'}r['doc_id']{'}'}: RRF score = {'{'{'}'}r['rrf_score']:.4f{'}'}")
 # doc_42 and doc_7 rank highest (appear in both lists)
 
 # Weighted hybrid (e.g., 70% vector, 30% keyword)
 def weighted_hybrid(vector_scores, bm25_scores, alpha=0.7):
     """Combine normalized scores with weighting."""
     all_docs = set(vector_scores.keys()) | set(bm25_scores.keys())
-    results = {}
+    results = {'{'{'}'}{'}'}
     for doc in all_docs:
         v_score = vector_scores.get(doc, 0)
         b_score = bm25_scores.get(doc, 0)
         results[doc] = alpha * v_score + (1 - alpha) * b_score
-    return sorted(results.items(), key=lambda x: x[1], reverse=True)`}/>
+    return sorted(results.items(), key=lambda x: x[1], reverse=True)`}
+</CodeBlock>
 
 <ExpandableSection title="Cross-Encoder Reranking" icon="🎯">
 

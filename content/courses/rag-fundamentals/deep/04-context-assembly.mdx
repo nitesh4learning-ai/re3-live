@@ -7,7 +7,8 @@ icon: "📦"
 
 After retrieval, the retrieved chunks must be assembled into a prompt for the LLM. Context assembly determines the order of chunks, how they are formatted, how sources are attributed, and how much context fits in the available window. This step directly impacts answer quality and hallucination rates.
 
-<CodeBlock language="python" label="Production context assembly with source attribution" code={`def assemble_rag_context(
+<CodeBlock>
+{`def assemble_rag_context(
     query: str,
     retrieved_chunks: list,
     system_prompt: str = None,
@@ -38,14 +39,14 @@ based on the provided context. Follow these rules:
         if total_tokens + chunk_tokens > max_context_tokens:
             break
 
-        source_label = f"[Source {i+1}]"
+        source_label = f"[Source {'{'{'}'}i+1{'}'}]"
         source_meta = ""
         if chunk.get("metadata"):
             meta = chunk["metadata"]
-            source_meta = f" (from: {meta.get('title', 'Unknown')})"
+            source_meta = f" (from: {'{'{'}'}meta.get('title', 'Unknown'){'}'})"
 
         context_parts.append(
-            f"{source_label}{source_meta}:\\n{chunk['text']}"
+            f"{'{'{'}'}source_label{'}'}{'{'{'}'}source_meta{'}'}:\\n{'{'{'}'}chunk['text']{'}'}"
         )
         total_tokens += chunk_tokens
 
@@ -53,15 +54,15 @@ based on the provided context. Follow these rules:
 
     # Assemble messages
     messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": f"""Context:
-{context_block}
+        {'{'{'}'}"role": "system", "content": system_prompt{'}'},
+        {'{'{'}'}"role": "user", "content": f"""Context:
+{'{'{'}'}context_block{'}'}
 
 ---
 
-Question: {query}
+Question: {'{'{'}'}query{'}'}
 
-Answer the question using only the context above. Cite sources."""}
+Answer the question using only the context above. Cite sources."""{'}'}
     ]
 
     return messages
@@ -79,17 +80,18 @@ def should_use_long_context(
 
     if query_complexity == "multi-hop":
         # Multi-hop questions often need full document context
-        return {
+        return {'{'{'}'}
             "strategy": "long_context" if full_context_cost < budget_per_query else "rag",
             "cost": full_context_cost if full_context_cost < budget_per_query else rag_cost,
             "reason": "Multi-hop queries benefit from full document access"
-        }
+        {'}'}
     elif document_length_tokens < 10000:
-        return {"strategy": "long_context", "cost": full_context_cost,
-                "reason": "Document is short enough for full context"}
+        return {'{'{'}'}"strategy": "long_context", "cost": full_context_cost,
+                "reason": "Document is short enough for full context"{'}'}
     else:
-        return {"strategy": "rag", "cost": rag_cost,
-                "reason": "Document is long; RAG is more cost-effective"}`} />
+        return {'{'{'}'}"strategy": "rag", "cost": rag_cost,
+                "reason": "Document is long; RAG is more cost-effective"{'}'}`}
+</CodeBlock>
 
 <ExpandableSection title="Context Window Packing" icon="📦" defaultOpen={true}>
 

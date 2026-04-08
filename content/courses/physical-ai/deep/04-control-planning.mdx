@@ -13,30 +13,31 @@ icon: "\uD83C\uDFAF"
   ['LLM-guided Planning','Language model plans high-level steps','Novel tasks, reasoning','Slow, can\'t do low-level control'],
 ]}/>
 
-<CodeBlock language="python" label="Hierarchical Robot Planning" code={`class HierarchicalRobotPlanner:
+<CodeBlock>
+{`class HierarchicalRobotPlanner:
     """LLM plans high-level, RL executes low-level"""
 
     def __init__(self):
         self.llm = LanguageModel("claude-sonnet")
-        self.skills = {
+        self.skills = {'{'{'}'}
             "pick": PickSkill(),      # RL-trained
             "place": PlaceSkill(),    # RL-trained
             "navigate": NavSkill(),   # Classical + RL
             "inspect": InspectSkill() # Vision model
-        }
+        {'}'}
 
     def plan_task(self, instruction):
         """LLM decomposes instruction into skill sequence"""
         plan = self.llm.generate(f"""
-            Instruction: {instruction}
-            Available skills: {list(self.skills.keys())}
+            Instruction: {'{'{'}'}instruction{'}'}
+            Available skills: {'{'{'}'}list(self.skills.keys()){'}'}
             Output a JSON list of steps.
         """)
         return plan  # e.g., [
-        #   {"skill": "navigate", "target": "red_box"},
-        #   {"skill": "pick", "object": "red_box"},
-        #   {"skill": "navigate", "target": "shelf_2"},
-        #   {"skill": "place", "location": "shelf_2"}
+        #   {'{'{'}'}"skill": "navigate", "target": "red_box"{'}'},
+        #   {'{'{'}'}"skill": "pick", "object": "red_box"{'}'},
+        #   {'{'{'}'}"skill": "navigate", "target": "shelf_2"{'}'},
+        #   {'{'{'}'}"skill": "place", "location": "shelf_2"{'}'}
         # ]
 
     def execute_plan(self, plan):
@@ -47,9 +48,10 @@ icon: "\uD83C\uDFAF"
                 # Re-plan from current state
                 return self.plan_task(
                     f"Continue: completed steps "
-                    f"{plan[:plan.index(step)]}, "
-                    f"failed at {step}"
-                )`}/>
+                    f"{'{'{'}'}plan[:plan.index(step)]{'}'}, "
+                    f"failed at {'{'{'}'}step{'}'}"
+                )`}
+</CodeBlock>
 
 <ArchitectureDecision scenario="You're building a warehouse robot that needs to pick diverse objects from bins. Some objects are well-known (boxes, bottles), others are novel (random consumer products). What control approach should you use?" options={[
   {label:"Pure reinforcement learning trained on all objects",tradeoff:"Most general but needs enormous training data and simulation; struggles with truly novel objects"},

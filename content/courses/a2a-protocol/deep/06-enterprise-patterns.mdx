@@ -7,19 +7,20 @@ icon: "🏢"
 
 Enterprise A2A deployments require authentication, comprehensive audit trails, compliance controls, and multi-tenant isolation. These patterns ensure A2A systems meet enterprise security and governance requirements.
 
-<CodeBlock language="python" label="Audit Trail for A2A Tasks" code={`import datetime, json
+<CodeBlock>
+{`import datetime, json
 
 class AuditLogger:
     """Comprehensive audit logging for A2A task operations."""
 
     async def log_event(self, event_type: str, task_id: str, details: dict):
-        entry = {
+        entry = {'{'{'}'}
             "timestamp": datetime.datetime.utcnow().isoformat(),
             "event_type": event_type,
             "task_id": task_id,
             "agent_id": self.agent_id,
             **details
-        }
+        {'}'}
         await self.store.append(entry)
         return entry
 
@@ -27,22 +28,23 @@ class AuditLogger:
 audit = AuditLogger()
 
 async def handle_task(task_id, message, requester_info):
-    await audit.log_event("task_received", task_id, {
+    await audit.log_event("task_received", task_id, {'{'{'}'}
         "requester": requester_info["agent_name"],
         "requester_ip": requester_info["ip"],
         "skill_requested": message.get("skill"),
         "input_size_bytes": len(json.dumps(message)),
-    })
+    {'}'})
 
     # Process task...
     result = await process(message)
 
-    await audit.log_event("task_completed", task_id, {
+    await audit.log_event("task_completed", task_id, {'{'{'}'}
         "output_size_bytes": len(json.dumps(result)),
         "processing_time_ms": elapsed_ms,
         "tools_used": tools_called,
         "tokens_consumed": token_count,
-    })`}/>
+    {'}'})`}
+</CodeBlock>
 
 <ComparisonTable title="Enterprise A2A Security Layers" columns={['Layer','Implementation','Purpose']} rows={[
   ['Transport','mTLS between agents','Encrypt and authenticate all agent communication'],

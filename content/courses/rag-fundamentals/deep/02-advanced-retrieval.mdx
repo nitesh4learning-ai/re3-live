@@ -19,7 +19,8 @@ Each query retrieves slightly different relevant chunks, and the union provides 
 
 </ExpandableSection>
 
-<CodeBlock language="python" label="HyDE and multi-query retrieval" code={`from openai import OpenAI
+<CodeBlock>
+{`from openai import OpenAI
 from typing import List, Set
 
 client = OpenAI()
@@ -29,15 +30,15 @@ def multi_query_retrieval(question: str, search_fn, k_per_query=5):
     # Step 1: Generate query variants
     response = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[{
+        messages=[{'{'{'}'}
             "role": "system",
             "content": "Generate 4 alternative search queries for the given question. "
                        "Each should capture a different aspect or phrasing. "
                        "Return one query per line, no numbering."
-        }, {
+        {'}'}, {'{'{'}'}
             "role": "user",
             "content": question
-        }],
+        {'}'}],
         temperature=0.7
     )
     queries = [question] + response.choices[0].message.content.strip().split("\\n")
@@ -63,15 +64,15 @@ def hyde_retrieval(question: str, search_fn, k=5):
     # Step 1: Generate hypothetical answer
     response = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[{
+        messages=[{'{'{'}'}
             "role": "system",
             "content": "Write a short, factual paragraph that would answer "
                        "the following question. Write as if you are a "
                        "technical documentation page."
-        }, {
+        {'}'}, {'{'{'}'}
             "role": "user",
             "content": question
-        }],
+        {'}'}],
         temperature=0.0
     )
     hypothetical_doc = response.choices[0].message.content
@@ -100,7 +101,8 @@ def parent_child_retrieval(question: str, search_fn, doc_store, k=5):
             if parent_doc:
                 parents.append(parent_doc)
 
-    return parents  # Larger, context-rich sections`} />
+    return parents  # Larger, context-rich sections`}
+</CodeBlock>
 
 <ExpandableSection title="HyDE: Hypothetical Document Embeddings" icon="💡">
 

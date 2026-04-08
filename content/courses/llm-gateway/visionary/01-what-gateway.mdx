@@ -8,7 +8,8 @@ icon: "\uD83D\uDE80"
 An <JargonTip term="LLM gateway">LLM Gateway</JargonTip> is a **middleware layer** between your application and LLM providers. It handles routing, failover, rate limiting, cost management, and logging -- so your application code stays simple.
 
   <AnalogyBox emoji="✈️" title="Think of it like air traffic control">Air traffic control routes planes to the right runway, manages congestion, handles emergencies, and tracks all flights. An LLM gateway does the same for AI requests -- routing them to the right provider efficiently.</AnalogyBox>
-  <CodeBlock language="text" label="Gateway Architecture" code={`Your App \u2500\u2500request\u2500\u2500> [LLM Gateway]
+  <CodeBlock>
+{`Your App \u2500\u2500request\u2500\u2500> [LLM Gateway]
                          \u2502
                     \u250C\u2500\u2500\u2500\u2500\u253C\u2500\u2500\u2500\u2500\u2510\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510
                     \u25BC    \u25BC    \u25BC        \u25BC
@@ -19,5 +20,6 @@ Gateway handles:
   \u2713 Failover (if Anthropic is down \u2192 try OpenAI)
   \u2713 Rate limiting (max 100 req/min per user)
   \u2713 Cost tracking (budget alerts, usage caps)
-  \u2713 Logging (trace every request for debugging)`}/>
+  \u2713 Logging (trace every request for debugging)`}
+</CodeBlock>
   <Quiz question="What is the main benefit of using an LLM gateway instead of calling providers directly?" options={["It makes responses faster","It centralizes routing, failover, and cost management","It improves AI quality","It's required by law"]} correctIndex={1} explanation="A gateway centralizes cross-cutting concerns (routing, failover, rate limiting, cost tracking, logging) so your application code only needs to make one call and the gateway handles the rest."/>

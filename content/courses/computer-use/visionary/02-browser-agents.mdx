@@ -17,41 +17,43 @@ Browser <JargonTip term="agent">agents</JargonTip> are AI systems that can navig
 
 </ExpandableSection>
 
-<CodeBlock language="javascript" label="Browser Agent Loop (Conceptual)" code={`async function browserAgentLoop(task, browser) {
+<CodeBlock>
+{`async function browserAgentLoop(task, browser) {'{'{'}'}
   const history = [];
   let step = 0;
 
-  while (step < MAX_STEPS) {
+  while (step < MAX_STEPS) {'{'{'}'}
     // 1. Perceive current state
     const screenshot = await browser.screenshot();
     const dom = await browser.getAccessibilityTree();
 
     // 2. Plan next action
-    const action = await llm.decide({
+    const action = await llm.decide({'{'{'}'}
       task: task,
       currentPage: dom,
       screenshot: screenshot,
       history: history,
       prompt: "What should I do next to complete this task?"
-    });
+    {'}'});
 
     // 3. Execute action
-    if (action.type === "click") {
+    if (action.type === "click") {'{'{'}'}
       await browser.click(action.selector);
-    } else if (action.type === "type") {
+    {'}'} else if (action.type === "type") {'{'{'}'}
       await browser.type(action.selector, action.text);
-    } else if (action.type === "navigate") {
+    {'}'} else if (action.type === "navigate") {'{'{'}'}
       await browser.goto(action.url);
-    } else if (action.type === "done") {
-      return { success: true, result: action.result };
-    }
+    {'}'} else if (action.type === "done") {'{'{'}'}
+      return {'{'{'}'} success: true, result: action.result {'}'};
+    {'}'}
 
     // 4. Record and verify
     history.push(action);
     await browser.waitForNavigation();
     step++;
-  }
-  return { success: false, reason: "Max steps exceeded" };
-}`}/>
+  {'}'}
+  return {'{'{'}'} success: false, reason: "Max steps exceeded" {'}'};
+{'}'}`}
+</CodeBlock>
 
 <Quiz question="Why do browser agents need both DOM/accessibility tree access AND screenshot capability?" options={["Screenshots are just for debugging","DOM gives structure but screenshots help with visual elements the DOM doesn't describe well","They always use screenshots, DOM is optional","Browser agents don't actually need both"]} correctIndex={1} explanation="DOM provides structured, reliable element data (text, roles, properties), but some UI elements are better understood visually (icons, layouts, visual state indicators). The combination gives the agent both structural understanding and visual context."/>

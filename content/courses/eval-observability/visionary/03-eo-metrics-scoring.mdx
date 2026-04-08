@@ -17,12 +17,13 @@ Individual metrics tell you about specific quality dimensions. But stakeholders 
     ['Hallucination Rate','% of outputs with unsupported claims','LLM judge + source verification','<5%'],
   ]}/>
   <MetricCalculator/>
-  <CodeBlock language="python" label="Building a Composite Score" code={`class CompositeScorer:
+  <CodeBlock>
+{`class CompositeScorer:
     """Weighted composite scoring with configurable dimensions."""
 
     def __init__(self, weights: dict, thresholds: dict):
-        self.weights = weights      # {"faithfulness": 0.35, ...}
-        self.thresholds = thresholds  # {"toxicity": 0.05, ...}
+        self.weights = weights      # {'{'{'}'}"faithfulness": 0.35, ...{'}'}
+        self.thresholds = thresholds  # {'{'{'}'}"toxicity": 0.05, ...{'}'}
         assert abs(sum(weights.values()) - 1.0) < 0.01
 
     def score(self, metrics: dict) -> dict:
@@ -34,11 +35,11 @@ Individual metrics tell you about specific quality dimensions. But stakeholders 
             if metric in ("toxicity", "hallucination_rate", "latency_p95_ms"):
                 if metrics.get(metric, 0) > threshold:
                     gates_passed = False
-                    gate_failures.append(f"{metric}={metrics[metric]} > {threshold}")
+                    gate_failures.append(f"{'{'{'}'}metric{'}'}={'{'{'}'}metrics[metric]{'}'} > {'{'{'}'}threshold{'}'}")
             else:
                 if metrics.get(metric, 1) < threshold:
                     gates_passed = False
-                    gate_failures.append(f"{metric}={metrics[metric]} < {threshold}")
+                    gate_failures.append(f"{'{'{'}'}metric{'}'}={'{'{'}'}metrics[metric]{'}'} < {'{'{'}'}threshold{'}'}")
 
         # Weighted composite
         composite = sum(
@@ -47,23 +48,24 @@ Individual metrics tell you about specific quality dimensions. But stakeholders 
             if k in self.weights
         )
 
-        return {
+        return {'{'{'}'}
             "composite_score": round(composite, 4),
             "gates_passed": gates_passed,
             "gate_failures": gate_failures,
             "deploy_recommendation": "DEPLOY" if gates_passed and composite > 0.75 else "BLOCK",
             "individual_scores": metrics
-        }
+        {'}'}
 
 scorer = CompositeScorer(
-    weights={"faithfulness": 0.35, "relevance": 0.30,
-             "coherence": 0.20, "safety": 0.15},
-    thresholds={"toxicity": 0.05, "latency_p95_ms": 3000,
-                "faithfulness": 0.70}
+    weights={'{'{'}'}"faithfulness": 0.35, "relevance": 0.30,
+             "coherence": 0.20, "safety": 0.15{'}'},
+    thresholds={'{'{'}'}"toxicity": 0.05, "latency_p95_ms": 3000,
+                "faithfulness": 0.70{'}'}
 )
-result = scorer.score({"faithfulness": 0.88, "relevance": 0.82,
+result = scorer.score({'{'{'}'}"faithfulness": 0.88, "relevance": 0.82,
                         "coherence": 0.91, "safety": 0.98,
-                        "toxicity": 0.01, "latency_p95_ms": 1800})`}/>
+                        "toxicity": 0.01, "latency_p95_ms": 1800{'}'})`}
+</CodeBlock>
   <ABTestSimulator/>
   <Quiz question="Your composite score is 0.82 (above threshold) but toxicity is 0.08 (above 0.05 gate). Should you deploy?" options={["Yes -- composite score is high enough","No -- hard gate failure on toxicity blocks deployment regardless of composite score","Yes -- toxicity is close enough","Deploy to 50% of users only"]} correctIndex={1} explanation="Hard gates are non-negotiable. Even with a high composite score, a toxicity gate failure means the system could produce harmful content. Fix toxicity first, then re-evaluate."/>
   <Quiz question="Your A/B test shows Prompt B wins 52% vs Prompt A's 48%, with z-score of 1.1. What should you do?" options={["Deploy Prompt B immediately","The result is not statistically significant (z < 1.96). Increase sample size or keep Prompt A","Flip a coin","Average both prompts"]} correctIndex={1} explanation="A z-score of 1.1 means p > 0.05 -- the difference could be due to chance. Either increase the sample size to detect a real difference or conclude the prompts perform equivalently."/>

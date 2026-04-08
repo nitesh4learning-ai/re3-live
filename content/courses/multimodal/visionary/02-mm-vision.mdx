@@ -4,7 +4,8 @@ icon: "\uD83D\uDC41\uFE0F"
 ---
 
 ## Vision Pipelines
-  <CodeBlock title="Document Processing with Vision" code={`import anthropic
+  <CodeBlock>
+{`import anthropic
 import base64
 
 def process_document(image_path):
@@ -17,17 +18,18 @@ def process_document(image_path):
     response = client.messages.create(
         model="claude-3-5-sonnet-20241022",
         max_tokens=1024,
-        messages=[{
+        messages=[{'{'{'}'}
             "role": "user",
             "content": [
-                {"type": "image", "source": {
+                {'{'{'}'}"type": "image", "source": {'{'{'}'}
                     "type": "base64",
                     "media_type": "image/png",
                     "data": image_data
-                }},
-                {"type": "text", "text": "Extract all text, tables, "
-                 "and key data from this document as structured JSON."}
+                {'}'}{'}'},
+                {'{'{'}'}"type": "text", "text": "Extract all text, tables, "
+                 "and key data from this document as structured JSON."{'}'}
             ]
-        }]
-    )`}/>
+        {'}'}]
+    )`}
+</CodeBlock>
   <ComparisonTable title="Vision Model Comparison" headers={['Model','OCR Quality','Chart Understanding','Cost']} rows={[['GPT-4o','Excellent','Very Good','$2.50/1M + image tokens'],['Claude 3.5 Sonnet','Excellent','Excellent','$3.00/1M + image tokens'],['Gemini 1.5 Pro','Very Good','Good','$1.25/1M + image tokens']]}/>

@@ -7,33 +7,35 @@ icon: "📝"
 
 JSON Schema is the foundation of every <JargonTip term="tool schema">tool definition</JargonTip>. A well-designed schema tells the LLM exactly what parameters are available, their types, constraints, and when they are required. Poor schema design leads to <JargonTip term="hallucination">hallucinated</JargonTip> parameters, wrong types, and failed tool calls.
 
-<CodeBlock language="json" label="Advanced Tool Schema with Nested Objects" code={`{
+<CodeBlock>
+{`{'{'{'}'}
   "name": "search_database",
   "description": "Search a structured database with filters and sorting.",
-  "input_schema": {
+  "input_schema": {'{'{'}'}
     "type": "object",
-    "properties": {
-      "query": { "type": "string", "description": "Free-text search query" },
-      "filters": {
+    "properties": {'{'{'}'}
+      "query": {'{'{'}'} "type": "string", "description": "Free-text search query" {'}'},
+      "filters": {'{'{'}'}
         "type": "object",
-        "properties": {
-          "status": { "type": "string", "enum": ["active", "archived", "draft"] },
-          "created_after": { "type": "string", "format": "date" },
-          "tags": { "type": "array", "items": { "type": "string" } }
-        }
-      },
-      "sort": {
+        "properties": {'{'{'}'}
+          "status": {'{'{'}'} "type": "string", "enum": ["active", "archived", "draft"] {'}'},
+          "created_after": {'{'{'}'} "type": "string", "format": "date" {'}'},
+          "tags": {'{'{'}'} "type": "array", "items": {'{'{'}'} "type": "string" {'}'} {'}'}
+        {'}'}
+      {'}'},
+      "sort": {'{'{'}'}
         "type": "object",
-        "properties": {
-          "field": { "type": "string", "enum": ["created_at", "updated_at", "relevance"] },
-          "order": { "type": "string", "enum": ["asc", "desc"], "default": "desc" }
-        }
-      },
-      "limit": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20 }
-    },
+        "properties": {'{'{'}'}
+          "field": {'{'{'}'} "type": "string", "enum": ["created_at", "updated_at", "relevance"] {'}'},
+          "order": {'{'{'}'} "type": "string", "enum": ["asc", "desc"], "default": "desc" {'}'}
+        {'}'}
+      {'}'},
+      "limit": {'{'{'}'} "type": "integer", "minimum": 1, "maximum": 100, "default": 20 {'}'}
+    {'}'},
     "required": ["query"]
-  }
-}`}/>
+  {'}'}
+{'}'}`}
+</CodeBlock>
 
 <ExpandableSection title="Schema Design Best Practices" icon="📋" defaultOpen={true}>
 

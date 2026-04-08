@@ -13,16 +13,18 @@ icon: "🔧"
   ['SQLite','Edge/local deployment','1-5ms','Durable','Low'],
 ]}/>
 
-<CodeBlock title="Entity Extraction" code={`def extract_memory_entities(message, existing_entities):
+<CodeBlock>
+{`def extract_memory_entities(message, existing_entities):
     """Extract facts worth remembering from a message."""
     prompt = f"""Extract key facts from this message that would be
 useful to remember for future conversations.
 
-Existing known entities: {json.dumps(existing_entities)}
+Existing known entities: {'{'{'}'}json.dumps(existing_entities){'}'}
 
-Message: {message}
+Message: {'{'{'}'}message{'}'}
 
-Return JSON: {{"entities": [{{"name": "entity_name", "fact": "specific fact", "type": "person|project|preference|fact"}}]}}"""
+Return JSON: {'{'{'}'}{'{'{'}'}"entities": [{'{'{'}'}{'{'{'}'}"name": "entity_name", "fact": "specific fact", "type": "person|project|preference|fact"{'}'}{'}'}]{'}'}{'}'}"""
 
     result = call_llm(prompt, response_format="json")
-    return result.get("entities", [])`}/>
+    return result.get("entities", [])`}
+</CodeBlock>

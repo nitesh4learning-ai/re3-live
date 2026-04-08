@@ -11,7 +11,8 @@ Building one agent that works is step one. Running thousands of agents reliably,
 
 
 ### Parallel Tool Calls
-  <CodeBlock language="python" label="Parallel Tool Execution with Semaphore" code={`import asyncio
+  <CodeBlock>
+{`import asyncio
 from collections import defaultdict
 
 class ParallelToolExecutor:
@@ -35,18 +36,18 @@ class ParallelToolExecutor:
                 result = await execute_tool(
                     tool_call["name"], tool_call["args"]
                 )
-                self.metrics[tool_call["name"]].append({
+                self.metrics[tool_call["name"]].append({'{'{'}'}
                     "latency": time.time() - start,
                     "success": True
-                })
+                {'}'})
                 return result
             except Exception as e:
-                self.metrics[tool_call["name"]].append({
+                self.metrics[tool_call["name"]].append({'{'{'}'}
                     "latency": time.time() - start,
                     "success": False,
                     "error": str(e)
-                })
-                return {"error": str(e)}
+                {'}'})
+                return {'{'{'}'}"error": str(e){'}'}
 
 class RateLimiter:
     """Token bucket rate limiter."""
@@ -61,7 +62,8 @@ class RateLimiter:
             self.tokens = min(self.per_minute, elapsed * self.per_minute / 60)
             if self.tokens <= 0:
                 await asyncio.sleep(0.1)
-        self.tokens -= 1`}/>
+        self.tokens -= 1`}
+</CodeBlock>
 
   <AgentCostCalculator/>
 
@@ -70,7 +72,8 @@ class RateLimiter:
 
 When agents fail at scale, you need to understand *why*. Observability means capturing detailed traces of every agent run so you can debug failures, optimize performance, and monitor quality over time.
 
-  <CodeBlock language="python" label="Agent Tracing & Observability" code={`import uuid, time, json
+  <CodeBlock>
+{`import uuid, time, json
 
 class AgentTracer:
     """Capture detailed traces of agent execution for observability."""
@@ -84,7 +87,7 @@ class AgentTracer:
         return TracerSpan(self, name, type)
 
     def to_trace(self):
-        return {
+        return {'{'{'}'}
             "run_id": self.run_id,
             "total_duration_s": time.time() - self.start_time,
             "total_llm_calls": sum(1 for s in self.spans if s["type"]=="llm"),
@@ -92,7 +95,7 @@ class AgentTracer:
             "total_tokens": sum(s.get("tokens",0) for s in self.spans),
             "total_cost_usd": sum(s.get("cost",0) for s in self.spans),
             "spans": self.spans
-        }
+        {'}'}
 
 # Usage in agent loop:
 tracer = AgentTracer()
@@ -105,7 +108,8 @@ with tracer.span("tool_search", type="tool") as span:
     span.set("result_count", len(result))
 
 # Export trace for dashboard
-print(json.dumps(tracer.to_trace(), indent=2))`}/>
+print(json.dumps(tracer.to_trace(), indent=2))`}
+</CodeBlock>
 
   <ComparisonTable title="Observability Tools for Agents" columns={['Tool','Type','Key Feature','Pricing']} rows={[
     ['LangSmith','Commercial','LangChain-native tracing, evals, datasets','Free tier + paid'],

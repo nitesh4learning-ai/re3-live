@@ -7,38 +7,40 @@ icon: "🔍"
 
 AI governance is not a one-time audit -- it requires continuous monitoring, <JargonTip term="drift detection">drift detection</JargonTip>, and audit trails. Models degrade as data distributions shift.
 
-<CodeBlock language="javascript" label="Compliance Monitor" code={`class ComplianceMonitor {
-  constructor(model, config) {
+<CodeBlock>
+{`class ComplianceMonitor {'{'{'}'}
+  constructor(model, config) {'{'{'}'}
     this.model = model;
     this.alerts = [];
     this.driftThreshold = config.driftThreshold || 0.05;
-  }
+  {'}'}
 
-  async checkDrift(currentData) {
+  async checkDrift(currentData) {'{'{'}'}
     const baseline = this.model.baselineDistribution;
     const drift = this.calculatePSI(baseline, currentData);
-    if (drift > this.driftThreshold) {
-      this.alerts.push({
+    if (drift > this.driftThreshold) {'{'{'}'}
+      this.alerts.push({'{'{'}'}
         type: "DATA_DRIFT",
         severity: drift > 0.2 ? "CRITICAL" : "WARNING",
         metric: drift,
         timestamp: new Date().toISOString(),
-      });
-    }
+      {'}'});
+    {'}'}
     return drift;
-  }
+  {'}'}
 
-  async checkFairness(predictions, demographics) {
+  async checkFairness(predictions, demographics) {'{'{'}'}
     const groups = this.groupByDemographic(predictions, demographics);
-    const rates = {};
-    for (const [g, preds] of Object.entries(groups)) {
+    const rates = {'{'{'}'}{'}'};
+    for (const [g, preds] of Object.entries(groups)) {'{'{'}'}
       rates[g] = preds.filter(p => p > 0.5).length / preds.length;
-    }
+    {'}'}
     const maxGap = Math.max(...Object.values(rates)) - Math.min(...Object.values(rates));
-    if (maxGap > 0.1) this.alerts.push({ type: "FAIRNESS", details: rates });
-    return { rates, maxGap };
-  }
-}`}/>
+    if (maxGap > 0.1) this.alerts.push({'{'{'}'} type: "FAIRNESS", details: rates {'}'});
+    return {'{'{'}'} rates, maxGap {'}'};
+  {'}'}
+{'}'}`}
+</CodeBlock>
 
 <ExpandableSection title="Audit Trail Requirements" icon="🔍" defaultOpen={true}>
 

@@ -13,7 +13,8 @@ How agents exchange information determines system reliability, scalability, and 
     ['Blackboard','Agents post to shared knowledge board','Loose - agents check board','Good - decoupled','Good - inspect board state'],
     ['Event-Driven','Agents publish/subscribe to events','Very loose - no direct knowledge','Excellent','Hard - async tracing'],
   ]}/>
-  <CodeBlock language="python" label="Blackboard Pattern Implementation" code={`import asyncio
+  <CodeBlock>
+{`import asyncio
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -26,12 +27,12 @@ class Blackboard:
 
     async def post(self, agent_id: str, key: str, value: Any):
         async with self._lock:
-            self.knowledge[key] = {
+            self.knowledge[key] = {'{'{'}'}
                 "value": value, "posted_by": agent_id,
                 "timestamp": asyncio.get_event_loop().time()
-            }
-            self.history.append({"agent": agent_id, "action": "post",
-                                 "key": key, "value": value})
+            {'}'}
+            self.history.append({'{'{'}'}"agent": agent_id, "action": "post",
+                                 "key": key, "value": value{'}'})
 
     async def read(self, key: str) -> Any:
         async with self._lock:
@@ -40,8 +41,8 @@ class Blackboard:
 
     async def query(self, prefix: str) -> dict:
         async with self._lock:
-            return {k: v["value"] for k, v in self.knowledge.items()
-                    if k.startswith(prefix)}
+            return {'{'{'}'}k: v["value"] for k, v in self.knowledge.items()
+                    if k.startswith(prefix){'}'}
 
 class BlackboardAgent:
     def __init__(self, agent_id: str, board: Blackboard, llm):
@@ -55,48 +56,51 @@ class BlackboardAgent:
         previous = await self.board.query(f"result.")
 
         response = await self.llm.invoke(
-            system=f"You are {self.agent_id}. Context: {context}",
-            user=f"Previous results: {previous}. Contribute your analysis."
+            system=f"You are {'{'{'}'}self.agent_id{'}'}. Context: {'{'{'}'}context{'}'}",
+            user=f"Previous results: {'{'{'}'}previous{'}'}. Contribute your analysis."
         )
         # Post results back to blackboard
         await self.board.post(self.agent_id,
-            f"result.{self.agent_id}", response.content)
+            f"result.{'{'{'}'}self.agent_id{'}'}", response.content)
 
 # Usage
 board = Blackboard()
-agents = [BlackboardAgent(f"agent_{i}", board, llm) for i in range(4)]
-await asyncio.gather(*[agent.act() for agent in agents])`}/>
-  <CodeBlock language="javascript" label="Event-Driven Communication (Node.js)" code={`import { EventEmitter } from 'events';
+agents = [BlackboardAgent(f"agent_{'{'{'}'}i{'}'}", board, llm) for i in range(4)]
+await asyncio.gather(*[agent.act() for agent in agents])`}
+</CodeBlock>
+  <CodeBlock>
+{`import {'{'{'}'} EventEmitter {'}'} from 'events';
 
-class AgentBus extends EventEmitter {
-  constructor() {
+class AgentBus extends EventEmitter {'{'{'}'}
+  constructor() {'{'{'}'}
     super();
     this.messageLog = [];
-  }
+  {'}'}
 
-  publish(fromAgent, topic, payload) {
-    const message = {
+  publish(fromAgent, topic, payload) {'{'{'}'}
+    const message = {'{'{'}'}
       from: fromAgent, topic, payload,
       timestamp: Date.now(), id: crypto.randomUUID()
-    };
+    {'}'};
     this.messageLog.push(message);
     this.emit(topic, message);
-  }
-}
+  {'}'}
+{'}'}
 
 // Agents subscribe to relevant topics
 const bus = new AgentBus();
 
-bus.on('research.complete', async (msg) => {
+bus.on('research.complete', async (msg) => {'{'{'}'}
   const draft = await writerAgent.process(msg.payload);
   bus.publish('writer', 'draft.complete', draft);
-});
+{'}'});
 
-bus.on('draft.complete', async (msg) => {
+bus.on('draft.complete', async (msg) => {'{'{'}'}
   const review = await criticAgent.process(msg.payload);
   bus.publish('critic', 'review.complete', review);
-});
+{'}'});
 
 // Kick off the pipeline
-bus.publish('user', 'research.complete', { topic: 'AI safety' });`}/>
+bus.publish('user', 'research.complete', {'{'{'}'} topic: 'AI safety' {'}'});`}
+</CodeBlock>
   <Quiz question="In a multi-agent system where agents work independently and asynchronously on different aspects of a problem, which communication pattern minimizes coupling?" options={["Message passing with direct addressing","Shared state with mutual exclusion locks","Event-driven publish/subscribe","Synchronous RPC calls between agents"]} correctIndex={2} explanation="Event-driven pub/sub provides the loosest coupling. Agents do not need to know about each other -- they only publish events and subscribe to topics they care about. This enables independent scaling and deployment."/>

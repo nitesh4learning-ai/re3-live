@@ -7,7 +7,8 @@ icon: "\uD83D\uDD17"
 
 LangGraph models multi-agent workflows as directed graphs with state. Nodes are agent functions, edges define transitions, and conditional edges enable dynamic routing. This is the most production-ready framework for stateful multi-agent orchestration.
 
-  <CodeBlock language="python" label="LangGraph Multi-Agent with Human-in-the-Loop" code={`from langgraph.graph import StateGraph, END
+  <CodeBlock>
+{`from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langchain_core.messages import HumanMessage, AIMessage
 from typing import TypedDict, Annotated, Literal
@@ -23,30 +24,30 @@ class ResearchState(TypedDict):
 def research_agent(state: ResearchState) -> ResearchState:
     """Gather and analyze information."""
     response = llm.invoke([
-        {"role": "system", "content": "You are a research analyst."},
-        {"role": "user", "content": f"Research: {state['messages'][-1].content}"}
+        {'{'{'}'}"role": "system", "content": "You are a research analyst."{'}'},
+        {'{'{'}'}"role": "user", "content": f"Research: {'{'{'}'}state['messages'][-1].content{'}'}"{'}'}
     ])
-    return {"research_data": response.content,
-            "messages": [AIMessage(content=f"[Research]: {response.content}")]}
+    return {'{'{'}'}"research_data": response.content,
+            "messages": [AIMessage(content=f"[Research]: {'{'{'}'}response.content{'}'}")]{'}'}
 
 def writer_agent(state: ResearchState) -> ResearchState:
     """Draft content from research."""
     response = llm.invoke([
-        {"role": "system", "content": "Write a report from this research."},
-        {"role": "user", "content": state["research_data"]}
+        {'{'{'}'}"role": "system", "content": "Write a report from this research."{'}'},
+        {'{'{'}'}"role": "user", "content": state["research_data"]{'}'}
     ])
-    return {"draft": response.content,
-            "messages": [AIMessage(content=f"[Writer]: {response.content}")]}
+    return {'{'{'}'}"draft": response.content,
+            "messages": [AIMessage(content=f"[Writer]: {'{'{'}'}response.content{'}'}")]{'}'}
 
 def reviewer_agent(state: ResearchState) -> ResearchState:
     """Score the draft quality."""
     response = llm.invoke([
-        {"role": "system", "content": "Score this draft 0-10. Return JSON."},
-        {"role": "user", "content": state["draft"]}
+        {'{'{'}'}"role": "system", "content": "Score this draft 0-10. Return JSON."{'}'},
+        {'{'{'}'}"role": "user", "content": state["draft"]{'}'}
     ])
     score = parse_score(response.content)
-    return {"review_score": score,
-            "messages": [AIMessage(content=f"[Reviewer]: Score {score}/10")]}
+    return {'{'{'}'}"review_score": score,
+            "messages": [AIMessage(content=f"[Reviewer]: Score {'{'{'}'}score{'}'}/10")]{'}'}
 
 def route_after_review(state: ResearchState) -> Literal["writer", "human_review", END]:
     if state["review_score"] >= 8:
@@ -73,8 +74,9 @@ graph.add_edge("human_review", END)
 app = graph.compile(checkpointer=memory, interrupt_before=["human_review"])
 
 # Run with human-in-the-loop
-config = {"configurable": {"thread_id": "report-123"}}
-result = app.invoke({"messages": [HumanMessage("Analyze AI trends")]}, config)
+config = {'{'{'}'}"configurable": {'{'{'}'}"thread_id": "report-123"{'}'}{'}'}
+result = app.invoke({'{'{'}'}"messages": [HumanMessage("Analyze AI trends")]{'}'}, config)
 # If interrupted at human_review, resume after approval:
-# app.invoke(None, config)  # continues from checkpoint`}/>
+# app.invoke(None, config)  # continues from checkpoint`}
+</CodeBlock>
   <Quiz question="In LangGraph, what enables a multi-agent workflow to pause for human approval and resume later?" options={["Using async/await in Python","Checkpointing with interrupt_before on specific nodes","Saving state to a JSON file manually","Polling the human for input in a while loop"]} correctIndex={1} explanation="LangGraph's checkpointer saves the full graph state at each step. The interrupt_before parameter pauses execution before specific nodes, allowing human review. Calling invoke again with the same thread_id resumes from the checkpoint."/>

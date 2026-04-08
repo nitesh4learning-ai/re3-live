@@ -5,8 +5,9 @@ icon: "📃"
 
 ## Event Schema Design
 
-<CodeBlock title="CloudEvents Specification" code={`# ACP uses CloudEvents as the event envelope format
-{
+<CodeBlock>
+{`# ACP uses CloudEvents as the event envelope format
+{'{'{'}'}
     "specversion": "1.0",
     "type": "com.acme.agent.document.classified",
     "source": "agent://classifier/v2",
@@ -14,17 +15,18 @@ icon: "📃"
     "time": "2025-01-15T10:30:00Z",
     "datacontenttype": "application/json",
     "subject": "document/doc-12345",
-    "data": {
+    "data": {'{'{'}'}
         "classification": "financial_report",
         "confidence": 0.94,
         "subcategories": ["quarterly_earnings", "sec_filing"],
         "processing_time_ms": 1250
-    },
+    {'}'},
     # ACP extensions
     "traceid": "trace-789",
     "correlationid": "workflow-456",
     "agentversion": "2.1.0"
-}`}/>
+{'}'}`}
+</CodeBlock>
 
 <ExpandableSection title="Event Design Best Practices" icon="💡">
 

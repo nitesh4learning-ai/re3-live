@@ -27,14 +27,15 @@ OpenAI's text-embedding-3 models and Jina v3 support Matryoshka truncation. This
 
 </ExpandableSection>
 
-<CodeBlock language="python" label="Embedding model comparison pipeline" code={`from openai import OpenAI
+<CodeBlock>
+{`from openai import OpenAI
 import numpy as np
 
 client = OpenAI()
 
 def get_embeddings(texts, model="text-embedding-3-small", dimensions=None):
     """Get embeddings with optional dimension truncation (Matryoshka)."""
-    params = {"input": texts, "model": model}
+    params = {'{'{'}'}"input": texts, "model": model{'}'}
     if dimensions:
         params["dimensions"] = dimensions  # Matryoshka truncation
 
@@ -62,15 +63,16 @@ emb_small = get_embeddings([query] + docs, dimensions=256)
 print("Full (1536d) similarities:")
 for i, doc in enumerate(docs):
     sim = cosine_similarity(emb_full[0], emb_full[i+1])
-    print(f"  {sim:.4f} - {doc[:50]}")
+    print(f"  {'{'{'}'}sim:.4f{'}'} - {'{'{'}'}doc[:50]{'}'}")
 
 print("\\nTruncated (256d) similarities:")
 for i, doc in enumerate(docs):
     sim = cosine_similarity(emb_small[0], emb_small[i+1])
-    print(f"  {sim:.4f} - {doc[:50]}")
+    print(f"  {'{'{'}'}sim:.4f{'}'} - {'{'{'}'}doc[:50]{'}'}")
 
 # Storage comparison
-print(f"\\nStorage: {1536*4/1024:.1f}KB vs {256*4/1024:.1f}KB per vector")`}/>
+print(f"\\nStorage: {'{'{'}'}1536*4/1024:.1f{'}'}KB vs {'{'{'}'}256*4/1024:.1f{'}'}KB per vector")`}
+</CodeBlock>
 
 <ExpandableSection title="Task-Specific vs General Embeddings" icon="🎯">
 

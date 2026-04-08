@@ -14,7 +14,8 @@ icon: "🔍"
 
 </ExpandableSection>
 
-<CodeBlock title="Hallucination Detection Pipeline" code={`def detect_hallucination(response, sources):
+<CodeBlock>
+{`def detect_hallucination(response, sources):
     """Multi-step hallucination detection."""
     checks = []
 
@@ -29,20 +30,21 @@ icon: "🔍"
             if similarity > 0.8:
                 supported = True
                 break
-        checks.append({
+        checks.append({'{'{'}'}
             "claim": claim,
             "supported": supported,
             "confidence": similarity if supported else 0.0
-        })
+        {'}'})
 
     # Step 3: Aggregate
     unsupported = [c for c in checks if not c["supported"]]
-    return {
+    return {'{'{'}'}
         "total_claims": len(checks),
         "unsupported": len(unsupported),
         "hallucination_rate": len(unsupported) / max(len(checks), 1),
         "details": checks
-    }`} />
+    {'}'}`}
+</CodeBlock>
 
 <Quiz
   question="Which hallucination type is hardest to detect automatically?"

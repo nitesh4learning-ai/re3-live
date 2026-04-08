@@ -22,7 +22,8 @@ It's how a detective solves a case. **REASON**: "The victim was last seen at the
 
 Here's how the ReAct loop maps to LangGraph primitives:
 
-<CodeBlock language="python" label="ReAct Pattern as a LangGraph State Machine" code={`from typing import TypedDict, Annotated, Literal
+<CodeBlock>
+{`from typing import TypedDict, Annotated, Literal
 from langgraph.graph import StateGraph, END, START, add_messages
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
@@ -60,10 +61,10 @@ def reason_node(state: AgentState) -> dict:
             "enough information, say DONE."),
         *state["messages"]
     ])
-    return {
+    return {'{'{'}'}
         "reasoning": response.content,
         "current_step": "reason"
-    }
+    {'}'}
 
 def act_node(state: AgentState) -> dict:
     """
@@ -72,11 +73,11 @@ def act_node(state: AgentState) -> dict:
     """
     # Simplified — in real code, parse reasoning to pick a tool
     result = execute_tool(state["reasoning"])
-    return {
+    return {'{'{'}'}
         "observation": result,
         "action_count": state["action_count"] + 1,
         "current_step": "act"
-    }
+    {'}'}
 
 # ─── CONDITIONAL EDGE: Should we continue? ───
 def should_continue(state: AgentState) -> Literal["reason", "end"]:
@@ -98,9 +99,10 @@ graph.add_edge(START, "reason")         # Always start by reasoning
 graph.add_edge("reason", "act")         # After reasoning, act
 graph.add_conditional_edges(            # After acting, decide:
     "act", should_continue,
-    {"reason": "reason", "end": END}    # Loop or stop
+    {'{'{'}'}"reason": "reason", "end": END{'}'}    # Loop or stop
 )
-app = graph.compile()`}/>
+app = graph.compile()`}
+</CodeBlock>
 
 Notice the key pattern: **nodes return partial state updates** (Python dicts), not the full state. LangGraph merges your update with existing state. This is like a database UPDATE — you only specify the fields you're changing.
 

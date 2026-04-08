@@ -5,19 +5,20 @@ icon: "\uD83D\uDEE1\uFE0F"
 
 ## Safety Architecture for Autonomous Agents
 
-<CodeBlock language="python" label="Action Safety Layer" code={`class SafetyLayer:
+<CodeBlock>
+{`class SafetyLayer:
     """Filter and gate agent actions before execution"""
 
-    IRREVERSIBLE_ACTIONS = {
+    IRREVERSIBLE_ACTIONS = {'{'{'}'}
         "purchase", "delete", "send_email",
         "submit_form", "transfer_funds",
         "publish", "share_externally"
-    }
+    {'}'}
 
-    BLOCKED_DOMAINS = {
+    BLOCKED_DOMAINS = {'{'{'}'}
         "bank.*", "*.gov", "admin.*",
         "payment.*", "oauth.*"
-    }
+    {'}'}
 
     def __init__(self, allowed_domains=None):
         self.allowed_domains = allowed_domains or ["*"]
@@ -55,6 +56,7 @@ icon: "\uD83D\uDEE1\uFE0F"
         return any(
             re.match(p.replace("*", ".*"), domain)
             for p in self.allowed_domains
-        )`}/>
+        )`}
+</CodeBlock>
 
 <Quiz question="An AI browser agent encounters a page with a 'Delete All Records' button during a data export task. What should it do?" options={["Click it if it seems relevant to the task","Skip it silently and continue","Halt execution and request human confirmation","Add it to the action queue for later"]} correctIndex={2} explanation="Any irreversible action like deletion must trigger a confirmation gate. The agent should halt, present the situation to the human operator with full context (what page, what button, why it's relevant), and only proceed with explicit approval. This is the core safety principle for autonomous agents."/>

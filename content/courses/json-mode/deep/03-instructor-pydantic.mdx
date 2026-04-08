@@ -5,7 +5,8 @@ icon: "🐍"
 
 ## Instructor & Pydantic
 
-<CodeBlock title="Pydantic + Instructor Pipeline" code={`import instructor
+<CodeBlock>
+{`import instructor
 from pydantic import BaseModel, Field
 from openai import OpenAI
 
@@ -24,12 +25,13 @@ result = client.chat.completions.create(
     model="gpt-4o",
     response_model=SentimentAnalysis,  # Pydantic model as schema
     max_retries=2,  # Auto-retry if validation fails
-    messages=[{"role":"user","content":"Analyze: 'Product is okay but shipping was terrible'"}]
+    messages=[{'{'{'}'}"role":"user","content":"Analyze: 'Product is okay but shipping was terrible'"{'}'}]
 )
 
 print(result.sentiment)     # "mixed" -> ValidationError -> retry -> "negative"
 print(result.confidence)    # 0.78
-print(result.key_phrases)   # ["okay", "shipping was terrible"]`}/>
+print(result.key_phrases)   # ["okay", "shipping was terrible"]`}
+</CodeBlock>
 
 <ExpandableSection title="Why Instructor is Powerful" icon="⚡">
 

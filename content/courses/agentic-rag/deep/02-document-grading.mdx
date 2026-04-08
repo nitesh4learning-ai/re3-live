@@ -9,7 +9,8 @@ The core innovation of Agentic RAG is using an LLM to evaluate whether retrieved
 
 ### The Grading Node
 
-<CodeBlock language="python" label="Document Grading Node — LLM Evaluates Relevance" code={`from langchain_anthropic import ChatAnthropic
+<CodeBlock>
+{`from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import SystemMessage, HumanMessage
 from typing import TypedDict, List, Literal
 
@@ -30,10 +31,10 @@ the document contains information relevant to answering the question.
 
 Return ONLY "relevant" or "irrelevant" — nothing else.
 
-User question: {query}
+User question: {'{'{'}'}query{'}'}
 
 Document content:
-{document}
+{'{'{'}'}document{'}'}
 """
 
 def grade_documents(state: RAGState) -> dict:
@@ -65,14 +66,15 @@ def grade_documents(state: RAGState) -> dict:
             relevant.append(doc)
         else:
             irrelevant_count += 1
-            print(f"  ❌ Filtered: {doc.get('source', 'unknown')[:50]}")
+            print(f"  ❌ Filtered: {'{'{'}'}doc.get('source', 'unknown')[:50]{'}'}")
     
-    print(f"  📊 {len(relevant)}/{len(state['documents'])} docs passed grading")
+    print(f"  📊 {'{'{'}'}len(relevant){'}'}/{'{'{'}'}len(state['documents']){'}'} docs passed grading")
     
-    return {
+    return {'{'{'}'}
         "relevant_docs": relevant,
         "irrelevant_count": irrelevant_count,
-    }`}/>
+    {'}'}`}
+</CodeBlock>
 
 ### Why Grade Individual Documents?
 

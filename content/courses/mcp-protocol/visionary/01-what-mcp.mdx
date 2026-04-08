@@ -9,7 +9,8 @@ The **<JargonTip term="MCP">Model Context Protocol (MCP)</JargonTip>** is an ope
 
 <AnalogyBox emoji="🔌" title="Think of it like USB-C">Before USB-C, every device had its own charger. MCP is the USB-C of AI -- one standard connector that lets any AI model talk to any tool or data source.</AnalogyBox>
 
-<CodeBlock language="text" label="Before vs After MCP" code={`BEFORE MCP: N models × M tools = N×M custom integrations
+<CodeBlock>
+{`BEFORE MCP: N models × M tools = N×M custom integrations
   GPT-4  ──custom──> Slack, GitHub, Database, Calendar
   Claude ──custom──> Slack, GitHub, Database, Calendar
   Result: 8 custom integrations (and growing!)
@@ -17,7 +18,8 @@ The **<JargonTip term="MCP">Model Context Protocol (MCP)</JargonTip>** is an ope
 AFTER MCP: N models + M tools = N+M implementations
   GPT-4  ──MCP──┐
   Claude ──MCP──┤──> MCP Server: Slack, GitHub, DB, Calendar
-  Result: 2 clients + 4 servers = 6 implementations total`}/>
+  Result: 2 clients + 4 servers = 6 implementations total`}
+</CodeBlock>
 
 <Quiz question="What problem does MCP solve?" options={["Making AI models faster","Eliminating the need for N×M custom integrations","Replacing APIs entirely","Training better models"]} correctIndex={1} explanation="MCP standardizes how AI models connect to tools. Instead of every model needing a custom integration for every tool (N×M), each model implements MCP once and can access any MCP-compatible tool." />
 

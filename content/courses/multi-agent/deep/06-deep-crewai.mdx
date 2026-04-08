@@ -7,7 +7,8 @@ icon: "\uD83E\uDD16"
 
 CrewAI and AutoGen take different approaches to multi-agent orchestration. CrewAI uses role-based teams with structured task delegation, while AutoGen focuses on conversational agent interactions. Understanding when to use each saves significant development time.
 
-  <CodeBlock language="python" label="CrewAI Agent Team" code={`from crewai import Agent, Task, Crew, Process
+  <CodeBlock>
+{`from crewai import Agent, Task, Crew, Process
 
 # Define agents with roles and expertise
 researcher = Agent(
@@ -40,7 +41,7 @@ editor = Agent(
 
 # Define tasks with dependencies
 research_task = Task(
-    description="Research {topic} thoroughly. Include data and examples.",
+    description="Research {'{'{'}'}topic{'}'} thoroughly. Include data and examples.",
     expected_output="A detailed research brief with key findings.",
     agent=researcher
 )
@@ -67,7 +68,8 @@ crew = Crew(
     verbose=True
 )
 
-result = crew.kickoff(inputs={"topic": "Multi-agent AI systems"})`}/>
+result = crew.kickoff(inputs={'{'{'}'}"topic": "Multi-agent AI systems"{'}'})`}
+</CodeBlock>
   <ComparisonTable title="CrewAI vs AutoGen vs LangGraph" columns={['Feature','CrewAI','AutoGen','LangGraph']} rows={[
     ['Mental Model','Team of role-based agents','Conversational agents','State machine graph'],
     ['Orchestration','Sequential or hierarchical process','Chat-based turn-taking','Graph edges and conditions'],

@@ -13,7 +13,8 @@ Only train small <JargonTip term="LoRA">adapter matrices</JargonTip> (0.1-1% of 
   <ExpandableSection title="QLoRA" icon="💾">
 <JargonTip term="QLoRA">QLoRA</JargonTip> combines LoRA with 4-bit quantization. Fine-tune a 70B model on a single GPU. Slight quality trade-off for massive compute savings.
 </ExpandableSection>
-  <CodeBlock title="LoRA Fine-Tuning with Hugging Face" code={`from peft import LoraConfig, get_peft_model
+  <CodeBlock>
+{`from peft import LoraConfig, get_peft_model
 from transformers import AutoModelForCausalLM
 
 model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3.1-8B")
@@ -28,4 +29,5 @@ lora_config = LoraConfig(
 model = get_peft_model(model, lora_config)
 # Only 0.1% of parameters are trainable!
 model.print_trainable_parameters()
-# trainable: 4,194,304 || total: 8,030,261,248 || 0.05%`}/>
+# trainable: 4,194,304 || total: 8,030,261,248 || 0.05%`}
+</CodeBlock>

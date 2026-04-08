@@ -7,7 +7,8 @@ icon: "\uD83D\uDD28"
 
 Building a knowledge graph from unstructured text requires two steps: **<JargonTip term="NER">Named Entity Recognition (NER)</JargonTip>** to find entities, and **Relation Extraction** to find how they connect.
 
-  <CodeBlock language="text" label="NER + Relation Extraction" code={`Input: "Apple CEO Tim Cook announced the new iPhone at WWDC 2024."
+  <CodeBlock>
+{`Input: "Apple CEO Tim Cook announced the new iPhone at WWDC 2024."
 
 NER Results:
   [Apple]       \u2192 Organization
@@ -19,6 +20,7 @@ Extracted Relations:
   (Tim Cook,    CEO of,       Apple)
   (Tim Cook,    announced,    iPhone)
   (iPhone,      announced at, WWDC 2024)
-  (Apple,       hosts,        WWDC 2024)`}/>
+  (Apple,       hosts,        WWDC 2024)`}
+</CodeBlock>
   <TripleBuilder/>
   <Quiz question="What is the first step in building a knowledge graph from text?" options={["Drawing the graph visualization","Named Entity Recognition (NER)","Writing SQL queries","Calculating embeddings"]} correctIndex={1} explanation="NER identifies the entities (people, places, organizations, concepts) in the text. Only after finding entities can you extract the relationships between them."/>

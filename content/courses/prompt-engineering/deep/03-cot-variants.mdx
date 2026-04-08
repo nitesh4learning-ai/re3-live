@@ -26,7 +26,8 @@ This technique improves accuracy on math and logic tasks by 5-15% over single-pa
 
 </ExpandableSection>
 
-<CodeBlock language="python" label="Self-consistency implementation" code={`from openai import OpenAI
+<CodeBlock>
+{`from openai import OpenAI
 from collections import Counter
 
 client = OpenAI()
@@ -40,9 +41,9 @@ def self_consistency(question, n_paths=5, temperature=0.7):
             model="gpt-4o",
             temperature=temperature,
             messages=[
-                {"role": "system", "content": "Solve the problem step by step. "
-                 "End with 'ANSWER: <your_answer>'"},
-                {"role": "user", "content": question}
+                {'{'{'}'}"role": "system", "content": "Solve the problem step by step. "
+                 "End with 'ANSWER: <your_answer>'"{'}'},
+                {'{'{'}'}"role": "user", "content": question{'}'}
             ]
         )
         text = response.choices[0].message.content
@@ -59,20 +60,21 @@ def self_consistency(question, n_paths=5, temperature=0.7):
     best_answer, count = vote.most_common(1)[0]
     confidence = count / len(answers)
 
-    return {
+    return {'{'{'}'}
         "answer": best_answer,
         "confidence": confidence,
         "all_answers": answers,
         "vote_distribution": dict(vote)
-    }
+    {'}'}
 
 result = self_consistency(
     "A store has 15 apples. 3 customers each buy 2. A delivery adds 10. "
     "Then 1 customer returns 3 apples. How many apples does the store have?",
     n_paths=5
 )
-print(f"Answer: {result['answer']} (confidence: {result['confidence']:.0%})")
-print(f"All paths: {result['all_answers']}")`}/>
+print(f"Answer: {'{'{'}'}result['answer']{'}'} (confidence: {'{'{'}'}result['confidence']:.0%{'}'})")
+print(f"All paths: {'{'{'}'}result['all_answers']{'}'}")`}
+</CodeBlock>
 
 <ExpandableSection title="Tree-of-Thought: Deliberate Exploration" icon="🌳">
 

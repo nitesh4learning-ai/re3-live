@@ -7,22 +7,24 @@ icon: "\uD83E\uDDE0"
 
 In multi-agent systems, agents need to share information. **State management** defines how data flows between agents, and **memory** determines what each agent can recall.
 
-  <CodeBlock language="json" label="Shared State Object (Re\u00b3 Debate)" code={`{
+  <CodeBlock>
+{`{'{'{'}'}
   "debate_id": "d_1707234567",
   "topic": "Impact of AI on healthcare",
   "round": 2,
   "agents": ["agent_strategist", "agent_ethicist", "agent_builder"],
-  "arguments": {
+  "arguments": {'{'{'}'}
     "round_1": [
-      {"agent": "agent_strategist", "position": "..."},
-      {"agent": "agent_ethicist", "position": "..."}
+      {'{'{'}'}"agent": "agent_strategist", "position": "..."{'}'},
+      {'{'{'}'}"agent": "agent_ethicist", "position": "..."{'}'}
     ],
     "round_2": [
-      {"agent": "agent_strategist", "response": "..."}
+      {'{'{'}'}"agent": "agent_strategist", "response": "..."{'}'}
     ]
-  },
+  {'}'},
   "moderator_notes": "Quality score: 8.5/10"
-}`}/>
+{'}'}`}
+</CodeBlock>
   <ExpandableSection title="Memory Strategies" icon="🧠">
 
 **Full history:** Every agent sees all previous messages. Simple but uses lots of <JargonTip term="token">tokens</JargonTip>.

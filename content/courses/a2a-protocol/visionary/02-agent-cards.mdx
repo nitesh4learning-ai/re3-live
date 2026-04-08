@@ -9,27 +9,29 @@ An **<JargonTip term="agent card">Agent Card</JargonTip>** is a JSON document th
 
 <AnalogyBox emoji="💼" title="Think of it like a business card + resume">An Agent Card tells other agents: "Here's my name, what I specialize in, how to reach me, and what I can help with." It enables discovery and capability negotiation.</AnalogyBox>
 
-<CodeBlock language="json" label="Example Agent Card (Re³ Debate Lab)" code={`{
+<CodeBlock>
+{`{'{'{'}'}
   "name": "Re³ Debate Lab Agent",
   "description": "Orchestrates multi-agent debates on any topic",
   "url": "https://re3.live/api/a2a",
-  "capabilities": {
+  "capabilities": {'{'{'}'}
     "streaming": true,
     "pushNotifications": false
-  },
+  {'}'},
   "skills": [
-    {
+    {'{'{'}'}
       "id": "debate",
       "name": "Multi-Agent Debate",
       "description": "Run a structured debate with 5 specialized agents"
-    },
-    {
+    {'}'},
+    {'{'{'}'}
       "id": "synthesize",
       "name": "Debate Synthesis",
       "description": "Synthesize debate results into emergent insights"
-    }
+    {'}'}
   ]
-}`}/>
+{'}'}`}
+</CodeBlock>
 
 <Quiz question="What is the primary purpose of an Agent Card?" options={["To authenticate the agent","To describe capabilities for discovery by other agents","To store the agent's conversation history","To define the agent's pricing"]} correctIndex={1} explanation="Agent Cards enable discovery -- other agents can find and understand what capabilities are available, then decide whether to collaborate." />
 

@@ -19,7 +19,8 @@ Choosing the right similarity metric affects search quality and computational ef
 
 </ExpandableSection>
 
-<CodeBlock language="python" label="Similarity metrics implementation and comparison" code={`import numpy as np
+<CodeBlock>
+{`import numpy as np
 from scipy.spatial.distance import cosine, euclidean
 
 def compare_metrics(a, b):
@@ -38,13 +39,13 @@ def compare_metrics(a, b):
     b_norm = b / np.linalg.norm(b)
     dot_normalized = np.dot(a_norm, b_norm)
 
-    return {
+    return {'{'{'}'}
         "cosine_similarity": round(cos_sim, 4),
         "dot_product": round(dot, 4),
         "l2_distance": round(l2, 4),
         "dot_product_normalized": round(dot_normalized, 4),
         "cos_equals_dot_normalized": abs(cos_sim - dot_normalized) < 1e-6
-    }
+    {'}'}
 
 # Example: similar vectors
 a = np.array([0.8, 0.3, 0.5, 0.1])
@@ -71,7 +72,8 @@ def evaluate_dim_reduction(embeddings, full_dim=1536, reduced_dim=256):
     # Rank correlation (Spearman)
     from scipy.stats import spearmanr
     corr, _ = spearmanr(full_sims, reduced_sims)
-    print(f"Rank correlation ({full_dim}d vs {reduced_dim}d): {corr:.4f}")`}/>
+    print(f"Rank correlation ({'{'{'}'}full_dim{'}'}d vs {'{'{'}'}reduced_dim{'}'}d): {'{'{'}'}corr:.4f{'}'}")`}
+</CodeBlock>
 
 <ExpandableSection title="Dimension Reduction: PCA vs UMAP" icon="📉">
 

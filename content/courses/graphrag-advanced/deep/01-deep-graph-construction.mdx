@@ -17,7 +17,8 @@ rows={[
 ['Hybrid (NER + LLM validation)', 'Very high', 'High', 'Medium', 'Medium', 'Production balance of quality and cost'],
 ]}
 />
-<CodeBlock language="python" label="Scalable Async Extraction Pipeline" code={`import asyncio
+<CodeBlock>
+{`import asyncio
 from asyncio import Semaphore
 from typing import AsyncIterator
 import anthropic
@@ -30,7 +31,7 @@ class GraphConstructionPipeline:
                  batch_size: int = 50):
         self.semaphore = Semaphore(max_concurrent)
         self.batch_size = batch_size
-        self.entity_store = {}
+        self.entity_store = {'{'{'}'}{'}'}
         self.relation_store = []
 
     async def process_corpus(self, documents: list) -> tuple:
@@ -52,11 +53,11 @@ class GraphConstructionPipeline:
             # Filter out failures and log them
             for result in batch_results:
                 if isinstance(result, Exception):
-                    print(f"Extraction failed: {result}")
+                    print(f"Extraction failed: {'{'{'}'}result{'}'}")
                 else:
                     results.append(result)
 
-            print(f"Processed {min(i + self.batch_size, len(tasks))}/{len(tasks)} chunks")
+            print(f"Processed {'{'{'}'}min(i + self.batch_size, len(tasks)){'}'}/{'{'{'}'}len(tasks){'}'} chunks")
 
         # Entity resolution pass
         entities = await self._resolve_entities(
@@ -77,22 +78,22 @@ class GraphConstructionPipeline:
             model="claude-opus-4-6",
             max_tokens=1500,
             system="""Extract entities and relationships as JSON.
-            Schema: {"entities": [{"name": str, "type": str, "canonical": str}],
-                     "relations": [{"source": str, "relation": str, "target": str, "confidence": float}]}
+            Schema: {'{'{'}'}"entities": [{'{'{'}'}"name": str, "type": str, "canonical": str{'}'}],
+                     "relations": [{'{'{'}'}"source": str, "relation": str, "target": str, "confidence": float{'}'}]{'}'}
             Only output valid JSON, no other text.""",
-            messages=[{"role": "user", "content": f"Extract from:\\n{chunk}"}]
+            messages=[{'{'{'}'}"role": "user", "content": f"Extract from:\\n{'{'{'}'}chunk{'}'}"{'}'}]
         )
         try:
             import json, re
-            match = re.search(r'\\{[\\s\\S]*\\}', response.content[0].text)
-            return json.loads(match.group()) if match else {}
+            match = re.search(r'\\{'{'{'}'}[\\s\\S]*\\{'}'}', response.content[0].text)
+            return json.loads(match.group()) if match else {'{'{'}'}{'}'}
         except Exception:
-            return {}
+            return {'{'{'}'}{'}'}
 
     async def _resolve_entities(self, entities: list) -> dict:
         """Merge duplicate entities using string normalization + LLM."""
         # First pass: exact canonical name dedup
-        canonical_map = {}
+        canonical_map = {'{'{'}'}{'}'}
         for e in entities:
             key = e.get('canonical', e['name']).lower().strip()
             if key not in canonical_map:
@@ -100,12 +101,14 @@ class GraphConstructionPipeline:
 
         # Second pass: LLM-based fuzzy resolution for near-duplicates
         # Group candidates by first 3 chars for efficiency
-        return canonical_map`} />
+        return canonical_map`}
+</CodeBlock>
 <ExpandableSection title="Entity Disambiguation Deep Dive" icon="\uD83D\uDD0D">
 
 Entity disambiguation is the hardest unsolved problem in knowledge graph construction. The same string can refer to different entities ("Apple" = company or fruit), and different strings can refer to the same entity ("NY" = "New York" = "New York City").
 
-<CodeBlock language="python" label="Entity Disambiguation with Context" code={`def disambiguate_entity(mention: str, context: str,
+<CodeBlock>
+{`def disambiguate_entity(mention: str, context: str,
                          candidates: list, llm) -> str:
     """
     Given a mention and its surrounding context,
@@ -115,22 +118,23 @@ Entity disambiguation is the hardest unsolved problem in knowledge graph constru
         return candidates[0]['canonical']
 
     candidate_desc = "\\n".join([
-        f"{i+1}. {c['canonical']} ({c['type']}): {c.get('description', 'No description')}"
+        f"{'{'{'}'}i+1{'}'}. {'{'{'}'}c['canonical']{'}'} ({'{'{'}'}c['type']{'}'}): {'{'{'}'}c.get('description', 'No description'){'}'}"
         for i, c in enumerate(candidates)
     ])
 
     response = llm.generate(f"""
-    The text mentions "{mention}" in this context:
-    "{context}"
+    The text mentions "{'{'{'}'}mention{'}'}" in this context:
+    "{'{'{'}'}context{'}'}"
 
     Which entity does this refer to?
-    {candidate_desc}
+    {'{'{'}'}candidate_desc{'}'}
 
     Reply with just the number (1, 2, etc.).
     """)
 
     idx = int(response.strip()) - 1
-    return candidates[idx]['canonical'] if 0 <= idx < len(candidates) else mention`} />
+    return candidates[idx]['canonical'] if 0 <= idx < len(candidates) else mention`}
+</CodeBlock>
 </ExpandableSection>
 <ExpandableSection title="Graph Quality Metrics" icon="\uD83D\uDCCA">
 

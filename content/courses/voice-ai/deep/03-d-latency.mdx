@@ -7,7 +7,8 @@ icon: "\u26A1"
 
 In voice AI, <JargonTip term="latency">latency</JargonTip> is everything. Users tolerate {'<'}800ms total latency for natural conversation. Minimizing <JargonTip term="TTFT">TTFT</JargonTip> (time to first token) is critical, and <JargonTip term="streaming">streaming</JargonTip> overlaps all pipeline stages for the best perceived responsiveness.
 
-  <CodeBlock label="Streaming Voice Pipeline" code={`class StreamingVoicePipeline:
+  <CodeBlock>
+{`class StreamingVoicePipeline:
     """Overlap STT/LLM/TTS for minimum latency"""
 
     async def process(self, audio_stream):
@@ -33,7 +34,8 @@ In voice AI, <JargonTip term="latency">latency</JargonTip> is everything. Users 
 
         # Flush remaining buffer
         if sentence_buffer:
-            yield await self.tts.synthesize(sentence_buffer)`}/>
+            yield await self.tts.synthesize(sentence_buffer)`}
+</CodeBlock>
   <ComparisonTable title="Latency Budget Breakdown" columns={['Component','Target','Strategy']} rows={[
     ['STT','50-150ms','Streaming transcription, Deepgram/AssemblyAI'],
     ['LLM (first token)','100-200ms','GPT-4o-mini or Haiku; streaming mode'],

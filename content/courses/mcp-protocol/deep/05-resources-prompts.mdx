@@ -7,7 +7,8 @@ icon: "📁"
 
 Resources provide **read-only contextual data** to the LLM. Unlike tools (which perform actions), resources feed information into the conversation. Prompts are **reusable workflow templates** that guide the LLM through structured tasks.
 
-<CodeBlock language="python" label="Resource URI Schemes and Handlers" code={`from mcp.server import Server
+<CodeBlock>
+{`from mcp.server import Server
 
 app = Server("docs-server")
 
@@ -15,18 +16,18 @@ app = Server("docs-server")
 @app.resource("config://app/settings")
 async def get_settings() -> str:
     """Current application configuration."""
-    return json.dumps({
+    return json.dumps({'{'{'}'}
         "environment": "production",
-        "features": {"dark_mode": True, "beta_api": False}
-    })
+        "features": {'{'{'}'}"dark_mode": True, "beta_api": False{'}'}
+    {'}'})
 
 # Dynamic resource with URI template
-@app.resource("docs://articles/{article_id}")
+@app.resource("docs://articles/{'{'{'}'}article_id{'}'}")
 async def get_article(article_id: str) -> str:
     """Retrieve a specific article by ID."""
     article = await db.get_article(article_id)
     if not article:
-        raise ValueError(f"Article {article_id} not found")
+        raise ValueError(f"Article {'{'{'}'}article_id{'}'} not found")
     return json.dumps(article)
 
 # Resource listing: let clients discover available resources
@@ -34,11 +35,13 @@ async def get_article(article_id: str) -> str:
 async def list_resources():
     articles = await db.list_article_ids()
     return [
-        {"uri": f"docs://articles/{aid}", "name": f"Article {aid}"}
+        {'{'{'}'}"uri": f"docs://articles/{'{'{'}'}aid{'}'}", "name": f"Article {'{'{'}'}aid{'}'}"{'}'}
         for aid in articles
-    ]`}/>
+    ]`}
+</CodeBlock>
 
-<CodeBlock language="python" label="Templated Prompts" code={`@app.prompt("code-review")
+<CodeBlock>
+{`@app.prompt("code-review")
 async def code_review_prompt(language: str, file_path: str) -> list:
     """Generate a structured code review prompt.
 
@@ -48,22 +51,22 @@ async def code_review_prompt(language: str, file_path: str) -> list:
     """
     file_content = await read_file(file_path)
     return [
-        {
+        {'{'{'}'}
             "role": "user",
-            "content": f"""Review this {language} code for:
+            "content": f"""Review this {'{'{'}'}language{'}'} code for:
 1. Bugs and potential runtime errors
 2. Security vulnerabilities
 3. Performance issues
 4. Code style and readability
 
-File: {file_path}
-\\n\\n{file_content}
+File: {'{'{'}'}file_path{'}'}
+\\n\\n{'{'{'}'}file_content{'}'}
 
 Provide your review in this format:
 - CRITICAL: Issues that will cause bugs or security problems
 - WARNING: Issues that may cause problems under certain conditions
 - SUGGESTION: Style and readability improvements"""
-        }
+        {'}'}
     ]
 
 @app.prompt("summarize-pr")
@@ -71,8 +74,9 @@ async def summarize_pr_prompt(pr_number: int) -> list:
     """Generate a PR summary prompt with diff context."""
     diff = await github.get_pr_diff(pr_number)
     return [
-        {"role": "user", "content": f"Summarize this pull request diff. Focus on what changed and why it matters:\\n\\n{diff}"}
-    ]`}/>
+        {'{'{'}'}"role": "user", "content": f"Summarize this pull request diff. Focus on what changed and why it matters:\\n\\n{'{'{'}'}diff{'}'}"{'}'}
+    ]`}
+</CodeBlock>
 
 <ComparisonTable title="When to Use Each MCP Primitive" columns={['Scenario','Tool','Resource','Prompt']} rows={[
   ['Search a database by query','Yes -- action with parameters','No','No'],

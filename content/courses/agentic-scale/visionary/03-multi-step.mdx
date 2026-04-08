@@ -11,7 +11,8 @@ Real-world tasks rarely complete in a single step. An agent researching a topic 
 
 
 ### Task Decomposition
-  <CodeBlock language="python" label="Task Decomposition with Subtask Routing" code={`class TaskDecomposer:
+  <CodeBlock>
+{`class TaskDecomposer:
     """Break complex tasks into subtasks and route to specialists."""
 
     def decompose(self, task: str) -> list[dict]:
@@ -27,7 +28,7 @@ Real-world tasks rarely complete in a single step. An agent researching a topic 
         return parse_json(response)
 
     async def execute_plan(self, subtasks):
-        results = {}
+        results = {'{'{'}'}{'}'}
         # Topological sort: run independent tasks in parallel
         for batch in self.topological_batches(subtasks):
             batch_results = await asyncio.gather(*[
@@ -46,7 +47,8 @@ Real-world tasks rarely complete in a single step. An agent researching a topic 
                      if all(d in completed for d in subtasks[i].get("depends_on", []))]
             yield [subtasks[i] for i in batch]
             completed.update(batch)
-            remaining = [i for i in remaining if i not in completed]`}/>
+            remaining = [i for i in remaining if i not in completed]`}
+</CodeBlock>
 
 
 ### Memory Within a Run
@@ -60,11 +62,12 @@ As an agent executes many steps, its conversation history grows. Without memory 
     ['Scratchpad','Agent writes key facts to a structured notepad','Low','Selective recall','Complex multi-phase tasks'],
   ]}/>
 
-  <CodeBlock language="python" label="Scratchpad Memory Pattern" code={`class AgentScratchpad:
+  <CodeBlock>
+{`class AgentScratchpad:
     """Structured memory that persists key facts across steps."""
 
     def __init__(self):
-        self.facts = {}      # key-value store of discovered facts
+        self.facts = {'{'{'}'}{'}'}      # key-value store of discovered facts
         self.plan = []       # current plan steps
         self.completed = []  # what has been done
 
@@ -78,15 +81,15 @@ As an agent executes many steps, its conversation history grows. Without memory 
         if self.facts:
             lines.append("### Known Facts")
             for k, v in self.facts.items():
-                lines.append(f"- {k}: {v}")
+                lines.append(f"- {'{'{'}'}k{'}'}: {'{'{'}'}v{'}'}")
         if self.plan:
             lines.append("### Remaining Plan")
             for step in self.plan:
-                lines.append(f"- [ ] {step}")
+                lines.append(f"- [ ] {'{'{'}'}step{'}'}")
         if self.completed:
             lines.append("### Completed Steps")
             for step in self.completed:
-                lines.append(f"- [x] {step}")
+                lines.append(f"- [x] {'{'{'}'}step{'}'}")
         return "\\n".join(lines)
 
 # Usage in agent loop:
@@ -94,7 +97,8 @@ scratchpad = AgentScratchpad()
 scratchpad.remember("user_timezone", "PST")
 scratchpad.remember("api_key_status", "valid")
 # Include in every LLM call:
-messages.append({"role": "system", "content": scratchpad.to_context()})`}/>
+messages.append({'{'{'}'}"role": "system", "content": scratchpad.to_context(){'}'})`}
+</CodeBlock>
 
   <Quiz question="Why is a scratchpad memory pattern often better than full history for long-running agents?" options={["Scratchpads are faster to read","The agent selectively stores only important facts, keeping context focused and within token limits","Scratchpads don't use tokens","Full history is always better"]} correctIndex={1} explanation="A scratchpad lets the agent explicitly decide what's worth remembering. After 50 steps, full history might be 100K tokens of mostly irrelevant tool outputs. A scratchpad might be 500 tokens of curated key facts. This keeps the agent focused and within context limits."/>
 

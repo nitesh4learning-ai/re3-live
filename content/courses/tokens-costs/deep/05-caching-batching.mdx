@@ -5,32 +5,35 @@ icon: "💾"
 
 ## <JargonTip term="prompt caching">Prompt Caching</JargonTip> & Batching
 
-<CodeBlock title="Anthropic Prompt Caching" code={`import anthropic
+<CodeBlock>
+{`import anthropic
 client = anthropic.Anthropic()
 
 # Structure: long system prompt (cached) + short user query
 response = client.messages.create(
     model="claude-3-5-sonnet-20241022",
     max_tokens=1024,
-    system=[{
+    system=[{'{'{'}'}
         "type": "text",
         "text": SYSTEM_PROMPT,  # 2000+ tokens, cached for 5 min
-        "cache_control": {"type": "ephemeral"}
-    }],
-    messages=[{"role": "user", "content": user_query}]
+        "cache_control": {'{'{'}'}"type": "ephemeral"{'}'}
+    {'}'}],
+    messages=[{'{'{'}'}"role": "user", "content": user_query{'}'}]
 )
 # Cache hit: pay 10% for cached tokens, 100% only for new tokens
-# Example: 2000-token system prompt = save $5.40/1M requests`}/>
+# Example: 2000-token system prompt = save $5.40/1M requests`}
+</CodeBlock>
 
-<CodeBlock title="OpenAI Batch API" code={`from openai import OpenAI
+<CodeBlock>
+{`from openai import OpenAI
 client = OpenAI()
 
 # Create batch file (JSONL format)
 batch_requests = [
-    {"custom_id": f"req-{i}",
+    {'{'{'}'}"custom_id": f"req-{'{'{'}'}i{'}'}",
      "method": "POST",
      "url": "/v1/chat/completions",
-     "body": {"model": "gpt-4o", "messages": msgs}}
+     "body": {'{'{'}'}"model": "gpt-4o", "messages": msgs{'}'}{'}'}
     for i, msgs in enumerate(all_messages)
 ]
 
@@ -39,6 +42,7 @@ batch = client.batches.create(
     input_file_id=upload_batch_file(batch_requests),
     endpoint="/v1/chat/completions",
     completion_window="24h"
-)`}/>
+)`}
+</CodeBlock>
 
 <ComparisonTable title="When to Use Each" headers={['Strategy','Best For','Savings','Latency Impact']} rows={[['Prompt Caching','Repeated system prompts, RAG with common prefix','90% on cached tokens','None'],['Batching','Non-urgent bulk processing, overnight jobs','50% on entire request','Up to 24h delay'],['Cascading','Mixed-complexity workloads','60-80% overall','None (may improve)']]}/>

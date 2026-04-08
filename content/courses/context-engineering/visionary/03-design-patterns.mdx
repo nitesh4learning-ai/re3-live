@@ -19,9 +19,10 @@ icon: "\uD83D\uDEE0\uFE0F"
 Summarize old turns, compress docs into key facts, use structured formats (bullets, tables) over prose. A 500-token summary of 10 turns preserves meaning while saving 80% of tokens.
 </ExpandableSection>
 
-<CodeBlock title="Context Assembly Function" code={`def assemble_context(system_prompt, query, docs, convo, max_tokens=4096):
+<CodeBlock>
+{`def assemble_context(system_prompt, query, docs, convo, max_tokens=4096):
     budget = max_tokens
-    context = [{"role": "system", "content": system_prompt}]
+    context = [{'{'{'}'}"role": "system", "content": system_prompt{'}'}]
     budget -= count_tokens(system_prompt)
 
     # Recent conversation (last 3 turns verbatim)
@@ -34,12 +35,13 @@ Summarize old turns, compress docs into key facts, use structured formats (bulle
     for doc in docs:
         t = count_tokens(doc["text"])
         if t <= budget - 200:  # Reserve 200 for query
-            doc_ctx += f"\\n---\\n{doc['text']}"
+            doc_ctx += f"\\n---\\n{'{'{'}'}doc['text']{'}'}"
             budget -= t
     if doc_ctx:
-        context.append({"role":"user","content":f"Reference docs:{doc_ctx}"})
+        context.append({'{'{'}'}"role":"user","content":f"Reference docs:{'{'{'}'}doc_ctx{'}'}"{'}'})
     context.extend(recent)
-    context.append({"role": "user", "content": query})
-    return context`}/>
+    context.append({'{'{'}'}"role": "user", "content": query{'}'})
+    return context`}
+</CodeBlock>
 
 <Quiz question="Where should you place critical instructions in a long context?" options={["In the middle, surrounded by supporting text","At the very beginning or very end","It does not matter with modern models","Only at the end"]} correctIndex={1} explanation="Due to primacy and recency effects, models attend most to the start and end of context. Put critical instructions in the system prompt (beginning) and repeat before the final user query (end)." />

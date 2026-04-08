@@ -30,7 +30,8 @@ rows={[
 | Complex multi-part question | All three + rerank | RRF fusion maximizes recall; reranker optimizes precision |
 
 
-<CodeBlock language="python" label="Hybrid Retrieval with RRF Fusion" code={`from typing import List, Dict
+<CodeBlock>
+{`from typing import List, Dict
 import numpy as np
 
 class HybridRetriever:
@@ -44,7 +45,7 @@ class HybridRetriever:
         # Detect query type for routing
         route = self._route_query(query)
 
-        results = {}
+        results = {'{'{'}'}{'}'}
 
         # Always run vector search
         vector_results = self.vector_store.similarity_search(query, k=k*2)
@@ -71,13 +72,13 @@ class HybridRetriever:
 
     def _rrf_fusion(self, results_by_method: dict, k: int = 60) -> List[Dict]:
         """Reciprocal Rank Fusion: score = sum(1 / (k + rank_i))"""
-        doc_scores = {}
+        doc_scores = {'{'{'}'}{'}'}
 
         for method, docs in results_by_method.items():
             for rank, doc in enumerate(docs):
                 doc_id = doc['id']
                 if doc_id not in doc_scores:
-                    doc_scores[doc_id] = {'doc': doc, 'score': 0.0}
+                    doc_scores[doc_id] = {'{'{'}'}'doc': doc, 'score': 0.0{'}'}
                 doc_scores[doc_id]['score'] += 1.0 / (k + rank + 1)
 
         sorted_docs = sorted(doc_scores.values(),
@@ -91,7 +92,8 @@ class HybridRetriever:
             return 'relational'
         if any(c.isdigit() for c in query) or query.count('"') >= 2:
             return 'exact'
-        return 'hybrid'`} />
+        return 'hybrid'`}
+</CodeBlock>
 <RetrievalStrategyComparator />
 <Quiz
 question="What does Reciprocal Rank Fusion (RRF) do?"

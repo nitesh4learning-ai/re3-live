@@ -7,7 +7,8 @@ icon: "🔧"
 
 Building a production embedding pipeline requires handling <JargonTip term="chunking">chunking</JargonTip> strategies, batch processing, metadata management, incremental updates, and monitoring. This tab covers the end-to-end implementation of a production-ready vector search system.
 
-<CodeBlock language="python" label="Production embedding pipeline" code={`import hashlib
+<CodeBlock>
+{`import hashlib
 from typing import List, Dict, Optional
 from dataclasses import dataclass
 from openai import OpenAI
@@ -66,19 +67,19 @@ class EmbeddingPipeline:
             for i, (chunk, embedding) in enumerate(zip(batch, embeddings)):
                 idx = batch_start + i
                 point_id = hashlib.md5(
-                    f"{doc_id}_{idx}".encode()
+                    f"{'{'{'}'}doc_id{'}'}_{'{'{'}'}idx{'}'}".encode()
                 ).hexdigest()[:16]
 
                 points.append(PointStruct(
                     id=int(point_id, 16) % (2**63),
                     vector=embedding,
-                    payload={
+                    payload={'{'{'}'}
                         "text": chunk,
                         "doc_id": doc_id,
                         "chunk_index": idx,
                         "total_chunks": len(chunks),
-                        **(metadata or {}),
-                    }
+                        **(metadata or {'{'{'}'}{'}'}),
+                    {'}'}
                 ))
 
         self.qdrant.upsert(collection=self.collection, points=points)
@@ -90,7 +91,7 @@ class EmbeddingPipeline:
         filter_conditions = None
         if filters:
             filter_conditions = Filter(must=[
-                FieldCondition(key=k, match={"value": v})
+                FieldCondition(key=k, match={'{'{'}'}"value": v{'}'})
                 for k, v in filters.items()
             ])
 
@@ -100,8 +101,9 @@ class EmbeddingPipeline:
             limit=top_k,
             query_filter=filter_conditions,
         )
-        return [{"text": r.payload["text"], "score": r.score,
-                 "doc_id": r.payload["doc_id"]} for r in results]`}/>
+        return [{'{'{'}'}"text": r.payload["text"], "score": r.score,
+                 "doc_id": r.payload["doc_id"]{'}'} for r in results]`}
+</CodeBlock>
 
 <ExpandableSection title="Chunking Strategy Decision Guide" icon="🔪" defaultOpen={true}>
 

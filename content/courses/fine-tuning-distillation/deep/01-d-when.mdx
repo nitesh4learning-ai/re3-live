@@ -19,7 +19,8 @@ icon: "\uD83C\uDFAF"
 
 Fine-tuning costs include: **data preparation** (10-50 hours), **training compute** ($5-500+ depending on model size), **evaluation** (ongoing), and **hosting** (dedicated endpoint). The payoff comes from: reduced prompt tokens (no few-shot examples needed), lower <JargonTip term="inference">inference</JargonTip> latency, and more consistent outputs.
 
-    <CodeBlock title="Cost comparison calculator" language="python" code={`# Cost comparison: prompting vs fine-tuning
+    <CodeBlock>
+{`# Cost comparison: prompting vs fine-tuning
 prompt_tokens_per_call = 2000  # With few-shot examples
 ft_tokens_per_call = 200       # No examples needed
 
@@ -34,7 +35,8 @@ ft_cost = (ft_tokens_per_call / 1000) * cost_per_1k_tokens * calls_per_day
 training_cost = 200  # one-time
 
 # Break-even in ~4 days at scale
-breakeven_days = training_cost / (prompt_cost - ft_cost)`}/>
+breakeven_days = training_cost / (prompt_cost - ft_cost)`}
+</CodeBlock>
   </ExpandableSection>
   <Quiz question="When is fine-tuning most clearly justified?" options={["When you need the model to know about recent events","When few-shot prompting works but uses too many tokens","When you want to try a new model","When your task is simple and well-defined"]} correctIndex={1} explanation="Fine-tuning shines when prompting works but is inefficient. If you need many few-shot examples every call, fine-tuning teaches the model the pattern directly, saving tokens and reducing latency. For recent knowledge, RAG is better."/>
   <Quiz question="What should you try BEFORE fine-tuning?" options={["Immediately fine-tune for best results","Try prompt engineering and RAG first","Skip to model distillation","Train from scratch"]} correctIndex={1} explanation="Always exhaust cheaper alternatives first. Prompt engineering and RAG solve many problems without the cost and complexity of fine-tuning. Only fine-tune when these approaches fall short."/>

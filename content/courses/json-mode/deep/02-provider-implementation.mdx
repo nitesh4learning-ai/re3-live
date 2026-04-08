@@ -7,29 +7,31 @@ icon: "🔌"
 
 Each LLM provider implements <JargonTip term="structured output">structured outputs</JargonTip> differently. Some use <JargonTip term="function calling">function calling</JargonTip> under the hood, while others support native <JargonTip term="constrained decoding">constrained decoding</JargonTip>.
 
-<CodeBlock title="OpenAI Structured Output (2025)" code={`from openai import OpenAI
+<CodeBlock>
+{`from openai import OpenAI
 client = OpenAI()
 
 response = client.chat.completions.create(
     model="gpt-4o",
-    response_format={
+    response_format={'{'{'}'}
         "type": "json_schema",
-        "json_schema": {
+        "json_schema": {'{'{'}'}
             "name": "sentiment_analysis",
             "strict": True,  # Guarantees exact schema match
-            "schema": {
+            "schema": {'{'{'}'}
                 "type": "object",
-                "properties": {
-                    "sentiment": {"type": "string", "enum": ["positive","negative","neutral"]},
-                    "confidence": {"type": "number"},
-                    "key_phrases": {"type": "array", "items": {"type": "string"}}
-                },
+                "properties": {'{'{'}'}
+                    "sentiment": {'{'{'}'}"type": "string", "enum": ["positive","negative","neutral"]{'}'},
+                    "confidence": {'{'{'}'}"type": "number"{'}'},
+                    "key_phrases": {'{'{'}'}"type": "array", "items": {'{'{'}'}"type": "string"{'}'}{'}'}
+                {'}'},
                 "required": ["sentiment", "confidence", "key_phrases"],
                 "additionalProperties": False
-            }
-        }
-    },
-    messages=[{"role":"user","content":"Analyze: 'Great product!'"}]
-)`}/>
+            {'}'}
+        {'}'}
+    {'}'},
+    messages=[{'{'{'}'}"role":"user","content":"Analyze: 'Great product!'"{'}'}]
+)`}
+</CodeBlock>
 
 <ComparisonTable title="Feature Comparison" headers={['Feature','OpenAI','Anthropic','Gemini']} rows={[['Strict schema mode','Yes (strict: true)','Via tool_use','Yes (response_schema)'],['Nested objects','Full support','Full support','Full support'],['Enum enforcement','Yes','Yes','Yes'],['Streaming partial JSON','Yes','Yes','Limited'],['Max schema complexity','High','Medium','Medium'],['Additional cost','None','None','None']]}/>

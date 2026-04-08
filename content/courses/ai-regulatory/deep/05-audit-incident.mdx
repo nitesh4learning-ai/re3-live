@@ -5,7 +5,8 @@ icon: "\uD83D\uDEA8"
 
 ## AI Audit & Incident Response
 
-<CodeBlock language="python" label="AI Audit Trail System" code={`import json, hashlib
+<CodeBlock>
+{`import json, hashlib
 from datetime import datetime
 
 class AIAuditLogger:
@@ -17,7 +18,7 @@ class AIAuditLogger:
 
     def log_decision(self, input_data, output, confidence,
                      model_version, human_override=None):
-        entry = {
+        entry = {'{'{'}'}
             "timestamp": datetime.utcnow().isoformat(),
             "system_id": self.system_id,
             "model_version": model_version,
@@ -28,7 +29,7 @@ class AIAuditLogger:
             "confidence": confidence,
             "human_override": human_override,
             "prev_hash": self.chain[-1]["hash"] if self.chain else "genesis"
-        }
+        {'}'}
         entry["hash"] = hashlib.sha256(
             json.dumps(entry, sort_keys=True).encode()
         ).hexdigest()
@@ -39,13 +40,14 @@ class AIAuditLogger:
         """Verify no entries have been tampered with"""
         for i, entry in enumerate(self.chain):
             stored_hash = entry["hash"]
-            entry_copy = {k: v for k, v in entry.items() if k != "hash"}
+            entry_copy = {'{'{'}'}k: v for k, v in entry.items() if k != "hash"{'}'}
             computed = hashlib.sha256(
                 json.dumps(entry_copy, sort_keys=True).encode()
             ).hexdigest()
             if stored_hash != computed:
-                return False, f"Tampered at index {i}"
-        return True, "Chain intact"`}/>
+                return False, f"Tampered at index {'{'{'}'}i{'}'}"
+        return True, "Chain intact"`}
+</CodeBlock>
 
 <ExpandableSection title="Incident Response Playbook" icon={'\uD83D\uDEA8'} defaultOpen>
 

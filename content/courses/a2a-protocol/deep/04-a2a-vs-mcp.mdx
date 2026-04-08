@@ -18,7 +18,8 @@ A2A and MCP are **complementary protocols** that solve different problems. Under
   ['Typical latency','Milliseconds to seconds','Seconds to hours (long-running tasks)'],
 ]}/>
 
-<CodeBlock language="python" label="Bridging MCP and A2A" code={`# An A2A agent that uses MCP tools internally
+<CodeBlock>
+{`# An A2A agent that uses MCP tools internally
 class HybridAgent:
     """Agent that accepts A2A tasks and uses MCP tools to fulfill them."""
 
@@ -43,7 +44,7 @@ class HybridAgent:
         try:
             # 1. Search for relevant data (MCP tool call)
             search_results = await self.mcp_manager.call_tool(
-                "search_issues", {"query": message, "limit": 10}
+                "search_issues", {'{'{'}'}"query": message, "limit": 10{'}'}
             )
 
             # 2. Get additional context (MCP resource)
@@ -58,10 +59,11 @@ class HybridAgent:
             # Update state: completed with artifact
             await self.task_store.update(task_id,
                 state="completed",
-                artifacts=[{"name": "result", "parts": [{"type": "text", "text": response}]}]
+                artifacts=[{'{'{'}'}"name": "result", "parts": [{'{'{'}'}"type": "text", "text": response{'}'}]{'}'}]
             )
         except Exception as e:
-            await self.task_store.update(task_id, state="failed", error=str(e))`}/>
+            await self.task_store.update(task_id, state="failed", error=str(e))`}
+</CodeBlock>
 
 <ArchitectureDecision scenario="You are building a system where a user asks a question, and the system should: (1) search a database, (2) fetch relevant documents, and (3) ask a specialist AI agent to analyze the combined data. Which protocol(s) do you use?" options={[
   {label:'All MCP -- treat the specialist agent as just another tool',tradeoff:'Simpler architecture, but treating an intelligent agent as a tool limits its autonomy and cannot handle long-running analysis'},

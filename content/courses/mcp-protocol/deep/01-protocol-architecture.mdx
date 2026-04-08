@@ -13,44 +13,47 @@ icon: "📡"
   ['Streamable HTTP','HTTP with bidirectional streaming','Production APIs, scalable services','Newer spec, less tooling support'],
 ]}/>
 
-<CodeBlock language="json" label="JSON-RPC 2.0 Initialize Request" code={`// Client -> Server: Initialize handshake
-{
+<CodeBlock>
+{`// Client -> Server: Initialize handshake
+{'{'{'}'}
   "jsonrpc": "2.0",
   "id": 1,
   "method": "initialize",
-  "params": {
+  "params": {'{'{'}'}
     "protocolVersion": "2025-03-26",
-    "capabilities": {
-      "roots": { "listChanged": true }
-    },
-    "clientInfo": {
+    "capabilities": {'{'{'}'}
+      "roots": {'{'{'}'} "listChanged": true {'}'}
+    {'}'},
+    "clientInfo": {'{'{'}'}
       "name": "my-ai-app",
       "version": "1.0.0"
-    }
-  }
-}
+    {'}'}
+  {'}'}
+{'}'}
 
 // Server -> Client: Capability response
-{
+{'{'{'}'}
   "jsonrpc": "2.0",
   "id": 1,
-  "result": {
+  "result": {'{'{'}'}
     "protocolVersion": "2025-03-26",
-    "capabilities": {
-      "tools": { "listChanged": true },
-      "resources": { "subscribe": true },
-      "prompts": { "listChanged": true }
-    },
-    "serverInfo": {
+    "capabilities": {'{'{'}'}
+      "tools": {'{'{'}'} "listChanged": true {'}'},
+      "resources": {'{'{'}'} "subscribe": true {'}'},
+      "prompts": {'{'{'}'} "listChanged": true {'}'}
+    {'}'},
+    "serverInfo": {'{'{'}'}
       "name": "github-mcp-server",
       "version": "2.1.0"
-    }
-  }
-}`}/>
+    {'}'}
+  {'}'}
+{'}'}`}
+</CodeBlock>
 
 The capability negotiation phase is critical. The client advertises what it supports (e.g., root listing), and the server responds with what it offers (tools, resources, prompts). Both sides only use features the other supports.
 
-<CodeBlock language="python" label="Transport Selection in Python" code={`from mcp.server import Server
+<CodeBlock>
+{`from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.server.sse import SseServerTransport
 from starlette.applications import Starlette
@@ -73,7 +76,8 @@ async def handle_sse(request):
 starlette_app = Starlette(routes=[
     Route("/sse", endpoint=handle_sse),
     Route("/messages", endpoint=sse.handle_post_message, methods=["POST"]),
-])`}/>
+])`}
+</CodeBlock>
 
 <ArchitectureDecision scenario="You are building an MCP server for a team's internal knowledge base. Developers will use it from Claude Desktop on their laptops, but the knowledge base lives on a shared server accessible via HTTP." options={[
   {label:'stdio transport',tradeoff:'Simple setup, but requires the server binary on every developer machine and cannot access remote knowledge base directly'},

@@ -7,7 +7,8 @@ icon: "🔒"
 
 MCP servers often access sensitive systems -- databases, APIs, internal tools. Security is not optional. The protocol supports **OAuth 2.0** for authentication, and servers must implement input sanitization, rate limiting, and <JargonTip term="guardrails">trust verification</JargonTip>.
 
-<CodeBlock language="python" label="Input Sanitization and Rate Limiting" code={`import time
+<CodeBlock>
+{`import time
 from collections import defaultdict
 
 # Simple rate limiter
@@ -40,23 +41,25 @@ async def query_database(sql_query: str) -> str:
     """
     # 1. Rate limit
     if not limiter.check("default"):
-        return json.dumps({"error": "Rate limit exceeded. Try again in 60s."})
+        return json.dumps({'{'{'}'}"error": "Rate limit exceeded. Try again in 60s."{'}'})
 
     # 2. Input sanitization -- block dangerous patterns
     blocked = ["DROP", "DELETE", "UPDATE", "INSERT", "ALTER", "EXEC", "--", ";"]
     upper = sql_query.upper()
     for pattern in blocked:
         if pattern in upper:
-            return json.dumps({"error": f"Blocked: query contains '{pattern}'. Only SELECT queries are allowed."})
+            return json.dumps({'{'{'}'}"error": f"Blocked: query contains '{'{'{'}'}pattern{'}'}'. Only SELECT queries are allowed."{'}'})
 
     # 3. Enforce read-only at DB level too (defense in depth)
     try:
         result = await db.execute_readonly(sql_query, timeout=10)
-        return json.dumps({"rows": result, "count": len(result)})
+        return json.dumps({'{'{'}'}"rows": result, "count": len(result){'}'})
     except Exception as e:
-        return json.dumps({"error": str(e)})`}/>
+        return json.dumps({'{'{'}'}"error": str(e){'}'})`}
+</CodeBlock>
 
-<CodeBlock language="python" label="OAuth 2.0 Token Verification" code={`from mcp.server.auth import oauth2_required
+<CodeBlock>
+{`from mcp.server.auth import oauth2_required
 import jwt
 
 # Verify OAuth tokens on MCP connections
@@ -69,11 +72,11 @@ async def verify_token(token: str) -> dict:
             algorithms=["RS256"],
             audience="mcp-knowledge-server"
         )
-        return {
+        return {'{'{'}'}
             "user_id": payload["sub"],
             "scopes": payload.get("scope", "").split(),
             "expires": payload["exp"]
-        }
+        {'}'}
     except jwt.ExpiredSignatureError:
         raise ValueError("Token expired")
     except jwt.InvalidTokenError:
@@ -82,7 +85,7 @@ async def verify_token(token: str) -> dict:
 # Check scopes before tool execution
 async def require_scope(token_info: dict, scope: str):
     if scope not in token_info["scopes"]:
-        raise PermissionError(f"Missing required scope: {scope}")
+        raise PermissionError(f"Missing required scope: {'{'{'}'}scope{'}'}")
 
 @app.tool()
 async def delete_document(doc_id: str) -> str:
@@ -90,7 +93,8 @@ async def delete_document(doc_id: str) -> str:
     token_info = get_current_token()  # From auth middleware
     await require_scope(token_info, "write")
     await db.delete(doc_id)
-    return json.dumps({"deleted": doc_id})`}/>
+    return json.dumps({'{'{'}'}"deleted": doc_id{'}'})`}
+</CodeBlock>
 
 <Quiz question="Why implement both SQL pattern blocking AND a read-only database connection?" options={["Redundancy is wasteful -- pick one","Defense in depth: if one layer fails, the other still protects","It makes the code look more secure","For compliance documentation only"]} correctIndex={1} explanation="Defense in depth means multiple independent security layers. If a creative SQL injection bypasses pattern matching, the read-only database connection still prevents mutations. Neither layer alone is sufficient." />
 

@@ -9,7 +9,8 @@ The power of MCP is that once you build an MCP server, **any** MCP-compatible ag
 
 ### Building a 3-Agent System with MCP
 
-<CodeBlock language="python" label="Complete 3-Agent Pipeline with MCP Tools" code={`from langgraph.graph import StateGraph, END, START
+<CodeBlock>
+{`from langgraph.graph import StateGraph, END, START
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import SystemMessage, HumanMessage
 
@@ -28,11 +29,11 @@ def researcher_agent(state):
                 "compile key facts about the given topic. "
                 "Be thorough and cite sources."
             )),
-            HumanMessage(content=f"Research: {state['topic']}")
+            HumanMessage(content=f"Research: {'{'{'}'}state['topic']{'}'}")
         ],
         # In production: bind web search tool via MCP
     )
-    return {"research_output": response.content}
+    return {'{'{'}'}"research_output": response.content{'}'}
 
 # ── Agent 2: Analyst with data analysis tools ──
 def analyst_agent(state):
@@ -48,11 +49,11 @@ def analyst_agent(state):
             "with clear sections."
         )),
         HumanMessage(content=(
-            f"Topic: {state['topic']}\\n\\n"
-            f"Research findings:\\n{state['research_output']}"
+            f"Topic: {'{'{'}'}state['topic']{'}'}\\n\\n"
+            f"Research findings:\\n{'{'{'}'}state['research_output']{'}'}"
         ))
     ])
-    return {"analysis_output": response.content}
+    return {'{'{'}'}"analysis_output": response.content{'}'}
 
 # ── Agent 3: Writer with document tools ──
 def writer_agent(state):
@@ -69,12 +70,12 @@ def writer_agent(state):
             "findings, recommendations, and next steps."
         )),
         HumanMessage(content=(
-            f"Topic: {state['topic']}\\n\\n"
-            f"Research:\\n{state['research_output']}\\n\\n"
-            f"Analysis:\\n{state['analysis_output']}"
+            f"Topic: {'{'{'}'}state['topic']{'}'}\\n\\n"
+            f"Research:\\n{'{'{'}'}state['research_output']{'}'}\\n\\n"
+            f"Analysis:\\n{'{'{'}'}state['analysis_output']{'}'}"
         ))
     ])
-    return {"final_report": response.content}
+    return {'{'{'}'}"final_report": response.content{'}'}
 
 # ── Quality Gate ──
 def quality_check(state):
@@ -90,7 +91,7 @@ def quality_check(state):
         score = float(response.content.strip())
     except ValueError:
         score = 5.0
-    return {"quality_score": score, "iteration": state["iteration"] + 1}
+    return {'{'{'}'}"quality_score": score, "iteration": state["iteration"] + 1{'}'}
 
 def route_quality(state):
     if state["quality_score"] >= 7.0:
@@ -112,33 +113,36 @@ graph.add_edge("analyst", "writer")
 graph.add_edge("writer", "quality")
 graph.add_conditional_edges(
     "quality", route_quality,
-    {"done": END, "revise": "writer"}  # Writer revises if quality low
+    {'{'{'}'}"done": END, "revise": "writer"{'}'}  # Writer revises if quality low
 )
 
-app = graph.compile()`}/>
+app = graph.compile()`}
+</CodeBlock>
 
 ### MCP Server Configuration for Claude Desktop
 
-<CodeBlock language="json" label="claude_desktop_config.json — Connect to Your MCP Servers" code={`{
-  "mcpServers": {
-    "knowledge-base": {
+<CodeBlock>
+{`{'{'{'}'}
+  "mcpServers": {'{'{'}'}
+    "knowledge-base": {'{'{'}'}
       "command": "python3",
       "args": ["/path/to/kb_server.py"],
       "description": "Internal knowledge base search"
-    },
-    "supplier-validation": {
+    {'}'},
+    "supplier-validation": {'{'{'}'}
       "command": "python3",
       "args": ["/path/to/supplier_server.py"],
       "description": "Supplier data validation and enrichment"
-    },
-    "filesystem": {
+    {'}'},
+    "filesystem": {'{'{'}'}
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem",
                "/Users/nitesh/projects"],
       "description": "Read/write project files"
-    }
-  }
-}`}/>
+    {'}'}
+  {'}'}
+{'}'}`}
+</CodeBlock>
 
 <AnalogyBox emoji="🌐" title="API Gateway Pattern">
 MCP configuration is like setting up an API gateway. Each server entry is a microservice that the AI agent can discover and call. The agent doesn't need to know implementation details — it just sees the tools, resources, and prompts each server exposes. This is exactly how enterprise API management works: register services → discover capabilities → call what you need.

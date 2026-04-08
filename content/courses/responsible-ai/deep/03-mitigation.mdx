@@ -13,7 +13,8 @@ Once you've detected bias through <JargonTip term="red-teaming">red-teaming</Jar
   ['Post-processing','Threshold adjustment per group','Simple, no retraining needed','May reduce overall accuracy'],
 ]}/>
 
-<CodeBlock language="python" label="Post-processing: Equalized Odds" code={`from fairlearn.postprocessing import ThresholdOptimizer
+<CodeBlock>
+{`from fairlearn.postprocessing import ThresholdOptimizer
 
 # Wrap your trained model with fairness post-processing
 mitigated = ThresholdOptimizer(
@@ -32,7 +33,8 @@ fair_predictions = mitigated.predict(
 
 # Compare before/after
 print("Original disparity:", compute_disparity(y_pred))
-print("Mitigated disparity:", compute_disparity(fair_predictions))`}/>
+print("Mitigated disparity:", compute_disparity(fair_predictions))`}
+</CodeBlock>
 
 <ArchitectureDecision scenario="Your credit scoring model has a 5% selection rate gap between demographic groups. The business wants to launch next month. What approach do you take?" options={[
   {label:"Post-processing threshold adjustment",tradeoff:"Fastest to implement; no retraining; may slightly reduce overall accuracy"},

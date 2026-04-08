@@ -9,7 +9,8 @@ When grading reveals poor retrieval quality, the agent doesn't give up — it re
 
 ### The Query Rewriting Node
 
-<CodeBlock language="python" label="Intelligent Query Rewriting" code={`def rewrite_query(state: RAGState) -> dict:
+<CodeBlock>
+{`def rewrite_query(state: RAGState) -> dict:
     """
     When retrieved docs are mostly irrelevant, the LLM
     analyzes what went wrong and rewrites the query.
@@ -29,23 +30,25 @@ When grading reveals poor retrieval quality, the agent doesn't give up — it re
             "Return ONLY the improved query."
         )),
         HumanMessage(content=(
-            f"Original query: {state['query']}\\n\\n"
+            f"Original query: {'{'{'}'}state['query']{'}'}\\n\\n"
             f"Documents that were irrelevant:\\n"
-            f"{str([d['content'][:200] for d in state['documents'] if d not in state['relevant_docs']])[:500]}"
+            f"{'{'{'}'}str([d['content'][:200] for d in state['documents'] if d not in state['relevant_docs']])[:500]{'}'}"
         ))
     ])
     
     new_query = response.content.strip()
-    print(f"  ✏️  Rewritten: '{state['query']}' → '{new_query}'")
+    print(f"  ✏️  Rewritten: '{'{'{'}'}state['query']{'}'}' → '{'{'{'}'}new_query{'}'}'")
     
-    return {
+    return {'{'{'}'}
         "query": new_query,
         "retry_count": state["retry_count"] + 1,
-    }`}/>
+    {'}'}`}
+</CodeBlock>
 
 ### The Routing Function
 
-<CodeBlock language="python" label="Conditional Routing After Grading" code={`def route_after_grading(state: RAGState) -> Literal["generate", "rewrite", "end"]:
+<CodeBlock>
+{`def route_after_grading(state: RAGState) -> Literal["generate", "rewrite", "end"]:
     """
     After grading, decide the next step:
     
@@ -68,12 +71,14 @@ When grading reveals poor retrieval quality, the agent doesn't give up — it re
         return "generate"  # Best effort with what we have
     
     # Not enough good docs — rewrite and retry
-    print(f"  🔄 Only {relevant_count} relevant docs — rewriting query")
-    return "rewrite"`}/>
+    print(f"  🔄 Only {'{'{'}'}relevant_count{'}'} relevant docs — rewriting query")
+    return "rewrite"`}
+</CodeBlock>
 
 ### Vector Store Integration with ChromaDB
 
-<CodeBlock language="python" label="ChromaDB Retriever Node" code={`import chromadb
+<CodeBlock>
+{`import chromadb
 from chromadb.utils import embedding_functions
 
 # Initialize ChromaDB with sentence-transformer embeddings
@@ -85,7 +90,7 @@ embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
 collection = chroma_client.get_or_create_collection(
     name="knowledge_base",
     embedding_function=embedding_fn,
-    metadata={"hnsw:space": "cosine"}  # Cosine similarity
+    metadata={'{'{'}'}"hnsw:space": "cosine"{'}'}  # Cosine similarity
 )
 
 def retrieve_documents(state: RAGState) -> dict:
@@ -105,14 +110,15 @@ def retrieve_documents(state: RAGState) -> dict:
     
     documents = []
     for i, doc in enumerate(results["documents"][0]):
-        documents.append({
+        documents.append({'{'{'}'}
             "content": doc,
             "source": results["metadatas"][0][i].get("source", "unknown"),
             "distance": results["distances"][0][i],
-        })
+        {'}'})
     
-    print(f"  📚 Retrieved {len(documents)} documents from ChromaDB")
-    return {"documents": documents}`}/>
+    print(f"  📚 Retrieved {'{'{'}'}len(documents){'}'} documents from ChromaDB")
+    return {'{'{'}'}"documents": documents{'}'}`}
+</CodeBlock>
 
 <AnalogyBox emoji="🗄️" title="Vector Store = Semantic Matchcode">
 If you've worked with SAP matchcode objects (search helps), a vector store serves the same purpose but for semantic meaning instead of exact field values. A matchcode finds "McKesson Corp" when you type "McKesson." A vector store finds documents about "pharmaceutical distribution challenges" when you search "drug supply chain problems." Both are indexes that speed up searching — they just operate on different dimensions.

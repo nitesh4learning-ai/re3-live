@@ -5,15 +5,16 @@ icon: "🔄"
 
 ## Memory Patterns
 
-<CodeBlock title="Hybrid Memory System" code={`class HybridMemory:
+<CodeBlock>
+{`class HybridMemory:
     def __init__(self, vector_store, max_recent=10):
         self.recent = []           # Buffer: last N messages
-        self.entities = {}         # Entity store: {name: [facts]}
+        self.entities = {'{'{'}'}{'}'}         # Entity store: {'{'{'}'}name: [facts]{'}'}
         self.vector_store = vector_store  # Long-term retrieval
         self.max_recent = max_recent
 
     def add_message(self, role, content):
-        self.recent.append({"role": role, "content": content})
+        self.recent.append({'{'{'}'}"role": role, "content": content{'}'})
 
         # Extract entities from user messages
         if role == "user":
@@ -33,17 +34,18 @@ icon: "🔄"
         # 1. Relevant long-term memories (semantic search)
         similar = self.vector_store.search(current_query, top_k=3)
         if similar:
-            context.append({"role":"system",
-                "content":"Relevant past context: " + "; ".join(similar)})
+            context.append({'{'{'}'}"role":"system",
+                "content":"Relevant past context: " + "; ".join(similar){'}'})
 
         # 2. Relevant entities
         query_entities = extract_entities(current_query)
         for ent in query_entities:
             if ent.name in self.entities:
                 facts = self.entities[ent.name][-5:]  # Last 5 facts
-                context.append({"role":"system",
-                    "content":f"Known about {ent.name}: {'; '.join(facts)}"})
+                context.append({'{'{'}'}"role":"system",
+                    "content":f"Known about {'{'{'}'}ent.name{'}'}: {'{'{'}'}'; '.join(facts){'}'}"{'}'})
 
         # 3. Recent conversation (always included)
         context.extend(self.recent[-self.max_recent:])
-        return context`}/>
+        return context`}
+</CodeBlock>

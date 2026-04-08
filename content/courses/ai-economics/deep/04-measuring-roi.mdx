@@ -5,7 +5,8 @@ icon: "\uD83D\uDCC8"
 
 ## Measuring AI ROI
 
-<CodeBlock language="python" label="AI ROI Calculator" code={`def calculate_ai_roi(
+<CodeBlock>
+{`def calculate_ai_roi(
     development_cost,      # One-time build cost
     monthly_infra_cost,    # Ongoing compute + ops
     monthly_labor_savings, # Hours saved * hourly rate
@@ -28,13 +29,13 @@ icon: "\uD83D\uDCC8"
         monthly_infra_cost
     )
 
-    return {
+    return {'{'{'}'}
         "total_investment": total_investment,
         "total_benefit": total_benefit,
         "net_value": total_benefit - total_investment,
         "roi_percent": round(roi_percent, 1),
         "payback_months": round(payback_months, 1)
-    }
+    {'}'}
 
 # Example: AI customer support triage
 result = calculate_ai_roi(
@@ -45,6 +46,7 @@ result = calculate_ai_roi(
     monthly_error_reduction_value=3000,
     months=12
 )
-# roi_percent: 230.8%, payback_months: 3.1`}/>
+# roi_percent: 230.8%, payback_months: 3.1`}
+</CodeBlock>
 
 <Quiz question="Which metric best captures the 'time to break even' on an AI investment?" options={["ROI percentage","Net Present Value","Payback period in months","Total cost of ownership"]} correctIndex={2} explanation="Payback period (months until cumulative benefits exceed cumulative costs) is the most intuitive measure of when you break even. It's especially important for AI projects where leadership wants to see returns quickly."/>

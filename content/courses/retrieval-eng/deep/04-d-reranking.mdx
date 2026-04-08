@@ -4,7 +4,8 @@ icon: "\uD83C\uDFAF"
 ---
 
 ## Reranking & RAPTOR
-  <CodeBlock label="Cross-Encoder Reranking" code={`from sentence_transformers import CrossEncoder
+  <CodeBlock>
+{`from sentence_transformers import CrossEncoder
 
 class Reranker:
     def __init__(self, model_name="cross-encoder/ms-marco-MiniLM-L-6-v2"):
@@ -25,7 +26,8 @@ class Reranker:
 # Why reranking works: bi-encoders (used in vector search)
 # encode query and document SEPARATELY -- fast but approximate.
 # Cross-encoders process query+document TOGETHER -- slow but accurate.
-# Use bi-encoder for recall (top 50), cross-encoder for precision (top 5).`}/>
+# Use bi-encoder for recall (top 50), cross-encoder for precision (top 5).`}
+</CodeBlock>
   <ExpandableSection title="RAPTOR: Recursive Summarization" icon="🌳" defaultOpen>
 
 <JargonTip term="RAPTOR">RAPTOR</JargonTip> builds a tree of summaries over your documents. Leaf nodes are original chunks, each with an <JargonTip term="embedding">embedding</JargonTip> vector. Parent nodes are summaries of groups of children. <JargonTip term="cross-encoder">Cross-encoder</JargonTip> rerankers then score results for precision. At query time, you search across all levels -- this lets you answer both detailed questions (from leaves) and broad questions (from summary nodes).

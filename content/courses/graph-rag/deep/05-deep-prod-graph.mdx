@@ -7,7 +7,8 @@ icon: "⚙️"
 
 Production Graph RAG systems need incremental graph updates, consistency guarantees between the graph and vector store, performance tuning for large graphs, and monitoring for graph quality degradation.
 
-  <CodeBlock language="python" label="Production Graph RAG Pipeline" code={`class ProductionGraphRAG:
+  <CodeBlock>
+{`class ProductionGraphRAG:
     def __init__(self, graph_db, vector_store, llm, embedder):
         self.graph = graph_db
         self.vectors = vector_store
@@ -22,7 +23,7 @@ Production Graph RAG systems need incremental graph updates, consistency guarant
         async with self.graph.transaction() as tx:
             # Create document node
             await tx.run(
-                "MERGE (d:Document {id: $id}) SET d.updated = datetime()",
+                "MERGE (d:Document {'{'{'}'}id: $id{'}'}) SET d.updated = datetime()",
                 id=doc_id)
 
             for i, chunk in enumerate(chunks):
@@ -33,9 +34,9 @@ Production Graph RAG systems need incremental graph updates, consistency guarant
                     canonical = await self.resolver.resolve(
                         entity.name, entity.type)
                     await tx.run("""
-                        MERGE (e:Entity {name: $name})
+                        MERGE (e:Entity {'{'{'}'}name: $name{'}'})
                         SET e.type = $type, e.updated = datetime()
-                        MERGE (d:Document {id: $doc_id})
+                        MERGE (d:Document {'{'{'}'}id: $doc_id{'}'})
                         MERGE (d)-[:MENTIONS]->(e)
                     """, name=canonical, type=entity.type, doc_id=doc_id)
 
@@ -43,8 +44,8 @@ Production Graph RAG systems need incremental graph updates, consistency guarant
                     src = await self.resolver.resolve(rel.source, "Entity")
                     tgt = await self.resolver.resolve(rel.target, "Entity")
                     await tx.run("""
-                        MATCH (a:Entity {name: $src}), (b:Entity {name: $tgt})
-                        MERGE (a)-[r:RELATES {type: $rel_type}]->(b)
+                        MATCH (a:Entity {'{'{'}'}name: $src{'}'}), (b:Entity {'{'{'}'}name: $tgt{'}'})
+                        MERGE (a)-[r:RELATES {'{'{'}'}type: $rel_type{'}'}]->(b)
                         SET r.confidence = $conf, r.evidence = $evidence
                     """, src=src, tgt=tgt, rel_type=rel.relation,
                          conf=rel.confidence, evidence=rel.evidence)
@@ -52,10 +53,10 @@ Production Graph RAG systems need incremental graph updates, consistency guarant
                 # Index chunk in vector store
                 embedding = await self.embedder.embed(chunk)
                 await self.vectors.upsert(
-                    id=f"{doc_id}_chunk_{i}", vector=embedding,
-                    metadata={"doc_id": doc_id, "chunk_index": i,
+                    id=f"{'{'{'}'}doc_id{'}'}_chunk_{'{'{'}'}i{'}'}", vector=embedding,
+                    metadata={'{'{'}'}"doc_id": doc_id, "chunk_index": i,
                               "text": chunk,
-                              "entities": [e.name for e in extraction.entities]}
+                              "entities": [e.name for e in extraction.entities]{'}'}
                 )
 
     async def query(self, question: str, strategy: str = "hybrid"):
@@ -68,7 +69,8 @@ Production Graph RAG systems need incremental graph updates, consistency guarant
             # Hybrid: combine graph + vector retrieval
             graph_ctx = await self._graph_context(question)
             vector_ctx = await self._vector_context(question)
-            return await self._synthesize(question, graph_ctx, vector_ctx)`}/>
+            return await self._synthesize(question, graph_ctx, vector_ctx)`}
+</CodeBlock>
   <ArchitectureDecision scenario="Your Graph RAG system processes 100 new documents daily. After 3 months, query latency increased from 200ms to 2 seconds. Graph has 500K nodes and 2M edges. What is the most likely fix?" options={[
     {label:'Rebuild the entire graph from scratch monthly',tradeoff:'Clean state but expensive. Causes downtime during rebuild.'},
     {label:'Add graph database indexes on frequently queried properties',tradeoff:'Addresses the root cause. Index on entity names and types speeds up MATCH queries dramatically.'},

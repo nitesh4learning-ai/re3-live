@@ -2,11 +2,17 @@
 import { useState } from "react";
 import { CODE_BG, CODE_TEXT } from "../constants";
 
-export default function CodeBlock({ code, language = 'text', label = null }) {
+export default function CodeBlock({ code, children, language = 'text', label = null, title = null }) {
+  // Support multiple ways to pass code content:
+  // 1. code={...} prop (original)
+  // 2. children (MDX v3 compatible - avoids curly brace escaping issues)
+  // 3. title prop as alias for label (backward compat with some MDX files)
+  const codeContent = code || (typeof children === 'string' ? children : '') || '';
+  const displayLabel = label || title || language;
   const [copied, setCopied] = useState(false);
 
   const doCopy = () => {
-    navigator.clipboard.writeText(code).then(() => {
+    navigator.clipboard.writeText(codeContent).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }).catch(() => {});
@@ -27,7 +33,7 @@ export default function CodeBlock({ code, language = 'text', label = null }) {
             letterSpacing: '0.05em',
           }}
         >
-          {(label || language).toUpperCase()}
+          {(displayLabel).toUpperCase()}
         </span>
         <button
           onClick={doCopy}
@@ -51,7 +57,7 @@ export default function CodeBlock({ code, language = 'text', label = null }) {
           fontFamily: "'Consolas','Fira Code',monospace",
         }}
       >
-        <code>{code}</code>
+        <code>{codeContent}</code>
       </pre>
     </div>
   );

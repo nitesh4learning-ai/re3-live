@@ -7,7 +7,8 @@ icon: "🔧"
 
 Tool design is where MCP servers succeed or fail in practice. Good tool schemas guide the LLM to call tools correctly. Poor schemas lead to hallucinated parameters, wrong tool selection, and frustrated users.
 
-<CodeBlock language="python" label="Tool Design Best Practices" code={`# BAD: Vague name, no descriptions, loose types
+<CodeBlock>
+{`# BAD: Vague name, no descriptions, loose types
 @app.tool()
 async def do_stuff(data: str) -> str:
     """Process data."""  # What data? What processing?
@@ -34,14 +35,16 @@ async def search_customer_orders(
     """
     # Validate inputs
     if status and status not in ('pending', 'shipped', 'delivered', 'canceled'):
-        return json.dumps({"error": f"Invalid status '{status}'. Use: pending, shipped, delivered, canceled"})
+        return json.dumps({'{'{'}'}"error": f"Invalid status '{'{'{'}'}status{'}'}'. Use: pending, shipped, delivered, canceled"{'}'})
     if limit < 1 or limit > 100:
         limit = max(1, min(100, limit))
 
     orders = await db.search_orders(customer_email, status, date_after, limit)
-    return json.dumps({"orders": orders, "count": len(orders)})`}/>
+    return json.dumps({'{'{'}'}"orders": orders, "count": len(orders){'}'})`}
+</CodeBlock>
 
-<CodeBlock language="python" label="Async Tool Execution with Timeouts" code={`import asyncio
+<CodeBlock>
+{`import asyncio
 from mcp.types import TextContent
 
 @app.tool()
@@ -61,16 +64,17 @@ async def analyze_repository(repo_url: str, depth: str = "summary") -> str:
         )
         return json.dumps(result)
     except asyncio.TimeoutError:
-        return json.dumps({
+        return json.dumps({'{'{'}'}
             "error": "Analysis timed out after 60 seconds",
             "suggestion": "Try with depth='summary' for faster results"
-        })
+        {'}'})
     except Exception as e:
-        return json.dumps({
+        return json.dumps({'{'{'}'}
             "error": str(e),
             "recoverable": True,
             "suggestion": "Check if the repository URL is correct and accessible"
-        })`}/>
+        {'}'})`}
+</CodeBlock>
 
 <Quiz question="A tool returns an error. What is the best practice for the error response format?" options={["Raise an exception that crashes the server","Return a JSON object with error details and recovery suggestions","Return an empty string","Return HTTP 500"]} correctIndex={1} explanation="Returning structured error information (what went wrong, whether it is recoverable, and what the user or LLM can try instead) lets the LLM handle the failure gracefully rather than giving up." />
 

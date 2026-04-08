@@ -16,7 +16,8 @@ In production systems, LLM outputs must be reliably parseable by downstream code
   ['Outlines / Guidance','Open-source (local)','Grammar-constrained decoding','Self-hosted models, regex patterns'],
 ]}/>
 
-<CodeBlock language="python" label="OpenAI Structured Outputs with Pydantic" code={`from openai import OpenAI
+<CodeBlock>
+{`from openai import OpenAI
 from pydantic import BaseModel, Field
 from typing import Literal
 
@@ -38,16 +39,17 @@ class SecurityAnalysis(BaseModel):
 response = client.beta.chat.completions.parse(
     model="gpt-4o-2024-08-06",
     messages=[
-        {"role": "system", "content": "Analyze cloud configurations for security issues."},
-        {"role": "user", "content": "Review this S3 bucket policy: {'Effect':'Allow','Principal':'*','Action':'s3:GetObject'}"}
+        {'{'{'}'}"role": "system", "content": "Analyze cloud configurations for security issues."{'}'},
+        {'{'{'}'}"role": "user", "content": "Review this S3 bucket policy: {'{'{'}'}'Effect':'Allow','Principal':'*','Action':'s3:GetObject'{'}'}"{'}'}
     ],
     response_format=SecurityAnalysis,
 )
 
 result = response.choices[0].message.parsed
-print(f"Risk: {result.overall_risk}")
+print(f"Risk: {'{'{'}'}result.overall_risk{'}'}")
 for f in result.findings:
-    print(f"  [{f.severity.upper()}] {f.resource}: {f.issue}")`}/>
+    print(f"  [{'{'{'}'}f.severity.upper(){'}'}] {'{'{'}'}f.resource{'}'}: {'{'{'}'}f.issue{'}'}")`}
+</CodeBlock>
 
 <ExpandableSection title="XML-Guided Generation (Claude Pattern)" icon="📋">
 

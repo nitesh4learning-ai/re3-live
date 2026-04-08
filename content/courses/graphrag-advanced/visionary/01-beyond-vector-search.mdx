@@ -26,11 +26,12 @@ Vector search is powerful — but it only finds documents *similar* to your quer
 - **Edges (Relationships)** -- Named, directed connections between nodes: WORKS_AT, FOUNDED, DEPENDS_ON, CITED_BY. Edges can also have properties.
 - **Properties** -- Attributes on nodes and edges: name, date, confidence score, source document, embedding vector. Rich metadata for filtering.
 
-<CodeBlock language="text" label="Knowledge Graph Structure Example" code={`// Nodes
-(n1:Person   {name: "Geoffrey Hinton",  field: "AI"})
-(n2:Concept  {name: "Backpropagation", domain: "ML"})
-(n3:Org      {name: "Google Brain",    founded: 2011})
-(n4:Paper    {name: "ImageNet 2012",   citations: 94000})
+<CodeBlock>
+{`// Nodes
+(n1:Person   {'{'{'}'}name: "Geoffrey Hinton",  field: "AI"{'}'})
+(n2:Concept  {'{'{'}'}name: "Backpropagation", domain: "ML"{'}'})
+(n3:Org      {'{'{'}'}name: "Google Brain",    founded: 2011{'}'})
+(n4:Paper    {'{'{'}'}name: "ImageNet 2012",   citations: 94000{'}'})
 
 // Edges
 (n1)-[:DEVELOPED]->(n2)
@@ -41,7 +42,8 @@ Vector search is powerful — but it only finds documents *similar* to your quer
 // Multi-hop Query:
 // "What concepts did Google Brain researchers develop?"
 // n3 <-[:WORKED_AT]- n1 -[:DEVELOPED]-> n2
-// Answer: Backpropagation (via Hinton → Google Brain)`} />
+// Answer: Backpropagation (via Hinton → Google Brain)`}
+</CodeBlock>
 
 <BasicVsGraphRAGComparison />
 <Quiz

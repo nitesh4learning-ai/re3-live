@@ -19,7 +19,8 @@ The shift from vibes to systematic evaluation is called **Evaluation-Driven Deve
     ['Cost','Fixed per run','Proportional to traffic'],
     ['Purpose','Catch regressions, validate changes','Detect drift, monitor quality'],
   ]}/>
-  <CodeBlock language="text" label="Evaluation-Driven Development Cycle" code={`1. DEFINE   \u2500\u2500>  What does "good" look like?
+  <CodeBlock>
+{`1. DEFINE   \u2500\u2500>  What does "good" look like?
    \u2502            - Accuracy > 90%
    \u2502            - Faithfulness > 0.85
    \u2502            - Latency p95 < 3s
@@ -38,7 +39,8 @@ The shift from vibes to systematic evaluation is called **Evaluation-Driven Deve
    \u2502
 5. MONITOR  \u2500\u2500>  Continuous online evaluation
                 - Detect drift from baseline
-                - Alert on quality degradation`}/>
+                - Alert on quality degradation`}
+</CodeBlock>
   <EvalMaturityQuiz/>
   <Quiz question="Why is vibes-based evaluation dangerous for production AI?" options={["It is too slow","It cannot detect subtle regressions across hundreds of edge cases","It is too expensive","It requires too many engineers"]} correctIndex={1} explanation="Vibes-based evaluation only catches obvious failures. A human reading 5 outputs cannot detect a 5% increase in hallucination rate or a subtle regression in edge case handling that affects thousands of users."/>
   <Quiz question="What is the key difference between offline and online evaluation?" options={["Offline is cheaper","Online uses real production traffic while offline uses curated test sets","Offline is faster","Online requires more engineers"]} correctIndex={1} explanation="Offline evaluation tests against curated datasets before deployment. Online evaluation monitors real production traffic after deployment. Both are necessary -- offline catches known issues, online catches unknown ones."/>

@@ -19,7 +19,8 @@ Before MCP, every AI integration was custom: bespoke API wrappers, custom authen
 
 ### MCP Architecture: Host → Client → Server
 
-<CodeBlock language="text" label="MCP Communication Flow" code={`┌──────────────────────────────────┐
+<CodeBlock>
+{`┌──────────────────────────────────┐
 │  HOST (Claude Desktop / IDE)     │
 │                                  │
 │  ┌────────────────────────────┐  │
@@ -35,7 +36,8 @@ Before MCP, every AI integration was custom: bespoke API wrappers, custom authen
     └─────────┘ └──────────┘
 
 Each server exposes tools/resources/prompts
-via JSON-RPC 2.0 over stdio or HTTP.`}/>
+via JSON-RPC 2.0 over stdio or HTTP.`}
+</CodeBlock>
 
 <AnalogyBox emoji="🔌" title="MuleSoft Anypoint for AI">
 If you've worked with MuleSoft at McKesson, MCP will feel familiar. MuleSoft provides a universal API layer that connects any system (SAP, Salesforce, Oracle) through standardized connectors. MCP does the same for AI: any agent can connect to any data source through standardized tool/resource/prompt interfaces. The difference? MuleSoft connects applications. MCP connects intelligence.
@@ -43,7 +45,8 @@ If you've worked with MuleSoft at McKesson, MCP will feel familiar. MuleSoft pro
 
 ### Building an MCP Server
 
-<CodeBlock language="python" label="Simple MCP Server — Knowledge Base" code={`from mcp.server import Server
+<CodeBlock>
+{`from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
 import json
@@ -57,16 +60,16 @@ async def list_tools():
         Tool(
             name="search_knowledge",
             description="Search the internal knowledge base",
-            inputSchema={
+            inputSchema={'{'{'}'}
                 "type": "object",
-                "properties": {
-                    "query": {
+                "properties": {'{'{'}'}
+                    "query": {'{'{'}'}
                         "type": "string",
                         "description": "Search query"
-                    }
-                },
+                    {'}'}
+                {'}'},
                 "required": ["query"]
-            }
+            {'}'}
         )
     ]
 
@@ -86,7 +89,8 @@ async def main():
 
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(main())`}/>
+    asyncio.run(main())`}
+</CodeBlock>
 
 ### Why MCP Matters Now
 

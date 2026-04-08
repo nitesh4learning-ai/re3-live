@@ -15,8 +15,9 @@ AI risk assessment involves systematically identifying, analyzing, and evaluatin
   ["Security Vulnerability","Adversarial attacks or data poisoning","Prompt injection in LLM applications","Input validation, red teaming"],
 ]}/>
 
-<CodeBlock language="javascript" label="Risk Scoring Matrix" code={`// Risk score = likelihood x impact x (1 - mitigation_effectiveness)
-function calculateRiskScore(risk) {
+<CodeBlock>
+{`// Risk score = likelihood x impact x (1 - mitigation_effectiveness)
+function calculateRiskScore(risk) {'{'{'}'}
   const likelihood = risk.likelihood;   // 1-5 scale
   const impact = risk.impact;           // 1-5 scale
   const mitigation = risk.mitigation;   // 0-1 (effectiveness)
@@ -24,13 +25,14 @@ function calculateRiskScore(risk) {
   const rawScore = likelihood * impact;
   const mitigatedScore = rawScore * (1 - mitigation);
 
-  return {
+  return {'{'{'}'}
     raw: rawScore,
     mitigated: mitigatedScore,
     level: mitigatedScore > 15 ? "CRITICAL"
          : mitigatedScore > 10 ? "HIGH"
          : mitigatedScore > 5  ? "MEDIUM" : "LOW",
-  };
-}`}/>
+  {'}'};
+{'}'}`}
+</CodeBlock>
 
 <Quiz question="In a risk scoring matrix, what does mitigated risk score represent?" options={["The worst-case scenario","The residual risk after applying mitigation controls","The likelihood of occurrence","The cost of the AI system"]} correctIndex={1} explanation="Mitigated risk score represents residual risk -- the remaining risk after mitigation controls are applied. It is calculated as raw risk multiplied by (1 minus mitigation effectiveness)." />

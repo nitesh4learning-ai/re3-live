@@ -26,7 +26,8 @@ Overlap ensures context continuity: if a concept spans a chunk boundary, the ove
 
 </ExpandableSection>
 
-<CodeBlock language="python" label="Chunking strategy implementations" code={`from typing import List
+<CodeBlock>
+{`from typing import List
 import re
 
 class ChunkingStrategies:
@@ -103,7 +104,8 @@ class ChunkingStrategies:
                 current_chunk.append(sentences[i])
         if current_chunk:
             chunks.append(" ".join(current_chunk))
-        return chunks`} />
+        return chunks`}
+</CodeBlock>
 
 <ExpandableSection title="Chunk Size Experiments" icon="🔬">
 

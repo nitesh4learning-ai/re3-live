@@ -7,7 +7,8 @@ icon: "\uD83D\uDCDD"
 
 High-risk AI systems require comprehensive technical documentation. <JargonTip term="model card">Model cards</JargonTip> and system cards are the industry standard for transparency.
 
-<CodeBlock language="yaml" label="Model Card Template (EU AI Act Compliant)" code={`model_card:
+<CodeBlock>
+{`model_card:
   model_details:
     name: "ResumeScreener-v2.1"
     version: "2.1.0"
@@ -32,8 +33,8 @@ High-risk AI systems require comprehensive technical documentation. <JargonTip t
 
   fairness_metrics:
     demographic_parity:
-      gender: {male: 0.45, female: 0.44, non_binary: 0.43}
-      ethnicity: {max_disparity: 0.03}
+      gender: {'{'{'}'}male: 0.45, female: 0.44, non_binary: 0.43{'}'}
+      ethnicity: {'{'{'}'}max_disparity: 0.03{'}'}
     equalized_odds:
       tpr_gap: 0.02
       fpr_gap: 0.01
@@ -46,6 +47,7 @@ High-risk AI systems require comprehensive technical documentation. <JargonTip t
   human_oversight:
     mechanism: "All rejections reviewed by human within 48hrs"
     override_rate: "12% of AI rejections reversed by human review"
-    escalation: "Candidates can request human-only review"`}/>
+    escalation: "Candidates can request human-only review"`}
+</CodeBlock>
 
 <Quiz question="Why should a model card include fairness metrics broken down by demographic groups?" options={["It's only needed for marketing purposes","To identify disparate impact before deployment and satisfy regulatory requirements","Demographic data improves model accuracy","It's optional and rarely useful"]} correctIndex={1} explanation="Fairness metrics by demographic group are essential to identify disparate impact -- where a model performs differently across protected groups. This is required under the EU AI Act for high-risk systems and helps prevent discrimination."/>

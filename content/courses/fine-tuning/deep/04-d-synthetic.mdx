@@ -7,7 +7,8 @@ icon: "\uD83E\uDD16"
 
 Most fine-tuning projects face a data bottleneck. Synthetic data generation uses a powerful teacher model to create training examples for a smaller student model. This is now the dominant approach in production.
 
-  <CodeBlock title="Synthetic Data Pipeline" code={`import anthropic
+  <CodeBlock>
+{`import anthropic
 import json
 
 client = anthropic.Anthropic()
@@ -24,18 +25,18 @@ def generate_synthetic(seed, num_variations=10):
 example input-output pair, generate varied new examples
 that follow the same pattern but cover different topics
 and edge cases. Output as JSON array.""",
-        messages=[{"role": "user", "content": f"""
+        messages=[{'{'{'}'}"role": "user", "content": f"""
 Seed example:
-Input: {seed["input"]}
-Output: {seed["output"]}
+Input: {'{'{'}'}seed["input"]{'}'}
+Output: {'{'{'}'}seed["output"]{'}'}
 
-Generate {num_variations} new input-output pairs that:
+Generate {'{'{'}'}num_variations{'}'} new input-output pairs that:
 1. Follow the exact same output format/style
 2. Cover different topics and scenarios
 3. Include edge cases (short inputs, ambiguous cases)
 4. Maintain the same quality level
 
-Return as JSON: [{{"input": "...", "output": "..."}}]"""}]
+Return as JSON: [{'{'{'}'}{'{'{'}'}"input": "...", "output": "..."{'}'}{'}'}]"""{'}'}]
     )
     return json.loads(response.content[0].text)
 
@@ -48,7 +49,8 @@ for seed in seed_examples:
 # Result: 50 real + 500 synthetic = 550 training examples
 # Quality filter: remove low-quality synthetic examples
 filtered = [ex for ex in all_examples if quality_check(ex)]
-save_jsonl(filtered, "training_data.jsonl")`}/>
+save_jsonl(filtered, "training_data.jsonl")`}
+</CodeBlock>
   <ExpandableSection title="Data Quality Checklist" icon="📋" defaultOpen>
 
       - **Diversity:** Cover the full range of inputs your model will see in production

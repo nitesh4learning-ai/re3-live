@@ -9,7 +9,8 @@ Even with relevant documents, LLMs can hallucinate — generating plausible-soun
 
 ### The Hallucination Checker Node
 
-<CodeBlock language="python" label="Post-Generation Hallucination Check" code={`HALLUCINATION_PROMPT = """You are a hallucination detector.
+<CodeBlock>
+{`HALLUCINATION_PROMPT = """You are a hallucination detector.
 
 Given a generated answer and the source documents it was based on,
 determine if the answer is FULLY GROUNDED in the sources.
@@ -22,10 +23,10 @@ Score from 0.0 to 1.0:
 Return ONLY the number (e.g., 0.8).
 
 Source documents:
-{sources}
+{'{'{'}'}sources{'}'}
 
 Generated answer:
-{answer}
+{'{'{'}'}answer{'}'}
 """
 
 def check_hallucination(state: RAGState) -> dict:
@@ -53,9 +54,9 @@ def check_hallucination(state: RAGState) -> dict:
     except ValueError:
         score = 0.5  # Default if parsing fails
     
-    print(f"  🛡️ Hallucination check: {score:.1f}/1.0")
+    print(f"  🛡️ Hallucination check: {'{'{'}'}score:.1f{'}'}/1.0")
     
-    return {"hallucination_score": score}
+    return {'{'{'}'}"hallucination_score": score{'}'}
 
 
 def route_after_hallucination(state: RAGState):
@@ -70,7 +71,8 @@ def route_after_hallucination(state: RAGState):
     if state["retry_count"] >= 3:
         return "complete"      # Best effort after max retries
     
-    return "regenerate"        # Try again with stricter prompt`}/>
+    return "regenerate"        # Try again with stricter prompt`}
+</CodeBlock>
 
 <AnalogyBox emoji="✅" title="Audit Trail in Financial Reporting">
 Hallucination checking is like an auditor verifying that every number in a financial report traces back to a source transaction. If a figure appears in the report but can't be traced to the general ledger, it's flagged. Similarly, if a claim appears in the RAG answer but can't be traced to a retrieved document, it's a hallucination. In Bhavya's world at PCAOB — this is exactly what inspection work validates.
@@ -78,7 +80,8 @@ Hallucination checking is like an auditor verifying that every number in a finan
 
 ### The Complete Agentic RAG Graph
 
-<CodeBlock language="python" label="Full Agentic RAG Assembly" code={`from langgraph.graph import StateGraph, END, START
+<CodeBlock>
+{`from langgraph.graph import StateGraph, END, START
 
 graph = StateGraph(RAGState)
 
@@ -98,7 +101,7 @@ graph.add_edge("retrieve", "grade")
 # After grading: generate, rewrite, or give up
 graph.add_conditional_edges(
     "grade", route_after_grading,
-    {"generate": "generate", "rewrite": "rewrite", "end": END}
+    {'{'{'}'}"generate": "generate", "rewrite": "rewrite", "end": END{'}'}
 )
 
 # Rewrite loops back to retrieve
@@ -110,10 +113,11 @@ graph.add_edge("generate", "hallucination_check")
 # After hallucination check: complete or regenerate
 graph.add_conditional_edges(
     "hallucination_check", route_after_hallucination,
-    {"complete": END, "regenerate": "generate"}
+    {'{'{'}'}"complete": END, "regenerate": "generate"{'}'}
 )
 
-app = graph.compile()`}/>
+app = graph.compile()`}
+</CodeBlock>
 
 Notice this graph has **two loops**: the retrieval loop (grade → rewrite → retrieve) and the hallucination loop (generate → check → regenerate). This double self-correction is what makes Agentic RAG production-grade.
 

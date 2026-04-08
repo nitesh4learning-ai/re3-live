@@ -7,7 +7,8 @@ icon: "📋"
 
 Generic metrics like faithfulness and relevance are a starting point, but production systems need **domain-specific quality scorecards** tailored to their use case. A support bot needs different quality signals than a code generator or medical Q&A system.
 
-  <CodeBlock language="python" label="Domain-Specific Quality Scorecard" code={`from dataclasses import dataclass
+  <CodeBlock>
+{`from dataclasses import dataclass
 
 @dataclass
 class QualityScorecard:
@@ -26,8 +27,8 @@ class QualityScorecard:
     def composite_score(self):
         if self.pii_leaked:
             return 0.0  # Automatic failure
-        weights = {"accuracy": 0.35, "completeness": 0.25,
-                   "tone_appropriate": 0.15, "policy_compliance": 0.25}
+        weights = {'{'{'}'}"accuracy": 0.35, "completeness": 0.25,
+                   "tone_appropriate": 0.15, "policy_compliance": 0.25{'}'}
         return (self.accuracy * weights["accuracy"] +
                 self.completeness * weights["completeness"] +
                 self.tone_appropriate * weights["tone_appropriate"] +
@@ -39,13 +40,14 @@ class QualityScorecard:
 
 async def evaluate_response(question, answer, context, judge_llm):
     eval_prompt = f"""Score this support response (0.0-1.0 each):
-    Question: \\$\\{question\\}
-    Context: \\$\\{context\\}
-    Response: \\$\\{answer\\}
+    Question: \\$\\{'{'{'}'}question\\{'}'}
+    Context: \\$\\{'{'{'}'}context\\{'}'}
+    Response: \\$\\{'{'{'}'}answer\\{'}'}
     Return JSON with: accuracy, completeness, tone_appropriate,
     policy_compliance, escalation_correct, pii_leaked."""
     result = await judge_llm.invoke(
         system="You are a quality evaluation specialist.",
         user=eval_prompt)
-    return QualityScorecard(**parse_json(result.content))`}/>
+    return QualityScorecard(**parse_json(result.content))`}
+</CodeBlock>
   <Quiz question="Why does the scorecard return 0.0 if PII is leaked, regardless of other scores?" options={["It is a bug","PII leakage is a critical failure that overrides all quality signals","PII is not important","The weights do not add up"]} correctIndex={1} explanation="PII leakage is a compliance and legal failure that makes other quality dimensions irrelevant. A response that is accurate but leaks a customer's SSN is worse than a vague response that protects privacy."/>

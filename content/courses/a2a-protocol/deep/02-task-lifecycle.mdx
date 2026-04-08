@@ -7,7 +7,8 @@ icon: "🔄"
 
 A2A tasks move through defined states. The protocol supports **streaming via SSE** for real-time progress updates, **push notifications** for long-running tasks, and **artifacts** for structured outputs.
 
-<CodeBlock language="python" label="Task State Machine" code={`# A2A Task States and Transitions
+<CodeBlock>
+{`# A2A Task States and Transitions
 #
 # submitted --> working --> completed
 #                 |    \\--> failed
@@ -28,16 +29,18 @@ class TaskState:
     FAILED = "failed"
     CANCELED = "canceled"
 
-VALID_TRANSITIONS = {
+VALID_TRANSITIONS = {'{'{'}'}
     TaskState.SUBMITTED: [TaskState.WORKING, TaskState.FAILED, TaskState.CANCELED],
     TaskState.WORKING: [TaskState.COMPLETED, TaskState.FAILED, TaskState.INPUT_NEEDED, TaskState.CANCELED],
     TaskState.INPUT_NEEDED: [TaskState.WORKING, TaskState.CANCELED],
     TaskState.COMPLETED: [],  # Terminal
     TaskState.FAILED: [],     # Terminal
     TaskState.CANCELED: [],   # Terminal
-}`}/>
+{'}'}`}
+</CodeBlock>
 
-<CodeBlock language="python" label="SSE Streaming for Task Progress" code={`import json
+<CodeBlock>
+{`import json
 from starlette.responses import StreamingResponse
 
 async def stream_task_updates(task_id: str):
@@ -46,51 +49,54 @@ async def stream_task_updates(task_id: str):
         task = await get_task(task_id)
         while task.state not in ("completed", "failed", "canceled"):
             # Send current state as SSE event
-            event = {
+            event = {'{'{'}'}
                 "id": task.id,
-                "status": {"state": task.state, "message": task.status_message},
+                "status": {'{'{'}'}"state": task.state, "message": task.status_message{'}'},
                 "artifacts": [a.to_dict() for a in task.artifacts]
-            }
-            yield f"data: {json.dumps(event)}\\n\\n"
+            {'}'}
+            yield f"data: {'{'{'}'}json.dumps(event){'}'}\\n\\n"
             await asyncio.sleep(1)
             task = await get_task(task_id)  # Refresh
 
         # Send final state
-        yield f"data: {json.dumps(task.to_dict())}\\n\\n"
+        yield f"data: {'{'{'}'}json.dumps(task.to_dict()){'}'}\\n\\n"
 
     return StreamingResponse(
         event_generator(),
         media_type="text/event-stream"
-    )`}/>
+    )`}
+</CodeBlock>
 
-<CodeBlock language="json" label="Artifact Structure" code={`{
+<CodeBlock>
+{`{'{'{'}'}
   "id": "task-abc-123",
-  "status": {"state": "completed"},
+  "status": {'{'{'}'}"state": "completed"{'}'},
   "artifacts": [
-    {
+    {'{'{'}'}
       "name": "research-report",
       "description": "Comprehensive research report with citations",
       "parts": [
-        {
+        {'{'{'}'}
           "type": "text",
           "mimeType": "text/markdown",
           "text": "# AI Governance Trends 2025\\n\\n## Key Findings\\n..."
-        }
+        {'}'}
       ]
-    },
-    {
+    {'}'},
+    {'{'{'}'}
       "name": "data-table",
       "description": "Supporting data in structured format",
       "parts": [
-        {
+        {'{'{'}'}
           "type": "data",
           "mimeType": "application/json",
-          "data": {"frameworks": [...], "adoption_rates": {...}}
-        }
+          "data": {'{'{'}'}"frameworks": [...], "adoption_rates": {'{'{'}'}...{'}'}{'}'}
+        {'}'}
       ]
-    }
+    {'}'}
   ]
-}`}/>
+{'}'}`}
+</CodeBlock>
 
 <Quiz question="An agent is processing a research task but realizes it needs to know the desired time range. What state should it transition to?" options={["failed -- it cannot complete without more info","completed -- return what it has so far","input-needed -- ask the requester for the time range","canceled -- start over"]} correctIndex={2} explanation="The 'input-needed' state is designed exactly for this. It pauses the task, signals the requester that additional information is needed, and waits for a follow-up message before resuming work." />
 

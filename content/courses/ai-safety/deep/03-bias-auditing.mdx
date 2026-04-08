@@ -5,34 +5,36 @@ icon: "📊"
 
 ## Bias Auditing
 
-<CodeBlock title="Counterfactual Bias Test" code={`def counterfactual_bias_test(model, template, groups):
+<CodeBlock>
+{`def counterfactual_bias_test(model, template, groups):
     """Test for bias by swapping demographic terms."""
-    results = {}
-    # template: "The {group} applicant applied for the position."
+    results = {'{'{'}'}{'}'}
+    # template: "The {'{'{'}'}group{'}'} applicant applied for the position."
     for group in groups:
         prompt = template.format(group=group)
         response = model.generate(prompt)
         sentiment = analyze_sentiment(response)
-        results[group] = {
+        results[group] = {'{'{'}'}
             "response": response,
             "sentiment": sentiment,
             "word_count": len(response.split())
-        }
+        {'}'}
 
     # Check for disparities
     sentiments = [r["sentiment"] for r in results.values()]
     max_gap = max(sentiments) - min(sentiments)
-    return {
+    return {'{'{'}'}
         "results": results,
         "max_sentiment_gap": max_gap,
         "biased": max_gap > 0.2  # Flag if gap > 20%
-    }
+    {'}'}
 
 # Usage
 groups = ["male", "female", "non-binary"]
 test = counterfactual_bias_test(model,
-    "The {group} candidate interviewed for the engineering role.",
-    groups)`} />
+    "The {'{'{'}'}group{'}'} candidate interviewed for the engineering role.",
+    groups)`}
+</CodeBlock>
 
 <ComparisonTable
   title="Bias Testing Tools"

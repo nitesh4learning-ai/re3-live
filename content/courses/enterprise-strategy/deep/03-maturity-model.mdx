@@ -13,7 +13,8 @@ icon: "\uD83D\uDCCA"
   ['5','Transforming','AI-native workflows, continuous improvement, competitive moat','Business model innovation'],
 ]}/>
 
-<CodeBlock language="yaml" label="AI Maturity Self-Assessment" code={`assessment:
+<CodeBlock>
+{`assessment:
   strategy:
     - question: "Is there a board-approved AI strategy?"
       level_1: "No formal strategy"
@@ -36,7 +37,8 @@ icon: "\uD83D\uDCCA"
     - question: "How are models deployed and monitored?"
       level_1: "Manual, ad-hoc deployments"
       level_3: "CI/CD for models, basic monitoring"
-      level_5: "Full MLOps, automated retraining, A/B testing"`}/>
+      level_5: "Full MLOps, automated retraining, A/B testing"`}
+</CodeBlock>
 
 <ArchitectureDecision scenario="Your enterprise is at maturity Level 2 (Experimenting). You have 5 PoCs running with mixed results. The CEO wants to 'scale AI across the company' by next quarter. What do you recommend?" options={[
   {label:"Scale the most successful PoC to 10 departments",tradeoff:"Fastest visible progress but risks scaling without proper infrastructure"},

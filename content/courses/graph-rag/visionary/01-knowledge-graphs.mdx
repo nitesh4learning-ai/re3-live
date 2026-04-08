@@ -8,12 +8,14 @@ icon: "\uD83C\uDF10"
 A <JargonTip term="knowledge graph">knowledge graph</JargonTip> represents information as a network of **entities** (nodes) connected by **relationships** (edges). Each fact is stored as a triple: **(Subject, Predicate, Object)**.
 
   <AnalogyBox emoji="🗺️" title="Think of it like a map of knowledge">A road map shows cities (entities) connected by roads (relationships). A knowledge graph shows concepts connected by their relationships: "Einstein" → developed → "Theory of Relativity".</AnalogyBox>
-  <CodeBlock language="text" label="Knowledge Graph Triples" code={`(Einstein,       developed,    Theory of Relativity)
+  <CodeBlock>
+{`(Einstein,       developed,    Theory of Relativity)
 (Einstein,       born in,      Ulm, Germany)
 (Einstein,       won,          Nobel Prize in Physics)
 (Nobel Prize,    awarded by,   Royal Swedish Academy)
 (Relativity,     foundational to,  Modern Physics)
 
 Following connections: Einstein \u2192 Nobel Prize \u2192 Royal Swedish Academy
-  Reveals: The institution that recognized Einstein's work`}/>
+  Reveals: The institution that recognized Einstein's work`}
+</CodeBlock>
   <Quiz question="What is the basic unit of information in a knowledge graph?" options={["A single word","A triple (Subject, Predicate, Object)","A paragraph","A JSON document"]} correctIndex={1} explanation="Knowledge graphs store facts as triples: (Subject, Predicate, Object). For example: (Python, created_by, Guido van Rossum). Each triple represents one relationship between two entities."/>

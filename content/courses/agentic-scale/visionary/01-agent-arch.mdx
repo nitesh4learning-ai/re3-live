@@ -14,10 +14,11 @@ An **agentic AI system** is an LLM that can reason about what to do, take action
 
 The **<JargonTip term="ReAct">ReAct</JargonTip>** (Reason + Act) pattern is the foundational architecture for tool-using agents. At each step the agent produces a **Thought** (reasoning about what to do), an **Action** (tool call or response), and receives an **Observation** (tool result). This cycle repeats until the task is done.
 
-  <CodeBlock language="python" label="ReAct Agent Loop" code={`def react_agent(task, tools, max_steps=10):
+  <CodeBlock>
+{`def react_agent(task, tools, max_steps=10):
     """Core ReAct loop: Thought -> Action -> Observation"""
-    messages = [{"role": "system", "content": AGENT_PROMPT}]
-    messages.append({"role": "user", "content": task})
+    messages = [{'{'{'}'}"role": "system", "content": AGENT_PROMPT{'}'}]
+    messages.append({'{'{'}'}"role": "user", "content": task{'}'})
 
     for step in range(max_steps):
         # 1. LLM generates Thought + Action
@@ -30,13 +31,14 @@ The **<JargonTip term="ReAct">ReAct</JargonTip>** (Reason + Act) pattern is the 
             result = execute_tool(tool_name, tool_args)
 
             # 3. Feed Observation back to the agent
-            messages.append({"role": "assistant", "content": response})
-            messages.append({"role": "tool", "content": str(result)})
+            messages.append({'{'{'}'}"role": "assistant", "content": response{'}'})
+            messages.append({'{'{'}'}"role": "tool", "content": str(result){'}'})
         else:
             # Agent decided to respond -- task complete
             return response.content
 
-    return "Max steps reached without completion"`}/>
+    return "Max steps reached without completion"`}
+</CodeBlock>
   <ReActSimulator/>
 
   <ComparisonTable title="Agent Architecture Patterns" columns={['Pattern','How It Works','Strengths','Weaknesses']} rows={[

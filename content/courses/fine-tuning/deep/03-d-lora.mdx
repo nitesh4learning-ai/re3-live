@@ -7,7 +7,8 @@ icon: "\uD83E\uDDEC"
 
 LoRA works by decomposing weight updates into low-rank matrices. Instead of updating a full **d×d** weight matrix W, LoRA learns two smaller matrices A (d×r) and B (r×d) where r is much smaller than d. The effective update is W + AB.
 
-  <CodeBlock title="LoRA + QLoRA Training Pipeline" code={`from transformers import AutoModelForCausalLM, AutoTokenizer
+  <CodeBlock>
+{`from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers import TrainingArguments, BitsAndBytesConfig
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from trl import SFTTrainer
@@ -41,6 +42,7 @@ lora_config = LoraConfig(
 )
 
 model = get_peft_model(model, lora_config)
-# Typical: ~4M trainable params out of 8B total (0.05%)`}/>
+# Typical: ~4M trainable params out of 8B total (0.05%)`}
+</CodeBlock>
   <ComparisonTable title="LoRA Hyperparameter Guide" headers={['Parameter','Low','Medium','High','Impact']} rows={[['Rank (r)','4','16','64','Capacity vs VRAM. Start at 16, increase if underfitting'],['Alpha','8','32','64','Learning rate scaling. Rule of thumb: alpha = 2 * r'],['Target Modules','q,v only','q,k,v,o','All linear layers','More modules = more capacity, more VRAM'],['Dropout','0.0','0.05','0.1','Regularization. Higher if overfitting'],['Learning Rate','1e-5','2e-4','5e-4','QLoRA tolerates higher LR than full fine-tuning']]}/>
   <Quiz question="Why is QLoRA such a breakthrough for fine-tuning large models?" options={["It makes models run faster at inference time","It allows fine-tuning 70B+ models on a single consumer GPU by using 4-bit quantization","It eliminates the need for training data","It replaces LoRA entirely with a simpler approach"]} correctIndex={1} explanation="QLoRA combines 4-bit quantization (shrinking model memory ~4x) with LoRA (only training 0.05% of params). This makes it possible to fine-tune a 70B model on a single 24GB GPU — democratizing access to large model customization."/>

@@ -13,25 +13,26 @@ icon: "\uD83C\uDF0D"
   ['Canada AIDA','Risk-based','Federal regulated entities','Criminal penalties possible','In progress'],
 ]}/>
 
-<CodeBlock language="python" label="Automated EU AI Act Risk Classifier" code={`class EUAIActClassifier:
+<CodeBlock>
+{`class EUAIActClassifier:
     """Classify AI systems per EU AI Act risk tiers"""
 
-    UNACCEPTABLE = {
+    UNACCEPTABLE = {'{'{'}'}
         "social_scoring", "real_time_biometric_mass",
         "emotion_detection_workplace", "predictive_policing_individual"
-    }
-    HIGH_RISK_DOMAINS = {
+    {'}'}
+    HIGH_RISK_DOMAINS = {'{'{'}'}
         "hiring", "credit_scoring", "education_access",
         "medical_diagnosis", "criminal_justice", "border_control",
         "critical_infrastructure", "law_enforcement"
-    }
+    {'}'}
 
     def classify(self, system_profile):
         use_case = system_profile["use_case"]
         if use_case in self.UNACCEPTABLE:
-            return {"tier": "UNACCEPTABLE", "action": "DO NOT DEPLOY"}
+            return {'{'{'}'}"tier": "UNACCEPTABLE", "action": "DO NOT DEPLOY"{'}'}
         if system_profile.get("domain") in self.HIGH_RISK_DOMAINS:
-            return {
+            return {'{'{'}'}
                 "tier": "HIGH_RISK",
                 "requirements": [
                     "conformity_assessment",
@@ -41,10 +42,11 @@ icon: "\uD83C\uDF0D"
                     "accuracy_robustness_cybersecurity",
                     "post_market_monitoring"
                 ]
-            }
+            {'}'}
         if system_profile.get("interacts_with_humans"):
-            return {"tier": "LIMITED_RISK", "requirements": ["transparency_disclosure"]}
-        return {"tier": "MINIMAL_RISK", "requirements": []}`}/>
+            return {'{'{'}'}"tier": "LIMITED_RISK", "requirements": ["transparency_disclosure"]{'}'}
+        return {'{'{'}'}"tier": "MINIMAL_RISK", "requirements": []{'}'}`}
+</CodeBlock>
 
 <ArchitectureDecision scenario="Your startup is building an AI resume screener for enterprise clients. You want to sell globally. How should you approach compliance?" options={[
   {label:"Comply with EU AI Act only (strictest)",tradeoff:"Covers most requirements but misses US-specific rules like NYC Local Law 144"},

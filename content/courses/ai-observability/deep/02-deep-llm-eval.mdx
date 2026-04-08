@@ -13,7 +13,8 @@ Evaluating LLM outputs requires multiple complementary approaches. No single met
     ['Human Evaluation','Domain experts rate outputs','Highest quality signal','Expensive, slow, not scalable'],
     ['Rubric-Based','Score against defined criteria (1-5 per dimension)','Structured, consistent','Requires careful rubric design'],
   ]}/>
-  <CodeBlock language="python" label="LLM-as-Judge Evaluation Pipeline" code={`from dataclasses import dataclass
+  <CodeBlock>
+{`from dataclasses import dataclass
 
 @dataclass
 class EvalResult:
@@ -25,11 +26,11 @@ class EvalResult:
 async def llm_judge_evaluate(question, answer, context, judge_llm):
     """Use a separate LLM to evaluate answer quality."""
     prompt = f"""Evaluate this answer on three criteria (0.0-1.0 each):
-    Question: \\$\\{question\\}
-    Context: \\$\\{context\\}
-    Answer: \\$\\{answer\\}
-    Return JSON: {{"faithfulness": ..., "relevance": ...,
-      "coherence": ..., "reasoning": "..."}}"""
+    Question: \\$\\{'{'{'}'}question\\{'}'}
+    Context: \\$\\{'{'{'}'}context\\{'}'}
+    Answer: \\$\\{'{'{'}'}answer\\{'}'}
+    Return JSON: {'{'{'}'}{'{'{'}'}"faithfulness": ..., "relevance": ...,
+      "coherence": ..., "reasoning": "..."{'}'}{'}'}"""
 
     response = await judge_llm.invoke(
         system="You are a strict evaluation judge.",
@@ -46,6 +47,7 @@ async def batch_evaluate(test_cases, judge_llm):
     avg_f = sum(r.faithfulness for r in results) / len(results)
     avg_r = sum(r.relevance for r in results) / len(results)
     avg_c = sum(r.coherence for r in results) / len(results)
-    print(f"Faith: \\$\\{avg_f:.2f\\} Rel: \\$\\{avg_r:.2f\\} Coh: \\$\\{avg_c:.2f\\}")
-    return results`}/>
+    print(f"Faith: \\$\\{'{'{'}'}avg_f:.2f\\{'}'} Rel: \\$\\{'{'{'}'}avg_r:.2f\\{'}'} Coh: \\$\\{'{'{'}'}avg_c:.2f\\{'}'}")
+    return results`}
+</CodeBlock>
   <Quiz question="An LLM-as-judge consistently rates Claude outputs higher than GPT outputs regardless of quality. What is this?" options={["Calibration error","Judge bias -- the evaluator has model preference","Hallucination","Context overflow"]} correctIndex={1} explanation="Judge bias occurs when the evaluating LLM has systematic preferences for certain styles or models. Mitigation: use a different model family as judge, randomize labels, or average scores from multiple judges."/>
