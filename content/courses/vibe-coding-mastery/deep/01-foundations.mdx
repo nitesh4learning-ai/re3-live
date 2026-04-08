@@ -1,0 +1,64 @@
+---
+label: "Vibe Coding Foundations"
+icon: "🎸"
+---
+
+## Beyond "Ask and Pray": How Vibe Coding Actually Works
+
+Vibe coding isn't typing a prompt and hoping for the best. It's a **collaboration methodology** — treating Claude Code as a junior developer who types at 200 WPM, has read every library's documentation, but needs clear direction, active review, and architectural guardrails.
+
+<AnalogyBox emoji="🏗️" title="Construction Foreman, Not Magic Wand">
+You're the construction foreman. Claude Code is the crew — incredibly fast, never tired, knows every building technique. But without blueprints, specifications, and your active oversight, they'll build a structurally unsound house very quickly. The foreman's job isn't to lay bricks — it's to ensure every brick goes in the right place.
+</AnalogyBox>
+
+### The Mental Model Shift
+
+<ComparisonTable title="Beginner vs Master Vibe Coder" columns={['Aspect','Beginner','Master']} rows={[
+  ['Prompt style','Vague: "Build me a login page"','Specific: "Build a login page using NextAuth.js with Google OAuth, session stored in Postgres via Prisma, redirect to /dashboard on success"'],
+  ['Review approach','Accept everything blindly','Review every plan before execution, course-correct actively'],
+  ['Error handling','Debug the AI output manually','Ask Claude to explain its approach first, catch issues in planning'],
+  ['Architecture','Let Claude decide structure','Define architecture upfront in CLAUDE.md, Claude follows your patterns'],
+  ['Iteration','One giant prompt','Break into small, verifiable steps'],
+]}/>
+
+### The CLAUDE.md File: Your Project's Memory
+
+The single most important file in any vibe coding project. CLAUDE.md is Claude Code's persistent memory — it reads this file at the start of every session to understand your project's rules, patterns, and constraints.
+
+<CodeBlock language="markdown" label="Example CLAUDE.md for a Next.js Project">
+{`# Project: SnapSense AI
+## Tech Stack
+- Flutter 3.x with Dart
+- Firebase (Auth, Firestore, Crashlytics)
+- Claude Haiku API via Vercel gateway
+
+## Architecture Rules
+- All scan history stored in Hive (local only, NEVER Firestore)
+- LLM calls go through snapsense-ai-gateway, never direct
+- Every new feature needs a corresponding test
+- Use Provider pattern for state management
+
+## Code Style
+- Dart: follow effective_dart lints
+- Max 200 lines per file — split if longer
+- Every public method needs a doc comment
+- Error handling: never swallow exceptions silently
+
+## Current Sprint
+- Working on: Rating System exclusion engine
+- Known bug: Tylenol shows "UNKNOWN" instead of shield
+- Do NOT modify: Camera pipeline (stable, don't touch)`}
+</CodeBlock>
+
+<AnalogyBox emoji="📋" title="CLAUDE.md = Your Data Dictionary">
+In MDM, the data dictionary defines field rules, valid values, and business constraints. CLAUDE.md serves the same purpose for your codebase — it tells Claude what patterns to follow, what files to leave alone, and what constraints are non-negotiable. Without it, Claude invents its own patterns every session.
+</AnalogyBox>
+
+<Quiz
+  question="You start a new Claude Code session without a CLAUDE.md file. What's the most likely outcome?"
+  options={["Claude will remember your project from last time", "Claude will invent its own patterns and conventions, potentially conflicting with your existing code", "Claude will refuse to work without a CLAUDE.md", "Nothing changes — CLAUDE.md is optional and doesn't affect output"]}
+  correctIndex={1}
+  explanation="Without CLAUDE.md, Claude has no persistent memory of your project's conventions. It will make reasonable but potentially inconsistent choices — different naming conventions, different file organization, different error handling patterns. Over multiple sessions, this creates spaghetti code. CLAUDE.md is technically optional but practically essential."
+/>
+
+<SeeItInRe3 text="Re³ has its own CLAUDE.md and ARCHITECTURE.md that define the debate pipeline, agent roles, and file structure. Every Claude Code session on Re³ starts by reading these files." />

@@ -1,0 +1,128 @@
+---
+label: "Advanced Workflows"
+icon: "🔧"
+---
+
+## Multi-Agent Workflows, MCP Integration, and Production Patterns
+
+### Claude Code as a General-Purpose Agent
+
+Claude Code is marketed as a coding tool, but it's actually a **general-purpose terminal agent** that happens to be exceptional at code. It can manage git workflows, run shell commands, interact with APIs, manage files, and orchestrate complex multi-step processes.
+
+<CodeBlock language="text" label="Claude Code Beyond Coding">
+{`# Git workflow automation
+"Commit my changes with a descriptive message, create a 
+PR with a summary of changes, and assign it to review"
+
+# Infrastructure management
+"Check which environment variables are set, verify the 
+database connection, and run the migration"
+
+# Code review
+"Review the last 3 commits for security issues, 
+performance problems, and style inconsistencies"
+
+# Release management
+"Write release notes for everything merged since the 
+last tag, increment the version, and create the tag"
+
+# Documentation
+"Generate API documentation for all public endpoints 
+in the /api directory, including request/response examples"`}
+</CodeBlock>
+
+### MCP Servers: Extending Claude's Reach
+
+<JargonTip term="MCP">Model Context Protocol</JargonTip> servers extend Claude Code's capabilities beyond the local filesystem. You can connect Claude to databases, APIs, cloud services, and custom tools.
+
+<CodeBlock language="json" label="Claude Code MCP Configuration">
+{`{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem",
+               "/Users/nitesh/projects"],
+      "description": "Read/write project files"
+    },
+    "github": {
+      "command": "npx", 
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_TOKEN": "ghp_..." },
+      "description": "GitHub repos, PRs, issues"
+    },
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres",
+               "postgresql://localhost:5432/mydb"],
+      "description": "Database queries and schema"
+    }
+  }
+}`}
+</CodeBlock>
+
+### Skills vs MCP Servers: When to Use Which
+
+<ComparisonTable title="Skills vs MCP Servers" columns={['Aspect','Skills','MCP Servers']} rows={[
+  ['What they are','Text instructions Claude reads','Live services Claude calls'],
+  ['Transparency','You can read and review the full text','Often black boxes — harder to audit'],
+  ['Security','No external calls — just instructions','External service access — needs trust'],
+  ['Best for','Consistent patterns, templates, procedures','External data, APIs, databases, tools'],
+  ['Example','How to create a PPTX file','Connect to GitHub to read issues'],
+]}/>
+
+### Background Processes and Async Workflows
+
+<CodeBlock language="text" label="Running Claude Code in Background">
+{`# Start a long-running task
+"Run the full test suite, fix any failures, and commit 
+the fixes. I'll check back in 30 minutes."
+
+# Claude Code Channels (new in 2026)
+# Connect Claude Code to Discord or Telegram
+# Message it instructions while on the go
+# It runs tasks asynchronously and reports back
+
+# Multiple concurrent sessions
+# Run different Claude Code instances for different tasks:
+# Terminal 1: Feature implementation
+# Terminal 2: Test writing
+# Terminal 3: Documentation updates`}
+</CodeBlock>
+
+### Production Deployment Patterns
+
+<CodeBlock language="text" label="CI/CD Integration with Claude Code">
+{`# GitHub Actions integration
+# Claude Code can automate:
+- Code review on PRs (security, style, best practices)
+- Issue triage (label, prioritize, assign)
+- Release note generation
+- Dependency update PRs
+
+# Example GitHub Actions workflow:
+name: Claude Code Review
+on: pull_request
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: anthropics/claude-code-action@v1
+        with:
+          task: "Review this PR for security issues, 
+                 performance problems, and adherence 
+                 to our CLAUDE.md standards"
+          anthropic_api_key: secrets.ANTHROPIC_API_KEY`}
+</CodeBlock>
+
+<AnalogyBox emoji="🏭" title="Automated Quality Gates">
+Claude Code in CI/CD is like automated data quality checks in your MDM pipeline — every data record (PR) passes through validation (code review) before promotion to the golden record (main branch). The rules are defined once (CLAUDE.md + review criteria), and enforcement is automatic.
+</AnalogyBox>
+
+<Quiz
+  question="You're building a SnapSense feature that needs to: (1) query Open Food Facts API, (2) store results in Hive, (3) update the UI. How should you structure the Claude Code session?"
+  options={["One prompt: 'Build the complete feature'", "Plan Mode first, then implement in 3 separate steps with verification between each", "Ultrathink the entire feature in one pass", "Write the code yourself — this is too complex for Claude"]}
+  correctIndex={1}
+  explanation="Plan Mode identifies the architecture (API call → data transform → Hive storage → UI update). Then implementing step by step with verification catches issues at each layer boundary. Step 1 might reveal the API response format is different than expected — better to catch that before building the Hive storage layer on wrong assumptions."
+/>
+
+<SeeItInRe3 text="SnapSense uses GitHub Actions with a self-hosted macOS runner for CI/CD. Claude Code could be integrated into this pipeline for automated PR review and test generation." />

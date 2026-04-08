@@ -1,0 +1,113 @@
+---
+label: "Architectural Guardrails"
+icon: "🏛️"
+---
+
+## Preventing AI-Generated Spaghetti: Architectural Best Practices
+
+The #1 failure mode in vibe coding isn't syntax errors — it's **architectural drift**. Over multiple sessions, without guardrails, Claude makes locally reasonable but globally inconsistent decisions. File structure evolves organically. Error handling varies by file. State management approaches multiply. You end up with a codebase that works but is unmaintainable.
+
+### The BMAD Framework: AI-Driven SDLC
+
+<JargonTip term="BMAD">BMAD (Build Modular Agent-Driven)</JargonTip> is a framework that guides you through product design, user flows, and specifications **before you write a single line of code**. It keeps Claude Code on track during implementation by continuously validating against the spec.
+
+<ComparisonTable title="When to Use BMAD vs Plan Mode" columns={['Approach','Best For','Investment','Quality Gate']} rows={[
+  ['Plan Mode only','Small features, bug fixes, single-session work','5-10 min planning','Developer review'],
+  ['BMAD','Full products, multi-session projects, apps with real users','Hours of spec work upfront','Continuous spec validation'],
+  ['Neither','One-off scripts, experiments, throwaway prototyping','None','None needed'],
+]}/>
+
+### Architectural Patterns to Enforce
+
+<CodeBlock language="markdown" label="Architecture Rules Section in CLAUDE.md">
+{`## Architecture Guardrails (Non-Negotiable)
+
+### File Organization
+- Max 200 lines per file. If a file exceeds this, split it.
+- One component per file. No multi-component files.
+- Group by feature, not by type:
+  /features/auth/         ← auth component, hook, test, types
+  /features/scan/         ← scan component, hook, test, types
+  NOT: /components/ /hooks/ /tests/ (scattered across features)
+
+### State Management
+- Use Provider pattern exclusively. No ad-hoc state sharing.
+- Local state: useState for UI-only state
+- Shared state: Provider + useContext for cross-component state
+- Persistent state: Hive for on-device, Firestore for cloud
+
+### Error Handling
+- Every async function has try/catch
+- Errors logged to Crashlytics with context
+- User-facing errors show friendly message, not stack trace
+- Never swallow exceptions silently
+
+### API Patterns
+- All LLM calls go through the gateway, never direct
+- Retry with exponential backoff (max 3 attempts)
+- Token count tracked on every call
+- Cost per call logged for monitoring
+
+### Testing
+- Every new feature needs at least one test
+- Tests live next to the code they test (feature.test.js)
+- Run tests before committing — Claude should verify`}
+</CodeBlock>
+
+### Skills: Reusable Expertise for Claude
+
+Skills are reusable instruction files that teach Claude specialized tasks. They're like giving your junior developer a procedures manual for specific types of work.
+
+<CodeBlock language="text" label="Using Skills in Claude Code">
+{`# Skills live in project directories:
+.claude/
+  skills/
+    create-widget.md      # How to create new UI widgets
+    api-endpoint.md       # Standard pattern for API routes
+    database-migration.md # Steps for schema changes
+
+# Claude reads relevant skills automatically when the task matches.
+# You can also reference them explicitly:
+"Follow the api-endpoint skill to create the /api/scan endpoint"
+
+# Anthropic provides built-in skills for:
+- docx, pptx, xlsx creation
+- Frontend design (design tokens, component patterns)
+- PDF creation and reading
+
+# Community skills extend capabilities:
+- Production security hardening
+- SEO optimization
+- Performance auditing`}
+</CodeBlock>
+
+<AnalogyBox emoji="📖" title="Skills = Standard Operating Procedures">
+In enterprise operations, SOPs ensure consistent quality regardless of who performs the task. Skills serve the same purpose for Claude Code — whether you're creating an API endpoint or a database migration, the skill ensures it follows your organization's standard pattern every time.
+</AnalogyBox>
+
+### Common Architectural Pitfalls
+
+<ExpandableSection title="Pitfall 1: The God Component" icon="⚠️">
+Claude loves creating large, feature-rich components. Without guardrails, a "user profile page" prompt produces a 500-line component that handles display, editing, validation, API calls, and state management. Solution: enforce max file length in CLAUDE.md and instruct Claude to split into sub-components.
+</ExpandableSection>
+
+<ExpandableSection title="Pitfall 2: Inconsistent Error Handling" icon="⚠️">
+Different sessions produce different error handling patterns — sometimes try/catch, sometimes .catch(), sometimes silent failures. Solution: define error handling standards in CLAUDE.md with explicit examples.
+</ExpandableSection>
+
+<ExpandableSection title="Pitfall 3: Dependency Creep" icon="⚠️">
+Claude eagerly adds npm packages for problems solvable with standard library code. Each dependency is a maintenance burden and security surface. Solution: add a rule: "Before adding any new dependency, explain why it's necessary and what the alternative would be."
+</ExpandableSection>
+
+<ExpandableSection title="Pitfall 4: Testing Afterthought" icon="⚠️">
+Claude builds the feature, then writes tests as an afterthought (if at all). Solution: require test-first or test-alongside in CLAUDE.md: "Write the test before implementing the feature, or at minimum, write tests immediately after implementation before moving to the next task."
+</ExpandableSection>
+
+<Quiz
+  question="Your codebase has grown to 50+ files across 10 Claude Code sessions. You notice three different error handling patterns, two state management approaches, and inconsistent naming conventions. What went wrong?"
+  options={["Claude Code is fundamentally unreliable", "You needed a stronger CLAUDE.md with explicit architectural constraints from the start", "The project is too large for vibe coding", "You should have used a different AI tool"]}
+  correctIndex={1}
+  explanation="Architectural drift is a human oversight problem, not an AI capability problem. A comprehensive CLAUDE.md with explicit patterns, examples, and constraints prevents this. Claude follows rules reliably — but only rules you've written down. Implicit expectations produce inconsistent results."
+/>
+
+<SeeItInRe3 text="SnapSense's CLAUDE.md defines strict architectural rules: Hive-only for local storage, gateway-only for LLM calls, Provider pattern for state. Every Claude Code session inherits these constraints automatically." />

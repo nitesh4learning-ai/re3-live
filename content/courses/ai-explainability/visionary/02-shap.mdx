@@ -1,0 +1,19 @@
+---
+label: "SHAP Explained"
+icon: "📊"
+---
+
+## SHAP: Feature Attribution via Game Theory
+
+SHAP calculates each feature's fair contribution to a prediction using Shapley values. Positive values push prediction higher, negative push lower. TreeExplainer is fast for tree models; KernelExplainer works on anything but is slow.
+
+<AnalogyBox emoji="⚖️" title="Fair Division of Credit">
+Three sales reps close a deal. How to divide commission fairly? Shapley values calculate each person's marginal contribution across all team combinations. SHAP does the same for model features.
+</AnalogyBox>
+
+<Quiz
+  question="SHAP shows 'country_of_origin' is the top feature in a supplier risk model. Is this bias?"
+  options={["Yes — remove it immediately","Not necessarily — it may correlate with legitimate risk factors","Ignore it — accuracy matters more","Switch to LIME"]}
+  correctIndex={1}
+  explanation="High feature importance doesn't mean unfair discrimination. Country may legitimately correlate with regulatory risk. Investigate whether it captures business risk or proxies for protected characteristics."
+/>

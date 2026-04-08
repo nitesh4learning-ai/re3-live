@@ -1,0 +1,17 @@
+{
+  "tier": 4,
+  "icon": "🏗️",
+  "title": "AI-Powered SAP Legacy Modernization",
+  "description": "Enable vibe coding on legacy SAP/ABAP platforms. SAP ABAP-1 model, Joule for Developers, ABAP MCP server, Claude Code for legacy understanding, and human-in-the-loop modernization.",
+  "difficulty": "Advanced",
+  "timeMinutes": 240,
+  "exerciseCount": 8,
+  "tabCount": 5,
+  "status": "available",
+  "tags": ["sap", "abap", "legacy-modernization", "joule", "mcp", "clean-core", "s4hana"],
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "AI-Powered SAP Legacy Modernization — Re³ Academy Plus",
+    "metaDescription": "Modernize legacy SAP/ABAP with AI: Joule, ABAP-1 model, Claude Code, ABAP MCP server, and human-in-the-loop patterns for S/4HANA migration."
+  }
+}

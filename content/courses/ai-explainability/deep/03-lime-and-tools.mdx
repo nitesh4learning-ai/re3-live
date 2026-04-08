@@ -1,0 +1,81 @@
+---
+label: "LIME & Other XAI Tools"
+icon: "🍋"
+---
+
+## LIME: Local Interpretable Model-agnostic Explanations
+
+While SHAP provides both global and local explanations, <JargonTip term="LIME">LIME</JargonTip> focuses exclusively on **local** explanations — why did the model make THIS specific prediction?
+
+### How LIME Works
+
+LIME creates a simple, interpretable model (like linear regression) that approximates the complex model's behavior **in the neighborhood** of a specific prediction. It perturbs the input, observes how predictions change, and fits a local surrogate model.
+
+<CodeBlock language="python" label="LIME for a Text Classification Model">
+{`import lime
+from lime.lime_text import LimeTextExplainer
+
+# Assume we have a sentiment classifier
+explainer = LimeTextExplainer(class_names=["negative", "positive"])
+
+# Explain a specific prediction
+text = "The supplier delivered on time but quality was terrible"
+explanation = explainer.explain_instance(
+    text,
+    classifier.predict_proba,  # Model's prediction function
+    num_features=6
+)
+
+# Show which words drove this prediction
+explanation.show_in_notebook()
+# Result: "terrible" (-0.45), "quality" (-0.12) pushed toward negative
+#         "delivered" (+0.08), "on time" (+0.15) pushed toward positive
+# Net: negative sentiment — correctly driven by "terrible quality"`}
+</CodeBlock>
+
+### SHAP vs LIME: When to Use Which
+
+<ComparisonTable title="SHAP vs LIME Comparison" columns={['Factor','SHAP','LIME']} rows={[
+  ['Explanation scope','Global + Local','Local only'],
+  ['Mathematical foundation','Game theory (Shapley values)','Local surrogate models'],
+  ['Consistency guarantee','Yes — same feature always gets same attribution','No — can vary between runs'],
+  ['Speed (model-agnostic)','Slow (KernelSHAP)','Medium'],
+  ['Speed (tree models)','Fast (TreeSHAP)','Medium'],
+  ['Best for','Feature importance ranking, compliance reporting','Individual prediction explanation, debugging'],
+  ['LLM applicability','Limited — too many parameters','Can explain text classification via perturbation'],
+]}/>
+
+### Beyond SHAP and LIME: The XAI Toolkit
+
+<ExpandableSection title="Attention Maps (Transformers)" icon="👁️" defaultOpen>
+Visualize which parts of the input the model "attended to" when generating output. Useful for vision models (which image regions mattered?) and text models (which tokens influenced the output?). Limitation: attention doesn't always equal explanation — high attention doesn't mean causal influence.
+</ExpandableSection>
+
+<ExpandableSection title="Counterfactual Explanations" icon="🔄">
+Answer: "What's the minimum change needed to flip the prediction?" For a rejected loan application: "If your income increased by $10K, the model would approve." Powerful for actionable explanations but computationally expensive to find optimal counterfactuals.
+</ExpandableSection>
+
+<ExpandableSection title="Concept-Based Explanations (TCAV)" icon="💡">
+Google's Testing with Concept Activation Vectors. Instead of raw features, explains predictions in terms of human-understandable concepts: "This image was classified as 'doctor' because it activates the 'white coat' and 'stethoscope' concepts." More intuitive than feature-level explanations.
+</ExpandableSection>
+
+<ExpandableSection title="Integrated Gradients" icon="📈">
+For neural networks: traces the gradient from a baseline input to the actual input, attributing each feature's contribution along the path. More principled than simple gradient-based methods. Works well for image and text models.
+</ExpandableSection>
+
+<ExpandableSection title="Agent Execution Traces (LangSmith)" icon="🔍">
+For agentic AI systems: log every reasoning step, tool call, and output. Shows the full chain: "The agent searched for X, found Y, decided to call tool Z, got result W, and concluded Q." This is system-level explainability — critical for production agents.
+</ExpandableSection>
+
+<AnalogyBox emoji="🔎" title="Audit Trail Depth">
+Think of XAI tools as audit trail depth levels. LIME is like checking a single transaction. SHAP is like analyzing patterns across all transactions. Agent traces are like a full forensic audit of the entire process from start to finish. The right depth depends on who's asking and why.
+</AnalogyBox>
+
+<Quiz
+  question="You're explaining a model's prediction to a business stakeholder who wants to know 'Why did the AI flag this supplier as high risk?' Which XAI approach is most appropriate?"
+  options={["SHAP summary plot showing global feature importance", "LIME explanation showing which specific factors drove THIS supplier's risk score", "Counterfactual: 'If the supplier had 3 more years of history, risk would drop to medium'", "Both B and C — local explanation plus actionable counterfactual"]}
+  correctIndex={3}
+  explanation="Business stakeholders need two things: WHY was this flagged (LIME/local SHAP — 'short payment history and high concentration risk') and WHAT WOULD CHANGE IT (counterfactual — 'diversifying your customer base would reduce concentration risk'). The combination is more actionable than either alone."
+/>
+
+<SeeItInRe3 text="SnapSense's rating system surfaces expert scores (Nutri-Score, ASPCA toxicity) rather than generating opaque risk numbers — a form of explanation-by-design where the underlying methodology is transparent." />

@@ -1,0 +1,17 @@
+{
+  "tier": 3,
+  "icon": "🔬",
+  "title": "AI Explainability Deep Dive",
+  "description": "SHAP, LIME, attention maps, chain-of-thought tracing, agent observability, and enterprise XAI for regulatory compliance.",
+  "difficulty": "Advanced",
+  "timeMinutes": 210,
+  "exerciseCount": 8,
+  "tabCount": 5,
+  "status": "available",
+  "tags": ["explainability", "xai", "shap", "lime", "observability", "governance"],
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "AI Explainability Deep Dive — Re³ Academy Plus",
+    "metaDescription": "Master SHAP, LIME, attention maps, and enterprise XAI. Build explainable AI systems for regulatory compliance and stakeholder trust."
+  }
+}

@@ -1,0 +1,17 @@
+---
+label: "Build & Practice"
+icon: "🔨"
+---
+
+## Build: Explainability Layer
+
+Add SHAP global explanations, LIME local explanations, counterfactual analysis, model card, and governance report to a classification model. Map to NIST MEASURE and EU AI Act.
+
+<Quiz
+  question="Compliance asks: 'Prove our hiring AI doesn't discriminate by gender.' Best approach?"
+  options={["SHAP showing gender isn't top feature","LIME for rejected candidates","Fairlearn demographic parity + SHAP stratified by gender","Attention maps"]}
+  correctIndex={2}
+  explanation="Non-discrimination requires statistical analysis (Fairlearn) across groups plus mechanistic explanation (SHAP). Single-tool approaches are insufficient for regulatory scrutiny."
+/>
+
+> **Soundbite**: "I implement explainability at three levels: SHAP/LIME for predictions, LangSmith for agent tracing, governance dashboards for executives. I explain AI to data scientists, stakeholders, and regulators — each in their own language."

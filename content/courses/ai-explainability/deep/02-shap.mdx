@@ -1,0 +1,81 @@
+---
+label: "SHAP: Global & Local Explanations"
+icon: "📊"
+---
+
+## SHAP: SHapley Additive exPlanations
+
+<JargonTip term="SHAP">SHAP</JargonTip> is based on game theory — specifically Shapley values from cooperative game theory. It treats each feature as a "player" and the model prediction as the "payoff," calculating each feature's fair contribution to the outcome.
+
+### How SHAP Works
+
+The core idea: for each prediction, calculate how much each feature contributed to pushing the prediction away from the baseline (average prediction).
+
+<CodeBlock language="python" label="SHAP in Action — Credit Risk Model">
+{`import shap
+import xgboost as xgb
+import pandas as pd
+
+# Train a model (credit risk prediction)
+model = xgb.XGBClassifier()
+model.fit(X_train, y_train)
+
+# Create SHAP explainer
+explainer = shap.TreeExplainer(model)
+
+# Get SHAP values for the entire dataset (global)
+shap_values = explainer.shap_values(X_test)
+
+# Global explanation: which features matter most overall?
+shap.summary_plot(shap_values, X_test)
+# Shows: income, credit_history, debt_ratio are top predictors
+
+# Local explanation: why was THIS applicant rejected?
+applicant_idx = 42
+shap.waterfall_plot(
+    shap.Explanation(
+        values=shap_values[applicant_idx],
+        base_values=explainer.expected_value,
+        data=X_test.iloc[applicant_idx],
+        feature_names=X_test.columns.tolist()
+    )
+)
+# Shows: high debt_ratio (+0.3) and short credit_history (+0.2)
+# pushed this applicant toward "reject"`}
+</CodeBlock>
+
+### SHAP Variants
+
+<ComparisonTable title="SHAP Explainer Types" columns={['Variant','Best For','Speed','Accuracy']} rows={[
+  ['TreeExplainer','Tree-based models (XGBoost, LightGBM, RF)','Fast (up to 100x)','Exact'],
+  ['DeepExplainer','Deep neural networks','Medium','Approximate'],
+  ['KernelExplainer','Any model (model-agnostic)','Slow','Approximate'],
+  ['LinearExplainer','Linear models (logistic regression)','Fastest','Exact'],
+]}/>
+
+### Interpreting SHAP Values
+
+<AnalogyBox emoji="⚖️" title="Fair Division of Credit">
+Imagine three sales reps close a deal together. How do you fairly divide the commission? Shapley values calculate each person's marginal contribution across all possible team combinations. SHAP does the same for features: how much does each feature contribute to pushing the prediction above or below the baseline, across all possible feature combinations?
+</AnalogyBox>
+
+**Positive SHAP value** = this feature pushed the prediction **higher** (toward positive class)
+**Negative SHAP value** = this feature pushed the prediction **lower** (toward negative class)
+**Magnitude** = how strongly the feature influenced the prediction
+
+### SHAP for LLM Outputs
+
+SHAP was designed for traditional ML. For LLMs, direct SHAP application is computationally infeasible (millions of parameters). Instead, use:
+
+- **Token-level attribution**: Which input tokens most influenced the output?
+- **Prompt component analysis**: Which parts of the prompt (system message, context, user query) most affected the response?
+- **Chain-of-thought tracing**: Follow the reasoning steps the model took
+
+<Quiz
+  question="You built a supplier risk scoring model. SHAP shows 'country_of_origin' has the highest feature importance. A compliance officer asks: 'Is this model discriminating based on geography?' How do you respond?"
+  options={["Remove country_of_origin from the model", "Explain that SHAP shows correlation, not necessarily unfair bias — country may correlate with legitimate risk factors like regulatory environment", "Ignore the concern — the model is accurate", "Replace SHAP with LIME to get a different answer"]}
+  correctIndex={1}
+  explanation="High feature importance doesn't automatically mean unfair discrimination. Country of origin may legitimately correlate with regulatory risk, sanctions exposure, or supply chain stability. The correct response is to investigate: does the feature capture legitimate business risk, or is it a proxy for protected characteristics? SHAP helps surface this question — answering it requires domain expertise."
+/>
+
+<SeeItInRe3 text="GIM Framework's Pillar 3 (Quality and Stewardship) should include model explainability as a quality dimension — not just data accuracy, but decision transparency." />

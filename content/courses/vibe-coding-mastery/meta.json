@@ -1,0 +1,18 @@
+{
+  "tier": 3,
+  "icon": "🎸",
+  "title": "Vibe Coding Mastery with Claude",
+  "description": "From 'ask and pray' to production-grade output. CLAUDE.md files, plan mode, thinking levels, architectural guardrails, skills, and multi-agent workflows.",
+  "difficulty": "Intermediate",
+  "timeMinutes": 210,
+  "exerciseCount": 10,
+  "tabCount": 5,
+  "status": "available",
+  "tags": ["vibe-coding", "claude-code", "best-practices", "productivity", "architecture"],
+  "programLink": { "programId": "agentic-ai-mastery", "week": 0 },
+  "createdBy": { "name": "Nitesh", "avatar": "NP", "color": "#9333EA" },
+  "seo": {
+    "metaTitle": "Vibe Coding Mastery with Claude — Re³ Academy Plus",
+    "metaDescription": "Master Claude Code for production-grade development. CLAUDE.md, plan mode, thinking levels, skills, and architectural best practices."
+  }
+}

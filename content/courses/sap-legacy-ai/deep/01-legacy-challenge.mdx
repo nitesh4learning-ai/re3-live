@@ -1,0 +1,42 @@
+---
+label: "The Legacy SAP Challenge"
+icon: "🏗️"
+---
+
+## Why Legacy SAP Is AI's Hardest Problem
+
+Thousands of companies run on SAP ECC 6.0 with decades of custom ABAP code — code that embeds critical business logic nobody fully understands anymore. The original developers are retired. Documentation is sparse. The code works, so nobody touches it. Until S/4HANA migration forces the question: what does this code actually do?
+
+<AnalogyBox emoji="🏚️" title="Renovating a House You Didn't Build">
+Imagine renovating a 30-year-old house. You open a wall and find plumbing that's been rerouted three times, electrical wires that don't match the blueprint, and load-bearing walls where the plans show open space. Every change risks breaking something you didn't know was connected. That's legacy SAP: decades of customizations layered on customizations, with implicit dependencies that only surface when you change something.
+</AnalogyBox>
+
+### The Scale of the Problem
+
+<ComparisonTable title="Legacy SAP by the Numbers" columns={['Metric','Typical Enterprise','McKesson Scale']} rows={[
+  ['Custom ABAP objects','5,000-50,000','100,000+'],
+  ['Lines of custom code','500K-5M','Millions'],
+  ['Average age of code','10-20 years','Some modules 20+ years'],
+  ['Documentation coverage','10-30%','Variable by module'],
+  ['Developers who wrote it','Many retired/departed','Significant attrition'],
+  ['S/4HANA migration deadline','2027-2030','Active migration program'],
+]}/>
+
+### Why AI Changes Everything
+
+Before AI, legacy code understanding was a manual, expert-driven process: senior ABAP developers reading code line by line, tracing execution paths, documenting business rules. This doesn't scale when you have millions of lines to migrate.
+
+AI brings three capabilities that transform this:
+
+1. **Code comprehension at scale** — LLMs can read and explain ABAP code, including complex nested logic, in plain business language
+2. **Pattern recognition** — AI identifies deprecated functions, anti-patterns, and migration risks across the entire codebase
+3. **Code generation** — AI can generate cloud-ready ABAP (RAP, CDS views, Fiori elements) from legacy specifications
+
+<SeeItInRe3 text="The vibe coding methodology from Course 1 (CLAUDE.md, plan mode, architectural guardrails) applies directly to SAP modernization — you're directing AI to understand and transform code, not writing it manually." />
+
+<Quiz
+  question="A McKesson team discovers a critical custom pricing calculation in ABAP that no current employee fully understands. The original developer retired 8 years ago. Documentation doesn't exist. What's the AI-first approach?"
+  options={["Rewrite it from scratch in S/4HANA", "Use Joule's Explain skill to generate plain-language documentation of what the code does, then validate with business stakeholders", "Leave it unchanged and migrate as-is", "Hire an ABAP consultant for 6 months"]}
+  correctIndex={1}
+  explanation="Joule's Explain skill can analyze ABAP code and generate plain-language explanations of business logic. The AI explains what the code does; human stakeholders validate whether the explanation matches their understanding of the business process. This is human-in-the-loop modernization — AI does the heavy lifting of code comprehension, humans verify business accuracy."
+/>

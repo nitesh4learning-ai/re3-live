@@ -1,0 +1,127 @@
+---
+label: "AI Tools for SAP Modernization"
+icon: "🛠️"
+---
+
+## The SAP AI Toolkit: Joule, ABAP-1, and Beyond
+
+SAP has built a comprehensive AI stack specifically for ABAP development. Understanding these tools — and their limitations — is critical for any modernization strategy.
+
+### SAP ABAP-1: The Foundation Model
+
+<JargonTip term="ABAP-1">SAP ABAP-1</JargonTip> is a foundation model trained exclusively on real-world ABAP code and business logic. Built on StarCoder2 (code completion) and Codestral (code understanding), it's trained on over 250 million lines of proprietary SAP code.
+
+<ComparisonTable title="SAP AI Tools for ABAP" columns={['Tool','What It Does','Availability','Best For']} rows={[
+  ['SAP ABAP-1','Analyzes and explains ABAP code','Available now','Code understanding, documentation generation'],
+  ['Joule for Developers (J4D)','Full IDE-integrated AI assistant','Free until Sep 2026','Daily coding, explain, generate, test, migrate'],
+  ['ABAP MCP Server','Exposes ABAP capabilities to external AI agents','GA Q2 2026','Connecting Claude Code / VS Code agents to SAP'],
+  ['ABAP AI SDK','Build custom AI developer tools','BTP Free Tier','Custom AI-driven development use cases'],
+  ['Claude Code + ABAP','External LLM analyzing SAP code via MCP','Available now','Deep analysis, architecture review, migration planning'],
+]}/>
+
+### Joule for Developers: What It Actually Does
+
+<CodeBlock language="text" label="Joule for Developers Capabilities">
+{`# EXPLAIN — Understand legacy code
+"Explain this custom pricing Z-report including 
+all business rules and edge cases"
+→ Plain-language explanation of ABAP logic
+→ Auto-generated technical documentation
+
+# GENERATE — Create new cloud-ready code
+"Generate a RAP business object for supplier 
+master data with CRUD operations"
+→ CDS views, behavior definitions, projections
+
+# TEST — Auto-generate unit tests
+"Write ABAP unit tests for the supplier 
+validation class ZCL_SUPPLIER_VALIDATE"
+→ Test class with edge cases and mocks
+
+# MIGRATE — Code transformation
+"Convert this classic dialog program to a 
+Fiori Elements application"
+→ Identifies deprecated constructs
+→ Suggests cloud-ready replacements
+
+# CLEAN CORE — Compliance checking
+"Analyze custom modifications in this package 
+for Clean Core compliance"
+→ Flags non-standard API usage
+→ Recommends standard alternatives`}
+</CodeBlock>
+
+### The ABAP MCP Server: Connecting Claude to SAP
+
+This is the game-changer for 2026. SAP is building an ABAP MCP server that exposes ABAP development capabilities — with and without embedded AI — to any MCP-compatible agent.
+
+<CodeBlock language="text" label="ABAP MCP Server Architecture">
+{`┌────────────────────────────────┐
+│  Claude Code / VS Code Agent   │
+│  (MCP Client)                  │
+└──────────┬─────────────────────┘
+           │ MCP Protocol (JSON-RPC)
+┌──────────▼─────────────────────┐
+│  ABAP MCP Server               │
+│                                 │
+│  Tools exposed:                 │
+│  • explain_abap(code)           │
+│  • generate_rap_bo(spec)        │
+│  • analyze_clean_core(package)  │
+│  • run_abap_unit(class)         │
+│  • search_abap_objects(query)   │
+│                                 │
+│  Resources exposed:             │
+│  • ABAP object catalog          │
+│  • CDS view definitions         │
+│  • Package dependencies         │
+└──────────┬─────────────────────┘
+           │ RFC / HTTP
+┌──────────▼─────────────────────┐
+│  SAP S/4HANA System             │
+│  (ECC 6.0 / Private Cloud)     │
+└─────────────────────────────────┘`}
+</CodeBlock>
+
+<AnalogyBox emoji="🔌" title="MCP = MuleSoft for AI-to-SAP">
+The ABAP MCP server is essentially a MuleSoft connector for AI agents. Instead of building custom API wrappers for every AI tool that needs to talk to SAP, you expose ABAP capabilities through MCP once, and any agent can use them. Claude Code, VS Code Copilot, custom LangGraph agents — all connect through the same standard protocol.
+</AnalogyBox>
+
+### Claude Code for SAP: The External Perspective
+
+While Joule is SAP-native, Claude Code brings an external perspective that's valuable for architecture decisions and migration strategy:
+
+<CodeBlock language="text" label="Claude Code + SAP Workflow">
+{`# Step 1: Export ABAP code to local filesystem
+# (SE38, SE80, or abapGit)
+
+# Step 2: Point Claude Code at the exported code
+cd /path/to/exported-abap-code
+claude
+
+# Step 3: Ask Claude to analyze
+"Analyze this ABAP codebase. Identify:
+1. Business rules embedded in custom code
+2. Deprecated function modules still in use  
+3. Dependencies between custom objects
+4. Migration risks for S/4HANA
+5. Recommended modernization sequence"
+
+# Step 4: Claude reads all files, maps dependencies,
+# and provides a comprehensive analysis with
+# specific recommendations per object.
+
+# Key advantage: Claude isn't limited to SAP's
+# ecosystem — it can recommend non-SAP alternatives,
+# cloud-native patterns, and cross-platform approaches
+# that Joule won't suggest.`}
+</CodeBlock>
+
+<Quiz
+  question="You need to understand a critical custom ABAP pricing module before migrating to S/4HANA. You have access to both Joule for Developers and Claude Code. Which do you use?"
+  options={["Joule only — it's SAP-native and trained on ABAP", "Claude Code only — it's more powerful", "Both: Joule for line-by-line ABAP explanation, Claude Code for architecture analysis and migration strategy", "Neither — hire an ABAP consultant"]}
+  correctIndex={2}
+  explanation="Joule excels at ABAP-specific code explanation (it's trained on 250M lines of ABAP). Claude Code excels at architectural analysis, cross-platform comparisons, and migration strategy. Use Joule to understand WHAT the code does, Claude Code to decide HOW to modernize it. This is the same multi-tool principle as using specialized MDM tools for matching + enrichment."
+/>
+
+<SeeItInRe3 text="The ABAP MCP server follows the same architecture pattern as Re³'s multi-provider LLM router — standardized interfaces enabling any consumer to connect to any provider." />

@@ -1,0 +1,161 @@
+---
+label: "AI Control with Human Oversight"
+icon: "🤝"
+---
+
+## Agentic SAP: AI-Driven Operations with Human Guardrails
+
+The endgame isn't AI understanding legacy code — it's AI **operating** on SAP systems autonomously within defined boundaries, with human oversight for high-risk decisions.
+
+### The Autonomy Spectrum
+
+<ComparisonTable title="AI Autonomy Levels for SAP" columns={['Level','AI Does','Human Does','Risk','Example']} rows={[
+  ['Level 0: Manual','Nothing','Everything','None','Traditional ABAP development'],
+  ['Level 1: Assist','Explains code, suggests changes','Reviews, decides, implements','Low','Joule Explain + Generate'],
+  ['Level 2: Guided','Implements changes','Reviews and approves','Medium','Claude Code with plan mode'],
+  ['Level 3: Supervised','Executes autonomously within rules','Monitors, intervenes on exceptions','Medium-High','Agentic ABAP with approval gates'],
+  ['Level 4: Autonomous','Full lifecycle management','Sets policies, handles escalations','High','Future: AI-managed SAP operations'],
+]}/>
+
+### Building Approval Gates
+
+<CodeBlock language="python" label="LangGraph Human-in-the-Loop for SAP Changes">
+{`from langgraph.graph import StateGraph, END, START
+from langgraph.types import interrupt
+
+class SAPModernizationState(TypedDict):
+    object_name: str           # ABAP object being modernized
+    current_code: str          # Original ABAP source
+    ai_explanation: str        # AI's understanding of the code
+    human_validated: bool      # Human confirmed explanation
+    proposed_changes: str      # AI's proposed modernization
+    human_approved: bool       # Human approved the changes
+    test_results: dict         # Unit test outcomes
+    transport_number: str      # SAP transport for deployment
+
+def explain_code(state):
+    """AI analyzes and explains the legacy code"""
+    explanation = joule_explain(state["current_code"])
+    return {"ai_explanation": explanation}
+
+def validate_explanation(state):
+    """
+    HUMAN-IN-THE-LOOP: Pause execution.
+    Present AI explanation to human for validation.
+    Human confirms or corrects.
+    """
+    # LangGraph interrupt() pauses the graph
+    # and returns control to the human
+    human_response = interrupt(
+        "Please validate this code explanation. "
+        "Is this accurate? What's missing?"
+    )
+    return {
+        "human_validated": human_response["approved"],
+        "ai_explanation": human_response.get(
+            "corrected_explanation", 
+            state["ai_explanation"]
+        )
+    }
+
+def propose_modernization(state):
+    """AI proposes code changes based on validated understanding"""
+    if not state["human_validated"]:
+        return {"proposed_changes": "BLOCKED: Explanation not validated"}
+    
+    changes = generate_modern_abap(
+        state["current_code"], 
+        state["ai_explanation"]
+    )
+    return {"proposed_changes": changes}
+
+def approve_changes(state):
+    """
+    SECOND HUMAN GATE: Before any code is deployed,
+    human reviews the proposed changes.
+    """
+    human_response = interrupt(
+        "Review proposed code changes. "
+        "Approve for testing or reject with feedback."
+    )
+    return {"human_approved": human_response["approved"]}
+
+def run_tests(state):
+    """Execute ABAP unit tests against proposed changes"""
+    results = execute_abap_unit_tests(
+        state["object_name"],
+        state["proposed_changes"]
+    )
+    return {"test_results": results}
+
+def deploy_to_transport(state):
+    """Create SAP transport with modernized code"""
+    if not state["human_approved"]:
+        return {"transport_number": "BLOCKED"}
+    if not state["test_results"]["all_passed"]:
+        return {"transport_number": "BLOCKED: Tests failed"}
+    
+    transport = create_transport(
+        state["object_name"],
+        state["proposed_changes"]
+    )
+    return {"transport_number": transport}
+
+# Graph with two human gates
+graph = StateGraph(SAPModernizationState)
+graph.add_node("explain", explain_code)
+graph.add_node("validate", validate_explanation)
+graph.add_node("propose", propose_modernization)
+graph.add_node("approve", approve_changes)
+graph.add_node("test", run_tests)
+graph.add_node("deploy", deploy_to_transport)
+
+graph.add_edge(START, "explain")
+graph.add_edge("explain", "validate")      # Human gate 1
+graph.add_edge("validate", "propose")
+graph.add_edge("propose", "approve")       # Human gate 2
+graph.add_edge("approve", "test")
+graph.add_edge("test", "deploy")
+graph.add_edge("deploy", END)`}
+</CodeBlock>
+
+Notice the **two human gates**: one after AI explains the code (validate understanding) and one after AI proposes changes (approve modifications). This ensures AI never modifies production SAP code without human oversight.
+
+<AnalogyBox emoji="🏭" title="Change Advisory Board for AI">
+In ITIL, a Change Advisory Board (CAB) reviews and approves changes before they reach production. The approval gates in our LangGraph pipeline serve the same purpose: AI proposes, humans review, tests verify, then and only then does the change enter the transport system. The AI accelerates the work; the human ensures the safety.
+</AnalogyBox>
+
+### SAP Agents Architecture (2026 Roadmap)
+
+SAP's own agentic architecture is emerging: agents that interact through an ABAP backbone, with ABAP MCP server exposing capabilities to external agents. This enables a multi-agent approach:
+
+<CodeBlock language="text" label="Multi-Agent SAP Modernization">
+{`┌─────────────────────────────────────────┐
+│          MODERNIZATION SUPERVISOR        │
+│  (Orchestrates the modernization flow)   │
+└──────┬──────────┬──────────┬────────────┘
+       │          │          │
+┌──────▼───┐ ┌───▼────┐ ┌───▼──────┐
+│ ANALYZER │ │MIGRATOR│ │ TESTER   │
+│          │ │        │ │          │
+│ Via:     │ │ Via:   │ │ Via:     │
+│ •Joule   │ │ •Joule │ │ •ABAP    │
+│  Explain │ │  Gen   │ │  Unit    │
+│ •Claude  │ │ •ABAP  │ │ •Claude  │
+│  Code    │ │  MCP   │ │  Code    │
+└──────────┘ └────────┘ └──────────┘
+       │          │          │
+  ┌────▼──────────▼──────────▼────┐
+  │    HUMAN APPROVAL GATE         │
+  │  (Validates at each stage)     │
+  └────────────────────────────────┘`}
+</CodeBlock>
+
+<Quiz
+  question="An AI agent proposes modernizing a custom SAP pricing module. Unit tests pass. Should you deploy directly to production?"
+  options={["Yes — tests passing means it's safe", "No — pass through the transport system with CAB approval, integration testing in QA, and staged rollout", "Only if it's a minor change", "Deploy to production but monitor closely"]}
+  correctIndex={1}
+  explanation="Passing unit tests is necessary but insufficient for production SAP changes. The full governance chain applies: transport system (version control), integration testing (does it work with other modules?), QA validation (business process testing), CAB approval (change management), staged rollout (landscape progression). AI accelerates the development; it doesn't bypass governance."
+/>
+
+<SeeItInRe3 text="Re³'s debate pipeline uses the same pattern: agents do the work, Atlas (quality gate) evaluates, and the human user makes final decisions about which synthesis to accept." />

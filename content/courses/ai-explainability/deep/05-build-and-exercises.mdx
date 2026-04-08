@@ -1,0 +1,54 @@
+---
+label: "Build & Exercises"
+icon: "🔨"
+---
+
+## Build: Explainability Layer for a Production Model
+
+### Project: Add XAI to a Classification Model
+
+Take a real classification problem (supplier risk scoring, product category prediction, or credit approval) and add a complete explainability layer.
+
+**Deliverables:**
+1. **Trained model** with SHAP global explanations (summary plot, feature importance ranking)
+2. **LIME local explanations** for 5 individual predictions with business-language narratives
+3. **Counterfactual analysis** — for 3 predictions, show what minimal change would flip the outcome
+4. **Model card** documenting capabilities, limitations, training data, and known biases
+5. **Governance report** mapping your explainability approach to NIST MEASURE and EU AI Act requirements
+
+### Stretch Goals
+
+1. Build an interactive SHAP dashboard (Streamlit or Next.js) that lets stakeholders explore feature importance
+2. Add agent execution tracing with LangSmith to an existing LangGraph pipeline
+3. Create a "bias audit report" using Fairlearn to test for demographic disparities
+4. Design a monitoring dashboard that alerts when model explanations drift significantly from baseline
+
+---
+
+## Exercises
+
+<Quiz
+  question="A compliance officer asks: 'Can you prove our hiring AI doesn't discriminate by gender?' Which XAI approach answers this?"
+  options={["SHAP summary plot showing gender isn't the top feature", "LIME explanations for individual rejected candidates", "Fairlearn demographic parity analysis + SHAP stratified by gender groups", "Attention maps showing which resume sections the model focused on"]}
+  correctIndex={2}
+  explanation="Proving non-discrimination requires statistical analysis across demographic groups (Fairlearn), not just feature importance. SHAP stratified by gender shows whether the model uses gender differently across groups. The combination provides both statistical evidence (Fairlearn) and mechanistic explanation (SHAP) — exactly what a regulator would expect."
+/>
+
+<Quiz
+  question="Your LangGraph agent made a wrong supplier recommendation. The agent searched for data, graded relevance, and generated a response. Where do you start debugging?"
+  options={["Check the final response for hallucinations", "Start at the agent execution trace — was the right data retrieved? Were documents graded correctly? Did the routing function make the right decision?", "Retrain the model on better data", "Add more SHAP analysis"]}
+  correctIndex={1}
+  explanation="Agent execution traces let you follow the decision chain: did retrieval return relevant data? Did grading filter correctly? Did the routing function route to the right node? The error could be at any step — the trace shows you exactly where the chain broke. This is why agent observability is essential for production systems."
+/>
+
+<ArchitectureDecision scenario="SnapSense shows a Nutri-Score rating for a food product. A user challenges: 'Why did this get a C rating? I thought it was healthy.' How should SnapSense explain the rating?" options={[
+  {label:'Show the raw Nutri-Score calculation factors',tradeoff:'Transparent but overwhelming for most users — they see numbers like "fiber: 2.3g, sodium: 480mg" without context for what\'s good or bad.'},
+  {label:'Show a plain-language explanation: "High sodium content and added sugars offset the fiber and protein content"',tradeoff:'Understandable but hides the quantitative detail that some users want. Best for general audience.'},
+  {label:'Layered explanation: plain language summary + expandable detailed factors + link to Nutri-Score methodology',tradeoff:'Best of both worlds — casual users get the summary, detail-oriented users can drill down, and the methodology link provides full transparency. More UI work but maximum trust.'},
+]}/>
+
+### Career Positioning
+
+> **Interview soundbite**: *"I implement explainability at three levels: SHAP and LIME for prediction-level explanations, LangSmith for agent execution tracing, and governance dashboards for executive oversight. I can explain AI decisions to data scientists, business stakeholders, and regulators — each in their own language. With EU AI Act enforcement starting August 2026, this capability is no longer optional for high-risk AI systems."*
+
+<SeeItInRe3 text="SnapSense's approach of surfacing published framework scores (Nutri-Score, ASPCA, EWG) rather than generating opaque numbers is explainability-by-design — the ratings come from transparent, published methodologies that users can independently verify." />

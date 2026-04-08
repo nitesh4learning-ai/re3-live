@@ -1,0 +1,17 @@
+---
+label: "LIME & XAI Toolkit"
+icon: "🍋"
+---
+
+## LIME and Beyond
+
+LIME explains individual predictions by building simple local surrogate models. Beyond SHAP/LIME: attention maps (which tokens mattered?), counterfactual explanations (what would change the outcome?), TCAV (concept-level explanations), and agent execution traces (full decision chain logging).
+
+<Quiz
+  question="Stakeholder asks 'Why was this supplier flagged?' Best XAI approach?"
+  options={["SHAP global plot","LIME local + counterfactual: what would change the rating","SHAP global only","No explanation needed"]}
+  correctIndex={1}
+  explanation="Business stakeholders need WHY (LIME local explanation) and WHAT WOULD CHANGE IT (counterfactual). The combination is actionable."
+/>
+
+<SeeItInRe3 text="SnapSense surfaces published scores (Nutri-Score, ASPCA) rather than opaque numbers — explainability by design." />

@@ -1,0 +1,47 @@
+---
+label: "Why Explainability Matters"
+icon: "🔬"
+---
+
+## The Black Box Problem: Why AI Needs to Show Its Work
+
+Only 20% of organizations have deployed AI into production workflows that touch real customers. The other 80% are stuck — not because models don't work, but because they can't **explain what the AI is doing** well enough for compliance, audits, or production trust.
+
+<AnalogyBox emoji="🏥" title="Doctor's Diagnosis vs Lab Report">
+Imagine a doctor who says "Take this medication" without explaining why. You'd want to know: What's the diagnosis? What evidence supports it? What are the risks? AI explainability answers the same questions about model predictions: What did the model decide? What evidence did it use? How confident is it? What could change the outcome?
+</AnalogyBox>
+
+### Three Levels of Explainability
+
+<ComparisonTable title="Explainability Levels" columns={['Level','Audience','What They Need','Tool']} rows={[
+  ['Model-level (Global)','Data scientists','How the model works overall — which features matter most across all predictions','SHAP summary plots, feature importance'],
+  ['Prediction-level (Local)','Business users, auditors','Why THIS specific prediction was made — which inputs drove THIS output','LIME, individual SHAP values'],
+  ['System-level (Operational)','Compliance, executives','End-to-end audit trail — data provenance, model versioning, decision logging','LangSmith, agent tracing, governance platforms'],
+]}/>
+
+### Academic XAI vs Enterprise XAI
+
+<ComparisonTable title="Academic vs Enterprise Explainability" columns={['Aspect','Academic XAI','Enterprise XAI']} rows={[
+  ['Audience','Data scientists','Compliance officers, auditors, business leaders'],
+  ['Focus','Feature importance charts','Training data attribution + audit trails'],
+  ['Scope','Individual model','Entire AI system including agents, tools, data pipeline'],
+  ['Requirement','Nice to have','Regulatory mandate (EU AI Act, NIST AI RMF)'],
+  ['Tooling','SHAP/LIME notebooks','Integrated governance platforms'],
+]}/>
+
+<AnalogyBox emoji="📊" title="Data Lineage for AI">
+In data governance at McKesson, you track data lineage: where did this data come from, what transformations were applied, who approved it? AI explainability is data lineage for predictions: what training data shaped this output, what features drove this decision, what intermediate reasoning steps occurred?
+</AnalogyBox>
+
+### The EU AI Act Connection
+
+The EU AI Act (enforcement starting August 2026) requires explainability for high-risk AI systems — credit scoring, medical diagnosis, hiring decisions. Organizations deploying AI in the EU must demonstrate they can explain model outputs to regulators. This isn't optional.
+
+<Quiz
+  question="A healthcare AI recommends a treatment plan. The doctor asks 'Why this recommendation?' What level of explainability is needed?"
+  options={["Model-level — show which features the model considers most important overall", "Prediction-level — show which specific patient data points drove THIS recommendation", "System-level — show the full audit trail of the AI pipeline", "No explainability needed — the AI is just a tool, the doctor decides"]}
+  correctIndex={1}
+  explanation="The doctor needs prediction-level explainability: for THIS patient, what specific inputs (lab values, symptoms, history) drove THIS recommendation? Model-level insights (feature importance globally) don't help with individual clinical decisions. LIME and individual SHAP values provide this local explanation."
+/>
+
+<SeeItInRe3 text="Re³'s debate pipeline has inherent explainability — you can trace every synthesis claim back to specific agent arguments, which trace back to specific LLM calls. This is system-level explainability by design." />

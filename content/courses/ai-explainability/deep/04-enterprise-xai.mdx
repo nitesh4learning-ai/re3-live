@@ -1,0 +1,72 @@
+---
+label: "Enterprise XAI & Agent Tracing"
+icon: "🏢"
+---
+
+## From Notebooks to Production: Enterprise Explainability
+
+Academic XAI (SHAP plots in Jupyter notebooks) answers data scientist questions. Enterprise XAI answers auditor, regulator, and executive questions. The gap is enormous.
+
+### The Enterprise Explainability Stack
+
+<ComparisonTable title="Enterprise XAI Requirements" columns={['Layer','What It Explains','Who Needs It','Tools']} rows={[
+  ['Data Provenance','Where did the training data come from?','Auditors, compliance','Data lineage tools, metadata catalogs'],
+  ['Model Cards','What can this model do and what are its limitations?','Product teams, risk','Model cards (Google format), Hugging Face'],
+  ['Prediction Explanations','Why did the model make THIS decision?','Business users, customers','SHAP, LIME, counterfactuals'],
+  ['Agent Execution Traces','What steps did the agent take and why?','Engineers, compliance','LangSmith, Arize, custom tracing'],
+  ['Governance Dashboard','Are our AI systems performing within acceptable bounds?','Executives, board','Custom dashboards, Seekr, Credo AI'],
+]}/>
+
+### Agent Observability: Tracing Multi-Step AI Decisions
+
+For agentic AI systems (LangGraph, multi-agent pipelines), explainability means tracing the **full execution chain**: which tools were called, what data was retrieved, what decisions were made, and why.
+
+<CodeBlock language="python" label="LangSmith Agent Tracing">
+{`import os
+
+# Enable LangSmith tracing — captures every step
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
+os.environ["LANGCHAIN_API_KEY"] = "your-key"
+os.environ["LANGCHAIN_PROJECT"] = "supplier-onboarding-agent"
+
+# Now every LangGraph node execution is traced:
+# - Input state at each node
+# - LLM prompts and responses
+# - Tool calls and results
+# - Routing decisions (which conditional edge was taken)
+# - Token usage and latency per node
+# - Error traces with full context
+
+# In LangSmith dashboard you can:
+# 1. See the full graph execution as a timeline
+# 2. Click any node to see its input/output
+# 3. Filter by latency, cost, or error rate
+# 4. Compare runs across different versions
+# 5. Build regression test suites from production traces`}
+</CodeBlock>
+
+### Training Data Attribution
+
+The frontier of enterprise XAI: tracing a model's output back to the **specific training data** that shaped it. When a financial model flags a transaction as suspicious, which historical patterns drove that conclusion?
+
+<AnalogyBox emoji="📋" title="Data Lineage Meets AI">
+At McKesson, you trace every golden record back to its source systems: which SAP instance, which business unit, which steward approved it. Training data attribution does the same for AI predictions: which training examples most influenced this output? This is the bridge between your data governance expertise and AI governance — the same lineage principles applied to a new domain.
+</AnalogyBox>
+
+### Regulatory Requirements by Framework
+
+<ComparisonTable title="Explainability Requirements by Regulation" columns={['Framework','Requirement','Deadline','Penalty']} rows={[
+  ['EU AI Act (High Risk)','Technical documentation, logging, human oversight','Aug 2026','Up to 3% global revenue'],
+  ['NIST AI RMF','MEASURE function: assessment, monitoring, transparency','Voluntary','None (reputational risk)'],
+  ['ISO 42001','Clause 8: AI impact assessment, Clause 9: performance evaluation','Certification-based','Loss of certification'],
+  ['FDA (SaMD)','Predetermined change control plan for AI/ML-based software','Ongoing','Product recall, warning letters'],
+]}/>
+
+<Quiz
+  question="You're presenting an AI governance proposal to McKesson's CISO. They ask: 'How do we explain our AI decisions to the FDA if we use ML for drug distribution optimization?' What's the right framework to reference?"
+  options={["SHAP feature importance plots", "LangSmith agent traces", "A combination: model cards for capability documentation, SHAP for prediction-level explanations, agent traces for execution audit, and data provenance for training data lineage", "Tell the FDA we use rule-based systems instead"]}
+  correctIndex={2}
+  explanation="FDA expects comprehensive documentation for AI/ML-based systems. No single XAI tool is sufficient — you need the full stack: model cards (what it does), SHAP (why this decision), agent traces (how it executed), and data provenance (what it learned from). This layered approach maps to NIST's MEASURE function and ISO 42001's Clause 8."
+/>
+
+<SeeItInRe3 text="Re³ has inherent explainability by design: every synthesis claim traces to specific agent arguments, which trace to specific LLM calls with specific prompts. This is system-level observability without needing external tools." />

@@ -1,0 +1,90 @@
+---
+label: "Efficiency & Accuracy"
+icon: "⚡"
+---
+
+## Plan Mode, Thinking Levels, and Getting It Right the First Time
+
+### Plan Mode: Think Before You Code
+
+Plan Mode is the single biggest efficiency gain in Claude Code. Instead of jumping straight into implementation, Claude first creates a detailed plan — architecture decisions, file changes, dependency considerations — and waits for your approval.
+
+<CodeBlock language="text" label="Activating Plan Mode">
+{`# In Claude Code, start with:
+"Enter plan mode and design an implementation strategy for [your goal]"
+
+# Or more specifically:
+"Before writing any code, plan the following:
+1. Which files need to change
+2. What new dependencies are needed
+3. What could break
+4. What tests need updating
+Then wait for my approval before implementing."
+
+# Plan Mode also launches sub-agents:
+# - Explore agent: analyzes your codebase structure
+# - Research agent: searches for current library versions
+# - Architecture agent: proposes design patterns`}
+</CodeBlock>
+
+<AnalogyBox emoji="📐" title="Architecture Review Before Sprint">
+Plan Mode is your architecture review meeting. In enterprise projects, you don't start coding after a Jira ticket lands — you review the approach, identify risks, align on patterns. Plan Mode makes Claude do the same: research, propose, get approval, then execute.
+</AnalogyBox>
+
+### Thinking Levels: Match Compute to Complexity
+
+Claude Code has calibrated thinking depths. Using the right level for each task saves both time and tokens:
+
+<ComparisonTable title="Claude Code Thinking Levels" columns={['Level','Trigger Phrase','Best For','Token Cost']} rows={[
+  ['Standard','(default — no trigger)','Simple edits, formatting, small fixes','Lowest'],
+  ['Think','"think about this"','Moderate features, refactoring, debugging','Medium'],
+  ['Think Hard','"think hard about this"','Complex features, multi-file changes','Higher'],
+  ['Think Harder','"think harder"','Architecture decisions, legacy integration','High'],
+  ['Ultrathink','"ultrathink"','Gnarly problems — complex algorithms, critical security, system design','Highest'],
+]}/>
+
+> **Rule of thumb**: Start at standard, escalate only when output quality is insufficient. Don't ultrathink a CSS fix.
+
+### The Escape Key: Your Most Important Tool
+
+When Claude starts going down a rabbit hole — refactoring files you didn't ask about, adding unnecessary abstractions, changing working code — **hit Escape**. Interrupt immediately. Course-correct with a clearer prompt. Time spent letting Claude finish a wrong approach is time wasted.
+
+### Prompting for Accuracy
+
+<CodeBlock language="text" label="High-Accuracy Prompting Patterns">
+{`# 1. ASK FOR CLARIFICATION FIRST
+"Before you start building the auth system, ask me 
+questions about the requirements I haven't specified."
+
+# 2. CONSTRAIN THE SCOPE
+"ONLY modify auth.js and auth.test.js. Do NOT touch 
+any other files. If you think other files need changes, 
+tell me first."
+
+# 3. VERIFY BEFORE PROCEEDING
+"After making changes, run the test suite and show me 
+the results before moving on."
+
+# 4. REFERENCE EXISTING PATTERNS
+"Look at how we implemented the search feature in 
+search.js and follow the same pattern for this new filter."
+
+# 5. INCREMENTAL VERIFICATION
+"Implement step 1 and verify it works before starting 
+step 2. I want to review each step independently."`}
+</CodeBlock>
+
+### The Three-Window Workflow
+
+<AnalogyBox emoji="🖥️" title="Strategy / Implementation / Testing">
+The most productive vibe coding setup uses three contexts: (1) Strategy window — Claude.ai for architecture decisions and mentoring (this is your "senior architect"), (2) Implementation window — Claude Code in terminal for actual coding, (3) Testing window — a separate Claude instance for testing and validation. Each context has its own memory and focus. Don't pollute your implementation context with strategic debates.
+</AnalogyBox>
+
+<Quiz
+  question="You're adding a new feature to SnapSense that involves modifying 8 files. What's the best approach?"
+  options={["One big prompt describing everything, let Claude handle all 8 files at once", "Enter Plan Mode, review the plan, then implement file by file with verification at each step", "Skip planning, just start coding and fix issues as they come up", "Use ultrathink for maximum accuracy"]}
+  correctIndex={1}
+  explanation="Plan Mode first gives you an architecture review before any code changes. Then implementing file by file with verification catches issues early — a bug in file 3 won't propagate to files 4-8. This is slower per-step but faster overall because you avoid cascading fixes."
+/>
+
+<SeeItInRe3 text="Re³ and SnapSense were both built using this three-window workflow — strategy discussions in Claude.ai, implementation via Claude Code, testing in a separate context." />

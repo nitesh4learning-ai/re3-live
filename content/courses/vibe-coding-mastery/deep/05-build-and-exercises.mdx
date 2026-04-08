@@ -1,0 +1,60 @@
+---
+label: "Build & Exercises"
+icon: "🔨"
+---
+
+## Build: Set Up a Production-Grade Vibe Coding Environment
+
+### Project: Configure Claude Code for an Existing Codebase
+
+Take an existing project (SnapSense, Re³, or your own) and create a complete vibe coding infrastructure:
+
+**Deliverables:**
+1. **CLAUDE.md** — Comprehensive project memory file covering tech stack, architecture rules, code style, current sprint, and known issues
+2. **Skills directory** — At least 3 custom skills (e.g., create-component.md, api-endpoint.md, database-migration.md)
+3. **MCP configuration** — Connect at least one MCP server (filesystem + one external service)
+4. **Workflow document** — Your personal vibe coding playbook: when to use Plan Mode, thinking levels for different tasks, escape key triggers
+
+### Stretch Goals
+
+1. **CI integration** — Set up Claude Code in GitHub Actions for automated PR review
+2. **Team CLAUDE.md** — Create a CLAUDE.md that works for your entire team, not just you
+3. **Prompt library** — Document your 10 most effective prompts with examples and expected outputs
+4. **Before/after audit** — Take a messy codebase section, document it, then use Claude Code with your new guardrails to refactor it. Compare quality.
+
+---
+
+## Exercises
+
+<Quiz
+  question="You're starting a new Flutter project for a client. What's the FIRST thing you should create before writing any code with Claude Code?"
+  options={["The main.dart file", "The pubspec.yaml with dependencies", "A comprehensive CLAUDE.md defining architecture, patterns, and constraints", "The UI wireframes"]}
+  correctIndex={2}
+  explanation="CLAUDE.md is your project's constitution. It defines the patterns, constraints, and rules that every subsequent Claude Code session will follow. Creating it first prevents architectural drift from the very first session. Think of it as writing your data governance policies before building the MDM system."
+/>
+
+<Quiz
+  question="Claude Code keeps adding npm packages for simple tasks you know can be done with standard library. How do you fix this?"
+  options={["Switch to a different AI tool", "Accept the dependencies — Claude knows best", "Add a rule to CLAUDE.md: 'Before adding any new dependency, explain why it's necessary and propose a stdlib alternative'", "Manually remove packages after each session"]}
+  correctIndex={2}
+  explanation="Claude follows rules you write. Adding an explicit dependency review rule makes Claude justify every new package. You maintain control while still leveraging Claude's speed. This is the same principle as data governance: define the rules, automate enforcement."
+/>
+
+<Quiz
+  question="You've been building with Claude Code for 3 hours. The codebase has grown significantly. You notice Claude is starting to make changes that conflict with earlier decisions. What happened?"
+  options={["Claude's context window filled up and it lost track of earlier code", "Your CLAUDE.md isn't comprehensive enough", "Claude is degrading in quality over long sessions", "Both A and B — context limits and incomplete guardrails work together"]}
+  correctIndex={3}
+  explanation="Long sessions hit two limits: (1) Claude's context window fills, causing it to 'forget' earlier code, and (2) implicit decisions from early in the session aren't captured in CLAUDE.md for future reference. The fix: update CLAUDE.md with important decisions as you make them, and start fresh sessions for major new features."
+/>
+
+<ArchitectureDecision scenario="You're leading a team of 4 developers who all use Claude Code on the same codebase. Each developer has their own prompting style and expectations. After 2 weeks, the codebase has 4 different error handling patterns and inconsistent naming." options={[
+  {label:'Individual CLAUDE.md per developer',tradeoff:'Each developer is comfortable with their own rules, but the codebase becomes inconsistent. Different sessions produce different patterns depending on who ran them.'},
+  {label:'Single shared CLAUDE.md with team conventions + individual preferences via git-ignored overrides',tradeoff:'Core architecture rules are consistent across all developers. Individual style preferences (editor settings, verbosity level) can be overridden locally. The best approach for team consistency.'},
+  {label:'No CLAUDE.md — rely on code review to catch issues',tradeoff:'Preserves developer autonomy but shifts quality enforcement to manual review. Code review catches inconsistencies after they\'re written, not before. More rework.'},
+]}/>
+
+### Career Positioning
+
+> **Interview soundbite**: *"I've developed a systematic vibe coding methodology: CLAUDE.md for persistent project memory, custom skills for repeatable patterns, plan mode for architecture review before implementation, and CI integration for automated quality gates. This isn't about 'using AI to code' — it's about building a scalable development workflow that multiplies team productivity while maintaining architectural integrity."*
+
+<SeeItInRe3 text="Both Re³ and SnapSense were built end-to-end using this vibe coding methodology. Re³'s 756-line Re3App.js, 25-agent debate system, and multi-provider LLM router were all built through guided Claude Code sessions with architectural guardrails." />

@@ -1,0 +1,56 @@
+---
+label: "Build & Exercises"
+icon: "🔨"
+---
+
+## Build: AI-Powered SAP Modernization Playbook
+
+### Project: Modernize a Legacy ABAP Module with AI
+
+Take a real or representative custom ABAP module and create a complete AI-powered modernization playbook.
+
+**Deliverables:**
+1. **AI-generated CLAUDE.md** for the legacy module — reverse-engineered architecture, business rules, dependencies, and risks
+2. **Human-validated documentation** — AI explanation reviewed and corrected by a business stakeholder
+3. **AI-generated unit tests** for the existing behavior (via Joule or Claude Code)
+4. **Modernization proposal** — AI-generated CDS views, RAP business objects, or Fiori Elements replacements
+5. **Migration risk assessment** — ranked list of objects by complexity and risk, with recommended sequencing
+
+### Stretch Goals
+
+1. Build a multi-agent modernization pipeline using LangGraph with human approval gates
+2. Connect Claude Code to an SAP system via the ABAP MCP server (when available Q2 2026)
+3. Create a "legacy code complexity scorer" that analyzes ABAP objects and ranks them by modernization difficulty
+4. Design a dashboard that tracks modernization progress: objects analyzed, validated, tested, deployed
+
+---
+
+## Exercises
+
+<Quiz
+  question="You're modernizing 500 custom ABAP objects for S/4HANA. How do you sequence them using AI?"
+  options={["Alphabetically by object name", "Largest objects first", "AI analyzes dependencies and risk, then recommends: start with low-risk leaf objects (no dependencies), then work inward to high-risk core objects", "Random order — they all need to be done anyway"]}
+  correctIndex={2}
+  explanation="Dependency-aware sequencing is critical. Modernizing a core object first can break dozens of dependent objects. AI can map the dependency graph and recommend starting with leaf objects (no downstream dependencies), building confidence and test coverage before tackling the complex core. This is the same principle as MDM data migration: cleanse reference data before master data."
+/>
+
+<Quiz
+  question="Joule explains a custom ABAP function module and generates unit tests. All tests pass. You modernize the code. One test fails. The test checks a behavior that the business says 'was always a bug but we worked around it.' What do you do?"
+  options={["Fix the test to match the new behavior", "Keep the old buggy behavior for backward compatibility", "Document the behavior change, get business approval to fix the bug in the modernized version, and update downstream workarounds", "Revert the modernization"]}
+  correctIndex={2}
+  explanation="This is the classic 'bug or feature?' dilemma in legacy modernization. The right answer: document it, get explicit business approval to change it (since people have workarounds that depend on the bug), update those workarounds, and proceed. AI surfaced the issue; human judgment resolves it."
+/>
+
+<ArchitectureDecision scenario="McKesson has 100,000+ custom ABAP objects to modernize for S/4HANA. Budget allows for 3 senior ABAP developers and AI tools. Which strategy maximizes throughput while maintaining quality?" options={[
+  {label:'AI-first with human review: AI analyzes, explains, and proposes changes for all objects. Developers review, validate, and approve.',tradeoff:'Highest throughput — AI handles the 80% of work that is mechanical (code understanding, documentation, test generation). Developers focus on the 20% that requires judgment (business validation, risk assessment, approval). Risk: AI misunderstanding could propagate if reviews are rushed.'},
+  {label:'Developer-led with AI assist: Developers lead the analysis, using Joule for explanation and generation when needed.',tradeoff:'Lower throughput but higher confidence. Developers maintain deep context. Risk: at 100K objects, this could take 5+ years. May not meet migration deadline.'},
+  {label:'Tiered approach: AI fully handles low-risk objects (auto-explain, auto-test, human spot-check). Developers focus on high-risk objects with AI assist.',tradeoff:'Balanced — AI handles the long tail of simple objects autonomously (with spot-check governance), developers invest time in complex, business-critical modules. Requires a risk classifier to tier the objects accurately.'},
+]}/>
+
+### Career Positioning
+
+> **Interview soundbite**: *"I've designed AI-powered SAP modernization workflows using Joule for code explanation, Claude Code for architecture analysis, and LangGraph for orchestrating the modernization pipeline with human-in-the-loop approval gates. At McKesson scale (100K+ custom objects), this approach accelerates migration by 3-5x while maintaining the governance rigor that enterprise SAP requires. I bridge the gap between AI engineering and SAP operations — a combination very few leaders have."*
+
+> **The unique positioning**: Most AI leaders don't understand SAP. Most SAP leaders don't understand AI. You understand both deeply — and can articulate how they converge for enterprise modernization.
+
+<SeeItInRe3 text="This course represents the convergence of your 20+ years in SAP/MDM with your AI journey through Re³ and SnapSense. The same agentic patterns (self-correction, quality gates, human oversight) apply to the largest, most complex enterprise platform in the world." />
