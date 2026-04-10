@@ -7,35 +7,7 @@ icon: "\uD83D\uDCDA"
 
 The quality of AI-generated code depends almost entirely on the <JargonTip term="context window">context</JargonTip> you provide. Context engineering for code means giving the <JargonTip term="agent">AI agent</JargonTip> the right files, patterns, and constraints.
 
-  <CodeBlock>
-{`# CLAUDE.md
-
-## Project: E-commerce API
-
-## Tech Stack
-- Framework: Express.js + TypeScript
-- Database: PostgreSQL with Prisma ORM
-- Auth: JWT with refresh tokens
-- Testing: Vitest + Supertest
-
-## Commands
-npm run dev    # Start dev server (port 3000)
-npm run test   # Run all tests
-npm run build  # Production build
-
-## Conventions
-- All routes in /src/routes/{'{'{'}'}resource{'}'}.ts
-- All business logic in /src/services/{'{'{'}'}resource{'}'}.ts
-- Use Zod for request validation
-- Error handling: throw AppError(statusCode, message)
-- Database: never raw SQL, always Prisma client
-- Tests: one test file per service, use factories
-
-## Key Patterns
-- Authentication middleware: requireAuth()
-- Pagination: ?page=1&limit=20 on all list endpoints
-- Response format: {'{'{'}'} data, meta: {'{'{'}'} page, total {'}'} {'}'}`}
-</CodeBlock>
+  <CodeBlock b64="IyBDTEFVREUubWQKCiMjIFByb2plY3Q6IEUtY29tbWVyY2UgQVBJCgojIyBUZWNoIFN0YWNrCi0gRnJhbWV3b3JrOiBFeHByZXNzLmpzICsgVHlwZVNjcmlwdAotIERhdGFiYXNlOiBQb3N0Z3JlU1FMIHdpdGggUHJpc21hIE9STQotIEF1dGg6IEpXVCB3aXRoIHJlZnJlc2ggdG9rZW5zCi0gVGVzdGluZzogVml0ZXN0ICsgU3VwZXJ0ZXN0CgojIyBDb21tYW5kcwpucG0gcnVuIGRldiAgICAjIFN0YXJ0IGRldiBzZXJ2ZXIgKHBvcnQgMzAwMCkKbnBtIHJ1biB0ZXN0ICAgIyBSdW4gYWxsIHRlc3RzCm5wbSBydW4gYnVpbGQgICMgUHJvZHVjdGlvbiBidWlsZAoKIyMgQ29udmVudGlvbnMKLSBBbGwgcm91dGVzIGluIC9zcmMvcm91dGVzL3sneyd7J30nfXJlc291cmNleyd9J30udHMKLSBBbGwgYnVzaW5lc3MgbG9naWMgaW4gL3NyYy9zZXJ2aWNlcy97J3sneyd9J31yZXNvdXJjZXsnfSd9LnRzCi0gVXNlIFpvZCBmb3IgcmVxdWVzdCB2YWxpZGF0aW9uCi0gRXJyb3IgaGFuZGxpbmc6IHRocm93IEFwcEVycm9yKHN0YXR1c0NvZGUsIG1lc3NhZ2UpCi0gRGF0YWJhc2U6IG5ldmVyIHJhdyBTUUwsIGFsd2F5cyBQcmlzbWEgY2xpZW50Ci0gVGVzdHM6IG9uZSB0ZXN0IGZpbGUgcGVyIHNlcnZpY2UsIHVzZSBmYWN0b3JpZXMKCiMjIEtleSBQYXR0ZXJucwotIEF1dGhlbnRpY2F0aW9uIG1pZGRsZXdhcmU6IHJlcXVpcmVBdXRoKCkKLSBQYWdpbmF0aW9uOiA/cGFnZT0xJmxpbWl0PTIwIG9uIGFsbCBsaXN0IGVuZHBvaW50cwotIFJlc3BvbnNlIGZvcm1hdDogeyd7J3snfSd9IGRhdGEsIG1ldGE6IHsneyd7J30nfSBwYWdlLCB0b3RhbCB7J30nfSB7J30nfQ==" />
   <ExpandableSection title="Context Hierarchy for AI Coding" icon="📚" defaultOpen>
 
       - **CLAUDE.md / .cursorrules:** Project-level conventions, stack, patterns

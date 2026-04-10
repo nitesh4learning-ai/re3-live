@@ -11,8 +11,6 @@ Modern embedding models produce vectors with 768 to 3,072 dimensions. Each dimen
 
 <AnalogyBox emoji="📍" title="Think of it like GPS coordinates for meaning">GPS coordinates map physical locations to numbers. Embeddings map meaning to numbers. Just as nearby coordinates mean nearby locations, nearby vectors mean similar meanings.</AnalogyBox>
 
-<CodeBlock>
-{`from openai import OpenAI\nclient = OpenAI()\n\nresponse = client.embeddings.create(\n    input="The cat sat on the mat",\n    model="text-embedding-3-small"\n)\n\nvector = response.data[0].embedding\n# Result: [0.023, -0.041, 0.089, ..., 0.012]\n# Length: 1,536 numbers (dimensions)\nprint(f"Vector has {'{'{'}'}len(vector){'}'} dimensions")`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBvcGVuYWkgaW1wb3J0IE9wZW5BSVxuY2xpZW50ID0gT3BlbkFJKClcblxucmVzcG9uc2UgPSBjbGllbnQuZW1iZWRkaW5ncy5jcmVhdGUoXG4gICAgaW5wdXQ9IlRoZSBjYXQgc2F0IG9uIHRoZSBtYXQiLFxuICAgIG1vZGVsPSJ0ZXh0LWVtYmVkZGluZy0zLXNtYWxsIlxuKVxuXG52ZWN0b3IgPSByZXNwb25zZS5kYXRhWzBdLmVtYmVkZGluZ1xuIyBSZXN1bHQ6IFswLjAyMywgLTAuMDQxLCAwLjA4OSwgLi4uLCAwLjAxMl1cbiMgTGVuZ3RoOiAxLDUzNiBudW1iZXJzIChkaW1lbnNpb25zKVxucHJpbnQoZiJWZWN0b3IgaGFzIHsneyd7J30nfWxlbih2ZWN0b3Ipeyd9J30gZGltZW5zaW9ucyIp" />
 
 <Quiz question="What does an embedding capture about text?" options={["The exact words used","The font and formatting","The semantic meaning of the text","The number of characters"]} correctIndex={2} explanation="Embeddings capture semantic meaning -- the concept behind the words. This is why 'happy' and 'joyful' have similar embeddings even though they share no letters."/>

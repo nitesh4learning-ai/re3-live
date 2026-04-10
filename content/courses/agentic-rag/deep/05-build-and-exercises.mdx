@@ -9,35 +9,7 @@ Extend your Week 1 Research Agent into a complete Agentic RAG system with docume
 
 ### Architecture
 
-<CodeBlock>
-{`┌─────────┐
-│  START  │
-└────┬────┘
-     │
-┌────▼──────┐
-│   Route   │ ← Decide: vector store or web search
-└────┬──────┘
-     │
-┌────▼──────┐
-│ Retrieve  │◄──────────────────┐
-└────┬──────┘                   │
-     │                          │
-┌────▼──────┐            ┌──────┴──────┐
-│   Grade   │───────────►│  Rewrite    │
-└────┬──────┘ <2 relevant └─────────────┘
-     │ ≥2 relevant
-┌────▼──────┐
-│ Generate  │◄──────────────────┐
-└────┬──────┘                   │
-     │                          │
-┌────▼──────────────┐    ┌──────┴──────┐
-│ Hallucination Chk │───►│ Regenerate  │
-└────┬──────────────┘    └─────────────┘
-     │ score ≥ 0.7         score < 0.7
-┌────▼────┐
-│   END   │
-└─────────┘`}
-</CodeBlock>
+<CodeBlock b64="4pSM4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSQCuKUgiAgU1RBUlQgIOKUggrilJTilIDilIDilIDilIDilKzilIDilIDilIDilIDilJgKICAgICDilIIK4pSM4pSA4pSA4pSA4pSA4pa84pSA4pSA4pSA4pSA4pSA4pSA4pSQCuKUgiAgIFJvdXRlICAg4pSCIOKGkCBEZWNpZGU6IHZlY3RvciBzdG9yZSBvciB3ZWIgc2VhcmNoCuKUlOKUgOKUgOKUgOKUgOKUrOKUgOKUgOKUgOKUgOKUgOKUgOKUmAogICAgIOKUggrilIzilIDilIDilIDilIDilrzilIDilIDilIDilIDilIDilIDilJAK4pSCIFJldHJpZXZlICDilILil4TilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilJAK4pSU4pSA4pSA4pSA4pSA4pSs4pSA4pSA4pSA4pSA4pSA4pSA4pSYICAgICAgICAgICAgICAgICAgIOKUggogICAgIOKUgiAgICAgICAgICAgICAgICAgICAgICAgICAg4pSCCuKUjOKUgOKUgOKUgOKUgOKWvOKUgOKUgOKUgOKUgOKUgOKUgOKUkCAgICAgICAgICAgIOKUjOKUgOKUgOKUgOKUgOKUgOKUgOKUtOKUgOKUgOKUgOKUgOKUgOKUgOKUkArilIIgICBHcmFkZSAgIOKUguKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKWuuKUgiAgUmV3cml0ZSAgICDilIIK4pSU4pSA4pSA4pSA4pSA4pSs4pSA4pSA4pSA4pSA4pSA4pSA4pSYIDwyIHJlbGV2YW50IOKUlOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUmAogICAgIOKUgiDiiaUyIHJlbGV2YW50CuKUjOKUgOKUgOKUgOKUgOKWvOKUgOKUgOKUgOKUgOKUgOKUgOKUkArilIIgR2VuZXJhdGUgIOKUguKXhOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUkArilJTilIDilIDilIDilIDilKzilIDilIDilIDilIDilIDilIDilJggICAgICAgICAgICAgICAgICAg4pSCCiAgICAg4pSCICAgICAgICAgICAgICAgICAgICAgICAgICDilIIK4pSM4pSA4pSA4pSA4pSA4pa84pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSQICAgIOKUjOKUgOKUgOKUgOKUgOKUgOKUgOKUtOKUgOKUgOKUgOKUgOKUgOKUgOKUkArilIIgSGFsbHVjaW5hdGlvbiBDaGsg4pSC4pSA4pSA4pSA4pa64pSCIFJlZ2VuZXJhdGUgIOKUggrilJTilIDilIDilIDilIDilKzilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilJggICAg4pSU4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSYCiAgICAg4pSCIHNjb3JlIOKJpSAwLjcgICAgICAgICBzY29yZSA8IDAuNwrilIzilIDilIDilIDilIDilrzilIDilIDilIDilIDilJAK4pSCICAgRU5EICAg4pSCCuKUlOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUmA==" />
 
 ### Requirements Checklist
 
@@ -52,45 +24,7 @@ Extend your Week 1 Research Agent into a complete Agentic RAG system with docume
 
 ### Data Loading Script
 
-<CodeBlock>
-{`import chromadb
-from chromadb.utils import embedding_functions
-
-client = chromadb.PersistentClient(path="./chroma_db")
-embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
-    model_name="all-MiniLM-L6-v2"
-)
-
-collection = client.get_or_create_collection(
-    name="knowledge_base",
-    embedding_function=embedding_fn
-)
-
-# Seed with sample documents about AI governance
-documents = [
-    "The NIST AI Risk Management Framework provides four core functions: Govern, Map, Measure, and Manage for responsible AI deployment.",
-    "ISO 42001 establishes requirements for AI management systems using Plan-Do-Check-Act methodology aligned with ISO 27001.",
-    "The EU AI Act classifies AI systems into four risk tiers: Unacceptable, High, Limited, and Minimal risk.",
-    "Agentic AI systems require special governance considerations including tool-use auditing and multi-step action approval.",
-    "Master Data Management ensures golden record quality through matching, merging, and survivorship rules.",
-]
-
-metadatas = [
-    {'{'{'}'}"source": "nist.gov", "topic": "governance"{'}'},
-    {'{'{'}'}"source": "iso.org", "topic": "governance"{'}'},
-    {'{'{'}'}"source": "eu-ai-act.com", "topic": "regulation"{'}'},
-    {'{'{'}'}"source": "anthropic.com", "topic": "agents"{'}'},
-    {'{'{'}'}"source": "gartner.com", "topic": "mdm"{'}'},
-]
-
-collection.add(
-    documents=documents,
-    metadatas=metadatas,
-    ids=[f"doc_{'{'{'}'}i{'}'}" for i in range(len(documents))]
-)
-
-print(f"Loaded {'{'{'}'}collection.count(){'}'} documents into ChromaDB")`}
-</CodeBlock>
+<CodeBlock b64="aW1wb3J0IGNocm9tYWRiCmZyb20gY2hyb21hZGIudXRpbHMgaW1wb3J0IGVtYmVkZGluZ19mdW5jdGlvbnMKCmNsaWVudCA9IGNocm9tYWRiLlBlcnNpc3RlbnRDbGllbnQocGF0aD0iLi9jaHJvbWFfZGIiKQplbWJlZGRpbmdfZm4gPSBlbWJlZGRpbmdfZnVuY3Rpb25zLlNlbnRlbmNlVHJhbnNmb3JtZXJFbWJlZGRpbmdGdW5jdGlvbigKICAgIG1vZGVsX25hbWU9ImFsbC1NaW5pTE0tTDYtdjIiCikKCmNvbGxlY3Rpb24gPSBjbGllbnQuZ2V0X29yX2NyZWF0ZV9jb2xsZWN0aW9uKAogICAgbmFtZT0ia25vd2xlZGdlX2Jhc2UiLAogICAgZW1iZWRkaW5nX2Z1bmN0aW9uPWVtYmVkZGluZ19mbgopCgojIFNlZWQgd2l0aCBzYW1wbGUgZG9jdW1lbnRzIGFib3V0IEFJIGdvdmVybmFuY2UKZG9jdW1lbnRzID0gWwogICAgIlRoZSBOSVNUIEFJIFJpc2sgTWFuYWdlbWVudCBGcmFtZXdvcmsgcHJvdmlkZXMgZm91ciBjb3JlIGZ1bmN0aW9uczogR292ZXJuLCBNYXAsIE1lYXN1cmUsIGFuZCBNYW5hZ2UgZm9yIHJlc3BvbnNpYmxlIEFJIGRlcGxveW1lbnQuIiwKICAgICJJU08gNDIwMDEgZXN0YWJsaXNoZXMgcmVxdWlyZW1lbnRzIGZvciBBSSBtYW5hZ2VtZW50IHN5c3RlbXMgdXNpbmcgUGxhbi1Eby1DaGVjay1BY3QgbWV0aG9kb2xvZ3kgYWxpZ25lZCB3aXRoIElTTyAyNzAwMS4iLAogICAgIlRoZSBFVSBBSSBBY3QgY2xhc3NpZmllcyBBSSBzeXN0ZW1zIGludG8gZm91ciByaXNrIHRpZXJzOiBVbmFjY2VwdGFibGUsIEhpZ2gsIExpbWl0ZWQsIGFuZCBNaW5pbWFsIHJpc2suIiwKICAgICJBZ2VudGljIEFJIHN5c3RlbXMgcmVxdWlyZSBzcGVjaWFsIGdvdmVybmFuY2UgY29uc2lkZXJhdGlvbnMgaW5jbHVkaW5nIHRvb2wtdXNlIGF1ZGl0aW5nIGFuZCBtdWx0aS1zdGVwIGFjdGlvbiBhcHByb3ZhbC4iLAogICAgIk1hc3RlciBEYXRhIE1hbmFnZW1lbnQgZW5zdXJlcyBnb2xkZW4gcmVjb3JkIHF1YWxpdHkgdGhyb3VnaCBtYXRjaGluZywgbWVyZ2luZywgYW5kIHN1cnZpdm9yc2hpcCBydWxlcy4iLApdCgptZXRhZGF0YXMgPSBbCiAgICB7J3sneyd9J30ic291cmNlIjogIm5pc3QuZ292IiwgInRvcGljIjogImdvdmVybmFuY2Uieyd9J30sCiAgICB7J3sneyd9J30ic291cmNlIjogImlzby5vcmciLCAidG9waWMiOiAiZ292ZXJuYW5jZSJ7J30nfSwKICAgIHsneyd7J30nfSJzb3VyY2UiOiAiZXUtYWktYWN0LmNvbSIsICJ0b3BpYyI6ICJyZWd1bGF0aW9uInsnfSd9LAogICAgeyd7J3snfSd9InNvdXJjZSI6ICJhbnRocm9waWMuY29tIiwgInRvcGljIjogImFnZW50cyJ7J30nfSwKICAgIHsneyd7J30nfSJzb3VyY2UiOiAiZ2FydG5lci5jb20iLCAidG9waWMiOiAibWRtInsnfSd9LApdCgpjb2xsZWN0aW9uLmFkZCgKICAgIGRvY3VtZW50cz1kb2N1bWVudHMsCiAgICBtZXRhZGF0YXM9bWV0YWRhdGFzLAogICAgaWRzPVtmImRvY197J3sneyd9J31peyd9J30iIGZvciBpIGluIHJhbmdlKGxlbihkb2N1bWVudHMpKV0KKQoKcHJpbnQoZiJMb2FkZWQgeyd7J3snfSd9Y29sbGVjdGlvbi5jb3VudCgpeyd9J30gZG9jdW1lbnRzIGludG8gQ2hyb21hREIiKQ==" />
 
 ### Stretch Goals
 

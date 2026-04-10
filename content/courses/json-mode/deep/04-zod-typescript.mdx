@@ -5,30 +5,7 @@ icon: "🟦"
 
 ## Zod & TypeScript
 
-<CodeBlock>
-{`import {'{'{'}'} generateObject {'}'} from 'ai';
-import {'{'{'}'} openai {'}'} from '@ai-sdk/openai';
-import {'{'{'}'} z {'}'} from 'zod';
-
-// Define schema with Zod
-const SentimentSchema = z.object({'{'{'}'}
-  sentiment: z.enum(['positive', 'negative', 'neutral']),
-  confidence: z.number().min(0).max(1),
-  keyPhrases: z.array(z.string()),
-  reasoning: z.string().optional(),
-{'}'});
-
-// Generate structured output
-const {'{'{'}'} object {'}'} = await generateObject({'{'{'}'}
-  model: openai('gpt-4o'),
-  schema: SentimentSchema,
-  prompt: 'Analyze: "This is the best thing ever!"',
-{'}'});
-
-// object is fully typed: {'{'{'}'} sentiment, confidence, keyPhrases, reasoning {'}'}
-console.log(object.sentiment);    // "positive" (type: "positive"|"negative"|"neutral")
-console.log(object.confidence);   // 0.97 (type: number)`}
-</CodeBlock>
+<CodeBlock b64="aW1wb3J0IHsneyd7J30nfSBnZW5lcmF0ZU9iamVjdCB7J30nfSBmcm9tICdhaSc7CmltcG9ydCB7J3sneyd9J30gb3BlbmFpIHsnfSd9IGZyb20gJ0BhaS1zZGsvb3BlbmFpJzsKaW1wb3J0IHsneyd7J30nfSB6IHsnfSd9IGZyb20gJ3pvZCc7CgovLyBEZWZpbmUgc2NoZW1hIHdpdGggWm9kCmNvbnN0IFNlbnRpbWVudFNjaGVtYSA9IHoub2JqZWN0KHsneyd7J30nfQogIHNlbnRpbWVudDogei5lbnVtKFsncG9zaXRpdmUnLCAnbmVnYXRpdmUnLCAnbmV1dHJhbCddKSwKICBjb25maWRlbmNlOiB6Lm51bWJlcigpLm1pbigwKS5tYXgoMSksCiAga2V5UGhyYXNlczogei5hcnJheSh6LnN0cmluZygpKSwKICByZWFzb25pbmc6IHouc3RyaW5nKCkub3B0aW9uYWwoKSwKeyd9J30pOwoKLy8gR2VuZXJhdGUgc3RydWN0dXJlZCBvdXRwdXQKY29uc3Qgeyd7J3snfSd9IG9iamVjdCB7J30nfSA9IGF3YWl0IGdlbmVyYXRlT2JqZWN0KHsneyd7J30nfQogIG1vZGVsOiBvcGVuYWkoJ2dwdC00bycpLAogIHNjaGVtYTogU2VudGltZW50U2NoZW1hLAogIHByb21wdDogJ0FuYWx5emU6ICJUaGlzIGlzIHRoZSBiZXN0IHRoaW5nIGV2ZXIhIicsCnsnfSd9KTsKCi8vIG9iamVjdCBpcyBmdWxseSB0eXBlZDogeyd7J3snfSd9IHNlbnRpbWVudCwgY29uZmlkZW5jZSwga2V5UGhyYXNlcywgcmVhc29uaW5nIHsnfSd9CmNvbnNvbGUubG9nKG9iamVjdC5zZW50aW1lbnQpOyAgICAvLyAicG9zaXRpdmUiICh0eXBlOiAicG9zaXRpdmUifCJuZWdhdGl2ZSJ8Im5ldXRyYWwiKQpjb25zb2xlLmxvZyhvYmplY3QuY29uZmlkZW5jZSk7ICAgLy8gMC45NyAodHlwZTogbnVtYmVyKQ==" />
 
 <ExpandableSection title="Zod vs Pydantic" icon="🔄">
 

@@ -9,72 +9,7 @@ The core innovation of Agentic RAG is using an LLM to evaluate whether retrieved
 
 ### The Grading Node
 
-<CodeBlock>
-{`from langchain_anthropic import ChatAnthropic
-from langchain_core.messages import SystemMessage, HumanMessage
-from typing import TypedDict, List, Literal
-
-class RAGState(TypedDict):
-    query: str
-    documents: List[dict]        # Retrieved docs with content + metadata
-    relevant_docs: List[dict]    # Docs that passed grading
-    irrelevant_count: int        # How many docs failed grading
-    generation: str              # Final generated answer
-    retry_count: int
-    hallucination_score: float
-
-llm = ChatAnthropic(model="claude-sonnet-4-20250514", temperature=0)
-
-GRADING_PROMPT = """You are a document relevance grader.
-Given a user question and a retrieved document, determine if 
-the document contains information relevant to answering the question.
-
-Return ONLY "relevant" or "irrelevant" — nothing else.
-
-User question: {'{'{'}'}query{'}'}
-
-Document content:
-{'{'{'}'}document{'}'}
-"""
-
-def grade_documents(state: RAGState) -> dict:
-    """
-    Grade each retrieved document for relevance.
-    
-    This is where Agentic RAG diverges from Naive RAG.
-    Instead of blindly passing all docs to the generator,
-    we filter out irrelevant ones first.
-    
-    In MDM terms: this is the validation step before
-    promoting data to the golden record.
-    """
-    query = state["query"]
-    relevant = []
-    irrelevant_count = 0
-    
-    for doc in state["documents"]:
-        response = llm.invoke([
-            HumanMessage(content=GRADING_PROMPT.format(
-                query=query,
-                document=doc["content"][:1000]  # Truncate for cost
-            ))
-        ])
-        
-        grade = response.content.strip().lower()
-        
-        if "relevant" in grade and "irrelevant" not in grade:
-            relevant.append(doc)
-        else:
-            irrelevant_count += 1
-            print(f"  ❌ Filtered: {'{'{'}'}doc.get('source', 'unknown')[:50]{'}'}")
-    
-    print(f"  📊 {'{'{'}'}len(relevant){'}'}/{'{'{'}'}len(state['documents']){'}'} docs passed grading")
-    
-    return {'{'{'}'}
-        "relevant_docs": relevant,
-        "irrelevant_count": irrelevant_count,
-    {'}'}`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBsYW5nY2hhaW5fYW50aHJvcGljIGltcG9ydCBDaGF0QW50aHJvcGljCmZyb20gbGFuZ2NoYWluX2NvcmUubWVzc2FnZXMgaW1wb3J0IFN5c3RlbU1lc3NhZ2UsIEh1bWFuTWVzc2FnZQpmcm9tIHR5cGluZyBpbXBvcnQgVHlwZWREaWN0LCBMaXN0LCBMaXRlcmFsCgpjbGFzcyBSQUdTdGF0ZShUeXBlZERpY3QpOgogICAgcXVlcnk6IHN0cgogICAgZG9jdW1lbnRzOiBMaXN0W2RpY3RdICAgICAgICAjIFJldHJpZXZlZCBkb2NzIHdpdGggY29udGVudCArIG1ldGFkYXRhCiAgICByZWxldmFudF9kb2NzOiBMaXN0W2RpY3RdICAgICMgRG9jcyB0aGF0IHBhc3NlZCBncmFkaW5nCiAgICBpcnJlbGV2YW50X2NvdW50OiBpbnQgICAgICAgICMgSG93IG1hbnkgZG9jcyBmYWlsZWQgZ3JhZGluZwogICAgZ2VuZXJhdGlvbjogc3RyICAgICAgICAgICAgICAjIEZpbmFsIGdlbmVyYXRlZCBhbnN3ZXIKICAgIHJldHJ5X2NvdW50OiBpbnQKICAgIGhhbGx1Y2luYXRpb25fc2NvcmU6IGZsb2F0CgpsbG0gPSBDaGF0QW50aHJvcGljKG1vZGVsPSJjbGF1ZGUtc29ubmV0LTQtMjAyNTA1MTQiLCB0ZW1wZXJhdHVyZT0wKQoKR1JBRElOR19QUk9NUFQgPSAiIiJZb3UgYXJlIGEgZG9jdW1lbnQgcmVsZXZhbmNlIGdyYWRlci4KR2l2ZW4gYSB1c2VyIHF1ZXN0aW9uIGFuZCBhIHJldHJpZXZlZCBkb2N1bWVudCwgZGV0ZXJtaW5lIGlmIAp0aGUgZG9jdW1lbnQgY29udGFpbnMgaW5mb3JtYXRpb24gcmVsZXZhbnQgdG8gYW5zd2VyaW5nIHRoZSBxdWVzdGlvbi4KClJldHVybiBPTkxZICJyZWxldmFudCIgb3IgImlycmVsZXZhbnQiIOKAlCBub3RoaW5nIGVsc2UuCgpVc2VyIHF1ZXN0aW9uOiB7J3sneyd9J31xdWVyeXsnfSd9CgpEb2N1bWVudCBjb250ZW50Ogp7J3sneyd9J31kb2N1bWVudHsnfSd9CiIiIgoKZGVmIGdyYWRlX2RvY3VtZW50cyhzdGF0ZTogUkFHU3RhdGUpIC0+IGRpY3Q6CiAgICAiIiIKICAgIEdyYWRlIGVhY2ggcmV0cmlldmVkIGRvY3VtZW50IGZvciByZWxldmFuY2UuCiAgICAKICAgIFRoaXMgaXMgd2hlcmUgQWdlbnRpYyBSQUcgZGl2ZXJnZXMgZnJvbSBOYWl2ZSBSQUcuCiAgICBJbnN0ZWFkIG9mIGJsaW5kbHkgcGFzc2luZyBhbGwgZG9jcyB0byB0aGUgZ2VuZXJhdG9yLAogICAgd2UgZmlsdGVyIG91dCBpcnJlbGV2YW50IG9uZXMgZmlyc3QuCiAgICAKICAgIEluIE1ETSB0ZXJtczogdGhpcyBpcyB0aGUgdmFsaWRhdGlvbiBzdGVwIGJlZm9yZQogICAgcHJvbW90aW5nIGRhdGEgdG8gdGhlIGdvbGRlbiByZWNvcmQuCiAgICAiIiIKICAgIHF1ZXJ5ID0gc3RhdGVbInF1ZXJ5Il0KICAgIHJlbGV2YW50ID0gW10KICAgIGlycmVsZXZhbnRfY291bnQgPSAwCiAgICAKICAgIGZvciBkb2MgaW4gc3RhdGVbImRvY3VtZW50cyJdOgogICAgICAgIHJlc3BvbnNlID0gbGxtLmludm9rZShbCiAgICAgICAgICAgIEh1bWFuTWVzc2FnZShjb250ZW50PUdSQURJTkdfUFJPTVBULmZvcm1hdCgKICAgICAgICAgICAgICAgIHF1ZXJ5PXF1ZXJ5LAogICAgICAgICAgICAgICAgZG9jdW1lbnQ9ZG9jWyJjb250ZW50Il1bOjEwMDBdICAjIFRydW5jYXRlIGZvciBjb3N0CiAgICAgICAgICAgICkpCiAgICAgICAgXSkKICAgICAgICAKICAgICAgICBncmFkZSA9IHJlc3BvbnNlLmNvbnRlbnQuc3RyaXAoKS5sb3dlcigpCiAgICAgICAgCiAgICAgICAgaWYgInJlbGV2YW50IiBpbiBncmFkZSBhbmQgImlycmVsZXZhbnQiIG5vdCBpbiBncmFkZToKICAgICAgICAgICAgcmVsZXZhbnQuYXBwZW5kKGRvYykKICAgICAgICBlbHNlOgogICAgICAgICAgICBpcnJlbGV2YW50X2NvdW50ICs9IDEKICAgICAgICAgICAgcHJpbnQoZiIgIOKdjCBGaWx0ZXJlZDogeyd7J3snfSd9ZG9jLmdldCgnc291cmNlJywgJ3Vua25vd24nKVs6NTBdeyd9J30iKQogICAgCiAgICBwcmludChmIiAg8J+TiiB7J3sneyd9J31sZW4ocmVsZXZhbnQpeyd9J30veyd7J3snfSd9bGVuKHN0YXRlWydkb2N1bWVudHMnXSl7J30nfSBkb2NzIHBhc3NlZCBncmFkaW5nIikKICAgIAogICAgcmV0dXJuIHsneyd7J30nfQogICAgICAgICJyZWxldmFudF9kb2NzIjogcmVsZXZhbnQsCiAgICAgICAgImlycmVsZXZhbnRfY291bnQiOiBpcnJlbGV2YW50X2NvdW50LAogICAgeyd9J30=" />
 
 ### Why Grade Individual Documents?
 

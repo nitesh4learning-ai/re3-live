@@ -5,40 +5,6 @@ icon: "\u2699\uFE0F"
 
 ## Production Explainability
 
-<CodeBlock>
-{`import shap
-
-# For tabular models
-explainer = shap.TreeExplainer(model)  # or KernelExplainer for any model
-
-# Single prediction explanation
-shap_values = explainer.shap_values(single_input)
-
-# Generate human-readable explanation
-def explain_decision(shap_vals, feature_names, prediction):
-    """Convert SHAP values to plain English"""
-    contributions = sorted(
-        zip(feature_names, shap_vals),
-        key=lambda x: abs(x[1]),
-        reverse=True
-    )
-
-    top_reasons = contributions[:3]
-    explanation = f"Decision: {'{'{'}'}'Approved' if prediction else 'Denied'{'}'}\\n"
-    explanation += "Top factors:\\n"
-
-    for feature, value in top_reasons:
-        direction = "increased" if value > 0 else "decreased"
-        explanation += f"  - {'{'{'}'}feature{'}'} {'{'{'}'}direction{'}'} likelihood by {'{'{'}'}abs(value):.1%{'}'}\\n"
-
-    return explanation
-
-# Output:
-# Decision: Denied
-# Top factors:
-#   - income decreased likelihood by 23.4%
-#   - credit_history decreased likelihood by 15.1%
-#   - employment_length increased likelihood by 8.2%`}
-</CodeBlock>
+<CodeBlock b64="aW1wb3J0IHNoYXAKCiMgRm9yIHRhYnVsYXIgbW9kZWxzCmV4cGxhaW5lciA9IHNoYXAuVHJlZUV4cGxhaW5lcihtb2RlbCkgICMgb3IgS2VybmVsRXhwbGFpbmVyIGZvciBhbnkgbW9kZWwKCiMgU2luZ2xlIHByZWRpY3Rpb24gZXhwbGFuYXRpb24Kc2hhcF92YWx1ZXMgPSBleHBsYWluZXIuc2hhcF92YWx1ZXMoc2luZ2xlX2lucHV0KQoKIyBHZW5lcmF0ZSBodW1hbi1yZWFkYWJsZSBleHBsYW5hdGlvbgpkZWYgZXhwbGFpbl9kZWNpc2lvbihzaGFwX3ZhbHMsIGZlYXR1cmVfbmFtZXMsIHByZWRpY3Rpb24pOgogICAgIiIiQ29udmVydCBTSEFQIHZhbHVlcyB0byBwbGFpbiBFbmdsaXNoIiIiCiAgICBjb250cmlidXRpb25zID0gc29ydGVkKAogICAgICAgIHppcChmZWF0dXJlX25hbWVzLCBzaGFwX3ZhbHMpLAogICAgICAgIGtleT1sYW1iZGEgeDogYWJzKHhbMV0pLAogICAgICAgIHJldmVyc2U9VHJ1ZQogICAgKQoKICAgIHRvcF9yZWFzb25zID0gY29udHJpYnV0aW9uc1s6M10KICAgIGV4cGxhbmF0aW9uID0gZiJEZWNpc2lvbjogeyd7J3snfSd9J0FwcHJvdmVkJyBpZiBwcmVkaWN0aW9uIGVsc2UgJ0RlbmllZCd7J30nfVxcbiIKICAgIGV4cGxhbmF0aW9uICs9ICJUb3AgZmFjdG9yczpcXG4iCgogICAgZm9yIGZlYXR1cmUsIHZhbHVlIGluIHRvcF9yZWFzb25zOgogICAgICAgIGRpcmVjdGlvbiA9ICJpbmNyZWFzZWQiIGlmIHZhbHVlID4gMCBlbHNlICJkZWNyZWFzZWQiCiAgICAgICAgZXhwbGFuYXRpb24gKz0gZiIgIC0geyd7J3snfSd9ZmVhdHVyZXsnfSd9IHsneyd7J30nfWRpcmVjdGlvbnsnfSd9IGxpa2VsaWhvb2QgYnkgeyd7J3snfSd9YWJzKHZhbHVlKTouMSV7J30nfVxcbiIKCiAgICByZXR1cm4gZXhwbGFuYXRpb24KCiMgT3V0cHV0OgojIERlY2lzaW9uOiBEZW5pZWQKIyBUb3AgZmFjdG9yczoKIyAgIC0gaW5jb21lIGRlY3JlYXNlZCBsaWtlbGlob29kIGJ5IDIzLjQlCiMgICAtIGNyZWRpdF9oaXN0b3J5IGRlY3JlYXNlZCBsaWtlbGlob29kIGJ5IDE1LjElCiMgICAtIGVtcGxveW1lbnRfbGVuZ3RoIGluY3JlYXNlZCBsaWtlbGlob29kIGJ5IDguMiU=" />
 
 <Quiz question="Why should you use TreeExplainer instead of KernelExplainer for tree-based models?" options={["TreeExplainer works with any model type","TreeExplainer computes exact SHAP values in polynomial time vs. KernelExplainer's approximation","KernelExplainer is deprecated","TreeExplainer doesn't need training data"]} correctIndex={1} explanation="TreeExplainer leverages the tree structure to compute exact SHAP values efficiently (polynomial time), while KernelExplainer uses sampling-based approximation which is slower and less precise. Always use the specialized explainer when available."/>

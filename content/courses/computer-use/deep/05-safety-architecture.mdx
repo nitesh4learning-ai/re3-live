@@ -5,58 +5,6 @@ icon: "\uD83D\uDEE1\uFE0F"
 
 ## Safety Architecture for Autonomous Agents
 
-<CodeBlock>
-{`class SafetyLayer:
-    """Filter and gate agent actions before execution"""
-
-    IRREVERSIBLE_ACTIONS = {'{'{'}'}
-        "purchase", "delete", "send_email",
-        "submit_form", "transfer_funds",
-        "publish", "share_externally"
-    {'}'}
-
-    BLOCKED_DOMAINS = {'{'{'}'}
-        "bank.*", "*.gov", "admin.*",
-        "payment.*", "oauth.*"
-    {'}'}
-
-    def __init__(self, allowed_domains=None):
-        self.allowed_domains = allowed_domains or ["*"]
-        self.action_log = []
-
-    def check_action(self, action, context):
-        """Returns (allowed, reason, needs_confirmation)"""
-        # Check domain allowlist
-        if not self._domain_allowed(context["url"]):
-            return False, "Domain not in allowlist", False
-
-        # Check for irreversible actions
-        if action.get("type") in self.IRREVERSIBLE_ACTIONS:
-            return True, "Irreversible action", True  # needs confirmation
-
-        # Check for sensitive data in typed text
-        if action.get("type") == "type":
-            if self._contains_pii(action.get("value", "")):
-                return True, "Contains PII", True
-
-        # Rate limiting
-        if len(self.action_log) > 100:
-            return False, "Rate limit exceeded", False
-
-        return True, "OK", False
-
-    def _domain_allowed(self, url):
-        import re
-        domain = url.split("//")[-1].split("/")[0]
-        for pattern in self.BLOCKED_DOMAINS:
-            if re.match(pattern.replace("*", ".*"), domain):
-                return False
-        if self.allowed_domains == ["*"]:
-            return True
-        return any(
-            re.match(p.replace("*", ".*"), domain)
-            for p in self.allowed_domains
-        )`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgU2FmZXR5TGF5ZXI6CiAgICAiIiJGaWx0ZXIgYW5kIGdhdGUgYWdlbnQgYWN0aW9ucyBiZWZvcmUgZXhlY3V0aW9uIiIiCgogICAgSVJSRVZFUlNJQkxFX0FDVElPTlMgPSB7J3sneyd9J30KICAgICAgICAicHVyY2hhc2UiLCAiZGVsZXRlIiwgInNlbmRfZW1haWwiLAogICAgICAgICJzdWJtaXRfZm9ybSIsICJ0cmFuc2Zlcl9mdW5kcyIsCiAgICAgICAgInB1Ymxpc2giLCAic2hhcmVfZXh0ZXJuYWxseSIKICAgIHsnfSd9CgogICAgQkxPQ0tFRF9ET01BSU5TID0geyd7J3snfSd9CiAgICAgICAgImJhbmsuKiIsICIqLmdvdiIsICJhZG1pbi4qIiwKICAgICAgICAicGF5bWVudC4qIiwgIm9hdXRoLioiCiAgICB7J30nfQoKICAgIGRlZiBfX2luaXRfXyhzZWxmLCBhbGxvd2VkX2RvbWFpbnM9Tm9uZSk6CiAgICAgICAgc2VsZi5hbGxvd2VkX2RvbWFpbnMgPSBhbGxvd2VkX2RvbWFpbnMgb3IgWyIqIl0KICAgICAgICBzZWxmLmFjdGlvbl9sb2cgPSBbXQoKICAgIGRlZiBjaGVja19hY3Rpb24oc2VsZiwgYWN0aW9uLCBjb250ZXh0KToKICAgICAgICAiIiJSZXR1cm5zIChhbGxvd2VkLCByZWFzb24sIG5lZWRzX2NvbmZpcm1hdGlvbikiIiIKICAgICAgICAjIENoZWNrIGRvbWFpbiBhbGxvd2xpc3QKICAgICAgICBpZiBub3Qgc2VsZi5fZG9tYWluX2FsbG93ZWQoY29udGV4dFsidXJsIl0pOgogICAgICAgICAgICByZXR1cm4gRmFsc2UsICJEb21haW4gbm90IGluIGFsbG93bGlzdCIsIEZhbHNlCgogICAgICAgICMgQ2hlY2sgZm9yIGlycmV2ZXJzaWJsZSBhY3Rpb25zCiAgICAgICAgaWYgYWN0aW9uLmdldCgidHlwZSIpIGluIHNlbGYuSVJSRVZFUlNJQkxFX0FDVElPTlM6CiAgICAgICAgICAgIHJldHVybiBUcnVlLCAiSXJyZXZlcnNpYmxlIGFjdGlvbiIsIFRydWUgICMgbmVlZHMgY29uZmlybWF0aW9uCgogICAgICAgICMgQ2hlY2sgZm9yIHNlbnNpdGl2ZSBkYXRhIGluIHR5cGVkIHRleHQKICAgICAgICBpZiBhY3Rpb24uZ2V0KCJ0eXBlIikgPT0gInR5cGUiOgogICAgICAgICAgICBpZiBzZWxmLl9jb250YWluc19waWkoYWN0aW9uLmdldCgidmFsdWUiLCAiIikpOgogICAgICAgICAgICAgICAgcmV0dXJuIFRydWUsICJDb250YWlucyBQSUkiLCBUcnVlCgogICAgICAgICMgUmF0ZSBsaW1pdGluZwogICAgICAgIGlmIGxlbihzZWxmLmFjdGlvbl9sb2cpID4gMTAwOgogICAgICAgICAgICByZXR1cm4gRmFsc2UsICJSYXRlIGxpbWl0IGV4Y2VlZGVkIiwgRmFsc2UKCiAgICAgICAgcmV0dXJuIFRydWUsICJPSyIsIEZhbHNlCgogICAgZGVmIF9kb21haW5fYWxsb3dlZChzZWxmLCB1cmwpOgogICAgICAgIGltcG9ydCByZQogICAgICAgIGRvbWFpbiA9IHVybC5zcGxpdCgiLy8iKVstMV0uc3BsaXQoIi8iKVswXQogICAgICAgIGZvciBwYXR0ZXJuIGluIHNlbGYuQkxPQ0tFRF9ET01BSU5TOgogICAgICAgICAgICBpZiByZS5tYXRjaChwYXR0ZXJuLnJlcGxhY2UoIioiLCAiLioiKSwgZG9tYWluKToKICAgICAgICAgICAgICAgIHJldHVybiBGYWxzZQogICAgICAgIGlmIHNlbGYuYWxsb3dlZF9kb21haW5zID09IFsiKiJdOgogICAgICAgICAgICByZXR1cm4gVHJ1ZQogICAgICAgIHJldHVybiBhbnkoCiAgICAgICAgICAgIHJlLm1hdGNoKHAucmVwbGFjZSgiKiIsICIuKiIpLCBkb21haW4pCiAgICAgICAgICAgIGZvciBwIGluIHNlbGYuYWxsb3dlZF9kb21haW5zCiAgICAgICAgKQ==" />
 
 <Quiz question="An AI browser agent encounters a page with a 'Delete All Records' button during a data export task. What should it do?" options={["Click it if it seems relevant to the task","Skip it silently and continue","Halt execution and request human confirmation","Add it to the action queue for later"]} correctIndex={2} explanation="Any irreversible action like deletion must trigger a confirmation gate. The agent should halt, present the situation to the human operator with full context (what page, what button, why it's relevant), and only proceed with explicit approval. This is the core safety principle for autonomous agents."/>

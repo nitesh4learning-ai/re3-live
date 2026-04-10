@@ -7,23 +7,7 @@ icon: "💻"
 
 Building an MCP server is surprisingly simple. Here's a minimal Python server that exposes a single tool.
 
-<CodeBlock>
-{`from mcp.server import Server
-from mcp.types import Tool, TextContent
-
-app = Server("my-server")
-
-@app.tool()
-async def get_greeting(name: str) -> str:
-    """Generate a personalized greeting."""
-    return f"Hello, {'{'{'}'}name{'}'}! Welcome to MCP."
-
-# That's it! The decorator handles:
-# - Tool registration and schema generation
-# - Input validation
-# - JSON-RPC message handling
-# - Error responses`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBtY3Auc2VydmVyIGltcG9ydCBTZXJ2ZXIKZnJvbSBtY3AudHlwZXMgaW1wb3J0IFRvb2wsIFRleHRDb250ZW50CgphcHAgPSBTZXJ2ZXIoIm15LXNlcnZlciIpCgpAYXBwLnRvb2woKQphc3luYyBkZWYgZ2V0X2dyZWV0aW5nKG5hbWU6IHN0cikgLT4gc3RyOgogICAgIiIiR2VuZXJhdGUgYSBwZXJzb25hbGl6ZWQgZ3JlZXRpbmcuIiIiCiAgICByZXR1cm4gZiJIZWxsbywgeyd7J3snfSd9bmFtZXsnfSd9ISBXZWxjb21lIHRvIE1DUC4iCgojIFRoYXQncyBpdCEgVGhlIGRlY29yYXRvciBoYW5kbGVzOgojIC0gVG9vbCByZWdpc3RyYXRpb24gYW5kIHNjaGVtYSBnZW5lcmF0aW9uCiMgLSBJbnB1dCB2YWxpZGF0aW9uCiMgLSBKU09OLVJQQyBtZXNzYWdlIGhhbmRsaW5nCiMgLSBFcnJvciByZXNwb25zZXM=" />
 
 <ExpandableSection title="How tool definitions are auto-generated" icon="⚙️">
 

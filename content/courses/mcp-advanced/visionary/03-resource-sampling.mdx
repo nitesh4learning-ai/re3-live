@@ -10,136 +10,15 @@ MCP resources let servers expose **readable data** (files, database records, API
       <AnalogyBox emoji="📚" title="Resources are like a library, sampling is like calling a reference desk">
         Resources are the books on the shelves — static or periodically updated data the LLM can read. Subscriptions ring a bell when a book is updated. Sampling is when the server itself calls the reference desk (the LLM) to answer a question — the server is temporarily in the driver's seat.
       </AnalogyBox>
-      <CodeBlock>
-{`from mcp.server import Server
-from mcp.types import Resource, ResourceContents, TextResourceContents
-import json
-
-server = Server("re3-resources")
-
-@server.list_resources()
-async def list_resources() -> list[Resource]:
-    """Dynamically enumerate available resources."""
-    # Fetch current debate IDs from database
-    active_debates = await db.get_active_debate_ids()
-
-    base_resources = [
-        Resource(
-            uri="re3://articles/recent",
-            name="Recent Articles",
-            mimeType="application/json",
-            description="Latest 20 published articles"
-        ),
-        Resource(
-            uri="re3://agents/registry",
-            name="Agent Registry",
-            mimeType="application/json",
-            description="All 25 debater agents with metadata"
-        )
-    ]
-
-    # Dynamically add per-debate resources
-    debate_resources = [
-        Resource(
-            uri=f"re3://debates/{'{'{'}'}debate_id{'}'}/loom",
-            name=f"Loom for debate {'{'{'}'}debate_id{'}'}",
-            mimeType="text/markdown",
-            description=f"Synthesized insights from debate {'{'{'}'}debate_id{'}'}"
-        )
-        for debate_id in active_debates
-    ]
-
-    return base_resources + debate_resources
-
-@server.read_resource()
-async def read_resource(uri: str) -> ResourceContents:
-    if uri == "re3://articles/recent":
-        articles = await db.get_recent_articles(limit=20)
-        return TextResourceContents(
-            uri=uri,
-            mimeType="application/json",
-            text=json.dumps(articles)
-        )
-    elif uri.startswith("re3://debates/") and uri.endswith("/loom"):
-        debate_id = uri.split("/")[3]
-        loom = await db.get_debate_loom(debate_id)
-        return TextResourceContents(uri=uri, mimeType="text/markdown", text=loom)
-    raise ValueError(f"Unknown resource: {'{'{'}'}uri{'}'}")`}
-</CodeBlock>
+      <CodeBlock b64="ZnJvbSBtY3Auc2VydmVyIGltcG9ydCBTZXJ2ZXIKZnJvbSBtY3AudHlwZXMgaW1wb3J0IFJlc291cmNlLCBSZXNvdXJjZUNvbnRlbnRzLCBUZXh0UmVzb3VyY2VDb250ZW50cwppbXBvcnQganNvbgoKc2VydmVyID0gU2VydmVyKCJyZTMtcmVzb3VyY2VzIikKCkBzZXJ2ZXIubGlzdF9yZXNvdXJjZXMoKQphc3luYyBkZWYgbGlzdF9yZXNvdXJjZXMoKSAtPiBsaXN0W1Jlc291cmNlXToKICAgICIiIkR5bmFtaWNhbGx5IGVudW1lcmF0ZSBhdmFpbGFibGUgcmVzb3VyY2VzLiIiIgogICAgIyBGZXRjaCBjdXJyZW50IGRlYmF0ZSBJRHMgZnJvbSBkYXRhYmFzZQogICAgYWN0aXZlX2RlYmF0ZXMgPSBhd2FpdCBkYi5nZXRfYWN0aXZlX2RlYmF0ZV9pZHMoKQoKICAgIGJhc2VfcmVzb3VyY2VzID0gWwogICAgICAgIFJlc291cmNlKAogICAgICAgICAgICB1cmk9InJlMzovL2FydGljbGVzL3JlY2VudCIsCiAgICAgICAgICAgIG5hbWU9IlJlY2VudCBBcnRpY2xlcyIsCiAgICAgICAgICAgIG1pbWVUeXBlPSJhcHBsaWNhdGlvbi9qc29uIiwKICAgICAgICAgICAgZGVzY3JpcHRpb249IkxhdGVzdCAyMCBwdWJsaXNoZWQgYXJ0aWNsZXMiCiAgICAgICAgKSwKICAgICAgICBSZXNvdXJjZSgKICAgICAgICAgICAgdXJpPSJyZTM6Ly9hZ2VudHMvcmVnaXN0cnkiLAogICAgICAgICAgICBuYW1lPSJBZ2VudCBSZWdpc3RyeSIsCiAgICAgICAgICAgIG1pbWVUeXBlPSJhcHBsaWNhdGlvbi9qc29uIiwKICAgICAgICAgICAgZGVzY3JpcHRpb249IkFsbCAyNSBkZWJhdGVyIGFnZW50cyB3aXRoIG1ldGFkYXRhIgogICAgICAgICkKICAgIF0KCiAgICAjIER5bmFtaWNhbGx5IGFkZCBwZXItZGViYXRlIHJlc291cmNlcwogICAgZGViYXRlX3Jlc291cmNlcyA9IFsKICAgICAgICBSZXNvdXJjZSgKICAgICAgICAgICAgdXJpPWYicmUzOi8vZGViYXRlcy97J3sneyd9J31kZWJhdGVfaWR7J30nfS9sb29tIiwKICAgICAgICAgICAgbmFtZT1mIkxvb20gZm9yIGRlYmF0ZSB7J3sneyd9J31kZWJhdGVfaWR7J30nfSIsCiAgICAgICAgICAgIG1pbWVUeXBlPSJ0ZXh0L21hcmtkb3duIiwKICAgICAgICAgICAgZGVzY3JpcHRpb249ZiJTeW50aGVzaXplZCBpbnNpZ2h0cyBmcm9tIGRlYmF0ZSB7J3sneyd9J31kZWJhdGVfaWR7J30nfSIKICAgICAgICApCiAgICAgICAgZm9yIGRlYmF0ZV9pZCBpbiBhY3RpdmVfZGViYXRlcwogICAgXQoKICAgIHJldHVybiBiYXNlX3Jlc291cmNlcyArIGRlYmF0ZV9yZXNvdXJjZXMKCkBzZXJ2ZXIucmVhZF9yZXNvdXJjZSgpCmFzeW5jIGRlZiByZWFkX3Jlc291cmNlKHVyaTogc3RyKSAtPiBSZXNvdXJjZUNvbnRlbnRzOgogICAgaWYgdXJpID09ICJyZTM6Ly9hcnRpY2xlcy9yZWNlbnQiOgogICAgICAgIGFydGljbGVzID0gYXdhaXQgZGIuZ2V0X3JlY2VudF9hcnRpY2xlcyhsaW1pdD0yMCkKICAgICAgICByZXR1cm4gVGV4dFJlc291cmNlQ29udGVudHMoCiAgICAgICAgICAgIHVyaT11cmksCiAgICAgICAgICAgIG1pbWVUeXBlPSJhcHBsaWNhdGlvbi9qc29uIiwKICAgICAgICAgICAgdGV4dD1qc29uLmR1bXBzKGFydGljbGVzKQogICAgICAgICkKICAgIGVsaWYgdXJpLnN0YXJ0c3dpdGgoInJlMzovL2RlYmF0ZXMvIikgYW5kIHVyaS5lbmRzd2l0aCgiL2xvb20iKToKICAgICAgICBkZWJhdGVfaWQgPSB1cmkuc3BsaXQoIi8iKVszXQogICAgICAgIGxvb20gPSBhd2FpdCBkYi5nZXRfZGViYXRlX2xvb20oZGViYXRlX2lkKQogICAgICAgIHJldHVybiBUZXh0UmVzb3VyY2VDb250ZW50cyh1cmk9dXJpLCBtaW1lVHlwZT0idGV4dC9tYXJrZG93biIsIHRleHQ9bG9vbSkKICAgIHJhaXNlIFZhbHVlRXJyb3IoZiJVbmtub3duIHJlc291cmNlOiB7J3sneyd9J311cml7J30nfSIp" />
       <ExpandableSection title="Resource Subscriptions (Push Notifications)" icon="🔔">
-        <CodeBlock>
-{`from mcp.server import Server
-from mcp.types import ResourceUpdatedNotification
-import asyncio
-
-server = Server("re3-live-resources")
-
-# Track active subscriptions
-subscriptions: set[str] = set()
-
-@server.subscribe_resource()
-async def subscribe(uri: str):
-    subscriptions.add(uri)
-    # Start background watcher if not already running
-    asyncio.create_task(watch_resource(uri))
-
-@server.unsubscribe_resource()
-async def unsubscribe(uri: str):
-    subscriptions.discard(uri)
-
-async def watch_resource(uri: str):
-    """Background task: poll for changes and notify subscribers."""
-    last_hash = await compute_resource_hash(uri)
-    while uri in subscriptions:
-        await asyncio.sleep(5)  # Poll every 5 seconds
-        current_hash = await compute_resource_hash(uri)
-        if current_hash != last_hash:
-            last_hash = current_hash
-            # Notify the MCP host — host decides how to handle
-            await server.request_context.session.send_resource_updated(
-                ResourceUpdatedNotification(uri=uri)
-            )`}
-</CodeBlock>
+        <CodeBlock b64="ZnJvbSBtY3Auc2VydmVyIGltcG9ydCBTZXJ2ZXIKZnJvbSBtY3AudHlwZXMgaW1wb3J0IFJlc291cmNlVXBkYXRlZE5vdGlmaWNhdGlvbgppbXBvcnQgYXN5bmNpbwoKc2VydmVyID0gU2VydmVyKCJyZTMtbGl2ZS1yZXNvdXJjZXMiKQoKIyBUcmFjayBhY3RpdmUgc3Vic2NyaXB0aW9ucwpzdWJzY3JpcHRpb25zOiBzZXRbc3RyXSA9IHNldCgpCgpAc2VydmVyLnN1YnNjcmliZV9yZXNvdXJjZSgpCmFzeW5jIGRlZiBzdWJzY3JpYmUodXJpOiBzdHIpOgogICAgc3Vic2NyaXB0aW9ucy5hZGQodXJpKQogICAgIyBTdGFydCBiYWNrZ3JvdW5kIHdhdGNoZXIgaWYgbm90IGFscmVhZHkgcnVubmluZwogICAgYXN5bmNpby5jcmVhdGVfdGFzayh3YXRjaF9yZXNvdXJjZSh1cmkpKQoKQHNlcnZlci51bnN1YnNjcmliZV9yZXNvdXJjZSgpCmFzeW5jIGRlZiB1bnN1YnNjcmliZSh1cmk6IHN0cik6CiAgICBzdWJzY3JpcHRpb25zLmRpc2NhcmQodXJpKQoKYXN5bmMgZGVmIHdhdGNoX3Jlc291cmNlKHVyaTogc3RyKToKICAgICIiIkJhY2tncm91bmQgdGFzazogcG9sbCBmb3IgY2hhbmdlcyBhbmQgbm90aWZ5IHN1YnNjcmliZXJzLiIiIgogICAgbGFzdF9oYXNoID0gYXdhaXQgY29tcHV0ZV9yZXNvdXJjZV9oYXNoKHVyaSkKICAgIHdoaWxlIHVyaSBpbiBzdWJzY3JpcHRpb25zOgogICAgICAgIGF3YWl0IGFzeW5jaW8uc2xlZXAoNSkgICMgUG9sbCBldmVyeSA1IHNlY29uZHMKICAgICAgICBjdXJyZW50X2hhc2ggPSBhd2FpdCBjb21wdXRlX3Jlc291cmNlX2hhc2godXJpKQogICAgICAgIGlmIGN1cnJlbnRfaGFzaCAhPSBsYXN0X2hhc2g6CiAgICAgICAgICAgIGxhc3RfaGFzaCA9IGN1cnJlbnRfaGFzaAogICAgICAgICAgICAjIE5vdGlmeSB0aGUgTUNQIGhvc3Qg4oCUIGhvc3QgZGVjaWRlcyBob3cgdG8gaGFuZGxlCiAgICAgICAgICAgIGF3YWl0IHNlcnZlci5yZXF1ZXN0X2NvbnRleHQuc2Vzc2lvbi5zZW5kX3Jlc291cmNlX3VwZGF0ZWQoCiAgICAgICAgICAgICAgICBSZXNvdXJjZVVwZGF0ZWROb3RpZmljYXRpb24odXJpPXVyaSkKICAgICAgICAgICAgKQ==" />
       </ExpandableSection>
       <ExpandableSection title="Server-Initiated Sampling (LLM-in-the-Loop)" icon="🤖">
 
 Sampling lets an MCP server ask the host's LLM to complete a prompt — without the server holding any API keys. The host controls model selection, rate limiting, and approval.
 
-        <CodeBlock>
-{`from mcp.server import Server
-from mcp.types import (
-    CreateMessageRequest, CreateMessageResult,
-    SamplingMessage, TextContent
-)
-
-server = Server("intelligent-indexer")
-
-@server.call_tool()
-async def call_tool(name: str, arguments: dict):
-    if name == "summarize_and_tag_article":
-        article_text = arguments["content"]
-
-        # Server asks the HOST's LLM to generate a summary
-        # The host can show a confirmation UI, apply guardrails, etc.
-        result: CreateMessageResult = await server.request_context.session.create_message(
-            CreateMessageRequest(
-                messages=[
-                    SamplingMessage(
-                        role="user",
-                        content=TextContent(
-                            type="text",
-                            text=f"Summarize this article in 2 sentences and suggest 5 tags:\\n\\n{'{'{'}'}article_text{'}'}"
-                        )
-                    )
-                ],
-                maxTokens=300,
-                systemPrompt="You are a content taxonomy expert. Return JSON with keys: summary, tags.",
-                # Model preference — host may override
-                modelPreferences={'{'{'}'}"hints": [{'{'{'}'}"name": "claude-sonnet-4"{'}'}]{'}'}
-            )
-        )
-        return [TextContent(type="text", text=result.content.text)]`}
-</CodeBlock>
+        <CodeBlock b64="ZnJvbSBtY3Auc2VydmVyIGltcG9ydCBTZXJ2ZXIKZnJvbSBtY3AudHlwZXMgaW1wb3J0ICgKICAgIENyZWF0ZU1lc3NhZ2VSZXF1ZXN0LCBDcmVhdGVNZXNzYWdlUmVzdWx0LAogICAgU2FtcGxpbmdNZXNzYWdlLCBUZXh0Q29udGVudAopCgpzZXJ2ZXIgPSBTZXJ2ZXIoImludGVsbGlnZW50LWluZGV4ZXIiKQoKQHNlcnZlci5jYWxsX3Rvb2woKQphc3luYyBkZWYgY2FsbF90b29sKG5hbWU6IHN0ciwgYXJndW1lbnRzOiBkaWN0KToKICAgIGlmIG5hbWUgPT0gInN1bW1hcml6ZV9hbmRfdGFnX2FydGljbGUiOgogICAgICAgIGFydGljbGVfdGV4dCA9IGFyZ3VtZW50c1siY29udGVudCJdCgogICAgICAgICMgU2VydmVyIGFza3MgdGhlIEhPU1QncyBMTE0gdG8gZ2VuZXJhdGUgYSBzdW1tYXJ5CiAgICAgICAgIyBUaGUgaG9zdCBjYW4gc2hvdyBhIGNvbmZpcm1hdGlvbiBVSSwgYXBwbHkgZ3VhcmRyYWlscywgZXRjLgogICAgICAgIHJlc3VsdDogQ3JlYXRlTWVzc2FnZVJlc3VsdCA9IGF3YWl0IHNlcnZlci5yZXF1ZXN0X2NvbnRleHQuc2Vzc2lvbi5jcmVhdGVfbWVzc2FnZSgKICAgICAgICAgICAgQ3JlYXRlTWVzc2FnZVJlcXVlc3QoCiAgICAgICAgICAgICAgICBtZXNzYWdlcz1bCiAgICAgICAgICAgICAgICAgICAgU2FtcGxpbmdNZXNzYWdlKAogICAgICAgICAgICAgICAgICAgICAgICByb2xlPSJ1c2VyIiwKICAgICAgICAgICAgICAgICAgICAgICAgY29udGVudD1UZXh0Q29udGVudCgKICAgICAgICAgICAgICAgICAgICAgICAgICAgIHR5cGU9InRleHQiLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgdGV4dD1mIlN1bW1hcml6ZSB0aGlzIGFydGljbGUgaW4gMiBzZW50ZW5jZXMgYW5kIHN1Z2dlc3QgNSB0YWdzOlxcblxcbnsneyd7J30nfWFydGljbGVfdGV4dHsnfSd9IgogICAgICAgICAgICAgICAgICAgICAgICApCiAgICAgICAgICAgICAgICAgICAgKQogICAgICAgICAgICAgICAgXSwKICAgICAgICAgICAgICAgIG1heFRva2Vucz0zMDAsCiAgICAgICAgICAgICAgICBzeXN0ZW1Qcm9tcHQ9IllvdSBhcmUgYSBjb250ZW50IHRheG9ub215IGV4cGVydC4gUmV0dXJuIEpTT04gd2l0aCBrZXlzOiBzdW1tYXJ5LCB0YWdzLiIsCiAgICAgICAgICAgICAgICAjIE1vZGVsIHByZWZlcmVuY2Ug4oCUIGhvc3QgbWF5IG92ZXJyaWRlCiAgICAgICAgICAgICAgICBtb2RlbFByZWZlcmVuY2VzPXsneyd7J30nfSJoaW50cyI6IFt7J3sneyd9J30ibmFtZSI6ICJjbGF1ZGUtc29ubmV0LTQieyd9J31deyd9J30KICAgICAgICAgICAgKQogICAgICAgICkKICAgICAgICByZXR1cm4gW1RleHRDb250ZW50KHR5cGU9InRleHQiLCB0ZXh0PXJlc3VsdC5jb250ZW50LnRleHQpXQ==" />
       </ExpandableSection>
       <ResourceExplorer/>
       <Quiz question="What is the key security advantage of MCP Sampling (server requesting LLM completions from the host)?" options={["It makes LLM calls faster by routing them locally","The MCP server never needs to store or manage LLM API keys — the host controls all API access","The server gets unlimited free LLM calls","Sampling uses a different, more capable model than the host"]} correctIndex={1} explanation="With sampling, the MCP server can leverage LLM intelligence for its internal logic without holding any API credentials. The host controls the API key, can apply rate limits, can require user approval for each sampling request, and can override the model choice — maintaining centralized governance."/>

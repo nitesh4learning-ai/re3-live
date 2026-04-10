@@ -5,47 +5,4 @@ icon: "🔄"
 
 ## Memory Patterns
 
-<CodeBlock>
-{`class HybridMemory:
-    def __init__(self, vector_store, max_recent=10):
-        self.recent = []           # Buffer: last N messages
-        self.entities = {'{'{'}'}{'}'}         # Entity store: {'{'{'}'}name: [facts]{'}'}
-        self.vector_store = vector_store  # Long-term retrieval
-        self.max_recent = max_recent
-
-    def add_message(self, role, content):
-        self.recent.append({'{'{'}'}"role": role, "content": content{'}'})
-
-        # Extract entities from user messages
-        if role == "user":
-            entities = extract_entities(content)
-            for entity in entities:
-                self.entities.setdefault(entity.name, []).append(entity.fact)
-
-        # When buffer overflows, archive to vector store
-        if len(self.recent) > self.max_recent:
-            old = self.recent.pop(0)
-            self.vector_store.add(old["content"])
-
-    def get_context(self, current_query):
-        """Assemble memory context for the current query."""
-        context = []
-
-        # 1. Relevant long-term memories (semantic search)
-        similar = self.vector_store.search(current_query, top_k=3)
-        if similar:
-            context.append({'{'{'}'}"role":"system",
-                "content":"Relevant past context: " + "; ".join(similar){'}'})
-
-        # 2. Relevant entities
-        query_entities = extract_entities(current_query)
-        for ent in query_entities:
-            if ent.name in self.entities:
-                facts = self.entities[ent.name][-5:]  # Last 5 facts
-                context.append({'{'{'}'}"role":"system",
-                    "content":f"Known about {'{'{'}'}ent.name{'}'}: {'{'{'}'}'; '.join(facts){'}'}"{'}'})
-
-        # 3. Recent conversation (always included)
-        context.extend(self.recent[-self.max_recent:])
-        return context`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgSHlicmlkTWVtb3J5OgogICAgZGVmIF9faW5pdF9fKHNlbGYsIHZlY3Rvcl9zdG9yZSwgbWF4X3JlY2VudD0xMCk6CiAgICAgICAgc2VsZi5yZWNlbnQgPSBbXSAgICAgICAgICAgIyBCdWZmZXI6IGxhc3QgTiBtZXNzYWdlcwogICAgICAgIHNlbGYuZW50aXRpZXMgPSB7J3sneyd9J317J30nfSAgICAgICAgICMgRW50aXR5IHN0b3JlOiB7J3sneyd9J31uYW1lOiBbZmFjdHNdeyd9J30KICAgICAgICBzZWxmLnZlY3Rvcl9zdG9yZSA9IHZlY3Rvcl9zdG9yZSAgIyBMb25nLXRlcm0gcmV0cmlldmFsCiAgICAgICAgc2VsZi5tYXhfcmVjZW50ID0gbWF4X3JlY2VudAoKICAgIGRlZiBhZGRfbWVzc2FnZShzZWxmLCByb2xlLCBjb250ZW50KToKICAgICAgICBzZWxmLnJlY2VudC5hcHBlbmQoeyd7J3snfSd9InJvbGUiOiByb2xlLCAiY29udGVudCI6IGNvbnRlbnR7J30nfSkKCiAgICAgICAgIyBFeHRyYWN0IGVudGl0aWVzIGZyb20gdXNlciBtZXNzYWdlcwogICAgICAgIGlmIHJvbGUgPT0gInVzZXIiOgogICAgICAgICAgICBlbnRpdGllcyA9IGV4dHJhY3RfZW50aXRpZXMoY29udGVudCkKICAgICAgICAgICAgZm9yIGVudGl0eSBpbiBlbnRpdGllczoKICAgICAgICAgICAgICAgIHNlbGYuZW50aXRpZXMuc2V0ZGVmYXVsdChlbnRpdHkubmFtZSwgW10pLmFwcGVuZChlbnRpdHkuZmFjdCkKCiAgICAgICAgIyBXaGVuIGJ1ZmZlciBvdmVyZmxvd3MsIGFyY2hpdmUgdG8gdmVjdG9yIHN0b3JlCiAgICAgICAgaWYgbGVuKHNlbGYucmVjZW50KSA+IHNlbGYubWF4X3JlY2VudDoKICAgICAgICAgICAgb2xkID0gc2VsZi5yZWNlbnQucG9wKDApCiAgICAgICAgICAgIHNlbGYudmVjdG9yX3N0b3JlLmFkZChvbGRbImNvbnRlbnQiXSkKCiAgICBkZWYgZ2V0X2NvbnRleHQoc2VsZiwgY3VycmVudF9xdWVyeSk6CiAgICAgICAgIiIiQXNzZW1ibGUgbWVtb3J5IGNvbnRleHQgZm9yIHRoZSBjdXJyZW50IHF1ZXJ5LiIiIgogICAgICAgIGNvbnRleHQgPSBbXQoKICAgICAgICAjIDEuIFJlbGV2YW50IGxvbmctdGVybSBtZW1vcmllcyAoc2VtYW50aWMgc2VhcmNoKQogICAgICAgIHNpbWlsYXIgPSBzZWxmLnZlY3Rvcl9zdG9yZS5zZWFyY2goY3VycmVudF9xdWVyeSwgdG9wX2s9MykKICAgICAgICBpZiBzaW1pbGFyOgogICAgICAgICAgICBjb250ZXh0LmFwcGVuZCh7J3sneyd9J30icm9sZSI6InN5c3RlbSIsCiAgICAgICAgICAgICAgICAiY29udGVudCI6IlJlbGV2YW50IHBhc3QgY29udGV4dDogIiArICI7ICIuam9pbihzaW1pbGFyKXsnfSd9KQoKICAgICAgICAjIDIuIFJlbGV2YW50IGVudGl0aWVzCiAgICAgICAgcXVlcnlfZW50aXRpZXMgPSBleHRyYWN0X2VudGl0aWVzKGN1cnJlbnRfcXVlcnkpCiAgICAgICAgZm9yIGVudCBpbiBxdWVyeV9lbnRpdGllczoKICAgICAgICAgICAgaWYgZW50Lm5hbWUgaW4gc2VsZi5lbnRpdGllczoKICAgICAgICAgICAgICAgIGZhY3RzID0gc2VsZi5lbnRpdGllc1tlbnQubmFtZV1bLTU6XSAgIyBMYXN0IDUgZmFjdHMKICAgICAgICAgICAgICAgIGNvbnRleHQuYXBwZW5kKHsneyd7J30nfSJyb2xlIjoic3lzdGVtIiwKICAgICAgICAgICAgICAgICAgICAiY29udGVudCI6ZiJLbm93biBhYm91dCB7J3sneyd9J31lbnQubmFtZXsnfSd9OiB7J3sneyd9J30nOyAnLmpvaW4oZmFjdHMpeyd9J30ieyd9J30pCgogICAgICAgICMgMy4gUmVjZW50IGNvbnZlcnNhdGlvbiAoYWx3YXlzIGluY2x1ZGVkKQogICAgICAgIGNvbnRleHQuZXh0ZW5kKHNlbGYucmVjZW50Wy1zZWxmLm1heF9yZWNlbnQ6XSkKICAgICAgICByZXR1cm4gY29udGV4dA==" />

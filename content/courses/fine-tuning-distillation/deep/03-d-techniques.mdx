@@ -9,47 +9,7 @@ Modern fine-tuning doesn't require updating all model weights. **Parameter-effic
 
   <AnalogyBox emoji="🎹" title="Think of it like learning piano">Full fine-tuning rewires every neural connection (rebuilding the whole piano). LoRA adds a few sticky notes to the sheet music (small adapter matrices) that modify how the existing knowledge is applied. Same performance, much less effort.</AnalogyBox>
   <LoRAVisualizer/>
-  <CodeBlock>
-{`from peft import LoraConfig, get_peft_model
-from transformers import AutoModelForCausalLM, TrainingArguments
-from trl import SFTTrainer
-
-# Load base model
-model = AutoModelForCausalLM.from_pretrained(
-    "meta-llama/Llama-3-8B",
-    torch_dtype=torch.bfloat16,
-    device_map="auto"
-)
-
-# Configure LoRA
-lora_config = LoraConfig(
-    r=16,                    # Rank (higher = more expressive)
-    lora_alpha=32,           # Scaling factor
-    target_modules=["q_proj", "v_proj"],  # Which layers
-    lora_dropout=0.05,
-    bias="none",
-    task_type="CAUSAL_LM"
-)
-
-model = get_peft_model(model, lora_config)
-model.print_trainable_parameters()
-# Output: trainable params: 8,388,608 || all params: 8,030,261,248 || 0.10%
-
-# Train
-trainer = SFTTrainer(
-    model=model,
-    train_dataset=dataset,
-    args=TrainingArguments(
-        output_dir="./ft-output",
-        num_train_epochs=3,
-        per_device_train_batch_size=4,
-        learning_rate=2e-4,
-        warmup_steps=100,
-        logging_steps=10,
-    )
-)
-trainer.train()`}
-</CodeBlock>
+  <CodeBlock b64="ZnJvbSBwZWZ0IGltcG9ydCBMb3JhQ29uZmlnLCBnZXRfcGVmdF9tb2RlbApmcm9tIHRyYW5zZm9ybWVycyBpbXBvcnQgQXV0b01vZGVsRm9yQ2F1c2FsTE0sIFRyYWluaW5nQXJndW1lbnRzCmZyb20gdHJsIGltcG9ydCBTRlRUcmFpbmVyCgojIExvYWQgYmFzZSBtb2RlbAptb2RlbCA9IEF1dG9Nb2RlbEZvckNhdXNhbExNLmZyb21fcHJldHJhaW5lZCgKICAgICJtZXRhLWxsYW1hL0xsYW1hLTMtOEIiLAogICAgdG9yY2hfZHR5cGU9dG9yY2guYmZsb2F0MTYsCiAgICBkZXZpY2VfbWFwPSJhdXRvIgopCgojIENvbmZpZ3VyZSBMb1JBCmxvcmFfY29uZmlnID0gTG9yYUNvbmZpZygKICAgIHI9MTYsICAgICAgICAgICAgICAgICAgICAjIFJhbmsgKGhpZ2hlciA9IG1vcmUgZXhwcmVzc2l2ZSkKICAgIGxvcmFfYWxwaGE9MzIsICAgICAgICAgICAjIFNjYWxpbmcgZmFjdG9yCiAgICB0YXJnZXRfbW9kdWxlcz1bInFfcHJvaiIsICJ2X3Byb2oiXSwgICMgV2hpY2ggbGF5ZXJzCiAgICBsb3JhX2Ryb3BvdXQ9MC4wNSwKICAgIGJpYXM9Im5vbmUiLAogICAgdGFza190eXBlPSJDQVVTQUxfTE0iCikKCm1vZGVsID0gZ2V0X3BlZnRfbW9kZWwobW9kZWwsIGxvcmFfY29uZmlnKQptb2RlbC5wcmludF90cmFpbmFibGVfcGFyYW1ldGVycygpCiMgT3V0cHV0OiB0cmFpbmFibGUgcGFyYW1zOiA4LDM4OCw2MDggfHwgYWxsIHBhcmFtczogOCwwMzAsMjYxLDI0OCB8fCAwLjEwJQoKIyBUcmFpbgp0cmFpbmVyID0gU0ZUVHJhaW5lcigKICAgIG1vZGVsPW1vZGVsLAogICAgdHJhaW5fZGF0YXNldD1kYXRhc2V0LAogICAgYXJncz1UcmFpbmluZ0FyZ3VtZW50cygKICAgICAgICBvdXRwdXRfZGlyPSIuL2Z0LW91dHB1dCIsCiAgICAgICAgbnVtX3RyYWluX2Vwb2Nocz0zLAogICAgICAgIHBlcl9kZXZpY2VfdHJhaW5fYmF0Y2hfc2l6ZT00LAogICAgICAgIGxlYXJuaW5nX3JhdGU9MmUtNCwKICAgICAgICB3YXJtdXBfc3RlcHM9MTAwLAogICAgICAgIGxvZ2dpbmdfc3RlcHM9MTAsCiAgICApCikKdHJhaW5lci50cmFpbigp" />
   <ExpandableSection title="Hyperparameter Guide" icon="⚙️">
     <ComparisonTable title="Key Hyperparameters" columns={['Parameter','Typical Range','Effect of Too High','Effect of Too Low']} rows={[
       ['Learning Rate','1e-5 to 5e-4','Catastrophic forgetting, instability','Slow convergence, wasted compute'],

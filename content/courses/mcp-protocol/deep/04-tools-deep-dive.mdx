@@ -7,74 +7,9 @@ icon: "🔧"
 
 Tool design is where MCP servers succeed or fail in practice. Good tool schemas guide the LLM to call tools correctly. Poor schemas lead to hallucinated parameters, wrong tool selection, and frustrated users.
 
-<CodeBlock>
-{`# BAD: Vague name, no descriptions, loose types
-@app.tool()
-async def do_stuff(data: str) -> str:
-    """Process data."""  # What data? What processing?
-    pass
+<CodeBlock b64="IyBCQUQ6IFZhZ3VlIG5hbWUsIG5vIGRlc2NyaXB0aW9ucywgbG9vc2UgdHlwZXMKQGFwcC50b29sKCkKYXN5bmMgZGVmIGRvX3N0dWZmKGRhdGE6IHN0cikgLT4gc3RyOgogICAgIiIiUHJvY2VzcyBkYXRhLiIiIiAgIyBXaGF0IGRhdGE/IFdoYXQgcHJvY2Vzc2luZz8KICAgIHBhc3MKCiMgR09PRDogQ2xlYXIgbmFtZSwgcmljaCBkZXNjcmlwdGlvbnMsIGNvbnN0cmFpbmVkIHR5cGVzCkBhcHAudG9vbCgpCmFzeW5jIGRlZiBzZWFyY2hfY3VzdG9tZXJfb3JkZXJzKAogICAgY3VzdG9tZXJfZW1haWw6IHN0ciwKICAgIHN0YXR1czogc3RyID0gTm9uZSwKICAgIGRhdGVfYWZ0ZXI6IHN0ciA9IE5vbmUsCiAgICBsaW1pdDogaW50ID0gMjAKKSAtPiBzdHI6CiAgICAiIiJTZWFyY2ggZm9yIGN1c3RvbWVyIG9yZGVycyBieSBlbWFpbCBhZGRyZXNzLgoKICAgIFJldHVybnMgb3JkZXIgc3VtbWFyaWVzIGluY2x1ZGluZyBvcmRlciBJRCwgZGF0ZSwgdG90YWwsIGFuZCBzdGF0dXMuCiAgICBVc2UgdGhpcyB3aGVuIGEgY3VzdG9tZXIgYXNrcyBhYm91dCB0aGVpciBvcmRlciBoaXN0b3J5IG9yIGEgc3BlY2lmaWMgb3JkZXIuCgogICAgQXJnczoKICAgICAgICBjdXN0b21lcl9lbWFpbDogVGhlIGN1c3RvbWVyJ3MgZW1haWwgYWRkcmVzcyAoZS5nLiwgdXNlckBleGFtcGxlLmNvbSkKICAgICAgICBzdGF0dXM6IEZpbHRlciBieSBvcmRlciBzdGF0dXM6ICdwZW5kaW5nJywgJ3NoaXBwZWQnLCAnZGVsaXZlcmVkJywgJ2NhbmNlbGVkJwogICAgICAgIGRhdGVfYWZ0ZXI6IE9ubHkgcmV0dXJuIG9yZGVycyBhZnRlciB0aGlzIGRhdGUgKElTTyA4NjAxOiBZWVlZLU1NLUREKQogICAgICAgIGxpbWl0OiBNYXhpbXVtIG9yZGVycyB0byByZXR1cm4gKDEtMTAwLCBkZWZhdWx0IDIwKQogICAgIiIiCiAgICAjIFZhbGlkYXRlIGlucHV0cwogICAgaWYgc3RhdHVzIGFuZCBzdGF0dXMgbm90IGluICgncGVuZGluZycsICdzaGlwcGVkJywgJ2RlbGl2ZXJlZCcsICdjYW5jZWxlZCcpOgogICAgICAgIHJldHVybiBqc29uLmR1bXBzKHsneyd7J30nfSJlcnJvciI6IGYiSW52YWxpZCBzdGF0dXMgJ3sneyd7J30nfXN0YXR1c3snfSd9Jy4gVXNlOiBwZW5kaW5nLCBzaGlwcGVkLCBkZWxpdmVyZWQsIGNhbmNlbGVkInsnfSd9KQogICAgaWYgbGltaXQgPCAxIG9yIGxpbWl0ID4gMTAwOgogICAgICAgIGxpbWl0ID0gbWF4KDEsIG1pbigxMDAsIGxpbWl0KSkKCiAgICBvcmRlcnMgPSBhd2FpdCBkYi5zZWFyY2hfb3JkZXJzKGN1c3RvbWVyX2VtYWlsLCBzdGF0dXMsIGRhdGVfYWZ0ZXIsIGxpbWl0KQogICAgcmV0dXJuIGpzb24uZHVtcHMoeyd7J3snfSd9Im9yZGVycyI6IG9yZGVycywgImNvdW50IjogbGVuKG9yZGVycyl7J30nfSk=" />
 
-# GOOD: Clear name, rich descriptions, constrained types
-@app.tool()
-async def search_customer_orders(
-    customer_email: str,
-    status: str = None,
-    date_after: str = None,
-    limit: int = 20
-) -> str:
-    """Search for customer orders by email address.
-
-    Returns order summaries including order ID, date, total, and status.
-    Use this when a customer asks about their order history or a specific order.
-
-    Args:
-        customer_email: The customer's email address (e.g., user@example.com)
-        status: Filter by order status: 'pending', 'shipped', 'delivered', 'canceled'
-        date_after: Only return orders after this date (ISO 8601: YYYY-MM-DD)
-        limit: Maximum orders to return (1-100, default 20)
-    """
-    # Validate inputs
-    if status and status not in ('pending', 'shipped', 'delivered', 'canceled'):
-        return json.dumps({'{'{'}'}"error": f"Invalid status '{'{'{'}'}status{'}'}'. Use: pending, shipped, delivered, canceled"{'}'})
-    if limit < 1 or limit > 100:
-        limit = max(1, min(100, limit))
-
-    orders = await db.search_orders(customer_email, status, date_after, limit)
-    return json.dumps({'{'{'}'}"orders": orders, "count": len(orders){'}'})`}
-</CodeBlock>
-
-<CodeBlock>
-{`import asyncio
-from mcp.types import TextContent
-
-@app.tool()
-async def analyze_repository(repo_url: str, depth: str = "summary") -> str:
-    """Analyze a GitHub repository's structure and code quality.
-
-    This operation may take 10-30 seconds for large repos.
-
-    Args:
-        repo_url: Full GitHub repository URL
-        depth: Analysis depth - 'summary' (fast) or 'detailed' (slower, includes file-level analysis)
-    """
-    try:
-        result = await asyncio.wait_for(
-            _run_analysis(repo_url, depth),
-            timeout=60.0  # Hard timeout
-        )
-        return json.dumps(result)
-    except asyncio.TimeoutError:
-        return json.dumps({'{'{'}'}
-            "error": "Analysis timed out after 60 seconds",
-            "suggestion": "Try with depth='summary' for faster results"
-        {'}'})
-    except Exception as e:
-        return json.dumps({'{'{'}'}
-            "error": str(e),
-            "recoverable": True,
-            "suggestion": "Check if the repository URL is correct and accessible"
-        {'}'})`}
-</CodeBlock>
+<CodeBlock b64="aW1wb3J0IGFzeW5jaW8KZnJvbSBtY3AudHlwZXMgaW1wb3J0IFRleHRDb250ZW50CgpAYXBwLnRvb2woKQphc3luYyBkZWYgYW5hbHl6ZV9yZXBvc2l0b3J5KHJlcG9fdXJsOiBzdHIsIGRlcHRoOiBzdHIgPSAic3VtbWFyeSIpIC0+IHN0cjoKICAgICIiIkFuYWx5emUgYSBHaXRIdWIgcmVwb3NpdG9yeSdzIHN0cnVjdHVyZSBhbmQgY29kZSBxdWFsaXR5LgoKICAgIFRoaXMgb3BlcmF0aW9uIG1heSB0YWtlIDEwLTMwIHNlY29uZHMgZm9yIGxhcmdlIHJlcG9zLgoKICAgIEFyZ3M6CiAgICAgICAgcmVwb191cmw6IEZ1bGwgR2l0SHViIHJlcG9zaXRvcnkgVVJMCiAgICAgICAgZGVwdGg6IEFuYWx5c2lzIGRlcHRoIC0gJ3N1bW1hcnknIChmYXN0KSBvciAnZGV0YWlsZWQnIChzbG93ZXIsIGluY2x1ZGVzIGZpbGUtbGV2ZWwgYW5hbHlzaXMpCiAgICAiIiIKICAgIHRyeToKICAgICAgICByZXN1bHQgPSBhd2FpdCBhc3luY2lvLndhaXRfZm9yKAogICAgICAgICAgICBfcnVuX2FuYWx5c2lzKHJlcG9fdXJsLCBkZXB0aCksCiAgICAgICAgICAgIHRpbWVvdXQ9NjAuMCAgIyBIYXJkIHRpbWVvdXQKICAgICAgICApCiAgICAgICAgcmV0dXJuIGpzb24uZHVtcHMocmVzdWx0KQogICAgZXhjZXB0IGFzeW5jaW8uVGltZW91dEVycm9yOgogICAgICAgIHJldHVybiBqc29uLmR1bXBzKHsneyd7J30nfQogICAgICAgICAgICAiZXJyb3IiOiAiQW5hbHlzaXMgdGltZWQgb3V0IGFmdGVyIDYwIHNlY29uZHMiLAogICAgICAgICAgICAic3VnZ2VzdGlvbiI6ICJUcnkgd2l0aCBkZXB0aD0nc3VtbWFyeScgZm9yIGZhc3RlciByZXN1bHRzIgogICAgICAgIHsnfSd9KQogICAgZXhjZXB0IEV4Y2VwdGlvbiBhcyBlOgogICAgICAgIHJldHVybiBqc29uLmR1bXBzKHsneyd7J30nfQogICAgICAgICAgICAiZXJyb3IiOiBzdHIoZSksCiAgICAgICAgICAgICJyZWNvdmVyYWJsZSI6IFRydWUsCiAgICAgICAgICAgICJzdWdnZXN0aW9uIjogIkNoZWNrIGlmIHRoZSByZXBvc2l0b3J5IFVSTCBpcyBjb3JyZWN0IGFuZCBhY2Nlc3NpYmxlIgogICAgICAgIHsnfSd9KQ==" />
 
 <Quiz question="A tool returns an error. What is the best practice for the error response format?" options={["Raise an exception that crashes the server","Return a JSON object with error details and recovery suggestions","Return an empty string","Return HTTP 500"]} correctIndex={1} explanation="Returning structured error information (what went wrong, whether it is recoverable, and what the user or LLM can try instead) lets the LLM handle the failure gracefully rather than giving up." />
 

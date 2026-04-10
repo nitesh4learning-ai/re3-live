@@ -5,48 +5,6 @@ icon: "\uD83D\uDCC8"
 
 ## Measuring AI ROI
 
-<CodeBlock>
-{`def calculate_ai_roi(
-    development_cost,      # One-time build cost
-    monthly_infra_cost,    # Ongoing compute + ops
-    monthly_labor_savings, # Hours saved * hourly rate
-    monthly_revenue_lift,  # Additional revenue from AI
-    monthly_error_reduction_value,  # Cost of errors avoided
-    months=12
-):
-    total_investment = development_cost + (monthly_infra_cost * months)
-    total_benefit = (
-        monthly_labor_savings +
-        monthly_revenue_lift +
-        monthly_error_reduction_value
-    ) * months
-
-    roi_percent = ((total_benefit - total_investment) / total_investment) * 100
-    payback_months = development_cost / (
-        monthly_labor_savings +
-        monthly_revenue_lift +
-        monthly_error_reduction_value -
-        monthly_infra_cost
-    )
-
-    return {'{'{'}'}
-        "total_investment": total_investment,
-        "total_benefit": total_benefit,
-        "net_value": total_benefit - total_investment,
-        "roi_percent": round(roi_percent, 1),
-        "payback_months": round(payback_months, 1)
-    {'}'}
-
-# Example: AI customer support triage
-result = calculate_ai_roi(
-    development_cost=50000,
-    monthly_infra_cost=2000,
-    monthly_labor_savings=15000,
-    monthly_revenue_lift=5000,
-    monthly_error_reduction_value=3000,
-    months=12
-)
-# roi_percent: 230.8%, payback_months: 3.1`}
-</CodeBlock>
+<CodeBlock b64="ZGVmIGNhbGN1bGF0ZV9haV9yb2koCiAgICBkZXZlbG9wbWVudF9jb3N0LCAgICAgICMgT25lLXRpbWUgYnVpbGQgY29zdAogICAgbW9udGhseV9pbmZyYV9jb3N0LCAgICAjIE9uZ29pbmcgY29tcHV0ZSArIG9wcwogICAgbW9udGhseV9sYWJvcl9zYXZpbmdzLCAjIEhvdXJzIHNhdmVkICogaG91cmx5IHJhdGUKICAgIG1vbnRobHlfcmV2ZW51ZV9saWZ0LCAgIyBBZGRpdGlvbmFsIHJldmVudWUgZnJvbSBBSQogICAgbW9udGhseV9lcnJvcl9yZWR1Y3Rpb25fdmFsdWUsICAjIENvc3Qgb2YgZXJyb3JzIGF2b2lkZWQKICAgIG1vbnRocz0xMgopOgogICAgdG90YWxfaW52ZXN0bWVudCA9IGRldmVsb3BtZW50X2Nvc3QgKyAobW9udGhseV9pbmZyYV9jb3N0ICogbW9udGhzKQogICAgdG90YWxfYmVuZWZpdCA9ICgKICAgICAgICBtb250aGx5X2xhYm9yX3NhdmluZ3MgKwogICAgICAgIG1vbnRobHlfcmV2ZW51ZV9saWZ0ICsKICAgICAgICBtb250aGx5X2Vycm9yX3JlZHVjdGlvbl92YWx1ZQogICAgKSAqIG1vbnRocwoKICAgIHJvaV9wZXJjZW50ID0gKCh0b3RhbF9iZW5lZml0IC0gdG90YWxfaW52ZXN0bWVudCkgLyB0b3RhbF9pbnZlc3RtZW50KSAqIDEwMAogICAgcGF5YmFja19tb250aHMgPSBkZXZlbG9wbWVudF9jb3N0IC8gKAogICAgICAgIG1vbnRobHlfbGFib3Jfc2F2aW5ncyArCiAgICAgICAgbW9udGhseV9yZXZlbnVlX2xpZnQgKwogICAgICAgIG1vbnRobHlfZXJyb3JfcmVkdWN0aW9uX3ZhbHVlIC0KICAgICAgICBtb250aGx5X2luZnJhX2Nvc3QKICAgICkKCiAgICByZXR1cm4geyd7J3snfSd9CiAgICAgICAgInRvdGFsX2ludmVzdG1lbnQiOiB0b3RhbF9pbnZlc3RtZW50LAogICAgICAgICJ0b3RhbF9iZW5lZml0IjogdG90YWxfYmVuZWZpdCwKICAgICAgICAibmV0X3ZhbHVlIjogdG90YWxfYmVuZWZpdCAtIHRvdGFsX2ludmVzdG1lbnQsCiAgICAgICAgInJvaV9wZXJjZW50Ijogcm91bmQocm9pX3BlcmNlbnQsIDEpLAogICAgICAgICJwYXliYWNrX21vbnRocyI6IHJvdW5kKHBheWJhY2tfbW9udGhzLCAxKQogICAgeyd9J30KCiMgRXhhbXBsZTogQUkgY3VzdG9tZXIgc3VwcG9ydCB0cmlhZ2UKcmVzdWx0ID0gY2FsY3VsYXRlX2FpX3JvaSgKICAgIGRldmVsb3BtZW50X2Nvc3Q9NTAwMDAsCiAgICBtb250aGx5X2luZnJhX2Nvc3Q9MjAwMCwKICAgIG1vbnRobHlfbGFib3Jfc2F2aW5ncz0xNTAwMCwKICAgIG1vbnRobHlfcmV2ZW51ZV9saWZ0PTUwMDAsCiAgICBtb250aGx5X2Vycm9yX3JlZHVjdGlvbl92YWx1ZT0zMDAwLAogICAgbW9udGhzPTEyCikKIyByb2lfcGVyY2VudDogMjMwLjglLCBwYXliYWNrX21vbnRoczogMy4x" />
 
 <Quiz question="Which metric best captures the 'time to break even' on an AI investment?" options={["ROI percentage","Net Present Value","Payback period in months","Total cost of ownership"]} correctIndex={2} explanation="Payback period (months until cumulative benefits exceed cumulative costs) is the most intuitive measure of when you break even. It's especially important for AI projects where leadership wants to see returns quickly."/>

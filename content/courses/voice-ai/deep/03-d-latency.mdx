@@ -7,35 +7,7 @@ icon: "\u26A1"
 
 In voice AI, <JargonTip term="latency">latency</JargonTip> is everything. Users tolerate {'<'}800ms total latency for natural conversation. Minimizing <JargonTip term="TTFT">TTFT</JargonTip> (time to first token) is critical, and <JargonTip term="streaming">streaming</JargonTip> overlaps all pipeline stages for the best perceived responsiveness.
 
-  <CodeBlock>
-{`class StreamingVoicePipeline:
-    """Overlap STT/LLM/TTS for minimum latency"""
-
-    async def process(self, audio_stream):
-        # Start transcribing as audio arrives (no waiting)
-        transcript = ""
-        async for audio_chunk in audio_stream:
-            partial = await self.stt.transcribe_streaming(audio_chunk)
-            transcript += partial
-
-        # Start LLM generation immediately
-        llm_stream = self.llm.stream(transcript)
-
-        # Key optimization: start TTS on first sentence,
-        # don't wait for full LLM response
-        sentence_buffer = ""
-        async for token in llm_stream:
-            sentence_buffer += token
-            if self._is_sentence_end(sentence_buffer):
-                # Convert this sentence to speech NOW
-                audio = await self.tts.synthesize(sentence_buffer)
-                yield audio  # User hears first sentence in ~300ms
-                sentence_buffer = ""
-
-        # Flush remaining buffer
-        if sentence_buffer:
-            yield await self.tts.synthesize(sentence_buffer)`}
-</CodeBlock>
+  <CodeBlock b64="Y2xhc3MgU3RyZWFtaW5nVm9pY2VQaXBlbGluZToKICAgICIiIk92ZXJsYXAgU1RUL0xMTS9UVFMgZm9yIG1pbmltdW0gbGF0ZW5jeSIiIgoKICAgIGFzeW5jIGRlZiBwcm9jZXNzKHNlbGYsIGF1ZGlvX3N0cmVhbSk6CiAgICAgICAgIyBTdGFydCB0cmFuc2NyaWJpbmcgYXMgYXVkaW8gYXJyaXZlcyAobm8gd2FpdGluZykKICAgICAgICB0cmFuc2NyaXB0ID0gIiIKICAgICAgICBhc3luYyBmb3IgYXVkaW9fY2h1bmsgaW4gYXVkaW9fc3RyZWFtOgogICAgICAgICAgICBwYXJ0aWFsID0gYXdhaXQgc2VsZi5zdHQudHJhbnNjcmliZV9zdHJlYW1pbmcoYXVkaW9fY2h1bmspCiAgICAgICAgICAgIHRyYW5zY3JpcHQgKz0gcGFydGlhbAoKICAgICAgICAjIFN0YXJ0IExMTSBnZW5lcmF0aW9uIGltbWVkaWF0ZWx5CiAgICAgICAgbGxtX3N0cmVhbSA9IHNlbGYubGxtLnN0cmVhbSh0cmFuc2NyaXB0KQoKICAgICAgICAjIEtleSBvcHRpbWl6YXRpb246IHN0YXJ0IFRUUyBvbiBmaXJzdCBzZW50ZW5jZSwKICAgICAgICAjIGRvbid0IHdhaXQgZm9yIGZ1bGwgTExNIHJlc3BvbnNlCiAgICAgICAgc2VudGVuY2VfYnVmZmVyID0gIiIKICAgICAgICBhc3luYyBmb3IgdG9rZW4gaW4gbGxtX3N0cmVhbToKICAgICAgICAgICAgc2VudGVuY2VfYnVmZmVyICs9IHRva2VuCiAgICAgICAgICAgIGlmIHNlbGYuX2lzX3NlbnRlbmNlX2VuZChzZW50ZW5jZV9idWZmZXIpOgogICAgICAgICAgICAgICAgIyBDb252ZXJ0IHRoaXMgc2VudGVuY2UgdG8gc3BlZWNoIE5PVwogICAgICAgICAgICAgICAgYXVkaW8gPSBhd2FpdCBzZWxmLnR0cy5zeW50aGVzaXplKHNlbnRlbmNlX2J1ZmZlcikKICAgICAgICAgICAgICAgIHlpZWxkIGF1ZGlvICAjIFVzZXIgaGVhcnMgZmlyc3Qgc2VudGVuY2UgaW4gfjMwMG1zCiAgICAgICAgICAgICAgICBzZW50ZW5jZV9idWZmZXIgPSAiIgoKICAgICAgICAjIEZsdXNoIHJlbWFpbmluZyBidWZmZXIKICAgICAgICBpZiBzZW50ZW5jZV9idWZmZXI6CiAgICAgICAgICAgIHlpZWxkIGF3YWl0IHNlbGYudHRzLnN5bnRoZXNpemUoc2VudGVuY2VfYnVmZmVyKQ==" />
   <ComparisonTable title="Latency Budget Breakdown" columns={['Component','Target','Strategy']} rows={[
     ['STT','50-150ms','Streaming transcription, Deepgram/AssemblyAI'],
     ['LLM (first token)','100-200ms','GPT-4o-mini or Haiku; streaming mode'],

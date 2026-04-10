@@ -15,35 +15,5 @@ How to get the best debugging help from AI:
       - **Include what you{"'"}ve tried:** Prevents the AI from suggesting things you already ruled out
 
   </ExpandableSection>
-  <CodeBlock>
-{`# Step 1: Reproduce with a minimal test
-# Don't paste 500 lines -- isolate the failing case
-
-# Step 2: Give AI the focused context
-prompt = """
-Error: TypeError: Cannot read property 'map' of undefined
-at UserList.render (UserList.jsx:15)
-
-Code:
-function UserList({'{'{'}'} users {'}'}) {'{'{'}'}
-  return users.map(u => <div key={'{'{'}'}u.id{'}'}>{'{'{'}'}u.name{'}'})
-{'}'}
-
-Called from: <UserList users={'{'{'}'}fetchedUsers{'}'} />
-fetchedUsers comes from useQuery which returns undefined
-while loading.
-
-Expected: Show loading state when data is undefined
-Actual: Crashes on first render
-
-What I've tried: Adding users?.map didn't fix the
-parent component passing undefined during loading.
-"""
-
-# Step 3: AI identifies root cause + suggests fix
-# "The issue is that users is undefined during the
-# loading state. Add a guard: if (!users) return <Loading/>"
-
-# Step 4: VERIFY the fix yourself -- don't blindly apply`}
-</CodeBlock>
+  <CodeBlock b64="IyBTdGVwIDE6IFJlcHJvZHVjZSB3aXRoIGEgbWluaW1hbCB0ZXN0CiMgRG9uJ3QgcGFzdGUgNTAwIGxpbmVzIC0tIGlzb2xhdGUgdGhlIGZhaWxpbmcgY2FzZQoKIyBTdGVwIDI6IEdpdmUgQUkgdGhlIGZvY3VzZWQgY29udGV4dApwcm9tcHQgPSAiIiIKRXJyb3I6IFR5cGVFcnJvcjogQ2Fubm90IHJlYWQgcHJvcGVydHkgJ21hcCcgb2YgdW5kZWZpbmVkCmF0IFVzZXJMaXN0LnJlbmRlciAoVXNlckxpc3QuanN4OjE1KQoKQ29kZToKZnVuY3Rpb24gVXNlckxpc3Qoeyd7J3snfSd9IHVzZXJzIHsnfSd9KSB7J3sneyd9J30KICByZXR1cm4gdXNlcnMubWFwKHUgPT4gPGRpdiBrZXk9eyd7J3snfSd9dS5pZHsnfSd9Pnsneyd7J30nfXUubmFtZXsnfSd9KQp7J30nfQoKQ2FsbGVkIGZyb206IDxVc2VyTGlzdCB1c2Vycz17J3sneyd9J31mZXRjaGVkVXNlcnN7J30nfSAvPgpmZXRjaGVkVXNlcnMgY29tZXMgZnJvbSB1c2VRdWVyeSB3aGljaCByZXR1cm5zIHVuZGVmaW5lZAp3aGlsZSBsb2FkaW5nLgoKRXhwZWN0ZWQ6IFNob3cgbG9hZGluZyBzdGF0ZSB3aGVuIGRhdGEgaXMgdW5kZWZpbmVkCkFjdHVhbDogQ3Jhc2hlcyBvbiBmaXJzdCByZW5kZXIKCldoYXQgSSd2ZSB0cmllZDogQWRkaW5nIHVzZXJzPy5tYXAgZGlkbid0IGZpeCB0aGUKcGFyZW50IGNvbXBvbmVudCBwYXNzaW5nIHVuZGVmaW5lZCBkdXJpbmcgbG9hZGluZy4KIiIiCgojIFN0ZXAgMzogQUkgaWRlbnRpZmllcyByb290IGNhdXNlICsgc3VnZ2VzdHMgZml4CiMgIlRoZSBpc3N1ZSBpcyB0aGF0IHVzZXJzIGlzIHVuZGVmaW5lZCBkdXJpbmcgdGhlCiMgbG9hZGluZyBzdGF0ZS4gQWRkIGEgZ3VhcmQ6IGlmICghdXNlcnMpIHJldHVybiA8TG9hZGluZy8+IgoKIyBTdGVwIDQ6IFZFUklGWSB0aGUgZml4IHlvdXJzZWxmIC0tIGRvbid0IGJsaW5kbHkgYXBwbHk=" />
   <Quiz question="When asking AI to debug code, what is the most important information to include?" options={["Your entire codebase","The full error message + relevant code + what you expected vs what happened","Just the error message","A description of what the code should do"]} correctIndex={1} explanation="The debugging trifecta: (1) the exact error with stack trace, (2) the relevant code (not the entire codebase), and (3) expected vs actual behavior. This gives the AI enough context to diagnose without noise. Bonus: mention what you've already tried."/>

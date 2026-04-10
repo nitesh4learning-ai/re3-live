@@ -9,41 +9,13 @@ Weeks 1-3 taught you LangGraph, Agentic RAG, and Multi-Agent patterns. This week
 
 ### The Current SnapSense Pipeline
 
-<CodeBlock>
-{`Camera Scan → ML Kit (on-device) → Cloud Vision → LLM (Gemini/Haiku)
-                                                        ↓
-                                               Smart Capture Tiles
-                                                        ↓
-                                               Deep Analysis`}
-</CodeBlock>
+<CodeBlock b64="Q2FtZXJhIFNjYW4g4oaSIE1MIEtpdCAob24tZGV2aWNlKSDihpIgQ2xvdWQgVmlzaW9uIOKGkiBMTE0gKEdlbWluaS9IYWlrdSkKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICDihpMKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBTbWFydCBDYXB0dXJlIFRpbGVzCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg4oaTCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgRGVlcCBBbmFseXNpcw==" />
 
 This is a linear pipeline — no self-correction, no quality evaluation, no dynamic routing. If ML Kit misclassifies an object (sabudana as "plant"), the entire downstream output is wrong.
 
 ### The Agent-Enhanced Pipeline
 
-<CodeBlock>
-{`Camera Scan
-     │
-┌────▼──────────┐
-│ Category Agent │ ← Classifies into 16 categories
-└────┬──────────┘   Uses ML Kit + LLM override
-     │
-┌────▼──────────┐
-│ Router Agent   │ ← Routes to category-specific handler
-└────┬──────────┘
-     │
-┌────▼──────────────┐
-│ Data Quality Agent │ ← Grades API data (OFF, OBF, ASPCA)
-└────┬──────────────┘   If poor → fallback search → retry
-     │
-┌────▼──────────┐
-│ Tile Generator │ ← Generates Smart Capture tiles
-└────┬──────────┘   from validated data only
-     │
-┌────▼──────────┐
-│ Quality Gate   │ ← Scores output, loops if needed
-└───────────────┘`}
-</CodeBlock>
+<CodeBlock b64="Q2FtZXJhIFNjYW4KICAgICDilIIK4pSM4pSA4pSA4pSA4pSA4pa84pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSQCuKUgiBDYXRlZ29yeSBBZ2VudCDilIIg4oaQIENsYXNzaWZpZXMgaW50byAxNiBjYXRlZ29yaWVzCuKUlOKUgOKUgOKUgOKUgOKUrOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUmCAgIFVzZXMgTUwgS2l0ICsgTExNIG92ZXJyaWRlCiAgICAg4pSCCuKUjOKUgOKUgOKUgOKUgOKWvOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUkArilIIgUm91dGVyIEFnZW50ICAg4pSCIOKGkCBSb3V0ZXMgdG8gY2F0ZWdvcnktc3BlY2lmaWMgaGFuZGxlcgrilJTilIDilIDilIDilIDilKzilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilJgKICAgICDilIIK4pSM4pSA4pSA4pSA4pSA4pa84pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSQCuKUgiBEYXRhIFF1YWxpdHkgQWdlbnQg4pSCIOKGkCBHcmFkZXMgQVBJIGRhdGEgKE9GRiwgT0JGLCBBU1BDQSkK4pSU4pSA4pSA4pSA4pSA4pSs4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSYICAgSWYgcG9vciDihpIgZmFsbGJhY2sgc2VhcmNoIOKGkiByZXRyeQogICAgIOKUggrilIzilIDilIDilIDilIDilrzilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilJAK4pSCIFRpbGUgR2VuZXJhdG9yIOKUgiDihpAgR2VuZXJhdGVzIFNtYXJ0IENhcHR1cmUgdGlsZXMK4pSU4pSA4pSA4pSA4pSA4pSs4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSYICAgZnJvbSB2YWxpZGF0ZWQgZGF0YSBvbmx5CiAgICAg4pSCCuKUjOKUgOKUgOKUgOKUgOKWvOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUkArilIIgUXVhbGl0eSBHYXRlICAg4pSCIOKGkCBTY29yZXMgb3V0cHV0LCBsb29wcyBpZiBuZWVkZWQK4pSU4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSY" />
 
 <AnalogyBox emoji="🏭" title="MDM Data Pipeline vs AI Agent Pipeline">
 The SnapSense agent layer mirrors an MDM data pipeline: ingest (camera scan) → classify (category routing) → validate (data quality grading) → enrich (API lookups) → quality gate (human review for edge cases) → publish (generate tiles). Every MDM pipeline principle applies here.

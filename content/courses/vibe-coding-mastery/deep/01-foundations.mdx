@@ -25,30 +25,7 @@ You're the construction foreman. Claude Code is the crew — incredibly fast, ne
 
 The single most important file in any vibe coding project. CLAUDE.md is Claude Code's persistent memory — it reads this file at the start of every session to understand your project's rules, patterns, and constraints.
 
-<CodeBlock language="markdown" label="Example CLAUDE.md for a Next.js Project">
-{`# Project: SnapSense AI
-## Tech Stack
-- Flutter 3.x with Dart
-- Firebase (Auth, Firestore, Crashlytics)
-- Claude Haiku API via Vercel gateway
-
-## Architecture Rules
-- All scan history stored in Hive (local only, NEVER Firestore)
-- LLM calls go through snapsense-ai-gateway, never direct
-- Every new feature needs a corresponding test
-- Use Provider pattern for state management
-
-## Code Style
-- Dart: follow effective_dart lints
-- Max 200 lines per file — split if longer
-- Every public method needs a doc comment
-- Error handling: never swallow exceptions silently
-
-## Current Sprint
-- Working on: Rating System exclusion engine
-- Known bug: Tylenol shows "UNKNOWN" instead of shield
-- Do NOT modify: Camera pipeline (stable, don't touch)`}
-</CodeBlock>
+<CodeBlock language="markdown" label="Example CLAUDE.md for a Next.js Project" b64="IyBQcm9qZWN0OiBTbmFwU2Vuc2UgQUkKIyMgVGVjaCBTdGFjawotIEZsdXR0ZXIgMy54IHdpdGggRGFydAotIEZpcmViYXNlIChBdXRoLCBGaXJlc3RvcmUsIENyYXNobHl0aWNzKQotIENsYXVkZSBIYWlrdSBBUEkgdmlhIFZlcmNlbCBnYXRld2F5CgojIyBBcmNoaXRlY3R1cmUgUnVsZXMKLSBBbGwgc2NhbiBoaXN0b3J5IHN0b3JlZCBpbiBIaXZlIChsb2NhbCBvbmx5LCBORVZFUiBGaXJlc3RvcmUpCi0gTExNIGNhbGxzIGdvIHRocm91Z2ggc25hcHNlbnNlLWFpLWdhdGV3YXksIG5ldmVyIGRpcmVjdAotIEV2ZXJ5IG5ldyBmZWF0dXJlIG5lZWRzIGEgY29ycmVzcG9uZGluZyB0ZXN0Ci0gVXNlIFByb3ZpZGVyIHBhdHRlcm4gZm9yIHN0YXRlIG1hbmFnZW1lbnQKCiMjIENvZGUgU3R5bGUKLSBEYXJ0OiBmb2xsb3cgZWZmZWN0aXZlX2RhcnQgbGludHMKLSBNYXggMjAwIGxpbmVzIHBlciBmaWxlIOKAlCBzcGxpdCBpZiBsb25nZXIKLSBFdmVyeSBwdWJsaWMgbWV0aG9kIG5lZWRzIGEgZG9jIGNvbW1lbnQKLSBFcnJvciBoYW5kbGluZzogbmV2ZXIgc3dhbGxvdyBleGNlcHRpb25zIHNpbGVudGx5CgojIyBDdXJyZW50IFNwcmludAotIFdvcmtpbmcgb246IFJhdGluZyBTeXN0ZW0gZXhjbHVzaW9uIGVuZ2luZQotIEtub3duIGJ1ZzogVHlsZW5vbCBzaG93cyAiVU5LTk9XTiIgaW5zdGVhZCBvZiBzaGllbGQKLSBEbyBOT1QgbW9kaWZ5OiBDYW1lcmEgcGlwZWxpbmUgKHN0YWJsZSwgZG9uJ3QgdG91Y2gp" />
 
 <AnalogyBox emoji="📋" title="CLAUDE.md = Your Data Dictionary">
 In MDM, the data dictionary defines field rules, valid values, and business constraints. CLAUDE.md serves the same purpose for your codebase — it tells Claude what patterns to follow, what files to leave alone, and what constraints are non-negotiable. Without it, Claude invents its own patterns every session.

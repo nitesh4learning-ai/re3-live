@@ -7,20 +7,6 @@ icon: "\uD83D\uDD28"
 
 Building a knowledge graph from unstructured text requires two steps: **<JargonTip term="NER">Named Entity Recognition (NER)</JargonTip>** to find entities, and **Relation Extraction** to find how they connect.
 
-  <CodeBlock>
-{`Input: "Apple CEO Tim Cook announced the new iPhone at WWDC 2024."
-
-NER Results:
-  [Apple]       \u2192 Organization
-  [Tim Cook]    \u2192 Person
-  [iPhone]      \u2192 Product
-  [WWDC 2024]   \u2192 Event
-
-Extracted Relations:
-  (Tim Cook,    CEO of,       Apple)
-  (Tim Cook,    announced,    iPhone)
-  (iPhone,      announced at, WWDC 2024)
-  (Apple,       hosts,        WWDC 2024)`}
-</CodeBlock>
+  <CodeBlock b64="SW5wdXQ6ICJBcHBsZSBDRU8gVGltIENvb2sgYW5ub3VuY2VkIHRoZSBuZXcgaVBob25lIGF0IFdXREMgMjAyNC4iCgpORVIgUmVzdWx0czoKICBbQXBwbGVdICAgICAgIFx1MjE5MiBPcmdhbml6YXRpb24KICBbVGltIENvb2tdICAgIFx1MjE5MiBQZXJzb24KICBbaVBob25lXSAgICAgIFx1MjE5MiBQcm9kdWN0CiAgW1dXREMgMjAyNF0gICBcdTIxOTIgRXZlbnQKCkV4dHJhY3RlZCBSZWxhdGlvbnM6CiAgKFRpbSBDb29rLCAgICBDRU8gb2YsICAgICAgIEFwcGxlKQogIChUaW0gQ29vaywgICAgYW5ub3VuY2VkLCAgICBpUGhvbmUpCiAgKGlQaG9uZSwgICAgICBhbm5vdW5jZWQgYXQsIFdXREMgMjAyNCkKICAoQXBwbGUsICAgICAgIGhvc3RzLCAgICAgICAgV1dEQyAyMDI0KQ==" />
   <TripleBuilder/>
   <Quiz question="What is the first step in building a knowledge graph from text?" options={["Drawing the graph visualization","Named Entity Recognition (NER)","Writing SQL queries","Calculating embeddings"]} correctIndex={1} explanation="NER identifies the entities (people, places, organizations, concepts) in the text. Only after finding entities can you extract the relationships between them."/>

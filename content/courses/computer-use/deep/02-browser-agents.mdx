@@ -17,43 +17,6 @@ Browser <JargonTip term="agent">agents</JargonTip> are AI systems that can navig
 
 </ExpandableSection>
 
-<CodeBlock>
-{`async function browserAgentLoop(task, browser) {'{'{'}'}
-  const history = [];
-  let step = 0;
-
-  while (step < MAX_STEPS) {'{'{'}'}
-    // 1. Perceive current state
-    const screenshot = await browser.screenshot();
-    const dom = await browser.getAccessibilityTree();
-
-    // 2. Plan next action
-    const action = await llm.decide({'{'{'}'}
-      task: task,
-      currentPage: dom,
-      screenshot: screenshot,
-      history: history,
-      prompt: "What should I do next to complete this task?"
-    {'}'});
-
-    // 3. Execute action
-    if (action.type === "click") {'{'{'}'}
-      await browser.click(action.selector);
-    {'}'} else if (action.type === "type") {'{'{'}'}
-      await browser.type(action.selector, action.text);
-    {'}'} else if (action.type === "navigate") {'{'{'}'}
-      await browser.goto(action.url);
-    {'}'} else if (action.type === "done") {'{'{'}'}
-      return {'{'{'}'} success: true, result: action.result {'}'};
-    {'}'}
-
-    // 4. Record and verify
-    history.push(action);
-    await browser.waitForNavigation();
-    step++;
-  {'}'}
-  return {'{'{'}'} success: false, reason: "Max steps exceeded" {'}'};
-{'}'}`}
-</CodeBlock>
+<CodeBlock b64="YXN5bmMgZnVuY3Rpb24gYnJvd3NlckFnZW50TG9vcCh0YXNrLCBicm93c2VyKSB7J3sneyd9J30KICBjb25zdCBoaXN0b3J5ID0gW107CiAgbGV0IHN0ZXAgPSAwOwoKICB3aGlsZSAoc3RlcCA8IE1BWF9TVEVQUykgeyd7J3snfSd9CiAgICAvLyAxLiBQZXJjZWl2ZSBjdXJyZW50IHN0YXRlCiAgICBjb25zdCBzY3JlZW5zaG90ID0gYXdhaXQgYnJvd3Nlci5zY3JlZW5zaG90KCk7CiAgICBjb25zdCBkb20gPSBhd2FpdCBicm93c2VyLmdldEFjY2Vzc2liaWxpdHlUcmVlKCk7CgogICAgLy8gMi4gUGxhbiBuZXh0IGFjdGlvbgogICAgY29uc3QgYWN0aW9uID0gYXdhaXQgbGxtLmRlY2lkZSh7J3sneyd9J30KICAgICAgdGFzazogdGFzaywKICAgICAgY3VycmVudFBhZ2U6IGRvbSwKICAgICAgc2NyZWVuc2hvdDogc2NyZWVuc2hvdCwKICAgICAgaGlzdG9yeTogaGlzdG9yeSwKICAgICAgcHJvbXB0OiAiV2hhdCBzaG91bGQgSSBkbyBuZXh0IHRvIGNvbXBsZXRlIHRoaXMgdGFzaz8iCiAgICB7J30nfSk7CgogICAgLy8gMy4gRXhlY3V0ZSBhY3Rpb24KICAgIGlmIChhY3Rpb24udHlwZSA9PT0gImNsaWNrIikgeyd7J3snfSd9CiAgICAgIGF3YWl0IGJyb3dzZXIuY2xpY2soYWN0aW9uLnNlbGVjdG9yKTsKICAgIHsnfSd9IGVsc2UgaWYgKGFjdGlvbi50eXBlID09PSAidHlwZSIpIHsneyd7J30nfQogICAgICBhd2FpdCBicm93c2VyLnR5cGUoYWN0aW9uLnNlbGVjdG9yLCBhY3Rpb24udGV4dCk7CiAgICB7J30nfSBlbHNlIGlmIChhY3Rpb24udHlwZSA9PT0gIm5hdmlnYXRlIikgeyd7J3snfSd9CiAgICAgIGF3YWl0IGJyb3dzZXIuZ290byhhY3Rpb24udXJsKTsKICAgIHsnfSd9IGVsc2UgaWYgKGFjdGlvbi50eXBlID09PSAiZG9uZSIpIHsneyd7J30nfQogICAgICByZXR1cm4geyd7J3snfSd9IHN1Y2Nlc3M6IHRydWUsIHJlc3VsdDogYWN0aW9uLnJlc3VsdCB7J30nfTsKICAgIHsnfSd9CgogICAgLy8gNC4gUmVjb3JkIGFuZCB2ZXJpZnkKICAgIGhpc3RvcnkucHVzaChhY3Rpb24pOwogICAgYXdhaXQgYnJvd3Nlci53YWl0Rm9yTmF2aWdhdGlvbigpOwogICAgc3RlcCsrOwogIHsnfSd9CiAgcmV0dXJuIHsneyd7J30nfSBzdWNjZXNzOiBmYWxzZSwgcmVhc29uOiAiTWF4IHN0ZXBzIGV4Y2VlZGVkIiB7J30nfTsKeyd9J30=" />
 
 <Quiz question="Why do browser agents need both DOM/accessibility tree access AND screenshot capability?" options={["Screenshots are just for debugging","DOM gives structure but screenshots help with visual elements the DOM doesn't describe well","They always use screenshots, DOM is optional","Browser agents don't actually need both"]} correctIndex={1} explanation="DOM provides structured, reliable element data (text, roles, properties), but some UI elements are better understood visually (icons, layouts, visual state indicators). The combination gives the agent both structural understanding and visual context."/>

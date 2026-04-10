@@ -4,45 +4,7 @@ icon: "\uD83D\uDEE1\uFE0F"
 ---
 
 ## Prompt Injection Defense
-  <CodeBlock>
-{`class InjectionDefense:
-    """Multi-layer prompt injection detection"""
-
-    def __init__(self):
-        self.patterns = [
-            r"ignore (all |previous |above )?instructions",
-            r"system:\\s*new (instruction|role|prompt)",
-            r"you are now .{'{'{'}'}0,20{'}'}(DAN|unrestricted|jailbroken)",
-            r"pretend (you are|to be|that)",
-        ]
-
-    def check_input(self, user_input):
-        # Layer 1: Pattern matching (fast, catches known attacks)
-        for pattern in self.patterns:
-            if re.search(pattern, user_input, re.IGNORECASE):
-                return {'{'{'}'}"safe": False, "layer": "pattern", "matched": pattern{'}'}
-
-        # Layer 2: Classifier (catches novel attacks)
-        score = self.injection_classifier.predict(user_input)
-        if score > 0.85:
-            return {'{'{'}'}"safe": False, "layer": "classifier", "score": score{'}'}
-
-        # Layer 3: Delimiter isolation (structural defense)
-        # Wrap user input so model treats it as data, not instructions
-        sanitized = f"<user_input>{'{'{'}'}user_input{'}'}</user_input>"
-
-        return {'{'{'}'}"safe": True, "sanitized": sanitized{'}'}
-
-    def check_output(self, response, context):
-        """Post-generation safety check"""
-        # Verify response doesn't contain system prompt
-        if self._contains_system_info(response):
-            return {'{'{'}'}"safe": False, "reason": "system_leak"{'}'}
-        # Verify response stays on topic
-        if self._off_topic(response, context):
-            return {'{'{'}'}"safe": False, "reason": "off_topic"{'}'}
-        return {'{'{'}'}"safe": True{'}'}`}
-</CodeBlock>
+  <CodeBlock b64="Y2xhc3MgSW5qZWN0aW9uRGVmZW5zZToKICAgICIiIk11bHRpLWxheWVyIHByb21wdCBpbmplY3Rpb24gZGV0ZWN0aW9uIiIiCgogICAgZGVmIF9faW5pdF9fKHNlbGYpOgogICAgICAgIHNlbGYucGF0dGVybnMgPSBbCiAgICAgICAgICAgIHIiaWdub3JlIChhbGwgfHByZXZpb3VzIHxhYm92ZSApP2luc3RydWN0aW9ucyIsCiAgICAgICAgICAgIHIic3lzdGVtOlxccypuZXcgKGluc3RydWN0aW9ufHJvbGV8cHJvbXB0KSIsCiAgICAgICAgICAgIHIieW91IGFyZSBub3cgLnsneyd7J30nfTAsMjB7J30nfShEQU58dW5yZXN0cmljdGVkfGphaWxicm9rZW4pIiwKICAgICAgICAgICAgciJwcmV0ZW5kICh5b3UgYXJlfHRvIGJlfHRoYXQpIiwKICAgICAgICBdCgogICAgZGVmIGNoZWNrX2lucHV0KHNlbGYsIHVzZXJfaW5wdXQpOgogICAgICAgICMgTGF5ZXIgMTogUGF0dGVybiBtYXRjaGluZyAoZmFzdCwgY2F0Y2hlcyBrbm93biBhdHRhY2tzKQogICAgICAgIGZvciBwYXR0ZXJuIGluIHNlbGYucGF0dGVybnM6CiAgICAgICAgICAgIGlmIHJlLnNlYXJjaChwYXR0ZXJuLCB1c2VyX2lucHV0LCByZS5JR05PUkVDQVNFKToKICAgICAgICAgICAgICAgIHJldHVybiB7J3sneyd9J30ic2FmZSI6IEZhbHNlLCAibGF5ZXIiOiAicGF0dGVybiIsICJtYXRjaGVkIjogcGF0dGVybnsnfSd9CgogICAgICAgICMgTGF5ZXIgMjogQ2xhc3NpZmllciAoY2F0Y2hlcyBub3ZlbCBhdHRhY2tzKQogICAgICAgIHNjb3JlID0gc2VsZi5pbmplY3Rpb25fY2xhc3NpZmllci5wcmVkaWN0KHVzZXJfaW5wdXQpCiAgICAgICAgaWYgc2NvcmUgPiAwLjg1OgogICAgICAgICAgICByZXR1cm4geyd7J3snfSd9InNhZmUiOiBGYWxzZSwgImxheWVyIjogImNsYXNzaWZpZXIiLCAic2NvcmUiOiBzY29yZXsnfSd9CgogICAgICAgICMgTGF5ZXIgMzogRGVsaW1pdGVyIGlzb2xhdGlvbiAoc3RydWN0dXJhbCBkZWZlbnNlKQogICAgICAgICMgV3JhcCB1c2VyIGlucHV0IHNvIG1vZGVsIHRyZWF0cyBpdCBhcyBkYXRhLCBub3QgaW5zdHJ1Y3Rpb25zCiAgICAgICAgc2FuaXRpemVkID0gZiI8dXNlcl9pbnB1dD57J3sneyd9J311c2VyX2lucHV0eyd9J308L3VzZXJfaW5wdXQ+IgoKICAgICAgICByZXR1cm4geyd7J3snfSd9InNhZmUiOiBUcnVlLCAic2FuaXRpemVkIjogc2FuaXRpemVkeyd9J30KCiAgICBkZWYgY2hlY2tfb3V0cHV0KHNlbGYsIHJlc3BvbnNlLCBjb250ZXh0KToKICAgICAgICAiIiJQb3N0LWdlbmVyYXRpb24gc2FmZXR5IGNoZWNrIiIiCiAgICAgICAgIyBWZXJpZnkgcmVzcG9uc2UgZG9lc24ndCBjb250YWluIHN5c3RlbSBwcm9tcHQKICAgICAgICBpZiBzZWxmLl9jb250YWluc19zeXN0ZW1faW5mbyhyZXNwb25zZSk6CiAgICAgICAgICAgIHJldHVybiB7J3sneyd9J30ic2FmZSI6IEZhbHNlLCAicmVhc29uIjogInN5c3RlbV9sZWFrInsnfSd9CiAgICAgICAgIyBWZXJpZnkgcmVzcG9uc2Ugc3RheXMgb24gdG9waWMKICAgICAgICBpZiBzZWxmLl9vZmZfdG9waWMocmVzcG9uc2UsIGNvbnRleHQpOgogICAgICAgICAgICByZXR1cm4geyd7J3snfSd9InNhZmUiOiBGYWxzZSwgInJlYXNvbiI6ICJvZmZfdG9waWMieyd9J30KICAgICAgICByZXR1cm4geyd7J3snfSd9InNhZmUiOiBUcnVleyd9J30=" />
   <ArchitectureDecision scenario="Your customer support chatbot is deployed publicly. You need to defend against prompt injection while maintaining a helpful user experience. What defense strategy?" options={[
     {label:"Aggressive input filtering -- block anything suspicious",tradeoff:"Safest but high false-positive rate; legitimate users get blocked for innocent queries"},
     {label:"Layered defense: pattern matching + classifier + delimiter isolation + output filtering",tradeoff:"Best balance -- multiple lightweight layers catch different attack types without excessive blocking"},

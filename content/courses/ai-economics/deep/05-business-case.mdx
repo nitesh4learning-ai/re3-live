@@ -5,43 +5,7 @@ icon: "\uD83D\uDCBC"
 
 ## Building an AI Business Case
 
-<CodeBlock>
-{`ai_business_case:
-  executive_summary:
-    problem: "Manual invoice processing costs $45/invoice, 15 FTE"
-    solution: "AI-powered invoice extraction and matching"
-    investment: "$180K first year ($80K dev + $100K infra/ops)"
-    return: "$540K annual savings (12 FTE equivalent redeployed)"
-    payback: "4 months"
-
-  current_state:
-    process: "Manual data entry from PDF invoices"
-    volume: "3,000 invoices/month"
-    error_rate: "8%"
-    cost_per_invoice: "$45"
-    annual_cost: "$1,620,000"
-
-  proposed_state:
-    process: "AI extraction with human review of low-confidence"
-    automation_rate: "85% fully automated"
-    error_rate: "2%"
-    cost_per_invoice: "$12"
-    annual_cost: "$432,000"
-
-  risk_factors:
-    - risk: "Invoice format variability"
-      mitigation: "Train on 50+ formats, human fallback for new"
-      probability: "Medium"
-    - risk: "Vendor pushback on automated payments"
-      mitigation: "Phased rollout, human approval > $10K"
-      probability: "Low"
-
-  success_metrics:
-    - "Automation rate > 80% within 3 months"
-    - "Error rate < 3%"
-    - "Cost per invoice < $15"
-    - "Employee satisfaction (redeployed staff) > 75%"`}
-</CodeBlock>
+<CodeBlock b64="YWlfYnVzaW5lc3NfY2FzZToKICBleGVjdXRpdmVfc3VtbWFyeToKICAgIHByb2JsZW06ICJNYW51YWwgaW52b2ljZSBwcm9jZXNzaW5nIGNvc3RzICQ0NS9pbnZvaWNlLCAxNSBGVEUiCiAgICBzb2x1dGlvbjogIkFJLXBvd2VyZWQgaW52b2ljZSBleHRyYWN0aW9uIGFuZCBtYXRjaGluZyIKICAgIGludmVzdG1lbnQ6ICIkMTgwSyBmaXJzdCB5ZWFyICgkODBLIGRldiArICQxMDBLIGluZnJhL29wcykiCiAgICByZXR1cm46ICIkNTQwSyBhbm51YWwgc2F2aW5ncyAoMTIgRlRFIGVxdWl2YWxlbnQgcmVkZXBsb3llZCkiCiAgICBwYXliYWNrOiAiNCBtb250aHMiCgogIGN1cnJlbnRfc3RhdGU6CiAgICBwcm9jZXNzOiAiTWFudWFsIGRhdGEgZW50cnkgZnJvbSBQREYgaW52b2ljZXMiCiAgICB2b2x1bWU6ICIzLDAwMCBpbnZvaWNlcy9tb250aCIKICAgIGVycm9yX3JhdGU6ICI4JSIKICAgIGNvc3RfcGVyX2ludm9pY2U6ICIkNDUiCiAgICBhbm51YWxfY29zdDogIiQxLDYyMCwwMDAiCgogIHByb3Bvc2VkX3N0YXRlOgogICAgcHJvY2VzczogIkFJIGV4dHJhY3Rpb24gd2l0aCBodW1hbiByZXZpZXcgb2YgbG93LWNvbmZpZGVuY2UiCiAgICBhdXRvbWF0aW9uX3JhdGU6ICI4NSUgZnVsbHkgYXV0b21hdGVkIgogICAgZXJyb3JfcmF0ZTogIjIlIgogICAgY29zdF9wZXJfaW52b2ljZTogIiQxMiIKICAgIGFubnVhbF9jb3N0OiAiJDQzMiwwMDAiCgogIHJpc2tfZmFjdG9yczoKICAgIC0gcmlzazogIkludm9pY2UgZm9ybWF0IHZhcmlhYmlsaXR5IgogICAgICBtaXRpZ2F0aW9uOiAiVHJhaW4gb24gNTArIGZvcm1hdHMsIGh1bWFuIGZhbGxiYWNrIGZvciBuZXciCiAgICAgIHByb2JhYmlsaXR5OiAiTWVkaXVtIgogICAgLSByaXNrOiAiVmVuZG9yIHB1c2hiYWNrIG9uIGF1dG9tYXRlZCBwYXltZW50cyIKICAgICAgbWl0aWdhdGlvbjogIlBoYXNlZCByb2xsb3V0LCBodW1hbiBhcHByb3ZhbCA+ICQxMEsiCiAgICAgIHByb2JhYmlsaXR5OiAiTG93IgoKICBzdWNjZXNzX21ldHJpY3M6CiAgICAtICJBdXRvbWF0aW9uIHJhdGUgPiA4MCUgd2l0aGluIDMgbW9udGhzIgogICAgLSAiRXJyb3IgcmF0ZSA8IDMlIgogICAgLSAiQ29zdCBwZXIgaW52b2ljZSA8ICQxNSIKICAgIC0gIkVtcGxveWVlIHNhdGlzZmFjdGlvbiAocmVkZXBsb3llZCBzdGFmZikgPiA3NSUi" />
 
 <ArchitectureDecision scenario="Your CFO asks: 'Should we build AI invoice processing in-house or buy an off-the-shelf solution at $8/invoice?' Your current cost is $45/invoice." options={[
   {label:"Buy the SaaS solution at $8/invoice",tradeoff:"Immediate savings (82%), zero dev cost, but you're dependent on vendor and your data leaves your systems"},

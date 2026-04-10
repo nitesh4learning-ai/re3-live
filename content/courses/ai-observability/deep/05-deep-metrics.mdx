@@ -7,47 +7,5 @@ icon: "📋"
 
 Generic metrics like faithfulness and relevance are a starting point, but production systems need **domain-specific quality scorecards** tailored to their use case. A support bot needs different quality signals than a code generator or medical Q&A system.
 
-  <CodeBlock>
-{`from dataclasses import dataclass
-
-@dataclass
-class QualityScorecard:
-    """Domain-specific quality metrics for a support bot."""
-    accuracy: float          # 0-1: factually correct?
-    completeness: float      # 0-1: addresses all parts?
-    tone_appropriate: float  # 0-1: professional and empathetic?
-    policy_compliance: float # 0-1: follows company policies?
-    escalation_correct: bool # correctly identified when to escalate?
-    pii_leaked: bool         # accidentally revealed PII?
-    response_time_ms: int
-    tokens_used: int
-    cost_usd: float
-
-    @property
-    def composite_score(self):
-        if self.pii_leaked:
-            return 0.0  # Automatic failure
-        weights = {'{'{'}'}"accuracy": 0.35, "completeness": 0.25,
-                   "tone_appropriate": 0.15, "policy_compliance": 0.25{'}'}
-        return (self.accuracy * weights["accuracy"] +
-                self.completeness * weights["completeness"] +
-                self.tone_appropriate * weights["tone_appropriate"] +
-                self.policy_compliance * weights["policy_compliance"])
-
-    @property
-    def passes_threshold(self):
-        return self.composite_score >= 0.75 and not self.pii_leaked
-
-async def evaluate_response(question, answer, context, judge_llm):
-    eval_prompt = f"""Score this support response (0.0-1.0 each):
-    Question: \\$\\{'{'{'}'}question\\{'}'}
-    Context: \\$\\{'{'{'}'}context\\{'}'}
-    Response: \\$\\{'{'{'}'}answer\\{'}'}
-    Return JSON with: accuracy, completeness, tone_appropriate,
-    policy_compliance, escalation_correct, pii_leaked."""
-    result = await judge_llm.invoke(
-        system="You are a quality evaluation specialist.",
-        user=eval_prompt)
-    return QualityScorecard(**parse_json(result.content))`}
-</CodeBlock>
+  <CodeBlock b64="ZnJvbSBkYXRhY2xhc3NlcyBpbXBvcnQgZGF0YWNsYXNzCgpAZGF0YWNsYXNzCmNsYXNzIFF1YWxpdHlTY29yZWNhcmQ6CiAgICAiIiJEb21haW4tc3BlY2lmaWMgcXVhbGl0eSBtZXRyaWNzIGZvciBhIHN1cHBvcnQgYm90LiIiIgogICAgYWNjdXJhY3k6IGZsb2F0ICAgICAgICAgICMgMC0xOiBmYWN0dWFsbHkgY29ycmVjdD8KICAgIGNvbXBsZXRlbmVzczogZmxvYXQgICAgICAjIDAtMTogYWRkcmVzc2VzIGFsbCBwYXJ0cz8KICAgIHRvbmVfYXBwcm9wcmlhdGU6IGZsb2F0ICAjIDAtMTogcHJvZmVzc2lvbmFsIGFuZCBlbXBhdGhldGljPwogICAgcG9saWN5X2NvbXBsaWFuY2U6IGZsb2F0ICMgMC0xOiBmb2xsb3dzIGNvbXBhbnkgcG9saWNpZXM/CiAgICBlc2NhbGF0aW9uX2NvcnJlY3Q6IGJvb2wgIyBjb3JyZWN0bHkgaWRlbnRpZmllZCB3aGVuIHRvIGVzY2FsYXRlPwogICAgcGlpX2xlYWtlZDogYm9vbCAgICAgICAgICMgYWNjaWRlbnRhbGx5IHJldmVhbGVkIFBJST8KICAgIHJlc3BvbnNlX3RpbWVfbXM6IGludAogICAgdG9rZW5zX3VzZWQ6IGludAogICAgY29zdF91c2Q6IGZsb2F0CgogICAgQHByb3BlcnR5CiAgICBkZWYgY29tcG9zaXRlX3Njb3JlKHNlbGYpOgogICAgICAgIGlmIHNlbGYucGlpX2xlYWtlZDoKICAgICAgICAgICAgcmV0dXJuIDAuMCAgIyBBdXRvbWF0aWMgZmFpbHVyZQogICAgICAgIHdlaWdodHMgPSB7J3sneyd9J30iYWNjdXJhY3kiOiAwLjM1LCAiY29tcGxldGVuZXNzIjogMC4yNSwKICAgICAgICAgICAgICAgICAgICJ0b25lX2FwcHJvcHJpYXRlIjogMC4xNSwgInBvbGljeV9jb21wbGlhbmNlIjogMC4yNXsnfSd9CiAgICAgICAgcmV0dXJuIChzZWxmLmFjY3VyYWN5ICogd2VpZ2h0c1siYWNjdXJhY3kiXSArCiAgICAgICAgICAgICAgICBzZWxmLmNvbXBsZXRlbmVzcyAqIHdlaWdodHNbImNvbXBsZXRlbmVzcyJdICsKICAgICAgICAgICAgICAgIHNlbGYudG9uZV9hcHByb3ByaWF0ZSAqIHdlaWdodHNbInRvbmVfYXBwcm9wcmlhdGUiXSArCiAgICAgICAgICAgICAgICBzZWxmLnBvbGljeV9jb21wbGlhbmNlICogd2VpZ2h0c1sicG9saWN5X2NvbXBsaWFuY2UiXSkKCiAgICBAcHJvcGVydHkKICAgIGRlZiBwYXNzZXNfdGhyZXNob2xkKHNlbGYpOgogICAgICAgIHJldHVybiBzZWxmLmNvbXBvc2l0ZV9zY29yZSA+PSAwLjc1IGFuZCBub3Qgc2VsZi5waWlfbGVha2VkCgphc3luYyBkZWYgZXZhbHVhdGVfcmVzcG9uc2UocXVlc3Rpb24sIGFuc3dlciwgY29udGV4dCwganVkZ2VfbGxtKToKICAgIGV2YWxfcHJvbXB0ID0gZiIiIlNjb3JlIHRoaXMgc3VwcG9ydCByZXNwb25zZSAoMC4wLTEuMCBlYWNoKToKICAgIFF1ZXN0aW9uOiBcXCRcXHsneyd7J30nfXF1ZXN0aW9uXFx7J30nfQogICAgQ29udGV4dDogXFwkXFx7J3sneyd9J31jb250ZXh0XFx7J30nfQogICAgUmVzcG9uc2U6IFxcJFxceyd7J3snfSd9YW5zd2VyXFx7J30nfQogICAgUmV0dXJuIEpTT04gd2l0aDogYWNjdXJhY3ksIGNvbXBsZXRlbmVzcywgdG9uZV9hcHByb3ByaWF0ZSwKICAgIHBvbGljeV9jb21wbGlhbmNlLCBlc2NhbGF0aW9uX2NvcnJlY3QsIHBpaV9sZWFrZWQuIiIiCiAgICByZXN1bHQgPSBhd2FpdCBqdWRnZV9sbG0uaW52b2tlKAogICAgICAgIHN5c3RlbT0iWW91IGFyZSBhIHF1YWxpdHkgZXZhbHVhdGlvbiBzcGVjaWFsaXN0LiIsCiAgICAgICAgdXNlcj1ldmFsX3Byb21wdCkKICAgIHJldHVybiBRdWFsaXR5U2NvcmVjYXJkKCoqcGFyc2VfanNvbihyZXN1bHQuY29udGVudCkp" />
   <Quiz question="Why does the scorecard return 0.0 if PII is leaked, regardless of other scores?" options={["It is a bug","PII leakage is a critical failure that overrides all quality signals","PII is not important","The weights do not add up"]} correctIndex={1} explanation="PII leakage is a compliance and legal failure that makes other quality dimensions irrelevant. A response that is accurate but leaks a customer's SSN is worse than a vague response that protects privacy."/>

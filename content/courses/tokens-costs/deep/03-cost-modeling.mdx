@@ -5,43 +5,6 @@ icon: "📈"
 
 ## Cost Modeling
 
-<CodeBlock>
-{`def estimate_monthly_cost(
-    queries_per_day,
-    avg_input_tokens,
-    avg_output_tokens,
-    model="gpt-4o",
-    cache_hit_rate=0.0,
-    retry_rate=0.05
-):
-    prices = {'{'{'}'}
-        "gpt-4o": {'{'{'}'}"input": 2.50, "output": 10.00{'}'},
-        "claude-3.5-sonnet": {'{'{'}'}"input": 3.00, "output": 15.00{'}'},
-        "gpt-4o-mini": {'{'{'}'}"input": 0.15, "output": 0.60{'}'},
-    {'}'}
-    p = prices[model]
-
-    # Base cost per query
-    input_cost = (avg_input_tokens / 1e6) * p["input"]
-    output_cost = (avg_output_tokens / 1e6) * p["output"]
-    cost_per_query = input_cost + output_cost
-
-    # Adjust for caching (reduces input cost)
-    if cache_hit_rate > 0:
-        cached_savings = input_cost * cache_hit_rate * 0.9
-        cost_per_query -= cached_savings
-
-    # Adjust for retries
-    effective_queries = queries_per_day * (1 + retry_rate)
-
-    daily = cost_per_query * effective_queries
-    monthly = daily * 30
-
-    return {'{'{'}'}
-        "cost_per_query": "$%.4f" % cost_per_query,
-        "daily": "$%.2f" % daily,
-        "monthly": "$%.2f" % monthly,
-    {'}'}`}
-</CodeBlock>
+<CodeBlock b64="ZGVmIGVzdGltYXRlX21vbnRobHlfY29zdCgKICAgIHF1ZXJpZXNfcGVyX2RheSwKICAgIGF2Z19pbnB1dF90b2tlbnMsCiAgICBhdmdfb3V0cHV0X3Rva2VucywKICAgIG1vZGVsPSJncHQtNG8iLAogICAgY2FjaGVfaGl0X3JhdGU9MC4wLAogICAgcmV0cnlfcmF0ZT0wLjA1Cik6CiAgICBwcmljZXMgPSB7J3sneyd9J30KICAgICAgICAiZ3B0LTRvIjogeyd7J3snfSd9ImlucHV0IjogMi41MCwgIm91dHB1dCI6IDEwLjAweyd9J30sCiAgICAgICAgImNsYXVkZS0zLjUtc29ubmV0Ijogeyd7J3snfSd9ImlucHV0IjogMy4wMCwgIm91dHB1dCI6IDE1LjAweyd9J30sCiAgICAgICAgImdwdC00by1taW5pIjogeyd7J3snfSd9ImlucHV0IjogMC4xNSwgIm91dHB1dCI6IDAuNjB7J30nfSwKICAgIHsnfSd9CiAgICBwID0gcHJpY2VzW21vZGVsXQoKICAgICMgQmFzZSBjb3N0IHBlciBxdWVyeQogICAgaW5wdXRfY29zdCA9IChhdmdfaW5wdXRfdG9rZW5zIC8gMWU2KSAqIHBbImlucHV0Il0KICAgIG91dHB1dF9jb3N0ID0gKGF2Z19vdXRwdXRfdG9rZW5zIC8gMWU2KSAqIHBbIm91dHB1dCJdCiAgICBjb3N0X3Blcl9xdWVyeSA9IGlucHV0X2Nvc3QgKyBvdXRwdXRfY29zdAoKICAgICMgQWRqdXN0IGZvciBjYWNoaW5nIChyZWR1Y2VzIGlucHV0IGNvc3QpCiAgICBpZiBjYWNoZV9oaXRfcmF0ZSA+IDA6CiAgICAgICAgY2FjaGVkX3NhdmluZ3MgPSBpbnB1dF9jb3N0ICogY2FjaGVfaGl0X3JhdGUgKiAwLjkKICAgICAgICBjb3N0X3Blcl9xdWVyeSAtPSBjYWNoZWRfc2F2aW5ncwoKICAgICMgQWRqdXN0IGZvciByZXRyaWVzCiAgICBlZmZlY3RpdmVfcXVlcmllcyA9IHF1ZXJpZXNfcGVyX2RheSAqICgxICsgcmV0cnlfcmF0ZSkKCiAgICBkYWlseSA9IGNvc3RfcGVyX3F1ZXJ5ICogZWZmZWN0aXZlX3F1ZXJpZXMKICAgIG1vbnRobHkgPSBkYWlseSAqIDMwCgogICAgcmV0dXJuIHsneyd7J30nfQogICAgICAgICJjb3N0X3Blcl9xdWVyeSI6ICIkJS40ZiIgJSBjb3N0X3Blcl9xdWVyeSwKICAgICAgICAiZGFpbHkiOiAiJCUuMmYiICUgZGFpbHksCiAgICAgICAgIm1vbnRobHkiOiAiJCUuMmYiICUgbW9udGhseSwKICAgIHsnfSd9" />
 
 <ArchitectureDecision scenario="Your chatbot costs $5K/month using GPT-4o (10K queries/day, 800 input + 300 output tokens avg). Budget is $2K. What do you cut?" options={[{label:'Switch entirely to GPT-4o-mini',tradeoff:'~95% cost reduction to ~$250/mo, but noticeable quality drop for complex queries'},{label:'Model cascading: route 70% of simple queries to GPT-4o-mini, keep GPT-4o for complex ones',tradeoff:'~70% savings to ~$1,500/mo while maintaining quality where it matters'},{label:'Keep GPT-4o but add prompt caching + reduce context size',tradeoff:'~40% savings to ~$3K/mo \u2014 may not reach $2K budget target'}]} correctIndex={1} explanation="Model cascading is the sweet spot. Most support queries are simple (FAQ lookups, status checks) and work fine with GPT-4o-mini. Only complex queries (multi-step reasoning, complaints) need GPT-4o. This achieves ~70% savings while preserving quality." />

@@ -7,42 +7,6 @@ icon: "\uD83E\uDDEC"
 
 LoRA works by decomposing weight updates into low-rank matrices. Instead of updating a full **d×d** weight matrix W, LoRA learns two smaller matrices A (d×r) and B (r×d) where r is much smaller than d. The effective update is W + AB.
 
-  <CodeBlock>
-{`from transformers import AutoModelForCausalLM, AutoTokenizer
-from transformers import TrainingArguments, BitsAndBytesConfig
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
-from trl import SFTTrainer
-
-# QLoRA: Load model in 4-bit quantization
-bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_quant_type="nf4",
-    bnb_4bit_compute_dtype="float16",
-    bnb_4bit_use_double_quant=True,
-)
-
-model = AutoModelForCausalLM.from_pretrained(
-    "meta-llama/Llama-3.1-8B-Instruct",
-    quantization_config=bnb_config,
-    device_map="auto",
-)
-model = prepare_model_for_kbit_training(model)
-
-# LoRA config -- key hyperparameters explained
-lora_config = LoraConfig(
-    r=16,               # Rank: higher = more capacity, more VRAM
-    lora_alpha=32,       # Scaling: alpha/r = effective learning rate
-    target_modules=[     # Which layers to adapt
-        "q_proj", "k_proj", "v_proj", "o_proj",
-        "gate_proj", "up_proj", "down_proj",
-    ],
-    lora_dropout=0.05,   # Regularization
-    bias="none",
-    task_type="CAUSAL_LM",
-)
-
-model = get_peft_model(model, lora_config)
-# Typical: ~4M trainable params out of 8B total (0.05%)`}
-</CodeBlock>
+  <CodeBlock b64="ZnJvbSB0cmFuc2Zvcm1lcnMgaW1wb3J0IEF1dG9Nb2RlbEZvckNhdXNhbExNLCBBdXRvVG9rZW5pemVyCmZyb20gdHJhbnNmb3JtZXJzIGltcG9ydCBUcmFpbmluZ0FyZ3VtZW50cywgQml0c0FuZEJ5dGVzQ29uZmlnCmZyb20gcGVmdCBpbXBvcnQgTG9yYUNvbmZpZywgZ2V0X3BlZnRfbW9kZWwsIHByZXBhcmVfbW9kZWxfZm9yX2tiaXRfdHJhaW5pbmcKZnJvbSB0cmwgaW1wb3J0IFNGVFRyYWluZXIKCiMgUUxvUkE6IExvYWQgbW9kZWwgaW4gNC1iaXQgcXVhbnRpemF0aW9uCmJuYl9jb25maWcgPSBCaXRzQW5kQnl0ZXNDb25maWcoCiAgICBsb2FkX2luXzRiaXQ9VHJ1ZSwKICAgIGJuYl80Yml0X3F1YW50X3R5cGU9Im5mNCIsCiAgICBibmJfNGJpdF9jb21wdXRlX2R0eXBlPSJmbG9hdDE2IiwKICAgIGJuYl80Yml0X3VzZV9kb3VibGVfcXVhbnQ9VHJ1ZSwKKQoKbW9kZWwgPSBBdXRvTW9kZWxGb3JDYXVzYWxMTS5mcm9tX3ByZXRyYWluZWQoCiAgICAibWV0YS1sbGFtYS9MbGFtYS0zLjEtOEItSW5zdHJ1Y3QiLAogICAgcXVhbnRpemF0aW9uX2NvbmZpZz1ibmJfY29uZmlnLAogICAgZGV2aWNlX21hcD0iYXV0byIsCikKbW9kZWwgPSBwcmVwYXJlX21vZGVsX2Zvcl9rYml0X3RyYWluaW5nKG1vZGVsKQoKIyBMb1JBIGNvbmZpZyAtLSBrZXkgaHlwZXJwYXJhbWV0ZXJzIGV4cGxhaW5lZApsb3JhX2NvbmZpZyA9IExvcmFDb25maWcoCiAgICByPTE2LCAgICAgICAgICAgICAgICMgUmFuazogaGlnaGVyID0gbW9yZSBjYXBhY2l0eSwgbW9yZSBWUkFNCiAgICBsb3JhX2FscGhhPTMyLCAgICAgICAjIFNjYWxpbmc6IGFscGhhL3IgPSBlZmZlY3RpdmUgbGVhcm5pbmcgcmF0ZQogICAgdGFyZ2V0X21vZHVsZXM9WyAgICAgIyBXaGljaCBsYXllcnMgdG8gYWRhcHQKICAgICAgICAicV9wcm9qIiwgImtfcHJvaiIsICJ2X3Byb2oiLCAib19wcm9qIiwKICAgICAgICAiZ2F0ZV9wcm9qIiwgInVwX3Byb2oiLCAiZG93bl9wcm9qIiwKICAgIF0sCiAgICBsb3JhX2Ryb3BvdXQ9MC4wNSwgICAjIFJlZ3VsYXJpemF0aW9uCiAgICBiaWFzPSJub25lIiwKICAgIHRhc2tfdHlwZT0iQ0FVU0FMX0xNIiwKKQoKbW9kZWwgPSBnZXRfcGVmdF9tb2RlbChtb2RlbCwgbG9yYV9jb25maWcpCiMgVHlwaWNhbDogfjRNIHRyYWluYWJsZSBwYXJhbXMgb3V0IG9mIDhCIHRvdGFsICgwLjA1JSk=" />
   <ComparisonTable title="LoRA Hyperparameter Guide" headers={['Parameter','Low','Medium','High','Impact']} rows={[['Rank (r)','4','16','64','Capacity vs VRAM. Start at 16, increase if underfitting'],['Alpha','8','32','64','Learning rate scaling. Rule of thumb: alpha = 2 * r'],['Target Modules','q,v only','q,k,v,o','All linear layers','More modules = more capacity, more VRAM'],['Dropout','0.0','0.05','0.1','Regularization. Higher if overfitting'],['Learning Rate','1e-5','2e-4','5e-4','QLoRA tolerates higher LR than full fine-tuning']]}/>
   <Quiz question="Why is QLoRA such a breakthrough for fine-tuning large models?" options={["It makes models run faster at inference time","It allows fine-tuning 70B+ models on a single consumer GPU by using 4-bit quantization","It eliminates the need for training data","It replaces LoRA entirely with a simpler approach"]} correctIndex={1} explanation="QLoRA combines 4-bit quantization (shrinking model memory ~4x) with LoRA (only training 0.05% of params). This makes it possible to fine-tune a 70B model on a single 24GB GPU — democratizing access to large model customization."/>

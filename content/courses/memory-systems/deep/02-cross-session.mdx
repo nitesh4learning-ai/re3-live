@@ -5,43 +5,4 @@ icon: "🔗"
 
 ## Cross-Session Memory
 
-<CodeBlock>
-{`class CrossSessionMemory:
-    def __init__(self, user_id, db):
-        self.user_id = user_id
-        self.db = db
-
-    def end_session(self, messages):
-        """Archive session and extract key learnings."""
-        # Summarize the session
-        summary = summarize_conversation(messages)
-
-        # Extract new entities/facts
-        entities = extract_entities_from_session(messages)
-
-        # Store session record
-        self.db.sessions.insert({'{'{'}'}
-            "user_id": self.user_id,
-            "timestamp": now(),
-            "summary": summary,
-            "entities": entities,
-            "message_count": len(messages),
-            "embedding": embed(summary)  # For future retrieval
-        {'}'})
-
-        # Update user profile
-        preferences = extract_preferences(messages)
-        self.db.users.update(self.user_id, preferences)
-
-    def start_session(self):
-        """Load relevant context for a new session."""
-        user = self.db.users.get(self.user_id)
-        recent_sessions = self.db.sessions.find(
-            user_id=self.user_id, limit=3, sort="-timestamp"
-        )
-        return {'{'{'}'}
-            "preferences": user.get("preferences", {'{'{'}'}{'}'}),
-            "recent_context": [s["summary"] for s in recent_sessions],
-            "known_entities": user.get("entities", {'{'{'}'}{'}'})
-        {'}'}`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgQ3Jvc3NTZXNzaW9uTWVtb3J5OgogICAgZGVmIF9faW5pdF9fKHNlbGYsIHVzZXJfaWQsIGRiKToKICAgICAgICBzZWxmLnVzZXJfaWQgPSB1c2VyX2lkCiAgICAgICAgc2VsZi5kYiA9IGRiCgogICAgZGVmIGVuZF9zZXNzaW9uKHNlbGYsIG1lc3NhZ2VzKToKICAgICAgICAiIiJBcmNoaXZlIHNlc3Npb24gYW5kIGV4dHJhY3Qga2V5IGxlYXJuaW5ncy4iIiIKICAgICAgICAjIFN1bW1hcml6ZSB0aGUgc2Vzc2lvbgogICAgICAgIHN1bW1hcnkgPSBzdW1tYXJpemVfY29udmVyc2F0aW9uKG1lc3NhZ2VzKQoKICAgICAgICAjIEV4dHJhY3QgbmV3IGVudGl0aWVzL2ZhY3RzCiAgICAgICAgZW50aXRpZXMgPSBleHRyYWN0X2VudGl0aWVzX2Zyb21fc2Vzc2lvbihtZXNzYWdlcykKCiAgICAgICAgIyBTdG9yZSBzZXNzaW9uIHJlY29yZAogICAgICAgIHNlbGYuZGIuc2Vzc2lvbnMuaW5zZXJ0KHsneyd7J30nfQogICAgICAgICAgICAidXNlcl9pZCI6IHNlbGYudXNlcl9pZCwKICAgICAgICAgICAgInRpbWVzdGFtcCI6IG5vdygpLAogICAgICAgICAgICAic3VtbWFyeSI6IHN1bW1hcnksCiAgICAgICAgICAgICJlbnRpdGllcyI6IGVudGl0aWVzLAogICAgICAgICAgICAibWVzc2FnZV9jb3VudCI6IGxlbihtZXNzYWdlcyksCiAgICAgICAgICAgICJlbWJlZGRpbmciOiBlbWJlZChzdW1tYXJ5KSAgIyBGb3IgZnV0dXJlIHJldHJpZXZhbAogICAgICAgIHsnfSd9KQoKICAgICAgICAjIFVwZGF0ZSB1c2VyIHByb2ZpbGUKICAgICAgICBwcmVmZXJlbmNlcyA9IGV4dHJhY3RfcHJlZmVyZW5jZXMobWVzc2FnZXMpCiAgICAgICAgc2VsZi5kYi51c2Vycy51cGRhdGUoc2VsZi51c2VyX2lkLCBwcmVmZXJlbmNlcykKCiAgICBkZWYgc3RhcnRfc2Vzc2lvbihzZWxmKToKICAgICAgICAiIiJMb2FkIHJlbGV2YW50IGNvbnRleHQgZm9yIGEgbmV3IHNlc3Npb24uIiIiCiAgICAgICAgdXNlciA9IHNlbGYuZGIudXNlcnMuZ2V0KHNlbGYudXNlcl9pZCkKICAgICAgICByZWNlbnRfc2Vzc2lvbnMgPSBzZWxmLmRiLnNlc3Npb25zLmZpbmQoCiAgICAgICAgICAgIHVzZXJfaWQ9c2VsZi51c2VyX2lkLCBsaW1pdD0zLCBzb3J0PSItdGltZXN0YW1wIgogICAgICAgICkKICAgICAgICByZXR1cm4geyd7J3snfSd9CiAgICAgICAgICAgICJwcmVmZXJlbmNlcyI6IHVzZXIuZ2V0KCJwcmVmZXJlbmNlcyIsIHsneyd7J30nfXsnfSd9KSwKICAgICAgICAgICAgInJlY2VudF9jb250ZXh0IjogW3NbInN1bW1hcnkiXSBmb3IgcyBpbiByZWNlbnRfc2Vzc2lvbnNdLAogICAgICAgICAgICAia25vd25fZW50aXRpZXMiOiB1c2VyLmdldCgiZW50aXRpZXMiLCB7J3sneyd9J317J30nfSkKICAgICAgICB7J30nfQ==" />

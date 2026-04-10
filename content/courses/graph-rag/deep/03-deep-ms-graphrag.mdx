@@ -17,62 +17,7 @@ The key insight is **community detection**: using the Leiden algorithm to cluste
     ['Thematic Queries','Poor -- fragments across chunks','Excellent -- community summaries capture themes'],
     ['Cost','Low (embed once)','High (multiple LLM calls per chunk for extraction)'],
   ]}/>
-  <CodeBlock>
-{`import networkx as nx
-from graspologic.partition import hierarchical_leiden
-
-async def build_graphrag_index(docs, llm):
-    """Full Microsoft GraphRAG indexing pipeline."""
-    entities, rels = [], []
-    for doc in docs:
-        for chunk in chunk_document(doc, 600, 100):
-            ext = await llm.invoke(
-                system="Extract entities and relationships as JSON.",
-                user=chunk)
-            p = parse_json(ext.content)
-            entities.extend(p["entities"])
-            rels.extend(p["relationships"])
-
-    resolved = resolve_entities(entities)
-    G = nx.Graph()
-    for e in resolved:
-        G.add_node(e.name, type=e.entity_type, desc=e.description)
-    for r in rels:
-        s, t = resolve_name(r.source, resolved), resolve_name(r.target, resolved)
-        if G.has_edge(s, t):
-            G[s][t]["weight"] += r.weight
-        else:
-            G.add_edge(s, t, relation=r.relation, weight=r.weight)
-
-    # Hierarchical community detection
-    communities = hierarchical_leiden(G, max_cluster_size=10)
-
-    # Generate community summaries at each level
-    summaries = {'{'{'}'}{'}'}
-    for level in range(communities.num_levels()):
-        for cid, members in communities.get_level(level).items():
-            descs = [G.nodes[m]["desc"] for m in members if m in G.nodes]
-            s = await llm.invoke(
-                system="Summarize key themes among these entities.",
-                user="\\n".join(descs))
-            summaries[(level, cid)] = s.content
-    return G, communities, summaries
-
-async def global_search(query, summaries, llm, level=0):
-    """Map-reduce over community summaries for thematic queries."""
-    level_sums = {'{'{'}'}k: v for k, v in summaries.items() if k[0] == level{'}'}
-    parts = []
-    for (l, c), s in level_sums.items():
-        a = await llm.invoke(
-            system="Provide relevant info or N/A.",
-            user=f"Summary: \\$\\{'{'{'}'}s\\{'}'}\\nQ: \\$\\{'{'{'}'}query\\{'}'}")
-        if a.content.strip() != "N/A":
-            parts.append(a.content)
-    final = await llm.invoke(
-        system="Synthesize into a comprehensive answer.",
-        user=f"Q: \\$\\{'{'{'}'}query\\{'}'}\\n" + "\\n---\\n".join(parts))
-    return final.content`}
-</CodeBlock>
+  <CodeBlock b64="aW1wb3J0IG5ldHdvcmt4IGFzIG54CmZyb20gZ3Jhc3BvbG9naWMucGFydGl0aW9uIGltcG9ydCBoaWVyYXJjaGljYWxfbGVpZGVuCgphc3luYyBkZWYgYnVpbGRfZ3JhcGhyYWdfaW5kZXgoZG9jcywgbGxtKToKICAgICIiIkZ1bGwgTWljcm9zb2Z0IEdyYXBoUkFHIGluZGV4aW5nIHBpcGVsaW5lLiIiIgogICAgZW50aXRpZXMsIHJlbHMgPSBbXSwgW10KICAgIGZvciBkb2MgaW4gZG9jczoKICAgICAgICBmb3IgY2h1bmsgaW4gY2h1bmtfZG9jdW1lbnQoZG9jLCA2MDAsIDEwMCk6CiAgICAgICAgICAgIGV4dCA9IGF3YWl0IGxsbS5pbnZva2UoCiAgICAgICAgICAgICAgICBzeXN0ZW09IkV4dHJhY3QgZW50aXRpZXMgYW5kIHJlbGF0aW9uc2hpcHMgYXMgSlNPTi4iLAogICAgICAgICAgICAgICAgdXNlcj1jaHVuaykKICAgICAgICAgICAgcCA9IHBhcnNlX2pzb24oZXh0LmNvbnRlbnQpCiAgICAgICAgICAgIGVudGl0aWVzLmV4dGVuZChwWyJlbnRpdGllcyJdKQogICAgICAgICAgICByZWxzLmV4dGVuZChwWyJyZWxhdGlvbnNoaXBzIl0pCgogICAgcmVzb2x2ZWQgPSByZXNvbHZlX2VudGl0aWVzKGVudGl0aWVzKQogICAgRyA9IG54LkdyYXBoKCkKICAgIGZvciBlIGluIHJlc29sdmVkOgogICAgICAgIEcuYWRkX25vZGUoZS5uYW1lLCB0eXBlPWUuZW50aXR5X3R5cGUsIGRlc2M9ZS5kZXNjcmlwdGlvbikKICAgIGZvciByIGluIHJlbHM6CiAgICAgICAgcywgdCA9IHJlc29sdmVfbmFtZShyLnNvdXJjZSwgcmVzb2x2ZWQpLCByZXNvbHZlX25hbWUoci50YXJnZXQsIHJlc29sdmVkKQogICAgICAgIGlmIEcuaGFzX2VkZ2UocywgdCk6CiAgICAgICAgICAgIEdbc11bdF1bIndlaWdodCJdICs9IHIud2VpZ2h0CiAgICAgICAgZWxzZToKICAgICAgICAgICAgRy5hZGRfZWRnZShzLCB0LCByZWxhdGlvbj1yLnJlbGF0aW9uLCB3ZWlnaHQ9ci53ZWlnaHQpCgogICAgIyBIaWVyYXJjaGljYWwgY29tbXVuaXR5IGRldGVjdGlvbgogICAgY29tbXVuaXRpZXMgPSBoaWVyYXJjaGljYWxfbGVpZGVuKEcsIG1heF9jbHVzdGVyX3NpemU9MTApCgogICAgIyBHZW5lcmF0ZSBjb21tdW5pdHkgc3VtbWFyaWVzIGF0IGVhY2ggbGV2ZWwKICAgIHN1bW1hcmllcyA9IHsneyd7J30nfXsnfSd9CiAgICBmb3IgbGV2ZWwgaW4gcmFuZ2UoY29tbXVuaXRpZXMubnVtX2xldmVscygpKToKICAgICAgICBmb3IgY2lkLCBtZW1iZXJzIGluIGNvbW11bml0aWVzLmdldF9sZXZlbChsZXZlbCkuaXRlbXMoKToKICAgICAgICAgICAgZGVzY3MgPSBbRy5ub2Rlc1ttXVsiZGVzYyJdIGZvciBtIGluIG1lbWJlcnMgaWYgbSBpbiBHLm5vZGVzXQogICAgICAgICAgICBzID0gYXdhaXQgbGxtLmludm9rZSgKICAgICAgICAgICAgICAgIHN5c3RlbT0iU3VtbWFyaXplIGtleSB0aGVtZXMgYW1vbmcgdGhlc2UgZW50aXRpZXMuIiwKICAgICAgICAgICAgICAgIHVzZXI9IlxcbiIuam9pbihkZXNjcykpCiAgICAgICAgICAgIHN1bW1hcmllc1sobGV2ZWwsIGNpZCldID0gcy5jb250ZW50CiAgICByZXR1cm4gRywgY29tbXVuaXRpZXMsIHN1bW1hcmllcwoKYXN5bmMgZGVmIGdsb2JhbF9zZWFyY2gocXVlcnksIHN1bW1hcmllcywgbGxtLCBsZXZlbD0wKToKICAgICIiIk1hcC1yZWR1Y2Ugb3ZlciBjb21tdW5pdHkgc3VtbWFyaWVzIGZvciB0aGVtYXRpYyBxdWVyaWVzLiIiIgogICAgbGV2ZWxfc3VtcyA9IHsneyd7J30nfWs6IHYgZm9yIGssIHYgaW4gc3VtbWFyaWVzLml0ZW1zKCkgaWYga1swXSA9PSBsZXZlbHsnfSd9CiAgICBwYXJ0cyA9IFtdCiAgICBmb3IgKGwsIGMpLCBzIGluIGxldmVsX3N1bXMuaXRlbXMoKToKICAgICAgICBhID0gYXdhaXQgbGxtLmludm9rZSgKICAgICAgICAgICAgc3lzdGVtPSJQcm92aWRlIHJlbGV2YW50IGluZm8gb3IgTi9BLiIsCiAgICAgICAgICAgIHVzZXI9ZiJTdW1tYXJ5OiBcXCRcXHsneyd7J30nfXNcXHsnfSd9XFxuUTogXFwkXFx7J3sneyd9J31xdWVyeVxceyd9J30iKQogICAgICAgIGlmIGEuY29udGVudC5zdHJpcCgpICE9ICJOL0EiOgogICAgICAgICAgICBwYXJ0cy5hcHBlbmQoYS5jb250ZW50KQogICAgZmluYWwgPSBhd2FpdCBsbG0uaW52b2tlKAogICAgICAgIHN5c3RlbT0iU3ludGhlc2l6ZSBpbnRvIGEgY29tcHJlaGVuc2l2ZSBhbnN3ZXIuIiwKICAgICAgICB1c2VyPWYiUTogXFwkXFx7J3sneyd9J31xdWVyeVxceyd9J31cXG4iICsgIlxcbi0tLVxcbiIuam9pbihwYXJ0cykpCiAgICByZXR1cm4gZmluYWwuY29udGVudA==" />
   <Quiz question="What enables Microsoft GraphRAG to answer broad thematic questions?" options={["Larger embeddings","Hierarchical community detection with summaries at multiple levels","Faster vector search","More chunks"]} correctIndex={1} explanation="The Leiden algorithm clusters entities into communities, then summaries at each level capture themes. Global search via map-reduce enables broad questions traditional RAG cannot handle."/>
   <ArchitectureDecision scenario="Choose between standard Graph RAG and Microsoft GraphRAG for a legal discovery platform needing both specific factual and broad thematic queries." options={[
     {label:'Standard Graph RAG only',tradeoff:'Good for entity queries but not broad themes.'},

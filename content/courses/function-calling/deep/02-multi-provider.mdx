@@ -15,43 +15,7 @@ OpenAI, Anthropic, and Google each implement function calling differently. Build
   ["Streaming","Delta chunks","Event stream","SSE stream"],
 ]}/>
 
-<CodeBlock>
-{`class ToolRouter {'{'{'}'}
-  constructor(tools) {'{'{'}'}
-    this.tools = tools;
-  {'}'}
-
-  formatForProvider(provider) {'{'{'}'}
-    return this.tools.map(tool => {'{'{'}'}
-      if (provider === "openai") return {'{'{'}'}
-        type: "function",
-        function: {'{'{'}'} name: tool.name, description: tool.description, parameters: tool.schema {'}'}
-      {'}'};
-      if (provider === "anthropic") return {'{'{'}'}
-        name: tool.name, description: tool.description, input_schema: tool.schema
-      {'}'};
-      if (provider === "gemini") return {'{'{'}'}
-        name: tool.name, description: tool.description, parameters: tool.schema
-      {'}'};
-    {'}'});
-  {'}'}
-
-  extractCalls(provider, response) {'{'{'}'}
-    if (provider === "openai")
-      return (response.choices[0].message.tool_calls || []).map(tc => ({'{'{'}'}
-        id: tc.id, name: tc.function.name, args: JSON.parse(tc.function.arguments)
-      {'}'}));
-    if (provider === "anthropic")
-      return response.content.filter(b => b.type === "tool_use")
-        .map(b => ({'{'{'}'} id: b.id, name: b.name, args: b.input {'}'}));
-    if (provider === "gemini")
-      return response.candidates[0].content.parts
-        .filter(p => p.functionCall)
-        .map(p => ({'{'{'}'} id: p.functionCall.name, name: p.functionCall.name, args: p.functionCall.args {'}'}));
-    return [];
-  {'}'}
-{'}'}`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgVG9vbFJvdXRlciB7J3sneyd9J30KICBjb25zdHJ1Y3Rvcih0b29scykgeyd7J3snfSd9CiAgICB0aGlzLnRvb2xzID0gdG9vbHM7CiAgeyd9J30KCiAgZm9ybWF0Rm9yUHJvdmlkZXIocHJvdmlkZXIpIHsneyd7J30nfQogICAgcmV0dXJuIHRoaXMudG9vbHMubWFwKHRvb2wgPT4geyd7J3snfSd9CiAgICAgIGlmIChwcm92aWRlciA9PT0gIm9wZW5haSIpIHJldHVybiB7J3sneyd9J30KICAgICAgICB0eXBlOiAiZnVuY3Rpb24iLAogICAgICAgIGZ1bmN0aW9uOiB7J3sneyd9J30gbmFtZTogdG9vbC5uYW1lLCBkZXNjcmlwdGlvbjogdG9vbC5kZXNjcmlwdGlvbiwgcGFyYW1ldGVyczogdG9vbC5zY2hlbWEgeyd9J30KICAgICAgeyd9J307CiAgICAgIGlmIChwcm92aWRlciA9PT0gImFudGhyb3BpYyIpIHJldHVybiB7J3sneyd9J30KICAgICAgICBuYW1lOiB0b29sLm5hbWUsIGRlc2NyaXB0aW9uOiB0b29sLmRlc2NyaXB0aW9uLCBpbnB1dF9zY2hlbWE6IHRvb2wuc2NoZW1hCiAgICAgIHsnfSd9OwogICAgICBpZiAocHJvdmlkZXIgPT09ICJnZW1pbmkiKSByZXR1cm4geyd7J3snfSd9CiAgICAgICAgbmFtZTogdG9vbC5uYW1lLCBkZXNjcmlwdGlvbjogdG9vbC5kZXNjcmlwdGlvbiwgcGFyYW1ldGVyczogdG9vbC5zY2hlbWEKICAgICAgeyd9J307CiAgICB7J30nfSk7CiAgeyd9J30KCiAgZXh0cmFjdENhbGxzKHByb3ZpZGVyLCByZXNwb25zZSkgeyd7J3snfSd9CiAgICBpZiAocHJvdmlkZXIgPT09ICJvcGVuYWkiKQogICAgICByZXR1cm4gKHJlc3BvbnNlLmNob2ljZXNbMF0ubWVzc2FnZS50b29sX2NhbGxzIHx8IFtdKS5tYXAodGMgPT4gKHsneyd7J30nfQogICAgICAgIGlkOiB0Yy5pZCwgbmFtZTogdGMuZnVuY3Rpb24ubmFtZSwgYXJnczogSlNPTi5wYXJzZSh0Yy5mdW5jdGlvbi5hcmd1bWVudHMpCiAgICAgIHsnfSd9KSk7CiAgICBpZiAocHJvdmlkZXIgPT09ICJhbnRocm9waWMiKQogICAgICByZXR1cm4gcmVzcG9uc2UuY29udGVudC5maWx0ZXIoYiA9PiBiLnR5cGUgPT09ICJ0b29sX3VzZSIpCiAgICAgICAgLm1hcChiID0+ICh7J3sneyd9J30gaWQ6IGIuaWQsIG5hbWU6IGIubmFtZSwgYXJnczogYi5pbnB1dCB7J30nfSkpOwogICAgaWYgKHByb3ZpZGVyID09PSAiZ2VtaW5pIikKICAgICAgcmV0dXJuIHJlc3BvbnNlLmNhbmRpZGF0ZXNbMF0uY29udGVudC5wYXJ0cwogICAgICAgIC5maWx0ZXIocCA9PiBwLmZ1bmN0aW9uQ2FsbCkKICAgICAgICAubWFwKHAgPT4gKHsneyd7J30nfSBpZDogcC5mdW5jdGlvbkNhbGwubmFtZSwgbmFtZTogcC5mdW5jdGlvbkNhbGwubmFtZSwgYXJnczogcC5mdW5jdGlvbkNhbGwuYXJncyB7J30nfSkpOwogICAgcmV0dXJuIFtdOwogIHsnfSd9CnsnfSd9" />
 
 <Quiz question="What is the main challenge of multi-provider function calling?" options={["Different pricing","Each provider has different schema formats and response structures","Some providers are faster","They use different languages"]} correctIndex={1} explanation="Each provider wraps tool definitions and tool call responses in different JSON structures. A unified abstraction normalizes these differences." />
 

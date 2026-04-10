@@ -11,36 +11,5 @@ icon: "\uD83C\uDF99\uFE0F"
     ['Music Generation','MusicLM, Suno, Udio','Background music, composition'],
     ['Speaker Diarization','PyAnnote, AssemblyAI','Who spoke when in meetings'],
   ]}/>
-  <CodeBlock>
-{`async def process_multimodal_document(file_path):
-    """Process documents combining vision, text, and table extraction"""
-    pages = pdf_to_images(file_path)
-    results = []
-
-    for page_img in pages:
-        # Vision model extracts text, tables, charts, diagrams
-        extraction = await vision_llm.analyze(
-            image=page_img,
-            prompt="""Extract ALL content from this page:
-            - Text content (preserve formatting)
-            - Tables (as structured JSON)
-            - Charts (describe data and trends)
-            - Diagrams (describe structure and relationships)
-            Return as structured JSON."""
-        )
-        results.append(extraction)
-
-    # Combine and cross-reference across pages
-    combined = merge_extractions(results)
-
-    # Generate embeddings for multimodal search
-    for section in combined["sections"]:
-        section["embedding"] = embed(section["text"])
-        if section.get("table"):
-            section["table_embedding"] = embed(
-                table_to_text(section["table"])
-            )
-
-    return combined`}
-</CodeBlock>
+  <CodeBlock b64="YXN5bmMgZGVmIHByb2Nlc3NfbXVsdGltb2RhbF9kb2N1bWVudChmaWxlX3BhdGgpOgogICAgIiIiUHJvY2VzcyBkb2N1bWVudHMgY29tYmluaW5nIHZpc2lvbiwgdGV4dCwgYW5kIHRhYmxlIGV4dHJhY3Rpb24iIiIKICAgIHBhZ2VzID0gcGRmX3RvX2ltYWdlcyhmaWxlX3BhdGgpCiAgICByZXN1bHRzID0gW10KCiAgICBmb3IgcGFnZV9pbWcgaW4gcGFnZXM6CiAgICAgICAgIyBWaXNpb24gbW9kZWwgZXh0cmFjdHMgdGV4dCwgdGFibGVzLCBjaGFydHMsIGRpYWdyYW1zCiAgICAgICAgZXh0cmFjdGlvbiA9IGF3YWl0IHZpc2lvbl9sbG0uYW5hbHl6ZSgKICAgICAgICAgICAgaW1hZ2U9cGFnZV9pbWcsCiAgICAgICAgICAgIHByb21wdD0iIiJFeHRyYWN0IEFMTCBjb250ZW50IGZyb20gdGhpcyBwYWdlOgogICAgICAgICAgICAtIFRleHQgY29udGVudCAocHJlc2VydmUgZm9ybWF0dGluZykKICAgICAgICAgICAgLSBUYWJsZXMgKGFzIHN0cnVjdHVyZWQgSlNPTikKICAgICAgICAgICAgLSBDaGFydHMgKGRlc2NyaWJlIGRhdGEgYW5kIHRyZW5kcykKICAgICAgICAgICAgLSBEaWFncmFtcyAoZGVzY3JpYmUgc3RydWN0dXJlIGFuZCByZWxhdGlvbnNoaXBzKQogICAgICAgICAgICBSZXR1cm4gYXMgc3RydWN0dXJlZCBKU09OLiIiIgogICAgICAgICkKICAgICAgICByZXN1bHRzLmFwcGVuZChleHRyYWN0aW9uKQoKICAgICMgQ29tYmluZSBhbmQgY3Jvc3MtcmVmZXJlbmNlIGFjcm9zcyBwYWdlcwogICAgY29tYmluZWQgPSBtZXJnZV9leHRyYWN0aW9ucyhyZXN1bHRzKQoKICAgICMgR2VuZXJhdGUgZW1iZWRkaW5ncyBmb3IgbXVsdGltb2RhbCBzZWFyY2gKICAgIGZvciBzZWN0aW9uIGluIGNvbWJpbmVkWyJzZWN0aW9ucyJdOgogICAgICAgIHNlY3Rpb25bImVtYmVkZGluZyJdID0gZW1iZWQoc2VjdGlvblsidGV4dCJdKQogICAgICAgIGlmIHNlY3Rpb24uZ2V0KCJ0YWJsZSIpOgogICAgICAgICAgICBzZWN0aW9uWyJ0YWJsZV9lbWJlZGRpbmciXSA9IGVtYmVkKAogICAgICAgICAgICAgICAgdGFibGVfdG9fdGV4dChzZWN0aW9uWyJ0YWJsZSJdKQogICAgICAgICAgICApCgogICAgcmV0dXJuIGNvbWJpbmVk" />
   <Quiz question="For processing a 200-page PDF with mixed text, tables, and charts, what is the most cost-effective approach?" options={["Send every page as an image to GPT-4o","Use OCR for text pages, vision LLM only for pages with charts/tables","Use a custom ML model trained on your document type","Process everything with a cheap text extraction library"]} correctIndex={1} explanation="A hybrid approach is most cost-effective: standard OCR (nearly free) handles text-heavy pages, while expensive vision LLM calls are reserved for pages that contain charts, tables, or complex layouts that OCR can't handle. Page classification first, then appropriate processing."/>

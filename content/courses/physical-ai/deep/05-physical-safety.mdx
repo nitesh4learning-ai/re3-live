@@ -16,48 +16,6 @@ icon: "\uD83D\uDEE1\uFE0F"
 
 </ExpandableSection>
 
-<CodeBlock>
-{`class RobotSafetyMonitor:
-    """Real-time safety monitoring for autonomous robots"""
-
-    def __init__(self, config):
-        self.force_limit = config["max_force_newtons"]  # e.g., 150N per ISO/TS 15066
-        self.speed_limit = config["max_speed_ms"]       # e.g., 0.25 m/s near humans
-        self.proximity_threshold = config["min_human_distance_m"]  # e.g., 0.5m
-
-    def check_safety(self, state):
-        violations = []
-
-        # Force limit check
-        if state["contact_force"] > self.force_limit:
-            violations.append({'{'{'}'}
-                "type": "FORCE_EXCEEDED",
-                "action": "IMMEDIATE_STOP",
-                "value": state["contact_force"]
-            {'}'})
-
-        # Speed near humans
-        if (state["human_detected"]
-            and state["human_distance"] < 2.0
-            and state["speed"] > self.speed_limit):
-            violations.append({'{'{'}'}
-                "type": "SPEED_NEAR_HUMAN",
-                "action": "REDUCE_SPEED",
-                "value": state["speed"]
-            {'}'})
-
-        # Proximity violation
-        if (state["human_detected"]
-            and state["human_distance"] < self.proximity_threshold):
-            violations.append({'{'{'}'}
-                "type": "PROXIMITY_VIOLATION",
-                "action": "IMMEDIATE_STOP"
-            {'}'})
-
-        return {'{'{'}'}
-            "safe": len(violations) == 0,
-            "violations": violations
-        {'}'}`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgUm9ib3RTYWZldHlNb25pdG9yOgogICAgIiIiUmVhbC10aW1lIHNhZmV0eSBtb25pdG9yaW5nIGZvciBhdXRvbm9tb3VzIHJvYm90cyIiIgoKICAgIGRlZiBfX2luaXRfXyhzZWxmLCBjb25maWcpOgogICAgICAgIHNlbGYuZm9yY2VfbGltaXQgPSBjb25maWdbIm1heF9mb3JjZV9uZXd0b25zIl0gICMgZS5nLiwgMTUwTiBwZXIgSVNPL1RTIDE1MDY2CiAgICAgICAgc2VsZi5zcGVlZF9saW1pdCA9IGNvbmZpZ1sibWF4X3NwZWVkX21zIl0gICAgICAgIyBlLmcuLCAwLjI1IG0vcyBuZWFyIGh1bWFucwogICAgICAgIHNlbGYucHJveGltaXR5X3RocmVzaG9sZCA9IGNvbmZpZ1sibWluX2h1bWFuX2Rpc3RhbmNlX20iXSAgIyBlLmcuLCAwLjVtCgogICAgZGVmIGNoZWNrX3NhZmV0eShzZWxmLCBzdGF0ZSk6CiAgICAgICAgdmlvbGF0aW9ucyA9IFtdCgogICAgICAgICMgRm9yY2UgbGltaXQgY2hlY2sKICAgICAgICBpZiBzdGF0ZVsiY29udGFjdF9mb3JjZSJdID4gc2VsZi5mb3JjZV9saW1pdDoKICAgICAgICAgICAgdmlvbGF0aW9ucy5hcHBlbmQoeyd7J3snfSd9CiAgICAgICAgICAgICAgICAidHlwZSI6ICJGT1JDRV9FWENFRURFRCIsCiAgICAgICAgICAgICAgICAiYWN0aW9uIjogIklNTUVESUFURV9TVE9QIiwKICAgICAgICAgICAgICAgICJ2YWx1ZSI6IHN0YXRlWyJjb250YWN0X2ZvcmNlIl0KICAgICAgICAgICAgeyd9J30pCgogICAgICAgICMgU3BlZWQgbmVhciBodW1hbnMKICAgICAgICBpZiAoc3RhdGVbImh1bWFuX2RldGVjdGVkIl0KICAgICAgICAgICAgYW5kIHN0YXRlWyJodW1hbl9kaXN0YW5jZSJdIDwgMi4wCiAgICAgICAgICAgIGFuZCBzdGF0ZVsic3BlZWQiXSA+IHNlbGYuc3BlZWRfbGltaXQpOgogICAgICAgICAgICB2aW9sYXRpb25zLmFwcGVuZCh7J3sneyd9J30KICAgICAgICAgICAgICAgICJ0eXBlIjogIlNQRUVEX05FQVJfSFVNQU4iLAogICAgICAgICAgICAgICAgImFjdGlvbiI6ICJSRURVQ0VfU1BFRUQiLAogICAgICAgICAgICAgICAgInZhbHVlIjogc3RhdGVbInNwZWVkIl0KICAgICAgICAgICAgeyd9J30pCgogICAgICAgICMgUHJveGltaXR5IHZpb2xhdGlvbgogICAgICAgIGlmIChzdGF0ZVsiaHVtYW5fZGV0ZWN0ZWQiXQogICAgICAgICAgICBhbmQgc3RhdGVbImh1bWFuX2Rpc3RhbmNlIl0gPCBzZWxmLnByb3hpbWl0eV90aHJlc2hvbGQpOgogICAgICAgICAgICB2aW9sYXRpb25zLmFwcGVuZCh7J3sneyd9J30KICAgICAgICAgICAgICAgICJ0eXBlIjogIlBST1hJTUlUWV9WSU9MQVRJT04iLAogICAgICAgICAgICAgICAgImFjdGlvbiI6ICJJTU1FRElBVEVfU1RPUCIKICAgICAgICAgICAgeyd9J30pCgogICAgICAgIHJldHVybiB7J3sneyd9J30KICAgICAgICAgICAgInNhZmUiOiBsZW4odmlvbGF0aW9ucykgPT0gMCwKICAgICAgICAgICAgInZpb2xhdGlvbnMiOiB2aW9sYXRpb25zCiAgICAgICAgeyd9J30=" />
 
 <Quiz question="Under ISO/TS 15066, what is the primary safety mechanism for collaborative robots working near humans?" options={["Physical barriers and cages","Force and speed limiting based on body region contact","Software-only safety controls","Remote operation with cameras"]} correctIndex={1} explanation="ISO/TS 15066 defines Power and Force Limiting (PFL) as the primary safety mechanism for cobots. It specifies maximum allowable forces and pressures for different body regions (e.g., lower limits for head/face, higher for arms/legs), enabling robots to work alongside humans without physical barriers."/>

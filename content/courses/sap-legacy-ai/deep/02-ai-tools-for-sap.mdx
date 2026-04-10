@@ -21,67 +21,13 @@ SAP has built a comprehensive AI stack specifically for ABAP development. Unders
 
 ### Joule for Developers: What It Actually Does
 
-<CodeBlock language="text" label="Joule for Developers Capabilities">
-{`# EXPLAIN — Understand legacy code
-"Explain this custom pricing Z-report including 
-all business rules and edge cases"
-→ Plain-language explanation of ABAP logic
-→ Auto-generated technical documentation
-
-# GENERATE — Create new cloud-ready code
-"Generate a RAP business object for supplier 
-master data with CRUD operations"
-→ CDS views, behavior definitions, projections
-
-# TEST — Auto-generate unit tests
-"Write ABAP unit tests for the supplier 
-validation class ZCL_SUPPLIER_VALIDATE"
-→ Test class with edge cases and mocks
-
-# MIGRATE — Code transformation
-"Convert this classic dialog program to a 
-Fiori Elements application"
-→ Identifies deprecated constructs
-→ Suggests cloud-ready replacements
-
-# CLEAN CORE — Compliance checking
-"Analyze custom modifications in this package 
-for Clean Core compliance"
-→ Flags non-standard API usage
-→ Recommends standard alternatives`}
-</CodeBlock>
+<CodeBlock language="text" label="Joule for Developers Capabilities" b64="IyBFWFBMQUlOIOKAlCBVbmRlcnN0YW5kIGxlZ2FjeSBjb2RlCiJFeHBsYWluIHRoaXMgY3VzdG9tIHByaWNpbmcgWi1yZXBvcnQgaW5jbHVkaW5nIAphbGwgYnVzaW5lc3MgcnVsZXMgYW5kIGVkZ2UgY2FzZXMiCuKGkiBQbGFpbi1sYW5ndWFnZSBleHBsYW5hdGlvbiBvZiBBQkFQIGxvZ2ljCuKGkiBBdXRvLWdlbmVyYXRlZCB0ZWNobmljYWwgZG9jdW1lbnRhdGlvbgoKIyBHRU5FUkFURSDigJQgQ3JlYXRlIG5ldyBjbG91ZC1yZWFkeSBjb2RlCiJHZW5lcmF0ZSBhIFJBUCBidXNpbmVzcyBvYmplY3QgZm9yIHN1cHBsaWVyIAptYXN0ZXIgZGF0YSB3aXRoIENSVUQgb3BlcmF0aW9ucyIK4oaSIENEUyB2aWV3cywgYmVoYXZpb3IgZGVmaW5pdGlvbnMsIHByb2plY3Rpb25zCgojIFRFU1Qg4oCUIEF1dG8tZ2VuZXJhdGUgdW5pdCB0ZXN0cwoiV3JpdGUgQUJBUCB1bml0IHRlc3RzIGZvciB0aGUgc3VwcGxpZXIgCnZhbGlkYXRpb24gY2xhc3MgWkNMX1NVUFBMSUVSX1ZBTElEQVRFIgrihpIgVGVzdCBjbGFzcyB3aXRoIGVkZ2UgY2FzZXMgYW5kIG1vY2tzCgojIE1JR1JBVEUg4oCUIENvZGUgdHJhbnNmb3JtYXRpb24KIkNvbnZlcnQgdGhpcyBjbGFzc2ljIGRpYWxvZyBwcm9ncmFtIHRvIGEgCkZpb3JpIEVsZW1lbnRzIGFwcGxpY2F0aW9uIgrihpIgSWRlbnRpZmllcyBkZXByZWNhdGVkIGNvbnN0cnVjdHMK4oaSIFN1Z2dlc3RzIGNsb3VkLXJlYWR5IHJlcGxhY2VtZW50cwoKIyBDTEVBTiBDT1JFIOKAlCBDb21wbGlhbmNlIGNoZWNraW5nCiJBbmFseXplIGN1c3RvbSBtb2RpZmljYXRpb25zIGluIHRoaXMgcGFja2FnZSAKZm9yIENsZWFuIENvcmUgY29tcGxpYW5jZSIK4oaSIEZsYWdzIG5vbi1zdGFuZGFyZCBBUEkgdXNhZ2UK4oaSIFJlY29tbWVuZHMgc3RhbmRhcmQgYWx0ZXJuYXRpdmVz" />
 
 ### The ABAP MCP Server: Connecting Claude to SAP
 
 This is the game-changer for 2026. SAP is building an ABAP MCP server that exposes ABAP development capabilities — with and without embedded AI — to any MCP-compatible agent.
 
-<CodeBlock language="text" label="ABAP MCP Server Architecture">
-{`┌────────────────────────────────┐
-│  Claude Code / VS Code Agent   │
-│  (MCP Client)                  │
-└──────────┬─────────────────────┘
-           │ MCP Protocol (JSON-RPC)
-┌──────────▼─────────────────────┐
-│  ABAP MCP Server               │
-│                                 │
-│  Tools exposed:                 │
-│  • explain_abap(code)           │
-│  • generate_rap_bo(spec)        │
-│  • analyze_clean_core(package)  │
-│  • run_abap_unit(class)         │
-│  • search_abap_objects(query)   │
-│                                 │
-│  Resources exposed:             │
-│  • ABAP object catalog          │
-│  • CDS view definitions         │
-│  • Package dependencies         │
-└──────────┬─────────────────────┘
-           │ RFC / HTTP
-┌──────────▼─────────────────────┐
-│  SAP S/4HANA System             │
-│  (ECC 6.0 / Private Cloud)     │
-└─────────────────────────────────┘`}
-</CodeBlock>
+<CodeBlock language="text" label="ABAP MCP Server Architecture" b64="4pSM4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSQCuKUgiAgQ2xhdWRlIENvZGUgLyBWUyBDb2RlIEFnZW50ICAg4pSCCuKUgiAgKE1DUCBDbGllbnQpICAgICAgICAgICAgICAgICAg4pSCCuKUlOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUrOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUmAogICAgICAgICAgIOKUgiBNQ1AgUHJvdG9jb2wgKEpTT04tUlBDKQrilIzilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilrzilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilJAK4pSCICBBQkFQIE1DUCBTZXJ2ZXIgICAgICAgICAgICAgICDilIIK4pSCICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg4pSCCuKUgiAgVG9vbHMgZXhwb3NlZDogICAgICAgICAgICAgICAgIOKUggrilIIgIOKAoiBleHBsYWluX2FiYXAoY29kZSkgICAgICAgICAgIOKUggrilIIgIOKAoiBnZW5lcmF0ZV9yYXBfYm8oc3BlYykgICAgICAgIOKUggrilIIgIOKAoiBhbmFseXplX2NsZWFuX2NvcmUocGFja2FnZSkgIOKUggrilIIgIOKAoiBydW5fYWJhcF91bml0KGNsYXNzKSAgICAgICAgIOKUggrilIIgIOKAoiBzZWFyY2hfYWJhcF9vYmplY3RzKHF1ZXJ5KSAgIOKUggrilIIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICDilIIK4pSCICBSZXNvdXJjZXMgZXhwb3NlZDogICAgICAgICAgICAg4pSCCuKUgiAg4oCiIEFCQVAgb2JqZWN0IGNhdGFsb2cgICAgICAgICAg4pSCCuKUgiAg4oCiIENEUyB2aWV3IGRlZmluaXRpb25zICAgICAgICAg4pSCCuKUgiAg4oCiIFBhY2thZ2UgZGVwZW5kZW5jaWVzICAgICAgICAg4pSCCuKUlOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUrOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUmAogICAgICAgICAgIOKUgiBSRkMgLyBIVFRQCuKUjOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKWvOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUkArilIIgIFNBUCBTLzRIQU5BIFN5c3RlbSAgICAgICAgICAgICDilIIK4pSCICAoRUNDIDYuMCAvIFByaXZhdGUgQ2xvdWQpICAgICDilIIK4pSU4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSY" />
 
 <AnalogyBox emoji="🔌" title="MCP = MuleSoft for AI-to-SAP">
 The ABAP MCP server is essentially a MuleSoft connector for AI agents. Instead of building custom API wrappers for every AI tool that needs to talk to SAP, you expose ABAP capabilities through MCP once, and any agent can use them. Claude Code, VS Code Copilot, custom LangGraph agents — all connect through the same standard protocol.
@@ -91,31 +37,7 @@ The ABAP MCP server is essentially a MuleSoft connector for AI agents. Instead o
 
 While Joule is SAP-native, Claude Code brings an external perspective that's valuable for architecture decisions and migration strategy:
 
-<CodeBlock language="text" label="Claude Code + SAP Workflow">
-{`# Step 1: Export ABAP code to local filesystem
-# (SE38, SE80, or abapGit)
-
-# Step 2: Point Claude Code at the exported code
-cd /path/to/exported-abap-code
-claude
-
-# Step 3: Ask Claude to analyze
-"Analyze this ABAP codebase. Identify:
-1. Business rules embedded in custom code
-2. Deprecated function modules still in use  
-3. Dependencies between custom objects
-4. Migration risks for S/4HANA
-5. Recommended modernization sequence"
-
-# Step 4: Claude reads all files, maps dependencies,
-# and provides a comprehensive analysis with
-# specific recommendations per object.
-
-# Key advantage: Claude isn't limited to SAP's
-# ecosystem — it can recommend non-SAP alternatives,
-# cloud-native patterns, and cross-platform approaches
-# that Joule won't suggest.`}
-</CodeBlock>
+<CodeBlock language="text" label="Claude Code + SAP Workflow" b64="IyBTdGVwIDE6IEV4cG9ydCBBQkFQIGNvZGUgdG8gbG9jYWwgZmlsZXN5c3RlbQojIChTRTM4LCBTRTgwLCBvciBhYmFwR2l0KQoKIyBTdGVwIDI6IFBvaW50IENsYXVkZSBDb2RlIGF0IHRoZSBleHBvcnRlZCBjb2RlCmNkIC9wYXRoL3RvL2V4cG9ydGVkLWFiYXAtY29kZQpjbGF1ZGUKCiMgU3RlcCAzOiBBc2sgQ2xhdWRlIHRvIGFuYWx5emUKIkFuYWx5emUgdGhpcyBBQkFQIGNvZGViYXNlLiBJZGVudGlmeToKMS4gQnVzaW5lc3MgcnVsZXMgZW1iZWRkZWQgaW4gY3VzdG9tIGNvZGUKMi4gRGVwcmVjYXRlZCBmdW5jdGlvbiBtb2R1bGVzIHN0aWxsIGluIHVzZSAgCjMuIERlcGVuZGVuY2llcyBiZXR3ZWVuIGN1c3RvbSBvYmplY3RzCjQuIE1pZ3JhdGlvbiByaXNrcyBmb3IgUy80SEFOQQo1LiBSZWNvbW1lbmRlZCBtb2Rlcm5pemF0aW9uIHNlcXVlbmNlIgoKIyBTdGVwIDQ6IENsYXVkZSByZWFkcyBhbGwgZmlsZXMsIG1hcHMgZGVwZW5kZW5jaWVzLAojIGFuZCBwcm92aWRlcyBhIGNvbXByZWhlbnNpdmUgYW5hbHlzaXMgd2l0aAojIHNwZWNpZmljIHJlY29tbWVuZGF0aW9ucyBwZXIgb2JqZWN0LgoKIyBLZXkgYWR2YW50YWdlOiBDbGF1ZGUgaXNuJ3QgbGltaXRlZCB0byBTQVAncwojIGVjb3N5c3RlbSDigJQgaXQgY2FuIHJlY29tbWVuZCBub24tU0FQIGFsdGVybmF0aXZlcywKIyBjbG91ZC1uYXRpdmUgcGF0dGVybnMsIGFuZCBjcm9zcy1wbGF0Zm9ybSBhcHByb2FjaGVzCiMgdGhhdCBKb3VsZSB3b24ndCBzdWdnZXN0Lg==" />
 
 <Quiz
   question="You need to understand a critical custom ABAP pricing module before migrating to S/4HANA. You have access to both Joule for Developers and Claude Code. Which do you use?"

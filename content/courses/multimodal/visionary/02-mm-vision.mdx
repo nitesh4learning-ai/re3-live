@@ -4,32 +4,5 @@ icon: "\uD83D\uDC41\uFE0F"
 ---
 
 ## Vision Pipelines
-  <CodeBlock>
-{`import anthropic
-import base64
-
-def process_document(image_path):
-    """Extract structured data from a document image."""
-    client = anthropic.Anthropic()
-
-    with open(image_path, "rb") as f:
-        image_data = base64.standard_b64encode(f.read()).decode()
-
-    response = client.messages.create(
-        model="claude-3-5-sonnet-20241022",
-        max_tokens=1024,
-        messages=[{'{'{'}'}
-            "role": "user",
-            "content": [
-                {'{'{'}'}"type": "image", "source": {'{'{'}'}
-                    "type": "base64",
-                    "media_type": "image/png",
-                    "data": image_data
-                {'}'}{'}'},
-                {'{'{'}'}"type": "text", "text": "Extract all text, tables, "
-                 "and key data from this document as structured JSON."{'}'}
-            ]
-        {'}'}]
-    )`}
-</CodeBlock>
+  <CodeBlock b64="aW1wb3J0IGFudGhyb3BpYwppbXBvcnQgYmFzZTY0CgpkZWYgcHJvY2Vzc19kb2N1bWVudChpbWFnZV9wYXRoKToKICAgICIiIkV4dHJhY3Qgc3RydWN0dXJlZCBkYXRhIGZyb20gYSBkb2N1bWVudCBpbWFnZS4iIiIKICAgIGNsaWVudCA9IGFudGhyb3BpYy5BbnRocm9waWMoKQoKICAgIHdpdGggb3BlbihpbWFnZV9wYXRoLCAicmIiKSBhcyBmOgogICAgICAgIGltYWdlX2RhdGEgPSBiYXNlNjQuc3RhbmRhcmRfYjY0ZW5jb2RlKGYucmVhZCgpKS5kZWNvZGUoKQoKICAgIHJlc3BvbnNlID0gY2xpZW50Lm1lc3NhZ2VzLmNyZWF0ZSgKICAgICAgICBtb2RlbD0iY2xhdWRlLTMtNS1zb25uZXQtMjAyNDEwMjIiLAogICAgICAgIG1heF90b2tlbnM9MTAyNCwKICAgICAgICBtZXNzYWdlcz1beyd7J3snfSd9CiAgICAgICAgICAgICJyb2xlIjogInVzZXIiLAogICAgICAgICAgICAiY29udGVudCI6IFsKICAgICAgICAgICAgICAgIHsneyd7J30nfSJ0eXBlIjogImltYWdlIiwgInNvdXJjZSI6IHsneyd7J30nfQogICAgICAgICAgICAgICAgICAgICJ0eXBlIjogImJhc2U2NCIsCiAgICAgICAgICAgICAgICAgICAgIm1lZGlhX3R5cGUiOiAiaW1hZ2UvcG5nIiwKICAgICAgICAgICAgICAgICAgICAiZGF0YSI6IGltYWdlX2RhdGEKICAgICAgICAgICAgICAgIHsnfSd9eyd9J30sCiAgICAgICAgICAgICAgICB7J3sneyd9J30idHlwZSI6ICJ0ZXh0IiwgInRleHQiOiAiRXh0cmFjdCBhbGwgdGV4dCwgdGFibGVzLCAiCiAgICAgICAgICAgICAgICAgImFuZCBrZXkgZGF0YSBmcm9tIHRoaXMgZG9jdW1lbnQgYXMgc3RydWN0dXJlZCBKU09OLiJ7J30nfQogICAgICAgICAgICBdCiAgICAgICAgeyd9J31dCiAgICAp" />
   <ComparisonTable title="Vision Model Comparison" headers={['Model','OCR Quality','Chart Understanding','Cost']} rows={[['GPT-4o','Excellent','Very Good','$2.50/1M + image tokens'],['Claude 3.5 Sonnet','Excellent','Excellent','$3.00/1M + image tokens'],['Gemini 1.5 Pro','Very Good','Good','$1.25/1M + image tokens']]}/>

@@ -5,43 +5,7 @@ icon: "🔄"
 
 ## ReAct Deep Dive
 
-<CodeBlock>
-{`class ReActAgent:
-    def __init__(self, model, tools, max_steps=10):
-        self.model = model
-        self.tools = {'{'{'}'}t.name: t for t in tools{'}'}
-        self.max_steps = max_steps
-        self.trajectory = []  # Full reasoning trace
-
-    async def run(self, query):
-        messages = [
-            {'{'{'}'}"role": "system", "content": self.system_prompt{'}'},
-            {'{'{'}'}"role": "user", "content": query{'}'}
-        ]
-
-        for step in range(self.max_steps):
-            response = await self.model.generate(messages, tools=self.tools)
-
-            # Check for final answer
-            if not response.tool_calls:
-                self.trajectory.append({'{'{'}'}"type": "answer", "content": response.text{'}'})
-                return response.text
-
-            # Execute tool calls (may be parallel)
-            for call in response.tool_calls:
-                self.trajectory.append({'{'{'}'}
-                    "type": "tool_call",
-                    "tool": call.name,
-                    "args": call.arguments
-                {'}'})
-                try:
-                    result = await self.tools[call.name].execute(call.arguments)
-                    messages.append({'{'{'}'}"role": "tool", "content": str(result){'}'})
-                except Exception as e:
-                    messages.append({'{'{'}'}"role": "tool", "content": f"Error: {'{'{'}'}e{'}'}"{'}'})
-
-        return "Max steps reached. Partial results: " + str(self.trajectory[-1])`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgUmVBY3RBZ2VudDoKICAgIGRlZiBfX2luaXRfXyhzZWxmLCBtb2RlbCwgdG9vbHMsIG1heF9zdGVwcz0xMCk6CiAgICAgICAgc2VsZi5tb2RlbCA9IG1vZGVsCiAgICAgICAgc2VsZi50b29scyA9IHsneyd7J30nfXQubmFtZTogdCBmb3IgdCBpbiB0b29sc3snfSd9CiAgICAgICAgc2VsZi5tYXhfc3RlcHMgPSBtYXhfc3RlcHMKICAgICAgICBzZWxmLnRyYWplY3RvcnkgPSBbXSAgIyBGdWxsIHJlYXNvbmluZyB0cmFjZQoKICAgIGFzeW5jIGRlZiBydW4oc2VsZiwgcXVlcnkpOgogICAgICAgIG1lc3NhZ2VzID0gWwogICAgICAgICAgICB7J3sneyd9J30icm9sZSI6ICJzeXN0ZW0iLCAiY29udGVudCI6IHNlbGYuc3lzdGVtX3Byb21wdHsnfSd9LAogICAgICAgICAgICB7J3sneyd9J30icm9sZSI6ICJ1c2VyIiwgImNvbnRlbnQiOiBxdWVyeXsnfSd9CiAgICAgICAgXQoKICAgICAgICBmb3Igc3RlcCBpbiByYW5nZShzZWxmLm1heF9zdGVwcyk6CiAgICAgICAgICAgIHJlc3BvbnNlID0gYXdhaXQgc2VsZi5tb2RlbC5nZW5lcmF0ZShtZXNzYWdlcywgdG9vbHM9c2VsZi50b29scykKCiAgICAgICAgICAgICMgQ2hlY2sgZm9yIGZpbmFsIGFuc3dlcgogICAgICAgICAgICBpZiBub3QgcmVzcG9uc2UudG9vbF9jYWxsczoKICAgICAgICAgICAgICAgIHNlbGYudHJhamVjdG9yeS5hcHBlbmQoeyd7J3snfSd9InR5cGUiOiAiYW5zd2VyIiwgImNvbnRlbnQiOiByZXNwb25zZS50ZXh0eyd9J30pCiAgICAgICAgICAgICAgICByZXR1cm4gcmVzcG9uc2UudGV4dAoKICAgICAgICAgICAgIyBFeGVjdXRlIHRvb2wgY2FsbHMgKG1heSBiZSBwYXJhbGxlbCkKICAgICAgICAgICAgZm9yIGNhbGwgaW4gcmVzcG9uc2UudG9vbF9jYWxsczoKICAgICAgICAgICAgICAgIHNlbGYudHJhamVjdG9yeS5hcHBlbmQoeyd7J3snfSd9CiAgICAgICAgICAgICAgICAgICAgInR5cGUiOiAidG9vbF9jYWxsIiwKICAgICAgICAgICAgICAgICAgICAidG9vbCI6IGNhbGwubmFtZSwKICAgICAgICAgICAgICAgICAgICAiYXJncyI6IGNhbGwuYXJndW1lbnRzCiAgICAgICAgICAgICAgICB7J30nfSkKICAgICAgICAgICAgICAgIHRyeToKICAgICAgICAgICAgICAgICAgICByZXN1bHQgPSBhd2FpdCBzZWxmLnRvb2xzW2NhbGwubmFtZV0uZXhlY3V0ZShjYWxsLmFyZ3VtZW50cykKICAgICAgICAgICAgICAgICAgICBtZXNzYWdlcy5hcHBlbmQoeyd7J3snfSd9InJvbGUiOiAidG9vbCIsICJjb250ZW50Ijogc3RyKHJlc3VsdCl7J30nfSkKICAgICAgICAgICAgICAgIGV4Y2VwdCBFeGNlcHRpb24gYXMgZToKICAgICAgICAgICAgICAgICAgICBtZXNzYWdlcy5hcHBlbmQoeyd7J3snfSd9InJvbGUiOiAidG9vbCIsICJjb250ZW50IjogZiJFcnJvcjogeyd7J3snfSd9ZXsnfSd9InsnfSd9KQoKICAgICAgICByZXR1cm4gIk1heCBzdGVwcyByZWFjaGVkLiBQYXJ0aWFsIHJlc3VsdHM6ICIgKyBzdHIoc2VsZi50cmFqZWN0b3J5Wy0xXSk=" />
 
 <ExpandableSection title="ReAct Best Practices" icon="💡">
 

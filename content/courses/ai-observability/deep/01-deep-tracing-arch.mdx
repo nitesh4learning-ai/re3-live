@@ -10,40 +10,5 @@ OpenTelemetry provides a vendor-neutral standard for distributed tracing. In LLM
 
 Span hierarchies are critical: a parent **rag_pipeline** span contains child spans for **embedding**, **retrieval**, **reranking**, and **llm_completion**. This lets you pinpoint exactly where <JargonTip term="latency">latency</JargonTip> or failures occur.
 
-  <CodeBlock>
-{`from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-
-provider = TracerProvider()
-provider.add_span_processor(
-    BatchSpanProcessor(OTLPSpanExporter(endpoint="http://localhost:4317"))
-)
-trace.set_tracer_provider(provider)
-tracer = trace.get_tracer("llm-app")
-
-async def rag_pipeline(query: str):
-    with tracer.start_as_current_span("rag_pipeline") as parent:
-        parent.set_attribute("user.query", query)
-
-        with tracer.start_as_current_span("embed_query") as embed_span:
-            embedding = await embedder.embed(query)
-            embed_span.set_attribute("embedding.dimensions", len(embedding))
-
-        with tracer.start_as_current_span("vector_retrieval") as ret_span:
-            docs = await vector_store.search(embedding, top_k=5)
-            ret_span.set_attribute("retrieval.num_results", len(docs))
-            ret_span.set_attribute("retrieval.top_score", docs[0].score)
-
-        with tracer.start_as_current_span("llm_completion") as llm_span:
-            response = await llm.invoke(
-                system="Answer using the provided context.",
-                user=f"Context: \\$\\{'{'{'}'}format_docs(docs)\\{'}'}\\nQuestion: \\$\\{'{'{'}'}query\\{'}'}")
-            llm_span.set_attribute("llm.model", "claude-3-sonnet")
-            llm_span.set_attribute("llm.input_tokens", response.usage.input)
-            llm_span.set_attribute("llm.output_tokens", response.usage.output)
-
-        return response.content`}
-</CodeBlock>
+  <CodeBlock b64="ZnJvbSBvcGVudGVsZW1ldHJ5IGltcG9ydCB0cmFjZQpmcm9tIG9wZW50ZWxlbWV0cnkuc2RrLnRyYWNlIGltcG9ydCBUcmFjZXJQcm92aWRlcgpmcm9tIG9wZW50ZWxlbWV0cnkuc2RrLnRyYWNlLmV4cG9ydCBpbXBvcnQgQmF0Y2hTcGFuUHJvY2Vzc29yCmZyb20gb3BlbnRlbGVtZXRyeS5leHBvcnRlci5vdGxwLnByb3RvLmdycGMudHJhY2VfZXhwb3J0ZXIgaW1wb3J0IE9UTFBTcGFuRXhwb3J0ZXIKCnByb3ZpZGVyID0gVHJhY2VyUHJvdmlkZXIoKQpwcm92aWRlci5hZGRfc3Bhbl9wcm9jZXNzb3IoCiAgICBCYXRjaFNwYW5Qcm9jZXNzb3IoT1RMUFNwYW5FeHBvcnRlcihlbmRwb2ludD0iaHR0cDovL2xvY2FsaG9zdDo0MzE3IikpCikKdHJhY2Uuc2V0X3RyYWNlcl9wcm92aWRlcihwcm92aWRlcikKdHJhY2VyID0gdHJhY2UuZ2V0X3RyYWNlcigibGxtLWFwcCIpCgphc3luYyBkZWYgcmFnX3BpcGVsaW5lKHF1ZXJ5OiBzdHIpOgogICAgd2l0aCB0cmFjZXIuc3RhcnRfYXNfY3VycmVudF9zcGFuKCJyYWdfcGlwZWxpbmUiKSBhcyBwYXJlbnQ6CiAgICAgICAgcGFyZW50LnNldF9hdHRyaWJ1dGUoInVzZXIucXVlcnkiLCBxdWVyeSkKCiAgICAgICAgd2l0aCB0cmFjZXIuc3RhcnRfYXNfY3VycmVudF9zcGFuKCJlbWJlZF9xdWVyeSIpIGFzIGVtYmVkX3NwYW46CiAgICAgICAgICAgIGVtYmVkZGluZyA9IGF3YWl0IGVtYmVkZGVyLmVtYmVkKHF1ZXJ5KQogICAgICAgICAgICBlbWJlZF9zcGFuLnNldF9hdHRyaWJ1dGUoImVtYmVkZGluZy5kaW1lbnNpb25zIiwgbGVuKGVtYmVkZGluZykpCgogICAgICAgIHdpdGggdHJhY2VyLnN0YXJ0X2FzX2N1cnJlbnRfc3BhbigidmVjdG9yX3JldHJpZXZhbCIpIGFzIHJldF9zcGFuOgogICAgICAgICAgICBkb2NzID0gYXdhaXQgdmVjdG9yX3N0b3JlLnNlYXJjaChlbWJlZGRpbmcsIHRvcF9rPTUpCiAgICAgICAgICAgIHJldF9zcGFuLnNldF9hdHRyaWJ1dGUoInJldHJpZXZhbC5udW1fcmVzdWx0cyIsIGxlbihkb2NzKSkKICAgICAgICAgICAgcmV0X3NwYW4uc2V0X2F0dHJpYnV0ZSgicmV0cmlldmFsLnRvcF9zY29yZSIsIGRvY3NbMF0uc2NvcmUpCgogICAgICAgIHdpdGggdHJhY2VyLnN0YXJ0X2FzX2N1cnJlbnRfc3BhbigibGxtX2NvbXBsZXRpb24iKSBhcyBsbG1fc3BhbjoKICAgICAgICAgICAgcmVzcG9uc2UgPSBhd2FpdCBsbG0uaW52b2tlKAogICAgICAgICAgICAgICAgc3lzdGVtPSJBbnN3ZXIgdXNpbmcgdGhlIHByb3ZpZGVkIGNvbnRleHQuIiwKICAgICAgICAgICAgICAgIHVzZXI9ZiJDb250ZXh0OiBcXCRcXHsneyd7J30nfWZvcm1hdF9kb2NzKGRvY3MpXFx7J30nfVxcblF1ZXN0aW9uOiBcXCRcXHsneyd7J30nfXF1ZXJ5XFx7J30nfSIpCiAgICAgICAgICAgIGxsbV9zcGFuLnNldF9hdHRyaWJ1dGUoImxsbS5tb2RlbCIsICJjbGF1ZGUtMy1zb25uZXQiKQogICAgICAgICAgICBsbG1fc3Bhbi5zZXRfYXR0cmlidXRlKCJsbG0uaW5wdXRfdG9rZW5zIiwgcmVzcG9uc2UudXNhZ2UuaW5wdXQpCiAgICAgICAgICAgIGxsbV9zcGFuLnNldF9hdHRyaWJ1dGUoImxsbS5vdXRwdXRfdG9rZW5zIiwgcmVzcG9uc2UudXNhZ2Uub3V0cHV0KQoKICAgICAgICByZXR1cm4gcmVzcG9uc2UuY29udGVudA==" />
   <Quiz question="Why are span hierarchies important in LLM tracing?" options={["They make logs look prettier","They let you pinpoint exactly which step caused latency or failures","They are required by law","They reduce token costs"]} correctIndex={1} explanation="Span hierarchies create a tree structure where each processing step is a child of its parent pipeline. When latency spikes, you can drill down to see which child span (embedding, retrieval, LLM call) is the bottleneck."/>

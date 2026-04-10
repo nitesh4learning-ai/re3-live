@@ -14,31 +14,7 @@ An **agentic AI system** is an LLM that can reason about what to do, take action
 
 The **<JargonTip term="ReAct">ReAct</JargonTip>** (Reason + Act) pattern is the foundational architecture for tool-using agents. At each step the agent produces a **Thought** (reasoning about what to do), an **Action** (tool call or response), and receives an **Observation** (tool result). This cycle repeats until the task is done.
 
-  <CodeBlock>
-{`def react_agent(task, tools, max_steps=10):
-    """Core ReAct loop: Thought -> Action -> Observation"""
-    messages = [{'{'{'}'}"role": "system", "content": AGENT_PROMPT{'}'}]
-    messages.append({'{'{'}'}"role": "user", "content": task{'}'})
-
-    for step in range(max_steps):
-        # 1. LLM generates Thought + Action
-        response = llm.generate(messages, tools=tools)
-
-        if response.stop_reason == "tool_use":
-            # 2. Execute the tool call
-            tool_name = response.tool_calls[0].name
-            tool_args = response.tool_calls[0].arguments
-            result = execute_tool(tool_name, tool_args)
-
-            # 3. Feed Observation back to the agent
-            messages.append({'{'{'}'}"role": "assistant", "content": response{'}'})
-            messages.append({'{'{'}'}"role": "tool", "content": str(result){'}'})
-        else:
-            # Agent decided to respond -- task complete
-            return response.content
-
-    return "Max steps reached without completion"`}
-</CodeBlock>
+  <CodeBlock b64="ZGVmIHJlYWN0X2FnZW50KHRhc2ssIHRvb2xzLCBtYXhfc3RlcHM9MTApOgogICAgIiIiQ29yZSBSZUFjdCBsb29wOiBUaG91Z2h0IC0+IEFjdGlvbiAtPiBPYnNlcnZhdGlvbiIiIgogICAgbWVzc2FnZXMgPSBbeyd7J3snfSd9InJvbGUiOiAic3lzdGVtIiwgImNvbnRlbnQiOiBBR0VOVF9QUk9NUFR7J30nfV0KICAgIG1lc3NhZ2VzLmFwcGVuZCh7J3sneyd9J30icm9sZSI6ICJ1c2VyIiwgImNvbnRlbnQiOiB0YXNreyd9J30pCgogICAgZm9yIHN0ZXAgaW4gcmFuZ2UobWF4X3N0ZXBzKToKICAgICAgICAjIDEuIExMTSBnZW5lcmF0ZXMgVGhvdWdodCArIEFjdGlvbgogICAgICAgIHJlc3BvbnNlID0gbGxtLmdlbmVyYXRlKG1lc3NhZ2VzLCB0b29scz10b29scykKCiAgICAgICAgaWYgcmVzcG9uc2Uuc3RvcF9yZWFzb24gPT0gInRvb2xfdXNlIjoKICAgICAgICAgICAgIyAyLiBFeGVjdXRlIHRoZSB0b29sIGNhbGwKICAgICAgICAgICAgdG9vbF9uYW1lID0gcmVzcG9uc2UudG9vbF9jYWxsc1swXS5uYW1lCiAgICAgICAgICAgIHRvb2xfYXJncyA9IHJlc3BvbnNlLnRvb2xfY2FsbHNbMF0uYXJndW1lbnRzCiAgICAgICAgICAgIHJlc3VsdCA9IGV4ZWN1dGVfdG9vbCh0b29sX25hbWUsIHRvb2xfYXJncykKCiAgICAgICAgICAgICMgMy4gRmVlZCBPYnNlcnZhdGlvbiBiYWNrIHRvIHRoZSBhZ2VudAogICAgICAgICAgICBtZXNzYWdlcy5hcHBlbmQoeyd7J3snfSd9InJvbGUiOiAiYXNzaXN0YW50IiwgImNvbnRlbnQiOiByZXNwb25zZXsnfSd9KQogICAgICAgICAgICBtZXNzYWdlcy5hcHBlbmQoeyd7J3snfSd9InJvbGUiOiAidG9vbCIsICJjb250ZW50Ijogc3RyKHJlc3VsdCl7J30nfSkKICAgICAgICBlbHNlOgogICAgICAgICAgICAjIEFnZW50IGRlY2lkZWQgdG8gcmVzcG9uZCAtLSB0YXNrIGNvbXBsZXRlCiAgICAgICAgICAgIHJldHVybiByZXNwb25zZS5jb250ZW50CgogICAgcmV0dXJuICJNYXggc3RlcHMgcmVhY2hlZCB3aXRob3V0IGNvbXBsZXRpb24i" />
   <ReActSimulator/>
 
   <ComparisonTable title="Agent Architecture Patterns" columns={['Pattern','How It Works','Strengths','Weaknesses']} rows={[

@@ -8,18 +8,7 @@ icon: "\uD83D\uDCCA"
 The quality of your fine-tuned model is determined by the quality of your training data. **Garbage in, garbage out** applies more strongly to fine-tuning than almost any other ML task.
 
   <AnalogyBox emoji="🍳" title="Think of it like cooking">Fine-tuning data is your ingredient list. A master chef with spoiled ingredients produces bad food. Similarly, a powerful model trained on low-quality data produces low-quality outputs. Data preparation is 80% of fine-tuning success.</AnalogyBox>
-  <CodeBlock>
-{`{'{'{'}'}"messages": [
-  {'{'{'}'}"role": "system", "content": "You are a medical coding assistant."{'}'},
-  {'{'{'}'}"role": "user", "content": "Patient presents with acute bronchitis"{'}'},
-  {'{'{'}'}"role": "assistant", "content": "ICD-10: J20.9 - Acute bronchitis, unspecified"{'}'}
-]{'}'}
-{'{'{'}'}"messages": [
-  {'{'{'}'}"role": "system", "content": "You are a medical coding assistant."{'}'},
-  {'{'{'}'}"role": "user", "content": "Patient has type 2 diabetes with neuropathy"{'}'},
-  {'{'{'}'}"role": "assistant", "content": "ICD-10: E11.40 - Type 2 diabetes with neuropathy, unspecified"{'}'}
-]{'}'}`}
-</CodeBlock>
+  <CodeBlock b64="eyd7J3snfSd9Im1lc3NhZ2VzIjogWwogIHsneyd7J30nfSJyb2xlIjogInN5c3RlbSIsICJjb250ZW50IjogIllvdSBhcmUgYSBtZWRpY2FsIGNvZGluZyBhc3Npc3RhbnQuInsnfSd9LAogIHsneyd7J30nfSJyb2xlIjogInVzZXIiLCAiY29udGVudCI6ICJQYXRpZW50IHByZXNlbnRzIHdpdGggYWN1dGUgYnJvbmNoaXRpcyJ7J30nfSwKICB7J3sneyd9J30icm9sZSI6ICJhc3Npc3RhbnQiLCAiY29udGVudCI6ICJJQ0QtMTA6IEoyMC45IC0gQWN1dGUgYnJvbmNoaXRpcywgdW5zcGVjaWZpZWQieyd9J30KXXsnfSd9Cnsneyd7J30nfSJtZXNzYWdlcyI6IFsKICB7J3sneyd9J30icm9sZSI6ICJzeXN0ZW0iLCAiY29udGVudCI6ICJZb3UgYXJlIGEgbWVkaWNhbCBjb2RpbmcgYXNzaXN0YW50LiJ7J30nfSwKICB7J3sneyd9J30icm9sZSI6ICJ1c2VyIiwgImNvbnRlbnQiOiAiUGF0aWVudCBoYXMgdHlwZSAyIGRpYWJldGVzIHdpdGggbmV1cm9wYXRoeSJ7J30nfSwKICB7J3sneyd9J30icm9sZSI6ICJhc3Npc3RhbnQiLCAiY29udGVudCI6ICJJQ0QtMTA6IEUxMS40MCAtIFR5cGUgMiBkaWFiZXRlcyB3aXRoIG5ldXJvcGF0aHksIHVuc3BlY2lmaWVkInsnfSd9Cl17J30nfQ==" />
   <DataQualityChecker/>
   <ExpandableSection title="Dataset Size Guidelines" icon="📊">
     <ComparisonTable title="How much data do you need?" columns={['Goal','Min Examples','Recommended','Notes']} rows={[
@@ -33,29 +22,7 @@ The quality of your fine-tuned model is determined by the quality of your traini
 
 When you lack enough real data, use a larger model to generate synthetic training data for a smaller model. This is a form of <JargonTip term="distillation">distillation</JargonTip>.
 
-    <CodeBlock>
-{`import openai
-
-def generate_synthetic_pair(domain, task_desc):
-    """Use GPT-4 to generate training pairs for fine-tuning."""
-    response = openai.chat.completions.create(
-        model="gpt-4",
-        messages=[{'{'{'}'}
-            "role": "system",
-            "content": f"Generate a realistic {'{'{'}'}domain{'}'} training example."
-        {'}'}, {'{'{'}'}
-            "role": "user",
-            "content": f"Create an input/output pair for: {'{'{'}'}task_desc{'}'}"
-        {'}'}],
-        temperature=0.9  # Higher temp = more diversity
-    )
-    return response.choices[0].message.content
-
-# Generate 500 diverse examples
-pairs = [generate_synthetic_pair("medical coding",
-    "Map patient symptoms to ICD-10 codes")
-    for _ in range(500)]`}
-</CodeBlock>
+    <CodeBlock b64="aW1wb3J0IG9wZW5haQoKZGVmIGdlbmVyYXRlX3N5bnRoZXRpY19wYWlyKGRvbWFpbiwgdGFza19kZXNjKToKICAgICIiIlVzZSBHUFQtNCB0byBnZW5lcmF0ZSB0cmFpbmluZyBwYWlycyBmb3IgZmluZS10dW5pbmcuIiIiCiAgICByZXNwb25zZSA9IG9wZW5haS5jaGF0LmNvbXBsZXRpb25zLmNyZWF0ZSgKICAgICAgICBtb2RlbD0iZ3B0LTQiLAogICAgICAgIG1lc3NhZ2VzPVt7J3sneyd9J30KICAgICAgICAgICAgInJvbGUiOiAic3lzdGVtIiwKICAgICAgICAgICAgImNvbnRlbnQiOiBmIkdlbmVyYXRlIGEgcmVhbGlzdGljIHsneyd7J30nfWRvbWFpbnsnfSd9IHRyYWluaW5nIGV4YW1wbGUuIgogICAgICAgIHsnfSd9LCB7J3sneyd9J30KICAgICAgICAgICAgInJvbGUiOiAidXNlciIsCiAgICAgICAgICAgICJjb250ZW50IjogZiJDcmVhdGUgYW4gaW5wdXQvb3V0cHV0IHBhaXIgZm9yOiB7J3sneyd9J310YXNrX2Rlc2N7J30nfSIKICAgICAgICB7J30nfV0sCiAgICAgICAgdGVtcGVyYXR1cmU9MC45ICAjIEhpZ2hlciB0ZW1wID0gbW9yZSBkaXZlcnNpdHkKICAgICkKICAgIHJldHVybiByZXNwb25zZS5jaG9pY2VzWzBdLm1lc3NhZ2UuY29udGVudAoKIyBHZW5lcmF0ZSA1MDAgZGl2ZXJzZSBleGFtcGxlcwpwYWlycyA9IFtnZW5lcmF0ZV9zeW50aGV0aWNfcGFpcigibWVkaWNhbCBjb2RpbmciLAogICAgIk1hcCBwYXRpZW50IHN5bXB0b21zIHRvIElDRC0xMCBjb2RlcyIpCiAgICBmb3IgXyBpbiByYW5nZSg1MDApXQ==" />
   </ExpandableSection>
   <Quiz question="What is the most important factor in fine-tuning data quality?" options={["Having millions of examples","Consistency and correctness of outputs","Using only real (not synthetic) data","Making inputs as long as possible"]} correctIndex={1} explanation="Quality beats quantity every time. 200 perfectly consistent, correct examples often outperform 10,000 noisy ones. Each training example teaches the model a pattern -- inconsistent examples teach conflicting patterns."/>
   <Quiz question="What format do most fine-tuning APIs expect?" options={["CSV with headers","JSONL with message arrays","Plain text files","XML documents"]} correctIndex={1} explanation="JSONL (JSON Lines) with chat-format message arrays is the standard format for fine-tuning modern LLMs. Each line contains a complete conversation with system, user, and assistant messages."/>

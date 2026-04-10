@@ -19,42 +19,7 @@ This captures token-level semantic matching that single-vector models miss. For 
 
 </ExpandableSection>
 
-<CodeBlock>
-{`# RAGatouille provides an easy-to-use ColBERT interface
-from ragatouille import RAGPretrainedModel
-
-# Load a pre-trained ColBERT model
-rag = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
-
-# Index documents (creates multi-vector index)
-documents = [
-    "Python memory management uses reference counting and garbage collection.",
-    "The garbage collector in Python handles cyclic references automatically.",
-    "JavaScript uses mark-and-sweep garbage collection in V8.",
-    "Memory leaks in Python often occur due to global variables holding references.",
-    "Rust's ownership system eliminates the need for garbage collection entirely.",
-]
-
-rag.index(
-    collection=documents,
-    index_name="memory_docs",
-    max_document_length=256,
-    split_documents=True,  # Auto-chunk long documents
-)
-
-# Search with token-level matching
-results = rag.search(
-    query="How does Python handle memory cleanup?",
-    k=3,
-)
-
-for r in results:
-    print(f"Score: {'{'{'}'}r['score']:.4f{'}'} | {'{'{'}'}r['content'][:80]{'}'}...")
-
-# ColBERT finds nuanced matches that bi-encoders might miss:
-# "garbage collection" matches "memory cleanup" at the token level
-# "Python" disambiguates from JavaScript/Rust results`}
-</CodeBlock>
+<CodeBlock b64="IyBSQUdhdG91aWxsZSBwcm92aWRlcyBhbiBlYXN5LXRvLXVzZSBDb2xCRVJUIGludGVyZmFjZQpmcm9tIHJhZ2F0b3VpbGxlIGltcG9ydCBSQUdQcmV0cmFpbmVkTW9kZWwKCiMgTG9hZCBhIHByZS10cmFpbmVkIENvbEJFUlQgbW9kZWwKcmFnID0gUkFHUHJldHJhaW5lZE1vZGVsLmZyb21fcHJldHJhaW5lZCgiY29sYmVydC1pci9jb2xiZXJ0djIuMCIpCgojIEluZGV4IGRvY3VtZW50cyAoY3JlYXRlcyBtdWx0aS12ZWN0b3IgaW5kZXgpCmRvY3VtZW50cyA9IFsKICAgICJQeXRob24gbWVtb3J5IG1hbmFnZW1lbnQgdXNlcyByZWZlcmVuY2UgY291bnRpbmcgYW5kIGdhcmJhZ2UgY29sbGVjdGlvbi4iLAogICAgIlRoZSBnYXJiYWdlIGNvbGxlY3RvciBpbiBQeXRob24gaGFuZGxlcyBjeWNsaWMgcmVmZXJlbmNlcyBhdXRvbWF0aWNhbGx5LiIsCiAgICAiSmF2YVNjcmlwdCB1c2VzIG1hcmstYW5kLXN3ZWVwIGdhcmJhZ2UgY29sbGVjdGlvbiBpbiBWOC4iLAogICAgIk1lbW9yeSBsZWFrcyBpbiBQeXRob24gb2Z0ZW4gb2NjdXIgZHVlIHRvIGdsb2JhbCB2YXJpYWJsZXMgaG9sZGluZyByZWZlcmVuY2VzLiIsCiAgICAiUnVzdCdzIG93bmVyc2hpcCBzeXN0ZW0gZWxpbWluYXRlcyB0aGUgbmVlZCBmb3IgZ2FyYmFnZSBjb2xsZWN0aW9uIGVudGlyZWx5LiIsCl0KCnJhZy5pbmRleCgKICAgIGNvbGxlY3Rpb249ZG9jdW1lbnRzLAogICAgaW5kZXhfbmFtZT0ibWVtb3J5X2RvY3MiLAogICAgbWF4X2RvY3VtZW50X2xlbmd0aD0yNTYsCiAgICBzcGxpdF9kb2N1bWVudHM9VHJ1ZSwgICMgQXV0by1jaHVuayBsb25nIGRvY3VtZW50cwopCgojIFNlYXJjaCB3aXRoIHRva2VuLWxldmVsIG1hdGNoaW5nCnJlc3VsdHMgPSByYWcuc2VhcmNoKAogICAgcXVlcnk9IkhvdyBkb2VzIFB5dGhvbiBoYW5kbGUgbWVtb3J5IGNsZWFudXA/IiwKICAgIGs9MywKKQoKZm9yIHIgaW4gcmVzdWx0czoKICAgIHByaW50KGYiU2NvcmU6IHsneyd7J30nfXJbJ3Njb3JlJ106LjRmeyd9J30gfCB7J3sneyd9J31yWydjb250ZW50J11bOjgwXXsnfSd9Li4uIikKCiMgQ29sQkVSVCBmaW5kcyBudWFuY2VkIG1hdGNoZXMgdGhhdCBiaS1lbmNvZGVycyBtaWdodCBtaXNzOgojICJnYXJiYWdlIGNvbGxlY3Rpb24iIG1hdGNoZXMgIm1lbW9yeSBjbGVhbnVwIiBhdCB0aGUgdG9rZW4gbGV2ZWwKIyAiUHl0aG9uIiBkaXNhbWJpZ3VhdGVzIGZyb20gSmF2YVNjcmlwdC9SdXN0IHJlc3VsdHM=" />
 
 <ExpandableSection title="When to Use Multi-Vector vs Single-Vector" icon="⚖️">
 

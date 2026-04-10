@@ -17,55 +17,7 @@ This dramatically improves performance because the model sees examples most simi
 
 </ExpandableSection>
 
-<CodeBlock>
-{`from openai import OpenAI
-import numpy as np
-
-client = OpenAI()
-
-# Your example bank (in production, store embeddings in a vector DB)
-example_bank = [
-    {'{'{'}'}"input": "The product arrived damaged", "output": "complaint", "embedding": None{'}'},
-    {'{'{'}'}"input": "When will my order ship?", "output": "order_status", "embedding": None{'}'},
-    {'{'{'}'}"input": "Can I return this item?", "output": "return_request", "embedding": None{'}'},
-    {'{'{'}'}"input": "What colors does this come in?", "output": "product_question", "embedding": None{'}'},
-    {'{'{'}'}"input": "I was charged twice", "output": "billing_issue", "embedding": None{'}'},
-    {'{'{'}'}"input": "This is the worst quality ever", "output": "complaint", "embedding": None{'}'},
-    {'{'{'}'}"input": "Do you have size XL?", "output": "product_question", "embedding": None{'}'},
-    {'{'{'}'}"input": "My package says delivered but I didn't get it", "output": "delivery_issue", "embedding": None{'}'},
-]
-
-def embed(text):
-    resp = client.embeddings.create(input=text, model="text-embedding-3-small")
-    return np.array(resp.data[0].embedding)
-
-# Pre-compute embeddings for all examples
-for ex in example_bank:
-    ex["embedding"] = embed(ex["input"])
-
-def get_dynamic_examples(query, k=3):
-    """Select k most relevant examples for the query."""
-    query_emb = embed(query)
-    # Compute cosine similarity
-    similarities = [
-        np.dot(query_emb, ex["embedding"]) /
-        (np.linalg.norm(query_emb) * np.linalg.norm(ex["embedding"]))
-        for ex in example_bank
-    ]
-    # Get top-k indices
-    top_k = np.argsort(similarities)[-k:][::-1]
-    return [example_bank[i] for i in top_k]
-
-# Usage
-query = "The item I received is broken"
-examples = get_dynamic_examples(query, k=3)
-# Returns examples most similar to complaints about damaged items
-
-prompt = "Classify the following customer message.\\n\\n"
-for ex in examples:
-    prompt += f"Input: {'{'{'}'}ex['input']{'}'}\\nCategory: {'{'{'}'}ex['output']{'}'}\\n\\n"
-prompt += f"Input: {'{'{'}'}query{'}'}\\nCategory:"`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBvcGVuYWkgaW1wb3J0IE9wZW5BSQppbXBvcnQgbnVtcHkgYXMgbnAKCmNsaWVudCA9IE9wZW5BSSgpCgojIFlvdXIgZXhhbXBsZSBiYW5rIChpbiBwcm9kdWN0aW9uLCBzdG9yZSBlbWJlZGRpbmdzIGluIGEgdmVjdG9yIERCKQpleGFtcGxlX2JhbmsgPSBbCiAgICB7J3sneyd9J30iaW5wdXQiOiAiVGhlIHByb2R1Y3QgYXJyaXZlZCBkYW1hZ2VkIiwgIm91dHB1dCI6ICJjb21wbGFpbnQiLCAiZW1iZWRkaW5nIjogTm9uZXsnfSd9LAogICAgeyd7J3snfSd9ImlucHV0IjogIldoZW4gd2lsbCBteSBvcmRlciBzaGlwPyIsICJvdXRwdXQiOiAib3JkZXJfc3RhdHVzIiwgImVtYmVkZGluZyI6IE5vbmV7J30nfSwKICAgIHsneyd7J30nfSJpbnB1dCI6ICJDYW4gSSByZXR1cm4gdGhpcyBpdGVtPyIsICJvdXRwdXQiOiAicmV0dXJuX3JlcXVlc3QiLCAiZW1iZWRkaW5nIjogTm9uZXsnfSd9LAogICAgeyd7J3snfSd9ImlucHV0IjogIldoYXQgY29sb3JzIGRvZXMgdGhpcyBjb21lIGluPyIsICJvdXRwdXQiOiAicHJvZHVjdF9xdWVzdGlvbiIsICJlbWJlZGRpbmciOiBOb25leyd9J30sCiAgICB7J3sneyd9J30iaW5wdXQiOiAiSSB3YXMgY2hhcmdlZCB0d2ljZSIsICJvdXRwdXQiOiAiYmlsbGluZ19pc3N1ZSIsICJlbWJlZGRpbmciOiBOb25leyd9J30sCiAgICB7J3sneyd9J30iaW5wdXQiOiAiVGhpcyBpcyB0aGUgd29yc3QgcXVhbGl0eSBldmVyIiwgIm91dHB1dCI6ICJjb21wbGFpbnQiLCAiZW1iZWRkaW5nIjogTm9uZXsnfSd9LAogICAgeyd7J3snfSd9ImlucHV0IjogIkRvIHlvdSBoYXZlIHNpemUgWEw/IiwgIm91dHB1dCI6ICJwcm9kdWN0X3F1ZXN0aW9uIiwgImVtYmVkZGluZyI6IE5vbmV7J30nfSwKICAgIHsneyd7J30nfSJpbnB1dCI6ICJNeSBwYWNrYWdlIHNheXMgZGVsaXZlcmVkIGJ1dCBJIGRpZG4ndCBnZXQgaXQiLCAib3V0cHV0IjogImRlbGl2ZXJ5X2lzc3VlIiwgImVtYmVkZGluZyI6IE5vbmV7J30nfSwKXQoKZGVmIGVtYmVkKHRleHQpOgogICAgcmVzcCA9IGNsaWVudC5lbWJlZGRpbmdzLmNyZWF0ZShpbnB1dD10ZXh0LCBtb2RlbD0idGV4dC1lbWJlZGRpbmctMy1zbWFsbCIpCiAgICByZXR1cm4gbnAuYXJyYXkocmVzcC5kYXRhWzBdLmVtYmVkZGluZykKCiMgUHJlLWNvbXB1dGUgZW1iZWRkaW5ncyBmb3IgYWxsIGV4YW1wbGVzCmZvciBleCBpbiBleGFtcGxlX2Jhbms6CiAgICBleFsiZW1iZWRkaW5nIl0gPSBlbWJlZChleFsiaW5wdXQiXSkKCmRlZiBnZXRfZHluYW1pY19leGFtcGxlcyhxdWVyeSwgaz0zKToKICAgICIiIlNlbGVjdCBrIG1vc3QgcmVsZXZhbnQgZXhhbXBsZXMgZm9yIHRoZSBxdWVyeS4iIiIKICAgIHF1ZXJ5X2VtYiA9IGVtYmVkKHF1ZXJ5KQogICAgIyBDb21wdXRlIGNvc2luZSBzaW1pbGFyaXR5CiAgICBzaW1pbGFyaXRpZXMgPSBbCiAgICAgICAgbnAuZG90KHF1ZXJ5X2VtYiwgZXhbImVtYmVkZGluZyJdKSAvCiAgICAgICAgKG5wLmxpbmFsZy5ub3JtKHF1ZXJ5X2VtYikgKiBucC5saW5hbGcubm9ybShleFsiZW1iZWRkaW5nIl0pKQogICAgICAgIGZvciBleCBpbiBleGFtcGxlX2JhbmsKICAgIF0KICAgICMgR2V0IHRvcC1rIGluZGljZXMKICAgIHRvcF9rID0gbnAuYXJnc29ydChzaW1pbGFyaXRpZXMpWy1rOl1bOjotMV0KICAgIHJldHVybiBbZXhhbXBsZV9iYW5rW2ldIGZvciBpIGluIHRvcF9rXQoKIyBVc2FnZQpxdWVyeSA9ICJUaGUgaXRlbSBJIHJlY2VpdmVkIGlzIGJyb2tlbiIKZXhhbXBsZXMgPSBnZXRfZHluYW1pY19leGFtcGxlcyhxdWVyeSwgaz0zKQojIFJldHVybnMgZXhhbXBsZXMgbW9zdCBzaW1pbGFyIHRvIGNvbXBsYWludHMgYWJvdXQgZGFtYWdlZCBpdGVtcwoKcHJvbXB0ID0gIkNsYXNzaWZ5IHRoZSBmb2xsb3dpbmcgY3VzdG9tZXIgbWVzc2FnZS5cXG5cXG4iCmZvciBleCBpbiBleGFtcGxlczoKICAgIHByb21wdCArPSBmIklucHV0OiB7J3sneyd9J31leFsnaW5wdXQnXXsnfSd9XFxuQ2F0ZWdvcnk6IHsneyd7J30nfWV4WydvdXRwdXQnXXsnfSd9XFxuXFxuIgpwcm9tcHQgKz0gZiJJbnB1dDogeyd7J3snfSd9cXVlcnl7J30nfVxcbkNhdGVnb3J5OiI=" />
 
 <ExpandableSection title="Example Ordering Effects" icon="🔢">
 

@@ -11,59 +11,7 @@ Building one agent that works is step one. Running thousands of agents reliably,
 
 
 ### Parallel Tool Calls
-  <CodeBlock>
-{`import asyncio
-from collections import defaultdict
-
-class ParallelToolExecutor:
-    """Execute multiple tool calls concurrently with rate limiting."""
-
-    def __init__(self, max_concurrent=10, rate_limit_per_min=60):
-        self.semaphore = asyncio.Semaphore(max_concurrent)
-        self.rate_limiter = RateLimiter(rate_limit_per_min)
-        self.metrics = defaultdict(list)
-
-    async def execute_batch(self, tool_calls: list) -> list:
-        """Run multiple tool calls in parallel with concurrency control."""
-        tasks = [self._guarded_execute(tc) for tc in tool_calls]
-        return await asyncio.gather(*tasks, return_exceptions=True)
-
-    async def _guarded_execute(self, tool_call):
-        async with self.semaphore:  # Limit concurrency
-            await self.rate_limiter.wait()  # Respect rate limits
-            start = time.time()
-            try:
-                result = await execute_tool(
-                    tool_call["name"], tool_call["args"]
-                )
-                self.metrics[tool_call["name"]].append({'{'{'}'}
-                    "latency": time.time() - start,
-                    "success": True
-                {'}'})
-                return result
-            except Exception as e:
-                self.metrics[tool_call["name"]].append({'{'{'}'}
-                    "latency": time.time() - start,
-                    "success": False,
-                    "error": str(e)
-                {'}'})
-                return {'{'{'}'}"error": str(e){'}'}
-
-class RateLimiter:
-    """Token bucket rate limiter."""
-    def __init__(self, per_minute):
-        self.per_minute = per_minute
-        self.tokens = per_minute
-        self.last_refill = time.time()
-
-    async def wait(self):
-        while self.tokens <= 0:
-            elapsed = time.time() - self.last_refill
-            self.tokens = min(self.per_minute, elapsed * self.per_minute / 60)
-            if self.tokens <= 0:
-                await asyncio.sleep(0.1)
-        self.tokens -= 1`}
-</CodeBlock>
+  <CodeBlock b64="aW1wb3J0IGFzeW5jaW8KZnJvbSBjb2xsZWN0aW9ucyBpbXBvcnQgZGVmYXVsdGRpY3QKCmNsYXNzIFBhcmFsbGVsVG9vbEV4ZWN1dG9yOgogICAgIiIiRXhlY3V0ZSBtdWx0aXBsZSB0b29sIGNhbGxzIGNvbmN1cnJlbnRseSB3aXRoIHJhdGUgbGltaXRpbmcuIiIiCgogICAgZGVmIF9faW5pdF9fKHNlbGYsIG1heF9jb25jdXJyZW50PTEwLCByYXRlX2xpbWl0X3Blcl9taW49NjApOgogICAgICAgIHNlbGYuc2VtYXBob3JlID0gYXN5bmNpby5TZW1hcGhvcmUobWF4X2NvbmN1cnJlbnQpCiAgICAgICAgc2VsZi5yYXRlX2xpbWl0ZXIgPSBSYXRlTGltaXRlcihyYXRlX2xpbWl0X3Blcl9taW4pCiAgICAgICAgc2VsZi5tZXRyaWNzID0gZGVmYXVsdGRpY3QobGlzdCkKCiAgICBhc3luYyBkZWYgZXhlY3V0ZV9iYXRjaChzZWxmLCB0b29sX2NhbGxzOiBsaXN0KSAtPiBsaXN0OgogICAgICAgICIiIlJ1biBtdWx0aXBsZSB0b29sIGNhbGxzIGluIHBhcmFsbGVsIHdpdGggY29uY3VycmVuY3kgY29udHJvbC4iIiIKICAgICAgICB0YXNrcyA9IFtzZWxmLl9ndWFyZGVkX2V4ZWN1dGUodGMpIGZvciB0YyBpbiB0b29sX2NhbGxzXQogICAgICAgIHJldHVybiBhd2FpdCBhc3luY2lvLmdhdGhlcigqdGFza3MsIHJldHVybl9leGNlcHRpb25zPVRydWUpCgogICAgYXN5bmMgZGVmIF9ndWFyZGVkX2V4ZWN1dGUoc2VsZiwgdG9vbF9jYWxsKToKICAgICAgICBhc3luYyB3aXRoIHNlbGYuc2VtYXBob3JlOiAgIyBMaW1pdCBjb25jdXJyZW5jeQogICAgICAgICAgICBhd2FpdCBzZWxmLnJhdGVfbGltaXRlci53YWl0KCkgICMgUmVzcGVjdCByYXRlIGxpbWl0cwogICAgICAgICAgICBzdGFydCA9IHRpbWUudGltZSgpCiAgICAgICAgICAgIHRyeToKICAgICAgICAgICAgICAgIHJlc3VsdCA9IGF3YWl0IGV4ZWN1dGVfdG9vbCgKICAgICAgICAgICAgICAgICAgICB0b29sX2NhbGxbIm5hbWUiXSwgdG9vbF9jYWxsWyJhcmdzIl0KICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgICAgIHNlbGYubWV0cmljc1t0b29sX2NhbGxbIm5hbWUiXV0uYXBwZW5kKHsneyd7J30nfQogICAgICAgICAgICAgICAgICAgICJsYXRlbmN5IjogdGltZS50aW1lKCkgLSBzdGFydCwKICAgICAgICAgICAgICAgICAgICAic3VjY2VzcyI6IFRydWUKICAgICAgICAgICAgICAgIHsnfSd9KQogICAgICAgICAgICAgICAgcmV0dXJuIHJlc3VsdAogICAgICAgICAgICBleGNlcHQgRXhjZXB0aW9uIGFzIGU6CiAgICAgICAgICAgICAgICBzZWxmLm1ldHJpY3NbdG9vbF9jYWxsWyJuYW1lIl1dLmFwcGVuZCh7J3sneyd9J30KICAgICAgICAgICAgICAgICAgICAibGF0ZW5jeSI6IHRpbWUudGltZSgpIC0gc3RhcnQsCiAgICAgICAgICAgICAgICAgICAgInN1Y2Nlc3MiOiBGYWxzZSwKICAgICAgICAgICAgICAgICAgICAiZXJyb3IiOiBzdHIoZSkKICAgICAgICAgICAgICAgIHsnfSd9KQogICAgICAgICAgICAgICAgcmV0dXJuIHsneyd7J30nfSJlcnJvciI6IHN0cihlKXsnfSd9CgpjbGFzcyBSYXRlTGltaXRlcjoKICAgICIiIlRva2VuIGJ1Y2tldCByYXRlIGxpbWl0ZXIuIiIiCiAgICBkZWYgX19pbml0X18oc2VsZiwgcGVyX21pbnV0ZSk6CiAgICAgICAgc2VsZi5wZXJfbWludXRlID0gcGVyX21pbnV0ZQogICAgICAgIHNlbGYudG9rZW5zID0gcGVyX21pbnV0ZQogICAgICAgIHNlbGYubGFzdF9yZWZpbGwgPSB0aW1lLnRpbWUoKQoKICAgIGFzeW5jIGRlZiB3YWl0KHNlbGYpOgogICAgICAgIHdoaWxlIHNlbGYudG9rZW5zIDw9IDA6CiAgICAgICAgICAgIGVsYXBzZWQgPSB0aW1lLnRpbWUoKSAtIHNlbGYubGFzdF9yZWZpbGwKICAgICAgICAgICAgc2VsZi50b2tlbnMgPSBtaW4oc2VsZi5wZXJfbWludXRlLCBlbGFwc2VkICogc2VsZi5wZXJfbWludXRlIC8gNjApCiAgICAgICAgICAgIGlmIHNlbGYudG9rZW5zIDw9IDA6CiAgICAgICAgICAgICAgICBhd2FpdCBhc3luY2lvLnNsZWVwKDAuMSkKICAgICAgICBzZWxmLnRva2VucyAtPSAx" />
 
   <AgentCostCalculator/>
 
@@ -72,44 +20,7 @@ class RateLimiter:
 
 When agents fail at scale, you need to understand *why*. Observability means capturing detailed traces of every agent run so you can debug failures, optimize performance, and monitor quality over time.
 
-  <CodeBlock>
-{`import uuid, time, json
-
-class AgentTracer:
-    """Capture detailed traces of agent execution for observability."""
-
-    def __init__(self, run_id=None):
-        self.run_id = run_id or str(uuid.uuid4())
-        self.spans = []
-        self.start_time = time.time()
-
-    def span(self, name, type="generic"):
-        return TracerSpan(self, name, type)
-
-    def to_trace(self):
-        return {'{'{'}'}
-            "run_id": self.run_id,
-            "total_duration_s": time.time() - self.start_time,
-            "total_llm_calls": sum(1 for s in self.spans if s["type"]=="llm"),
-            "total_tool_calls": sum(1 for s in self.spans if s["type"]=="tool"),
-            "total_tokens": sum(s.get("tokens",0) for s in self.spans),
-            "total_cost_usd": sum(s.get("cost",0) for s in self.spans),
-            "spans": self.spans
-        {'}'}
-
-# Usage in agent loop:
-tracer = AgentTracer()
-with tracer.span("llm_call", type="llm") as span:
-    response = llm.generate(messages)
-    span.set("tokens", response.usage.total_tokens)
-    span.set("model", "claude-sonnet-4-20250514")
-with tracer.span("tool_search", type="tool") as span:
-    result = search_tool(query)
-    span.set("result_count", len(result))
-
-# Export trace for dashboard
-print(json.dumps(tracer.to_trace(), indent=2))`}
-</CodeBlock>
+  <CodeBlock b64="aW1wb3J0IHV1aWQsIHRpbWUsIGpzb24KCmNsYXNzIEFnZW50VHJhY2VyOgogICAgIiIiQ2FwdHVyZSBkZXRhaWxlZCB0cmFjZXMgb2YgYWdlbnQgZXhlY3V0aW9uIGZvciBvYnNlcnZhYmlsaXR5LiIiIgoKICAgIGRlZiBfX2luaXRfXyhzZWxmLCBydW5faWQ9Tm9uZSk6CiAgICAgICAgc2VsZi5ydW5faWQgPSBydW5faWQgb3Igc3RyKHV1aWQudXVpZDQoKSkKICAgICAgICBzZWxmLnNwYW5zID0gW10KICAgICAgICBzZWxmLnN0YXJ0X3RpbWUgPSB0aW1lLnRpbWUoKQoKICAgIGRlZiBzcGFuKHNlbGYsIG5hbWUsIHR5cGU9ImdlbmVyaWMiKToKICAgICAgICByZXR1cm4gVHJhY2VyU3BhbihzZWxmLCBuYW1lLCB0eXBlKQoKICAgIGRlZiB0b190cmFjZShzZWxmKToKICAgICAgICByZXR1cm4geyd7J3snfSd9CiAgICAgICAgICAgICJydW5faWQiOiBzZWxmLnJ1bl9pZCwKICAgICAgICAgICAgInRvdGFsX2R1cmF0aW9uX3MiOiB0aW1lLnRpbWUoKSAtIHNlbGYuc3RhcnRfdGltZSwKICAgICAgICAgICAgInRvdGFsX2xsbV9jYWxscyI6IHN1bSgxIGZvciBzIGluIHNlbGYuc3BhbnMgaWYgc1sidHlwZSJdPT0ibGxtIiksCiAgICAgICAgICAgICJ0b3RhbF90b29sX2NhbGxzIjogc3VtKDEgZm9yIHMgaW4gc2VsZi5zcGFucyBpZiBzWyJ0eXBlIl09PSJ0b29sIiksCiAgICAgICAgICAgICJ0b3RhbF90b2tlbnMiOiBzdW0ocy5nZXQoInRva2VucyIsMCkgZm9yIHMgaW4gc2VsZi5zcGFucyksCiAgICAgICAgICAgICJ0b3RhbF9jb3N0X3VzZCI6IHN1bShzLmdldCgiY29zdCIsMCkgZm9yIHMgaW4gc2VsZi5zcGFucyksCiAgICAgICAgICAgICJzcGFucyI6IHNlbGYuc3BhbnMKICAgICAgICB7J30nfQoKIyBVc2FnZSBpbiBhZ2VudCBsb29wOgp0cmFjZXIgPSBBZ2VudFRyYWNlcigpCndpdGggdHJhY2VyLnNwYW4oImxsbV9jYWxsIiwgdHlwZT0ibGxtIikgYXMgc3BhbjoKICAgIHJlc3BvbnNlID0gbGxtLmdlbmVyYXRlKG1lc3NhZ2VzKQogICAgc3Bhbi5zZXQoInRva2VucyIsIHJlc3BvbnNlLnVzYWdlLnRvdGFsX3Rva2VucykKICAgIHNwYW4uc2V0KCJtb2RlbCIsICJjbGF1ZGUtc29ubmV0LTQtMjAyNTA1MTQiKQp3aXRoIHRyYWNlci5zcGFuKCJ0b29sX3NlYXJjaCIsIHR5cGU9InRvb2wiKSBhcyBzcGFuOgogICAgcmVzdWx0ID0gc2VhcmNoX3Rvb2wocXVlcnkpCiAgICBzcGFuLnNldCgicmVzdWx0X2NvdW50IiwgbGVuKHJlc3VsdCkpCgojIEV4cG9ydCB0cmFjZSBmb3IgZGFzaGJvYXJkCnByaW50KGpzb24uZHVtcHModHJhY2VyLnRvX3RyYWNlKCksIGluZGVudD0yKSk=" />
 
   <ComparisonTable title="Observability Tools for Agents" columns={['Tool','Type','Key Feature','Pricing']} rows={[
     ['LangSmith','Commercial','LangChain-native tracing, evals, datasets','Free tier + paid'],

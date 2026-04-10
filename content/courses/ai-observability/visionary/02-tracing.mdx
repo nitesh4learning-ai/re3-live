@@ -7,20 +7,7 @@ icon: "\uD83D\uDD0D"
 
 An AI <JargonTip term="tracing">trace</JargonTip> captures the complete journey of a request: from user input through retrieval, LLM calls, tool use, and final response. Each step is a **span** with timing, token counts, and metadata.
 
-  <CodeBlock>
-{`{'{'{'}'}
-  "trace_id": "tr_abc123",
-  "span_name": "llm_completion",
-  "duration_ms": 2340,
-  "model": "claude-3-sonnet",
-  "input_tokens": 1250,
-  "output_tokens": 380,
-  "temperature": 0.7,
-  "cost_usd": 0.0087,
-  "status": "success",
-  "parent_span": "rag_pipeline"
-{'}'}`}
-</CodeBlock>
+  <CodeBlock b64="eyd7J3snfSd9CiAgInRyYWNlX2lkIjogInRyX2FiYzEyMyIsCiAgInNwYW5fbmFtZSI6ICJsbG1fY29tcGxldGlvbiIsCiAgImR1cmF0aW9uX21zIjogMjM0MCwKICAibW9kZWwiOiAiY2xhdWRlLTMtc29ubmV0IiwKICAiaW5wdXRfdG9rZW5zIjogMTI1MCwKICAib3V0cHV0X3Rva2VucyI6IDM4MCwKICAidGVtcGVyYXR1cmUiOiAwLjcsCiAgImNvc3RfdXNkIjogMC4wMDg3LAogICJzdGF0dXMiOiAic3VjY2VzcyIsCiAgInBhcmVudF9zcGFuIjogInJhZ19waXBlbGluZSIKeyd9J30=" />
   <ExpandableSection title="Common tracing tools" icon="🔧">
 
 **LangSmith:** By LangChain. Traces chains, agents, and retrievers with a visual UI.

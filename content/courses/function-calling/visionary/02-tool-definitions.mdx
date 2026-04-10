@@ -7,34 +7,7 @@ icon: "📝"
 
 To use function calling, you define your tools using **JSON Schema**. This <JargonTip term="tool schema">tool schema</JargonTip> tells the LLM what functions are available, what parameters they accept, and what each parameter means.
 
-<CodeBlock>
-{`{'{'{'}'}
-  "type": "function",
-  "function": {'{'{'}'}
-    "name": "search_products",
-    "description": "Search the product catalog by query",
-    "parameters": {'{'{'}'}
-      "type": "object",
-      "properties": {'{'{'}'}
-        "query": {'{'{'}'}
-          "type": "string",
-          "description": "Search query text"
-        {'}'},
-        "category": {'{'{'}'}
-          "type": "string",
-          "enum": ["electronics", "clothing", "food"],
-          "description": "Product category filter"
-        {'}'},
-        "max_price": {'{'{'}'}
-          "type": "number",
-          "description": "Maximum price in USD"
-        {'}'}
-      {'}'},
-      "required": ["query"]
-    {'}'}
-  {'}'}
-{'}'}`}
-</CodeBlock>
+<CodeBlock b64="eyd7J3snfSd9CiAgInR5cGUiOiAiZnVuY3Rpb24iLAogICJmdW5jdGlvbiI6IHsneyd7J30nfQogICAgIm5hbWUiOiAic2VhcmNoX3Byb2R1Y3RzIiwKICAgICJkZXNjcmlwdGlvbiI6ICJTZWFyY2ggdGhlIHByb2R1Y3QgY2F0YWxvZyBieSBxdWVyeSIsCiAgICAicGFyYW1ldGVycyI6IHsneyd7J30nfQogICAgICAidHlwZSI6ICJvYmplY3QiLAogICAgICAicHJvcGVydGllcyI6IHsneyd7J30nfQogICAgICAgICJxdWVyeSI6IHsneyd7J30nfQogICAgICAgICAgInR5cGUiOiAic3RyaW5nIiwKICAgICAgICAgICJkZXNjcmlwdGlvbiI6ICJTZWFyY2ggcXVlcnkgdGV4dCIKICAgICAgICB7J30nfSwKICAgICAgICAiY2F0ZWdvcnkiOiB7J3sneyd9J30KICAgICAgICAgICJ0eXBlIjogInN0cmluZyIsCiAgICAgICAgICAiZW51bSI6IFsiZWxlY3Ryb25pY3MiLCAiY2xvdGhpbmciLCAiZm9vZCJdLAogICAgICAgICAgImRlc2NyaXB0aW9uIjogIlByb2R1Y3QgY2F0ZWdvcnkgZmlsdGVyIgogICAgICAgIHsnfSd9LAogICAgICAgICJtYXhfcHJpY2UiOiB7J3sneyd9J30KICAgICAgICAgICJ0eXBlIjogIm51bWJlciIsCiAgICAgICAgICAiZGVzY3JpcHRpb24iOiAiTWF4aW11bSBwcmljZSBpbiBVU0QiCiAgICAgICAgeyd9J30KICAgICAgeyd9J30sCiAgICAgICJyZXF1aXJlZCI6IFsicXVlcnkiXQogICAgeyd9J30KICB7J30nfQp7J30nfQ==" />
 
 <Quiz question="What does the 'enum' field in a parameter definition do?" options={["Makes the parameter required","Limits the parameter to specific allowed values","Sets a default value","Marks the parameter as optional"]} correctIndex={1} explanation="'enum' constrains the parameter to a fixed list of allowed values. The LLM will only generate values from this list, preventing invalid inputs." />
 

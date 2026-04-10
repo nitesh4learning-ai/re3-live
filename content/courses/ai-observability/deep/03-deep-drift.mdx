@@ -12,50 +12,5 @@ AI systems degrade silently. Unlike traditional software that crashes visibly, L
     ['Concept Drift','Meaning of terms changes','Track eval scores on rolling windows','Legal terminology changes after new regulations'],
     ['Prompt Drift','LLM behavior changes across versions','A/B test across model versions','Provider updates model, changing response style'],
   ]}/>
-  <CodeBlock>
-{`import numpy as np
-from scipy.stats import ks_2samp
-from datetime import datetime, timedelta
-
-class DriftDetector:
-    def __init__(self, baseline_embeddings, threshold=0.05):
-        self.baseline = baseline_embeddings
-        self.threshold = threshold
-        self.alerts = []
-
-    def check_distribution_drift(self, recent_embeddings):
-        """Kolmogorov-Smirnov test for embedding distribution shift."""
-        drift_dims = 0
-        for dim in range(self.baseline.shape[1]):
-            stat, p_value = ks_2samp(
-                self.baseline[:, dim], recent_embeddings[:, dim])
-            if p_value < self.threshold:
-                drift_dims += 1
-
-        drift_ratio = drift_dims / self.baseline.shape[1]
-        if drift_ratio > 0.1:  # >10% of dimensions drifted
-            self.alerts.append({'{'{'}'}
-                "type": "distribution_drift",
-                "severity": "high" if drift_ratio > 0.3 else "medium",
-                "drift_ratio": drift_ratio,
-                "timestamp": datetime.utcnow().isoformat(){'}'})
-            return True
-        return False
-
-    def check_quality_drift(self, recent_scores):
-        """Detect quality score degradation over time."""
-        if len(recent_scores) < 10:
-            return False
-        baseline_mean = np.mean(recent_scores[:len(recent_scores)//2])
-        recent_mean = np.mean(recent_scores[len(recent_scores)//2:])
-        degradation = (baseline_mean - recent_mean) / baseline_mean
-        if degradation > 0.1:  # >10% quality drop
-            self.alerts.append({'{'{'}'}
-                "type": "quality_drift",
-                "severity": "high" if degradation > 0.2 else "medium",
-                "degradation_pct": degradation * 100,
-                "timestamp": datetime.utcnow().isoformat(){'}'})
-            return True
-        return False`}
-</CodeBlock>
+  <CodeBlock b64="aW1wb3J0IG51bXB5IGFzIG5wCmZyb20gc2NpcHkuc3RhdHMgaW1wb3J0IGtzXzJzYW1wCmZyb20gZGF0ZXRpbWUgaW1wb3J0IGRhdGV0aW1lLCB0aW1lZGVsdGEKCmNsYXNzIERyaWZ0RGV0ZWN0b3I6CiAgICBkZWYgX19pbml0X18oc2VsZiwgYmFzZWxpbmVfZW1iZWRkaW5ncywgdGhyZXNob2xkPTAuMDUpOgogICAgICAgIHNlbGYuYmFzZWxpbmUgPSBiYXNlbGluZV9lbWJlZGRpbmdzCiAgICAgICAgc2VsZi50aHJlc2hvbGQgPSB0aHJlc2hvbGQKICAgICAgICBzZWxmLmFsZXJ0cyA9IFtdCgogICAgZGVmIGNoZWNrX2Rpc3RyaWJ1dGlvbl9kcmlmdChzZWxmLCByZWNlbnRfZW1iZWRkaW5ncyk6CiAgICAgICAgIiIiS29sbW9nb3Jvdi1TbWlybm92IHRlc3QgZm9yIGVtYmVkZGluZyBkaXN0cmlidXRpb24gc2hpZnQuIiIiCiAgICAgICAgZHJpZnRfZGltcyA9IDAKICAgICAgICBmb3IgZGltIGluIHJhbmdlKHNlbGYuYmFzZWxpbmUuc2hhcGVbMV0pOgogICAgICAgICAgICBzdGF0LCBwX3ZhbHVlID0ga3NfMnNhbXAoCiAgICAgICAgICAgICAgICBzZWxmLmJhc2VsaW5lWzosIGRpbV0sIHJlY2VudF9lbWJlZGRpbmdzWzosIGRpbV0pCiAgICAgICAgICAgIGlmIHBfdmFsdWUgPCBzZWxmLnRocmVzaG9sZDoKICAgICAgICAgICAgICAgIGRyaWZ0X2RpbXMgKz0gMQoKICAgICAgICBkcmlmdF9yYXRpbyA9IGRyaWZ0X2RpbXMgLyBzZWxmLmJhc2VsaW5lLnNoYXBlWzFdCiAgICAgICAgaWYgZHJpZnRfcmF0aW8gPiAwLjE6ICAjID4xMCUgb2YgZGltZW5zaW9ucyBkcmlmdGVkCiAgICAgICAgICAgIHNlbGYuYWxlcnRzLmFwcGVuZCh7J3sneyd9J30KICAgICAgICAgICAgICAgICJ0eXBlIjogImRpc3RyaWJ1dGlvbl9kcmlmdCIsCiAgICAgICAgICAgICAgICAic2V2ZXJpdHkiOiAiaGlnaCIgaWYgZHJpZnRfcmF0aW8gPiAwLjMgZWxzZSAibWVkaXVtIiwKICAgICAgICAgICAgICAgICJkcmlmdF9yYXRpbyI6IGRyaWZ0X3JhdGlvLAogICAgICAgICAgICAgICAgInRpbWVzdGFtcCI6IGRhdGV0aW1lLnV0Y25vdygpLmlzb2Zvcm1hdCgpeyd9J30pCiAgICAgICAgICAgIHJldHVybiBUcnVlCiAgICAgICAgcmV0dXJuIEZhbHNlCgogICAgZGVmIGNoZWNrX3F1YWxpdHlfZHJpZnQoc2VsZiwgcmVjZW50X3Njb3Jlcyk6CiAgICAgICAgIiIiRGV0ZWN0IHF1YWxpdHkgc2NvcmUgZGVncmFkYXRpb24gb3ZlciB0aW1lLiIiIgogICAgICAgIGlmIGxlbihyZWNlbnRfc2NvcmVzKSA8IDEwOgogICAgICAgICAgICByZXR1cm4gRmFsc2UKICAgICAgICBiYXNlbGluZV9tZWFuID0gbnAubWVhbihyZWNlbnRfc2NvcmVzWzpsZW4ocmVjZW50X3Njb3JlcykvLzJdKQogICAgICAgIHJlY2VudF9tZWFuID0gbnAubWVhbihyZWNlbnRfc2NvcmVzW2xlbihyZWNlbnRfc2NvcmVzKS8vMjpdKQogICAgICAgIGRlZ3JhZGF0aW9uID0gKGJhc2VsaW5lX21lYW4gLSByZWNlbnRfbWVhbikgLyBiYXNlbGluZV9tZWFuCiAgICAgICAgaWYgZGVncmFkYXRpb24gPiAwLjE6ICAjID4xMCUgcXVhbGl0eSBkcm9wCiAgICAgICAgICAgIHNlbGYuYWxlcnRzLmFwcGVuZCh7J3sneyd9J30KICAgICAgICAgICAgICAgICJ0eXBlIjogInF1YWxpdHlfZHJpZnQiLAogICAgICAgICAgICAgICAgInNldmVyaXR5IjogImhpZ2giIGlmIGRlZ3JhZGF0aW9uID4gMC4yIGVsc2UgIm1lZGl1bSIsCiAgICAgICAgICAgICAgICAiZGVncmFkYXRpb25fcGN0IjogZGVncmFkYXRpb24gKiAxMDAsCiAgICAgICAgICAgICAgICAidGltZXN0YW1wIjogZGF0ZXRpbWUudXRjbm93KCkuaXNvZm9ybWF0KCl7J30nfSkKICAgICAgICAgICAgcmV0dXJuIFRydWUKICAgICAgICByZXR1cm4gRmFsc2U=" />
   <Quiz question="Faithfulness scores dropped from 0.92 to 0.78 over two weeks but retrieval precision stayed at 0.85. Most likely cause?" options={["Distribution drift","The LLM provider updated their model (prompt drift)","Database crash","Harder questions"]} correctIndex={1} explanation="Stable retrieval quality but dropping faithfulness means the issue is downstream. The LLM provider likely updated their model, changing how it uses context. The same documents are being used less faithfully by the new model version."/>

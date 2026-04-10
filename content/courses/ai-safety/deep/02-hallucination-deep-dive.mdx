@@ -14,37 +14,7 @@ icon: "🔍"
 
 </ExpandableSection>
 
-<CodeBlock>
-{`def detect_hallucination(response, sources):
-    """Multi-step hallucination detection."""
-    checks = []
-
-    # Step 1: Claim extraction
-    claims = extract_claims(response)  # Split into atomic claims
-
-    # Step 2: Source verification
-    for claim in claims:
-        supported = False
-        for source in sources:
-            similarity = semantic_similarity(claim, source)
-            if similarity > 0.8:
-                supported = True
-                break
-        checks.append({'{'{'}'}
-            "claim": claim,
-            "supported": supported,
-            "confidence": similarity if supported else 0.0
-        {'}'})
-
-    # Step 3: Aggregate
-    unsupported = [c for c in checks if not c["supported"]]
-    return {'{'{'}'}
-        "total_claims": len(checks),
-        "unsupported": len(unsupported),
-        "hallucination_rate": len(unsupported) / max(len(checks), 1),
-        "details": checks
-    {'}'}`}
-</CodeBlock>
+<CodeBlock b64="ZGVmIGRldGVjdF9oYWxsdWNpbmF0aW9uKHJlc3BvbnNlLCBzb3VyY2VzKToKICAgICIiIk11bHRpLXN0ZXAgaGFsbHVjaW5hdGlvbiBkZXRlY3Rpb24uIiIiCiAgICBjaGVja3MgPSBbXQoKICAgICMgU3RlcCAxOiBDbGFpbSBleHRyYWN0aW9uCiAgICBjbGFpbXMgPSBleHRyYWN0X2NsYWltcyhyZXNwb25zZSkgICMgU3BsaXQgaW50byBhdG9taWMgY2xhaW1zCgogICAgIyBTdGVwIDI6IFNvdXJjZSB2ZXJpZmljYXRpb24KICAgIGZvciBjbGFpbSBpbiBjbGFpbXM6CiAgICAgICAgc3VwcG9ydGVkID0gRmFsc2UKICAgICAgICBmb3Igc291cmNlIGluIHNvdXJjZXM6CiAgICAgICAgICAgIHNpbWlsYXJpdHkgPSBzZW1hbnRpY19zaW1pbGFyaXR5KGNsYWltLCBzb3VyY2UpCiAgICAgICAgICAgIGlmIHNpbWlsYXJpdHkgPiAwLjg6CiAgICAgICAgICAgICAgICBzdXBwb3J0ZWQgPSBUcnVlCiAgICAgICAgICAgICAgICBicmVhawogICAgICAgIGNoZWNrcy5hcHBlbmQoeyd7J3snfSd9CiAgICAgICAgICAgICJjbGFpbSI6IGNsYWltLAogICAgICAgICAgICAic3VwcG9ydGVkIjogc3VwcG9ydGVkLAogICAgICAgICAgICAiY29uZmlkZW5jZSI6IHNpbWlsYXJpdHkgaWYgc3VwcG9ydGVkIGVsc2UgMC4wCiAgICAgICAgeyd9J30pCgogICAgIyBTdGVwIDM6IEFnZ3JlZ2F0ZQogICAgdW5zdXBwb3J0ZWQgPSBbYyBmb3IgYyBpbiBjaGVja3MgaWYgbm90IGNbInN1cHBvcnRlZCJdXQogICAgcmV0dXJuIHsneyd7J30nfQogICAgICAgICJ0b3RhbF9jbGFpbXMiOiBsZW4oY2hlY2tzKSwKICAgICAgICAidW5zdXBwb3J0ZWQiOiBsZW4odW5zdXBwb3J0ZWQpLAogICAgICAgICJoYWxsdWNpbmF0aW9uX3JhdGUiOiBsZW4odW5zdXBwb3J0ZWQpIC8gbWF4KGxlbihjaGVja3MpLCAxKSwKICAgICAgICAiZGV0YWlscyI6IGNoZWNrcwogICAgeyd9J30=" />
 
 <Quiz
   question="Which hallucination type is hardest to detect automatically?"

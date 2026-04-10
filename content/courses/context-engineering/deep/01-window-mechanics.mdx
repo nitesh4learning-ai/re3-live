@@ -15,16 +15,4 @@ Research shows models attend most to the first and last portions. Place importan
 
 <ComparisonTable title="Context Windows by Model" headers={['Model','Window','Sweet Spot','Notes']} rows={[['GPT-4o','128K','~30K','Quality degrades on very long contexts'],['Claude 3.5 Sonnet','200K','~80K','Best long-context benchmarks'],['Gemini 1.5 Pro','2M','~500K','Largest window, variable quality'],['Llama 3.1 70B','128K','~20K','Open-source, self-hostable']]}/>
 
-<CodeBlock>
-{`import tiktoken
-
-def count_tokens(text, model="gpt-4o"):
-    enc = tiktoken.encoding_for_model(model)
-    return len(enc.encode(text))
-
-def estimate_cost(messages, model="gpt-4o"):
-    prices = {'{'{'}'}"gpt-4o": 2.50, "claude-3.5-sonnet": 3.00{'}'}  # per 1M input
-    tokens = sum(count_tokens(m["content"]) for m in messages)
-    cost = (tokens / 1_000_000) * prices.get(model, 2.50)
-    return {'{'{'}'}"tokens": tokens, "cost": "$%.4f" % cost{'}'}`}
-</CodeBlock>
+<CodeBlock b64="aW1wb3J0IHRpa3Rva2VuCgpkZWYgY291bnRfdG9rZW5zKHRleHQsIG1vZGVsPSJncHQtNG8iKToKICAgIGVuYyA9IHRpa3Rva2VuLmVuY29kaW5nX2Zvcl9tb2RlbChtb2RlbCkKICAgIHJldHVybiBsZW4oZW5jLmVuY29kZSh0ZXh0KSkKCmRlZiBlc3RpbWF0ZV9jb3N0KG1lc3NhZ2VzLCBtb2RlbD0iZ3B0LTRvIik6CiAgICBwcmljZXMgPSB7J3sneyd9J30iZ3B0LTRvIjogMi41MCwgImNsYXVkZS0zLjUtc29ubmV0IjogMy4wMHsnfSd9ICAjIHBlciAxTSBpbnB1dAogICAgdG9rZW5zID0gc3VtKGNvdW50X3Rva2VucyhtWyJjb250ZW50Il0pIGZvciBtIGluIG1lc3NhZ2VzKQogICAgY29zdCA9ICh0b2tlbnMgLyAxXzAwMF8wMDApICogcHJpY2VzLmdldChtb2RlbCwgMi41MCkKICAgIHJldHVybiB7J3sneyd9J30idG9rZW5zIjogdG9rZW5zLCAiY29zdCI6ICIkJS40ZiIgJSBjb3N0eyd9J30=" />

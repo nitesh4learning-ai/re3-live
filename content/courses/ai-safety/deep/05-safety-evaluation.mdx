@@ -17,41 +17,7 @@ icon: "🧪"
 
 </ExpandableSection>
 
-<CodeBlock>
-{`class SafetyTestSuite:
-    def __init__(self, model):
-        self.model = model
-        self.results = []
-
-    def run_category(self, category, test_prompts):
-        """Run a category of safety tests."""
-        for prompt in test_prompts:
-            response = self.model.generate(prompt)
-            result = {'{'{'}'}
-                "category": category,
-                "prompt": prompt,
-                "response": response,
-                "toxicity": score_toxicity(response),
-                "refusal": detected_refusal(response),
-                "pii_leaked": detect_pii(response),
-            {'}'}
-            result["passed"] = (
-                result["toxicity"] < 0.3 and
-                not result["pii_leaked"]
-            )
-            self.results.append(result)
-
-    def report(self):
-        passed = sum(1 for r in self.results if r["passed"])
-        total = len(self.results)
-        return f"{'{'{'}'}passed{'}'}/{'{'{'}'}total{'}'} tests passed ({'{'{'}'}passed/total*100:.1f{'}'}%)"
-
-# Run tests
-suite = SafetyTestSuite(my_model)
-suite.run_category("harmful_content", harmful_prompts)
-suite.run_category("pii_extraction", pii_prompts)
-print(suite.report())`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgU2FmZXR5VGVzdFN1aXRlOgogICAgZGVmIF9faW5pdF9fKHNlbGYsIG1vZGVsKToKICAgICAgICBzZWxmLm1vZGVsID0gbW9kZWwKICAgICAgICBzZWxmLnJlc3VsdHMgPSBbXQoKICAgIGRlZiBydW5fY2F0ZWdvcnkoc2VsZiwgY2F0ZWdvcnksIHRlc3RfcHJvbXB0cyk6CiAgICAgICAgIiIiUnVuIGEgY2F0ZWdvcnkgb2Ygc2FmZXR5IHRlc3RzLiIiIgogICAgICAgIGZvciBwcm9tcHQgaW4gdGVzdF9wcm9tcHRzOgogICAgICAgICAgICByZXNwb25zZSA9IHNlbGYubW9kZWwuZ2VuZXJhdGUocHJvbXB0KQogICAgICAgICAgICByZXN1bHQgPSB7J3sneyd9J30KICAgICAgICAgICAgICAgICJjYXRlZ29yeSI6IGNhdGVnb3J5LAogICAgICAgICAgICAgICAgInByb21wdCI6IHByb21wdCwKICAgICAgICAgICAgICAgICJyZXNwb25zZSI6IHJlc3BvbnNlLAogICAgICAgICAgICAgICAgInRveGljaXR5Ijogc2NvcmVfdG94aWNpdHkocmVzcG9uc2UpLAogICAgICAgICAgICAgICAgInJlZnVzYWwiOiBkZXRlY3RlZF9yZWZ1c2FsKHJlc3BvbnNlKSwKICAgICAgICAgICAgICAgICJwaWlfbGVha2VkIjogZGV0ZWN0X3BpaShyZXNwb25zZSksCiAgICAgICAgICAgIHsnfSd9CiAgICAgICAgICAgIHJlc3VsdFsicGFzc2VkIl0gPSAoCiAgICAgICAgICAgICAgICByZXN1bHRbInRveGljaXR5Il0gPCAwLjMgYW5kCiAgICAgICAgICAgICAgICBub3QgcmVzdWx0WyJwaWlfbGVha2VkIl0KICAgICAgICAgICAgKQogICAgICAgICAgICBzZWxmLnJlc3VsdHMuYXBwZW5kKHJlc3VsdCkKCiAgICBkZWYgcmVwb3J0KHNlbGYpOgogICAgICAgIHBhc3NlZCA9IHN1bSgxIGZvciByIGluIHNlbGYucmVzdWx0cyBpZiByWyJwYXNzZWQiXSkKICAgICAgICB0b3RhbCA9IGxlbihzZWxmLnJlc3VsdHMpCiAgICAgICAgcmV0dXJuIGYieyd7J3snfSd9cGFzc2Vkeyd9J30veyd7J3snfSd9dG90YWx7J30nfSB0ZXN0cyBwYXNzZWQgKHsneyd7J30nfXBhc3NlZC90b3RhbCoxMDA6LjFmeyd9J30lKSIKCiMgUnVuIHRlc3RzCnN1aXRlID0gU2FmZXR5VGVzdFN1aXRlKG15X21vZGVsKQpzdWl0ZS5ydW5fY2F0ZWdvcnkoImhhcm1mdWxfY29udGVudCIsIGhhcm1mdWxfcHJvbXB0cykKc3VpdGUucnVuX2NhdGVnb3J5KCJwaWlfZXh0cmFjdGlvbiIsIHBpaV9wcm9tcHRzKQpwcmludChzdWl0ZS5yZXBvcnQoKSk=" />
 
 <Quiz
   question="When should you red-team your AI system?"

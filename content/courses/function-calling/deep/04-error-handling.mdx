@@ -7,50 +7,7 @@ icon: "🛡️"
 
 Tool calls fail. APIs time out, parameters are invalid, permissions are denied. The key principle: **always return errors to the LLM** rather than crashing. The LLM can often recover by trying a different approach or explaining the issue to the user.
 
-<CodeBlock>
-{`class ToolExecutor {'{'{'}'}
-  constructor(opts = {'{'{'}'}{'}'}) {'{'{'}'}
-    this.maxRetries = opts.maxRetries || 2;
-    this.timeout = opts.timeout || 30000;
-  {'}'}
-
-  async execute(tool, args) {'{'{'}'}
-    for (let attempt = 0; attempt <= this.maxRetries; attempt++) {'{'{'}'}
-      try {'{'{'}'}
-        // Validate args against schema first
-        const validation = this.validateArgs(tool.schema, args);
-        if (!validation.valid) {'{'{'}'}
-          return {'{'{'}'} error: true, message: "Invalid parameters: " + validation.errors.join(", ") {'}'};
-        {'}'}
-
-        // Execute with timeout
-        const result = await Promise.race([
-          tool.handler(args),
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("Timeout")), this.timeout)
-          ),
-        ]);
-        return {'{'{'}'} success: true, data: result {'}'};
-
-      {'}'} catch (err) {'{'{'}'}
-        if (attempt < this.maxRetries && this.isRetryable(err)) {'{'{'}'}
-          await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
-          continue;
-        {'}'}
-        return {'{'{'}'}
-          error: true, code: err.code || "UNKNOWN",
-          message: err.message, retried: attempt > 0,
-        {'}'};
-      {'}'}
-    {'}'}
-  {'}'}
-
-  isRetryable(err) {'{'{'}'}
-    return ["ETIMEDOUT", "ECONNRESET", "RATE_LIMITED"].includes(err.code)
-      || (err.status >= 500 && err.status < 600);
-  {'}'}
-{'}'}`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgVG9vbEV4ZWN1dG9yIHsneyd7J30nfQogIGNvbnN0cnVjdG9yKG9wdHMgPSB7J3sneyd9J317J30nfSkgeyd7J3snfSd9CiAgICB0aGlzLm1heFJldHJpZXMgPSBvcHRzLm1heFJldHJpZXMgfHwgMjsKICAgIHRoaXMudGltZW91dCA9IG9wdHMudGltZW91dCB8fCAzMDAwMDsKICB7J30nfQoKICBhc3luYyBleGVjdXRlKHRvb2wsIGFyZ3MpIHsneyd7J30nfQogICAgZm9yIChsZXQgYXR0ZW1wdCA9IDA7IGF0dGVtcHQgPD0gdGhpcy5tYXhSZXRyaWVzOyBhdHRlbXB0KyspIHsneyd7J30nfQogICAgICB0cnkgeyd7J3snfSd9CiAgICAgICAgLy8gVmFsaWRhdGUgYXJncyBhZ2FpbnN0IHNjaGVtYSBmaXJzdAogICAgICAgIGNvbnN0IHZhbGlkYXRpb24gPSB0aGlzLnZhbGlkYXRlQXJncyh0b29sLnNjaGVtYSwgYXJncyk7CiAgICAgICAgaWYgKCF2YWxpZGF0aW9uLnZhbGlkKSB7J3sneyd9J30KICAgICAgICAgIHJldHVybiB7J3sneyd9J30gZXJyb3I6IHRydWUsIG1lc3NhZ2U6ICJJbnZhbGlkIHBhcmFtZXRlcnM6ICIgKyB2YWxpZGF0aW9uLmVycm9ycy5qb2luKCIsICIpIHsnfSd9OwogICAgICAgIHsnfSd9CgogICAgICAgIC8vIEV4ZWN1dGUgd2l0aCB0aW1lb3V0CiAgICAgICAgY29uc3QgcmVzdWx0ID0gYXdhaXQgUHJvbWlzZS5yYWNlKFsKICAgICAgICAgIHRvb2wuaGFuZGxlcihhcmdzKSwKICAgICAgICAgIG5ldyBQcm9taXNlKChfLCByZWplY3QpID0+CiAgICAgICAgICAgIHNldFRpbWVvdXQoKCkgPT4gcmVqZWN0KG5ldyBFcnJvcigiVGltZW91dCIpKSwgdGhpcy50aW1lb3V0KQogICAgICAgICAgKSwKICAgICAgICBdKTsKICAgICAgICByZXR1cm4geyd7J3snfSd9IHN1Y2Nlc3M6IHRydWUsIGRhdGE6IHJlc3VsdCB7J30nfTsKCiAgICAgIHsnfSd9IGNhdGNoIChlcnIpIHsneyd7J30nfQogICAgICAgIGlmIChhdHRlbXB0IDwgdGhpcy5tYXhSZXRyaWVzICYmIHRoaXMuaXNSZXRyeWFibGUoZXJyKSkgeyd7J3snfSd9CiAgICAgICAgICBhd2FpdCBuZXcgUHJvbWlzZShyID0+IHNldFRpbWVvdXQociwgMTAwMCAqIE1hdGgucG93KDIsIGF0dGVtcHQpKSk7CiAgICAgICAgICBjb250aW51ZTsKICAgICAgICB7J30nfQogICAgICAgIHJldHVybiB7J3sneyd9J30KICAgICAgICAgIGVycm9yOiB0cnVlLCBjb2RlOiBlcnIuY29kZSB8fCAiVU5LTk9XTiIsCiAgICAgICAgICBtZXNzYWdlOiBlcnIubWVzc2FnZSwgcmV0cmllZDogYXR0ZW1wdCA+IDAsCiAgICAgICAgeyd9J307CiAgICAgIHsnfSd9CiAgICB7J30nfQogIHsnfSd9CgogIGlzUmV0cnlhYmxlKGVycikgeyd7J3snfSd9CiAgICByZXR1cm4gWyJFVElNRURPVVQiLCAiRUNPTk5SRVNFVCIsICJSQVRFX0xJTUlURUQiXS5pbmNsdWRlcyhlcnIuY29kZSkKICAgICAgfHwgKGVyci5zdGF0dXMgPj0gNTAwICYmIGVyci5zdGF0dXMgPCA2MDApOwogIHsnfSd9CnsnfSd9" />
 
 <ExpandableSection title="User Confirmation Pattern" icon="✅">
 

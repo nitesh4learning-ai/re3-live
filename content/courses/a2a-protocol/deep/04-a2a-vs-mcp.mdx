@@ -18,52 +18,7 @@ A2A and MCP are **complementary protocols** that solve different problems. Under
   ['Typical latency','Milliseconds to seconds','Seconds to hours (long-running tasks)'],
 ]}/>
 
-<CodeBlock>
-{`# An A2A agent that uses MCP tools internally
-class HybridAgent:
-    """Agent that accepts A2A tasks and uses MCP tools to fulfill them."""
-
-    def __init__(self):
-        self.mcp_manager = MCPManager()  # MCP client
-        self.task_store = TaskStore()     # A2A task state
-
-    async def setup(self):
-        # Connect to MCP servers for tool access
-        await self.mcp_manager.connect("github", "npx", ["-y", "@mcp/server-github"])
-        await self.mcp_manager.connect("db", "npx", ["-y", "@mcp/server-postgres"])
-
-    async def handle_a2a_task(self, task_request: dict) -> dict:
-        """Handle an incoming A2A task using MCP tools."""
-        task_id = task_request["id"]
-        message = task_request["message"]["parts"][0]["text"]
-
-        # Update state: working
-        await self.task_store.update(task_id, state="working")
-
-        # Use MCP tools to fulfill the A2A task
-        try:
-            # 1. Search for relevant data (MCP tool call)
-            search_results = await self.mcp_manager.call_tool(
-                "search_issues", {'{'{'}'}"query": message, "limit": 10{'}'}
-            )
-
-            # 2. Get additional context (MCP resource)
-            repo_info = await self.mcp_manager.read_resource("github://repo/info")
-
-            # 3. Generate response using LLM with MCP context
-            response = await llm.generate(
-                context=[search_results, repo_info],
-                task=message
-            )
-
-            # Update state: completed with artifact
-            await self.task_store.update(task_id,
-                state="completed",
-                artifacts=[{'{'{'}'}"name": "result", "parts": [{'{'{'}'}"type": "text", "text": response{'}'}]{'}'}]
-            )
-        except Exception as e:
-            await self.task_store.update(task_id, state="failed", error=str(e))`}
-</CodeBlock>
+<CodeBlock b64="IyBBbiBBMkEgYWdlbnQgdGhhdCB1c2VzIE1DUCB0b29scyBpbnRlcm5hbGx5CmNsYXNzIEh5YnJpZEFnZW50OgogICAgIiIiQWdlbnQgdGhhdCBhY2NlcHRzIEEyQSB0YXNrcyBhbmQgdXNlcyBNQ1AgdG9vbHMgdG8gZnVsZmlsbCB0aGVtLiIiIgoKICAgIGRlZiBfX2luaXRfXyhzZWxmKToKICAgICAgICBzZWxmLm1jcF9tYW5hZ2VyID0gTUNQTWFuYWdlcigpICAjIE1DUCBjbGllbnQKICAgICAgICBzZWxmLnRhc2tfc3RvcmUgPSBUYXNrU3RvcmUoKSAgICAgIyBBMkEgdGFzayBzdGF0ZQoKICAgIGFzeW5jIGRlZiBzZXR1cChzZWxmKToKICAgICAgICAjIENvbm5lY3QgdG8gTUNQIHNlcnZlcnMgZm9yIHRvb2wgYWNjZXNzCiAgICAgICAgYXdhaXQgc2VsZi5tY3BfbWFuYWdlci5jb25uZWN0KCJnaXRodWIiLCAibnB4IiwgWyIteSIsICJAbWNwL3NlcnZlci1naXRodWIiXSkKICAgICAgICBhd2FpdCBzZWxmLm1jcF9tYW5hZ2VyLmNvbm5lY3QoImRiIiwgIm5weCIsIFsiLXkiLCAiQG1jcC9zZXJ2ZXItcG9zdGdyZXMiXSkKCiAgICBhc3luYyBkZWYgaGFuZGxlX2EyYV90YXNrKHNlbGYsIHRhc2tfcmVxdWVzdDogZGljdCkgLT4gZGljdDoKICAgICAgICAiIiJIYW5kbGUgYW4gaW5jb21pbmcgQTJBIHRhc2sgdXNpbmcgTUNQIHRvb2xzLiIiIgogICAgICAgIHRhc2tfaWQgPSB0YXNrX3JlcXVlc3RbImlkIl0KICAgICAgICBtZXNzYWdlID0gdGFza19yZXF1ZXN0WyJtZXNzYWdlIl1bInBhcnRzIl1bMF1bInRleHQiXQoKICAgICAgICAjIFVwZGF0ZSBzdGF0ZTogd29ya2luZwogICAgICAgIGF3YWl0IHNlbGYudGFza19zdG9yZS51cGRhdGUodGFza19pZCwgc3RhdGU9IndvcmtpbmciKQoKICAgICAgICAjIFVzZSBNQ1AgdG9vbHMgdG8gZnVsZmlsbCB0aGUgQTJBIHRhc2sKICAgICAgICB0cnk6CiAgICAgICAgICAgICMgMS4gU2VhcmNoIGZvciByZWxldmFudCBkYXRhIChNQ1AgdG9vbCBjYWxsKQogICAgICAgICAgICBzZWFyY2hfcmVzdWx0cyA9IGF3YWl0IHNlbGYubWNwX21hbmFnZXIuY2FsbF90b29sKAogICAgICAgICAgICAgICAgInNlYXJjaF9pc3N1ZXMiLCB7J3sneyd9J30icXVlcnkiOiBtZXNzYWdlLCAibGltaXQiOiAxMHsnfSd9CiAgICAgICAgICAgICkKCiAgICAgICAgICAgICMgMi4gR2V0IGFkZGl0aW9uYWwgY29udGV4dCAoTUNQIHJlc291cmNlKQogICAgICAgICAgICByZXBvX2luZm8gPSBhd2FpdCBzZWxmLm1jcF9tYW5hZ2VyLnJlYWRfcmVzb3VyY2UoImdpdGh1YjovL3JlcG8vaW5mbyIpCgogICAgICAgICAgICAjIDMuIEdlbmVyYXRlIHJlc3BvbnNlIHVzaW5nIExMTSB3aXRoIE1DUCBjb250ZXh0CiAgICAgICAgICAgIHJlc3BvbnNlID0gYXdhaXQgbGxtLmdlbmVyYXRlKAogICAgICAgICAgICAgICAgY29udGV4dD1bc2VhcmNoX3Jlc3VsdHMsIHJlcG9faW5mb10sCiAgICAgICAgICAgICAgICB0YXNrPW1lc3NhZ2UKICAgICAgICAgICAgKQoKICAgICAgICAgICAgIyBVcGRhdGUgc3RhdGU6IGNvbXBsZXRlZCB3aXRoIGFydGlmYWN0CiAgICAgICAgICAgIGF3YWl0IHNlbGYudGFza19zdG9yZS51cGRhdGUodGFza19pZCwKICAgICAgICAgICAgICAgIHN0YXRlPSJjb21wbGV0ZWQiLAogICAgICAgICAgICAgICAgYXJ0aWZhY3RzPVt7J3sneyd9J30ibmFtZSI6ICJyZXN1bHQiLCAicGFydHMiOiBbeyd7J3snfSd9InR5cGUiOiAidGV4dCIsICJ0ZXh0IjogcmVzcG9uc2V7J30nfV17J30nfV0KICAgICAgICAgICAgKQogICAgICAgIGV4Y2VwdCBFeGNlcHRpb24gYXMgZToKICAgICAgICAgICAgYXdhaXQgc2VsZi50YXNrX3N0b3JlLnVwZGF0ZSh0YXNrX2lkLCBzdGF0ZT0iZmFpbGVkIiwgZXJyb3I9c3RyKGUpKQ==" />
 
 <ArchitectureDecision scenario="You are building a system where a user asks a question, and the system should: (1) search a database, (2) fetch relevant documents, and (3) ask a specialist AI agent to analyze the combined data. Which protocol(s) do you use?" options={[
   {label:'All MCP -- treat the specialist agent as just another tool',tradeoff:'Simpler architecture, but treating an intelligent agent as a tool limits its autonomy and cannot handle long-running analysis'},

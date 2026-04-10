@@ -21,29 +21,7 @@ Academic XAI (SHAP plots in Jupyter notebooks) answers data scientist questions.
 
 For agentic AI systems (LangGraph, multi-agent pipelines), explainability means tracing the **full execution chain**: which tools were called, what data was retrieved, what decisions were made, and why.
 
-<CodeBlock language="python" label="LangSmith Agent Tracing">
-{`import os
-
-# Enable LangSmith tracing — captures every step
-os.environ["LANGCHAIN_TRACING_V2"] = "true"
-os.environ["LANGCHAIN_API_KEY"] = "your-key"
-os.environ["LANGCHAIN_PROJECT"] = "supplier-onboarding-agent"
-
-# Now every LangGraph node execution is traced:
-# - Input state at each node
-# - LLM prompts and responses
-# - Tool calls and results
-# - Routing decisions (which conditional edge was taken)
-# - Token usage and latency per node
-# - Error traces with full context
-
-# In LangSmith dashboard you can:
-# 1. See the full graph execution as a timeline
-# 2. Click any node to see its input/output
-# 3. Filter by latency, cost, or error rate
-# 4. Compare runs across different versions
-# 5. Build regression test suites from production traces`}
-</CodeBlock>
+<CodeBlock language="python" label="LangSmith Agent Tracing" b64="aW1wb3J0IG9zCgojIEVuYWJsZSBMYW5nU21pdGggdHJhY2luZyDigJQgY2FwdHVyZXMgZXZlcnkgc3RlcApvcy5lbnZpcm9uWyJMQU5HQ0hBSU5fVFJBQ0lOR19WMiJdID0gInRydWUiCm9zLmVudmlyb25bIkxBTkdDSEFJTl9BUElfS0VZIl0gPSAieW91ci1rZXkiCm9zLmVudmlyb25bIkxBTkdDSEFJTl9QUk9KRUNUIl0gPSAic3VwcGxpZXItb25ib2FyZGluZy1hZ2VudCIKCiMgTm93IGV2ZXJ5IExhbmdHcmFwaCBub2RlIGV4ZWN1dGlvbiBpcyB0cmFjZWQ6CiMgLSBJbnB1dCBzdGF0ZSBhdCBlYWNoIG5vZGUKIyAtIExMTSBwcm9tcHRzIGFuZCByZXNwb25zZXMKIyAtIFRvb2wgY2FsbHMgYW5kIHJlc3VsdHMKIyAtIFJvdXRpbmcgZGVjaXNpb25zICh3aGljaCBjb25kaXRpb25hbCBlZGdlIHdhcyB0YWtlbikKIyAtIFRva2VuIHVzYWdlIGFuZCBsYXRlbmN5IHBlciBub2RlCiMgLSBFcnJvciB0cmFjZXMgd2l0aCBmdWxsIGNvbnRleHQKCiMgSW4gTGFuZ1NtaXRoIGRhc2hib2FyZCB5b3UgY2FuOgojIDEuIFNlZSB0aGUgZnVsbCBncmFwaCBleGVjdXRpb24gYXMgYSB0aW1lbGluZQojIDIuIENsaWNrIGFueSBub2RlIHRvIHNlZSBpdHMgaW5wdXQvb3V0cHV0CiMgMy4gRmlsdGVyIGJ5IGxhdGVuY3ksIGNvc3QsIG9yIGVycm9yIHJhdGUKIyA0LiBDb21wYXJlIHJ1bnMgYWNyb3NzIGRpZmZlcmVudCB2ZXJzaW9ucwojIDUuIEJ1aWxkIHJlZ3Jlc3Npb24gdGVzdCBzdWl0ZXMgZnJvbSBwcm9kdWN0aW9uIHRyYWNlcw==" />
 
 ### Training Data Attribution
 

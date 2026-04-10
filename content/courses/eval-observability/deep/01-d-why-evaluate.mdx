@@ -19,28 +19,7 @@ The shift from vibes to systematic evaluation is called **Evaluation-Driven Deve
     ['Cost','Fixed per run','Proportional to traffic'],
     ['Purpose','Catch regressions, validate changes','Detect drift, monitor quality'],
   ]}/>
-  <CodeBlock>
-{`1. DEFINE   \u2500\u2500>  What does "good" look like?
-   \u2502            - Accuracy > 90%
-   \u2502            - Faithfulness > 0.85
-   \u2502            - Latency p95 < 3s
-   \u2502
-2. BUILD    \u2500\u2500>  Create eval datasets & metrics
-   \u2502            - 200+ test cases across scenarios
-   \u2502            - Automated scoring (LLM-as-judge + heuristics)
-   \u2502
-3. ITERATE  \u2500\u2500>  Change prompt/model, run evals
-   \u2502            - Compare before/after scores
-   \u2502            - Reject changes that regress
-   \u2502
-4. DEPLOY   \u2500\u2500>  Gate on eval thresholds
-   \u2502            - CI blocks deploy if evals fail
-   \u2502            - Canary with online evals
-   \u2502
-5. MONITOR  \u2500\u2500>  Continuous online evaluation
-                - Detect drift from baseline
-                - Alert on quality degradation`}
-</CodeBlock>
+  <CodeBlock b64="MS4gREVGSU5FICAgXHUyNTAwXHUyNTAwPiAgV2hhdCBkb2VzICJnb29kIiBsb29rIGxpa2U/CiAgIFx1MjUwMiAgICAgICAgICAgIC0gQWNjdXJhY3kgPiA5MCUKICAgXHUyNTAyICAgICAgICAgICAgLSBGYWl0aGZ1bG5lc3MgPiAwLjg1CiAgIFx1MjUwMiAgICAgICAgICAgIC0gTGF0ZW5jeSBwOTUgPCAzcwogICBcdTI1MDIKMi4gQlVJTEQgICAgXHUyNTAwXHUyNTAwPiAgQ3JlYXRlIGV2YWwgZGF0YXNldHMgJiBtZXRyaWNzCiAgIFx1MjUwMiAgICAgICAgICAgIC0gMjAwKyB0ZXN0IGNhc2VzIGFjcm9zcyBzY2VuYXJpb3MKICAgXHUyNTAyICAgICAgICAgICAgLSBBdXRvbWF0ZWQgc2NvcmluZyAoTExNLWFzLWp1ZGdlICsgaGV1cmlzdGljcykKICAgXHUyNTAyCjMuIElURVJBVEUgIFx1MjUwMFx1MjUwMD4gIENoYW5nZSBwcm9tcHQvbW9kZWwsIHJ1biBldmFscwogICBcdTI1MDIgICAgICAgICAgICAtIENvbXBhcmUgYmVmb3JlL2FmdGVyIHNjb3JlcwogICBcdTI1MDIgICAgICAgICAgICAtIFJlamVjdCBjaGFuZ2VzIHRoYXQgcmVncmVzcwogICBcdTI1MDIKNC4gREVQTE9ZICAgXHUyNTAwXHUyNTAwPiAgR2F0ZSBvbiBldmFsIHRocmVzaG9sZHMKICAgXHUyNTAyICAgICAgICAgICAgLSBDSSBibG9ja3MgZGVwbG95IGlmIGV2YWxzIGZhaWwKICAgXHUyNTAyICAgICAgICAgICAgLSBDYW5hcnkgd2l0aCBvbmxpbmUgZXZhbHMKICAgXHUyNTAyCjUuIE1PTklUT1IgIFx1MjUwMFx1MjUwMD4gIENvbnRpbnVvdXMgb25saW5lIGV2YWx1YXRpb24KICAgICAgICAgICAgICAgIC0gRGV0ZWN0IGRyaWZ0IGZyb20gYmFzZWxpbmUKICAgICAgICAgICAgICAgIC0gQWxlcnQgb24gcXVhbGl0eSBkZWdyYWRhdGlvbg==" />
   <EvalMaturityQuiz/>
   <Quiz question="Why is vibes-based evaluation dangerous for production AI?" options={["It is too slow","It cannot detect subtle regressions across hundreds of edge cases","It is too expensive","It requires too many engineers"]} correctIndex={1} explanation="Vibes-based evaluation only catches obvious failures. A human reading 5 outputs cannot detect a 5% increase in hallucination rate or a subtle regression in edge case handling that affects thousands of users."/>
   <Quiz question="What is the key difference between offline and online evaluation?" options={["Offline is cheaper","Online uses real production traffic while offline uses curated test sets","Offline is faster","Online requires more engineers"]} correctIndex={1} explanation="Offline evaluation tests against curated datasets before deployment. Online evaluation monitors real production traffic after deployment. Both are necessary -- offline catches known issues, online catches unknown ones."/>

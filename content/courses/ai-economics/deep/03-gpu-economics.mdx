@@ -26,37 +26,6 @@ icon: "\u26A1"
 
 </ExpandableSection>
 
-<CodeBlock>
-{`class CostAwareRouter:
-    """Route requests to cheapest capable model"""
-
-    MODELS = {'{'{'}'}
-        "simple": {'{'{'}'}"name": "gpt-4o-mini", "cost_per_1k": 0.00015{'}'},
-        "medium": {'{'{'}'}"name": "claude-3-5-haiku", "cost_per_1k": 0.00025{'}'},
-        "complex": {'{'{'}'}"name": "claude-3-5-sonnet", "cost_per_1k": 0.003{'}'},
-    {'}'}
-
-    def classify_complexity(self, prompt):
-        """Simple heuristic -- production would use a classifier"""
-        token_count = len(prompt.split()) * 1.3
-        has_code = any(kw in prompt.lower()
-                       for kw in ["code", "function", "implement", "debug"])
-        has_analysis = any(kw in prompt.lower()
-                          for kw in ["analyze", "compare", "evaluate", "strategy"])
-
-        if has_code or has_analysis or token_count > 500:
-            return "complex"
-        elif token_count > 100:
-            return "medium"
-        return "simple"
-
-    def route(self, prompt):
-        tier = self.classify_complexity(prompt)
-        model = self.MODELS[tier]
-        return model["name"]
-
-# Result: 70% of requests go to 'simple' tier
-# saving ~90% vs routing everything to complex`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgQ29zdEF3YXJlUm91dGVyOgogICAgIiIiUm91dGUgcmVxdWVzdHMgdG8gY2hlYXBlc3QgY2FwYWJsZSBtb2RlbCIiIgoKICAgIE1PREVMUyA9IHsneyd7J30nfQogICAgICAgICJzaW1wbGUiOiB7J3sneyd9J30ibmFtZSI6ICJncHQtNG8tbWluaSIsICJjb3N0X3Blcl8xayI6IDAuMDAwMTV7J30nfSwKICAgICAgICAibWVkaXVtIjogeyd7J3snfSd9Im5hbWUiOiAiY2xhdWRlLTMtNS1oYWlrdSIsICJjb3N0X3Blcl8xayI6IDAuMDAwMjV7J30nfSwKICAgICAgICAiY29tcGxleCI6IHsneyd7J30nfSJuYW1lIjogImNsYXVkZS0zLTUtc29ubmV0IiwgImNvc3RfcGVyXzFrIjogMC4wMDN7J30nfSwKICAgIHsnfSd9CgogICAgZGVmIGNsYXNzaWZ5X2NvbXBsZXhpdHkoc2VsZiwgcHJvbXB0KToKICAgICAgICAiIiJTaW1wbGUgaGV1cmlzdGljIC0tIHByb2R1Y3Rpb24gd291bGQgdXNlIGEgY2xhc3NpZmllciIiIgogICAgICAgIHRva2VuX2NvdW50ID0gbGVuKHByb21wdC5zcGxpdCgpKSAqIDEuMwogICAgICAgIGhhc19jb2RlID0gYW55KGt3IGluIHByb21wdC5sb3dlcigpCiAgICAgICAgICAgICAgICAgICAgICAgZm9yIGt3IGluIFsiY29kZSIsICJmdW5jdGlvbiIsICJpbXBsZW1lbnQiLCAiZGVidWciXSkKICAgICAgICBoYXNfYW5hbHlzaXMgPSBhbnkoa3cgaW4gcHJvbXB0Lmxvd2VyKCkKICAgICAgICAgICAgICAgICAgICAgICAgICBmb3Iga3cgaW4gWyJhbmFseXplIiwgImNvbXBhcmUiLCAiZXZhbHVhdGUiLCAic3RyYXRlZ3kiXSkKCiAgICAgICAgaWYgaGFzX2NvZGUgb3IgaGFzX2FuYWx5c2lzIG9yIHRva2VuX2NvdW50ID4gNTAwOgogICAgICAgICAgICByZXR1cm4gImNvbXBsZXgiCiAgICAgICAgZWxpZiB0b2tlbl9jb3VudCA+IDEwMDoKICAgICAgICAgICAgcmV0dXJuICJtZWRpdW0iCiAgICAgICAgcmV0dXJuICJzaW1wbGUiCgogICAgZGVmIHJvdXRlKHNlbGYsIHByb21wdCk6CiAgICAgICAgdGllciA9IHNlbGYuY2xhc3NpZnlfY29tcGxleGl0eShwcm9tcHQpCiAgICAgICAgbW9kZWwgPSBzZWxmLk1PREVMU1t0aWVyXQogICAgICAgIHJldHVybiBtb2RlbFsibmFtZSJdCgojIFJlc3VsdDogNzAlIG9mIHJlcXVlc3RzIGdvIHRvICdzaW1wbGUnIHRpZXIKIyBzYXZpbmcgfjkwJSB2cyByb3V0aW5nIGV2ZXJ5dGhpbmcgdG8gY29tcGxleA==" />
 
 <Quiz question="What is the most impactful cost optimization strategy for most AI applications?" options={["Using the cheapest model for everything","Model routing -- using cheap models for simple tasks and expensive ones only when needed","Training your own model to avoid API costs","Reducing the number of AI features"]} correctIndex={1} explanation="Model routing typically saves 60-80% on inference costs because most requests (70%+) are simple enough for cheap models. The expensive model only handles the 20-30% that actually need it."/>

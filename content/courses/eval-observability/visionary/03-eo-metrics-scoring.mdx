@@ -17,55 +17,7 @@ Individual metrics tell you about specific quality dimensions. But stakeholders 
     ['Hallucination Rate','% of outputs with unsupported claims','LLM judge + source verification','<5%'],
   ]}/>
   <MetricCalculator/>
-  <CodeBlock>
-{`class CompositeScorer:
-    """Weighted composite scoring with configurable dimensions."""
-
-    def __init__(self, weights: dict, thresholds: dict):
-        self.weights = weights      # {'{'{'}'}"faithfulness": 0.35, ...{'}'}
-        self.thresholds = thresholds  # {'{'{'}'}"toxicity": 0.05, ...{'}'}
-        assert abs(sum(weights.values()) - 1.0) < 0.01
-
-    def score(self, metrics: dict) -> dict:
-        """Calculate composite score with gate checks."""
-        # Hard gates: immediate fail if violated
-        gates_passed = True
-        gate_failures = []
-        for metric, threshold in self.thresholds.items():
-            if metric in ("toxicity", "hallucination_rate", "latency_p95_ms"):
-                if metrics.get(metric, 0) > threshold:
-                    gates_passed = False
-                    gate_failures.append(f"{'{'{'}'}metric{'}'}={'{'{'}'}metrics[metric]{'}'} > {'{'{'}'}threshold{'}'}")
-            else:
-                if metrics.get(metric, 1) < threshold:
-                    gates_passed = False
-                    gate_failures.append(f"{'{'{'}'}metric{'}'}={'{'{'}'}metrics[metric]{'}'} < {'{'{'}'}threshold{'}'}")
-
-        # Weighted composite
-        composite = sum(
-            self.weights.get(k, 0) * v
-            for k, v in metrics.items()
-            if k in self.weights
-        )
-
-        return {'{'{'}'}
-            "composite_score": round(composite, 4),
-            "gates_passed": gates_passed,
-            "gate_failures": gate_failures,
-            "deploy_recommendation": "DEPLOY" if gates_passed and composite > 0.75 else "BLOCK",
-            "individual_scores": metrics
-        {'}'}
-
-scorer = CompositeScorer(
-    weights={'{'{'}'}"faithfulness": 0.35, "relevance": 0.30,
-             "coherence": 0.20, "safety": 0.15{'}'},
-    thresholds={'{'{'}'}"toxicity": 0.05, "latency_p95_ms": 3000,
-                "faithfulness": 0.70{'}'}
-)
-result = scorer.score({'{'{'}'}"faithfulness": 0.88, "relevance": 0.82,
-                        "coherence": 0.91, "safety": 0.98,
-                        "toxicity": 0.01, "latency_p95_ms": 1800{'}'})`}
-</CodeBlock>
+  <CodeBlock b64="Y2xhc3MgQ29tcG9zaXRlU2NvcmVyOgogICAgIiIiV2VpZ2h0ZWQgY29tcG9zaXRlIHNjb3Jpbmcgd2l0aCBjb25maWd1cmFibGUgZGltZW5zaW9ucy4iIiIKCiAgICBkZWYgX19pbml0X18oc2VsZiwgd2VpZ2h0czogZGljdCwgdGhyZXNob2xkczogZGljdCk6CiAgICAgICAgc2VsZi53ZWlnaHRzID0gd2VpZ2h0cyAgICAgICMgeyd7J3snfSd9ImZhaXRoZnVsbmVzcyI6IDAuMzUsIC4uLnsnfSd9CiAgICAgICAgc2VsZi50aHJlc2hvbGRzID0gdGhyZXNob2xkcyAgIyB7J3sneyd9J30idG94aWNpdHkiOiAwLjA1LCAuLi57J30nfQogICAgICAgIGFzc2VydCBhYnMoc3VtKHdlaWdodHMudmFsdWVzKCkpIC0gMS4wKSA8IDAuMDEKCiAgICBkZWYgc2NvcmUoc2VsZiwgbWV0cmljczogZGljdCkgLT4gZGljdDoKICAgICAgICAiIiJDYWxjdWxhdGUgY29tcG9zaXRlIHNjb3JlIHdpdGggZ2F0ZSBjaGVja3MuIiIiCiAgICAgICAgIyBIYXJkIGdhdGVzOiBpbW1lZGlhdGUgZmFpbCBpZiB2aW9sYXRlZAogICAgICAgIGdhdGVzX3Bhc3NlZCA9IFRydWUKICAgICAgICBnYXRlX2ZhaWx1cmVzID0gW10KICAgICAgICBmb3IgbWV0cmljLCB0aHJlc2hvbGQgaW4gc2VsZi50aHJlc2hvbGRzLml0ZW1zKCk6CiAgICAgICAgICAgIGlmIG1ldHJpYyBpbiAoInRveGljaXR5IiwgImhhbGx1Y2luYXRpb25fcmF0ZSIsICJsYXRlbmN5X3A5NV9tcyIpOgogICAgICAgICAgICAgICAgaWYgbWV0cmljcy5nZXQobWV0cmljLCAwKSA+IHRocmVzaG9sZDoKICAgICAgICAgICAgICAgICAgICBnYXRlc19wYXNzZWQgPSBGYWxzZQogICAgICAgICAgICAgICAgICAgIGdhdGVfZmFpbHVyZXMuYXBwZW5kKGYieyd7J3snfSd9bWV0cmljeyd9J309eyd7J3snfSd9bWV0cmljc1ttZXRyaWNdeyd9J30gPiB7J3sneyd9J310aHJlc2hvbGR7J30nfSIpCiAgICAgICAgICAgIGVsc2U6CiAgICAgICAgICAgICAgICBpZiBtZXRyaWNzLmdldChtZXRyaWMsIDEpIDwgdGhyZXNob2xkOgogICAgICAgICAgICAgICAgICAgIGdhdGVzX3Bhc3NlZCA9IEZhbHNlCiAgICAgICAgICAgICAgICAgICAgZ2F0ZV9mYWlsdXJlcy5hcHBlbmQoZiJ7J3sneyd9J31tZXRyaWN7J30nfT17J3sneyd9J31tZXRyaWNzW21ldHJpY117J30nfSA8IHsneyd7J30nfXRocmVzaG9sZHsnfSd9IikKCiAgICAgICAgIyBXZWlnaHRlZCBjb21wb3NpdGUKICAgICAgICBjb21wb3NpdGUgPSBzdW0oCiAgICAgICAgICAgIHNlbGYud2VpZ2h0cy5nZXQoaywgMCkgKiB2CiAgICAgICAgICAgIGZvciBrLCB2IGluIG1ldHJpY3MuaXRlbXMoKQogICAgICAgICAgICBpZiBrIGluIHNlbGYud2VpZ2h0cwogICAgICAgICkKCiAgICAgICAgcmV0dXJuIHsneyd7J30nfQogICAgICAgICAgICAiY29tcG9zaXRlX3Njb3JlIjogcm91bmQoY29tcG9zaXRlLCA0KSwKICAgICAgICAgICAgImdhdGVzX3Bhc3NlZCI6IGdhdGVzX3Bhc3NlZCwKICAgICAgICAgICAgImdhdGVfZmFpbHVyZXMiOiBnYXRlX2ZhaWx1cmVzLAogICAgICAgICAgICAiZGVwbG95X3JlY29tbWVuZGF0aW9uIjogIkRFUExPWSIgaWYgZ2F0ZXNfcGFzc2VkIGFuZCBjb21wb3NpdGUgPiAwLjc1IGVsc2UgIkJMT0NLIiwKICAgICAgICAgICAgImluZGl2aWR1YWxfc2NvcmVzIjogbWV0cmljcwogICAgICAgIHsnfSd9CgpzY29yZXIgPSBDb21wb3NpdGVTY29yZXIoCiAgICB3ZWlnaHRzPXsneyd7J30nfSJmYWl0aGZ1bG5lc3MiOiAwLjM1LCAicmVsZXZhbmNlIjogMC4zMCwKICAgICAgICAgICAgICJjb2hlcmVuY2UiOiAwLjIwLCAic2FmZXR5IjogMC4xNXsnfSd9LAogICAgdGhyZXNob2xkcz17J3sneyd9J30idG94aWNpdHkiOiAwLjA1LCAibGF0ZW5jeV9wOTVfbXMiOiAzMDAwLAogICAgICAgICAgICAgICAgImZhaXRoZnVsbmVzcyI6IDAuNzB7J30nfQopCnJlc3VsdCA9IHNjb3Jlci5zY29yZSh7J3sneyd9J30iZmFpdGhmdWxuZXNzIjogMC44OCwgInJlbGV2YW5jZSI6IDAuODIsCiAgICAgICAgICAgICAgICAgICAgICAgICJjb2hlcmVuY2UiOiAwLjkxLCAic2FmZXR5IjogMC45OCwKICAgICAgICAgICAgICAgICAgICAgICAgInRveGljaXR5IjogMC4wMSwgImxhdGVuY3lfcDk1X21zIjogMTgwMHsnfSd9KQ==" />
   <ABTestSimulator/>
   <Quiz question="Your composite score is 0.82 (above threshold) but toxicity is 0.08 (above 0.05 gate). Should you deploy?" options={["Yes -- composite score is high enough","No -- hard gate failure on toxicity blocks deployment regardless of composite score","Yes -- toxicity is close enough","Deploy to 50% of users only"]} correctIndex={1} explanation="Hard gates are non-negotiable. Even with a high composite score, a toxicity gate failure means the system could produce harmful content. Fix toxicity first, then re-evaluate."/>
   <Quiz question="Your A/B test shows Prompt B wins 52% vs Prompt A's 48%, with z-score of 1.1. What should you do?" options={["Deploy Prompt B immediately","The result is not statistically significant (z < 1.96). Increase sample size or keep Prompt A","Flip a coin","Average both prompts"]} correctIndex={1} explanation="A z-score of 1.1 means p > 0.05 -- the difference could be due to chance. Either increase the sample size to detect a real difference or conclude the prompts perform equivalently."/>

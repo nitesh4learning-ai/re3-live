@@ -5,32 +5,7 @@ icon: "🔄"
 
 ## HITL Patterns
 
-<CodeBlock>
-{`class HITLRouter:
-    def __init__(self, auto_threshold=0.9, escalate_threshold=0.5):
-        self.auto_threshold = auto_threshold
-        self.escalate_threshold = escalate_threshold
-
-    async def process(self, query, model):
-        response = await model.generate(query)
-        confidence = response.confidence
-
-        if confidence >= self.auto_threshold:
-            # High confidence: auto-respond
-            return {'{'{'}'}"action": "auto", "response": response.text{'}'}
-
-        elif confidence >= self.escalate_threshold:
-            # Medium confidence: suggest to human, let them approve/edit
-            return {'{'{'}'}"action": "suggest", "draft": response.text,
-                    "confidence": confidence,
-                    "note": "Please review before sending"{'}'}
-
-        else:
-            # Low confidence: full escalation to human
-            return {'{'{'}'}"action": "escalate",
-                    "context": query,
-                    "note": "AI is not confident enough to respond"{'}'}`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgSElUTFJvdXRlcjoKICAgIGRlZiBfX2luaXRfXyhzZWxmLCBhdXRvX3RocmVzaG9sZD0wLjksIGVzY2FsYXRlX3RocmVzaG9sZD0wLjUpOgogICAgICAgIHNlbGYuYXV0b190aHJlc2hvbGQgPSBhdXRvX3RocmVzaG9sZAogICAgICAgIHNlbGYuZXNjYWxhdGVfdGhyZXNob2xkID0gZXNjYWxhdGVfdGhyZXNob2xkCgogICAgYXN5bmMgZGVmIHByb2Nlc3Moc2VsZiwgcXVlcnksIG1vZGVsKToKICAgICAgICByZXNwb25zZSA9IGF3YWl0IG1vZGVsLmdlbmVyYXRlKHF1ZXJ5KQogICAgICAgIGNvbmZpZGVuY2UgPSByZXNwb25zZS5jb25maWRlbmNlCgogICAgICAgIGlmIGNvbmZpZGVuY2UgPj0gc2VsZi5hdXRvX3RocmVzaG9sZDoKICAgICAgICAgICAgIyBIaWdoIGNvbmZpZGVuY2U6IGF1dG8tcmVzcG9uZAogICAgICAgICAgICByZXR1cm4geyd7J3snfSd9ImFjdGlvbiI6ICJhdXRvIiwgInJlc3BvbnNlIjogcmVzcG9uc2UudGV4dHsnfSd9CgogICAgICAgIGVsaWYgY29uZmlkZW5jZSA+PSBzZWxmLmVzY2FsYXRlX3RocmVzaG9sZDoKICAgICAgICAgICAgIyBNZWRpdW0gY29uZmlkZW5jZTogc3VnZ2VzdCB0byBodW1hbiwgbGV0IHRoZW0gYXBwcm92ZS9lZGl0CiAgICAgICAgICAgIHJldHVybiB7J3sneyd9J30iYWN0aW9uIjogInN1Z2dlc3QiLCAiZHJhZnQiOiByZXNwb25zZS50ZXh0LAogICAgICAgICAgICAgICAgICAgICJjb25maWRlbmNlIjogY29uZmlkZW5jZSwKICAgICAgICAgICAgICAgICAgICAibm90ZSI6ICJQbGVhc2UgcmV2aWV3IGJlZm9yZSBzZW5kaW5nInsnfSd9CgogICAgICAgIGVsc2U6CiAgICAgICAgICAgICMgTG93IGNvbmZpZGVuY2U6IGZ1bGwgZXNjYWxhdGlvbiB0byBodW1hbgogICAgICAgICAgICByZXR1cm4geyd7J3snfSd9ImFjdGlvbiI6ICJlc2NhbGF0ZSIsCiAgICAgICAgICAgICAgICAgICAgImNvbnRleHQiOiBxdWVyeSwKICAgICAgICAgICAgICAgICAgICAibm90ZSI6ICJBSSBpcyBub3QgY29uZmlkZW50IGVub3VnaCB0byByZXNwb25kInsnfSd9" />
 
 <ComparisonTable title="HITL Pattern Comparison" columns={['Pattern','Best For','Automation Level','User Experience']} rows={[
   ['Approval Gate','All actions reviewed','Low (0%)','Safe but slow'],

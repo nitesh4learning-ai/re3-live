@@ -7,25 +7,6 @@ icon: "\u2705"
 
 A compliance program isn't just paperwork -- it's an operational system that ensures your AI deployments meet regulatory requirements continuously, including <JargonTip term="red-teaming">red-teaming</JargonTip> and ongoing audits.
 
-<CodeBlock>
-{`ai_compliance_checklist:
-  pre_deployment:
-    - risk_assessment: "Classify system by EU AI Act tier"
-    - impact_assessment: "Document potential harms & affected groups"
-    - data_audit: "Verify training data provenance & consent"
-    - bias_testing: "Run fairness metrics across protected groups"
-    - documentation: "Create model card & system card"
-
-  deployment:
-    - human_oversight: "Define escalation triggers & override mechanisms"
-    - transparency: "Implement user disclosure (chatbot = AI)"
-    - logging: "Enable full audit trail of decisions"
-    - monitoring: "Set drift detection & performance alerts"
-
-  post_deployment:
-    - incident_response: "24hr reporting for serious incidents (EU)"
-    - periodic_review: "Quarterly bias & performance audits"
-    - user_feedback: "Mechanism for affected individuals to contest"`}
-</CodeBlock>
+<CodeBlock b64="YWlfY29tcGxpYW5jZV9jaGVja2xpc3Q6CiAgcHJlX2RlcGxveW1lbnQ6CiAgICAtIHJpc2tfYXNzZXNzbWVudDogIkNsYXNzaWZ5IHN5c3RlbSBieSBFVSBBSSBBY3QgdGllciIKICAgIC0gaW1wYWN0X2Fzc2Vzc21lbnQ6ICJEb2N1bWVudCBwb3RlbnRpYWwgaGFybXMgJiBhZmZlY3RlZCBncm91cHMiCiAgICAtIGRhdGFfYXVkaXQ6ICJWZXJpZnkgdHJhaW5pbmcgZGF0YSBwcm92ZW5hbmNlICYgY29uc2VudCIKICAgIC0gYmlhc190ZXN0aW5nOiAiUnVuIGZhaXJuZXNzIG1ldHJpY3MgYWNyb3NzIHByb3RlY3RlZCBncm91cHMiCiAgICAtIGRvY3VtZW50YXRpb246ICJDcmVhdGUgbW9kZWwgY2FyZCAmIHN5c3RlbSBjYXJkIgoKICBkZXBsb3ltZW50OgogICAgLSBodW1hbl9vdmVyc2lnaHQ6ICJEZWZpbmUgZXNjYWxhdGlvbiB0cmlnZ2VycyAmIG92ZXJyaWRlIG1lY2hhbmlzbXMiCiAgICAtIHRyYW5zcGFyZW5jeTogIkltcGxlbWVudCB1c2VyIGRpc2Nsb3N1cmUgKGNoYXRib3QgPSBBSSkiCiAgICAtIGxvZ2dpbmc6ICJFbmFibGUgZnVsbCBhdWRpdCB0cmFpbCBvZiBkZWNpc2lvbnMiCiAgICAtIG1vbml0b3Jpbmc6ICJTZXQgZHJpZnQgZGV0ZWN0aW9uICYgcGVyZm9ybWFuY2UgYWxlcnRzIgoKICBwb3N0X2RlcGxveW1lbnQ6CiAgICAtIGluY2lkZW50X3Jlc3BvbnNlOiAiMjRociByZXBvcnRpbmcgZm9yIHNlcmlvdXMgaW5jaWRlbnRzIChFVSkiCiAgICAtIHBlcmlvZGljX3JldmlldzogIlF1YXJ0ZXJseSBiaWFzICYgcGVyZm9ybWFuY2UgYXVkaXRzIgogICAgLSB1c2VyX2ZlZWRiYWNrOiAiTWVjaGFuaXNtIGZvciBhZmZlY3RlZCBpbmRpdmlkdWFscyB0byBjb250ZXN0Ig==" />
 
 <Quiz question="Under the EU AI Act, how quickly must providers report serious incidents involving high-risk AI systems?" options={["Within 7 days","Within 72 hours","Within 24 hours","Within 30 days"]} correctIndex={1} explanation="The EU AI Act requires providers to report serious incidents to authorities within 72 hours of becoming aware, similar to GDPR breach notification timelines."/>

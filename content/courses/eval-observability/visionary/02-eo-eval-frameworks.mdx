@@ -22,92 +22,9 @@ Building a robust eval framework requires three pillars: **benchmark design** (w
 **Contamination:** Never include eval examples in your training data, few-shot examples, or system prompts.
 
   </ExpandableSection>
-  <CodeBlock>
-{`from dataclasses import dataclass
-from typing import List, Optional
-
-@dataclass
-class EvalCase:
-    """A single evaluation test case."""
-    id: str
-    input: str                    # The user query / prompt
-    expected_output: Optional[str]  # Gold-standard answer (if available)
-    context: Optional[str]        # Retrieved context (for RAG evals)
-    category: str                 # e.g., "factual", "creative", "edge_case"
-    difficulty: str               # "easy", "medium", "hard"
-    metadata: dict                # Custom tags for slicing results
-
-@dataclass
-class EvalSuite:
-    """A versioned collection of eval cases."""
-    name: str
-    version: str
-    cases: List[EvalCase]
-    created_at: str
-
-    def slice_by(self, key, value):
-        """Filter cases for targeted evaluation."""
-        return [c for c in self.cases
-                if getattr(c, key, c.metadata.get(key)) == value]
-
-    def sample(self, n, stratified_by="category"):
-        """Stratified sampling for cost-efficient evaluation."""
-        from collections import defaultdict
-        import random
-        groups = defaultdict(list)
-        for c in self.cases:
-            groups[getattr(c, stratified_by)].append(c)
-        per_group = max(1, n // len(groups))
-        return [c for g in groups.values()
-                for c in random.sample(g, min(per_group, len(g)))]
-
-# Build a suite
-suite = EvalSuite(
-    name="customer_support_v2",
-    version="2.0.0",
-    cases=[
-        EvalCase("cs_001", "How do I reset my password?",
-                 "Navigate to Settings > Security > Reset Password...",
-                 None, "factual", "easy", {'{'{'}'}"topic": "account"{'}'}),
-        EvalCase("cs_002", "I was charged twice for my order!",
-                 None, None, "complaint", "hard",
-                 {'{'{'}'}"topic": "billing", "sentiment": "angry"{'}'}),
-    ],
-    created_at="2025-11-15"
-)`}
-</CodeBlock>
+  <CodeBlock b64="ZnJvbSBkYXRhY2xhc3NlcyBpbXBvcnQgZGF0YWNsYXNzCmZyb20gdHlwaW5nIGltcG9ydCBMaXN0LCBPcHRpb25hbAoKQGRhdGFjbGFzcwpjbGFzcyBFdmFsQ2FzZToKICAgICIiIkEgc2luZ2xlIGV2YWx1YXRpb24gdGVzdCBjYXNlLiIiIgogICAgaWQ6IHN0cgogICAgaW5wdXQ6IHN0ciAgICAgICAgICAgICAgICAgICAgIyBUaGUgdXNlciBxdWVyeSAvIHByb21wdAogICAgZXhwZWN0ZWRfb3V0cHV0OiBPcHRpb25hbFtzdHJdICAjIEdvbGQtc3RhbmRhcmQgYW5zd2VyIChpZiBhdmFpbGFibGUpCiAgICBjb250ZXh0OiBPcHRpb25hbFtzdHJdICAgICAgICAjIFJldHJpZXZlZCBjb250ZXh0IChmb3IgUkFHIGV2YWxzKQogICAgY2F0ZWdvcnk6IHN0ciAgICAgICAgICAgICAgICAgIyBlLmcuLCAiZmFjdHVhbCIsICJjcmVhdGl2ZSIsICJlZGdlX2Nhc2UiCiAgICBkaWZmaWN1bHR5OiBzdHIgICAgICAgICAgICAgICAjICJlYXN5IiwgIm1lZGl1bSIsICJoYXJkIgogICAgbWV0YWRhdGE6IGRpY3QgICAgICAgICAgICAgICAgIyBDdXN0b20gdGFncyBmb3Igc2xpY2luZyByZXN1bHRzCgpAZGF0YWNsYXNzCmNsYXNzIEV2YWxTdWl0ZToKICAgICIiIkEgdmVyc2lvbmVkIGNvbGxlY3Rpb24gb2YgZXZhbCBjYXNlcy4iIiIKICAgIG5hbWU6IHN0cgogICAgdmVyc2lvbjogc3RyCiAgICBjYXNlczogTGlzdFtFdmFsQ2FzZV0KICAgIGNyZWF0ZWRfYXQ6IHN0cgoKICAgIGRlZiBzbGljZV9ieShzZWxmLCBrZXksIHZhbHVlKToKICAgICAgICAiIiJGaWx0ZXIgY2FzZXMgZm9yIHRhcmdldGVkIGV2YWx1YXRpb24uIiIiCiAgICAgICAgcmV0dXJuIFtjIGZvciBjIGluIHNlbGYuY2FzZXMKICAgICAgICAgICAgICAgIGlmIGdldGF0dHIoYywga2V5LCBjLm1ldGFkYXRhLmdldChrZXkpKSA9PSB2YWx1ZV0KCiAgICBkZWYgc2FtcGxlKHNlbGYsIG4sIHN0cmF0aWZpZWRfYnk9ImNhdGVnb3J5Iik6CiAgICAgICAgIiIiU3RyYXRpZmllZCBzYW1wbGluZyBmb3IgY29zdC1lZmZpY2llbnQgZXZhbHVhdGlvbi4iIiIKICAgICAgICBmcm9tIGNvbGxlY3Rpb25zIGltcG9ydCBkZWZhdWx0ZGljdAogICAgICAgIGltcG9ydCByYW5kb20KICAgICAgICBncm91cHMgPSBkZWZhdWx0ZGljdChsaXN0KQogICAgICAgIGZvciBjIGluIHNlbGYuY2FzZXM6CiAgICAgICAgICAgIGdyb3Vwc1tnZXRhdHRyKGMsIHN0cmF0aWZpZWRfYnkpXS5hcHBlbmQoYykKICAgICAgICBwZXJfZ3JvdXAgPSBtYXgoMSwgbiAvLyBsZW4oZ3JvdXBzKSkKICAgICAgICByZXR1cm4gW2MgZm9yIGcgaW4gZ3JvdXBzLnZhbHVlcygpCiAgICAgICAgICAgICAgICBmb3IgYyBpbiByYW5kb20uc2FtcGxlKGcsIG1pbihwZXJfZ3JvdXAsIGxlbihnKSkpXQoKIyBCdWlsZCBhIHN1aXRlCnN1aXRlID0gRXZhbFN1aXRlKAogICAgbmFtZT0iY3VzdG9tZXJfc3VwcG9ydF92MiIsCiAgICB2ZXJzaW9uPSIyLjAuMCIsCiAgICBjYXNlcz1bCiAgICAgICAgRXZhbENhc2UoImNzXzAwMSIsICJIb3cgZG8gSSByZXNldCBteSBwYXNzd29yZD8iLAogICAgICAgICAgICAgICAgICJOYXZpZ2F0ZSB0byBTZXR0aW5ncyA+IFNlY3VyaXR5ID4gUmVzZXQgUGFzc3dvcmQuLi4iLAogICAgICAgICAgICAgICAgIE5vbmUsICJmYWN0dWFsIiwgImVhc3kiLCB7J3sneyd9J30idG9waWMiOiAiYWNjb3VudCJ7J30nfSksCiAgICAgICAgRXZhbENhc2UoImNzXzAwMiIsICJJIHdhcyBjaGFyZ2VkIHR3aWNlIGZvciBteSBvcmRlciEiLAogICAgICAgICAgICAgICAgIE5vbmUsIE5vbmUsICJjb21wbGFpbnQiLCAiaGFyZCIsCiAgICAgICAgICAgICAgICAgeyd7J3snfSd9InRvcGljIjogImJpbGxpbmciLCAic2VudGltZW50IjogImFuZ3J5InsnfSd9KSwKICAgIF0sCiAgICBjcmVhdGVkX2F0PSIyMDI1LTExLTE1Igop" />
   <JudgePatternSimulator/>
-  <CodeBlock>
-{`async def llm_judge(question, answer, rubric, model="claude-sonnet-4-20250514"):
-    """Score an answer using an LLM judge with a structured rubric."""
-    prompt = f"""You are an expert evaluator. Score this answer on a 1-5 scale
-for each criterion in the rubric. Be strict and consistent.
-
-QUESTION: {'{'{'}'}question{'}'}
-ANSWER: {'{'{'}'}answer{'}'}
-
-RUBRIC:
-{'{'{'}'}rubric{'}'}
-
-Return JSON only:
-{'{'{'}'}{'{'{'}'}"scores": {'{'{'}'}{'{'{'}'}"criterion_name": score, ...{'}'}{'}'},
-  "reasoning": "brief explanation for each score",
-  "overall": weighted_average_score{'}'}{'}'}"""
-
-    response = await call_llm(model, prompt)
-    return parse_json(response)
-
-# Define domain-specific rubric
-SUPPORT_RUBRIC = """
-- accuracy (weight 0.3): Is the information factually correct?
-- completeness (weight 0.25): Does it address all parts of the question?
-- tone (weight 0.2): Is the tone professional and empathetic?
-- actionability (weight 0.25): Can the user follow the instructions?
-Each criterion scored 1-5 where:
-  1=Terrible, 2=Poor, 3=Acceptable, 4=Good, 5=Excellent"""
-
-result = await llm_judge(question, answer, SUPPORT_RUBRIC)`}
-</CodeBlock>
+  <CodeBlock b64="YXN5bmMgZGVmIGxsbV9qdWRnZShxdWVzdGlvbiwgYW5zd2VyLCBydWJyaWMsIG1vZGVsPSJjbGF1ZGUtc29ubmV0LTQtMjAyNTA1MTQiKToKICAgICIiIlNjb3JlIGFuIGFuc3dlciB1c2luZyBhbiBMTE0ganVkZ2Ugd2l0aCBhIHN0cnVjdHVyZWQgcnVicmljLiIiIgogICAgcHJvbXB0ID0gZiIiIllvdSBhcmUgYW4gZXhwZXJ0IGV2YWx1YXRvci4gU2NvcmUgdGhpcyBhbnN3ZXIgb24gYSAxLTUgc2NhbGUKZm9yIGVhY2ggY3JpdGVyaW9uIGluIHRoZSBydWJyaWMuIEJlIHN0cmljdCBhbmQgY29uc2lzdGVudC4KClFVRVNUSU9OOiB7J3sneyd9J31xdWVzdGlvbnsnfSd9CkFOU1dFUjogeyd7J3snfSd9YW5zd2Vyeyd9J30KClJVQlJJQzoKeyd7J3snfSd9cnVicmljeyd9J30KClJldHVybiBKU09OIG9ubHk6Cnsneyd7J30nfXsneyd7J30nfSJzY29yZXMiOiB7J3sneyd9J317J3sneyd9J30iY3JpdGVyaW9uX25hbWUiOiBzY29yZSwgLi4ueyd9J317J30nfSwKICAicmVhc29uaW5nIjogImJyaWVmIGV4cGxhbmF0aW9uIGZvciBlYWNoIHNjb3JlIiwKICAib3ZlcmFsbCI6IHdlaWdodGVkX2F2ZXJhZ2Vfc2NvcmV7J30nfXsnfSd9IiIiCgogICAgcmVzcG9uc2UgPSBhd2FpdCBjYWxsX2xsbShtb2RlbCwgcHJvbXB0KQogICAgcmV0dXJuIHBhcnNlX2pzb24ocmVzcG9uc2UpCgojIERlZmluZSBkb21haW4tc3BlY2lmaWMgcnVicmljClNVUFBPUlRfUlVCUklDID0gIiIiCi0gYWNjdXJhY3kgKHdlaWdodCAwLjMpOiBJcyB0aGUgaW5mb3JtYXRpb24gZmFjdHVhbGx5IGNvcnJlY3Q/Ci0gY29tcGxldGVuZXNzICh3ZWlnaHQgMC4yNSk6IERvZXMgaXQgYWRkcmVzcyBhbGwgcGFydHMgb2YgdGhlIHF1ZXN0aW9uPwotIHRvbmUgKHdlaWdodCAwLjIpOiBJcyB0aGUgdG9uZSBwcm9mZXNzaW9uYWwgYW5kIGVtcGF0aGV0aWM/Ci0gYWN0aW9uYWJpbGl0eSAod2VpZ2h0IDAuMjUpOiBDYW4gdGhlIHVzZXIgZm9sbG93IHRoZSBpbnN0cnVjdGlvbnM/CkVhY2ggY3JpdGVyaW9uIHNjb3JlZCAxLTUgd2hlcmU6CiAgMT1UZXJyaWJsZSwgMj1Qb29yLCAzPUFjY2VwdGFibGUsIDQ9R29vZCwgNT1FeGNlbGxlbnQiIiIKCnJlc3VsdCA9IGF3YWl0IGxsbV9qdWRnZShxdWVzdGlvbiwgYW5zd2VyLCBTVVBQT1JUX1JVQlJJQyk=" />
   <ExpandableSection title="Agreement Metrics: Cohen's Kappa" icon="📏">
 
 When multiple judges (human or LLM) score the same output, you need to measure how much they agree beyond chance. **Cohen's kappa** is the standard metric.

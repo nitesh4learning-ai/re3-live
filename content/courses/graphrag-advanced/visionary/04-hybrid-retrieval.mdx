@@ -30,70 +30,7 @@ rows={[
 | Complex multi-part question | All three + rerank | RRF fusion maximizes recall; reranker optimizes precision |
 
 
-<CodeBlock>
-{`from typing import List, Dict
-import numpy as np
-
-class HybridRetriever:
-    def __init__(self, vector_store, graph_store, bm25_index):
-        self.vector_store = vector_store
-        self.graph_store = graph_store
-        self.bm25_index = bm25_index
-        self.reranker = CrossEncoderReranker()
-
-    def retrieve(self, query: str, k: int = 10) -> List[Dict]:
-        # Detect query type for routing
-        route = self._route_query(query)
-
-        results = {'{'{'}'}{'}'}
-
-        # Always run vector search
-        vector_results = self.vector_store.similarity_search(query, k=k*2)
-        results['vector'] = vector_results
-
-        # Run graph traversal if relational
-        if route in ['relational', 'hybrid']:
-            entities = self._extract_entities(query)
-            graph_results = self.graph_store.traverse(entities, max_hops=2)
-            results['graph'] = graph_results
-
-        # Run BM25 if has exact terms
-        if route in ['exact', 'hybrid']:
-            bm25_results = self.bm25_index.search(query, k=k*2)
-            results['bm25'] = bm25_results
-
-        # Reciprocal Rank Fusion
-        fused = self._rrf_fusion(results, k=k*2)
-
-        # Cross-encoder reranking for final precision
-        reranked = self.reranker.rerank(query, fused, top_k=k)
-
-        return reranked
-
-    def _rrf_fusion(self, results_by_method: dict, k: int = 60) -> List[Dict]:
-        """Reciprocal Rank Fusion: score = sum(1 / (k + rank_i))"""
-        doc_scores = {'{'{'}'}{'}'}
-
-        for method, docs in results_by_method.items():
-            for rank, doc in enumerate(docs):
-                doc_id = doc['id']
-                if doc_id not in doc_scores:
-                    doc_scores[doc_id] = {'{'{'}'}'doc': doc, 'score': 0.0{'}'}
-                doc_scores[doc_id]['score'] += 1.0 / (k + rank + 1)
-
-        sorted_docs = sorted(doc_scores.values(),
-                            key=lambda x: x['score'], reverse=True)
-        return [item['doc'] for item in sorted_docs]
-
-    def _route_query(self, query: str) -> str:
-        relational_signals = ['how are', 'relationship between',
-                              'connected to', 'related to', 'path from']
-        if any(s in query.lower() for s in relational_signals):
-            return 'relational'
-        if any(c.isdigit() for c in query) or query.count('"') >= 2:
-            return 'exact'
-        return 'hybrid'`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSB0eXBpbmcgaW1wb3J0IExpc3QsIERpY3QKaW1wb3J0IG51bXB5IGFzIG5wCgpjbGFzcyBIeWJyaWRSZXRyaWV2ZXI6CiAgICBkZWYgX19pbml0X18oc2VsZiwgdmVjdG9yX3N0b3JlLCBncmFwaF9zdG9yZSwgYm0yNV9pbmRleCk6CiAgICAgICAgc2VsZi52ZWN0b3Jfc3RvcmUgPSB2ZWN0b3Jfc3RvcmUKICAgICAgICBzZWxmLmdyYXBoX3N0b3JlID0gZ3JhcGhfc3RvcmUKICAgICAgICBzZWxmLmJtMjVfaW5kZXggPSBibTI1X2luZGV4CiAgICAgICAgc2VsZi5yZXJhbmtlciA9IENyb3NzRW5jb2RlclJlcmFua2VyKCkKCiAgICBkZWYgcmV0cmlldmUoc2VsZiwgcXVlcnk6IHN0ciwgazogaW50ID0gMTApIC0+IExpc3RbRGljdF06CiAgICAgICAgIyBEZXRlY3QgcXVlcnkgdHlwZSBmb3Igcm91dGluZwogICAgICAgIHJvdXRlID0gc2VsZi5fcm91dGVfcXVlcnkocXVlcnkpCgogICAgICAgIHJlc3VsdHMgPSB7J3sneyd9J317J30nfQoKICAgICAgICAjIEFsd2F5cyBydW4gdmVjdG9yIHNlYXJjaAogICAgICAgIHZlY3Rvcl9yZXN1bHRzID0gc2VsZi52ZWN0b3Jfc3RvcmUuc2ltaWxhcml0eV9zZWFyY2gocXVlcnksIGs9ayoyKQogICAgICAgIHJlc3VsdHNbJ3ZlY3RvciddID0gdmVjdG9yX3Jlc3VsdHMKCiAgICAgICAgIyBSdW4gZ3JhcGggdHJhdmVyc2FsIGlmIHJlbGF0aW9uYWwKICAgICAgICBpZiByb3V0ZSBpbiBbJ3JlbGF0aW9uYWwnLCAnaHlicmlkJ106CiAgICAgICAgICAgIGVudGl0aWVzID0gc2VsZi5fZXh0cmFjdF9lbnRpdGllcyhxdWVyeSkKICAgICAgICAgICAgZ3JhcGhfcmVzdWx0cyA9IHNlbGYuZ3JhcGhfc3RvcmUudHJhdmVyc2UoZW50aXRpZXMsIG1heF9ob3BzPTIpCiAgICAgICAgICAgIHJlc3VsdHNbJ2dyYXBoJ10gPSBncmFwaF9yZXN1bHRzCgogICAgICAgICMgUnVuIEJNMjUgaWYgaGFzIGV4YWN0IHRlcm1zCiAgICAgICAgaWYgcm91dGUgaW4gWydleGFjdCcsICdoeWJyaWQnXToKICAgICAgICAgICAgYm0yNV9yZXN1bHRzID0gc2VsZi5ibTI1X2luZGV4LnNlYXJjaChxdWVyeSwgaz1rKjIpCiAgICAgICAgICAgIHJlc3VsdHNbJ2JtMjUnXSA9IGJtMjVfcmVzdWx0cwoKICAgICAgICAjIFJlY2lwcm9jYWwgUmFuayBGdXNpb24KICAgICAgICBmdXNlZCA9IHNlbGYuX3JyZl9mdXNpb24ocmVzdWx0cywgaz1rKjIpCgogICAgICAgICMgQ3Jvc3MtZW5jb2RlciByZXJhbmtpbmcgZm9yIGZpbmFsIHByZWNpc2lvbgogICAgICAgIHJlcmFua2VkID0gc2VsZi5yZXJhbmtlci5yZXJhbmsocXVlcnksIGZ1c2VkLCB0b3Bfaz1rKQoKICAgICAgICByZXR1cm4gcmVyYW5rZWQKCiAgICBkZWYgX3JyZl9mdXNpb24oc2VsZiwgcmVzdWx0c19ieV9tZXRob2Q6IGRpY3QsIGs6IGludCA9IDYwKSAtPiBMaXN0W0RpY3RdOgogICAgICAgICIiIlJlY2lwcm9jYWwgUmFuayBGdXNpb246IHNjb3JlID0gc3VtKDEgLyAoayArIHJhbmtfaSkpIiIiCiAgICAgICAgZG9jX3Njb3JlcyA9IHsneyd7J30nfXsnfSd9CgogICAgICAgIGZvciBtZXRob2QsIGRvY3MgaW4gcmVzdWx0c19ieV9tZXRob2QuaXRlbXMoKToKICAgICAgICAgICAgZm9yIHJhbmssIGRvYyBpbiBlbnVtZXJhdGUoZG9jcyk6CiAgICAgICAgICAgICAgICBkb2NfaWQgPSBkb2NbJ2lkJ10KICAgICAgICAgICAgICAgIGlmIGRvY19pZCBub3QgaW4gZG9jX3Njb3JlczoKICAgICAgICAgICAgICAgICAgICBkb2Nfc2NvcmVzW2RvY19pZF0gPSB7J3sneyd9J30nZG9jJzogZG9jLCAnc2NvcmUnOiAwLjB7J30nfQogICAgICAgICAgICAgICAgZG9jX3Njb3Jlc1tkb2NfaWRdWydzY29yZSddICs9IDEuMCAvIChrICsgcmFuayArIDEpCgogICAgICAgIHNvcnRlZF9kb2NzID0gc29ydGVkKGRvY19zY29yZXMudmFsdWVzKCksCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBrZXk9bGFtYmRhIHg6IHhbJ3Njb3JlJ10sIHJldmVyc2U9VHJ1ZSkKICAgICAgICByZXR1cm4gW2l0ZW1bJ2RvYyddIGZvciBpdGVtIGluIHNvcnRlZF9kb2NzXQoKICAgIGRlZiBfcm91dGVfcXVlcnkoc2VsZiwgcXVlcnk6IHN0cikgLT4gc3RyOgogICAgICAgIHJlbGF0aW9uYWxfc2lnbmFscyA9IFsnaG93IGFyZScsICdyZWxhdGlvbnNoaXAgYmV0d2VlbicsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICdjb25uZWN0ZWQgdG8nLCAncmVsYXRlZCB0bycsICdwYXRoIGZyb20nXQogICAgICAgIGlmIGFueShzIGluIHF1ZXJ5Lmxvd2VyKCkgZm9yIHMgaW4gcmVsYXRpb25hbF9zaWduYWxzKToKICAgICAgICAgICAgcmV0dXJuICdyZWxhdGlvbmFsJwogICAgICAgIGlmIGFueShjLmlzZGlnaXQoKSBmb3IgYyBpbiBxdWVyeSkgb3IgcXVlcnkuY291bnQoJyInKSA+PSAyOgogICAgICAgICAgICByZXR1cm4gJ2V4YWN0JwogICAgICAgIHJldHVybiAnaHlicmlkJw==" />
 <RetrievalStrategyComparator />
 <Quiz
 question="What does Reciprocal Rank Fusion (RRF) do?"

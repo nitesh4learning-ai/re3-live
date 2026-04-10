@@ -7,76 +7,9 @@ icon: "📁"
 
 Resources provide **read-only contextual data** to the LLM. Unlike tools (which perform actions), resources feed information into the conversation. Prompts are **reusable workflow templates** that guide the LLM through structured tasks.
 
-<CodeBlock>
-{`from mcp.server import Server
+<CodeBlock b64="ZnJvbSBtY3Auc2VydmVyIGltcG9ydCBTZXJ2ZXIKCmFwcCA9IFNlcnZlcigiZG9jcy1zZXJ2ZXIiKQoKIyBTdGF0aWMgcmVzb3VyY2U6IGFsd2F5cyByZXR1cm5zIHRoZSBzYW1lIGNvbnRlbnQKQGFwcC5yZXNvdXJjZSgiY29uZmlnOi8vYXBwL3NldHRpbmdzIikKYXN5bmMgZGVmIGdldF9zZXR0aW5ncygpIC0+IHN0cjoKICAgICIiIkN1cnJlbnQgYXBwbGljYXRpb24gY29uZmlndXJhdGlvbi4iIiIKICAgIHJldHVybiBqc29uLmR1bXBzKHsneyd7J30nfQogICAgICAgICJlbnZpcm9ubWVudCI6ICJwcm9kdWN0aW9uIiwKICAgICAgICAiZmVhdHVyZXMiOiB7J3sneyd9J30iZGFya19tb2RlIjogVHJ1ZSwgImJldGFfYXBpIjogRmFsc2V7J30nfQogICAgeyd9J30pCgojIER5bmFtaWMgcmVzb3VyY2Ugd2l0aCBVUkkgdGVtcGxhdGUKQGFwcC5yZXNvdXJjZSgiZG9jczovL2FydGljbGVzL3sneyd7J30nfWFydGljbGVfaWR7J30nfSIpCmFzeW5jIGRlZiBnZXRfYXJ0aWNsZShhcnRpY2xlX2lkOiBzdHIpIC0+IHN0cjoKICAgICIiIlJldHJpZXZlIGEgc3BlY2lmaWMgYXJ0aWNsZSBieSBJRC4iIiIKICAgIGFydGljbGUgPSBhd2FpdCBkYi5nZXRfYXJ0aWNsZShhcnRpY2xlX2lkKQogICAgaWYgbm90IGFydGljbGU6CiAgICAgICAgcmFpc2UgVmFsdWVFcnJvcihmIkFydGljbGUgeyd7J3snfSd9YXJ0aWNsZV9pZHsnfSd9IG5vdCBmb3VuZCIpCiAgICByZXR1cm4ganNvbi5kdW1wcyhhcnRpY2xlKQoKIyBSZXNvdXJjZSBsaXN0aW5nOiBsZXQgY2xpZW50cyBkaXNjb3ZlciBhdmFpbGFibGUgcmVzb3VyY2VzCkBhcHAubGlzdF9yZXNvdXJjZXMoKQphc3luYyBkZWYgbGlzdF9yZXNvdXJjZXMoKToKICAgIGFydGljbGVzID0gYXdhaXQgZGIubGlzdF9hcnRpY2xlX2lkcygpCiAgICByZXR1cm4gWwogICAgICAgIHsneyd7J30nfSJ1cmkiOiBmImRvY3M6Ly9hcnRpY2xlcy97J3sneyd9J31haWR7J30nfSIsICJuYW1lIjogZiJBcnRpY2xlIHsneyd7J30nfWFpZHsnfSd9InsnfSd9CiAgICAgICAgZm9yIGFpZCBpbiBhcnRpY2xlcwogICAgXQ==" />
 
-app = Server("docs-server")
-
-# Static resource: always returns the same content
-@app.resource("config://app/settings")
-async def get_settings() -> str:
-    """Current application configuration."""
-    return json.dumps({'{'{'}'}
-        "environment": "production",
-        "features": {'{'{'}'}"dark_mode": True, "beta_api": False{'}'}
-    {'}'})
-
-# Dynamic resource with URI template
-@app.resource("docs://articles/{'{'{'}'}article_id{'}'}")
-async def get_article(article_id: str) -> str:
-    """Retrieve a specific article by ID."""
-    article = await db.get_article(article_id)
-    if not article:
-        raise ValueError(f"Article {'{'{'}'}article_id{'}'} not found")
-    return json.dumps(article)
-
-# Resource listing: let clients discover available resources
-@app.list_resources()
-async def list_resources():
-    articles = await db.list_article_ids()
-    return [
-        {'{'{'}'}"uri": f"docs://articles/{'{'{'}'}aid{'}'}", "name": f"Article {'{'{'}'}aid{'}'}"{'}'}
-        for aid in articles
-    ]`}
-</CodeBlock>
-
-<CodeBlock>
-{`@app.prompt("code-review")
-async def code_review_prompt(language: str, file_path: str) -> list:
-    """Generate a structured code review prompt.
-
-    Args:
-        language: Programming language (python, javascript, etc.)
-        file_path: Path to the file to review
-    """
-    file_content = await read_file(file_path)
-    return [
-        {'{'{'}'}
-            "role": "user",
-            "content": f"""Review this {'{'{'}'}language{'}'} code for:
-1. Bugs and potential runtime errors
-2. Security vulnerabilities
-3. Performance issues
-4. Code style and readability
-
-File: {'{'{'}'}file_path{'}'}
-\\n\\n{'{'{'}'}file_content{'}'}
-
-Provide your review in this format:
-- CRITICAL: Issues that will cause bugs or security problems
-- WARNING: Issues that may cause problems under certain conditions
-- SUGGESTION: Style and readability improvements"""
-        {'}'}
-    ]
-
-@app.prompt("summarize-pr")
-async def summarize_pr_prompt(pr_number: int) -> list:
-    """Generate a PR summary prompt with diff context."""
-    diff = await github.get_pr_diff(pr_number)
-    return [
-        {'{'{'}'}"role": "user", "content": f"Summarize this pull request diff. Focus on what changed and why it matters:\\n\\n{'{'{'}'}diff{'}'}"{'}'}
-    ]`}
-</CodeBlock>
+<CodeBlock b64="QGFwcC5wcm9tcHQoImNvZGUtcmV2aWV3IikKYXN5bmMgZGVmIGNvZGVfcmV2aWV3X3Byb21wdChsYW5ndWFnZTogc3RyLCBmaWxlX3BhdGg6IHN0cikgLT4gbGlzdDoKICAgICIiIkdlbmVyYXRlIGEgc3RydWN0dXJlZCBjb2RlIHJldmlldyBwcm9tcHQuCgogICAgQXJnczoKICAgICAgICBsYW5ndWFnZTogUHJvZ3JhbW1pbmcgbGFuZ3VhZ2UgKHB5dGhvbiwgamF2YXNjcmlwdCwgZXRjLikKICAgICAgICBmaWxlX3BhdGg6IFBhdGggdG8gdGhlIGZpbGUgdG8gcmV2aWV3CiAgICAiIiIKICAgIGZpbGVfY29udGVudCA9IGF3YWl0IHJlYWRfZmlsZShmaWxlX3BhdGgpCiAgICByZXR1cm4gWwogICAgICAgIHsneyd7J30nfQogICAgICAgICAgICAicm9sZSI6ICJ1c2VyIiwKICAgICAgICAgICAgImNvbnRlbnQiOiBmIiIiUmV2aWV3IHRoaXMgeyd7J3snfSd9bGFuZ3VhZ2V7J30nfSBjb2RlIGZvcjoKMS4gQnVncyBhbmQgcG90ZW50aWFsIHJ1bnRpbWUgZXJyb3JzCjIuIFNlY3VyaXR5IHZ1bG5lcmFiaWxpdGllcwozLiBQZXJmb3JtYW5jZSBpc3N1ZXMKNC4gQ29kZSBzdHlsZSBhbmQgcmVhZGFiaWxpdHkKCkZpbGU6IHsneyd7J30nfWZpbGVfcGF0aHsnfSd9Clxcblxcbnsneyd7J30nfWZpbGVfY29udGVudHsnfSd9CgpQcm92aWRlIHlvdXIgcmV2aWV3IGluIHRoaXMgZm9ybWF0OgotIENSSVRJQ0FMOiBJc3N1ZXMgdGhhdCB3aWxsIGNhdXNlIGJ1Z3Mgb3Igc2VjdXJpdHkgcHJvYmxlbXMKLSBXQVJOSU5HOiBJc3N1ZXMgdGhhdCBtYXkgY2F1c2UgcHJvYmxlbXMgdW5kZXIgY2VydGFpbiBjb25kaXRpb25zCi0gU1VHR0VTVElPTjogU3R5bGUgYW5kIHJlYWRhYmlsaXR5IGltcHJvdmVtZW50cyIiIgogICAgICAgIHsnfSd9CiAgICBdCgpAYXBwLnByb21wdCgic3VtbWFyaXplLXByIikKYXN5bmMgZGVmIHN1bW1hcml6ZV9wcl9wcm9tcHQocHJfbnVtYmVyOiBpbnQpIC0+IGxpc3Q6CiAgICAiIiJHZW5lcmF0ZSBhIFBSIHN1bW1hcnkgcHJvbXB0IHdpdGggZGlmZiBjb250ZXh0LiIiIgogICAgZGlmZiA9IGF3YWl0IGdpdGh1Yi5nZXRfcHJfZGlmZihwcl9udW1iZXIpCiAgICByZXR1cm4gWwogICAgICAgIHsneyd7J30nfSJyb2xlIjogInVzZXIiLCAiY29udGVudCI6IGYiU3VtbWFyaXplIHRoaXMgcHVsbCByZXF1ZXN0IGRpZmYuIEZvY3VzIG9uIHdoYXQgY2hhbmdlZCBhbmQgd2h5IGl0IG1hdHRlcnM6XFxuXFxueyd7J3snfSd9ZGlmZnsnfSd9InsnfSd9CiAgICBd" />
 
 <ComparisonTable title="When to Use Each MCP Primitive" columns={['Scenario','Tool','Resource','Prompt']} rows={[
   ['Search a database by query','Yes -- action with parameters','No','No'],

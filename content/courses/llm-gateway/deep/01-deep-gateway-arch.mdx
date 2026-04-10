@@ -12,52 +12,5 @@ An LLM gateway can be deployed in three architectural patterns: **reverse proxy*
     ['Sidecar','Co-located process alongside each app instance','Minimal (~0.5ms)','Kubernetes deployments, per-service policies'],
     ['Embedded SDK','Library imported directly into application code','Zero network overhead','Simple apps, serverless, edge deployments'],
   ]}/>
-  <CodeBlock>
-{`from fastapi import FastAPI, HTTPException
-import httpx
-
-app = FastAPI()
-
-PROVIDERS = {'{'{'}'}
-    "anthropic": {'{'{'}'}
-        "url": "https://api.anthropic.com/v1/messages",
-        "headers": {'{'{'}'}"x-api-key": ANTHROPIC_KEY,
-                     "anthropic-version": "2023-06-01"{'}'},
-        "transform": transform_to_anthropic{'}'},
-    "openai": {'{'{'}'}
-        "url": "https://api.openai.com/v1/chat/completions",
-        "headers": {'{'{'}'}"Authorization": f"Bearer \\$\\{'{'{'}'}OPENAI_KEY\\{'}'}"{'}'},
-        "transform": transform_to_openai{'}'},
-{'}'}
-
-class GatewayMiddleware:
-    def __init__(self):
-        self.request_log = []
-        self.circuit_breakers = {'{'{'}'}p: CircuitBreaker() for p in PROVIDERS{'}'}
-
-    async def route_request(self, request, strategy):
-        # 1. Rate limiting
-        if not await self.check_rate_limit(request.get("user_id")):
-            raise HTTPException(429, "Rate limit exceeded")
-        # 2. Select provider
-        provider = self.select_provider(strategy)
-        config = PROVIDERS[provider]
-        transformed = config["transform"](request)
-        # 3. Circuit breaker check
-        if self.circuit_breakers[provider].is_open:
-            provider = self.select_fallback(provider)
-            config = PROVIDERS[provider]
-            transformed = config["transform"](request)
-        # 4. Forward request
-        async with httpx.AsyncClient(timeout=30) as client:
-            response = await client.post(
-                config["url"], json=transformed,
-                headers=config["headers"])
-        # 5. Log and return
-        self.request_log.append({'{'{'}'}
-            "provider": provider,
-            "tokens": extract_tokens(response.json()),
-            "status": response.status_code{'}'})
-        return response.json()`}
-</CodeBlock>
+  <CodeBlock b64="ZnJvbSBmYXN0YXBpIGltcG9ydCBGYXN0QVBJLCBIVFRQRXhjZXB0aW9uCmltcG9ydCBodHRweAoKYXBwID0gRmFzdEFQSSgpCgpQUk9WSURFUlMgPSB7J3sneyd9J30KICAgICJhbnRocm9waWMiOiB7J3sneyd9J30KICAgICAgICAidXJsIjogImh0dHBzOi8vYXBpLmFudGhyb3BpYy5jb20vdjEvbWVzc2FnZXMiLAogICAgICAgICJoZWFkZXJzIjogeyd7J3snfSd9IngtYXBpLWtleSI6IEFOVEhST1BJQ19LRVksCiAgICAgICAgICAgICAgICAgICAgICJhbnRocm9waWMtdmVyc2lvbiI6ICIyMDIzLTA2LTAxInsnfSd9LAogICAgICAgICJ0cmFuc2Zvcm0iOiB0cmFuc2Zvcm1fdG9fYW50aHJvcGljeyd9J30sCiAgICAib3BlbmFpIjogeyd7J3snfSd9CiAgICAgICAgInVybCI6ICJodHRwczovL2FwaS5vcGVuYWkuY29tL3YxL2NoYXQvY29tcGxldGlvbnMiLAogICAgICAgICJoZWFkZXJzIjogeyd7J3snfSd9IkF1dGhvcml6YXRpb24iOiBmIkJlYXJlciBcXCRcXHsneyd7J30nfU9QRU5BSV9LRVlcXHsnfSd9InsnfSd9LAogICAgICAgICJ0cmFuc2Zvcm0iOiB0cmFuc2Zvcm1fdG9fb3BlbmFpeyd9J30sCnsnfSd9CgpjbGFzcyBHYXRld2F5TWlkZGxld2FyZToKICAgIGRlZiBfX2luaXRfXyhzZWxmKToKICAgICAgICBzZWxmLnJlcXVlc3RfbG9nID0gW10KICAgICAgICBzZWxmLmNpcmN1aXRfYnJlYWtlcnMgPSB7J3sneyd9J31wOiBDaXJjdWl0QnJlYWtlcigpIGZvciBwIGluIFBST1ZJREVSU3snfSd9CgogICAgYXN5bmMgZGVmIHJvdXRlX3JlcXVlc3Qoc2VsZiwgcmVxdWVzdCwgc3RyYXRlZ3kpOgogICAgICAgICMgMS4gUmF0ZSBsaW1pdGluZwogICAgICAgIGlmIG5vdCBhd2FpdCBzZWxmLmNoZWNrX3JhdGVfbGltaXQocmVxdWVzdC5nZXQoInVzZXJfaWQiKSk6CiAgICAgICAgICAgIHJhaXNlIEhUVFBFeGNlcHRpb24oNDI5LCAiUmF0ZSBsaW1pdCBleGNlZWRlZCIpCiAgICAgICAgIyAyLiBTZWxlY3QgcHJvdmlkZXIKICAgICAgICBwcm92aWRlciA9IHNlbGYuc2VsZWN0X3Byb3ZpZGVyKHN0cmF0ZWd5KQogICAgICAgIGNvbmZpZyA9IFBST1ZJREVSU1twcm92aWRlcl0KICAgICAgICB0cmFuc2Zvcm1lZCA9IGNvbmZpZ1sidHJhbnNmb3JtIl0ocmVxdWVzdCkKICAgICAgICAjIDMuIENpcmN1aXQgYnJlYWtlciBjaGVjawogICAgICAgIGlmIHNlbGYuY2lyY3VpdF9icmVha2Vyc1twcm92aWRlcl0uaXNfb3BlbjoKICAgICAgICAgICAgcHJvdmlkZXIgPSBzZWxmLnNlbGVjdF9mYWxsYmFjayhwcm92aWRlcikKICAgICAgICAgICAgY29uZmlnID0gUFJPVklERVJTW3Byb3ZpZGVyXQogICAgICAgICAgICB0cmFuc2Zvcm1lZCA9IGNvbmZpZ1sidHJhbnNmb3JtIl0ocmVxdWVzdCkKICAgICAgICAjIDQuIEZvcndhcmQgcmVxdWVzdAogICAgICAgIGFzeW5jIHdpdGggaHR0cHguQXN5bmNDbGllbnQodGltZW91dD0zMCkgYXMgY2xpZW50OgogICAgICAgICAgICByZXNwb25zZSA9IGF3YWl0IGNsaWVudC5wb3N0KAogICAgICAgICAgICAgICAgY29uZmlnWyJ1cmwiXSwganNvbj10cmFuc2Zvcm1lZCwKICAgICAgICAgICAgICAgIGhlYWRlcnM9Y29uZmlnWyJoZWFkZXJzIl0pCiAgICAgICAgIyA1LiBMb2cgYW5kIHJldHVybgogICAgICAgIHNlbGYucmVxdWVzdF9sb2cuYXBwZW5kKHsneyd7J30nfQogICAgICAgICAgICAicHJvdmlkZXIiOiBwcm92aWRlciwKICAgICAgICAgICAgInRva2VucyI6IGV4dHJhY3RfdG9rZW5zKHJlc3BvbnNlLmpzb24oKSksCiAgICAgICAgICAgICJzdGF0dXMiOiByZXNwb25zZS5zdGF0dXNfY29kZXsnfSd9KQogICAgICAgIHJldHVybiByZXNwb25zZS5qc29uKCk=" />
   <Quiz question="When should you choose a sidecar gateway over a reverse proxy?" options={["Single monolithic app","Kubernetes with per-service routing policies and minimal latency","Simplest possible setup","Deploying to serverless"]} correctIndex={1} explanation="The sidecar pattern excels in Kubernetes where each service needs its own gateway instance co-located in the same pod. This minimizes latency while allowing per-service routing policies and rate limits."/>

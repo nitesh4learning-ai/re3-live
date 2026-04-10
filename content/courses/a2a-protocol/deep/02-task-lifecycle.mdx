@@ -7,96 +7,11 @@ icon: "🔄"
 
 A2A tasks move through defined states. The protocol supports **streaming via SSE** for real-time progress updates, **push notifications** for long-running tasks, and **artifacts** for structured outputs.
 
-<CodeBlock>
-{`# A2A Task States and Transitions
-#
-# submitted --> working --> completed
-#                 |    \\--> failed
-#                 |    \\--> canceled
-#                 \\--> input-needed --> working (after input received)
-#
-# Key rules:
-# - Only the receiving agent can change state
-# - 'input-needed' pauses work until the requester provides more info
-# - 'canceled' can only be triggered by the requester
-# - Artifacts can be attached at any state (partial results)
+<CodeBlock b64="IyBBMkEgVGFzayBTdGF0ZXMgYW5kIFRyYW5zaXRpb25zCiMKIyBzdWJtaXR0ZWQgLS0+IHdvcmtpbmcgLS0+IGNvbXBsZXRlZAojICAgICAgICAgICAgICAgICB8ICAgIFxcLS0+IGZhaWxlZAojICAgICAgICAgICAgICAgICB8ICAgIFxcLS0+IGNhbmNlbGVkCiMgICAgICAgICAgICAgICAgIFxcLS0+IGlucHV0LW5lZWRlZCAtLT4gd29ya2luZyAoYWZ0ZXIgaW5wdXQgcmVjZWl2ZWQpCiMKIyBLZXkgcnVsZXM6CiMgLSBPbmx5IHRoZSByZWNlaXZpbmcgYWdlbnQgY2FuIGNoYW5nZSBzdGF0ZQojIC0gJ2lucHV0LW5lZWRlZCcgcGF1c2VzIHdvcmsgdW50aWwgdGhlIHJlcXVlc3RlciBwcm92aWRlcyBtb3JlIGluZm8KIyAtICdjYW5jZWxlZCcgY2FuIG9ubHkgYmUgdHJpZ2dlcmVkIGJ5IHRoZSByZXF1ZXN0ZXIKIyAtIEFydGlmYWN0cyBjYW4gYmUgYXR0YWNoZWQgYXQgYW55IHN0YXRlIChwYXJ0aWFsIHJlc3VsdHMpCgpjbGFzcyBUYXNrU3RhdGU6CiAgICBTVUJNSVRURUQgPSAic3VibWl0dGVkIgogICAgV09SS0lORyA9ICJ3b3JraW5nIgogICAgSU5QVVRfTkVFREVEID0gImlucHV0LW5lZWRlZCIKICAgIENPTVBMRVRFRCA9ICJjb21wbGV0ZWQiCiAgICBGQUlMRUQgPSAiZmFpbGVkIgogICAgQ0FOQ0VMRUQgPSAiY2FuY2VsZWQiCgpWQUxJRF9UUkFOU0lUSU9OUyA9IHsneyd7J30nfQogICAgVGFza1N0YXRlLlNVQk1JVFRFRDogW1Rhc2tTdGF0ZS5XT1JLSU5HLCBUYXNrU3RhdGUuRkFJTEVELCBUYXNrU3RhdGUuQ0FOQ0VMRURdLAogICAgVGFza1N0YXRlLldPUktJTkc6IFtUYXNrU3RhdGUuQ09NUExFVEVELCBUYXNrU3RhdGUuRkFJTEVELCBUYXNrU3RhdGUuSU5QVVRfTkVFREVELCBUYXNrU3RhdGUuQ0FOQ0VMRURdLAogICAgVGFza1N0YXRlLklOUFVUX05FRURFRDogW1Rhc2tTdGF0ZS5XT1JLSU5HLCBUYXNrU3RhdGUuQ0FOQ0VMRURdLAogICAgVGFza1N0YXRlLkNPTVBMRVRFRDogW10sICAjIFRlcm1pbmFsCiAgICBUYXNrU3RhdGUuRkFJTEVEOiBbXSwgICAgICMgVGVybWluYWwKICAgIFRhc2tTdGF0ZS5DQU5DRUxFRDogW10sICAgIyBUZXJtaW5hbAp7J30nfQ==" />
 
-class TaskState:
-    SUBMITTED = "submitted"
-    WORKING = "working"
-    INPUT_NEEDED = "input-needed"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    CANCELED = "canceled"
+<CodeBlock b64="aW1wb3J0IGpzb24KZnJvbSBzdGFybGV0dGUucmVzcG9uc2VzIGltcG9ydCBTdHJlYW1pbmdSZXNwb25zZQoKYXN5bmMgZGVmIHN0cmVhbV90YXNrX3VwZGF0ZXModGFza19pZDogc3RyKToKICAgICIiIlN0cmVhbSByZWFsLXRpbWUgdGFzayB1cGRhdGVzIHZpYSBTU0UuIiIiCiAgICBhc3luYyBkZWYgZXZlbnRfZ2VuZXJhdG9yKCk6CiAgICAgICAgdGFzayA9IGF3YWl0IGdldF90YXNrKHRhc2tfaWQpCiAgICAgICAgd2hpbGUgdGFzay5zdGF0ZSBub3QgaW4gKCJjb21wbGV0ZWQiLCAiZmFpbGVkIiwgImNhbmNlbGVkIik6CiAgICAgICAgICAgICMgU2VuZCBjdXJyZW50IHN0YXRlIGFzIFNTRSBldmVudAogICAgICAgICAgICBldmVudCA9IHsneyd7J30nfQogICAgICAgICAgICAgICAgImlkIjogdGFzay5pZCwKICAgICAgICAgICAgICAgICJzdGF0dXMiOiB7J3sneyd9J30ic3RhdGUiOiB0YXNrLnN0YXRlLCAibWVzc2FnZSI6IHRhc2suc3RhdHVzX21lc3NhZ2V7J30nfSwKICAgICAgICAgICAgICAgICJhcnRpZmFjdHMiOiBbYS50b19kaWN0KCkgZm9yIGEgaW4gdGFzay5hcnRpZmFjdHNdCiAgICAgICAgICAgIHsnfSd9CiAgICAgICAgICAgIHlpZWxkIGYiZGF0YTogeyd7J3snfSd9anNvbi5kdW1wcyhldmVudCl7J30nfVxcblxcbiIKICAgICAgICAgICAgYXdhaXQgYXN5bmNpby5zbGVlcCgxKQogICAgICAgICAgICB0YXNrID0gYXdhaXQgZ2V0X3Rhc2sodGFza19pZCkgICMgUmVmcmVzaAoKICAgICAgICAjIFNlbmQgZmluYWwgc3RhdGUKICAgICAgICB5aWVsZCBmImRhdGE6IHsneyd7J30nfWpzb24uZHVtcHModGFzay50b19kaWN0KCkpeyd9J31cXG5cXG4iCgogICAgcmV0dXJuIFN0cmVhbWluZ1Jlc3BvbnNlKAogICAgICAgIGV2ZW50X2dlbmVyYXRvcigpLAogICAgICAgIG1lZGlhX3R5cGU9InRleHQvZXZlbnQtc3RyZWFtIgogICAgKQ==" />
 
-VALID_TRANSITIONS = {'{'{'}'}
-    TaskState.SUBMITTED: [TaskState.WORKING, TaskState.FAILED, TaskState.CANCELED],
-    TaskState.WORKING: [TaskState.COMPLETED, TaskState.FAILED, TaskState.INPUT_NEEDED, TaskState.CANCELED],
-    TaskState.INPUT_NEEDED: [TaskState.WORKING, TaskState.CANCELED],
-    TaskState.COMPLETED: [],  # Terminal
-    TaskState.FAILED: [],     # Terminal
-    TaskState.CANCELED: [],   # Terminal
-{'}'}`}
-</CodeBlock>
-
-<CodeBlock>
-{`import json
-from starlette.responses import StreamingResponse
-
-async def stream_task_updates(task_id: str):
-    """Stream real-time task updates via SSE."""
-    async def event_generator():
-        task = await get_task(task_id)
-        while task.state not in ("completed", "failed", "canceled"):
-            # Send current state as SSE event
-            event = {'{'{'}'}
-                "id": task.id,
-                "status": {'{'{'}'}"state": task.state, "message": task.status_message{'}'},
-                "artifacts": [a.to_dict() for a in task.artifacts]
-            {'}'}
-            yield f"data: {'{'{'}'}json.dumps(event){'}'}\\n\\n"
-            await asyncio.sleep(1)
-            task = await get_task(task_id)  # Refresh
-
-        # Send final state
-        yield f"data: {'{'{'}'}json.dumps(task.to_dict()){'}'}\\n\\n"
-
-    return StreamingResponse(
-        event_generator(),
-        media_type="text/event-stream"
-    )`}
-</CodeBlock>
-
-<CodeBlock>
-{`{'{'{'}'}
-  "id": "task-abc-123",
-  "status": {'{'{'}'}"state": "completed"{'}'},
-  "artifacts": [
-    {'{'{'}'}
-      "name": "research-report",
-      "description": "Comprehensive research report with citations",
-      "parts": [
-        {'{'{'}'}
-          "type": "text",
-          "mimeType": "text/markdown",
-          "text": "# AI Governance Trends 2025\\n\\n## Key Findings\\n..."
-        {'}'}
-      ]
-    {'}'},
-    {'{'{'}'}
-      "name": "data-table",
-      "description": "Supporting data in structured format",
-      "parts": [
-        {'{'{'}'}
-          "type": "data",
-          "mimeType": "application/json",
-          "data": {'{'{'}'}"frameworks": [...], "adoption_rates": {'{'{'}'}...{'}'}{'}'}
-        {'}'}
-      ]
-    {'}'}
-  ]
-{'}'}`}
-</CodeBlock>
+<CodeBlock b64="eyd7J3snfSd9CiAgImlkIjogInRhc2stYWJjLTEyMyIsCiAgInN0YXR1cyI6IHsneyd7J30nfSJzdGF0ZSI6ICJjb21wbGV0ZWQieyd9J30sCiAgImFydGlmYWN0cyI6IFsKICAgIHsneyd7J30nfQogICAgICAibmFtZSI6ICJyZXNlYXJjaC1yZXBvcnQiLAogICAgICAiZGVzY3JpcHRpb24iOiAiQ29tcHJlaGVuc2l2ZSByZXNlYXJjaCByZXBvcnQgd2l0aCBjaXRhdGlvbnMiLAogICAgICAicGFydHMiOiBbCiAgICAgICAgeyd7J3snfSd9CiAgICAgICAgICAidHlwZSI6ICJ0ZXh0IiwKICAgICAgICAgICJtaW1lVHlwZSI6ICJ0ZXh0L21hcmtkb3duIiwKICAgICAgICAgICJ0ZXh0IjogIiMgQUkgR292ZXJuYW5jZSBUcmVuZHMgMjAyNVxcblxcbiMjIEtleSBGaW5kaW5nc1xcbi4uLiIKICAgICAgICB7J30nfQogICAgICBdCiAgICB7J30nfSwKICAgIHsneyd7J30nfQogICAgICAibmFtZSI6ICJkYXRhLXRhYmxlIiwKICAgICAgImRlc2NyaXB0aW9uIjogIlN1cHBvcnRpbmcgZGF0YSBpbiBzdHJ1Y3R1cmVkIGZvcm1hdCIsCiAgICAgICJwYXJ0cyI6IFsKICAgICAgICB7J3sneyd9J30KICAgICAgICAgICJ0eXBlIjogImRhdGEiLAogICAgICAgICAgIm1pbWVUeXBlIjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAgICAgImRhdGEiOiB7J3sneyd9J30iZnJhbWV3b3JrcyI6IFsuLi5dLCAiYWRvcHRpb25fcmF0ZXMiOiB7J3sneyd9J30uLi57J30nfXsnfSd9CiAgICAgICAgeyd9J30KICAgICAgXQogICAgeyd9J30KICBdCnsnfSd9" />
 
 <Quiz question="An agent is processing a research task but realizes it needs to know the desired time range. What state should it transition to?" options={["failed -- it cannot complete without more info","completed -- return what it has so far","input-needed -- ask the requester for the time range","canceled -- start over"]} correctIndex={2} explanation="The 'input-needed' state is designed exactly for this. It pauses the task, signals the requester that additional information is needed, and waits for a follow-up message before resuming work." />
 

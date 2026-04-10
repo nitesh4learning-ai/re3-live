@@ -7,33 +7,7 @@ icon: "\uD83D\uDD27"
 
 Implementing responsible AI requires tooling, processes, and culture -- from <JargonTip term="fairness">fairness</JargonTip> audits to <JargonTip term="guardrails">guardrails</JargonTip> that prevent <JargonTip term="hallucination">hallucinations</JargonTip>. Here are the practical building blocks.
 
-<CodeBlock>
-{`# Using Fairlearn for bias detection
-from fairlearn.metrics import MetricFrame
-from sklearn.metrics import accuracy_score, selection_rate
-
-# After training your model
-metric_frame = MetricFrame(
-    metrics={'{'{'}'}
-        "accuracy": accuracy_score,
-        "selection_rate": selection_rate
-    {'}'},
-    y_true=y_test,
-    y_pred=predictions,
-    sensitive_features=demographics["gender"]
-)
-
-print(metric_frame.by_group)
-#              accuracy  selection_rate
-# Female        0.87         0.42
-# Male          0.89         0.45
-# Non-binary    0.84         0.40
-
-# Check if disparity exceeds threshold
-ratio = metric_frame.ratio()  # min/max per metric
-if ratio["selection_rate"] < 0.8:  # 4/5ths rule
-    print("WARNING: Potential disparate impact detected")`}
-</CodeBlock>
+<CodeBlock b64="IyBVc2luZyBGYWlybGVhcm4gZm9yIGJpYXMgZGV0ZWN0aW9uCmZyb20gZmFpcmxlYXJuLm1ldHJpY3MgaW1wb3J0IE1ldHJpY0ZyYW1lCmZyb20gc2tsZWFybi5tZXRyaWNzIGltcG9ydCBhY2N1cmFjeV9zY29yZSwgc2VsZWN0aW9uX3JhdGUKCiMgQWZ0ZXIgdHJhaW5pbmcgeW91ciBtb2RlbAptZXRyaWNfZnJhbWUgPSBNZXRyaWNGcmFtZSgKICAgIG1ldHJpY3M9eyd7J3snfSd9CiAgICAgICAgImFjY3VyYWN5IjogYWNjdXJhY3lfc2NvcmUsCiAgICAgICAgInNlbGVjdGlvbl9yYXRlIjogc2VsZWN0aW9uX3JhdGUKICAgIHsnfSd9LAogICAgeV90cnVlPXlfdGVzdCwKICAgIHlfcHJlZD1wcmVkaWN0aW9ucywKICAgIHNlbnNpdGl2ZV9mZWF0dXJlcz1kZW1vZ3JhcGhpY3NbImdlbmRlciJdCikKCnByaW50KG1ldHJpY19mcmFtZS5ieV9ncm91cCkKIyAgICAgICAgICAgICAgYWNjdXJhY3kgIHNlbGVjdGlvbl9yYXRlCiMgRmVtYWxlICAgICAgICAwLjg3ICAgICAgICAgMC40MgojIE1hbGUgICAgICAgICAgMC44OSAgICAgICAgIDAuNDUKIyBOb24tYmluYXJ5ICAgIDAuODQgICAgICAgICAwLjQwCgojIENoZWNrIGlmIGRpc3Bhcml0eSBleGNlZWRzIHRocmVzaG9sZApyYXRpbyA9IG1ldHJpY19mcmFtZS5yYXRpbygpICAjIG1pbi9tYXggcGVyIG1ldHJpYwppZiByYXRpb1sic2VsZWN0aW9uX3JhdGUiXSA8IDAuODogICMgNC81dGhzIHJ1bGUKICAgIHByaW50KCJXQVJOSU5HOiBQb3RlbnRpYWwgZGlzcGFyYXRlIGltcGFjdCBkZXRlY3RlZCIp" />
 
 <ExpandableSection title="Responsible AI Checklist" icon={'\u2705'} defaultOpen>
 

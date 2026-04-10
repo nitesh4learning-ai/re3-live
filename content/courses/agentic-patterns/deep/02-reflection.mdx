@@ -5,40 +5,6 @@ icon: "🪞"
 
 ## Reflection Pattern
 
-<CodeBlock>
-{`class ReflectionAgent:
-    def __init__(self, model, max_iterations=3):
-        self.model = model
-        self.max_iterations = max_iterations
-
-    async def generate_with_reflection(self, task):
-        # Step 1: Initial generation
-        draft = await self.model.generate(
-            f"Complete this task: {'{'{'}'}task{'}'}"
-        )
-
-        for i in range(self.max_iterations):
-            # Step 2: Self-critique
-            critique = await self.model.generate(
-                f"Critique this output for the task '{'{'{'}'}task{'}'}':\\n\\n"
-                f"{'{'{'}'}draft{'}'}\\n\\n"
-                "List specific issues: accuracy, completeness, "
-                "clarity, edge cases missed."
-            )
-
-            # Step 3: Check if good enough
-            if "no significant issues" in critique.lower():
-                break
-
-            # Step 4: Revise based on critique
-            draft = await self.model.generate(
-                f"Revise this output based on the critique:\\n\\n"
-                f"Original: {'{'{'}'}draft{'}'}\\n\\n"
-                f"Critique: {'{'{'}'}critique{'}'}\\n\\n"
-                "Improved version:"
-            )
-
-        return draft`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgUmVmbGVjdGlvbkFnZW50OgogICAgZGVmIF9faW5pdF9fKHNlbGYsIG1vZGVsLCBtYXhfaXRlcmF0aW9ucz0zKToKICAgICAgICBzZWxmLm1vZGVsID0gbW9kZWwKICAgICAgICBzZWxmLm1heF9pdGVyYXRpb25zID0gbWF4X2l0ZXJhdGlvbnMKCiAgICBhc3luYyBkZWYgZ2VuZXJhdGVfd2l0aF9yZWZsZWN0aW9uKHNlbGYsIHRhc2spOgogICAgICAgICMgU3RlcCAxOiBJbml0aWFsIGdlbmVyYXRpb24KICAgICAgICBkcmFmdCA9IGF3YWl0IHNlbGYubW9kZWwuZ2VuZXJhdGUoCiAgICAgICAgICAgIGYiQ29tcGxldGUgdGhpcyB0YXNrOiB7J3sneyd9J310YXNreyd9J30iCiAgICAgICAgKQoKICAgICAgICBmb3IgaSBpbiByYW5nZShzZWxmLm1heF9pdGVyYXRpb25zKToKICAgICAgICAgICAgIyBTdGVwIDI6IFNlbGYtY3JpdGlxdWUKICAgICAgICAgICAgY3JpdGlxdWUgPSBhd2FpdCBzZWxmLm1vZGVsLmdlbmVyYXRlKAogICAgICAgICAgICAgICAgZiJDcml0aXF1ZSB0aGlzIG91dHB1dCBmb3IgdGhlIHRhc2sgJ3sneyd7J30nfXRhc2t7J30nfSc6XFxuXFxuIgogICAgICAgICAgICAgICAgZiJ7J3sneyd9J31kcmFmdHsnfSd9XFxuXFxuIgogICAgICAgICAgICAgICAgIkxpc3Qgc3BlY2lmaWMgaXNzdWVzOiBhY2N1cmFjeSwgY29tcGxldGVuZXNzLCAiCiAgICAgICAgICAgICAgICAiY2xhcml0eSwgZWRnZSBjYXNlcyBtaXNzZWQuIgogICAgICAgICAgICApCgogICAgICAgICAgICAjIFN0ZXAgMzogQ2hlY2sgaWYgZ29vZCBlbm91Z2gKICAgICAgICAgICAgaWYgIm5vIHNpZ25pZmljYW50IGlzc3VlcyIgaW4gY3JpdGlxdWUubG93ZXIoKToKICAgICAgICAgICAgICAgIGJyZWFrCgogICAgICAgICAgICAjIFN0ZXAgNDogUmV2aXNlIGJhc2VkIG9uIGNyaXRpcXVlCiAgICAgICAgICAgIGRyYWZ0ID0gYXdhaXQgc2VsZi5tb2RlbC5nZW5lcmF0ZSgKICAgICAgICAgICAgICAgIGYiUmV2aXNlIHRoaXMgb3V0cHV0IGJhc2VkIG9uIHRoZSBjcml0aXF1ZTpcXG5cXG4iCiAgICAgICAgICAgICAgICBmIk9yaWdpbmFsOiB7J3sneyd9J31kcmFmdHsnfSd9XFxuXFxuIgogICAgICAgICAgICAgICAgZiJDcml0aXF1ZTogeyd7J3snfSd9Y3JpdGlxdWV7J30nfVxcblxcbiIKICAgICAgICAgICAgICAgICJJbXByb3ZlZCB2ZXJzaW9uOiIKICAgICAgICAgICAgKQoKICAgICAgICByZXR1cm4gZHJhZnQ=" />
 
 <Quiz question="What is the main risk of reflection loops?" options={["They always improve quality","They can over-optimize and lose the original intent","They are too slow","They require multiple models"]} correctIndex={1} explanation="Reflection loops can 'over-edit' -- the model keeps finding issues and revising until the output is technically correct but has lost its original clarity or intent. Set a max_iterations limit and check for convergence." />

@@ -13,41 +13,5 @@ Evaluating LLM outputs requires multiple complementary approaches. No single met
     ['Human Evaluation','Domain experts rate outputs','Highest quality signal','Expensive, slow, not scalable'],
     ['Rubric-Based','Score against defined criteria (1-5 per dimension)','Structured, consistent','Requires careful rubric design'],
   ]}/>
-  <CodeBlock>
-{`from dataclasses import dataclass
-
-@dataclass
-class EvalResult:
-    faithfulness: float   # 0-1: grounded in context?
-    relevance: float      # 0-1: answers the question?
-    coherence: float      # 0-1: well-structured?
-    reasoning: str
-
-async def llm_judge_evaluate(question, answer, context, judge_llm):
-    """Use a separate LLM to evaluate answer quality."""
-    prompt = f"""Evaluate this answer on three criteria (0.0-1.0 each):
-    Question: \\$\\{'{'{'}'}question\\{'}'}
-    Context: \\$\\{'{'{'}'}context\\{'}'}
-    Answer: \\$\\{'{'{'}'}answer\\{'}'}
-    Return JSON: {'{'{'}'}{'{'{'}'}"faithfulness": ..., "relevance": ...,
-      "coherence": ..., "reasoning": "..."{'}'}{'}'}"""
-
-    response = await judge_llm.invoke(
-        system="You are a strict evaluation judge.",
-        user=prompt)
-    return EvalResult(**parse_json(response.content))
-
-async def batch_evaluate(test_cases, judge_llm):
-    results = []
-    for case in test_cases:
-        r = await llm_judge_evaluate(
-            case["question"], case["answer"],
-            case["context"], judge_llm)
-        results.append(r)
-    avg_f = sum(r.faithfulness for r in results) / len(results)
-    avg_r = sum(r.relevance for r in results) / len(results)
-    avg_c = sum(r.coherence for r in results) / len(results)
-    print(f"Faith: \\$\\{'{'{'}'}avg_f:.2f\\{'}'} Rel: \\$\\{'{'{'}'}avg_r:.2f\\{'}'} Coh: \\$\\{'{'{'}'}avg_c:.2f\\{'}'}")
-    return results`}
-</CodeBlock>
+  <CodeBlock b64="ZnJvbSBkYXRhY2xhc3NlcyBpbXBvcnQgZGF0YWNsYXNzCgpAZGF0YWNsYXNzCmNsYXNzIEV2YWxSZXN1bHQ6CiAgICBmYWl0aGZ1bG5lc3M6IGZsb2F0ICAgIyAwLTE6IGdyb3VuZGVkIGluIGNvbnRleHQ/CiAgICByZWxldmFuY2U6IGZsb2F0ICAgICAgIyAwLTE6IGFuc3dlcnMgdGhlIHF1ZXN0aW9uPwogICAgY29oZXJlbmNlOiBmbG9hdCAgICAgICMgMC0xOiB3ZWxsLXN0cnVjdHVyZWQ/CiAgICByZWFzb25pbmc6IHN0cgoKYXN5bmMgZGVmIGxsbV9qdWRnZV9ldmFsdWF0ZShxdWVzdGlvbiwgYW5zd2VyLCBjb250ZXh0LCBqdWRnZV9sbG0pOgogICAgIiIiVXNlIGEgc2VwYXJhdGUgTExNIHRvIGV2YWx1YXRlIGFuc3dlciBxdWFsaXR5LiIiIgogICAgcHJvbXB0ID0gZiIiIkV2YWx1YXRlIHRoaXMgYW5zd2VyIG9uIHRocmVlIGNyaXRlcmlhICgwLjAtMS4wIGVhY2gpOgogICAgUXVlc3Rpb246IFxcJFxceyd7J3snfSd9cXVlc3Rpb25cXHsnfSd9CiAgICBDb250ZXh0OiBcXCRcXHsneyd7J30nfWNvbnRleHRcXHsnfSd9CiAgICBBbnN3ZXI6IFxcJFxceyd7J3snfSd9YW5zd2VyXFx7J30nfQogICAgUmV0dXJuIEpTT046IHsneyd7J30nfXsneyd7J30nfSJmYWl0aGZ1bG5lc3MiOiAuLi4sICJyZWxldmFuY2UiOiAuLi4sCiAgICAgICJjb2hlcmVuY2UiOiAuLi4sICJyZWFzb25pbmciOiAiLi4uInsnfSd9eyd9J30iIiIKCiAgICByZXNwb25zZSA9IGF3YWl0IGp1ZGdlX2xsbS5pbnZva2UoCiAgICAgICAgc3lzdGVtPSJZb3UgYXJlIGEgc3RyaWN0IGV2YWx1YXRpb24ganVkZ2UuIiwKICAgICAgICB1c2VyPXByb21wdCkKICAgIHJldHVybiBFdmFsUmVzdWx0KCoqcGFyc2VfanNvbihyZXNwb25zZS5jb250ZW50KSkKCmFzeW5jIGRlZiBiYXRjaF9ldmFsdWF0ZSh0ZXN0X2Nhc2VzLCBqdWRnZV9sbG0pOgogICAgcmVzdWx0cyA9IFtdCiAgICBmb3IgY2FzZSBpbiB0ZXN0X2Nhc2VzOgogICAgICAgIHIgPSBhd2FpdCBsbG1fanVkZ2VfZXZhbHVhdGUoCiAgICAgICAgICAgIGNhc2VbInF1ZXN0aW9uIl0sIGNhc2VbImFuc3dlciJdLAogICAgICAgICAgICBjYXNlWyJjb250ZXh0Il0sIGp1ZGdlX2xsbSkKICAgICAgICByZXN1bHRzLmFwcGVuZChyKQogICAgYXZnX2YgPSBzdW0oci5mYWl0aGZ1bG5lc3MgZm9yIHIgaW4gcmVzdWx0cykgLyBsZW4ocmVzdWx0cykKICAgIGF2Z19yID0gc3VtKHIucmVsZXZhbmNlIGZvciByIGluIHJlc3VsdHMpIC8gbGVuKHJlc3VsdHMpCiAgICBhdmdfYyA9IHN1bShyLmNvaGVyZW5jZSBmb3IgciBpbiByZXN1bHRzKSAvIGxlbihyZXN1bHRzKQogICAgcHJpbnQoZiJGYWl0aDogXFwkXFx7J3sneyd9J31hdmdfZjouMmZcXHsnfSd9IFJlbDogXFwkXFx7J3sneyd9J31hdmdfcjouMmZcXHsnfSd9IENvaDogXFwkXFx7J3sneyd9J31hdmdfYzouMmZcXHsnfSd9IikKICAgIHJldHVybiByZXN1bHRz" />
   <Quiz question="An LLM-as-judge consistently rates Claude outputs higher than GPT outputs regardless of quality. What is this?" options={["Calibration error","Judge bias -- the evaluator has model preference","Hallucination","Context overflow"]} correctIndex={1} explanation="Judge bias occurs when the evaluating LLM has systematic preferences for certain styles or models. Mitigation: use a different model family as judge, randomize labels, or average scores from multiple judges."/>

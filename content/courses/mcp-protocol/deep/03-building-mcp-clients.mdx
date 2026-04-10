@@ -7,64 +7,7 @@ icon: "🔗"
 
 An MCP client manages connections to one or more servers, discovers available tools, and routes tool calls from the LLM to the correct server. Here is a production client implementation.
 
-<CodeBlock>
-{`from mcp import ClientSession, StdioServerParameters
-from mcp.client.stdio import stdio_client
-import json
-
-class MCPManager:
-    """Manages connections to multiple MCP servers."""
-
-    def __init__(self):
-        self.sessions: dict[str, ClientSession] = {'{'{'}'}{'}'}
-        self.tools: dict[str, dict] = {'{'{'}'}{'}'}  # tool_name -> {'{'{'}'}session, definition{'}'}
-
-    async def connect(self, name: str, command: str, args: list[str] = None):
-        """Connect to an MCP server and discover its tools."""
-        params = StdioServerParameters(command=command, args=args or [])
-        read, write = await stdio_client(params).__aenter__()
-        session = ClientSession(read, write)
-        await session.initialize()
-
-        # Discover tools from this server
-        tools_response = await session.list_tools()
-        for tool in tools_response.tools:
-            self.tools[tool.name] = {'{'{'}'}
-                "session": session,
-                "definition": tool,
-                "server": name
-            {'}'}
-        self.sessions[name] = session
-        return tools_response.tools
-
-    async def call_tool(self, tool_name: str, arguments: dict) -> str:
-        """Route a tool call to the correct server."""
-        if tool_name not in self.tools:
-            raise ValueError(f"Unknown tool: {'{'{'}'}tool_name{'}'}")
-        entry = self.tools[tool_name]
-        result = await entry["session"].call_tool(tool_name, arguments)
-        return result.content[0].text
-
-    def get_all_tool_definitions(self) -> list[dict]:
-        """Get all tool definitions for LLM function calling."""
-        return [
-            {'{'{'}'}
-                "name": t["definition"].name,
-                "description": t["definition"].description,
-                "input_schema": t["definition"].inputSchema
-            {'}'}
-            for t in self.tools.values()
-        ]
-
-# Usage: connect to multiple servers
-manager = MCPManager()
-await manager.connect("github", "npx", ["-y", "@modelcontextprotocol/server-github"])
-await manager.connect("slack", "npx", ["-y", "@modelcontextprotocol/server-slack"])
-
-# Get unified tool list for the LLM
-all_tools = manager.get_all_tool_definitions()
-# LLM sees tools from both servers as one unified set`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBtY3AgaW1wb3J0IENsaWVudFNlc3Npb24sIFN0ZGlvU2VydmVyUGFyYW1ldGVycwpmcm9tIG1jcC5jbGllbnQuc3RkaW8gaW1wb3J0IHN0ZGlvX2NsaWVudAppbXBvcnQganNvbgoKY2xhc3MgTUNQTWFuYWdlcjoKICAgICIiIk1hbmFnZXMgY29ubmVjdGlvbnMgdG8gbXVsdGlwbGUgTUNQIHNlcnZlcnMuIiIiCgogICAgZGVmIF9faW5pdF9fKHNlbGYpOgogICAgICAgIHNlbGYuc2Vzc2lvbnM6IGRpY3Rbc3RyLCBDbGllbnRTZXNzaW9uXSA9IHsneyd7J30nfXsnfSd9CiAgICAgICAgc2VsZi50b29sczogZGljdFtzdHIsIGRpY3RdID0geyd7J3snfSd9eyd9J30gICMgdG9vbF9uYW1lIC0+IHsneyd7J30nfXNlc3Npb24sIGRlZmluaXRpb257J30nfQoKICAgIGFzeW5jIGRlZiBjb25uZWN0KHNlbGYsIG5hbWU6IHN0ciwgY29tbWFuZDogc3RyLCBhcmdzOiBsaXN0W3N0cl0gPSBOb25lKToKICAgICAgICAiIiJDb25uZWN0IHRvIGFuIE1DUCBzZXJ2ZXIgYW5kIGRpc2NvdmVyIGl0cyB0b29scy4iIiIKICAgICAgICBwYXJhbXMgPSBTdGRpb1NlcnZlclBhcmFtZXRlcnMoY29tbWFuZD1jb21tYW5kLCBhcmdzPWFyZ3Mgb3IgW10pCiAgICAgICAgcmVhZCwgd3JpdGUgPSBhd2FpdCBzdGRpb19jbGllbnQocGFyYW1zKS5fX2FlbnRlcl9fKCkKICAgICAgICBzZXNzaW9uID0gQ2xpZW50U2Vzc2lvbihyZWFkLCB3cml0ZSkKICAgICAgICBhd2FpdCBzZXNzaW9uLmluaXRpYWxpemUoKQoKICAgICAgICAjIERpc2NvdmVyIHRvb2xzIGZyb20gdGhpcyBzZXJ2ZXIKICAgICAgICB0b29sc19yZXNwb25zZSA9IGF3YWl0IHNlc3Npb24ubGlzdF90b29scygpCiAgICAgICAgZm9yIHRvb2wgaW4gdG9vbHNfcmVzcG9uc2UudG9vbHM6CiAgICAgICAgICAgIHNlbGYudG9vbHNbdG9vbC5uYW1lXSA9IHsneyd7J30nfQogICAgICAgICAgICAgICAgInNlc3Npb24iOiBzZXNzaW9uLAogICAgICAgICAgICAgICAgImRlZmluaXRpb24iOiB0b29sLAogICAgICAgICAgICAgICAgInNlcnZlciI6IG5hbWUKICAgICAgICAgICAgeyd9J30KICAgICAgICBzZWxmLnNlc3Npb25zW25hbWVdID0gc2Vzc2lvbgogICAgICAgIHJldHVybiB0b29sc19yZXNwb25zZS50b29scwoKICAgIGFzeW5jIGRlZiBjYWxsX3Rvb2woc2VsZiwgdG9vbF9uYW1lOiBzdHIsIGFyZ3VtZW50czogZGljdCkgLT4gc3RyOgogICAgICAgICIiIlJvdXRlIGEgdG9vbCBjYWxsIHRvIHRoZSBjb3JyZWN0IHNlcnZlci4iIiIKICAgICAgICBpZiB0b29sX25hbWUgbm90IGluIHNlbGYudG9vbHM6CiAgICAgICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoZiJVbmtub3duIHRvb2w6IHsneyd7J30nfXRvb2xfbmFtZXsnfSd9IikKICAgICAgICBlbnRyeSA9IHNlbGYudG9vbHNbdG9vbF9uYW1lXQogICAgICAgIHJlc3VsdCA9IGF3YWl0IGVudHJ5WyJzZXNzaW9uIl0uY2FsbF90b29sKHRvb2xfbmFtZSwgYXJndW1lbnRzKQogICAgICAgIHJldHVybiByZXN1bHQuY29udGVudFswXS50ZXh0CgogICAgZGVmIGdldF9hbGxfdG9vbF9kZWZpbml0aW9ucyhzZWxmKSAtPiBsaXN0W2RpY3RdOgogICAgICAgICIiIkdldCBhbGwgdG9vbCBkZWZpbml0aW9ucyBmb3IgTExNIGZ1bmN0aW9uIGNhbGxpbmcuIiIiCiAgICAgICAgcmV0dXJuIFsKICAgICAgICAgICAgeyd7J3snfSd9CiAgICAgICAgICAgICAgICAibmFtZSI6IHRbImRlZmluaXRpb24iXS5uYW1lLAogICAgICAgICAgICAgICAgImRlc2NyaXB0aW9uIjogdFsiZGVmaW5pdGlvbiJdLmRlc2NyaXB0aW9uLAogICAgICAgICAgICAgICAgImlucHV0X3NjaGVtYSI6IHRbImRlZmluaXRpb24iXS5pbnB1dFNjaGVtYQogICAgICAgICAgICB7J30nfQogICAgICAgICAgICBmb3IgdCBpbiBzZWxmLnRvb2xzLnZhbHVlcygpCiAgICAgICAgXQoKIyBVc2FnZTogY29ubmVjdCB0byBtdWx0aXBsZSBzZXJ2ZXJzCm1hbmFnZXIgPSBNQ1BNYW5hZ2VyKCkKYXdhaXQgbWFuYWdlci5jb25uZWN0KCJnaXRodWIiLCAibnB4IiwgWyIteSIsICJAbW9kZWxjb250ZXh0cHJvdG9jb2wvc2VydmVyLWdpdGh1YiJdKQphd2FpdCBtYW5hZ2VyLmNvbm5lY3QoInNsYWNrIiwgIm5weCIsIFsiLXkiLCAiQG1vZGVsY29udGV4dHByb3RvY29sL3NlcnZlci1zbGFjayJdKQoKIyBHZXQgdW5pZmllZCB0b29sIGxpc3QgZm9yIHRoZSBMTE0KYWxsX3Rvb2xzID0gbWFuYWdlci5nZXRfYWxsX3Rvb2xfZGVmaW5pdGlvbnMoKQojIExMTSBzZWVzIHRvb2xzIGZyb20gYm90aCBzZXJ2ZXJzIGFzIG9uZSB1bmlmaWVkIHNldA==" />
 
 The key insight is that the client acts as a **router**. The LLM sees a flat list of all tools from all servers. When it calls a tool, the client routes that call to whichever server originally registered it.
 

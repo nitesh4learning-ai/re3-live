@@ -16,61 +16,7 @@ Without systematic evaluation, you cannot know if your RAG system is improving. 
   ['Answer Similarity','Does the answer match the reference answer?','0-1','How close is the generated answer to the ideal?'],
 ]} />
 
-<CodeBlock>
-{`from ragas import evaluate
-from ragas.metrics import (
-    faithfulness, answer_relevancy,
-    context_precision, context_recall,
-)
-from datasets import Dataset
-
-# Prepare evaluation dataset
-# Each example needs: question, answer, contexts, ground_truth
-eval_data = {'{'{'}'}
-    "question": [
-        "What is the refund policy for digital products?",
-        "How do I reset my password?",
-        "What payment methods are accepted?",
-    ],
-    "answer": [
-        "Digital products can be refunded within 14 days of purchase if unused.",
-        "Click 'Forgot Password' on the login page and follow the email instructions.",
-        "We accept Visa, Mastercard, PayPal, and Apple Pay.",
-    ],
-    "contexts": [
-        ["Digital products: Full refund within 14 days if product is unused. "
-         "After 14 days, store credit only. Contact support for processing."],
-        ["To reset your password: 1) Go to login page 2) Click 'Forgot Password' "
-         "3) Enter your email 4) Follow the link in the reset email."],
-        ["Accepted payment methods: Visa, Mastercard, American Express, "
-         "PayPal, Apple Pay, Google Pay. Wire transfers for orders over $10,000."],
-    ],
-    "ground_truth": [
-        "Digital products are refundable within 14 days if unused. After that, only store credit.",
-        "Use the 'Forgot Password' link on the login page to receive a reset email.",
-        "Visa, Mastercard, American Express, PayPal, Apple Pay, and Google Pay are accepted.",
-    ],
-{'}'}
-
-dataset = Dataset.from_dict(eval_data)
-
-# Run evaluation
-results = evaluate(
-    dataset,
-    metrics=[faithfulness, answer_relevancy, context_precision, context_recall],
-)
-
-print(f"Faithfulness:      {'{'{'}'}results['faithfulness']:.3f{'}'}")
-print(f"Answer Relevancy:  {'{'{'}'}results['answer_relevancy']:.3f{'}'}")
-print(f"Context Precision: {'{'{'}'}results['context_precision']:.3f{'}'}")
-print(f"Context Recall:    {'{'{'}'}results['context_recall']:.3f{'}'}")
-
-# Interpreting results:
-# Faithfulness < 0.8: LLM is hallucinating beyond retrieved context
-# Context Recall < 0.7: Retrieval is missing relevant documents
-# Context Precision < 0.7: Retrieval returns too much irrelevant content
-# Answer Relevancy < 0.8: LLM is not addressing the actual question`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSByYWdhcyBpbXBvcnQgZXZhbHVhdGUKZnJvbSByYWdhcy5tZXRyaWNzIGltcG9ydCAoCiAgICBmYWl0aGZ1bG5lc3MsIGFuc3dlcl9yZWxldmFuY3ksCiAgICBjb250ZXh0X3ByZWNpc2lvbiwgY29udGV4dF9yZWNhbGwsCikKZnJvbSBkYXRhc2V0cyBpbXBvcnQgRGF0YXNldAoKIyBQcmVwYXJlIGV2YWx1YXRpb24gZGF0YXNldAojIEVhY2ggZXhhbXBsZSBuZWVkczogcXVlc3Rpb24sIGFuc3dlciwgY29udGV4dHMsIGdyb3VuZF90cnV0aApldmFsX2RhdGEgPSB7J3sneyd9J30KICAgICJxdWVzdGlvbiI6IFsKICAgICAgICAiV2hhdCBpcyB0aGUgcmVmdW5kIHBvbGljeSBmb3IgZGlnaXRhbCBwcm9kdWN0cz8iLAogICAgICAgICJIb3cgZG8gSSByZXNldCBteSBwYXNzd29yZD8iLAogICAgICAgICJXaGF0IHBheW1lbnQgbWV0aG9kcyBhcmUgYWNjZXB0ZWQ/IiwKICAgIF0sCiAgICAiYW5zd2VyIjogWwogICAgICAgICJEaWdpdGFsIHByb2R1Y3RzIGNhbiBiZSByZWZ1bmRlZCB3aXRoaW4gMTQgZGF5cyBvZiBwdXJjaGFzZSBpZiB1bnVzZWQuIiwKICAgICAgICAiQ2xpY2sgJ0ZvcmdvdCBQYXNzd29yZCcgb24gdGhlIGxvZ2luIHBhZ2UgYW5kIGZvbGxvdyB0aGUgZW1haWwgaW5zdHJ1Y3Rpb25zLiIsCiAgICAgICAgIldlIGFjY2VwdCBWaXNhLCBNYXN0ZXJjYXJkLCBQYXlQYWwsIGFuZCBBcHBsZSBQYXkuIiwKICAgIF0sCiAgICAiY29udGV4dHMiOiBbCiAgICAgICAgWyJEaWdpdGFsIHByb2R1Y3RzOiBGdWxsIHJlZnVuZCB3aXRoaW4gMTQgZGF5cyBpZiBwcm9kdWN0IGlzIHVudXNlZC4gIgogICAgICAgICAiQWZ0ZXIgMTQgZGF5cywgc3RvcmUgY3JlZGl0IG9ubHkuIENvbnRhY3Qgc3VwcG9ydCBmb3IgcHJvY2Vzc2luZy4iXSwKICAgICAgICBbIlRvIHJlc2V0IHlvdXIgcGFzc3dvcmQ6IDEpIEdvIHRvIGxvZ2luIHBhZ2UgMikgQ2xpY2sgJ0ZvcmdvdCBQYXNzd29yZCcgIgogICAgICAgICAiMykgRW50ZXIgeW91ciBlbWFpbCA0KSBGb2xsb3cgdGhlIGxpbmsgaW4gdGhlIHJlc2V0IGVtYWlsLiJdLAogICAgICAgIFsiQWNjZXB0ZWQgcGF5bWVudCBtZXRob2RzOiBWaXNhLCBNYXN0ZXJjYXJkLCBBbWVyaWNhbiBFeHByZXNzLCAiCiAgICAgICAgICJQYXlQYWwsIEFwcGxlIFBheSwgR29vZ2xlIFBheS4gV2lyZSB0cmFuc2ZlcnMgZm9yIG9yZGVycyBvdmVyICQxMCwwMDAuIl0sCiAgICBdLAogICAgImdyb3VuZF90cnV0aCI6IFsKICAgICAgICAiRGlnaXRhbCBwcm9kdWN0cyBhcmUgcmVmdW5kYWJsZSB3aXRoaW4gMTQgZGF5cyBpZiB1bnVzZWQuIEFmdGVyIHRoYXQsIG9ubHkgc3RvcmUgY3JlZGl0LiIsCiAgICAgICAgIlVzZSB0aGUgJ0ZvcmdvdCBQYXNzd29yZCcgbGluayBvbiB0aGUgbG9naW4gcGFnZSB0byByZWNlaXZlIGEgcmVzZXQgZW1haWwuIiwKICAgICAgICAiVmlzYSwgTWFzdGVyY2FyZCwgQW1lcmljYW4gRXhwcmVzcywgUGF5UGFsLCBBcHBsZSBQYXksIGFuZCBHb29nbGUgUGF5IGFyZSBhY2NlcHRlZC4iLAogICAgXSwKeyd9J30KCmRhdGFzZXQgPSBEYXRhc2V0LmZyb21fZGljdChldmFsX2RhdGEpCgojIFJ1biBldmFsdWF0aW9uCnJlc3VsdHMgPSBldmFsdWF0ZSgKICAgIGRhdGFzZXQsCiAgICBtZXRyaWNzPVtmYWl0aGZ1bG5lc3MsIGFuc3dlcl9yZWxldmFuY3ksIGNvbnRleHRfcHJlY2lzaW9uLCBjb250ZXh0X3JlY2FsbF0sCikKCnByaW50KGYiRmFpdGhmdWxuZXNzOiAgICAgIHsneyd7J30nfXJlc3VsdHNbJ2ZhaXRoZnVsbmVzcyddOi4zZnsnfSd9IikKcHJpbnQoZiJBbnN3ZXIgUmVsZXZhbmN5OiAgeyd7J3snfSd9cmVzdWx0c1snYW5zd2VyX3JlbGV2YW5jeSddOi4zZnsnfSd9IikKcHJpbnQoZiJDb250ZXh0IFByZWNpc2lvbjogeyd7J3snfSd9cmVzdWx0c1snY29udGV4dF9wcmVjaXNpb24nXTouM2Z7J30nfSIpCnByaW50KGYiQ29udGV4dCBSZWNhbGw6ICAgIHsneyd7J30nfXJlc3VsdHNbJ2NvbnRleHRfcmVjYWxsJ106LjNmeyd9J30iKQoKIyBJbnRlcnByZXRpbmcgcmVzdWx0czoKIyBGYWl0aGZ1bG5lc3MgPCAwLjg6IExMTSBpcyBoYWxsdWNpbmF0aW5nIGJleW9uZCByZXRyaWV2ZWQgY29udGV4dAojIENvbnRleHQgUmVjYWxsIDwgMC43OiBSZXRyaWV2YWwgaXMgbWlzc2luZyByZWxldmFudCBkb2N1bWVudHMKIyBDb250ZXh0IFByZWNpc2lvbiA8IDAuNzogUmV0cmlldmFsIHJldHVybnMgdG9vIG11Y2ggaXJyZWxldmFudCBjb250ZW50CiMgQW5zd2VyIFJlbGV2YW5jeSA8IDAuODogTExNIGlzIG5vdCBhZGRyZXNzaW5nIHRoZSBhY3R1YWwgcXVlc3Rpb24=" />
 
 <ExpandableSection title="Building an Evaluation Dataset" icon="📊" defaultOpen={true}>
 

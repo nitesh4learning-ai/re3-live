@@ -5,46 +5,8 @@ icon: "📤"
 
 ## JSON Mode Basics
 
-<CodeBlock>
-{`from openai import OpenAI
-client = OpenAI()
+<CodeBlock b64="ZnJvbSBvcGVuYWkgaW1wb3J0IE9wZW5BSQpjbGllbnQgPSBPcGVuQUkoKQoKcmVzcG9uc2UgPSBjbGllbnQuY2hhdC5jb21wbGV0aW9ucy5jcmVhdGUoCiAgICBtb2RlbD0iZ3B0LTRvIiwKICAgIHJlc3BvbnNlX2Zvcm1hdD17J3sneyd9J30idHlwZSI6ICJqc29uX29iamVjdCJ7J30nfSwKICAgIG1lc3NhZ2VzPVsKICAgICAgICB7J3sneyd9J30icm9sZSI6ICJzeXN0ZW0iLCAiY29udGVudCI6ICJSZXNwb25kIGluIEpTT04gd2l0aCBmaWVsZHM6IHNlbnRpbWVudCwgY29uZmlkZW5jZSwgcmVhc29uaW5nInsnfSd9LAogICAgICAgIHsneyd7J30nfSJyb2xlIjogInVzZXIiLCAiY29udGVudCI6ICJBbmFseXplOiAnVGhpcyBwcm9kdWN0IGV4Y2VlZGVkIG15IGV4cGVjdGF0aW9ucyEnInsnfSd9CiAgICBdCikKIyBHdWFyYW50ZWVkIHZhbGlkIEpTT046CiMgeyd7J3snfSd9InNlbnRpbWVudCI6ICJwb3NpdGl2ZSIsICJjb25maWRlbmNlIjogMC45NSwgInJlYXNvbmluZyI6ICIuLi4ieyd9J30=" />
 
-response = client.chat.completions.create(
-    model="gpt-4o",
-    response_format={'{'{'}'}"type": "json_object"{'}'},
-    messages=[
-        {'{'{'}'}"role": "system", "content": "Respond in JSON with fields: sentiment, confidence, reasoning"{'}'},
-        {'{'{'}'}"role": "user", "content": "Analyze: 'This product exceeded my expectations!'"{'}'}
-    ]
-)
-# Guaranteed valid JSON:
-# {'{'{'}'}"sentiment": "positive", "confidence": 0.95, "reasoning": "..."{'}'}`}
-</CodeBlock>
-
-<CodeBlock>
-{`import anthropic
-client = anthropic.Anthropic()
-
-response = client.messages.create(
-    model="claude-3-5-sonnet-20241022",
-    max_tokens=1024,
-    tools=[{'{'{'}'}
-        "name": "analyze_sentiment",
-        "description": "Analyze text sentiment",
-        "input_schema": {'{'{'}'}
-            "type": "object",
-            "properties": {'{'{'}'}
-                "sentiment": {'{'{'}'}"type": "string", "enum": ["positive","negative","neutral"]{'}'},
-                "confidence": {'{'{'}'}"type": "number"{'}'},
-                "reasoning": {'{'{'}'}"type": "string"{'}'}
-            {'}'},
-            "required": ["sentiment", "confidence"]
-        {'}'}
-    {'}'}],
-    tool_choice={'{'{'}'}"type": "tool", "name": "analyze_sentiment"{'}'},
-    messages=[{'{'{'}'}"role":"user","content":"Analyze: 'This is amazing!'"{'}'}]
-)
-# Returns structured tool_use result with guaranteed schema`}
-</CodeBlock>
+<CodeBlock b64="aW1wb3J0IGFudGhyb3BpYwpjbGllbnQgPSBhbnRocm9waWMuQW50aHJvcGljKCkKCnJlc3BvbnNlID0gY2xpZW50Lm1lc3NhZ2VzLmNyZWF0ZSgKICAgIG1vZGVsPSJjbGF1ZGUtMy01LXNvbm5ldC0yMDI0MTAyMiIsCiAgICBtYXhfdG9rZW5zPTEwMjQsCiAgICB0b29scz1beyd7J3snfSd9CiAgICAgICAgIm5hbWUiOiAiYW5hbHl6ZV9zZW50aW1lbnQiLAogICAgICAgICJkZXNjcmlwdGlvbiI6ICJBbmFseXplIHRleHQgc2VudGltZW50IiwKICAgICAgICAiaW5wdXRfc2NoZW1hIjogeyd7J3snfSd9CiAgICAgICAgICAgICJ0eXBlIjogIm9iamVjdCIsCiAgICAgICAgICAgICJwcm9wZXJ0aWVzIjogeyd7J3snfSd9CiAgICAgICAgICAgICAgICAic2VudGltZW50Ijogeyd7J3snfSd9InR5cGUiOiAic3RyaW5nIiwgImVudW0iOiBbInBvc2l0aXZlIiwibmVnYXRpdmUiLCJuZXV0cmFsIl17J30nfSwKICAgICAgICAgICAgICAgICJjb25maWRlbmNlIjogeyd7J3snfSd9InR5cGUiOiAibnVtYmVyInsnfSd9LAogICAgICAgICAgICAgICAgInJlYXNvbmluZyI6IHsneyd7J30nfSJ0eXBlIjogInN0cmluZyJ7J30nfQogICAgICAgICAgICB7J30nfSwKICAgICAgICAgICAgInJlcXVpcmVkIjogWyJzZW50aW1lbnQiLCAiY29uZmlkZW5jZSJdCiAgICAgICAgeyd9J30KICAgIHsnfSd9XSwKICAgIHRvb2xfY2hvaWNlPXsneyd7J30nfSJ0eXBlIjogInRvb2wiLCAibmFtZSI6ICJhbmFseXplX3NlbnRpbWVudCJ7J30nfSwKICAgIG1lc3NhZ2VzPVt7J3sneyd9J30icm9sZSI6InVzZXIiLCJjb250ZW50IjoiQW5hbHl6ZTogJ1RoaXMgaXMgYW1hemluZyEnInsnfSd9XQopCiMgUmV0dXJucyBzdHJ1Y3R1cmVkIHRvb2xfdXNlIHJlc3VsdCB3aXRoIGd1YXJhbnRlZWQgc2NoZW1h" />
 
 <ComparisonTable title="Provider JSON Support" headers={['Provider','Method','Guarantees','Notes']} rows={[['OpenAI','response_format + json_schema','Valid JSON matching schema','Best schema support'],['Anthropic','tool_use with input_schema','Valid JSON matching tool schema','Uses function calling as structured output trick'],['Gemini','response_schema parameter','Valid JSON matching schema','Native schema support'],['Open-source','Outlines / guidance libraries','Constrained decoding','Requires local hosting']]}/>

@@ -15,34 +15,5 @@ Two leading platforms for LLM observability are **Langfuse** (open-source) and *
     ['Prompt Mgmt','Versioned prompts with A/B testing','Prompt hub with versioning'],
     ['Integration','Framework-agnostic','Best with LangChain, supports others'],
   ]}/>
-  <CodeBlock>
-{`from langfuse.decorators import observe, langfuse_context
-
-@observe()
-async def rag_pipeline(query: str):
-    """Langfuse automatically traces this function."""
-
-    @observe()
-    async def retrieve(q):
-        docs = await vector_store.search(q, top_k=5)
-        langfuse_context.update_current_observation(
-            metadata={'{'{'}'}"num_docs": len(docs), "top_score": docs[0].score{'}'})
-        return docs
-
-    @observe()
-    async def generate(q, context):
-        response = await llm.invoke(
-            system="Answer using context.",
-            user=f"Context: \\$\\{'{'{'}'}context\\{'}'}\\nQ: \\$\\{'{'{'}'}q\\{'}'}")
-        langfuse_context.update_current_observation(
-            usage={'{'{'}'}"input": response.usage.input,
-                   "output": response.usage.output{'}'},
-            model="claude-3-sonnet")
-        return response.content
-
-    docs = await retrieve(query)
-    answer = await generate(query, format_docs(docs))
-    langfuse_context.score_current_trace(name="user_feedback", value=1.0)
-    return answer`}
-</CodeBlock>
+  <CodeBlock b64="ZnJvbSBsYW5nZnVzZS5kZWNvcmF0b3JzIGltcG9ydCBvYnNlcnZlLCBsYW5nZnVzZV9jb250ZXh0CgpAb2JzZXJ2ZSgpCmFzeW5jIGRlZiByYWdfcGlwZWxpbmUocXVlcnk6IHN0cik6CiAgICAiIiJMYW5nZnVzZSBhdXRvbWF0aWNhbGx5IHRyYWNlcyB0aGlzIGZ1bmN0aW9uLiIiIgoKICAgIEBvYnNlcnZlKCkKICAgIGFzeW5jIGRlZiByZXRyaWV2ZShxKToKICAgICAgICBkb2NzID0gYXdhaXQgdmVjdG9yX3N0b3JlLnNlYXJjaChxLCB0b3Bfaz01KQogICAgICAgIGxhbmdmdXNlX2NvbnRleHQudXBkYXRlX2N1cnJlbnRfb2JzZXJ2YXRpb24oCiAgICAgICAgICAgIG1ldGFkYXRhPXsneyd7J30nfSJudW1fZG9jcyI6IGxlbihkb2NzKSwgInRvcF9zY29yZSI6IGRvY3NbMF0uc2NvcmV7J30nfSkKICAgICAgICByZXR1cm4gZG9jcwoKICAgIEBvYnNlcnZlKCkKICAgIGFzeW5jIGRlZiBnZW5lcmF0ZShxLCBjb250ZXh0KToKICAgICAgICByZXNwb25zZSA9IGF3YWl0IGxsbS5pbnZva2UoCiAgICAgICAgICAgIHN5c3RlbT0iQW5zd2VyIHVzaW5nIGNvbnRleHQuIiwKICAgICAgICAgICAgdXNlcj1mIkNvbnRleHQ6IFxcJFxceyd7J3snfSd9Y29udGV4dFxceyd9J31cXG5ROiBcXCRcXHsneyd7J30nfXFcXHsnfSd9IikKICAgICAgICBsYW5nZnVzZV9jb250ZXh0LnVwZGF0ZV9jdXJyZW50X29ic2VydmF0aW9uKAogICAgICAgICAgICB1c2FnZT17J3sneyd9J30iaW5wdXQiOiByZXNwb25zZS51c2FnZS5pbnB1dCwKICAgICAgICAgICAgICAgICAgICJvdXRwdXQiOiByZXNwb25zZS51c2FnZS5vdXRwdXR7J30nfSwKICAgICAgICAgICAgbW9kZWw9ImNsYXVkZS0zLXNvbm5ldCIpCiAgICAgICAgcmV0dXJuIHJlc3BvbnNlLmNvbnRlbnQKCiAgICBkb2NzID0gYXdhaXQgcmV0cmlldmUocXVlcnkpCiAgICBhbnN3ZXIgPSBhd2FpdCBnZW5lcmF0ZShxdWVyeSwgZm9ybWF0X2RvY3MoZG9jcykpCiAgICBsYW5nZnVzZV9jb250ZXh0LnNjb3JlX2N1cnJlbnRfdHJhY2UobmFtZT0idXNlcl9mZWVkYmFjayIsIHZhbHVlPTEuMCkKICAgIHJldHVybiBhbnN3ZXI=" />
   <Quiz question="When should you choose Langfuse over LangSmith?" options={["When you only use LangChain","When you need self-hosted open-source for data privacy compliance","When you want the cheapest cloud option","When you need fastest setup"]} correctIndex={1} explanation="Langfuse is the clear choice when data privacy requires self-hosting (healthcare, finance, government). Its open-source MIT license lets you deploy on your own infrastructure, keeping all trace data within your security boundary."/>

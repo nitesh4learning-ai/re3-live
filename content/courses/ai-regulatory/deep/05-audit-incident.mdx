@@ -5,49 +5,7 @@ icon: "\uD83D\uDEA8"
 
 ## AI Audit & Incident Response
 
-<CodeBlock>
-{`import json, hashlib
-from datetime import datetime
-
-class AIAuditLogger:
-    """Tamper-evident audit logging for AI decisions"""
-
-    def __init__(self, system_id):
-        self.system_id = system_id
-        self.chain = []
-
-    def log_decision(self, input_data, output, confidence,
-                     model_version, human_override=None):
-        entry = {'{'{'}'}
-            "timestamp": datetime.utcnow().isoformat(),
-            "system_id": self.system_id,
-            "model_version": model_version,
-            "input_hash": hashlib.sha256(
-                json.dumps(input_data, sort_keys=True).encode()
-            ).hexdigest(),
-            "output": output,
-            "confidence": confidence,
-            "human_override": human_override,
-            "prev_hash": self.chain[-1]["hash"] if self.chain else "genesis"
-        {'}'}
-        entry["hash"] = hashlib.sha256(
-            json.dumps(entry, sort_keys=True).encode()
-        ).hexdigest()
-        self.chain.append(entry)
-        return entry
-
-    def verify_chain(self):
-        """Verify no entries have been tampered with"""
-        for i, entry in enumerate(self.chain):
-            stored_hash = entry["hash"]
-            entry_copy = {'{'{'}'}k: v for k, v in entry.items() if k != "hash"{'}'}
-            computed = hashlib.sha256(
-                json.dumps(entry_copy, sort_keys=True).encode()
-            ).hexdigest()
-            if stored_hash != computed:
-                return False, f"Tampered at index {'{'{'}'}i{'}'}"
-        return True, "Chain intact"`}
-</CodeBlock>
+<CodeBlock b64="aW1wb3J0IGpzb24sIGhhc2hsaWIKZnJvbSBkYXRldGltZSBpbXBvcnQgZGF0ZXRpbWUKCmNsYXNzIEFJQXVkaXRMb2dnZXI6CiAgICAiIiJUYW1wZXItZXZpZGVudCBhdWRpdCBsb2dnaW5nIGZvciBBSSBkZWNpc2lvbnMiIiIKCiAgICBkZWYgX19pbml0X18oc2VsZiwgc3lzdGVtX2lkKToKICAgICAgICBzZWxmLnN5c3RlbV9pZCA9IHN5c3RlbV9pZAogICAgICAgIHNlbGYuY2hhaW4gPSBbXQoKICAgIGRlZiBsb2dfZGVjaXNpb24oc2VsZiwgaW5wdXRfZGF0YSwgb3V0cHV0LCBjb25maWRlbmNlLAogICAgICAgICAgICAgICAgICAgICBtb2RlbF92ZXJzaW9uLCBodW1hbl9vdmVycmlkZT1Ob25lKToKICAgICAgICBlbnRyeSA9IHsneyd7J30nfQogICAgICAgICAgICAidGltZXN0YW1wIjogZGF0ZXRpbWUudXRjbm93KCkuaXNvZm9ybWF0KCksCiAgICAgICAgICAgICJzeXN0ZW1faWQiOiBzZWxmLnN5c3RlbV9pZCwKICAgICAgICAgICAgIm1vZGVsX3ZlcnNpb24iOiBtb2RlbF92ZXJzaW9uLAogICAgICAgICAgICAiaW5wdXRfaGFzaCI6IGhhc2hsaWIuc2hhMjU2KAogICAgICAgICAgICAgICAganNvbi5kdW1wcyhpbnB1dF9kYXRhLCBzb3J0X2tleXM9VHJ1ZSkuZW5jb2RlKCkKICAgICAgICAgICAgKS5oZXhkaWdlc3QoKSwKICAgICAgICAgICAgIm91dHB1dCI6IG91dHB1dCwKICAgICAgICAgICAgImNvbmZpZGVuY2UiOiBjb25maWRlbmNlLAogICAgICAgICAgICAiaHVtYW5fb3ZlcnJpZGUiOiBodW1hbl9vdmVycmlkZSwKICAgICAgICAgICAgInByZXZfaGFzaCI6IHNlbGYuY2hhaW5bLTFdWyJoYXNoIl0gaWYgc2VsZi5jaGFpbiBlbHNlICJnZW5lc2lzIgogICAgICAgIHsnfSd9CiAgICAgICAgZW50cnlbImhhc2giXSA9IGhhc2hsaWIuc2hhMjU2KAogICAgICAgICAgICBqc29uLmR1bXBzKGVudHJ5LCBzb3J0X2tleXM9VHJ1ZSkuZW5jb2RlKCkKICAgICAgICApLmhleGRpZ2VzdCgpCiAgICAgICAgc2VsZi5jaGFpbi5hcHBlbmQoZW50cnkpCiAgICAgICAgcmV0dXJuIGVudHJ5CgogICAgZGVmIHZlcmlmeV9jaGFpbihzZWxmKToKICAgICAgICAiIiJWZXJpZnkgbm8gZW50cmllcyBoYXZlIGJlZW4gdGFtcGVyZWQgd2l0aCIiIgogICAgICAgIGZvciBpLCBlbnRyeSBpbiBlbnVtZXJhdGUoc2VsZi5jaGFpbik6CiAgICAgICAgICAgIHN0b3JlZF9oYXNoID0gZW50cnlbImhhc2giXQogICAgICAgICAgICBlbnRyeV9jb3B5ID0geyd7J3snfSd9azogdiBmb3IgaywgdiBpbiBlbnRyeS5pdGVtcygpIGlmIGsgIT0gImhhc2gieyd9J30KICAgICAgICAgICAgY29tcHV0ZWQgPSBoYXNobGliLnNoYTI1NigKICAgICAgICAgICAgICAgIGpzb24uZHVtcHMoZW50cnlfY29weSwgc29ydF9rZXlzPVRydWUpLmVuY29kZSgpCiAgICAgICAgICAgICkuaGV4ZGlnZXN0KCkKICAgICAgICAgICAgaWYgc3RvcmVkX2hhc2ggIT0gY29tcHV0ZWQ6CiAgICAgICAgICAgICAgICByZXR1cm4gRmFsc2UsIGYiVGFtcGVyZWQgYXQgaW5kZXggeyd7J3snfSd9aXsnfSd9IgogICAgICAgIHJldHVybiBUcnVlLCAiQ2hhaW4gaW50YWN0Ig==" />
 
 <ExpandableSection title="Incident Response Playbook" icon={'\uD83D\uDEA8'} defaultOpen>
 

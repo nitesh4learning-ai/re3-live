@@ -7,44 +7,7 @@ icon: "🏢"
 
 Enterprise A2A deployments require authentication, comprehensive audit trails, compliance controls, and multi-tenant isolation. These patterns ensure A2A systems meet enterprise security and governance requirements.
 
-<CodeBlock>
-{`import datetime, json
-
-class AuditLogger:
-    """Comprehensive audit logging for A2A task operations."""
-
-    async def log_event(self, event_type: str, task_id: str, details: dict):
-        entry = {'{'{'}'}
-            "timestamp": datetime.datetime.utcnow().isoformat(),
-            "event_type": event_type,
-            "task_id": task_id,
-            "agent_id": self.agent_id,
-            **details
-        {'}'}
-        await self.store.append(entry)
-        return entry
-
-# Usage in task handler:
-audit = AuditLogger()
-
-async def handle_task(task_id, message, requester_info):
-    await audit.log_event("task_received", task_id, {'{'{'}'}
-        "requester": requester_info["agent_name"],
-        "requester_ip": requester_info["ip"],
-        "skill_requested": message.get("skill"),
-        "input_size_bytes": len(json.dumps(message)),
-    {'}'})
-
-    # Process task...
-    result = await process(message)
-
-    await audit.log_event("task_completed", task_id, {'{'{'}'}
-        "output_size_bytes": len(json.dumps(result)),
-        "processing_time_ms": elapsed_ms,
-        "tools_used": tools_called,
-        "tokens_consumed": token_count,
-    {'}'})`}
-</CodeBlock>
+<CodeBlock b64="aW1wb3J0IGRhdGV0aW1lLCBqc29uCgpjbGFzcyBBdWRpdExvZ2dlcjoKICAgICIiIkNvbXByZWhlbnNpdmUgYXVkaXQgbG9nZ2luZyBmb3IgQTJBIHRhc2sgb3BlcmF0aW9ucy4iIiIKCiAgICBhc3luYyBkZWYgbG9nX2V2ZW50KHNlbGYsIGV2ZW50X3R5cGU6IHN0ciwgdGFza19pZDogc3RyLCBkZXRhaWxzOiBkaWN0KToKICAgICAgICBlbnRyeSA9IHsneyd7J30nfQogICAgICAgICAgICAidGltZXN0YW1wIjogZGF0ZXRpbWUuZGF0ZXRpbWUudXRjbm93KCkuaXNvZm9ybWF0KCksCiAgICAgICAgICAgICJldmVudF90eXBlIjogZXZlbnRfdHlwZSwKICAgICAgICAgICAgInRhc2tfaWQiOiB0YXNrX2lkLAogICAgICAgICAgICAiYWdlbnRfaWQiOiBzZWxmLmFnZW50X2lkLAogICAgICAgICAgICAqKmRldGFpbHMKICAgICAgICB7J30nfQogICAgICAgIGF3YWl0IHNlbGYuc3RvcmUuYXBwZW5kKGVudHJ5KQogICAgICAgIHJldHVybiBlbnRyeQoKIyBVc2FnZSBpbiB0YXNrIGhhbmRsZXI6CmF1ZGl0ID0gQXVkaXRMb2dnZXIoKQoKYXN5bmMgZGVmIGhhbmRsZV90YXNrKHRhc2tfaWQsIG1lc3NhZ2UsIHJlcXVlc3Rlcl9pbmZvKToKICAgIGF3YWl0IGF1ZGl0LmxvZ19ldmVudCgidGFza19yZWNlaXZlZCIsIHRhc2tfaWQsIHsneyd7J30nfQogICAgICAgICJyZXF1ZXN0ZXIiOiByZXF1ZXN0ZXJfaW5mb1siYWdlbnRfbmFtZSJdLAogICAgICAgICJyZXF1ZXN0ZXJfaXAiOiByZXF1ZXN0ZXJfaW5mb1siaXAiXSwKICAgICAgICAic2tpbGxfcmVxdWVzdGVkIjogbWVzc2FnZS5nZXQoInNraWxsIiksCiAgICAgICAgImlucHV0X3NpemVfYnl0ZXMiOiBsZW4oanNvbi5kdW1wcyhtZXNzYWdlKSksCiAgICB7J30nfSkKCiAgICAjIFByb2Nlc3MgdGFzay4uLgogICAgcmVzdWx0ID0gYXdhaXQgcHJvY2VzcyhtZXNzYWdlKQoKICAgIGF3YWl0IGF1ZGl0LmxvZ19ldmVudCgidGFza19jb21wbGV0ZWQiLCB0YXNrX2lkLCB7J3sneyd9J30KICAgICAgICAib3V0cHV0X3NpemVfYnl0ZXMiOiBsZW4oanNvbi5kdW1wcyhyZXN1bHQpKSwKICAgICAgICAicHJvY2Vzc2luZ190aW1lX21zIjogZWxhcHNlZF9tcywKICAgICAgICAidG9vbHNfdXNlZCI6IHRvb2xzX2NhbGxlZCwKICAgICAgICAidG9rZW5zX2NvbnN1bWVkIjogdG9rZW5fY291bnQsCiAgICB7J30nfSk=" />
 
 <ComparisonTable title="Enterprise A2A Security Layers" columns={['Layer','Implementation','Purpose']} rows={[
   ['Transport','mTLS between agents','Encrypt and authenticate all agent communication'],

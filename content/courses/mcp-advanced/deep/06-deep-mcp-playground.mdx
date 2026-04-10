@@ -11,44 +11,7 @@ Advanced exercises combining architecture, security, and operations.
 
 Re3 wants to expose its full platform as a suite of MCP servers. Design the server split, transport choices, and OAuth scopes.
 
-<CodeBlock>
-{`{'{'{'}'}
-  "re3_mcp_suite": {'{'{'}'}
-    "re3-articles": {'{'{'}'}
-      "description": "Article CRUD, search, pillar categorization",
-      "transport": "http",
-      "endpoint": "https://mcp.re3.live/articles",
-      "scopes": {'{'{'}'} "read": "mcp:read", "write": "mcp:write" {'}'},
-      "tools": ["search_articles", "get_article", "create_article", "update_article"],
-      "resources": ["re3://articles/{'{'{'}'}id{'}'}", "re3://articles/recent", "re3://pillars/list"]
-    {'}'},
-    "re3-agents": {'{'{'}'}
-      "description": "Agent registry, configuration, availability",
-      "transport": "http",
-      "endpoint": "https://mcp.re3.live/agents",
-      "scopes": {'{'{'}'} "read": "mcp:read", "configure": "mcp:admin" {'}'},
-      "tools": ["list_agents", "get_agent", "configure_agent"],
-      "resources": ["re3://agents/registry", "re3://agents/online"]
-    {'}'},
-    "re3-debates": {'{'{'}'}
-      "description": "Debate triggering, round management, loom synthesis",
-      "transport": "http",
-      "endpoint": "https://mcp.re3.live/debates",
-      "scopes": {'{'{'}'} "read": "mcp:read", "trigger": "mcp:write" {'}'},
-      "tools": ["trigger_debate", "get_debate_status", "get_debate_round"],
-      "resources": ["re3://debates/{'{'{'}'}id{'}'}/loom", "re3://debates/active"],
-      "sampling": true
-    {'}'},
-    "re3-local-files": {'{'{'}'}
-      "description": "Local workspace file access for article drafting",
-      "transport": "stdio",
-      "command": "npx -y @modelcontextprotocol/server-filesystem",
-      "args": ["/home/user/re3-articles"],
-      "scopes": "os-level isolation"
-    {'}'}
-  {'}'}
-{'}'}`}
-</CodeBlock>
+<CodeBlock b64="eyd7J3snfSd9CiAgInJlM19tY3Bfc3VpdGUiOiB7J3sneyd9J30KICAgICJyZTMtYXJ0aWNsZXMiOiB7J3sneyd9J30KICAgICAgImRlc2NyaXB0aW9uIjogIkFydGljbGUgQ1JVRCwgc2VhcmNoLCBwaWxsYXIgY2F0ZWdvcml6YXRpb24iLAogICAgICAidHJhbnNwb3J0IjogImh0dHAiLAogICAgICAiZW5kcG9pbnQiOiAiaHR0cHM6Ly9tY3AucmUzLmxpdmUvYXJ0aWNsZXMiLAogICAgICAic2NvcGVzIjogeyd7J3snfSd9ICJyZWFkIjogIm1jcDpyZWFkIiwgIndyaXRlIjogIm1jcDp3cml0ZSIgeyd9J30sCiAgICAgICJ0b29scyI6IFsic2VhcmNoX2FydGljbGVzIiwgImdldF9hcnRpY2xlIiwgImNyZWF0ZV9hcnRpY2xlIiwgInVwZGF0ZV9hcnRpY2xlIl0sCiAgICAgICJyZXNvdXJjZXMiOiBbInJlMzovL2FydGljbGVzL3sneyd7J30nfWlkeyd9J30iLCAicmUzOi8vYXJ0aWNsZXMvcmVjZW50IiwgInJlMzovL3BpbGxhcnMvbGlzdCJdCiAgICB7J30nfSwKICAgICJyZTMtYWdlbnRzIjogeyd7J3snfSd9CiAgICAgICJkZXNjcmlwdGlvbiI6ICJBZ2VudCByZWdpc3RyeSwgY29uZmlndXJhdGlvbiwgYXZhaWxhYmlsaXR5IiwKICAgICAgInRyYW5zcG9ydCI6ICJodHRwIiwKICAgICAgImVuZHBvaW50IjogImh0dHBzOi8vbWNwLnJlMy5saXZlL2FnZW50cyIsCiAgICAgICJzY29wZXMiOiB7J3sneyd9J30gInJlYWQiOiAibWNwOnJlYWQiLCAiY29uZmlndXJlIjogIm1jcDphZG1pbiIgeyd9J30sCiAgICAgICJ0b29scyI6IFsibGlzdF9hZ2VudHMiLCAiZ2V0X2FnZW50IiwgImNvbmZpZ3VyZV9hZ2VudCJdLAogICAgICAicmVzb3VyY2VzIjogWyJyZTM6Ly9hZ2VudHMvcmVnaXN0cnkiLCAicmUzOi8vYWdlbnRzL29ubGluZSJdCiAgICB7J30nfSwKICAgICJyZTMtZGViYXRlcyI6IHsneyd7J30nfQogICAgICAiZGVzY3JpcHRpb24iOiAiRGViYXRlIHRyaWdnZXJpbmcsIHJvdW5kIG1hbmFnZW1lbnQsIGxvb20gc3ludGhlc2lzIiwKICAgICAgInRyYW5zcG9ydCI6ICJodHRwIiwKICAgICAgImVuZHBvaW50IjogImh0dHBzOi8vbWNwLnJlMy5saXZlL2RlYmF0ZXMiLAogICAgICAic2NvcGVzIjogeyd7J3snfSd9ICJyZWFkIjogIm1jcDpyZWFkIiwgInRyaWdnZXIiOiAibWNwOndyaXRlIiB7J30nfSwKICAgICAgInRvb2xzIjogWyJ0cmlnZ2VyX2RlYmF0ZSIsICJnZXRfZGViYXRlX3N0YXR1cyIsICJnZXRfZGViYXRlX3JvdW5kIl0sCiAgICAgICJyZXNvdXJjZXMiOiBbInJlMzovL2RlYmF0ZXMveyd7J3snfSd9aWR7J30nfS9sb29tIiwgInJlMzovL2RlYmF0ZXMvYWN0aXZlIl0sCiAgICAgICJzYW1wbGluZyI6IHRydWUKICAgIHsnfSd9LAogICAgInJlMy1sb2NhbC1maWxlcyI6IHsneyd7J30nfQogICAgICAiZGVzY3JpcHRpb24iOiAiTG9jYWwgd29ya3NwYWNlIGZpbGUgYWNjZXNzIGZvciBhcnRpY2xlIGRyYWZ0aW5nIiwKICAgICAgInRyYW5zcG9ydCI6ICJzdGRpbyIsCiAgICAgICJjb21tYW5kIjogIm5weCAteSBAbW9kZWxjb250ZXh0cHJvdG9jb2wvc2VydmVyLWZpbGVzeXN0ZW0iLAogICAgICAiYXJncyI6IFsiL2hvbWUvdXNlci9yZTMtYXJ0aWNsZXMiXSwKICAgICAgInNjb3BlcyI6ICJvcy1sZXZlbCBpc29sYXRpb24iCiAgICB7J30nfQogIHsnfSd9CnsnfSd9" />
 <ArchitectureDecision
   scenario="The re3-debates MCP server needs to use sampling to call the LLM for inline synthesis during a tool call. The host is Claude Desktop. What does the server need to do to request sampling?"
   options={[
@@ -66,48 +29,7 @@ Re3 wants to expose its full platform as a suite of MCP servers. Design the serv
 
 Your MCP server uses sampling extensively. Design an authorization policy for sampling requests.
 
-<CodeBlock>
-{`from mcp.types import CreateMessageRequest, CreateMessageResult
-
-class SamplingAuthorizationPolicy:
-    """Host-side policy for approving/denying server sampling requests."""
-
-    def __init__(self, config: dict):
-        self.max_tokens_per_request = config.get("max_tokens_per_request", 500)
-        self.max_requests_per_session = config.get("max_requests_per_session", 10)
-        self.require_approval_above_tokens = config.get("require_approval", 300)
-        self.session_counts = {'{'{'}'}{'}'}
-
-    async def evaluate(self, server_id: str, session_id: str,
-                        request: CreateMessageRequest) -> dict:
-        """Returns {'{'{'}'}allowed: bool, modified_request: ..., reason: str{'}'}"""
-
-        # Check per-session quota
-        session_key = f"{'{'{'}'}server_id{'}'}:{'{'{'}'}session_id{'}'}"
-        count = self.session_counts.get(session_key, 0)
-        if count >= self.max_requests_per_session:
-            return {'{'{'}'}"allowed": False,
-                    "reason": f"Session sampling quota exceeded ({'{'{'}'}count{'}'}/{'{'{'}'}self.max_requests_per_session{'}'})"{'}'}
-
-        # Enforce max tokens
-        if request.maxTokens > self.max_tokens_per_request:
-            # Silently cap rather than deny
-            request = request.model_copy(
-                update={'{'{'}'}"maxTokens": self.max_tokens_per_request{'}'}
-            )
-
-        # Large requests require explicit user approval
-        if request.maxTokens > self.require_approval_above_tokens:
-            approved = await show_user_approval_dialog(
-                f"Server '{'{'{'}'}server_id{'}'}' wants to make an LLM call "
-                f"({'{'{'}'}request.maxTokens{'}'} tokens). Allow?"
-            )
-            if not approved:
-                return {'{'{'}'}"allowed": False, "reason": "User denied sampling request"{'}'}
-
-        self.session_counts[session_key] = count + 1
-        return {'{'{'}'}"allowed": True, "modified_request": request, "reason": "approved"{'}'}`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBtY3AudHlwZXMgaW1wb3J0IENyZWF0ZU1lc3NhZ2VSZXF1ZXN0LCBDcmVhdGVNZXNzYWdlUmVzdWx0CgpjbGFzcyBTYW1wbGluZ0F1dGhvcml6YXRpb25Qb2xpY3k6CiAgICAiIiJIb3N0LXNpZGUgcG9saWN5IGZvciBhcHByb3ZpbmcvZGVueWluZyBzZXJ2ZXIgc2FtcGxpbmcgcmVxdWVzdHMuIiIiCgogICAgZGVmIF9faW5pdF9fKHNlbGYsIGNvbmZpZzogZGljdCk6CiAgICAgICAgc2VsZi5tYXhfdG9rZW5zX3Blcl9yZXF1ZXN0ID0gY29uZmlnLmdldCgibWF4X3Rva2Vuc19wZXJfcmVxdWVzdCIsIDUwMCkKICAgICAgICBzZWxmLm1heF9yZXF1ZXN0c19wZXJfc2Vzc2lvbiA9IGNvbmZpZy5nZXQoIm1heF9yZXF1ZXN0c19wZXJfc2Vzc2lvbiIsIDEwKQogICAgICAgIHNlbGYucmVxdWlyZV9hcHByb3ZhbF9hYm92ZV90b2tlbnMgPSBjb25maWcuZ2V0KCJyZXF1aXJlX2FwcHJvdmFsIiwgMzAwKQogICAgICAgIHNlbGYuc2Vzc2lvbl9jb3VudHMgPSB7J3sneyd9J317J30nfQoKICAgIGFzeW5jIGRlZiBldmFsdWF0ZShzZWxmLCBzZXJ2ZXJfaWQ6IHN0ciwgc2Vzc2lvbl9pZDogc3RyLAogICAgICAgICAgICAgICAgICAgICAgICByZXF1ZXN0OiBDcmVhdGVNZXNzYWdlUmVxdWVzdCkgLT4gZGljdDoKICAgICAgICAiIiJSZXR1cm5zIHsneyd7J30nfWFsbG93ZWQ6IGJvb2wsIG1vZGlmaWVkX3JlcXVlc3Q6IC4uLiwgcmVhc29uOiBzdHJ7J30nfSIiIgoKICAgICAgICAjIENoZWNrIHBlci1zZXNzaW9uIHF1b3RhCiAgICAgICAgc2Vzc2lvbl9rZXkgPSBmInsneyd7J30nfXNlcnZlcl9pZHsnfSd9Onsneyd7J30nfXNlc3Npb25faWR7J30nfSIKICAgICAgICBjb3VudCA9IHNlbGYuc2Vzc2lvbl9jb3VudHMuZ2V0KHNlc3Npb25fa2V5LCAwKQogICAgICAgIGlmIGNvdW50ID49IHNlbGYubWF4X3JlcXVlc3RzX3Blcl9zZXNzaW9uOgogICAgICAgICAgICByZXR1cm4geyd7J3snfSd9ImFsbG93ZWQiOiBGYWxzZSwKICAgICAgICAgICAgICAgICAgICAicmVhc29uIjogZiJTZXNzaW9uIHNhbXBsaW5nIHF1b3RhIGV4Y2VlZGVkICh7J3sneyd9J31jb3VudHsnfSd9L3sneyd7J30nfXNlbGYubWF4X3JlcXVlc3RzX3Blcl9zZXNzaW9ueyd9J30pInsnfSd9CgogICAgICAgICMgRW5mb3JjZSBtYXggdG9rZW5zCiAgICAgICAgaWYgcmVxdWVzdC5tYXhUb2tlbnMgPiBzZWxmLm1heF90b2tlbnNfcGVyX3JlcXVlc3Q6CiAgICAgICAgICAgICMgU2lsZW50bHkgY2FwIHJhdGhlciB0aGFuIGRlbnkKICAgICAgICAgICAgcmVxdWVzdCA9IHJlcXVlc3QubW9kZWxfY29weSgKICAgICAgICAgICAgICAgIHVwZGF0ZT17J3sneyd9J30ibWF4VG9rZW5zIjogc2VsZi5tYXhfdG9rZW5zX3Blcl9yZXF1ZXN0eyd9J30KICAgICAgICAgICAgKQoKICAgICAgICAjIExhcmdlIHJlcXVlc3RzIHJlcXVpcmUgZXhwbGljaXQgdXNlciBhcHByb3ZhbAogICAgICAgIGlmIHJlcXVlc3QubWF4VG9rZW5zID4gc2VsZi5yZXF1aXJlX2FwcHJvdmFsX2Fib3ZlX3Rva2VuczoKICAgICAgICAgICAgYXBwcm92ZWQgPSBhd2FpdCBzaG93X3VzZXJfYXBwcm92YWxfZGlhbG9nKAogICAgICAgICAgICAgICAgZiJTZXJ2ZXIgJ3sneyd7J30nfXNlcnZlcl9pZHsnfSd9JyB3YW50cyB0byBtYWtlIGFuIExMTSBjYWxsICIKICAgICAgICAgICAgICAgIGYiKHsneyd7J30nfXJlcXVlc3QubWF4VG9rZW5zeyd9J30gdG9rZW5zKS4gQWxsb3c/IgogICAgICAgICAgICApCiAgICAgICAgICAgIGlmIG5vdCBhcHByb3ZlZDoKICAgICAgICAgICAgICAgIHJldHVybiB7J3sneyd9J30iYWxsb3dlZCI6IEZhbHNlLCAicmVhc29uIjogIlVzZXIgZGVuaWVkIHNhbXBsaW5nIHJlcXVlc3Qieyd9J30KCiAgICAgICAgc2VsZi5zZXNzaW9uX2NvdW50c1tzZXNzaW9uX2tleV0gPSBjb3VudCArIDEKICAgICAgICByZXR1cm4geyd7J3snfSd9ImFsbG93ZWQiOiBUcnVlLCAibW9kaWZpZWRfcmVxdWVzdCI6IHJlcXVlc3QsICJyZWFzb24iOiAiYXBwcm92ZWQieyd9J30=" />
 <Quiz question="An MCP server calls session.create_message() with maxTokens=2000 during a tool call. Your host policy caps sampling at 500 tokens. What is the correct host behavior?" options={["Reject the sampling request with an error","Silently cap the request to 500 tokens and fulfill it — the server still gets a useful completion","Ask the user to approve every time maxTokens > 500","Forward the request as-is and let the LLM provider reject it"]} correctIndex={1} explanation="Silently capping is the right balance. Outright rejection breaks the tool call and confuses the LLM. Asking for approval on every request creates too much friction. The host is the governance layer — it enforces resource limits while still serving the server's intent with a reduced but useful response."/>
 </ExpandableSection>
 

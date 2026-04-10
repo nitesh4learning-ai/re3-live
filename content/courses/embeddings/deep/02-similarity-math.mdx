@@ -19,61 +19,7 @@ Choosing the right similarity metric affects search quality and computational ef
 
 </ExpandableSection>
 
-<CodeBlock>
-{`import numpy as np
-from scipy.spatial.distance import cosine, euclidean
-
-def compare_metrics(a, b):
-    """Compare all similarity/distance metrics between two vectors."""
-    # Cosine similarity
-    cos_sim = np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
-
-    # Dot product
-    dot = np.dot(a, b)
-
-    # L2 (Euclidean) distance
-    l2 = np.linalg.norm(a - b)
-
-    # For normalized vectors, show equivalence
-    a_norm = a / np.linalg.norm(a)
-    b_norm = b / np.linalg.norm(b)
-    dot_normalized = np.dot(a_norm, b_norm)
-
-    return {'{'{'}'}
-        "cosine_similarity": round(cos_sim, 4),
-        "dot_product": round(dot, 4),
-        "l2_distance": round(l2, 4),
-        "dot_product_normalized": round(dot_normalized, 4),
-        "cos_equals_dot_normalized": abs(cos_sim - dot_normalized) < 1e-6
-    {'}'}
-
-# Example: similar vectors
-a = np.array([0.8, 0.3, 0.5, 0.1])
-b = np.array([0.7, 0.4, 0.6, 0.2])
-print("Similar vectors:", compare_metrics(a, b))
-
-# Dimension reduction comparison
-def evaluate_dim_reduction(embeddings, full_dim=1536, reduced_dim=256):
-    """Evaluate quality loss from dimension reduction."""
-    full = embeddings[:, :full_dim]
-    reduced = embeddings[:, :reduced_dim]
-
-    # Compare pairwise similarities (ranking preservation)
-    n = len(embeddings)
-    full_sims = []
-    reduced_sims = []
-    for i in range(n):
-        for j in range(i+1, n):
-            full_sims.append(np.dot(full[i], full[j]) /
-                           (np.linalg.norm(full[i]) * np.linalg.norm(full[j])))
-            reduced_sims.append(np.dot(reduced[i], reduced[j]) /
-                              (np.linalg.norm(reduced[i]) * np.linalg.norm(reduced[j])))
-
-    # Rank correlation (Spearman)
-    from scipy.stats import spearmanr
-    corr, _ = spearmanr(full_sims, reduced_sims)
-    print(f"Rank correlation ({'{'{'}'}full_dim{'}'}d vs {'{'{'}'}reduced_dim{'}'}d): {'{'{'}'}corr:.4f{'}'}")`}
-</CodeBlock>
+<CodeBlock b64="aW1wb3J0IG51bXB5IGFzIG5wCmZyb20gc2NpcHkuc3BhdGlhbC5kaXN0YW5jZSBpbXBvcnQgY29zaW5lLCBldWNsaWRlYW4KCmRlZiBjb21wYXJlX21ldHJpY3MoYSwgYik6CiAgICAiIiJDb21wYXJlIGFsbCBzaW1pbGFyaXR5L2Rpc3RhbmNlIG1ldHJpY3MgYmV0d2VlbiB0d28gdmVjdG9ycy4iIiIKICAgICMgQ29zaW5lIHNpbWlsYXJpdHkKICAgIGNvc19zaW0gPSBucC5kb3QoYSwgYikgLyAobnAubGluYWxnLm5vcm0oYSkgKiBucC5saW5hbGcubm9ybShiKSkKCiAgICAjIERvdCBwcm9kdWN0CiAgICBkb3QgPSBucC5kb3QoYSwgYikKCiAgICAjIEwyIChFdWNsaWRlYW4pIGRpc3RhbmNlCiAgICBsMiA9IG5wLmxpbmFsZy5ub3JtKGEgLSBiKQoKICAgICMgRm9yIG5vcm1hbGl6ZWQgdmVjdG9ycywgc2hvdyBlcXVpdmFsZW5jZQogICAgYV9ub3JtID0gYSAvIG5wLmxpbmFsZy5ub3JtKGEpCiAgICBiX25vcm0gPSBiIC8gbnAubGluYWxnLm5vcm0oYikKICAgIGRvdF9ub3JtYWxpemVkID0gbnAuZG90KGFfbm9ybSwgYl9ub3JtKQoKICAgIHJldHVybiB7J3sneyd9J30KICAgICAgICAiY29zaW5lX3NpbWlsYXJpdHkiOiByb3VuZChjb3Nfc2ltLCA0KSwKICAgICAgICAiZG90X3Byb2R1Y3QiOiByb3VuZChkb3QsIDQpLAogICAgICAgICJsMl9kaXN0YW5jZSI6IHJvdW5kKGwyLCA0KSwKICAgICAgICAiZG90X3Byb2R1Y3Rfbm9ybWFsaXplZCI6IHJvdW5kKGRvdF9ub3JtYWxpemVkLCA0KSwKICAgICAgICAiY29zX2VxdWFsc19kb3Rfbm9ybWFsaXplZCI6IGFicyhjb3Nfc2ltIC0gZG90X25vcm1hbGl6ZWQpIDwgMWUtNgogICAgeyd9J30KCiMgRXhhbXBsZTogc2ltaWxhciB2ZWN0b3JzCmEgPSBucC5hcnJheShbMC44LCAwLjMsIDAuNSwgMC4xXSkKYiA9IG5wLmFycmF5KFswLjcsIDAuNCwgMC42LCAwLjJdKQpwcmludCgiU2ltaWxhciB2ZWN0b3JzOiIsIGNvbXBhcmVfbWV0cmljcyhhLCBiKSkKCiMgRGltZW5zaW9uIHJlZHVjdGlvbiBjb21wYXJpc29uCmRlZiBldmFsdWF0ZV9kaW1fcmVkdWN0aW9uKGVtYmVkZGluZ3MsIGZ1bGxfZGltPTE1MzYsIHJlZHVjZWRfZGltPTI1Nik6CiAgICAiIiJFdmFsdWF0ZSBxdWFsaXR5IGxvc3MgZnJvbSBkaW1lbnNpb24gcmVkdWN0aW9uLiIiIgogICAgZnVsbCA9IGVtYmVkZGluZ3NbOiwgOmZ1bGxfZGltXQogICAgcmVkdWNlZCA9IGVtYmVkZGluZ3NbOiwgOnJlZHVjZWRfZGltXQoKICAgICMgQ29tcGFyZSBwYWlyd2lzZSBzaW1pbGFyaXRpZXMgKHJhbmtpbmcgcHJlc2VydmF0aW9uKQogICAgbiA9IGxlbihlbWJlZGRpbmdzKQogICAgZnVsbF9zaW1zID0gW10KICAgIHJlZHVjZWRfc2ltcyA9IFtdCiAgICBmb3IgaSBpbiByYW5nZShuKToKICAgICAgICBmb3IgaiBpbiByYW5nZShpKzEsIG4pOgogICAgICAgICAgICBmdWxsX3NpbXMuYXBwZW5kKG5wLmRvdChmdWxsW2ldLCBmdWxsW2pdKSAvCiAgICAgICAgICAgICAgICAgICAgICAgICAgIChucC5saW5hbGcubm9ybShmdWxsW2ldKSAqIG5wLmxpbmFsZy5ub3JtKGZ1bGxbal0pKSkKICAgICAgICAgICAgcmVkdWNlZF9zaW1zLmFwcGVuZChucC5kb3QocmVkdWNlZFtpXSwgcmVkdWNlZFtqXSkgLwogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAobnAubGluYWxnLm5vcm0ocmVkdWNlZFtpXSkgKiBucC5saW5hbGcubm9ybShyZWR1Y2VkW2pdKSkpCgogICAgIyBSYW5rIGNvcnJlbGF0aW9uIChTcGVhcm1hbikKICAgIGZyb20gc2NpcHkuc3RhdHMgaW1wb3J0IHNwZWFybWFucgogICAgY29yciwgXyA9IHNwZWFybWFucihmdWxsX3NpbXMsIHJlZHVjZWRfc2ltcykKICAgIHByaW50KGYiUmFuayBjb3JyZWxhdGlvbiAoeyd7J3snfSd9ZnVsbF9kaW17J30nfWQgdnMgeyd7J3snfSd9cmVkdWNlZF9kaW17J30nfWQpOiB7J3sneyd9J31jb3JyOi40ZnsnfSd9Iik=" />
 
 <ExpandableSection title="Dimension Reduction: PCA vs UMAP" icon="📉">
 

@@ -32,51 +32,7 @@ Search algorithm: Start at the entry point in the top layer. Greedily navigate t
 
 </ExpandableSection>
 
-<CodeBlock>
-{`from qdrant_client import QdrantClient
-from qdrant_client.models import (
-    VectorParams, Distance, HnswConfigDiff,
-    OptimizersConfigDiff, QuantizationConfig,
-    ScalarQuantization, ScalarQuantizationConfig
-)
-
-client = QdrantClient("localhost", port=6333)
-
-# Create collection with tuned HNSW parameters
-client.create_collection(
-    collection_name="production_docs",
-    vectors_config=VectorParams(
-        size=1536,           # Embedding dimensions
-        distance=Distance.COSINE,
-    ),
-    hnsw_config=HnswConfigDiff(
-        m=16,                # Connections per node (16-64)
-        ef_construct=200,    # Build quality (100-400)
-        full_scan_threshold=10000,  # Use flat search below this count
-    ),
-    optimizers_config=OptimizersConfigDiff(
-        indexing_threshold=20000,  # Start HNSW after N vectors
-    ),
-    # Scalar quantization: 4x memory reduction, ~2% quality loss
-    quantization_config=QuantizationConfig(
-        scalar=ScalarQuantization(
-            scalar=ScalarQuantizationConfig(
-                type="int8",       # Quantize float32 to int8
-                quantile=0.99,     # Clip outliers
-                always_ram=True,   # Keep quantized vectors in RAM
-            )
-        )
-    ),
-)
-
-# Search with tunable ef parameter
-results = client.search(
-    collection_name="production_docs",
-    query_vector=query_embedding,
-    limit=10,
-    search_params={'{'{'}'}"hnsw_ef": 128{'}'},  # Higher = better recall, slower
-)`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBxZHJhbnRfY2xpZW50IGltcG9ydCBRZHJhbnRDbGllbnQKZnJvbSBxZHJhbnRfY2xpZW50Lm1vZGVscyBpbXBvcnQgKAogICAgVmVjdG9yUGFyYW1zLCBEaXN0YW5jZSwgSG5zd0NvbmZpZ0RpZmYsCiAgICBPcHRpbWl6ZXJzQ29uZmlnRGlmZiwgUXVhbnRpemF0aW9uQ29uZmlnLAogICAgU2NhbGFyUXVhbnRpemF0aW9uLCBTY2FsYXJRdWFudGl6YXRpb25Db25maWcKKQoKY2xpZW50ID0gUWRyYW50Q2xpZW50KCJsb2NhbGhvc3QiLCBwb3J0PTYzMzMpCgojIENyZWF0ZSBjb2xsZWN0aW9uIHdpdGggdHVuZWQgSE5TVyBwYXJhbWV0ZXJzCmNsaWVudC5jcmVhdGVfY29sbGVjdGlvbigKICAgIGNvbGxlY3Rpb25fbmFtZT0icHJvZHVjdGlvbl9kb2NzIiwKICAgIHZlY3RvcnNfY29uZmlnPVZlY3RvclBhcmFtcygKICAgICAgICBzaXplPTE1MzYsICAgICAgICAgICAjIEVtYmVkZGluZyBkaW1lbnNpb25zCiAgICAgICAgZGlzdGFuY2U9RGlzdGFuY2UuQ09TSU5FLAogICAgKSwKICAgIGhuc3dfY29uZmlnPUhuc3dDb25maWdEaWZmKAogICAgICAgIG09MTYsICAgICAgICAgICAgICAgICMgQ29ubmVjdGlvbnMgcGVyIG5vZGUgKDE2LTY0KQogICAgICAgIGVmX2NvbnN0cnVjdD0yMDAsICAgICMgQnVpbGQgcXVhbGl0eSAoMTAwLTQwMCkKICAgICAgICBmdWxsX3NjYW5fdGhyZXNob2xkPTEwMDAwLCAgIyBVc2UgZmxhdCBzZWFyY2ggYmVsb3cgdGhpcyBjb3VudAogICAgKSwKICAgIG9wdGltaXplcnNfY29uZmlnPU9wdGltaXplcnNDb25maWdEaWZmKAogICAgICAgIGluZGV4aW5nX3RocmVzaG9sZD0yMDAwMCwgICMgU3RhcnQgSE5TVyBhZnRlciBOIHZlY3RvcnMKICAgICksCiAgICAjIFNjYWxhciBxdWFudGl6YXRpb246IDR4IG1lbW9yeSByZWR1Y3Rpb24sIH4yJSBxdWFsaXR5IGxvc3MKICAgIHF1YW50aXphdGlvbl9jb25maWc9UXVhbnRpemF0aW9uQ29uZmlnKAogICAgICAgIHNjYWxhcj1TY2FsYXJRdWFudGl6YXRpb24oCiAgICAgICAgICAgIHNjYWxhcj1TY2FsYXJRdWFudGl6YXRpb25Db25maWcoCiAgICAgICAgICAgICAgICB0eXBlPSJpbnQ4IiwgICAgICAgIyBRdWFudGl6ZSBmbG9hdDMyIHRvIGludDgKICAgICAgICAgICAgICAgIHF1YW50aWxlPTAuOTksICAgICAjIENsaXAgb3V0bGllcnMKICAgICAgICAgICAgICAgIGFsd2F5c19yYW09VHJ1ZSwgICAjIEtlZXAgcXVhbnRpemVkIHZlY3RvcnMgaW4gUkFNCiAgICAgICAgICAgICkKICAgICAgICApCiAgICApLAopCgojIFNlYXJjaCB3aXRoIHR1bmFibGUgZWYgcGFyYW1ldGVyCnJlc3VsdHMgPSBjbGllbnQuc2VhcmNoKAogICAgY29sbGVjdGlvbl9uYW1lPSJwcm9kdWN0aW9uX2RvY3MiLAogICAgcXVlcnlfdmVjdG9yPXF1ZXJ5X2VtYmVkZGluZywKICAgIGxpbWl0PTEwLAogICAgc2VhcmNoX3BhcmFtcz17J3sneyd9J30iaG5zd19lZiI6IDEyOHsnfSd9LCAgIyBIaWdoZXIgPSBiZXR0ZXIgcmVjYWxsLCBzbG93ZXIKKQ==" />
 
 <ExpandableSection title="Quantization: PQ and SQ" icon="🗜️">
 

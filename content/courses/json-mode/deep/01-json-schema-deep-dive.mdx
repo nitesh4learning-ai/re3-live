@@ -5,45 +5,6 @@ icon: "🔍"
 
 ## JSON Schema Deep Dive
 
-<CodeBlock>
-{`{'{'{'}'}
-  "type": "object",
-  "properties": {'{'{'}'}
-    "analysis": {'{'{'}'}
-      "type": "object",
-      "properties": {'{'{'}'}
-        "sentiment": {'{'{'}'}
-          "type": "string",
-          "enum": ["positive", "negative", "neutral", "mixed"]
-        {'}'},
-        "topics": {'{'{'}'}
-          "type": "array",
-          "items": {'{'{'}'}
-            "type": "object",
-            "properties": {'{'{'}'}
-              "name": {'{'{'}'}"type": "string"{'}'},
-              "relevance": {'{'{'}'}"type": "number", "minimum": 0, "maximum": 1{'}'}
-            {'}'},
-            "required": ["name", "relevance"]
-          {'}'}
-        {'}'},
-        "language": {'{'{'}'}
-          "type": "string",
-          "pattern": "^[a-z]{'{'{'}'}2{'}'}$"
-        {'}'}
-      {'}'},
-      "required": ["sentiment", "topics"]
-    {'}'},
-    "metadata": {'{'{'}'}
-      "type": "object",
-      "properties": {'{'{'}'}
-        "word_count": {'{'{'}'}"type": "integer"{'}'},
-        "processing_note": {'{'{'}'}"type": "string"{'}'}
-      {'}'}
-    {'}'}
-  {'}'},
-  "required": ["analysis"]
-{'}'}`}
-</CodeBlock>
+<CodeBlock b64="eyd7J3snfSd9CiAgInR5cGUiOiAib2JqZWN0IiwKICAicHJvcGVydGllcyI6IHsneyd7J30nfQogICAgImFuYWx5c2lzIjogeyd7J3snfSd9CiAgICAgICJ0eXBlIjogIm9iamVjdCIsCiAgICAgICJwcm9wZXJ0aWVzIjogeyd7J3snfSd9CiAgICAgICAgInNlbnRpbWVudCI6IHsneyd7J30nfQogICAgICAgICAgInR5cGUiOiAic3RyaW5nIiwKICAgICAgICAgICJlbnVtIjogWyJwb3NpdGl2ZSIsICJuZWdhdGl2ZSIsICJuZXV0cmFsIiwgIm1peGVkIl0KICAgICAgICB7J30nfSwKICAgICAgICAidG9waWNzIjogeyd7J3snfSd9CiAgICAgICAgICAidHlwZSI6ICJhcnJheSIsCiAgICAgICAgICAiaXRlbXMiOiB7J3sneyd9J30KICAgICAgICAgICAgInR5cGUiOiAib2JqZWN0IiwKICAgICAgICAgICAgInByb3BlcnRpZXMiOiB7J3sneyd9J30KICAgICAgICAgICAgICAibmFtZSI6IHsneyd7J30nfSJ0eXBlIjogInN0cmluZyJ7J30nfSwKICAgICAgICAgICAgICAicmVsZXZhbmNlIjogeyd7J3snfSd9InR5cGUiOiAibnVtYmVyIiwgIm1pbmltdW0iOiAwLCAibWF4aW11bSI6IDF7J30nfQogICAgICAgICAgICB7J30nfSwKICAgICAgICAgICAgInJlcXVpcmVkIjogWyJuYW1lIiwgInJlbGV2YW5jZSJdCiAgICAgICAgICB7J30nfQogICAgICAgIHsnfSd9LAogICAgICAgICJsYW5ndWFnZSI6IHsneyd7J30nfQogICAgICAgICAgInR5cGUiOiAic3RyaW5nIiwKICAgICAgICAgICJwYXR0ZXJuIjogIl5bYS16XXsneyd7J30nfTJ7J30nfSQiCiAgICAgICAgeyd9J30KICAgICAgeyd9J30sCiAgICAgICJyZXF1aXJlZCI6IFsic2VudGltZW50IiwgInRvcGljcyJdCiAgICB7J30nfSwKICAgICJtZXRhZGF0YSI6IHsneyd7J30nfQogICAgICAidHlwZSI6ICJvYmplY3QiLAogICAgICAicHJvcGVydGllcyI6IHsneyd7J30nfQogICAgICAgICJ3b3JkX2NvdW50Ijogeyd7J3snfSd9InR5cGUiOiAiaW50ZWdlciJ7J30nfSwKICAgICAgICAicHJvY2Vzc2luZ19ub3RlIjogeyd7J3snfSd9InR5cGUiOiAic3RyaW5nInsnfSd9CiAgICAgIHsnfSd9CiAgICB7J30nfQogIHsnfSd9LAogICJyZXF1aXJlZCI6IFsiYW5hbHlzaXMiXQp7J30nfQ==" />
 
 <Quiz question="What does 'pattern: ^[a-z]{2}$' enforce in a JSON Schema string field?" options={["Exactly 2 lowercase letters (like language codes 'en', 'fr')","Any string with at least 2 characters","A regex match anywhere in the string","It is not valid JSON Schema"]} correctIndex={0} explanation="The pattern property uses regex to validate string format. ^[a-z]{2}$ means: start (^), exactly 2 lowercase letters ([a-z]{2}), end ($). Perfect for ISO 639-1 language codes."/>

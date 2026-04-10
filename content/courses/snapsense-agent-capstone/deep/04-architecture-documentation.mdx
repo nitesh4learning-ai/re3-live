@@ -9,38 +9,7 @@ The capstone deliverable is an **Architecture Decision Document** — the single
 
 ### ADR Template
 
-<CodeBlock>
-{`# ADR-001: Agent Layer for SnapSense AI
-
-## Status: Proposed
-
-## Context
-SnapSense currently uses a linear pipeline (ML Kit → Cloud Vision → LLM)
-with no self-correction. Misclassification errors propagate to user-facing
-tiles. The exclusion engine has known bugs (TERRO ant bait as "food",
-Tylenol showing "UNKNOWN" instead of safety shield).
-
-## Decision
-Introduce an agent layer using LangGraph with:
-1. Category Agent: LLM overrides ML Kit classification
-2. Router Agent: Routes to category-specific handler
-3. Data Quality Agent: Grades API data, retries on poor quality
-4. Quality Gate: Scores final output, loops if needed
-
-Model routing: Gemini Flash for classification ($0.003/1K),
-Haiku for quality grading ($0.005/1K), Sonnet for deep analysis only.
-
-## Consequences
-- Pro: Self-correction reduces misclassification from ~5% to <1%
-- Pro: Model routing keeps cost increase to ~$0.005/scan
-- Con: Adds ~500ms latency for the quality gate loop
-- Con: More complex debugging (mitigated by LangSmith tracing)
-
-## Alternatives Considered
-1. Better ML Kit training data (rejected: doesn't fix LLM-level errors)
-2. Single larger model for everything (rejected: cost prohibitive)
-3. Rule-based exclusion engine (current approach: insufficient)`}
-</CodeBlock>
+<CodeBlock b64="IyBBRFItMDAxOiBBZ2VudCBMYXllciBmb3IgU25hcFNlbnNlIEFJCgojIyBTdGF0dXM6IFByb3Bvc2VkCgojIyBDb250ZXh0ClNuYXBTZW5zZSBjdXJyZW50bHkgdXNlcyBhIGxpbmVhciBwaXBlbGluZSAoTUwgS2l0IOKGkiBDbG91ZCBWaXNpb24g4oaSIExMTSkKd2l0aCBubyBzZWxmLWNvcnJlY3Rpb24uIE1pc2NsYXNzaWZpY2F0aW9uIGVycm9ycyBwcm9wYWdhdGUgdG8gdXNlci1mYWNpbmcKdGlsZXMuIFRoZSBleGNsdXNpb24gZW5naW5lIGhhcyBrbm93biBidWdzIChURVJSTyBhbnQgYmFpdCBhcyAiZm9vZCIsClR5bGVub2wgc2hvd2luZyAiVU5LTk9XTiIgaW5zdGVhZCBvZiBzYWZldHkgc2hpZWxkKS4KCiMjIERlY2lzaW9uCkludHJvZHVjZSBhbiBhZ2VudCBsYXllciB1c2luZyBMYW5nR3JhcGggd2l0aDoKMS4gQ2F0ZWdvcnkgQWdlbnQ6IExMTSBvdmVycmlkZXMgTUwgS2l0IGNsYXNzaWZpY2F0aW9uCjIuIFJvdXRlciBBZ2VudDogUm91dGVzIHRvIGNhdGVnb3J5LXNwZWNpZmljIGhhbmRsZXIKMy4gRGF0YSBRdWFsaXR5IEFnZW50OiBHcmFkZXMgQVBJIGRhdGEsIHJldHJpZXMgb24gcG9vciBxdWFsaXR5CjQuIFF1YWxpdHkgR2F0ZTogU2NvcmVzIGZpbmFsIG91dHB1dCwgbG9vcHMgaWYgbmVlZGVkCgpNb2RlbCByb3V0aW5nOiBHZW1pbmkgRmxhc2ggZm9yIGNsYXNzaWZpY2F0aW9uICgkMC4wMDMvMUspLApIYWlrdSBmb3IgcXVhbGl0eSBncmFkaW5nICgkMC4wMDUvMUspLCBTb25uZXQgZm9yIGRlZXAgYW5hbHlzaXMgb25seS4KCiMjIENvbnNlcXVlbmNlcwotIFBybzogU2VsZi1jb3JyZWN0aW9uIHJlZHVjZXMgbWlzY2xhc3NpZmljYXRpb24gZnJvbSB+NSUgdG8gPDElCi0gUHJvOiBNb2RlbCByb3V0aW5nIGtlZXBzIGNvc3QgaW5jcmVhc2UgdG8gfiQwLjAwNS9zY2FuCi0gQ29uOiBBZGRzIH41MDBtcyBsYXRlbmN5IGZvciB0aGUgcXVhbGl0eSBnYXRlIGxvb3AKLSBDb246IE1vcmUgY29tcGxleCBkZWJ1Z2dpbmcgKG1pdGlnYXRlZCBieSBMYW5nU21pdGggdHJhY2luZykKCiMjIEFsdGVybmF0aXZlcyBDb25zaWRlcmVkCjEuIEJldHRlciBNTCBLaXQgdHJhaW5pbmcgZGF0YSAocmVqZWN0ZWQ6IGRvZXNuJ3QgZml4IExMTS1sZXZlbCBlcnJvcnMpCjIuIFNpbmdsZSBsYXJnZXIgbW9kZWwgZm9yIGV2ZXJ5dGhpbmcgKHJlamVjdGVkOiBjb3N0IHByb2hpYml0aXZlKQozLiBSdWxlLWJhc2VkIGV4Y2x1c2lvbiBlbmdpbmUgKGN1cnJlbnQgYXBwcm9hY2g6IGluc3VmZmljaWVudCk=" />
 
 <AnalogyBox emoji="📋" title="MDM Architecture Decision Record">
 If you've written architecture decisions for SAP S/4HANA or Informatica MDM projects, ADRs follow the same structure: Context (why), Decision (what), Consequences (trade-offs), Alternatives (what else we considered). The format is familiar — the domain is new.

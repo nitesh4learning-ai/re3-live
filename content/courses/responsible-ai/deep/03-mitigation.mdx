@@ -13,28 +13,7 @@ Once you've detected bias through <JargonTip term="red-teaming">red-teaming</Jar
   ['Post-processing','Threshold adjustment per group','Simple, no retraining needed','May reduce overall accuracy'],
 ]}/>
 
-<CodeBlock>
-{`from fairlearn.postprocessing import ThresholdOptimizer
-
-# Wrap your trained model with fairness post-processing
-mitigated = ThresholdOptimizer(
-    estimator=trained_model,
-    constraints="equalized_odds",
-    objective="balanced_accuracy_score"
-)
-
-mitigated.fit(X_train, y_train,
-              sensitive_features=train_demographics)
-
-fair_predictions = mitigated.predict(
-    X_test,
-    sensitive_features=test_demographics
-)
-
-# Compare before/after
-print("Original disparity:", compute_disparity(y_pred))
-print("Mitigated disparity:", compute_disparity(fair_predictions))`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBmYWlybGVhcm4ucG9zdHByb2Nlc3NpbmcgaW1wb3J0IFRocmVzaG9sZE9wdGltaXplcgoKIyBXcmFwIHlvdXIgdHJhaW5lZCBtb2RlbCB3aXRoIGZhaXJuZXNzIHBvc3QtcHJvY2Vzc2luZwptaXRpZ2F0ZWQgPSBUaHJlc2hvbGRPcHRpbWl6ZXIoCiAgICBlc3RpbWF0b3I9dHJhaW5lZF9tb2RlbCwKICAgIGNvbnN0cmFpbnRzPSJlcXVhbGl6ZWRfb2RkcyIsCiAgICBvYmplY3RpdmU9ImJhbGFuY2VkX2FjY3VyYWN5X3Njb3JlIgopCgptaXRpZ2F0ZWQuZml0KFhfdHJhaW4sIHlfdHJhaW4sCiAgICAgICAgICAgICAgc2Vuc2l0aXZlX2ZlYXR1cmVzPXRyYWluX2RlbW9ncmFwaGljcykKCmZhaXJfcHJlZGljdGlvbnMgPSBtaXRpZ2F0ZWQucHJlZGljdCgKICAgIFhfdGVzdCwKICAgIHNlbnNpdGl2ZV9mZWF0dXJlcz10ZXN0X2RlbW9ncmFwaGljcwopCgojIENvbXBhcmUgYmVmb3JlL2FmdGVyCnByaW50KCJPcmlnaW5hbCBkaXNwYXJpdHk6IiwgY29tcHV0ZV9kaXNwYXJpdHkoeV9wcmVkKSkKcHJpbnQoIk1pdGlnYXRlZCBkaXNwYXJpdHk6IiwgY29tcHV0ZV9kaXNwYXJpdHkoZmFpcl9wcmVkaWN0aW9ucykp" />
 
 <ArchitectureDecision scenario="Your credit scoring model has a 5% selection rate gap between demographic groups. The business wants to launch next month. What approach do you take?" options={[
   {label:"Post-processing threshold adjustment",tradeoff:"Fastest to implement; no retraining; may slightly reduce overall accuracy"},

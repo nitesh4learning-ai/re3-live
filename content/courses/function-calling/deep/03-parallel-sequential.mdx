@@ -19,58 +19,8 @@ Some tool calls depend on results of previous calls. For example: search for a u
 
 </ExpandableSection>
 
-<CodeBlock>
-{`async function executeToolCalls(toolCalls, registry) {'{'{'}'}
-  // Check for dependencies between calls
-  const independent = toolCalls.every(
-    (call, i) => !toolCalls.slice(0, i).some(
-      prev => JSON.stringify(call.args).includes(prev.name)
-    )
-  );
+<CodeBlock b64="YXN5bmMgZnVuY3Rpb24gZXhlY3V0ZVRvb2xDYWxscyh0b29sQ2FsbHMsIHJlZ2lzdHJ5KSB7J3sneyd9J30KICAvLyBDaGVjayBmb3IgZGVwZW5kZW5jaWVzIGJldHdlZW4gY2FsbHMKICBjb25zdCBpbmRlcGVuZGVudCA9IHRvb2xDYWxscy5ldmVyeSgKICAgIChjYWxsLCBpKSA9PiAhdG9vbENhbGxzLnNsaWNlKDAsIGkpLnNvbWUoCiAgICAgIHByZXYgPT4gSlNPTi5zdHJpbmdpZnkoY2FsbC5hcmdzKS5pbmNsdWRlcyhwcmV2Lm5hbWUpCiAgICApCiAgKTsKCiAgaWYgKGluZGVwZW5kZW50KSB7J3sneyd9J30KICAgIC8vIEV4ZWN1dGUgYWxsIGluIHBhcmFsbGVsCiAgICByZXR1cm4gYXdhaXQgUHJvbWlzZS5hbGwoCiAgICAgIHRvb2xDYWxscy5tYXAoYXN5bmMgKGNhbGwpID0+IHsneyd7J30nfQogICAgICAgIGNvbnN0IHRvb2wgPSByZWdpc3RyeVtjYWxsLm5hbWVdOwogICAgICAgIGlmICghdG9vbCkgcmV0dXJuIHsneyd7J30nfSBpZDogY2FsbC5pZCwgZXJyb3I6ICJVbmtub3duIHRvb2wiIHsnfSd9OwogICAgICAgIHRyeSB7J3sneyd9J30KICAgICAgICAgIHJldHVybiB7J3sneyd9J30gaWQ6IGNhbGwuaWQsIHJlc3VsdDogYXdhaXQgdG9vbC5oYW5kbGVyKGNhbGwuYXJncykgeyd9J307CiAgICAgICAgeyd9J30gY2F0Y2ggKGVycikgeyd7J3snfSd9CiAgICAgICAgICByZXR1cm4geyd7J3snfSd9IGlkOiBjYWxsLmlkLCBlcnJvcjogZXJyLm1lc3NhZ2Ugeyd9J307CiAgICAgICAgeyd9J30KICAgICAgeyd9J30pCiAgICApOwogIHsnfSd9CgogIC8vIFNlcXVlbnRpYWwgZm9yIGRlcGVuZGVudCBjYWxscwogIGNvbnN0IHJlc3VsdHMgPSBbXTsKICBmb3IgKGNvbnN0IGNhbGwgb2YgdG9vbENhbGxzKSB7J3sneyd9J30KICAgIHRyeSB7J3sneyd9J30KICAgICAgcmVzdWx0cy5wdXNoKHsneyd7J30nfSBpZDogY2FsbC5pZCwgcmVzdWx0OiBhd2FpdCByZWdpc3RyeVtjYWxsLm5hbWVdLmhhbmRsZXIoY2FsbC5hcmdzKSB7J30nfSk7CiAgICB7J30nfSBjYXRjaCAoZXJyKSB7J3sneyd9J30KICAgICAgcmVzdWx0cy5wdXNoKHsneyd7J30nfSBpZDogY2FsbC5pZCwgZXJyb3I6IGVyci5tZXNzYWdlIHsnfSd9KTsKICAgIHsnfSd9CiAgeyd9J30KICByZXR1cm4gcmVzdWx0czsKeyd9J30=" />
 
-  if (independent) {'{'{'}'}
-    // Execute all in parallel
-    return await Promise.all(
-      toolCalls.map(async (call) => {'{'{'}'}
-        const tool = registry[call.name];
-        if (!tool) return {'{'{'}'} id: call.id, error: "Unknown tool" {'}'};
-        try {'{'{'}'}
-          return {'{'{'}'} id: call.id, result: await tool.handler(call.args) {'}'};
-        {'}'} catch (err) {'{'{'}'}
-          return {'{'{'}'} id: call.id, error: err.message {'}'};
-        {'}'}
-      {'}'})
-    );
-  {'}'}
-
-  // Sequential for dependent calls
-  const results = [];
-  for (const call of toolCalls) {'{'{'}'}
-    try {'{'{'}'}
-      results.push({'{'{'}'} id: call.id, result: await registry[call.name].handler(call.args) {'}'});
-    {'}'} catch (err) {'{'{'}'}
-      results.push({'{'{'}'} id: call.id, error: err.message {'}'});
-    {'}'}
-  {'}'}
-  return results;
-{'}'}`}
-</CodeBlock>
-
-<CodeBlock>
-{`async function agentLoop(messages, tools, maxIter = 10) {'{'{'}'}
-  for (let i = 0; i < maxIter; i++) {'{'{'}'}
-    const response = await callLLM(messages, tools);
-    const calls = extractToolCalls(response);
-    if (calls.length === 0) return response;
-
-    const results = await executeToolCalls(calls, tools);
-    messages.push({'{'{'}'} role: "assistant", content: response {'}'});
-    for (const r of results) {'{'{'}'}
-      messages.push({'{'{'}'} role: "tool", tool_call_id: r.id, content: JSON.stringify(r.result || r.error) {'}'});
-    {'}'}
-  {'}'}
-  throw new Error("Max iterations reached");
-{'}'}`}
-</CodeBlock>
+<CodeBlock b64="YXN5bmMgZnVuY3Rpb24gYWdlbnRMb29wKG1lc3NhZ2VzLCB0b29scywgbWF4SXRlciA9IDEwKSB7J3sneyd9J30KICBmb3IgKGxldCBpID0gMDsgaSA8IG1heEl0ZXI7IGkrKykgeyd7J3snfSd9CiAgICBjb25zdCByZXNwb25zZSA9IGF3YWl0IGNhbGxMTE0obWVzc2FnZXMsIHRvb2xzKTsKICAgIGNvbnN0IGNhbGxzID0gZXh0cmFjdFRvb2xDYWxscyhyZXNwb25zZSk7CiAgICBpZiAoY2FsbHMubGVuZ3RoID09PSAwKSByZXR1cm4gcmVzcG9uc2U7CgogICAgY29uc3QgcmVzdWx0cyA9IGF3YWl0IGV4ZWN1dGVUb29sQ2FsbHMoY2FsbHMsIHRvb2xzKTsKICAgIG1lc3NhZ2VzLnB1c2goeyd7J3snfSd9IHJvbGU6ICJhc3Npc3RhbnQiLCBjb250ZW50OiByZXNwb25zZSB7J30nfSk7CiAgICBmb3IgKGNvbnN0IHIgb2YgcmVzdWx0cykgeyd7J3snfSd9CiAgICAgIG1lc3NhZ2VzLnB1c2goeyd7J3snfSd9IHJvbGU6ICJ0b29sIiwgdG9vbF9jYWxsX2lkOiByLmlkLCBjb250ZW50OiBKU09OLnN0cmluZ2lmeShyLnJlc3VsdCB8fCByLmVycm9yKSB7J30nfSk7CiAgICB7J30nfQogIHsnfSd9CiAgdGhyb3cgbmV3IEVycm9yKCJNYXggaXRlcmF0aW9ucyByZWFjaGVkIik7CnsnfSd9" />
 
 <Quiz question="When should you execute tool calls in parallel?" options={["Always","Only when calls are independent of each other","Never","Only with exactly 2 calls"]} correctIndex={1} explanation="Parallel execution is safe when tool calls are independent -- no call depends on the result of another." />

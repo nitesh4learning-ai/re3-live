@@ -9,70 +9,7 @@ Even with relevant documents, LLMs can hallucinate — generating plausible-soun
 
 ### The Hallucination Checker Node
 
-<CodeBlock>
-{`HALLUCINATION_PROMPT = """You are a hallucination detector.
-
-Given a generated answer and the source documents it was based on,
-determine if the answer is FULLY GROUNDED in the sources.
-
-Score from 0.0 to 1.0:
-- 1.0 = Every claim in the answer is directly supported by sources
-- 0.5 = Some claims are supported, others are inferred or added
-- 0.0 = The answer contains significant unsupported claims
-
-Return ONLY the number (e.g., 0.8).
-
-Source documents:
-{'{'{'}'}sources{'}'}
-
-Generated answer:
-{'{'{'}'}answer{'}'}
-"""
-
-def check_hallucination(state: RAGState) -> dict:
-    """
-    After generation, verify the answer is grounded
-    in the retrieved documents.
-    
-    This is the quality gate — like a data steward
-    reviewing an auto-enriched record before it gets
-    promoted to the golden record.
-    """
-    sources_text = "\\n---\\n".join(
-        [d["content"][:500] for d in state["relevant_docs"]]
-    )
-    
-    response = llm.invoke([
-        HumanMessage(content=HALLUCINATION_PROMPT.format(
-            sources=sources_text,
-            answer=state["generation"]
-        ))
-    ])
-    
-    try:
-        score = float(response.content.strip())
-    except ValueError:
-        score = 0.5  # Default if parsing fails
-    
-    print(f"  🛡️ Hallucination check: {'{'{'}'}score:.1f{'}'}/1.0")
-    
-    return {'{'{'}'}"hallucination_score": score{'}'}
-
-
-def route_after_hallucination(state: RAGState):
-    """
-    If grounding score is high → return the answer.
-    If low → regenerate with stricter instructions,
-    or rewrite and retrieve different sources.
-    """
-    if state["hallucination_score"] >= 0.7:
-        return "complete"      # Answer is grounded — ship it
-    
-    if state["retry_count"] >= 3:
-        return "complete"      # Best effort after max retries
-    
-    return "regenerate"        # Try again with stricter prompt`}
-</CodeBlock>
+<CodeBlock b64="SEFMTFVDSU5BVElPTl9QUk9NUFQgPSAiIiJZb3UgYXJlIGEgaGFsbHVjaW5hdGlvbiBkZXRlY3Rvci4KCkdpdmVuIGEgZ2VuZXJhdGVkIGFuc3dlciBhbmQgdGhlIHNvdXJjZSBkb2N1bWVudHMgaXQgd2FzIGJhc2VkIG9uLApkZXRlcm1pbmUgaWYgdGhlIGFuc3dlciBpcyBGVUxMWSBHUk9VTkRFRCBpbiB0aGUgc291cmNlcy4KClNjb3JlIGZyb20gMC4wIHRvIDEuMDoKLSAxLjAgPSBFdmVyeSBjbGFpbSBpbiB0aGUgYW5zd2VyIGlzIGRpcmVjdGx5IHN1cHBvcnRlZCBieSBzb3VyY2VzCi0gMC41ID0gU29tZSBjbGFpbXMgYXJlIHN1cHBvcnRlZCwgb3RoZXJzIGFyZSBpbmZlcnJlZCBvciBhZGRlZAotIDAuMCA9IFRoZSBhbnN3ZXIgY29udGFpbnMgc2lnbmlmaWNhbnQgdW5zdXBwb3J0ZWQgY2xhaW1zCgpSZXR1cm4gT05MWSB0aGUgbnVtYmVyIChlLmcuLCAwLjgpLgoKU291cmNlIGRvY3VtZW50czoKeyd7J3snfSd9c291cmNlc3snfSd9CgpHZW5lcmF0ZWQgYW5zd2VyOgp7J3sneyd9J31hbnN3ZXJ7J30nfQoiIiIKCmRlZiBjaGVja19oYWxsdWNpbmF0aW9uKHN0YXRlOiBSQUdTdGF0ZSkgLT4gZGljdDoKICAgICIiIgogICAgQWZ0ZXIgZ2VuZXJhdGlvbiwgdmVyaWZ5IHRoZSBhbnN3ZXIgaXMgZ3JvdW5kZWQKICAgIGluIHRoZSByZXRyaWV2ZWQgZG9jdW1lbnRzLgogICAgCiAgICBUaGlzIGlzIHRoZSBxdWFsaXR5IGdhdGUg4oCUIGxpa2UgYSBkYXRhIHN0ZXdhcmQKICAgIHJldmlld2luZyBhbiBhdXRvLWVucmljaGVkIHJlY29yZCBiZWZvcmUgaXQgZ2V0cwogICAgcHJvbW90ZWQgdG8gdGhlIGdvbGRlbiByZWNvcmQuCiAgICAiIiIKICAgIHNvdXJjZXNfdGV4dCA9ICJcXG4tLS1cXG4iLmpvaW4oCiAgICAgICAgW2RbImNvbnRlbnQiXVs6NTAwXSBmb3IgZCBpbiBzdGF0ZVsicmVsZXZhbnRfZG9jcyJdXQogICAgKQogICAgCiAgICByZXNwb25zZSA9IGxsbS5pbnZva2UoWwogICAgICAgIEh1bWFuTWVzc2FnZShjb250ZW50PUhBTExVQ0lOQVRJT05fUFJPTVBULmZvcm1hdCgKICAgICAgICAgICAgc291cmNlcz1zb3VyY2VzX3RleHQsCiAgICAgICAgICAgIGFuc3dlcj1zdGF0ZVsiZ2VuZXJhdGlvbiJdCiAgICAgICAgKSkKICAgIF0pCiAgICAKICAgIHRyeToKICAgICAgICBzY29yZSA9IGZsb2F0KHJlc3BvbnNlLmNvbnRlbnQuc3RyaXAoKSkKICAgIGV4Y2VwdCBWYWx1ZUVycm9yOgogICAgICAgIHNjb3JlID0gMC41ICAjIERlZmF1bHQgaWYgcGFyc2luZyBmYWlscwogICAgCiAgICBwcmludChmIiAg8J+boe+4jyBIYWxsdWNpbmF0aW9uIGNoZWNrOiB7J3sneyd9J31zY29yZTouMWZ7J30nfS8xLjAiKQogICAgCiAgICByZXR1cm4geyd7J3snfSd9ImhhbGx1Y2luYXRpb25fc2NvcmUiOiBzY29yZXsnfSd9CgoKZGVmIHJvdXRlX2FmdGVyX2hhbGx1Y2luYXRpb24oc3RhdGU6IFJBR1N0YXRlKToKICAgICIiIgogICAgSWYgZ3JvdW5kaW5nIHNjb3JlIGlzIGhpZ2gg4oaSIHJldHVybiB0aGUgYW5zd2VyLgogICAgSWYgbG93IOKGkiByZWdlbmVyYXRlIHdpdGggc3RyaWN0ZXIgaW5zdHJ1Y3Rpb25zLAogICAgb3IgcmV3cml0ZSBhbmQgcmV0cmlldmUgZGlmZmVyZW50IHNvdXJjZXMuCiAgICAiIiIKICAgIGlmIHN0YXRlWyJoYWxsdWNpbmF0aW9uX3Njb3JlIl0gPj0gMC43OgogICAgICAgIHJldHVybiAiY29tcGxldGUiICAgICAgIyBBbnN3ZXIgaXMgZ3JvdW5kZWQg4oCUIHNoaXAgaXQKICAgIAogICAgaWYgc3RhdGVbInJldHJ5X2NvdW50Il0gPj0gMzoKICAgICAgICByZXR1cm4gImNvbXBsZXRlIiAgICAgICMgQmVzdCBlZmZvcnQgYWZ0ZXIgbWF4IHJldHJpZXMKICAgIAogICAgcmV0dXJuICJyZWdlbmVyYXRlIiAgICAgICAgIyBUcnkgYWdhaW4gd2l0aCBzdHJpY3RlciBwcm9tcHQ=" />
 
 <AnalogyBox emoji="✅" title="Audit Trail in Financial Reporting">
 Hallucination checking is like an auditor verifying that every number in a financial report traces back to a source transaction. If a figure appears in the report but can't be traced to the general ledger, it's flagged. Similarly, if a claim appears in the RAG answer but can't be traced to a retrieved document, it's a hallucination. In Bhavya's world at PCAOB — this is exactly what inspection work validates.
@@ -80,44 +17,7 @@ Hallucination checking is like an auditor verifying that every number in a finan
 
 ### The Complete Agentic RAG Graph
 
-<CodeBlock>
-{`from langgraph.graph import StateGraph, END, START
-
-graph = StateGraph(RAGState)
-
-# Nodes
-graph.add_node("route", route_query)           # Decide: vector search or web
-graph.add_node("retrieve", retrieve_documents)  # Get docs from ChromaDB
-graph.add_node("grade", grade_documents)         # LLM grades each doc
-graph.add_node("rewrite", rewrite_query)         # Rewrite poor queries
-graph.add_node("generate", generate_answer)      # LLM generates answer
-graph.add_node("hallucination_check", check_hallucination)
-
-# Flow
-graph.add_edge(START, "route")
-graph.add_edge("route", "retrieve")
-graph.add_edge("retrieve", "grade")
-
-# After grading: generate, rewrite, or give up
-graph.add_conditional_edges(
-    "grade", route_after_grading,
-    {'{'{'}'}"generate": "generate", "rewrite": "rewrite", "end": END{'}'}
-)
-
-# Rewrite loops back to retrieve
-graph.add_edge("rewrite", "retrieve")
-
-# After generation: check for hallucinations
-graph.add_edge("generate", "hallucination_check")
-
-# After hallucination check: complete or regenerate
-graph.add_conditional_edges(
-    "hallucination_check", route_after_hallucination,
-    {'{'{'}'}"complete": END, "regenerate": "generate"{'}'}
-)
-
-app = graph.compile()`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBsYW5nZ3JhcGguZ3JhcGggaW1wb3J0IFN0YXRlR3JhcGgsIEVORCwgU1RBUlQKCmdyYXBoID0gU3RhdGVHcmFwaChSQUdTdGF0ZSkKCiMgTm9kZXMKZ3JhcGguYWRkX25vZGUoInJvdXRlIiwgcm91dGVfcXVlcnkpICAgICAgICAgICAjIERlY2lkZTogdmVjdG9yIHNlYXJjaCBvciB3ZWIKZ3JhcGguYWRkX25vZGUoInJldHJpZXZlIiwgcmV0cmlldmVfZG9jdW1lbnRzKSAgIyBHZXQgZG9jcyBmcm9tIENocm9tYURCCmdyYXBoLmFkZF9ub2RlKCJncmFkZSIsIGdyYWRlX2RvY3VtZW50cykgICAgICAgICAjIExMTSBncmFkZXMgZWFjaCBkb2MKZ3JhcGguYWRkX25vZGUoInJld3JpdGUiLCByZXdyaXRlX3F1ZXJ5KSAgICAgICAgICMgUmV3cml0ZSBwb29yIHF1ZXJpZXMKZ3JhcGguYWRkX25vZGUoImdlbmVyYXRlIiwgZ2VuZXJhdGVfYW5zd2VyKSAgICAgICMgTExNIGdlbmVyYXRlcyBhbnN3ZXIKZ3JhcGguYWRkX25vZGUoImhhbGx1Y2luYXRpb25fY2hlY2siLCBjaGVja19oYWxsdWNpbmF0aW9uKQoKIyBGbG93CmdyYXBoLmFkZF9lZGdlKFNUQVJULCAicm91dGUiKQpncmFwaC5hZGRfZWRnZSgicm91dGUiLCAicmV0cmlldmUiKQpncmFwaC5hZGRfZWRnZSgicmV0cmlldmUiLCAiZ3JhZGUiKQoKIyBBZnRlciBncmFkaW5nOiBnZW5lcmF0ZSwgcmV3cml0ZSwgb3IgZ2l2ZSB1cApncmFwaC5hZGRfY29uZGl0aW9uYWxfZWRnZXMoCiAgICAiZ3JhZGUiLCByb3V0ZV9hZnRlcl9ncmFkaW5nLAogICAgeyd7J3snfSd9ImdlbmVyYXRlIjogImdlbmVyYXRlIiwgInJld3JpdGUiOiAicmV3cml0ZSIsICJlbmQiOiBFTkR7J30nfQopCgojIFJld3JpdGUgbG9vcHMgYmFjayB0byByZXRyaWV2ZQpncmFwaC5hZGRfZWRnZSgicmV3cml0ZSIsICJyZXRyaWV2ZSIpCgojIEFmdGVyIGdlbmVyYXRpb246IGNoZWNrIGZvciBoYWxsdWNpbmF0aW9ucwpncmFwaC5hZGRfZWRnZSgiZ2VuZXJhdGUiLCAiaGFsbHVjaW5hdGlvbl9jaGVjayIpCgojIEFmdGVyIGhhbGx1Y2luYXRpb24gY2hlY2s6IGNvbXBsZXRlIG9yIHJlZ2VuZXJhdGUKZ3JhcGguYWRkX2NvbmRpdGlvbmFsX2VkZ2VzKAogICAgImhhbGx1Y2luYXRpb25fY2hlY2siLCByb3V0ZV9hZnRlcl9oYWxsdWNpbmF0aW9uLAogICAgeyd7J3snfSd9ImNvbXBsZXRlIjogRU5ELCAicmVnZW5lcmF0ZSI6ICJnZW5lcmF0ZSJ7J30nfQopCgphcHAgPSBncmFwaC5jb21waWxlKCk=" />
 
 Notice this graph has **two loops**: the retrieval loop (grade → rewrite → retrieve) and the hallucination loop (generate → check → regenerate). This double self-correction is what makes Agentic RAG production-grade.
 

@@ -7,26 +7,7 @@ icon: "🔧"
 
 Tools are the most commonly used MCP primitive. A tool is a **function the AI can call** -- this is called <JargonTip term="function calling">function calling</JargonTip> -- like searching a database, sending an email, or creating a file. Tools have a name, description, and an input <JargonTip term="tool schema">schema</JargonTip> that defines what parameters they accept.
 
-<CodeBlock>
-{`{'{'{'}'}
-  "name": "search_documents",
-  "description": "Search internal documents by query",
-  "inputSchema": {'{'{'}'}
-    "type": "object",
-    "properties": {'{'{'}'}
-      "query": {'{'{'}'}
-        "type": "string",
-        "description": "Search query text"
-      {'}'},
-      "limit": {'{'{'}'}
-        "type": "number",
-        "description": "Max results to return"
-      {'}'}
-    {'}'},
-    "required": ["query"]
-  {'}'}
-{'}'}`}
-</CodeBlock>
+<CodeBlock b64="eyd7J3snfSd9CiAgIm5hbWUiOiAic2VhcmNoX2RvY3VtZW50cyIsCiAgImRlc2NyaXB0aW9uIjogIlNlYXJjaCBpbnRlcm5hbCBkb2N1bWVudHMgYnkgcXVlcnkiLAogICJpbnB1dFNjaGVtYSI6IHsneyd7J30nfQogICAgInR5cGUiOiAib2JqZWN0IiwKICAgICJwcm9wZXJ0aWVzIjogeyd7J3snfSd9CiAgICAgICJxdWVyeSI6IHsneyd7J30nfQogICAgICAgICJ0eXBlIjogInN0cmluZyIsCiAgICAgICAgImRlc2NyaXB0aW9uIjogIlNlYXJjaCBxdWVyeSB0ZXh0IgogICAgICB7J30nfSwKICAgICAgImxpbWl0Ijogeyd7J3snfSd9CiAgICAgICAgInR5cGUiOiAibnVtYmVyIiwKICAgICAgICAiZGVzY3JpcHRpb24iOiAiTWF4IHJlc3VsdHMgdG8gcmV0dXJuIgogICAgICB7J30nfQogICAgeyd9J30sCiAgICAicmVxdWlyZWQiOiBbInF1ZXJ5Il0KICB7J30nfQp7J30nfQ==" />
 
 <ToolDefinitionBuilder/>
 

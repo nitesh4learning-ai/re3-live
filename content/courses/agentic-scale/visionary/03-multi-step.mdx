@@ -11,44 +11,7 @@ Real-world tasks rarely complete in a single step. An agent researching a topic 
 
 
 ### Task Decomposition
-  <CodeBlock>
-{`class TaskDecomposer:
-    """Break complex tasks into subtasks and route to specialists."""
-
-    def decompose(self, task: str) -> list[dict]:
-        response = llm.generate(
-            system="""Decompose this task into 2-6 subtasks.
-            For each subtask specify:
-            - description: what needs to be done
-            - tool: which tool to use (search, code, database, api)
-            - depends_on: list of subtask indices this depends on
-            Return JSON array.""",
-            user=task
-        )
-        return parse_json(response)
-
-    async def execute_plan(self, subtasks):
-        results = {'{'{'}'}{'}'}
-        # Topological sort: run independent tasks in parallel
-        for batch in self.topological_batches(subtasks):
-            batch_results = await asyncio.gather(*[
-                self.run_subtask(st, results) for st in batch
-            ])
-            for st, result in zip(batch, batch_results):
-                results[st["index"]] = result
-        return results
-
-    def topological_batches(self, subtasks):
-        """Group subtasks into parallel batches by dependencies."""
-        remaining = list(range(len(subtasks)))
-        completed = set()
-        while remaining:
-            batch = [i for i in remaining
-                     if all(d in completed for d in subtasks[i].get("depends_on", []))]
-            yield [subtasks[i] for i in batch]
-            completed.update(batch)
-            remaining = [i for i in remaining if i not in completed]`}
-</CodeBlock>
+  <CodeBlock b64="Y2xhc3MgVGFza0RlY29tcG9zZXI6CiAgICAiIiJCcmVhayBjb21wbGV4IHRhc2tzIGludG8gc3VidGFza3MgYW5kIHJvdXRlIHRvIHNwZWNpYWxpc3RzLiIiIgoKICAgIGRlZiBkZWNvbXBvc2Uoc2VsZiwgdGFzazogc3RyKSAtPiBsaXN0W2RpY3RdOgogICAgICAgIHJlc3BvbnNlID0gbGxtLmdlbmVyYXRlKAogICAgICAgICAgICBzeXN0ZW09IiIiRGVjb21wb3NlIHRoaXMgdGFzayBpbnRvIDItNiBzdWJ0YXNrcy4KICAgICAgICAgICAgRm9yIGVhY2ggc3VidGFzayBzcGVjaWZ5OgogICAgICAgICAgICAtIGRlc2NyaXB0aW9uOiB3aGF0IG5lZWRzIHRvIGJlIGRvbmUKICAgICAgICAgICAgLSB0b29sOiB3aGljaCB0b29sIHRvIHVzZSAoc2VhcmNoLCBjb2RlLCBkYXRhYmFzZSwgYXBpKQogICAgICAgICAgICAtIGRlcGVuZHNfb246IGxpc3Qgb2Ygc3VidGFzayBpbmRpY2VzIHRoaXMgZGVwZW5kcyBvbgogICAgICAgICAgICBSZXR1cm4gSlNPTiBhcnJheS4iIiIsCiAgICAgICAgICAgIHVzZXI9dGFzawogICAgICAgICkKICAgICAgICByZXR1cm4gcGFyc2VfanNvbihyZXNwb25zZSkKCiAgICBhc3luYyBkZWYgZXhlY3V0ZV9wbGFuKHNlbGYsIHN1YnRhc2tzKToKICAgICAgICByZXN1bHRzID0geyd7J3snfSd9eyd9J30KICAgICAgICAjIFRvcG9sb2dpY2FsIHNvcnQ6IHJ1biBpbmRlcGVuZGVudCB0YXNrcyBpbiBwYXJhbGxlbAogICAgICAgIGZvciBiYXRjaCBpbiBzZWxmLnRvcG9sb2dpY2FsX2JhdGNoZXMoc3VidGFza3MpOgogICAgICAgICAgICBiYXRjaF9yZXN1bHRzID0gYXdhaXQgYXN5bmNpby5nYXRoZXIoKlsKICAgICAgICAgICAgICAgIHNlbGYucnVuX3N1YnRhc2soc3QsIHJlc3VsdHMpIGZvciBzdCBpbiBiYXRjaAogICAgICAgICAgICBdKQogICAgICAgICAgICBmb3Igc3QsIHJlc3VsdCBpbiB6aXAoYmF0Y2gsIGJhdGNoX3Jlc3VsdHMpOgogICAgICAgICAgICAgICAgcmVzdWx0c1tzdFsiaW5kZXgiXV0gPSByZXN1bHQKICAgICAgICByZXR1cm4gcmVzdWx0cwoKICAgIGRlZiB0b3BvbG9naWNhbF9iYXRjaGVzKHNlbGYsIHN1YnRhc2tzKToKICAgICAgICAiIiJHcm91cCBzdWJ0YXNrcyBpbnRvIHBhcmFsbGVsIGJhdGNoZXMgYnkgZGVwZW5kZW5jaWVzLiIiIgogICAgICAgIHJlbWFpbmluZyA9IGxpc3QocmFuZ2UobGVuKHN1YnRhc2tzKSkpCiAgICAgICAgY29tcGxldGVkID0gc2V0KCkKICAgICAgICB3aGlsZSByZW1haW5pbmc6CiAgICAgICAgICAgIGJhdGNoID0gW2kgZm9yIGkgaW4gcmVtYWluaW5nCiAgICAgICAgICAgICAgICAgICAgIGlmIGFsbChkIGluIGNvbXBsZXRlZCBmb3IgZCBpbiBzdWJ0YXNrc1tpXS5nZXQoImRlcGVuZHNfb24iLCBbXSkpXQogICAgICAgICAgICB5aWVsZCBbc3VidGFza3NbaV0gZm9yIGkgaW4gYmF0Y2hdCiAgICAgICAgICAgIGNvbXBsZXRlZC51cGRhdGUoYmF0Y2gpCiAgICAgICAgICAgIHJlbWFpbmluZyA9IFtpIGZvciBpIGluIHJlbWFpbmluZyBpZiBpIG5vdCBpbiBjb21wbGV0ZWRd" />
 
 
 ### Memory Within a Run
@@ -62,43 +25,7 @@ As an agent executes many steps, its conversation history grows. Without memory 
     ['Scratchpad','Agent writes key facts to a structured notepad','Low','Selective recall','Complex multi-phase tasks'],
   ]}/>
 
-  <CodeBlock>
-{`class AgentScratchpad:
-    """Structured memory that persists key facts across steps."""
-
-    def __init__(self):
-        self.facts = {'{'{'}'}{'}'}      # key-value store of discovered facts
-        self.plan = []       # current plan steps
-        self.completed = []  # what has been done
-
-    def remember(self, key: str, value: str):
-        """Store a key fact discovered during execution."""
-        self.facts[key] = value
-
-    def to_context(self) -> str:
-        """Serialize scratchpad into a context string for the LLM."""
-        lines = ["## Agent Memory"]
-        if self.facts:
-            lines.append("### Known Facts")
-            for k, v in self.facts.items():
-                lines.append(f"- {'{'{'}'}k{'}'}: {'{'{'}'}v{'}'}")
-        if self.plan:
-            lines.append("### Remaining Plan")
-            for step in self.plan:
-                lines.append(f"- [ ] {'{'{'}'}step{'}'}")
-        if self.completed:
-            lines.append("### Completed Steps")
-            for step in self.completed:
-                lines.append(f"- [x] {'{'{'}'}step{'}'}")
-        return "\\n".join(lines)
-
-# Usage in agent loop:
-scratchpad = AgentScratchpad()
-scratchpad.remember("user_timezone", "PST")
-scratchpad.remember("api_key_status", "valid")
-# Include in every LLM call:
-messages.append({'{'{'}'}"role": "system", "content": scratchpad.to_context(){'}'})`}
-</CodeBlock>
+  <CodeBlock b64="Y2xhc3MgQWdlbnRTY3JhdGNocGFkOgogICAgIiIiU3RydWN0dXJlZCBtZW1vcnkgdGhhdCBwZXJzaXN0cyBrZXkgZmFjdHMgYWNyb3NzIHN0ZXBzLiIiIgoKICAgIGRlZiBfX2luaXRfXyhzZWxmKToKICAgICAgICBzZWxmLmZhY3RzID0geyd7J3snfSd9eyd9J30gICAgICAjIGtleS12YWx1ZSBzdG9yZSBvZiBkaXNjb3ZlcmVkIGZhY3RzCiAgICAgICAgc2VsZi5wbGFuID0gW10gICAgICAgIyBjdXJyZW50IHBsYW4gc3RlcHMKICAgICAgICBzZWxmLmNvbXBsZXRlZCA9IFtdICAjIHdoYXQgaGFzIGJlZW4gZG9uZQoKICAgIGRlZiByZW1lbWJlcihzZWxmLCBrZXk6IHN0ciwgdmFsdWU6IHN0cik6CiAgICAgICAgIiIiU3RvcmUgYSBrZXkgZmFjdCBkaXNjb3ZlcmVkIGR1cmluZyBleGVjdXRpb24uIiIiCiAgICAgICAgc2VsZi5mYWN0c1trZXldID0gdmFsdWUKCiAgICBkZWYgdG9fY29udGV4dChzZWxmKSAtPiBzdHI6CiAgICAgICAgIiIiU2VyaWFsaXplIHNjcmF0Y2hwYWQgaW50byBhIGNvbnRleHQgc3RyaW5nIGZvciB0aGUgTExNLiIiIgogICAgICAgIGxpbmVzID0gWyIjIyBBZ2VudCBNZW1vcnkiXQogICAgICAgIGlmIHNlbGYuZmFjdHM6CiAgICAgICAgICAgIGxpbmVzLmFwcGVuZCgiIyMjIEtub3duIEZhY3RzIikKICAgICAgICAgICAgZm9yIGssIHYgaW4gc2VsZi5mYWN0cy5pdGVtcygpOgogICAgICAgICAgICAgICAgbGluZXMuYXBwZW5kKGYiLSB7J3sneyd9J31reyd9J306IHsneyd7J30nfXZ7J30nfSIpCiAgICAgICAgaWYgc2VsZi5wbGFuOgogICAgICAgICAgICBsaW5lcy5hcHBlbmQoIiMjIyBSZW1haW5pbmcgUGxhbiIpCiAgICAgICAgICAgIGZvciBzdGVwIGluIHNlbGYucGxhbjoKICAgICAgICAgICAgICAgIGxpbmVzLmFwcGVuZChmIi0gWyBdIHsneyd7J30nfXN0ZXB7J30nfSIpCiAgICAgICAgaWYgc2VsZi5jb21wbGV0ZWQ6CiAgICAgICAgICAgIGxpbmVzLmFwcGVuZCgiIyMjIENvbXBsZXRlZCBTdGVwcyIpCiAgICAgICAgICAgIGZvciBzdGVwIGluIHNlbGYuY29tcGxldGVkOgogICAgICAgICAgICAgICAgbGluZXMuYXBwZW5kKGYiLSBbeF0geyd7J3snfSd9c3RlcHsnfSd9IikKICAgICAgICByZXR1cm4gIlxcbiIuam9pbihsaW5lcykKCiMgVXNhZ2UgaW4gYWdlbnQgbG9vcDoKc2NyYXRjaHBhZCA9IEFnZW50U2NyYXRjaHBhZCgpCnNjcmF0Y2hwYWQucmVtZW1iZXIoInVzZXJfdGltZXpvbmUiLCAiUFNUIikKc2NyYXRjaHBhZC5yZW1lbWJlcigiYXBpX2tleV9zdGF0dXMiLCAidmFsaWQiKQojIEluY2x1ZGUgaW4gZXZlcnkgTExNIGNhbGw6Cm1lc3NhZ2VzLmFwcGVuZCh7J3sneyd9J30icm9sZSI6ICJzeXN0ZW0iLCAiY29udGVudCI6IHNjcmF0Y2hwYWQudG9fY29udGV4dCgpeyd9J30p" />
 
   <Quiz question="Why is a scratchpad memory pattern often better than full history for long-running agents?" options={["Scratchpads are faster to read","The agent selectively stores only important facts, keeping context focused and within token limits","Scratchpads don't use tokens","Full history is always better"]} correctIndex={1} explanation="A scratchpad lets the agent explicitly decide what's worth remembering. After 50 steps, full history might be 100K tokens of mostly irrelevant tool outputs. A scratchpad might be 500 tokens of curated key facts. This keeps the agent focused and within context limits."/>
 

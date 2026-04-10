@@ -19,105 +19,7 @@ The endgame isn't AI understanding legacy code — it's AI **operating** on SAP 
 
 ### Building Approval Gates
 
-<CodeBlock language="python" label="LangGraph Human-in-the-Loop for SAP Changes">
-{`from langgraph.graph import StateGraph, END, START
-from langgraph.types import interrupt
-
-class SAPModernizationState(TypedDict):
-    object_name: str           # ABAP object being modernized
-    current_code: str          # Original ABAP source
-    ai_explanation: str        # AI's understanding of the code
-    human_validated: bool      # Human confirmed explanation
-    proposed_changes: str      # AI's proposed modernization
-    human_approved: bool       # Human approved the changes
-    test_results: dict         # Unit test outcomes
-    transport_number: str      # SAP transport for deployment
-
-def explain_code(state):
-    """AI analyzes and explains the legacy code"""
-    explanation = joule_explain(state["current_code"])
-    return {"ai_explanation": explanation}
-
-def validate_explanation(state):
-    """
-    HUMAN-IN-THE-LOOP: Pause execution.
-    Present AI explanation to human for validation.
-    Human confirms or corrects.
-    """
-    # LangGraph interrupt() pauses the graph
-    # and returns control to the human
-    human_response = interrupt(
-        "Please validate this code explanation. "
-        "Is this accurate? What's missing?"
-    )
-    return {
-        "human_validated": human_response["approved"],
-        "ai_explanation": human_response.get(
-            "corrected_explanation", 
-            state["ai_explanation"]
-        )
-    }
-
-def propose_modernization(state):
-    """AI proposes code changes based on validated understanding"""
-    if not state["human_validated"]:
-        return {"proposed_changes": "BLOCKED: Explanation not validated"}
-    
-    changes = generate_modern_abap(
-        state["current_code"], 
-        state["ai_explanation"]
-    )
-    return {"proposed_changes": changes}
-
-def approve_changes(state):
-    """
-    SECOND HUMAN GATE: Before any code is deployed,
-    human reviews the proposed changes.
-    """
-    human_response = interrupt(
-        "Review proposed code changes. "
-        "Approve for testing or reject with feedback."
-    )
-    return {"human_approved": human_response["approved"]}
-
-def run_tests(state):
-    """Execute ABAP unit tests against proposed changes"""
-    results = execute_abap_unit_tests(
-        state["object_name"],
-        state["proposed_changes"]
-    )
-    return {"test_results": results}
-
-def deploy_to_transport(state):
-    """Create SAP transport with modernized code"""
-    if not state["human_approved"]:
-        return {"transport_number": "BLOCKED"}
-    if not state["test_results"]["all_passed"]:
-        return {"transport_number": "BLOCKED: Tests failed"}
-    
-    transport = create_transport(
-        state["object_name"],
-        state["proposed_changes"]
-    )
-    return {"transport_number": transport}
-
-# Graph with two human gates
-graph = StateGraph(SAPModernizationState)
-graph.add_node("explain", explain_code)
-graph.add_node("validate", validate_explanation)
-graph.add_node("propose", propose_modernization)
-graph.add_node("approve", approve_changes)
-graph.add_node("test", run_tests)
-graph.add_node("deploy", deploy_to_transport)
-
-graph.add_edge(START, "explain")
-graph.add_edge("explain", "validate")      # Human gate 1
-graph.add_edge("validate", "propose")
-graph.add_edge("propose", "approve")       # Human gate 2
-graph.add_edge("approve", "test")
-graph.add_edge("test", "deploy")
-graph.add_edge("deploy", END)`}
-</CodeBlock>
+<CodeBlock language="python" label="LangGraph Human-in-the-Loop for SAP Changes" b64="ZnJvbSBsYW5nZ3JhcGguZ3JhcGggaW1wb3J0IFN0YXRlR3JhcGgsIEVORCwgU1RBUlQKZnJvbSBsYW5nZ3JhcGgudHlwZXMgaW1wb3J0IGludGVycnVwdAoKY2xhc3MgU0FQTW9kZXJuaXphdGlvblN0YXRlKFR5cGVkRGljdCk6CiAgICBvYmplY3RfbmFtZTogc3RyICAgICAgICAgICAjIEFCQVAgb2JqZWN0IGJlaW5nIG1vZGVybml6ZWQKICAgIGN1cnJlbnRfY29kZTogc3RyICAgICAgICAgICMgT3JpZ2luYWwgQUJBUCBzb3VyY2UKICAgIGFpX2V4cGxhbmF0aW9uOiBzdHIgICAgICAgICMgQUkncyB1bmRlcnN0YW5kaW5nIG9mIHRoZSBjb2RlCiAgICBodW1hbl92YWxpZGF0ZWQ6IGJvb2wgICAgICAjIEh1bWFuIGNvbmZpcm1lZCBleHBsYW5hdGlvbgogICAgcHJvcG9zZWRfY2hhbmdlczogc3RyICAgICAgIyBBSSdzIHByb3Bvc2VkIG1vZGVybml6YXRpb24KICAgIGh1bWFuX2FwcHJvdmVkOiBib29sICAgICAgICMgSHVtYW4gYXBwcm92ZWQgdGhlIGNoYW5nZXMKICAgIHRlc3RfcmVzdWx0czogZGljdCAgICAgICAgICMgVW5pdCB0ZXN0IG91dGNvbWVzCiAgICB0cmFuc3BvcnRfbnVtYmVyOiBzdHIgICAgICAjIFNBUCB0cmFuc3BvcnQgZm9yIGRlcGxveW1lbnQKCmRlZiBleHBsYWluX2NvZGUoc3RhdGUpOgogICAgIiIiQUkgYW5hbHl6ZXMgYW5kIGV4cGxhaW5zIHRoZSBsZWdhY3kgY29kZSIiIgogICAgZXhwbGFuYXRpb24gPSBqb3VsZV9leHBsYWluKHN0YXRlWyJjdXJyZW50X2NvZGUiXSkKICAgIHJldHVybiB7ImFpX2V4cGxhbmF0aW9uIjogZXhwbGFuYXRpb259CgpkZWYgdmFsaWRhdGVfZXhwbGFuYXRpb24oc3RhdGUpOgogICAgIiIiCiAgICBIVU1BTi1JTi1USEUtTE9PUDogUGF1c2UgZXhlY3V0aW9uLgogICAgUHJlc2VudCBBSSBleHBsYW5hdGlvbiB0byBodW1hbiBmb3IgdmFsaWRhdGlvbi4KICAgIEh1bWFuIGNvbmZpcm1zIG9yIGNvcnJlY3RzLgogICAgIiIiCiAgICAjIExhbmdHcmFwaCBpbnRlcnJ1cHQoKSBwYXVzZXMgdGhlIGdyYXBoCiAgICAjIGFuZCByZXR1cm5zIGNvbnRyb2wgdG8gdGhlIGh1bWFuCiAgICBodW1hbl9yZXNwb25zZSA9IGludGVycnVwdCgKICAgICAgICAiUGxlYXNlIHZhbGlkYXRlIHRoaXMgY29kZSBleHBsYW5hdGlvbi4gIgogICAgICAgICJJcyB0aGlzIGFjY3VyYXRlPyBXaGF0J3MgbWlzc2luZz8iCiAgICApCiAgICByZXR1cm4gewogICAgICAgICJodW1hbl92YWxpZGF0ZWQiOiBodW1hbl9yZXNwb25zZVsiYXBwcm92ZWQiXSwKICAgICAgICAiYWlfZXhwbGFuYXRpb24iOiBodW1hbl9yZXNwb25zZS5nZXQoCiAgICAgICAgICAgICJjb3JyZWN0ZWRfZXhwbGFuYXRpb24iLCAKICAgICAgICAgICAgc3RhdGVbImFpX2V4cGxhbmF0aW9uIl0KICAgICAgICApCiAgICB9CgpkZWYgcHJvcG9zZV9tb2Rlcm5pemF0aW9uKHN0YXRlKToKICAgICIiIkFJIHByb3Bvc2VzIGNvZGUgY2hhbmdlcyBiYXNlZCBvbiB2YWxpZGF0ZWQgdW5kZXJzdGFuZGluZyIiIgogICAgaWYgbm90IHN0YXRlWyJodW1hbl92YWxpZGF0ZWQiXToKICAgICAgICByZXR1cm4geyJwcm9wb3NlZF9jaGFuZ2VzIjogIkJMT0NLRUQ6IEV4cGxhbmF0aW9uIG5vdCB2YWxpZGF0ZWQifQogICAgCiAgICBjaGFuZ2VzID0gZ2VuZXJhdGVfbW9kZXJuX2FiYXAoCiAgICAgICAgc3RhdGVbImN1cnJlbnRfY29kZSJdLCAKICAgICAgICBzdGF0ZVsiYWlfZXhwbGFuYXRpb24iXQogICAgKQogICAgcmV0dXJuIHsicHJvcG9zZWRfY2hhbmdlcyI6IGNoYW5nZXN9CgpkZWYgYXBwcm92ZV9jaGFuZ2VzKHN0YXRlKToKICAgICIiIgogICAgU0VDT05EIEhVTUFOIEdBVEU6IEJlZm9yZSBhbnkgY29kZSBpcyBkZXBsb3llZCwKICAgIGh1bWFuIHJldmlld3MgdGhlIHByb3Bvc2VkIGNoYW5nZXMuCiAgICAiIiIKICAgIGh1bWFuX3Jlc3BvbnNlID0gaW50ZXJydXB0KAogICAgICAgICJSZXZpZXcgcHJvcG9zZWQgY29kZSBjaGFuZ2VzLiAiCiAgICAgICAgIkFwcHJvdmUgZm9yIHRlc3Rpbmcgb3IgcmVqZWN0IHdpdGggZmVlZGJhY2suIgogICAgKQogICAgcmV0dXJuIHsiaHVtYW5fYXBwcm92ZWQiOiBodW1hbl9yZXNwb25zZVsiYXBwcm92ZWQiXX0KCmRlZiBydW5fdGVzdHMoc3RhdGUpOgogICAgIiIiRXhlY3V0ZSBBQkFQIHVuaXQgdGVzdHMgYWdhaW5zdCBwcm9wb3NlZCBjaGFuZ2VzIiIiCiAgICByZXN1bHRzID0gZXhlY3V0ZV9hYmFwX3VuaXRfdGVzdHMoCiAgICAgICAgc3RhdGVbIm9iamVjdF9uYW1lIl0sCiAgICAgICAgc3RhdGVbInByb3Bvc2VkX2NoYW5nZXMiXQogICAgKQogICAgcmV0dXJuIHsidGVzdF9yZXN1bHRzIjogcmVzdWx0c30KCmRlZiBkZXBsb3lfdG9fdHJhbnNwb3J0KHN0YXRlKToKICAgICIiIkNyZWF0ZSBTQVAgdHJhbnNwb3J0IHdpdGggbW9kZXJuaXplZCBjb2RlIiIiCiAgICBpZiBub3Qgc3RhdGVbImh1bWFuX2FwcHJvdmVkIl06CiAgICAgICAgcmV0dXJuIHsidHJhbnNwb3J0X251bWJlciI6ICJCTE9DS0VEIn0KICAgIGlmIG5vdCBzdGF0ZVsidGVzdF9yZXN1bHRzIl1bImFsbF9wYXNzZWQiXToKICAgICAgICByZXR1cm4geyJ0cmFuc3BvcnRfbnVtYmVyIjogIkJMT0NLRUQ6IFRlc3RzIGZhaWxlZCJ9CiAgICAKICAgIHRyYW5zcG9ydCA9IGNyZWF0ZV90cmFuc3BvcnQoCiAgICAgICAgc3RhdGVbIm9iamVjdF9uYW1lIl0sCiAgICAgICAgc3RhdGVbInByb3Bvc2VkX2NoYW5nZXMiXQogICAgKQogICAgcmV0dXJuIHsidHJhbnNwb3J0X251bWJlciI6IHRyYW5zcG9ydH0KCiMgR3JhcGggd2l0aCB0d28gaHVtYW4gZ2F0ZXMKZ3JhcGggPSBTdGF0ZUdyYXBoKFNBUE1vZGVybml6YXRpb25TdGF0ZSkKZ3JhcGguYWRkX25vZGUoImV4cGxhaW4iLCBleHBsYWluX2NvZGUpCmdyYXBoLmFkZF9ub2RlKCJ2YWxpZGF0ZSIsIHZhbGlkYXRlX2V4cGxhbmF0aW9uKQpncmFwaC5hZGRfbm9kZSgicHJvcG9zZSIsIHByb3Bvc2VfbW9kZXJuaXphdGlvbikKZ3JhcGguYWRkX25vZGUoImFwcHJvdmUiLCBhcHByb3ZlX2NoYW5nZXMpCmdyYXBoLmFkZF9ub2RlKCJ0ZXN0IiwgcnVuX3Rlc3RzKQpncmFwaC5hZGRfbm9kZSgiZGVwbG95IiwgZGVwbG95X3RvX3RyYW5zcG9ydCkKCmdyYXBoLmFkZF9lZGdlKFNUQVJULCAiZXhwbGFpbiIpCmdyYXBoLmFkZF9lZGdlKCJleHBsYWluIiwgInZhbGlkYXRlIikgICAgICAjIEh1bWFuIGdhdGUgMQpncmFwaC5hZGRfZWRnZSgidmFsaWRhdGUiLCAicHJvcG9zZSIpCmdyYXBoLmFkZF9lZGdlKCJwcm9wb3NlIiwgImFwcHJvdmUiKSAgICAgICAjIEh1bWFuIGdhdGUgMgpncmFwaC5hZGRfZWRnZSgiYXBwcm92ZSIsICJ0ZXN0IikKZ3JhcGguYWRkX2VkZ2UoInRlc3QiLCAiZGVwbG95IikKZ3JhcGguYWRkX2VkZ2UoImRlcGxveSIsIEVORCk=" />
 
 Notice the **two human gates**: one after AI explains the code (validate understanding) and one after AI proposes changes (approve modifications). This ensures AI never modifies production SAP code without human oversight.
 
@@ -129,27 +31,7 @@ In ITIL, a Change Advisory Board (CAB) reviews and approves changes before they 
 
 SAP's own agentic architecture is emerging: agents that interact through an ABAP backbone, with ABAP MCP server exposing capabilities to external agents. This enables a multi-agent approach:
 
-<CodeBlock language="text" label="Multi-Agent SAP Modernization">
-{`┌─────────────────────────────────────────┐
-│          MODERNIZATION SUPERVISOR        │
-│  (Orchestrates the modernization flow)   │
-└──────┬──────────┬──────────┬────────────┘
-       │          │          │
-┌──────▼───┐ ┌───▼────┐ ┌───▼──────┐
-│ ANALYZER │ │MIGRATOR│ │ TESTER   │
-│          │ │        │ │          │
-│ Via:     │ │ Via:   │ │ Via:     │
-│ •Joule   │ │ •Joule │ │ •ABAP    │
-│  Explain │ │  Gen   │ │  Unit    │
-│ •Claude  │ │ •ABAP  │ │ •Claude  │
-│  Code    │ │  MCP   │ │  Code    │
-└──────────┘ └────────┘ └──────────┘
-       │          │          │
-  ┌────▼──────────▼──────────▼────┐
-  │    HUMAN APPROVAL GATE         │
-  │  (Validates at each stage)     │
-  └────────────────────────────────┘`}
-</CodeBlock>
+<CodeBlock language="text" label="Multi-Agent SAP Modernization" b64="4pSM4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSQCuKUgiAgICAgICAgICBNT0RFUk5JWkFUSU9OIFNVUEVSVklTT1IgICAgICAgIOKUggrilIIgIChPcmNoZXN0cmF0ZXMgdGhlIG1vZGVybml6YXRpb24gZmxvdykgICDilIIK4pSU4pSA4pSA4pSA4pSA4pSA4pSA4pSs4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSs4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSs4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSYCiAgICAgICDilIIgICAgICAgICAg4pSCICAgICAgICAgIOKUggrilIzilIDilIDilIDilIDilIDilIDilrzilIDilIDilIDilJAg4pSM4pSA4pSA4pSA4pa84pSA4pSA4pSA4pSA4pSQIOKUjOKUgOKUgOKUgOKWvOKUgOKUgOKUgOKUgOKUgOKUgOKUkArilIIgQU5BTFlaRVIg4pSCIOKUgk1JR1JBVE9S4pSCIOKUgiBURVNURVIgICDilIIK4pSCICAgICAgICAgIOKUgiDilIIgICAgICAgIOKUgiDilIIgICAgICAgICAg4pSCCuKUgiBWaWE6ICAgICDilIIg4pSCIFZpYTogICDilIIg4pSCIFZpYTogICAgIOKUggrilIIg4oCiSm91bGUgICDilIIg4pSCIOKAokpvdWxlIOKUgiDilIIg4oCiQUJBUCAgICDilIIK4pSCICBFeHBsYWluIOKUgiDilIIgIEdlbiAgIOKUgiDilIIgIFVuaXQgICAg4pSCCuKUgiDigKJDbGF1ZGUgIOKUgiDilIIg4oCiQUJBUCAg4pSCIOKUgiDigKJDbGF1ZGUgIOKUggrilIIgIENvZGUgICAg4pSCIOKUgiAgTUNQICAg4pSCIOKUgiAgQ29kZSAgICDilIIK4pSU4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSYIOKUlOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUmCDilJTilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilJgKICAgICAgIOKUgiAgICAgICAgICDilIIgICAgICAgICAg4pSCCiAg4pSM4pSA4pSA4pSA4pSA4pa84pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pa84pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pa84pSA4pSA4pSA4pSA4pSQCiAg4pSCICAgIEhVTUFOIEFQUFJPVkFMIEdBVEUgICAgICAgICDilIIKICDilIIgIChWYWxpZGF0ZXMgYXQgZWFjaCBzdGFnZSkgICAgIOKUggogIOKUlOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUmA==" />
 
 <Quiz
   question="An AI agent proposes modernizing a custom SAP pricing module. Unit tests pass. Should you deploy directly to production?"

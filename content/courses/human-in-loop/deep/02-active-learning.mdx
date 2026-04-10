@@ -7,35 +7,4 @@ icon: "🧠"
 
 The most powerful HITL pattern: human corrections don't just fix one response -- they improve the AI for all future responses.
 
-<CodeBlock>
-{`class ActiveLearningSystem:
-    def __init__(self, model, feedback_store):
-        self.model = model
-        self.feedback_store = feedback_store
-
-    async def process_with_learning(self, query):
-        # Check for similar past corrections
-        similar_corrections = self.feedback_store.search(query, top_k=3)
-
-        # Include past corrections as few-shot examples
-        enhanced_prompt = query
-        if similar_corrections:
-            examples = "\\n".join(
-                f"Q: {'{'{'}'}c['query']{'}'}\\nWrong: {'{'{'}'}c['ai_response']{'}'}\\nCorrect: {'{'{'}'}c['human_correction']{'}'}"
-                for c in similar_corrections
-            )
-            enhanced_prompt = f"Learn from these past corrections:\\n{'{'{'}'}examples{'}'}\\n\\nNow answer: {'{'{'}'}query{'}'}"
-
-        response = await self.model.generate(enhanced_prompt)
-        return response
-
-    def record_correction(self, query, ai_response, human_correction):
-        """Store human correction for future learning."""
-        self.feedback_store.add({'{'{'}'}
-            "query": query,
-            "ai_response": ai_response,
-            "human_correction": human_correction,
-            "timestamp": now(),
-            "embedding": embed(query)  # For similarity search
-        {'}'})`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgQWN0aXZlTGVhcm5pbmdTeXN0ZW06CiAgICBkZWYgX19pbml0X18oc2VsZiwgbW9kZWwsIGZlZWRiYWNrX3N0b3JlKToKICAgICAgICBzZWxmLm1vZGVsID0gbW9kZWwKICAgICAgICBzZWxmLmZlZWRiYWNrX3N0b3JlID0gZmVlZGJhY2tfc3RvcmUKCiAgICBhc3luYyBkZWYgcHJvY2Vzc193aXRoX2xlYXJuaW5nKHNlbGYsIHF1ZXJ5KToKICAgICAgICAjIENoZWNrIGZvciBzaW1pbGFyIHBhc3QgY29ycmVjdGlvbnMKICAgICAgICBzaW1pbGFyX2NvcnJlY3Rpb25zID0gc2VsZi5mZWVkYmFja19zdG9yZS5zZWFyY2gocXVlcnksIHRvcF9rPTMpCgogICAgICAgICMgSW5jbHVkZSBwYXN0IGNvcnJlY3Rpb25zIGFzIGZldy1zaG90IGV4YW1wbGVzCiAgICAgICAgZW5oYW5jZWRfcHJvbXB0ID0gcXVlcnkKICAgICAgICBpZiBzaW1pbGFyX2NvcnJlY3Rpb25zOgogICAgICAgICAgICBleGFtcGxlcyA9ICJcXG4iLmpvaW4oCiAgICAgICAgICAgICAgICBmIlE6IHsneyd7J30nfWNbJ3F1ZXJ5J117J30nfVxcbldyb25nOiB7J3sneyd9J31jWydhaV9yZXNwb25zZSddeyd9J31cXG5Db3JyZWN0OiB7J3sneyd9J31jWydodW1hbl9jb3JyZWN0aW9uJ117J30nfSIKICAgICAgICAgICAgICAgIGZvciBjIGluIHNpbWlsYXJfY29ycmVjdGlvbnMKICAgICAgICAgICAgKQogICAgICAgICAgICBlbmhhbmNlZF9wcm9tcHQgPSBmIkxlYXJuIGZyb20gdGhlc2UgcGFzdCBjb3JyZWN0aW9uczpcXG57J3sneyd9J31leGFtcGxlc3snfSd9XFxuXFxuTm93IGFuc3dlcjogeyd7J3snfSd9cXVlcnl7J30nfSIKCiAgICAgICAgcmVzcG9uc2UgPSBhd2FpdCBzZWxmLm1vZGVsLmdlbmVyYXRlKGVuaGFuY2VkX3Byb21wdCkKICAgICAgICByZXR1cm4gcmVzcG9uc2UKCiAgICBkZWYgcmVjb3JkX2NvcnJlY3Rpb24oc2VsZiwgcXVlcnksIGFpX3Jlc3BvbnNlLCBodW1hbl9jb3JyZWN0aW9uKToKICAgICAgICAiIiJTdG9yZSBodW1hbiBjb3JyZWN0aW9uIGZvciBmdXR1cmUgbGVhcm5pbmcuIiIiCiAgICAgICAgc2VsZi5mZWVkYmFja19zdG9yZS5hZGQoeyd7J3snfSd9CiAgICAgICAgICAgICJxdWVyeSI6IHF1ZXJ5LAogICAgICAgICAgICAiYWlfcmVzcG9uc2UiOiBhaV9yZXNwb25zZSwKICAgICAgICAgICAgImh1bWFuX2NvcnJlY3Rpb24iOiBodW1hbl9jb3JyZWN0aW9uLAogICAgICAgICAgICAidGltZXN0YW1wIjogbm93KCksCiAgICAgICAgICAgICJlbWJlZGRpbmciOiBlbWJlZChxdWVyeSkgICMgRm9yIHNpbWlsYXJpdHkgc2VhcmNoCiAgICAgICAgeyd9J30p" />

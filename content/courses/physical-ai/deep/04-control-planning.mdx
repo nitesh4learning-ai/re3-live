@@ -13,45 +13,7 @@ icon: "\uD83C\uDFAF"
   ['LLM-guided Planning','Language model plans high-level steps','Novel tasks, reasoning','Slow, can\'t do low-level control'],
 ]}/>
 
-<CodeBlock>
-{`class HierarchicalRobotPlanner:
-    """LLM plans high-level, RL executes low-level"""
-
-    def __init__(self):
-        self.llm = LanguageModel("claude-sonnet")
-        self.skills = {'{'{'}'}
-            "pick": PickSkill(),      # RL-trained
-            "place": PlaceSkill(),    # RL-trained
-            "navigate": NavSkill(),   # Classical + RL
-            "inspect": InspectSkill() # Vision model
-        {'}'}
-
-    def plan_task(self, instruction):
-        """LLM decomposes instruction into skill sequence"""
-        plan = self.llm.generate(f"""
-            Instruction: {'{'{'}'}instruction{'}'}
-            Available skills: {'{'{'}'}list(self.skills.keys()){'}'}
-            Output a JSON list of steps.
-        """)
-        return plan  # e.g., [
-        #   {'{'{'}'}"skill": "navigate", "target": "red_box"{'}'},
-        #   {'{'{'}'}"skill": "pick", "object": "red_box"{'}'},
-        #   {'{'{'}'}"skill": "navigate", "target": "shelf_2"{'}'},
-        #   {'{'{'}'}"skill": "place", "location": "shelf_2"{'}'}
-        # ]
-
-    def execute_plan(self, plan):
-        for step in plan:
-            skill = self.skills[step["skill"]]
-            success = skill.execute(step)
-            if not success:
-                # Re-plan from current state
-                return self.plan_task(
-                    f"Continue: completed steps "
-                    f"{'{'{'}'}plan[:plan.index(step)]{'}'}, "
-                    f"failed at {'{'{'}'}step{'}'}"
-                )`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgSGllcmFyY2hpY2FsUm9ib3RQbGFubmVyOgogICAgIiIiTExNIHBsYW5zIGhpZ2gtbGV2ZWwsIFJMIGV4ZWN1dGVzIGxvdy1sZXZlbCIiIgoKICAgIGRlZiBfX2luaXRfXyhzZWxmKToKICAgICAgICBzZWxmLmxsbSA9IExhbmd1YWdlTW9kZWwoImNsYXVkZS1zb25uZXQiKQogICAgICAgIHNlbGYuc2tpbGxzID0geyd7J3snfSd9CiAgICAgICAgICAgICJwaWNrIjogUGlja1NraWxsKCksICAgICAgIyBSTC10cmFpbmVkCiAgICAgICAgICAgICJwbGFjZSI6IFBsYWNlU2tpbGwoKSwgICAgIyBSTC10cmFpbmVkCiAgICAgICAgICAgICJuYXZpZ2F0ZSI6IE5hdlNraWxsKCksICAgIyBDbGFzc2ljYWwgKyBSTAogICAgICAgICAgICAiaW5zcGVjdCI6IEluc3BlY3RTa2lsbCgpICMgVmlzaW9uIG1vZGVsCiAgICAgICAgeyd9J30KCiAgICBkZWYgcGxhbl90YXNrKHNlbGYsIGluc3RydWN0aW9uKToKICAgICAgICAiIiJMTE0gZGVjb21wb3NlcyBpbnN0cnVjdGlvbiBpbnRvIHNraWxsIHNlcXVlbmNlIiIiCiAgICAgICAgcGxhbiA9IHNlbGYubGxtLmdlbmVyYXRlKGYiIiIKICAgICAgICAgICAgSW5zdHJ1Y3Rpb246IHsneyd7J30nfWluc3RydWN0aW9ueyd9J30KICAgICAgICAgICAgQXZhaWxhYmxlIHNraWxsczogeyd7J3snfSd9bGlzdChzZWxmLnNraWxscy5rZXlzKCkpeyd9J30KICAgICAgICAgICAgT3V0cHV0IGEgSlNPTiBsaXN0IG9mIHN0ZXBzLgogICAgICAgICIiIikKICAgICAgICByZXR1cm4gcGxhbiAgIyBlLmcuLCBbCiAgICAgICAgIyAgIHsneyd7J30nfSJza2lsbCI6ICJuYXZpZ2F0ZSIsICJ0YXJnZXQiOiAicmVkX2JveCJ7J30nfSwKICAgICAgICAjICAgeyd7J3snfSd9InNraWxsIjogInBpY2siLCAib2JqZWN0IjogInJlZF9ib3gieyd9J30sCiAgICAgICAgIyAgIHsneyd7J30nfSJza2lsbCI6ICJuYXZpZ2F0ZSIsICJ0YXJnZXQiOiAic2hlbGZfMiJ7J30nfSwKICAgICAgICAjICAgeyd7J3snfSd9InNraWxsIjogInBsYWNlIiwgImxvY2F0aW9uIjogInNoZWxmXzIieyd9J30KICAgICAgICAjIF0KCiAgICBkZWYgZXhlY3V0ZV9wbGFuKHNlbGYsIHBsYW4pOgogICAgICAgIGZvciBzdGVwIGluIHBsYW46CiAgICAgICAgICAgIHNraWxsID0gc2VsZi5za2lsbHNbc3RlcFsic2tpbGwiXV0KICAgICAgICAgICAgc3VjY2VzcyA9IHNraWxsLmV4ZWN1dGUoc3RlcCkKICAgICAgICAgICAgaWYgbm90IHN1Y2Nlc3M6CiAgICAgICAgICAgICAgICAjIFJlLXBsYW4gZnJvbSBjdXJyZW50IHN0YXRlCiAgICAgICAgICAgICAgICByZXR1cm4gc2VsZi5wbGFuX3Rhc2soCiAgICAgICAgICAgICAgICAgICAgZiJDb250aW51ZTogY29tcGxldGVkIHN0ZXBzICIKICAgICAgICAgICAgICAgICAgICBmInsneyd7J30nfXBsYW5bOnBsYW4uaW5kZXgoc3RlcCldeyd9J30sICIKICAgICAgICAgICAgICAgICAgICBmImZhaWxlZCBhdCB7J3sneyd9J31zdGVweyd9J30iCiAgICAgICAgICAgICAgICAp" />
 
 <ArchitectureDecision scenario="You're building a warehouse robot that needs to pick diverse objects from bins. Some objects are well-known (boxes, bottles), others are novel (random consumer products). What control approach should you use?" options={[
   {label:"Pure reinforcement learning trained on all objects",tradeoff:"Most general but needs enormous training data and simulation; struggles with truly novel objects"},

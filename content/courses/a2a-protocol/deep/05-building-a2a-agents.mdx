@@ -7,76 +7,7 @@ icon: "💻"
 
 Building an A2A-compliant agent requires: (1) an Agent Card endpoint for discovery, (2) JSON-RPC handlers for task management, and (3) task state persistence.
 
-<CodeBlock>
-{`from starlette.applications import Starlette
-from starlette.routing import Route
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-import json, uuid
-
-# Agent Card served at /.well-known/agent.json
-AGENT_CARD = {'{'{'}'}
-    "name": "Analysis Agent",
-    "description": "Performs data analysis and generates reports",
-    "url": "https://analysis.example.com/a2a",
-    "capabilities": {'{'{'}'}"streaming": True, "pushNotifications": False{'}'},
-    "skills": [
-        {'{'{'}'}"id": "analyze", "name": "Data Analysis", "description": "Analyze datasets and produce insights"{'}'}
-    ]
-{'}'}
-
-# In-memory task store (use Redis/DB in production)
-tasks = {'{'{'}'}{'}'}
-
-async def agent_card(request: Request):
-    return JSONResponse(AGENT_CARD)
-
-async def handle_jsonrpc(request: Request):
-    body = await request.json()
-    method = body.get("method")
-    params = body.get("params", {'{'{'}'}{'}'})
-    req_id = body.get("id")
-
-    if method == "tasks/send":
-        task_id = params.get("id", str(uuid.uuid4()))
-        tasks[task_id] = {'{'{'}'}
-            "id": task_id,
-            "status": {'{'{'}'}"state": "submitted"{'}'},
-            "history": [params["message"]],
-            "artifacts": []
-        {'}'}
-        # Process async (don't block the response)
-        import asyncio
-        asyncio.create_task(process_task(task_id, params["message"]))
-        return JSONResponse({'{'{'}'}"jsonrpc": "2.0", "id": req_id, "result": tasks[task_id]{'}'})
-
-    elif method == "tasks/get":
-        task = tasks.get(params["id"])
-        if not task:
-            return JSONResponse({'{'{'}'}"jsonrpc": "2.0", "id": req_id,
-                "error": {'{'{'}'}"code": -32001, "message": "Task not found"{'}'}{'}'})
-        return JSONResponse({'{'{'}'}"jsonrpc": "2.0", "id": req_id, "result": task{'}'})
-
-    return JSONResponse({'{'{'}'}"jsonrpc": "2.0", "id": req_id,
-        "error": {'{'{'}'}"code": -32601, "message": "Method not found"{'}'}{'}'})
-
-async def process_task(task_id: str, message: dict):
-    """Background task processing."""
-    tasks[task_id]["status"] = {'{'{'}'}"state": "working", "message": "Analyzing data..."{'}'}
-    try:
-        result = await run_analysis(message["parts"][0]["text"])
-        tasks[task_id]["artifacts"] = [
-            {'{'{'}'}"name": "report", "parts": [{'{'{'}'}"type": "text", "text": result{'}'}]{'}'}
-        ]
-        tasks[task_id]["status"] = {'{'{'}'}"state": "completed"{'}'}
-    except Exception as e:
-        tasks[task_id]["status"] = {'{'{'}'}"state": "failed", "message": str(e){'}'}
-
-app = Starlette(routes=[
-    Route("/.well-known/agent.json", agent_card),
-    Route("/a2a", handle_jsonrpc, methods=["POST"]),
-])`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBzdGFybGV0dGUuYXBwbGljYXRpb25zIGltcG9ydCBTdGFybGV0dGUKZnJvbSBzdGFybGV0dGUucm91dGluZyBpbXBvcnQgUm91dGUKZnJvbSBzdGFybGV0dGUucmVxdWVzdHMgaW1wb3J0IFJlcXVlc3QKZnJvbSBzdGFybGV0dGUucmVzcG9uc2VzIGltcG9ydCBKU09OUmVzcG9uc2UKaW1wb3J0IGpzb24sIHV1aWQKCiMgQWdlbnQgQ2FyZCBzZXJ2ZWQgYXQgLy53ZWxsLWtub3duL2FnZW50Lmpzb24KQUdFTlRfQ0FSRCA9IHsneyd7J30nfQogICAgIm5hbWUiOiAiQW5hbHlzaXMgQWdlbnQiLAogICAgImRlc2NyaXB0aW9uIjogIlBlcmZvcm1zIGRhdGEgYW5hbHlzaXMgYW5kIGdlbmVyYXRlcyByZXBvcnRzIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9hbmFseXNpcy5leGFtcGxlLmNvbS9hMmEiLAogICAgImNhcGFiaWxpdGllcyI6IHsneyd7J30nfSJzdHJlYW1pbmciOiBUcnVlLCAicHVzaE5vdGlmaWNhdGlvbnMiOiBGYWxzZXsnfSd9LAogICAgInNraWxscyI6IFsKICAgICAgICB7J3sneyd9J30iaWQiOiAiYW5hbHl6ZSIsICJuYW1lIjogIkRhdGEgQW5hbHlzaXMiLCAiZGVzY3JpcHRpb24iOiAiQW5hbHl6ZSBkYXRhc2V0cyBhbmQgcHJvZHVjZSBpbnNpZ2h0cyJ7J30nfQogICAgXQp7J30nfQoKIyBJbi1tZW1vcnkgdGFzayBzdG9yZSAodXNlIFJlZGlzL0RCIGluIHByb2R1Y3Rpb24pCnRhc2tzID0geyd7J3snfSd9eyd9J30KCmFzeW5jIGRlZiBhZ2VudF9jYXJkKHJlcXVlc3Q6IFJlcXVlc3QpOgogICAgcmV0dXJuIEpTT05SZXNwb25zZShBR0VOVF9DQVJEKQoKYXN5bmMgZGVmIGhhbmRsZV9qc29ucnBjKHJlcXVlc3Q6IFJlcXVlc3QpOgogICAgYm9keSA9IGF3YWl0IHJlcXVlc3QuanNvbigpCiAgICBtZXRob2QgPSBib2R5LmdldCgibWV0aG9kIikKICAgIHBhcmFtcyA9IGJvZHkuZ2V0KCJwYXJhbXMiLCB7J3sneyd9J317J30nfSkKICAgIHJlcV9pZCA9IGJvZHkuZ2V0KCJpZCIpCgogICAgaWYgbWV0aG9kID09ICJ0YXNrcy9zZW5kIjoKICAgICAgICB0YXNrX2lkID0gcGFyYW1zLmdldCgiaWQiLCBzdHIodXVpZC51dWlkNCgpKSkKICAgICAgICB0YXNrc1t0YXNrX2lkXSA9IHsneyd7J30nfQogICAgICAgICAgICAiaWQiOiB0YXNrX2lkLAogICAgICAgICAgICAic3RhdHVzIjogeyd7J3snfSd9InN0YXRlIjogInN1Ym1pdHRlZCJ7J30nfSwKICAgICAgICAgICAgImhpc3RvcnkiOiBbcGFyYW1zWyJtZXNzYWdlIl1dLAogICAgICAgICAgICAiYXJ0aWZhY3RzIjogW10KICAgICAgICB7J30nfQogICAgICAgICMgUHJvY2VzcyBhc3luYyAoZG9uJ3QgYmxvY2sgdGhlIHJlc3BvbnNlKQogICAgICAgIGltcG9ydCBhc3luY2lvCiAgICAgICAgYXN5bmNpby5jcmVhdGVfdGFzayhwcm9jZXNzX3Rhc2sodGFza19pZCwgcGFyYW1zWyJtZXNzYWdlIl0pKQogICAgICAgIHJldHVybiBKU09OUmVzcG9uc2Uoeyd7J3snfSd9Impzb25ycGMiOiAiMi4wIiwgImlkIjogcmVxX2lkLCAicmVzdWx0IjogdGFza3NbdGFza19pZF17J30nfSkKCiAgICBlbGlmIG1ldGhvZCA9PSAidGFza3MvZ2V0IjoKICAgICAgICB0YXNrID0gdGFza3MuZ2V0KHBhcmFtc1siaWQiXSkKICAgICAgICBpZiBub3QgdGFzazoKICAgICAgICAgICAgcmV0dXJuIEpTT05SZXNwb25zZSh7J3sneyd9J30ianNvbnJwYyI6ICIyLjAiLCAiaWQiOiByZXFfaWQsCiAgICAgICAgICAgICAgICAiZXJyb3IiOiB7J3sneyd9J30iY29kZSI6IC0zMjAwMSwgIm1lc3NhZ2UiOiAiVGFzayBub3QgZm91bmQieyd9J317J30nfSkKICAgICAgICByZXR1cm4gSlNPTlJlc3BvbnNlKHsneyd7J30nfSJqc29ucnBjIjogIjIuMCIsICJpZCI6IHJlcV9pZCwgInJlc3VsdCI6IHRhc2t7J30nfSkKCiAgICByZXR1cm4gSlNPTlJlc3BvbnNlKHsneyd7J30nfSJqc29ucnBjIjogIjIuMCIsICJpZCI6IHJlcV9pZCwKICAgICAgICAiZXJyb3IiOiB7J3sneyd9J30iY29kZSI6IC0zMjYwMSwgIm1lc3NhZ2UiOiAiTWV0aG9kIG5vdCBmb3VuZCJ7J30nfXsnfSd9KQoKYXN5bmMgZGVmIHByb2Nlc3NfdGFzayh0YXNrX2lkOiBzdHIsIG1lc3NhZ2U6IGRpY3QpOgogICAgIiIiQmFja2dyb3VuZCB0YXNrIHByb2Nlc3NpbmcuIiIiCiAgICB0YXNrc1t0YXNrX2lkXVsic3RhdHVzIl0gPSB7J3sneyd9J30ic3RhdGUiOiAid29ya2luZyIsICJtZXNzYWdlIjogIkFuYWx5emluZyBkYXRhLi4uInsnfSd9CiAgICB0cnk6CiAgICAgICAgcmVzdWx0ID0gYXdhaXQgcnVuX2FuYWx5c2lzKG1lc3NhZ2VbInBhcnRzIl1bMF1bInRleHQiXSkKICAgICAgICB0YXNrc1t0YXNrX2lkXVsiYXJ0aWZhY3RzIl0gPSBbCiAgICAgICAgICAgIHsneyd7J30nfSJuYW1lIjogInJlcG9ydCIsICJwYXJ0cyI6IFt7J3sneyd9J30idHlwZSI6ICJ0ZXh0IiwgInRleHQiOiByZXN1bHR7J30nfV17J30nfQogICAgICAgIF0KICAgICAgICB0YXNrc1t0YXNrX2lkXVsic3RhdHVzIl0gPSB7J3sneyd9J30ic3RhdGUiOiAiY29tcGxldGVkInsnfSd9CiAgICBleGNlcHQgRXhjZXB0aW9uIGFzIGU6CiAgICAgICAgdGFza3NbdGFza19pZF1bInN0YXR1cyJdID0geyd7J3snfSd9InN0YXRlIjogImZhaWxlZCIsICJtZXNzYWdlIjogc3RyKGUpeyd9J30KCmFwcCA9IFN0YXJsZXR0ZShyb3V0ZXM9WwogICAgUm91dGUoIi8ud2VsbC1rbm93bi9hZ2VudC5qc29uIiwgYWdlbnRfY2FyZCksCiAgICBSb3V0ZSgiL2EyYSIsIGhhbmRsZV9qc29ucnBjLCBtZXRob2RzPVsiUE9TVCJdKSwKXSk=" />
 
 <Quiz question="Why does the tasks/send handler return immediately and process the task asynchronously?" options={["To avoid timeout issues","Because A2A tasks can take a long time; the requester should not block waiting for completion","For better code organization","The spec requires it"]} correctIndex={1} explanation="A2A tasks can take seconds to hours. Returning immediately with the task ID lets the requester poll for status or receive push notifications, rather than keeping an HTTP connection open indefinitely." />
 

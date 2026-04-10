@@ -17,124 +17,12 @@ rows={[
 ['Hybrid (NER + LLM validation)', 'Very high', 'High', 'Medium', 'Medium', 'Production balance of quality and cost'],
 ]}
 />
-<CodeBlock>
-{`import asyncio
-from asyncio import Semaphore
-from typing import AsyncIterator
-import anthropic
-
-client = anthropic.Anthropic()
-
-class GraphConstructionPipeline:
-    def __init__(self,
-                 max_concurrent: int = 10,
-                 batch_size: int = 50):
-        self.semaphore = Semaphore(max_concurrent)
-        self.batch_size = batch_size
-        self.entity_store = {'{'{'}'}{'}'}
-        self.relation_store = []
-
-    async def process_corpus(self, documents: list) -> tuple:
-        """Process entire corpus with bounded concurrency."""
-
-        # Chunk documents for parallel processing
-        tasks = []
-        for doc in documents:
-            chunks = self._chunk_document(doc, size=800, overlap=100)
-            for chunk in chunks:
-                tasks.append(self._extract_with_semaphore(chunk, doc['id']))
-
-        # Process with progress tracking
-        results = []
-        for i in range(0, len(tasks), self.batch_size):
-            batch = tasks[i:i + self.batch_size]
-            batch_results = await asyncio.gather(*batch, return_exceptions=True)
-
-            # Filter out failures and log them
-            for result in batch_results:
-                if isinstance(result, Exception):
-                    print(f"Extraction failed: {'{'{'}'}result{'}'}")
-                else:
-                    results.append(result)
-
-            print(f"Processed {'{'{'}'}min(i + self.batch_size, len(tasks)){'}'}/{'{'{'}'}len(tasks){'}'} chunks")
-
-        # Entity resolution pass
-        entities = await self._resolve_entities(
-            [e for r in results for e in r.get('entities', [])]
-        )
-        relations = [rel for r in results for rel in r.get('relations', [])]
-
-        return entities, relations
-
-    async def _extract_with_semaphore(self, chunk: str, doc_id: str) -> dict:
-        async with self.semaphore:
-            return await self._extract_chunk(chunk, doc_id)
-
-    async def _extract_chunk(self, chunk: str, doc_id: str) -> dict:
-        """LLM-powered extraction with structured output."""
-        # Use batch API for cost efficiency on large corpora
-        response = client.messages.create(
-            model="claude-opus-4-6",
-            max_tokens=1500,
-            system="""Extract entities and relationships as JSON.
-            Schema: {'{'{'}'}"entities": [{'{'{'}'}"name": str, "type": str, "canonical": str{'}'}],
-                     "relations": [{'{'{'}'}"source": str, "relation": str, "target": str, "confidence": float{'}'}]{'}'}
-            Only output valid JSON, no other text.""",
-            messages=[{'{'{'}'}"role": "user", "content": f"Extract from:\\n{'{'{'}'}chunk{'}'}"{'}'}]
-        )
-        try:
-            import json, re
-            match = re.search(r'\\{'{'{'}'}[\\s\\S]*\\{'}'}', response.content[0].text)
-            return json.loads(match.group()) if match else {'{'{'}'}{'}'}
-        except Exception:
-            return {'{'{'}'}{'}'}
-
-    async def _resolve_entities(self, entities: list) -> dict:
-        """Merge duplicate entities using string normalization + LLM."""
-        # First pass: exact canonical name dedup
-        canonical_map = {'{'{'}'}{'}'}
-        for e in entities:
-            key = e.get('canonical', e['name']).lower().strip()
-            if key not in canonical_map:
-                canonical_map[key] = e
-
-        # Second pass: LLM-based fuzzy resolution for near-duplicates
-        # Group candidates by first 3 chars for efficiency
-        return canonical_map`}
-</CodeBlock>
+<CodeBlock b64="aW1wb3J0IGFzeW5jaW8KZnJvbSBhc3luY2lvIGltcG9ydCBTZW1hcGhvcmUKZnJvbSB0eXBpbmcgaW1wb3J0IEFzeW5jSXRlcmF0b3IKaW1wb3J0IGFudGhyb3BpYwoKY2xpZW50ID0gYW50aHJvcGljLkFudGhyb3BpYygpCgpjbGFzcyBHcmFwaENvbnN0cnVjdGlvblBpcGVsaW5lOgogICAgZGVmIF9faW5pdF9fKHNlbGYsCiAgICAgICAgICAgICAgICAgbWF4X2NvbmN1cnJlbnQ6IGludCA9IDEwLAogICAgICAgICAgICAgICAgIGJhdGNoX3NpemU6IGludCA9IDUwKToKICAgICAgICBzZWxmLnNlbWFwaG9yZSA9IFNlbWFwaG9yZShtYXhfY29uY3VycmVudCkKICAgICAgICBzZWxmLmJhdGNoX3NpemUgPSBiYXRjaF9zaXplCiAgICAgICAgc2VsZi5lbnRpdHlfc3RvcmUgPSB7J3sneyd9J317J30nfQogICAgICAgIHNlbGYucmVsYXRpb25fc3RvcmUgPSBbXQoKICAgIGFzeW5jIGRlZiBwcm9jZXNzX2NvcnB1cyhzZWxmLCBkb2N1bWVudHM6IGxpc3QpIC0+IHR1cGxlOgogICAgICAgICIiIlByb2Nlc3MgZW50aXJlIGNvcnB1cyB3aXRoIGJvdW5kZWQgY29uY3VycmVuY3kuIiIiCgogICAgICAgICMgQ2h1bmsgZG9jdW1lbnRzIGZvciBwYXJhbGxlbCBwcm9jZXNzaW5nCiAgICAgICAgdGFza3MgPSBbXQogICAgICAgIGZvciBkb2MgaW4gZG9jdW1lbnRzOgogICAgICAgICAgICBjaHVua3MgPSBzZWxmLl9jaHVua19kb2N1bWVudChkb2MsIHNpemU9ODAwLCBvdmVybGFwPTEwMCkKICAgICAgICAgICAgZm9yIGNodW5rIGluIGNodW5rczoKICAgICAgICAgICAgICAgIHRhc2tzLmFwcGVuZChzZWxmLl9leHRyYWN0X3dpdGhfc2VtYXBob3JlKGNodW5rLCBkb2NbJ2lkJ10pKQoKICAgICAgICAjIFByb2Nlc3Mgd2l0aCBwcm9ncmVzcyB0cmFja2luZwogICAgICAgIHJlc3VsdHMgPSBbXQogICAgICAgIGZvciBpIGluIHJhbmdlKDAsIGxlbih0YXNrcyksIHNlbGYuYmF0Y2hfc2l6ZSk6CiAgICAgICAgICAgIGJhdGNoID0gdGFza3NbaTppICsgc2VsZi5iYXRjaF9zaXplXQogICAgICAgICAgICBiYXRjaF9yZXN1bHRzID0gYXdhaXQgYXN5bmNpby5nYXRoZXIoKmJhdGNoLCByZXR1cm5fZXhjZXB0aW9ucz1UcnVlKQoKICAgICAgICAgICAgIyBGaWx0ZXIgb3V0IGZhaWx1cmVzIGFuZCBsb2cgdGhlbQogICAgICAgICAgICBmb3IgcmVzdWx0IGluIGJhdGNoX3Jlc3VsdHM6CiAgICAgICAgICAgICAgICBpZiBpc2luc3RhbmNlKHJlc3VsdCwgRXhjZXB0aW9uKToKICAgICAgICAgICAgICAgICAgICBwcmludChmIkV4dHJhY3Rpb24gZmFpbGVkOiB7J3sneyd9J31yZXN1bHR7J30nfSIpCiAgICAgICAgICAgICAgICBlbHNlOgogICAgICAgICAgICAgICAgICAgIHJlc3VsdHMuYXBwZW5kKHJlc3VsdCkKCiAgICAgICAgICAgIHByaW50KGYiUHJvY2Vzc2VkIHsneyd7J30nfW1pbihpICsgc2VsZi5iYXRjaF9zaXplLCBsZW4odGFza3MpKXsnfSd9L3sneyd7J30nfWxlbih0YXNrcyl7J30nfSBjaHVua3MiKQoKICAgICAgICAjIEVudGl0eSByZXNvbHV0aW9uIHBhc3MKICAgICAgICBlbnRpdGllcyA9IGF3YWl0IHNlbGYuX3Jlc29sdmVfZW50aXRpZXMoCiAgICAgICAgICAgIFtlIGZvciByIGluIHJlc3VsdHMgZm9yIGUgaW4gci5nZXQoJ2VudGl0aWVzJywgW10pXQogICAgICAgICkKICAgICAgICByZWxhdGlvbnMgPSBbcmVsIGZvciByIGluIHJlc3VsdHMgZm9yIHJlbCBpbiByLmdldCgncmVsYXRpb25zJywgW10pXQoKICAgICAgICByZXR1cm4gZW50aXRpZXMsIHJlbGF0aW9ucwoKICAgIGFzeW5jIGRlZiBfZXh0cmFjdF93aXRoX3NlbWFwaG9yZShzZWxmLCBjaHVuazogc3RyLCBkb2NfaWQ6IHN0cikgLT4gZGljdDoKICAgICAgICBhc3luYyB3aXRoIHNlbGYuc2VtYXBob3JlOgogICAgICAgICAgICByZXR1cm4gYXdhaXQgc2VsZi5fZXh0cmFjdF9jaHVuayhjaHVuaywgZG9jX2lkKQoKICAgIGFzeW5jIGRlZiBfZXh0cmFjdF9jaHVuayhzZWxmLCBjaHVuazogc3RyLCBkb2NfaWQ6IHN0cikgLT4gZGljdDoKICAgICAgICAiIiJMTE0tcG93ZXJlZCBleHRyYWN0aW9uIHdpdGggc3RydWN0dXJlZCBvdXRwdXQuIiIiCiAgICAgICAgIyBVc2UgYmF0Y2ggQVBJIGZvciBjb3N0IGVmZmljaWVuY3kgb24gbGFyZ2UgY29ycG9yYQogICAgICAgIHJlc3BvbnNlID0gY2xpZW50Lm1lc3NhZ2VzLmNyZWF0ZSgKICAgICAgICAgICAgbW9kZWw9ImNsYXVkZS1vcHVzLTQtNiIsCiAgICAgICAgICAgIG1heF90b2tlbnM9MTUwMCwKICAgICAgICAgICAgc3lzdGVtPSIiIkV4dHJhY3QgZW50aXRpZXMgYW5kIHJlbGF0aW9uc2hpcHMgYXMgSlNPTi4KICAgICAgICAgICAgU2NoZW1hOiB7J3sneyd9J30iZW50aXRpZXMiOiBbeyd7J3snfSd9Im5hbWUiOiBzdHIsICJ0eXBlIjogc3RyLCAiY2Fub25pY2FsIjogc3Ryeyd9J31dLAogICAgICAgICAgICAgICAgICAgICAicmVsYXRpb25zIjogW3sneyd7J30nfSJzb3VyY2UiOiBzdHIsICJyZWxhdGlvbiI6IHN0ciwgInRhcmdldCI6IHN0ciwgImNvbmZpZGVuY2UiOiBmbG9hdHsnfSd9XXsnfSd9CiAgICAgICAgICAgIE9ubHkgb3V0cHV0IHZhbGlkIEpTT04sIG5vIG90aGVyIHRleHQuIiIiLAogICAgICAgICAgICBtZXNzYWdlcz1beyd7J3snfSd9InJvbGUiOiAidXNlciIsICJjb250ZW50IjogZiJFeHRyYWN0IGZyb206XFxueyd7J3snfSd9Y2h1bmt7J30nfSJ7J30nfV0KICAgICAgICApCiAgICAgICAgdHJ5OgogICAgICAgICAgICBpbXBvcnQganNvbiwgcmUKICAgICAgICAgICAgbWF0Y2ggPSByZS5zZWFyY2gocidcXHsneyd7J30nfVtcXHNcXFNdKlxceyd9J30nLCByZXNwb25zZS5jb250ZW50WzBdLnRleHQpCiAgICAgICAgICAgIHJldHVybiBqc29uLmxvYWRzKG1hdGNoLmdyb3VwKCkpIGlmIG1hdGNoIGVsc2Ugeyd7J3snfSd9eyd9J30KICAgICAgICBleGNlcHQgRXhjZXB0aW9uOgogICAgICAgICAgICByZXR1cm4geyd7J3snfSd9eyd9J30KCiAgICBhc3luYyBkZWYgX3Jlc29sdmVfZW50aXRpZXMoc2VsZiwgZW50aXRpZXM6IGxpc3QpIC0+IGRpY3Q6CiAgICAgICAgIiIiTWVyZ2UgZHVwbGljYXRlIGVudGl0aWVzIHVzaW5nIHN0cmluZyBub3JtYWxpemF0aW9uICsgTExNLiIiIgogICAgICAgICMgRmlyc3QgcGFzczogZXhhY3QgY2Fub25pY2FsIG5hbWUgZGVkdXAKICAgICAgICBjYW5vbmljYWxfbWFwID0geyd7J3snfSd9eyd9J30KICAgICAgICBmb3IgZSBpbiBlbnRpdGllczoKICAgICAgICAgICAga2V5ID0gZS5nZXQoJ2Nhbm9uaWNhbCcsIGVbJ25hbWUnXSkubG93ZXIoKS5zdHJpcCgpCiAgICAgICAgICAgIGlmIGtleSBub3QgaW4gY2Fub25pY2FsX21hcDoKICAgICAgICAgICAgICAgIGNhbm9uaWNhbF9tYXBba2V5XSA9IGUKCiAgICAgICAgIyBTZWNvbmQgcGFzczogTExNLWJhc2VkIGZ1enp5IHJlc29sdXRpb24gZm9yIG5lYXItZHVwbGljYXRlcwogICAgICAgICMgR3JvdXAgY2FuZGlkYXRlcyBieSBmaXJzdCAzIGNoYXJzIGZvciBlZmZpY2llbmN5CiAgICAgICAgcmV0dXJuIGNhbm9uaWNhbF9tYXA=" />
 <ExpandableSection title="Entity Disambiguation Deep Dive" icon="\uD83D\uDD0D">
 
 Entity disambiguation is the hardest unsolved problem in knowledge graph construction. The same string can refer to different entities ("Apple" = company or fruit), and different strings can refer to the same entity ("NY" = "New York" = "New York City").
 
-<CodeBlock>
-{`def disambiguate_entity(mention: str, context: str,
-                         candidates: list, llm) -> str:
-    """
-    Given a mention and its surrounding context,
-    select the correct canonical entity from candidates.
-    """
-    if len(candidates) == 1:
-        return candidates[0]['canonical']
-
-    candidate_desc = "\\n".join([
-        f"{'{'{'}'}i+1{'}'}. {'{'{'}'}c['canonical']{'}'} ({'{'{'}'}c['type']{'}'}): {'{'{'}'}c.get('description', 'No description'){'}'}"
-        for i, c in enumerate(candidates)
-    ])
-
-    response = llm.generate(f"""
-    The text mentions "{'{'{'}'}mention{'}'}" in this context:
-    "{'{'{'}'}context{'}'}"
-
-    Which entity does this refer to?
-    {'{'{'}'}candidate_desc{'}'}
-
-    Reply with just the number (1, 2, etc.).
-    """)
-
-    idx = int(response.strip()) - 1
-    return candidates[idx]['canonical'] if 0 <= idx < len(candidates) else mention`}
-</CodeBlock>
+<CodeBlock b64="ZGVmIGRpc2FtYmlndWF0ZV9lbnRpdHkobWVudGlvbjogc3RyLCBjb250ZXh0OiBzdHIsCiAgICAgICAgICAgICAgICAgICAgICAgICBjYW5kaWRhdGVzOiBsaXN0LCBsbG0pIC0+IHN0cjoKICAgICIiIgogICAgR2l2ZW4gYSBtZW50aW9uIGFuZCBpdHMgc3Vycm91bmRpbmcgY29udGV4dCwKICAgIHNlbGVjdCB0aGUgY29ycmVjdCBjYW5vbmljYWwgZW50aXR5IGZyb20gY2FuZGlkYXRlcy4KICAgICIiIgogICAgaWYgbGVuKGNhbmRpZGF0ZXMpID09IDE6CiAgICAgICAgcmV0dXJuIGNhbmRpZGF0ZXNbMF1bJ2Nhbm9uaWNhbCddCgogICAgY2FuZGlkYXRlX2Rlc2MgPSAiXFxuIi5qb2luKFsKICAgICAgICBmInsneyd7J30nfWkrMXsnfSd9LiB7J3sneyd9J31jWydjYW5vbmljYWwnXXsnfSd9ICh7J3sneyd9J31jWyd0eXBlJ117J30nfSk6IHsneyd7J30nfWMuZ2V0KCdkZXNjcmlwdGlvbicsICdObyBkZXNjcmlwdGlvbicpeyd9J30iCiAgICAgICAgZm9yIGksIGMgaW4gZW51bWVyYXRlKGNhbmRpZGF0ZXMpCiAgICBdKQoKICAgIHJlc3BvbnNlID0gbGxtLmdlbmVyYXRlKGYiIiIKICAgIFRoZSB0ZXh0IG1lbnRpb25zICJ7J3sneyd9J31tZW50aW9ueyd9J30iIGluIHRoaXMgY29udGV4dDoKICAgICJ7J3sneyd9J31jb250ZXh0eyd9J30iCgogICAgV2hpY2ggZW50aXR5IGRvZXMgdGhpcyByZWZlciB0bz8KICAgIHsneyd7J30nfWNhbmRpZGF0ZV9kZXNjeyd9J30KCiAgICBSZXBseSB3aXRoIGp1c3QgdGhlIG51bWJlciAoMSwgMiwgZXRjLikuCiAgICAiIiIpCgogICAgaWR4ID0gaW50KHJlc3BvbnNlLnN0cmlwKCkpIC0gMQogICAgcmV0dXJuIGNhbmRpZGF0ZXNbaWR4XVsnY2Fub25pY2FsJ10gaWYgMCA8PSBpZHggPCBsZW4oY2FuZGlkYXRlcykgZWxzZSBtZW50aW9u" />
 </ExpandableSection>
 <ExpandableSection title="Graph Quality Metrics" icon="\uD83D\uDCCA">
 

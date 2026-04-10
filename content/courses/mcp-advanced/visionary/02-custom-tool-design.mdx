@@ -7,133 +7,15 @@ icon: "🔧"
 
 Well-designed MCP tools feel natural to LLMs. The schema is the contract between your server and the model via <JargonTip term="function calling">function calling</JargonTip> — **ambiguous schemas cause hallucinated arguments**. Advanced <JargonTip term="tool use">tool use</JargonTip> patterns include nested schemas, enum constraints, <JargonTip term="streaming">streaming</JargonTip> results, and explicit error contracts.
 
-      <CodeBlock>
-{`{'{'{'}'}
-  "name": "run_debate_analysis",
-  "description": "Analyze an article and trigger a structured debate. Returns debate ID for polling.",
-  "inputSchema": {'{'{'}'}
-    "type": "object",
-    "properties": {'{'{'}'}
-      "article": {'{'{'}'}
-        "type": "object",
-        "description": "The article to analyze",
-        "properties": {'{'{'}'}
-          "title": {'{'{'}'} "type": "string", "description": "Article title", "maxLength": 200 {'}'},
-          "content": {'{'{'}'} "type": "string", "description": "Full article text", "maxLength": 50000 {'}'},
-          "pillar": {'{'{'}'}
-            "type": "string",
-            "enum": ["rethink", "rediscover", "reinvent"],
-            "description": "Which Re3 philosophical pillar this article belongs to"
-          {'}'}
-        {'}'},
-        "required": ["title", "content", "pillar"]
-      {'}'},
-      "config": {'{'{'}'}
-        "type": "object",
-        "description": "Debate configuration overrides",
-        "properties": {'{'{'}'}
-          "panel_size": {'{'{'}'} "type": "integer", "minimum": 3, "maximum": 7, "default": 5 {'}'},
-          "rounds": {'{'{'}'} "type": "integer", "minimum": 1, "maximum": 5, "default": 3 {'}'},
-          "focus_areas": {'{'{'}'}
-            "type": "array",
-            "items": {'{'{'}'} "type": "string" {'}'},
-            "description": "Optional list of specific aspects to focus the debate on",
-            "maxItems": 5
-          {'}'}
-        {'}'}
-      {'}'}
-    {'}'},
-    "required": ["article"]
-  {'}'}
-{'}'}`}
-</CodeBlock>
+      <CodeBlock b64="eyd7J3snfSd9CiAgIm5hbWUiOiAicnVuX2RlYmF0ZV9hbmFseXNpcyIsCiAgImRlc2NyaXB0aW9uIjogIkFuYWx5emUgYW4gYXJ0aWNsZSBhbmQgdHJpZ2dlciBhIHN0cnVjdHVyZWQgZGViYXRlLiBSZXR1cm5zIGRlYmF0ZSBJRCBmb3IgcG9sbGluZy4iLAogICJpbnB1dFNjaGVtYSI6IHsneyd7J30nfQogICAgInR5cGUiOiAib2JqZWN0IiwKICAgICJwcm9wZXJ0aWVzIjogeyd7J3snfSd9CiAgICAgICJhcnRpY2xlIjogeyd7J3snfSd9CiAgICAgICAgInR5cGUiOiAib2JqZWN0IiwKICAgICAgICAiZGVzY3JpcHRpb24iOiAiVGhlIGFydGljbGUgdG8gYW5hbHl6ZSIsCiAgICAgICAgInByb3BlcnRpZXMiOiB7J3sneyd9J30KICAgICAgICAgICJ0aXRsZSI6IHsneyd7J30nfSAidHlwZSI6ICJzdHJpbmciLCAiZGVzY3JpcHRpb24iOiAiQXJ0aWNsZSB0aXRsZSIsICJtYXhMZW5ndGgiOiAyMDAgeyd9J30sCiAgICAgICAgICAiY29udGVudCI6IHsneyd7J30nfSAidHlwZSI6ICJzdHJpbmciLCAiZGVzY3JpcHRpb24iOiAiRnVsbCBhcnRpY2xlIHRleHQiLCAibWF4TGVuZ3RoIjogNTAwMDAgeyd9J30sCiAgICAgICAgICAicGlsbGFyIjogeyd7J3snfSd9CiAgICAgICAgICAgICJ0eXBlIjogInN0cmluZyIsCiAgICAgICAgICAgICJlbnVtIjogWyJyZXRoaW5rIiwgInJlZGlzY292ZXIiLCAicmVpbnZlbnQiXSwKICAgICAgICAgICAgImRlc2NyaXB0aW9uIjogIldoaWNoIFJlMyBwaGlsb3NvcGhpY2FsIHBpbGxhciB0aGlzIGFydGljbGUgYmVsb25ncyB0byIKICAgICAgICAgIHsnfSd9CiAgICAgICAgeyd9J30sCiAgICAgICAgInJlcXVpcmVkIjogWyJ0aXRsZSIsICJjb250ZW50IiwgInBpbGxhciJdCiAgICAgIHsnfSd9LAogICAgICAiY29uZmlnIjogeyd7J3snfSd9CiAgICAgICAgInR5cGUiOiAib2JqZWN0IiwKICAgICAgICAiZGVzY3JpcHRpb24iOiAiRGViYXRlIGNvbmZpZ3VyYXRpb24gb3ZlcnJpZGVzIiwKICAgICAgICAicHJvcGVydGllcyI6IHsneyd7J30nfQogICAgICAgICAgInBhbmVsX3NpemUiOiB7J3sneyd9J30gInR5cGUiOiAiaW50ZWdlciIsICJtaW5pbXVtIjogMywgIm1heGltdW0iOiA3LCAiZGVmYXVsdCI6IDUgeyd9J30sCiAgICAgICAgICAicm91bmRzIjogeyd7J3snfSd9ICJ0eXBlIjogImludGVnZXIiLCAibWluaW11bSI6IDEsICJtYXhpbXVtIjogNSwgImRlZmF1bHQiOiAzIHsnfSd9LAogICAgICAgICAgImZvY3VzX2FyZWFzIjogeyd7J3snfSd9CiAgICAgICAgICAgICJ0eXBlIjogImFycmF5IiwKICAgICAgICAgICAgIml0ZW1zIjogeyd7J3snfSd9ICJ0eXBlIjogInN0cmluZyIgeyd9J30sCiAgICAgICAgICAgICJkZXNjcmlwdGlvbiI6ICJPcHRpb25hbCBsaXN0IG9mIHNwZWNpZmljIGFzcGVjdHMgdG8gZm9jdXMgdGhlIGRlYmF0ZSBvbiIsCiAgICAgICAgICAgICJtYXhJdGVtcyI6IDUKICAgICAgICAgIHsnfSd9CiAgICAgICAgeyd9J30KICAgICAgeyd9J30KICAgIHsnfSd9LAogICAgInJlcXVpcmVkIjogWyJhcnRpY2xlIl0KICB7J30nfQp7J30nfQ==" />
       <ExpandableSection title="Streaming Tool Results" icon="🌊">
 
 For long-running tools, stream incremental results back to the host rather than waiting for completion.
 
-        <CodeBlock>
-{`from mcp.server import Server
-from mcp.types import Tool, TextContent, CallToolResult
-import asyncio
-
-server = Server("streaming-analysis")
-
-@server.call_tool()
-async def call_tool(name: str, arguments: dict):
-    if name == "analyze_large_dataset":
-        return await stream_analysis(arguments)
-    raise ValueError(f"Unknown tool: {'{'{'}'}name{'}'}")
-
-async def stream_analysis(args: dict):
-    """Stream incremental results for long analysis tasks."""
-    dataset = args["dataset_path"]
-    chunk_size = args.get("chunk_size", 1000)
-
-    results = []
-    total_processed = 0
-
-    async for chunk in read_dataset_chunks(dataset, chunk_size):
-        analysis = await analyze_chunk(chunk)
-        total_processed += len(chunk)
-        results.append(analysis)
-
-        # Yield intermediate progress — host can stream to UI
-        yield TextContent(
-            type="text",
-            text=f"Processed {'{'{'}'}total_processed{'}'} records. "
-                 f"Running stats: {'{'{'}'}compute_running_stats(results){'}'}"
-        )
-
-    # Final result
-    yield TextContent(
-        type="text",
-        text=f"Complete. Final analysis: {'{'{'}'}aggregate_results(results){'}'}"
-    )`}
-</CodeBlock>
+        <CodeBlock b64="ZnJvbSBtY3Auc2VydmVyIGltcG9ydCBTZXJ2ZXIKZnJvbSBtY3AudHlwZXMgaW1wb3J0IFRvb2wsIFRleHRDb250ZW50LCBDYWxsVG9vbFJlc3VsdAppbXBvcnQgYXN5bmNpbwoKc2VydmVyID0gU2VydmVyKCJzdHJlYW1pbmctYW5hbHlzaXMiKQoKQHNlcnZlci5jYWxsX3Rvb2woKQphc3luYyBkZWYgY2FsbF90b29sKG5hbWU6IHN0ciwgYXJndW1lbnRzOiBkaWN0KToKICAgIGlmIG5hbWUgPT0gImFuYWx5emVfbGFyZ2VfZGF0YXNldCI6CiAgICAgICAgcmV0dXJuIGF3YWl0IHN0cmVhbV9hbmFseXNpcyhhcmd1bWVudHMpCiAgICByYWlzZSBWYWx1ZUVycm9yKGYiVW5rbm93biB0b29sOiB7J3sneyd9J31uYW1leyd9J30iKQoKYXN5bmMgZGVmIHN0cmVhbV9hbmFseXNpcyhhcmdzOiBkaWN0KToKICAgICIiIlN0cmVhbSBpbmNyZW1lbnRhbCByZXN1bHRzIGZvciBsb25nIGFuYWx5c2lzIHRhc2tzLiIiIgogICAgZGF0YXNldCA9IGFyZ3NbImRhdGFzZXRfcGF0aCJdCiAgICBjaHVua19zaXplID0gYXJncy5nZXQoImNodW5rX3NpemUiLCAxMDAwKQoKICAgIHJlc3VsdHMgPSBbXQogICAgdG90YWxfcHJvY2Vzc2VkID0gMAoKICAgIGFzeW5jIGZvciBjaHVuayBpbiByZWFkX2RhdGFzZXRfY2h1bmtzKGRhdGFzZXQsIGNodW5rX3NpemUpOgogICAgICAgIGFuYWx5c2lzID0gYXdhaXQgYW5hbHl6ZV9jaHVuayhjaHVuaykKICAgICAgICB0b3RhbF9wcm9jZXNzZWQgKz0gbGVuKGNodW5rKQogICAgICAgIHJlc3VsdHMuYXBwZW5kKGFuYWx5c2lzKQoKICAgICAgICAjIFlpZWxkIGludGVybWVkaWF0ZSBwcm9ncmVzcyDigJQgaG9zdCBjYW4gc3RyZWFtIHRvIFVJCiAgICAgICAgeWllbGQgVGV4dENvbnRlbnQoCiAgICAgICAgICAgIHR5cGU9InRleHQiLAogICAgICAgICAgICB0ZXh0PWYiUHJvY2Vzc2VkIHsneyd7J30nfXRvdGFsX3Byb2Nlc3NlZHsnfSd9IHJlY29yZHMuICIKICAgICAgICAgICAgICAgICBmIlJ1bm5pbmcgc3RhdHM6IHsneyd7J30nfWNvbXB1dGVfcnVubmluZ19zdGF0cyhyZXN1bHRzKXsnfSd9IgogICAgICAgICkKCiAgICAjIEZpbmFsIHJlc3VsdAogICAgeWllbGQgVGV4dENvbnRlbnQoCiAgICAgICAgdHlwZT0idGV4dCIsCiAgICAgICAgdGV4dD1mIkNvbXBsZXRlLiBGaW5hbCBhbmFseXNpczogeyd7J3snfSd9YWdncmVnYXRlX3Jlc3VsdHMocmVzdWx0cyl7J30nfSIKICAgICk=" />
       </ExpandableSection>
       <ExpandableSection title="Pagination for Large Result Sets" icon="📄">
-        <CodeBlock>
-{`import {'{'{'}'} Server {'}'} from '@modelcontextprotocol/sdk/server/index.js';
-import {'{'{'}'} CallToolRequestSchema {'}'} from '@modelcontextprotocol/sdk/types.js';
-
-const server = new Server(
-  {'{'{'}'} name: 'paginated-search', version: '1.0.0' {'}'},
-  {'{'{'}'} capabilities: {'{'{'}'} tools: {'{'{'}'}{'}'} {'}'} {'}'}
-);
-
-// Cursor-based pagination for large result sets
-server.setRequestHandler(CallToolRequestSchema, async (request) => {'{'{'}'}
-  if (request.params.name === 'search_knowledge_base') {'{'{'}'}
-    const {'{'{'}'} query, cursor, limit = 20 {'}'} = request.params.arguments as {'{'{'}'}
-      query: string;
-      cursor?: string;
-      limit?: number;
-    {'}'};
-
-    const offset = cursor ? parseInt(Buffer.from(cursor, 'base64').toString()) : 0;
-    const results = await db.search(query, {'{'{'}'} offset, limit: limit + 1 {'}'});
-
-    const hasMore = results.length > limit;
-    const page = results.slice(0, limit);
-
-    const nextCursor = hasMore
-      ? Buffer.from(String(offset + limit)).toString('base64')
-      : undefined;
-
-    return {'{'{'}'}
-      content: [{'{'{'}'}
-        type: 'text',
-        text: JSON.stringify({'{'{'}'}
-          results: page,
-          total_returned: page.length,
-          next_cursor: nextCursor,
-          has_more: hasMore
-        {'}'})
-      {'}'}]
-    {'}'};
-  {'}'}
-{'}'});`}
-</CodeBlock>
+        <CodeBlock b64="aW1wb3J0IHsneyd7J30nfSBTZXJ2ZXIgeyd9J30gZnJvbSAnQG1vZGVsY29udGV4dHByb3RvY29sL3Nkay9zZXJ2ZXIvaW5kZXguanMnOwppbXBvcnQgeyd7J3snfSd9IENhbGxUb29sUmVxdWVzdFNjaGVtYSB7J30nfSBmcm9tICdAbW9kZWxjb250ZXh0cHJvdG9jb2wvc2RrL3R5cGVzLmpzJzsKCmNvbnN0IHNlcnZlciA9IG5ldyBTZXJ2ZXIoCiAgeyd7J3snfSd9IG5hbWU6ICdwYWdpbmF0ZWQtc2VhcmNoJywgdmVyc2lvbjogJzEuMC4wJyB7J30nfSwKICB7J3sneyd9J30gY2FwYWJpbGl0aWVzOiB7J3sneyd9J30gdG9vbHM6IHsneyd7J30nfXsnfSd9IHsnfSd9IHsnfSd9Cik7CgovLyBDdXJzb3ItYmFzZWQgcGFnaW5hdGlvbiBmb3IgbGFyZ2UgcmVzdWx0IHNldHMKc2VydmVyLnNldFJlcXVlc3RIYW5kbGVyKENhbGxUb29sUmVxdWVzdFNjaGVtYSwgYXN5bmMgKHJlcXVlc3QpID0+IHsneyd7J30nfQogIGlmIChyZXF1ZXN0LnBhcmFtcy5uYW1lID09PSAnc2VhcmNoX2tub3dsZWRnZV9iYXNlJykgeyd7J3snfSd9CiAgICBjb25zdCB7J3sneyd9J30gcXVlcnksIGN1cnNvciwgbGltaXQgPSAyMCB7J30nfSA9IHJlcXVlc3QucGFyYW1zLmFyZ3VtZW50cyBhcyB7J3sneyd9J30KICAgICAgcXVlcnk6IHN0cmluZzsKICAgICAgY3Vyc29yPzogc3RyaW5nOwogICAgICBsaW1pdD86IG51bWJlcjsKICAgIHsnfSd9OwoKICAgIGNvbnN0IG9mZnNldCA9IGN1cnNvciA/IHBhcnNlSW50KEJ1ZmZlci5mcm9tKGN1cnNvciwgJ2Jhc2U2NCcpLnRvU3RyaW5nKCkpIDogMDsKICAgIGNvbnN0IHJlc3VsdHMgPSBhd2FpdCBkYi5zZWFyY2gocXVlcnksIHsneyd7J30nfSBvZmZzZXQsIGxpbWl0OiBsaW1pdCArIDEgeyd9J30pOwoKICAgIGNvbnN0IGhhc01vcmUgPSByZXN1bHRzLmxlbmd0aCA+IGxpbWl0OwogICAgY29uc3QgcGFnZSA9IHJlc3VsdHMuc2xpY2UoMCwgbGltaXQpOwoKICAgIGNvbnN0IG5leHRDdXJzb3IgPSBoYXNNb3JlCiAgICAgID8gQnVmZmVyLmZyb20oU3RyaW5nKG9mZnNldCArIGxpbWl0KSkudG9TdHJpbmcoJ2Jhc2U2NCcpCiAgICAgIDogdW5kZWZpbmVkOwoKICAgIHJldHVybiB7J3sneyd9J30KICAgICAgY29udGVudDogW3sneyd7J30nfQogICAgICAgIHR5cGU6ICd0ZXh0JywKICAgICAgICB0ZXh0OiBKU09OLnN0cmluZ2lmeSh7J3sneyd9J30KICAgICAgICAgIHJlc3VsdHM6IHBhZ2UsCiAgICAgICAgICB0b3RhbF9yZXR1cm5lZDogcGFnZS5sZW5ndGgsCiAgICAgICAgICBuZXh0X2N1cnNvcjogbmV4dEN1cnNvciwKICAgICAgICAgIGhhc19tb3JlOiBoYXNNb3JlCiAgICAgICAgeyd9J30pCiAgICAgIHsnfSd9XQogICAgeyd9J307CiAgeyd9J30Keyd9J30pOw==" />
       </ExpandableSection>
       <ToolSchemaBuilder/>
       <Quiz question="Why should MCP tool schemas include enum constraints on string parameters wherever possible?" options={["Enums make the schema file smaller","LLMs are less likely to hallucinate invalid values when valid options are explicitly listed","Enum parameters are processed faster by the server","The MCP specification requires enums for all string fields"]} correctIndex={1} explanation="Enums are a form of structured output guidance. When an LLM sees that a parameter must be one of ['rethink', 'rediscover', 'reinvent'], it will reliably pick from that list. Without an enum, the model might invent creative but invalid values like 'reconsider' or 'rebuild'."/>

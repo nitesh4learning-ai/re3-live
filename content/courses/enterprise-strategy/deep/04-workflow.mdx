@@ -15,30 +15,6 @@ icon: "\uD83D\uDD04"
 
 </ExpandableSection>
 
-<CodeBlock>
-{`workflow_assessment:
-  current_process: "Customer support ticket routing"
-  current_state:
-    volume: "5,000 tickets/day"
-    avg_resolution: "4.2 hours"
-    misroute_rate: "23%"
-    cost_per_ticket: "$12.50"
-
-  ai_integration:
-    level_1_assist:
-      action: "AI suggests category, human confirms"
-      expected_improvement: "15% faster routing"
-      risk: "Low"
-
-    level_2_augment:
-      action: "AI auto-routes high-confidence tickets (>90%)"
-      expected_improvement: "60% auto-routed, 5% misroute"
-      risk: "Medium - needs escalation path"
-
-    level_3_automate:
-      action: "AI routes + resolves FAQ tickets autonomously"
-      expected_improvement: "40% fully automated resolution"
-      risk: "High - needs quality monitoring"`}
-</CodeBlock>
+<CodeBlock b64="d29ya2Zsb3dfYXNzZXNzbWVudDoKICBjdXJyZW50X3Byb2Nlc3M6ICJDdXN0b21lciBzdXBwb3J0IHRpY2tldCByb3V0aW5nIgogIGN1cnJlbnRfc3RhdGU6CiAgICB2b2x1bWU6ICI1LDAwMCB0aWNrZXRzL2RheSIKICAgIGF2Z19yZXNvbHV0aW9uOiAiNC4yIGhvdXJzIgogICAgbWlzcm91dGVfcmF0ZTogIjIzJSIKICAgIGNvc3RfcGVyX3RpY2tldDogIiQxMi41MCIKCiAgYWlfaW50ZWdyYXRpb246CiAgICBsZXZlbF8xX2Fzc2lzdDoKICAgICAgYWN0aW9uOiAiQUkgc3VnZ2VzdHMgY2F0ZWdvcnksIGh1bWFuIGNvbmZpcm1zIgogICAgICBleHBlY3RlZF9pbXByb3ZlbWVudDogIjE1JSBmYXN0ZXIgcm91dGluZyIKICAgICAgcmlzazogIkxvdyIKCiAgICBsZXZlbF8yX2F1Z21lbnQ6CiAgICAgIGFjdGlvbjogIkFJIGF1dG8tcm91dGVzIGhpZ2gtY29uZmlkZW5jZSB0aWNrZXRzICg+OTAlKSIKICAgICAgZXhwZWN0ZWRfaW1wcm92ZW1lbnQ6ICI2MCUgYXV0by1yb3V0ZWQsIDUlIG1pc3JvdXRlIgogICAgICByaXNrOiAiTWVkaXVtIC0gbmVlZHMgZXNjYWxhdGlvbiBwYXRoIgoKICAgIGxldmVsXzNfYXV0b21hdGU6CiAgICAgIGFjdGlvbjogIkFJIHJvdXRlcyArIHJlc29sdmVzIEZBUSB0aWNrZXRzIGF1dG9ub21vdXNseSIKICAgICAgZXhwZWN0ZWRfaW1wcm92ZW1lbnQ6ICI0MCUgZnVsbHkgYXV0b21hdGVkIHJlc29sdXRpb24iCiAgICAgIHJpc2s6ICJIaWdoIC0gbmVlZHMgcXVhbGl0eSBtb25pdG9yaW5nIg==" />
 
 <Quiz question="When introducing AI into an existing workflow, what should you do first?" options={["Automate the entire workflow end-to-end","Start with Level 1 (assist) and measure impact before escalating","Skip to Level 3 for maximum ROI","Replace the existing workflow entirely"]} correctIndex={1} explanation="Starting with Level 1 (assist) lets you validate AI quality, build organizational trust, and gather real-world performance data before escalating to augmentation or automation. Jumping straight to full automation risks costly failures."/>

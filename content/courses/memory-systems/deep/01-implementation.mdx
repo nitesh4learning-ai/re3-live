@@ -13,18 +13,4 @@ icon: "🔧"
   ['SQLite','Edge/local deployment','1-5ms','Durable','Low'],
 ]}/>
 
-<CodeBlock>
-{`def extract_memory_entities(message, existing_entities):
-    """Extract facts worth remembering from a message."""
-    prompt = f"""Extract key facts from this message that would be
-useful to remember for future conversations.
-
-Existing known entities: {'{'{'}'}json.dumps(existing_entities){'}'}
-
-Message: {'{'{'}'}message{'}'}
-
-Return JSON: {'{'{'}'}{'{'{'}'}"entities": [{'{'{'}'}{'{'{'}'}"name": "entity_name", "fact": "specific fact", "type": "person|project|preference|fact"{'}'}{'}'}]{'}'}{'}'}"""
-
-    result = call_llm(prompt, response_format="json")
-    return result.get("entities", [])`}
-</CodeBlock>
+<CodeBlock b64="ZGVmIGV4dHJhY3RfbWVtb3J5X2VudGl0aWVzKG1lc3NhZ2UsIGV4aXN0aW5nX2VudGl0aWVzKToKICAgICIiIkV4dHJhY3QgZmFjdHMgd29ydGggcmVtZW1iZXJpbmcgZnJvbSBhIG1lc3NhZ2UuIiIiCiAgICBwcm9tcHQgPSBmIiIiRXh0cmFjdCBrZXkgZmFjdHMgZnJvbSB0aGlzIG1lc3NhZ2UgdGhhdCB3b3VsZCBiZQp1c2VmdWwgdG8gcmVtZW1iZXIgZm9yIGZ1dHVyZSBjb252ZXJzYXRpb25zLgoKRXhpc3Rpbmcga25vd24gZW50aXRpZXM6IHsneyd7J30nfWpzb24uZHVtcHMoZXhpc3RpbmdfZW50aXRpZXMpeyd9J30KCk1lc3NhZ2U6IHsneyd7J30nfW1lc3NhZ2V7J30nfQoKUmV0dXJuIEpTT046IHsneyd7J30nfXsneyd7J30nfSJlbnRpdGllcyI6IFt7J3sneyd9J317J3sneyd9J30ibmFtZSI6ICJlbnRpdHlfbmFtZSIsICJmYWN0IjogInNwZWNpZmljIGZhY3QiLCAidHlwZSI6ICJwZXJzb258cHJvamVjdHxwcmVmZXJlbmNlfGZhY3Qieyd9J317J30nfV17J30nfXsnfSd9IiIiCgogICAgcmVzdWx0ID0gY2FsbF9sbG0ocHJvbXB0LCByZXNwb25zZV9mb3JtYXQ9Impzb24iKQogICAgcmV0dXJuIHJlc3VsdC5nZXQoImVudGl0aWVzIiwgW10p" />

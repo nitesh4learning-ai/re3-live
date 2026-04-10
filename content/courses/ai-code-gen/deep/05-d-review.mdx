@@ -16,37 +16,7 @@ Common failure modes of AI-generated code:
       - **Hallucinated APIs:** Calling functions or methods that don{"'"}t exist in the library
 
   </ExpandableSection>
-  <CodeBlock>
-{`# Review AI-Generated Code With This Checklist
-
-## 1. Does it actually work?
-- [ ] Run the code -- don't just read it
-- [ ] Test edge cases (empty input, null, large data)
-- [ ] Verify API calls against current documentation
-
-## 2. Security
-- [ ] Input validation on all user data
-- [ ] No secrets or credentials hardcoded
-- [ ] SQL/NoSQL injection prevention
-- [ ] Authentication checks on protected routes
-
-## 3. Fits the codebase
-- [ ] Follows existing patterns (not introducing new ones)
-- [ ] Uses existing utilities instead of reimplementing
-- [ ] Consistent naming conventions
-- [ ] Appropriate error handling style
-
-## 4. Performance
-- [ ] No unnecessary loops or database queries
-- [ ] Appropriate data structures
-- [ ] Pagination for list endpoints
-- [ ] No memory leaks (event listeners, subscriptions)
-
-## 5. Maintainability
-- [ ] Code is readable (not over-clever)
-- [ ] Functions are focused (single responsibility)
-- [ ] No dead code or unused imports`}
-</CodeBlock>
+  <CodeBlock b64="IyBSZXZpZXcgQUktR2VuZXJhdGVkIENvZGUgV2l0aCBUaGlzIENoZWNrbGlzdAoKIyMgMS4gRG9lcyBpdCBhY3R1YWxseSB3b3JrPwotIFsgXSBSdW4gdGhlIGNvZGUgLS0gZG9uJ3QganVzdCByZWFkIGl0Ci0gWyBdIFRlc3QgZWRnZSBjYXNlcyAoZW1wdHkgaW5wdXQsIG51bGwsIGxhcmdlIGRhdGEpCi0gWyBdIFZlcmlmeSBBUEkgY2FsbHMgYWdhaW5zdCBjdXJyZW50IGRvY3VtZW50YXRpb24KCiMjIDIuIFNlY3VyaXR5Ci0gWyBdIElucHV0IHZhbGlkYXRpb24gb24gYWxsIHVzZXIgZGF0YQotIFsgXSBObyBzZWNyZXRzIG9yIGNyZWRlbnRpYWxzIGhhcmRjb2RlZAotIFsgXSBTUUwvTm9TUUwgaW5qZWN0aW9uIHByZXZlbnRpb24KLSBbIF0gQXV0aGVudGljYXRpb24gY2hlY2tzIG9uIHByb3RlY3RlZCByb3V0ZXMKCiMjIDMuIEZpdHMgdGhlIGNvZGViYXNlCi0gWyBdIEZvbGxvd3MgZXhpc3RpbmcgcGF0dGVybnMgKG5vdCBpbnRyb2R1Y2luZyBuZXcgb25lcykKLSBbIF0gVXNlcyBleGlzdGluZyB1dGlsaXRpZXMgaW5zdGVhZCBvZiByZWltcGxlbWVudGluZwotIFsgXSBDb25zaXN0ZW50IG5hbWluZyBjb252ZW50aW9ucwotIFsgXSBBcHByb3ByaWF0ZSBlcnJvciBoYW5kbGluZyBzdHlsZQoKIyMgNC4gUGVyZm9ybWFuY2UKLSBbIF0gTm8gdW5uZWNlc3NhcnkgbG9vcHMgb3IgZGF0YWJhc2UgcXVlcmllcwotIFsgXSBBcHByb3ByaWF0ZSBkYXRhIHN0cnVjdHVyZXMKLSBbIF0gUGFnaW5hdGlvbiBmb3IgbGlzdCBlbmRwb2ludHMKLSBbIF0gTm8gbWVtb3J5IGxlYWtzIChldmVudCBsaXN0ZW5lcnMsIHN1YnNjcmlwdGlvbnMpCgojIyA1LiBNYWludGFpbmFiaWxpdHkKLSBbIF0gQ29kZSBpcyByZWFkYWJsZSAobm90IG92ZXItY2xldmVyKQotIFsgXSBGdW5jdGlvbnMgYXJlIGZvY3VzZWQgKHNpbmdsZSByZXNwb25zaWJpbGl0eSkKLSBbIF0gTm8gZGVhZCBjb2RlIG9yIHVudXNlZCBpbXBvcnRz" />
   <ArchitectureDecision scenario="Your team is using AI to write code. A senior developer raises concerns about code quality. How do you establish a quality framework?" options={[
     {label:"Ban AI code generation -- go back to manual",tradeoff:"Safest but forfeits 30-50% productivity gain; team morale drops"},
     {label:"Require human review of all AI-generated code + automated tests must pass before merge",tradeoff:"Balanced -- AI generates, human validates, tests verify. Maintains quality with productivity gains"},

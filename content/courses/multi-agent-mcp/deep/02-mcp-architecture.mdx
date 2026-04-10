@@ -19,25 +19,7 @@ Before MCP, every AI integration was custom: bespoke API wrappers, custom authen
 
 ### MCP Architecture: Host → Client → Server
 
-<CodeBlock>
-{`┌──────────────────────────────────┐
-│  HOST (Claude Desktop / IDE)     │
-│                                  │
-│  ┌────────────────────────────┐  │
-│  │  CLIENT (MCP Client)       │  │
-│  │  Maintains 1:1 connections │  │
-│  └──────┬─────────┬───────────┘  │
-│         │         │              │
-└─────────┼─────────┼──────────────┘
-          │         │
-    ┌─────▼───┐ ┌───▼──────┐
-    │ Server  │ │ Server   │
-    │ (Files) │ │ (GitHub) │
-    └─────────┘ └──────────┘
-
-Each server exposes tools/resources/prompts
-via JSON-RPC 2.0 over stdio or HTTP.`}
-</CodeBlock>
+<CodeBlock b64="4pSM4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSQCuKUgiAgSE9TVCAoQ2xhdWRlIERlc2t0b3AgLyBJREUpICAgICDilIIK4pSCICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIOKUggrilIIgIOKUjOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUkCAg4pSCCuKUgiAg4pSCICBDTElFTlQgKE1DUCBDbGllbnQpICAgICAgIOKUgiAg4pSCCuKUgiAg4pSCICBNYWludGFpbnMgMToxIGNvbm5lY3Rpb25zIOKUgiAg4pSCCuKUgiAg4pSU4pSA4pSA4pSA4pSA4pSA4pSA4pSs4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSs4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSYICDilIIK4pSCICAgICAgICAg4pSCICAgICAgICAg4pSCICAgICAgICAgICAgICDilIIK4pSU4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pS84pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pS84pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSYCiAgICAgICAgICDilIIgICAgICAgICDilIIKICAgIOKUjOKUgOKUgOKUgOKUgOKUgOKWvOKUgOKUgOKUgOKUkCDilIzilIDilIDilIDilrzilIDilIDilIDilIDilIDilIDilJAKICAgIOKUgiBTZXJ2ZXIgIOKUgiDilIIgU2VydmVyICAg4pSCCiAgICDilIIgKEZpbGVzKSDilIIg4pSCIChHaXRIdWIpIOKUggogICAg4pSU4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSYIOKUlOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUmAoKRWFjaCBzZXJ2ZXIgZXhwb3NlcyB0b29scy9yZXNvdXJjZXMvcHJvbXB0cwp2aWEgSlNPTi1SUEMgMi4wIG92ZXIgc3RkaW8gb3IgSFRUUC4=" />
 
 <AnalogyBox emoji="🔌" title="MuleSoft Anypoint for AI">
 If you've worked with MuleSoft at McKesson, MCP will feel familiar. MuleSoft provides a universal API layer that connects any system (SAP, Salesforce, Oracle) through standardized connectors. MCP does the same for AI: any agent can connect to any data source through standardized tool/resource/prompt interfaces. The difference? MuleSoft connects applications. MCP connects intelligence.
@@ -45,52 +27,7 @@ If you've worked with MuleSoft at McKesson, MCP will feel familiar. MuleSoft pro
 
 ### Building an MCP Server
 
-<CodeBlock>
-{`from mcp.server import Server
-from mcp.server.stdio import stdio_server
-from mcp.types import Tool, TextContent
-import json
-
-app = Server("knowledge-base-server")
-
-# Define a tool the LLM can call
-@app.list_tools()
-async def list_tools():
-    return [
-        Tool(
-            name="search_knowledge",
-            description="Search the internal knowledge base",
-            inputSchema={'{'{'}'}
-                "type": "object",
-                "properties": {'{'{'}'}
-                    "query": {'{'{'}'}
-                        "type": "string",
-                        "description": "Search query"
-                    {'}'}
-                {'}'},
-                "required": ["query"]
-            {'}'}
-        )
-    ]
-
-@app.call_tool()
-async def call_tool(name: str, arguments: dict):
-    if name == "search_knowledge":
-        query = arguments["query"]
-        # In production: query your actual knowledge base
-        results = search_internal_kb(query)
-        return [TextContent(type="text", text=json.dumps(results))]
-
-# Run with stdio transport
-async def main():
-    async with stdio_server() as (read, write):
-        await app.run(read, write, 
-            app.create_initialization_options())
-
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBtY3Auc2VydmVyIGltcG9ydCBTZXJ2ZXIKZnJvbSBtY3Auc2VydmVyLnN0ZGlvIGltcG9ydCBzdGRpb19zZXJ2ZXIKZnJvbSBtY3AudHlwZXMgaW1wb3J0IFRvb2wsIFRleHRDb250ZW50CmltcG9ydCBqc29uCgphcHAgPSBTZXJ2ZXIoImtub3dsZWRnZS1iYXNlLXNlcnZlciIpCgojIERlZmluZSBhIHRvb2wgdGhlIExMTSBjYW4gY2FsbApAYXBwLmxpc3RfdG9vbHMoKQphc3luYyBkZWYgbGlzdF90b29scygpOgogICAgcmV0dXJuIFsKICAgICAgICBUb29sKAogICAgICAgICAgICBuYW1lPSJzZWFyY2hfa25vd2xlZGdlIiwKICAgICAgICAgICAgZGVzY3JpcHRpb249IlNlYXJjaCB0aGUgaW50ZXJuYWwga25vd2xlZGdlIGJhc2UiLAogICAgICAgICAgICBpbnB1dFNjaGVtYT17J3sneyd9J30KICAgICAgICAgICAgICAgICJ0eXBlIjogIm9iamVjdCIsCiAgICAgICAgICAgICAgICAicHJvcGVydGllcyI6IHsneyd7J30nfQogICAgICAgICAgICAgICAgICAgICJxdWVyeSI6IHsneyd7J30nfQogICAgICAgICAgICAgICAgICAgICAgICAidHlwZSI6ICJzdHJpbmciLAogICAgICAgICAgICAgICAgICAgICAgICAiZGVzY3JpcHRpb24iOiAiU2VhcmNoIHF1ZXJ5IgogICAgICAgICAgICAgICAgICAgIHsnfSd9CiAgICAgICAgICAgICAgICB7J30nfSwKICAgICAgICAgICAgICAgICJyZXF1aXJlZCI6IFsicXVlcnkiXQogICAgICAgICAgICB7J30nfQogICAgICAgICkKICAgIF0KCkBhcHAuY2FsbF90b29sKCkKYXN5bmMgZGVmIGNhbGxfdG9vbChuYW1lOiBzdHIsIGFyZ3VtZW50czogZGljdCk6CiAgICBpZiBuYW1lID09ICJzZWFyY2hfa25vd2xlZGdlIjoKICAgICAgICBxdWVyeSA9IGFyZ3VtZW50c1sicXVlcnkiXQogICAgICAgICMgSW4gcHJvZHVjdGlvbjogcXVlcnkgeW91ciBhY3R1YWwga25vd2xlZGdlIGJhc2UKICAgICAgICByZXN1bHRzID0gc2VhcmNoX2ludGVybmFsX2tiKHF1ZXJ5KQogICAgICAgIHJldHVybiBbVGV4dENvbnRlbnQodHlwZT0idGV4dCIsIHRleHQ9anNvbi5kdW1wcyhyZXN1bHRzKSldCgojIFJ1biB3aXRoIHN0ZGlvIHRyYW5zcG9ydAphc3luYyBkZWYgbWFpbigpOgogICAgYXN5bmMgd2l0aCBzdGRpb19zZXJ2ZXIoKSBhcyAocmVhZCwgd3JpdGUpOgogICAgICAgIGF3YWl0IGFwcC5ydW4ocmVhZCwgd3JpdGUsIAogICAgICAgICAgICBhcHAuY3JlYXRlX2luaXRpYWxpemF0aW9uX29wdGlvbnMoKSkKCmlmIF9fbmFtZV9fID09ICJfX21haW5fXyI6CiAgICBpbXBvcnQgYXN5bmNpbwogICAgYXN5bmNpby5ydW4obWFpbigpKQ==" />
 
 ### Why MCP Matters Now
 

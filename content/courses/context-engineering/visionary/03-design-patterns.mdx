@@ -19,29 +19,6 @@ icon: "\uD83D\uDEE0\uFE0F"
 Summarize old turns, compress docs into key facts, use structured formats (bullets, tables) over prose. A 500-token summary of 10 turns preserves meaning while saving 80% of tokens.
 </ExpandableSection>
 
-<CodeBlock>
-{`def assemble_context(system_prompt, query, docs, convo, max_tokens=4096):
-    budget = max_tokens
-    context = [{'{'{'}'}"role": "system", "content": system_prompt{'}'}]
-    budget -= count_tokens(system_prompt)
-
-    # Recent conversation (last 3 turns verbatim)
-    recent = convo[-6:]
-    for msg in recent:
-        budget -= count_tokens(msg["content"])
-
-    # Retrieved docs (fill remaining budget)
-    doc_ctx = ""
-    for doc in docs:
-        t = count_tokens(doc["text"])
-        if t <= budget - 200:  # Reserve 200 for query
-            doc_ctx += f"\\n---\\n{'{'{'}'}doc['text']{'}'}"
-            budget -= t
-    if doc_ctx:
-        context.append({'{'{'}'}"role":"user","content":f"Reference docs:{'{'{'}'}doc_ctx{'}'}"{'}'})
-    context.extend(recent)
-    context.append({'{'{'}'}"role": "user", "content": query{'}'})
-    return context`}
-</CodeBlock>
+<CodeBlock b64="ZGVmIGFzc2VtYmxlX2NvbnRleHQoc3lzdGVtX3Byb21wdCwgcXVlcnksIGRvY3MsIGNvbnZvLCBtYXhfdG9rZW5zPTQwOTYpOgogICAgYnVkZ2V0ID0gbWF4X3Rva2VucwogICAgY29udGV4dCA9IFt7J3sneyd9J30icm9sZSI6ICJzeXN0ZW0iLCAiY29udGVudCI6IHN5c3RlbV9wcm9tcHR7J30nfV0KICAgIGJ1ZGdldCAtPSBjb3VudF90b2tlbnMoc3lzdGVtX3Byb21wdCkKCiAgICAjIFJlY2VudCBjb252ZXJzYXRpb24gKGxhc3QgMyB0dXJucyB2ZXJiYXRpbSkKICAgIHJlY2VudCA9IGNvbnZvWy02Ol0KICAgIGZvciBtc2cgaW4gcmVjZW50OgogICAgICAgIGJ1ZGdldCAtPSBjb3VudF90b2tlbnMobXNnWyJjb250ZW50Il0pCgogICAgIyBSZXRyaWV2ZWQgZG9jcyAoZmlsbCByZW1haW5pbmcgYnVkZ2V0KQogICAgZG9jX2N0eCA9ICIiCiAgICBmb3IgZG9jIGluIGRvY3M6CiAgICAgICAgdCA9IGNvdW50X3Rva2Vucyhkb2NbInRleHQiXSkKICAgICAgICBpZiB0IDw9IGJ1ZGdldCAtIDIwMDogICMgUmVzZXJ2ZSAyMDAgZm9yIHF1ZXJ5CiAgICAgICAgICAgIGRvY19jdHggKz0gZiJcXG4tLS1cXG57J3sneyd9J31kb2NbJ3RleHQnXXsnfSd9IgogICAgICAgICAgICBidWRnZXQgLT0gdAogICAgaWYgZG9jX2N0eDoKICAgICAgICBjb250ZXh0LmFwcGVuZCh7J3sneyd9J30icm9sZSI6InVzZXIiLCJjb250ZW50IjpmIlJlZmVyZW5jZSBkb2NzOnsneyd7J30nfWRvY19jdHh7J30nfSJ7J30nfSkKICAgIGNvbnRleHQuZXh0ZW5kKHJlY2VudCkKICAgIGNvbnRleHQuYXBwZW5kKHsneyd7J30nfSJyb2xlIjogInVzZXIiLCAiY29udGVudCI6IHF1ZXJ5eyd9J30pCiAgICByZXR1cm4gY29udGV4dA==" />
 
 <Quiz question="Where should you place critical instructions in a long context?" options={["In the middle, surrounded by supporting text","At the very beginning or very end","It does not matter with modern models","Only at the end"]} correctIndex={1} explanation="Due to primacy and recency effects, models attend most to the start and end of context. Put critical instructions in the system prompt (beginning) and repeat before the final user query (end)." />

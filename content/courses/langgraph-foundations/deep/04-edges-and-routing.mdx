@@ -18,37 +18,7 @@ If nodes are the workers, edges are the manager deciding who works next. LangGra
 
 The routing function is a plain Python function. It receives the current state and returns a **string** — the name of the next node. Simple, testable, debuggable.
 
-<CodeBlock>
-{`from typing import Literal
-
-def should_retry(state: ResearchState) -> Literal["summarize", "rewrite", "end"]:
-    """
-    Called after grade_node. Inspects state, returns next node name.
-    
-    CRITICAL: Every possible return value MUST have a 
-    matching entry in the conditional_edges mapping.
-    Missing a return value = runtime crash.
-    """
-    if state["quality_score"] >= 7.0:
-        return "summarize"     # Good results → summarize
-    
-    if state["retry_count"] >= state.get("max_retries", 3):
-        return "end"           # Safety limit → stop gracefully
-    
-    return "rewrite"           # Poor results → rewrite & retry
-
-
-# ─── Wiring it into the graph ───
-graph.add_conditional_edges(
-    "grade",              # Source node
-    should_retry,         # Routing function
-    {'{'{'}'}
-        "summarize": "summarize",
-        "rewrite": "rewrite",
-        "end": END          # Map EVERY return value!
-    {'}'}
-)`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSB0eXBpbmcgaW1wb3J0IExpdGVyYWwKCmRlZiBzaG91bGRfcmV0cnkoc3RhdGU6IFJlc2VhcmNoU3RhdGUpIC0+IExpdGVyYWxbInN1bW1hcml6ZSIsICJyZXdyaXRlIiwgImVuZCJdOgogICAgIiIiCiAgICBDYWxsZWQgYWZ0ZXIgZ3JhZGVfbm9kZS4gSW5zcGVjdHMgc3RhdGUsIHJldHVybnMgbmV4dCBub2RlIG5hbWUuCiAgICAKICAgIENSSVRJQ0FMOiBFdmVyeSBwb3NzaWJsZSByZXR1cm4gdmFsdWUgTVVTVCBoYXZlIGEgCiAgICBtYXRjaGluZyBlbnRyeSBpbiB0aGUgY29uZGl0aW9uYWxfZWRnZXMgbWFwcGluZy4KICAgIE1pc3NpbmcgYSByZXR1cm4gdmFsdWUgPSBydW50aW1lIGNyYXNoLgogICAgIiIiCiAgICBpZiBzdGF0ZVsicXVhbGl0eV9zY29yZSJdID49IDcuMDoKICAgICAgICByZXR1cm4gInN1bW1hcml6ZSIgICAgICMgR29vZCByZXN1bHRzIOKGkiBzdW1tYXJpemUKICAgIAogICAgaWYgc3RhdGVbInJldHJ5X2NvdW50Il0gPj0gc3RhdGUuZ2V0KCJtYXhfcmV0cmllcyIsIDMpOgogICAgICAgIHJldHVybiAiZW5kIiAgICAgICAgICAgIyBTYWZldHkgbGltaXQg4oaSIHN0b3AgZ3JhY2VmdWxseQogICAgCiAgICByZXR1cm4gInJld3JpdGUiICAgICAgICAgICAjIFBvb3IgcmVzdWx0cyDihpIgcmV3cml0ZSAmIHJldHJ5CgoKIyDilIDilIDilIAgV2lyaW5nIGl0IGludG8gdGhlIGdyYXBoIOKUgOKUgOKUgApncmFwaC5hZGRfY29uZGl0aW9uYWxfZWRnZXMoCiAgICAiZ3JhZGUiLCAgICAgICAgICAgICAgIyBTb3VyY2Ugbm9kZQogICAgc2hvdWxkX3JldHJ5LCAgICAgICAgICMgUm91dGluZyBmdW5jdGlvbgogICAgeyd7J3snfSd9CiAgICAgICAgInN1bW1hcml6ZSI6ICJzdW1tYXJpemUiLAogICAgICAgICJyZXdyaXRlIjogInJld3JpdGUiLAogICAgICAgICJlbmQiOiBFTkQgICAgICAgICAgIyBNYXAgRVZFUlkgcmV0dXJuIHZhbHVlIQogICAgeyd9J30KKQ==" />
 
 <AnalogyBox emoji="🚦" title="Smart Traffic Light">
 A conditional edge is like a smart traffic light that reads sensors instead of following fixed timing. How many cars are waiting? Is an ambulance approaching? Based on this state, it decides which direction gets green. Your routing function reads agent state and decides which node executes next.
@@ -56,70 +26,13 @@ A conditional edge is like a smart traffic light that reads sensors instead of f
 
 ### Assembling the Complete Graph
 
-<CodeBlock>
-{`from langgraph.graph import StateGraph, END, START
-
-# 1. Create graph with state schema
-graph = StateGraph(ResearchState)
-
-# 2. Register all nodes
-graph.add_node("search", search_node)
-graph.add_node("grade", grade_node)
-graph.add_node("rewrite", rewrite_node)
-graph.add_node("summarize", summarize_node)
-
-# 3. Fixed edges
-graph.add_edge(START, "search")        # Always search first
-graph.add_edge("search", "grade")      # Always grade after search
-graph.add_edge("rewrite", "search")    # Rewrite → search again (CYCLE!)
-graph.add_edge("summarize", END)       # Summary → done
-
-# 4. Conditional edge (the decision point)
-graph.add_conditional_edges(
-    "grade", should_retry,
-    {'{'{'}'}"summarize": "summarize", "rewrite": "rewrite", "end": END{'}'}
-)
-
-# 5. Compile & run
-app = graph.compile()
-result = app.invoke({'{'{'}'}
-    "query": "Latest AI governance frameworks 2026",
-    "original_query": "Latest AI governance frameworks 2026",
-    "search_results": [], "quality_score": 0.0,
-    "summary": "", "sources": [], "retry_count": 0,
-    "max_retries": 3, "current_node": "", "error": None,
-    "messages": []
-{'}'})
-print(result["summary"])`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBsYW5nZ3JhcGguZ3JhcGggaW1wb3J0IFN0YXRlR3JhcGgsIEVORCwgU1RBUlQKCiMgMS4gQ3JlYXRlIGdyYXBoIHdpdGggc3RhdGUgc2NoZW1hCmdyYXBoID0gU3RhdGVHcmFwaChSZXNlYXJjaFN0YXRlKQoKIyAyLiBSZWdpc3RlciBhbGwgbm9kZXMKZ3JhcGguYWRkX25vZGUoInNlYXJjaCIsIHNlYXJjaF9ub2RlKQpncmFwaC5hZGRfbm9kZSgiZ3JhZGUiLCBncmFkZV9ub2RlKQpncmFwaC5hZGRfbm9kZSgicmV3cml0ZSIsIHJld3JpdGVfbm9kZSkKZ3JhcGguYWRkX25vZGUoInN1bW1hcml6ZSIsIHN1bW1hcml6ZV9ub2RlKQoKIyAzLiBGaXhlZCBlZGdlcwpncmFwaC5hZGRfZWRnZShTVEFSVCwgInNlYXJjaCIpICAgICAgICAjIEFsd2F5cyBzZWFyY2ggZmlyc3QKZ3JhcGguYWRkX2VkZ2UoInNlYXJjaCIsICJncmFkZSIpICAgICAgIyBBbHdheXMgZ3JhZGUgYWZ0ZXIgc2VhcmNoCmdyYXBoLmFkZF9lZGdlKCJyZXdyaXRlIiwgInNlYXJjaCIpICAgICMgUmV3cml0ZSDihpIgc2VhcmNoIGFnYWluIChDWUNMRSEpCmdyYXBoLmFkZF9lZGdlKCJzdW1tYXJpemUiLCBFTkQpICAgICAgICMgU3VtbWFyeSDihpIgZG9uZQoKIyA0LiBDb25kaXRpb25hbCBlZGdlICh0aGUgZGVjaXNpb24gcG9pbnQpCmdyYXBoLmFkZF9jb25kaXRpb25hbF9lZGdlcygKICAgICJncmFkZSIsIHNob3VsZF9yZXRyeSwKICAgIHsneyd7J30nfSJzdW1tYXJpemUiOiAic3VtbWFyaXplIiwgInJld3JpdGUiOiAicmV3cml0ZSIsICJlbmQiOiBFTkR7J30nfQopCgojIDUuIENvbXBpbGUgJiBydW4KYXBwID0gZ3JhcGguY29tcGlsZSgpCnJlc3VsdCA9IGFwcC5pbnZva2Uoeyd7J3snfSd9CiAgICAicXVlcnkiOiAiTGF0ZXN0IEFJIGdvdmVybmFuY2UgZnJhbWV3b3JrcyAyMDI2IiwKICAgICJvcmlnaW5hbF9xdWVyeSI6ICJMYXRlc3QgQUkgZ292ZXJuYW5jZSBmcmFtZXdvcmtzIDIwMjYiLAogICAgInNlYXJjaF9yZXN1bHRzIjogW10sICJxdWFsaXR5X3Njb3JlIjogMC4wLAogICAgInN1bW1hcnkiOiAiIiwgInNvdXJjZXMiOiBbXSwgInJldHJ5X2NvdW50IjogMCwKICAgICJtYXhfcmV0cmllcyI6IDMsICJjdXJyZW50X25vZGUiOiAiIiwgImVycm9yIjogTm9uZSwKICAgICJtZXNzYWdlcyI6IFtdCnsnfSd9KQpwcmludChyZXN1bHRbInN1bW1hcnkiXSk=" />
 
 Notice `graph.add_edge("rewrite", "search")` — this is the **cycle**. After rewriting, we go back to search. This is impossible in a LangChain chain (DAGs have no cycles). This single capability is why LangGraph exists.
 
 ### Common Pitfall: The Missing Route Bug
 
-<CodeBlock>
-{`# THIS WILL CRASH at runtime:
-graph.add_conditional_edges(
-    "grade", should_retry,
-    {'{'{'}'}
-        "summarize": "summarize",
-        "rewrite": "rewrite",
-        # ❌ Missing "end" mapping!
-        # When retry_count >= 3, should_retry returns "end"
-        # but no mapping exists → KeyError at runtime
-    {'}'}
-)
-
-# ✅ FIX: Map EVERY possible return value
-graph.add_conditional_edges(
-    "grade", should_retry,
-    {'{'{'}'}
-        "summarize": "summarize",
-        "rewrite": "rewrite",
-        "end": END   # ← Always handle ALL routes!
-    {'}'}
-)`}
-</CodeBlock>
+<CodeBlock b64="IyBUSElTIFdJTEwgQ1JBU0ggYXQgcnVudGltZToKZ3JhcGguYWRkX2NvbmRpdGlvbmFsX2VkZ2VzKAogICAgImdyYWRlIiwgc2hvdWxkX3JldHJ5LAogICAgeyd7J3snfSd9CiAgICAgICAgInN1bW1hcml6ZSI6ICJzdW1tYXJpemUiLAogICAgICAgICJyZXdyaXRlIjogInJld3JpdGUiLAogICAgICAgICMg4p2MIE1pc3NpbmcgImVuZCIgbWFwcGluZyEKICAgICAgICAjIFdoZW4gcmV0cnlfY291bnQgPj0gMywgc2hvdWxkX3JldHJ5IHJldHVybnMgImVuZCIKICAgICAgICAjIGJ1dCBubyBtYXBwaW5nIGV4aXN0cyDihpIgS2V5RXJyb3IgYXQgcnVudGltZQogICAgeyd9J30KKQoKIyDinIUgRklYOiBNYXAgRVZFUlkgcG9zc2libGUgcmV0dXJuIHZhbHVlCmdyYXBoLmFkZF9jb25kaXRpb25hbF9lZGdlcygKICAgICJncmFkZSIsIHNob3VsZF9yZXRyeSwKICAgIHsneyd7J30nfQogICAgICAgICJzdW1tYXJpemUiOiAic3VtbWFyaXplIiwKICAgICAgICAicmV3cml0ZSI6ICJyZXdyaXRlIiwKICAgICAgICAiZW5kIjogRU5EICAgIyDihpAgQWx3YXlzIGhhbmRsZSBBTEwgcm91dGVzIQogICAgeyd9J30KKQ==" />
 
 > **Production Rule**: Use Python's `Literal` type hint on routing functions. `def should_retry(...) -> Literal["summarize", "rewrite", "end"]` catches missing routes before runtime.
 

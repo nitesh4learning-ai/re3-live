@@ -7,42 +7,7 @@ icon: "📄"
 
 <JargonTip term="model card">Model cards</JargonTip> are standardized documents that describe an AI model's intended use, performance characteristics, limitations, and ethical considerations. They serve as the primary accountability artifact for AI systems.
 
-<CodeBlock>
-{`{'{'{'}'}
-  "model_name": "Customer Churn Predictor v2.1",
-  "model_type": "Binary classification (gradient boosting)",
-  "intended_use": {'{'{'}'}
-    "primary": "Predict customer churn risk for retention campaigns",
-    "users": ["Customer success team", "Marketing automation"],
-    "out_of_scope": ["Credit decisions", "Employment screening"]
-  {'}'},
-  "training_data": {'{'{'}'}
-    "source": "Internal CRM, 2022-2024",
-    "size": "450,000 customer records",
-    "demographics": "US customers, enterprise segment",
-    "known_gaps": ["Limited APAC representation", "No SMB data"]
-  {'}'},
-  "performance": {'{'{'}'}
-    "accuracy": 0.87,
-    "precision": 0.82,
-    "recall": 0.79,
-    "auc_roc": 0.91,
-    "fairness_metrics": {'{'{'}'}
-      "demographic_parity": 0.95,
-      "equal_opportunity": 0.92
-    {'}'}
-  {'}'},
-  "limitations": [
-    "Performance degrades for customers with < 3 months history",
-    "Not validated for APAC markets",
-    "Seasonal patterns may cause drift in Q4"
-  ],
-  "ethical_considerations": [
-    "Model should not be used for discriminatory pricing",
-    "Human review required before any account actions"
-  ]
-{'}'}`}
-</CodeBlock>
+<CodeBlock b64="eyd7J3snfSd9CiAgIm1vZGVsX25hbWUiOiAiQ3VzdG9tZXIgQ2h1cm4gUHJlZGljdG9yIHYyLjEiLAogICJtb2RlbF90eXBlIjogIkJpbmFyeSBjbGFzc2lmaWNhdGlvbiAoZ3JhZGllbnQgYm9vc3RpbmcpIiwKICAiaW50ZW5kZWRfdXNlIjogeyd7J3snfSd9CiAgICAicHJpbWFyeSI6ICJQcmVkaWN0IGN1c3RvbWVyIGNodXJuIHJpc2sgZm9yIHJldGVudGlvbiBjYW1wYWlnbnMiLAogICAgInVzZXJzIjogWyJDdXN0b21lciBzdWNjZXNzIHRlYW0iLCAiTWFya2V0aW5nIGF1dG9tYXRpb24iXSwKICAgICJvdXRfb2Zfc2NvcGUiOiBbIkNyZWRpdCBkZWNpc2lvbnMiLCAiRW1wbG95bWVudCBzY3JlZW5pbmciXQogIHsnfSd9LAogICJ0cmFpbmluZ19kYXRhIjogeyd7J3snfSd9CiAgICAic291cmNlIjogIkludGVybmFsIENSTSwgMjAyMi0yMDI0IiwKICAgICJzaXplIjogIjQ1MCwwMDAgY3VzdG9tZXIgcmVjb3JkcyIsCiAgICAiZGVtb2dyYXBoaWNzIjogIlVTIGN1c3RvbWVycywgZW50ZXJwcmlzZSBzZWdtZW50IiwKICAgICJrbm93bl9nYXBzIjogWyJMaW1pdGVkIEFQQUMgcmVwcmVzZW50YXRpb24iLCAiTm8gU01CIGRhdGEiXQogIHsnfSd9LAogICJwZXJmb3JtYW5jZSI6IHsneyd7J30nfQogICAgImFjY3VyYWN5IjogMC44NywKICAgICJwcmVjaXNpb24iOiAwLjgyLAogICAgInJlY2FsbCI6IDAuNzksCiAgICAiYXVjX3JvYyI6IDAuOTEsCiAgICAiZmFpcm5lc3NfbWV0cmljcyI6IHsneyd7J30nfQogICAgICAiZGVtb2dyYXBoaWNfcGFyaXR5IjogMC45NSwKICAgICAgImVxdWFsX29wcG9ydHVuaXR5IjogMC45MgogICAgeyd9J30KICB7J30nfSwKICAibGltaXRhdGlvbnMiOiBbCiAgICAiUGVyZm9ybWFuY2UgZGVncmFkZXMgZm9yIGN1c3RvbWVycyB3aXRoIDwgMyBtb250aHMgaGlzdG9yeSIsCiAgICAiTm90IHZhbGlkYXRlZCBmb3IgQVBBQyBtYXJrZXRzIiwKICAgICJTZWFzb25hbCBwYXR0ZXJucyBtYXkgY2F1c2UgZHJpZnQgaW4gUTQiCiAgXSwKICAiZXRoaWNhbF9jb25zaWRlcmF0aW9ucyI6IFsKICAgICJNb2RlbCBzaG91bGQgbm90IGJlIHVzZWQgZm9yIGRpc2NyaW1pbmF0b3J5IHByaWNpbmciLAogICAgIkh1bWFuIHJldmlldyByZXF1aXJlZCBiZWZvcmUgYW55IGFjY291bnQgYWN0aW9ucyIKICBdCnsnfSd9" />
 
 <ExpandableSection title="Key Sections of a Model Card" icon="📄" defaultOpen={true}>
 

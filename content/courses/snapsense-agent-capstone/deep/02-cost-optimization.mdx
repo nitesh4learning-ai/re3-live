@@ -23,43 +23,7 @@ This is like IT support tiers: L1 handles password resets (cheap, fast), L2 hand
 
 ### Cost Tracking in State
 
-<CodeBlock>
-{`from typing import TypedDict, List
-
-class AgentState(TypedDict):
-    # ... existing fields ...
-    
-    # Cost tracking
-    total_tokens_input: int
-    total_tokens_output: int
-    total_cost_usd: float
-    model_calls: List[dict]  # [{'{'{'}'}model, tokens, cost, node{'}'}]
-    
-def track_cost(state, model, input_tokens, output_tokens, node_name):
-    """
-    Track per-call cost for observability.
-    Critical for proving ROI to leadership.
-    """
-    # Approximate costs per 1K tokens (input/output)
-    COSTS = {'{'{'}'}
-        "gemini-flash": (0.003, 0.006),
-        "claude-haiku": (0.005, 0.01),
-        "claude-sonnet": (0.015, 0.06),
-    {'}'}
-    in_rate, out_rate = COSTS.get(model, (0.01, 0.03))
-    cost = (input_tokens * in_rate + output_tokens * out_rate) / 1000
-    
-    return {'{'{'}'}
-        "total_tokens_input": state["total_tokens_input"] + input_tokens,
-        "total_tokens_output": state["total_tokens_output"] + output_tokens,
-        "total_cost_usd": state["total_cost_usd"] + cost,
-        "model_calls": state["model_calls"] + [{'{'{'}'}
-            "model": model, "node": node_name,
-            "tokens": input_tokens + output_tokens,
-            "cost": round(cost, 6)
-        {'}'}]
-    {'}'}`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSB0eXBpbmcgaW1wb3J0IFR5cGVkRGljdCwgTGlzdAoKY2xhc3MgQWdlbnRTdGF0ZShUeXBlZERpY3QpOgogICAgIyAuLi4gZXhpc3RpbmcgZmllbGRzIC4uLgogICAgCiAgICAjIENvc3QgdHJhY2tpbmcKICAgIHRvdGFsX3Rva2Vuc19pbnB1dDogaW50CiAgICB0b3RhbF90b2tlbnNfb3V0cHV0OiBpbnQKICAgIHRvdGFsX2Nvc3RfdXNkOiBmbG9hdAogICAgbW9kZWxfY2FsbHM6IExpc3RbZGljdF0gICMgW3sneyd7J30nfW1vZGVsLCB0b2tlbnMsIGNvc3QsIG5vZGV7J30nfV0KICAgIApkZWYgdHJhY2tfY29zdChzdGF0ZSwgbW9kZWwsIGlucHV0X3Rva2Vucywgb3V0cHV0X3Rva2Vucywgbm9kZV9uYW1lKToKICAgICIiIgogICAgVHJhY2sgcGVyLWNhbGwgY29zdCBmb3Igb2JzZXJ2YWJpbGl0eS4KICAgIENyaXRpY2FsIGZvciBwcm92aW5nIFJPSSB0byBsZWFkZXJzaGlwLgogICAgIiIiCiAgICAjIEFwcHJveGltYXRlIGNvc3RzIHBlciAxSyB0b2tlbnMgKGlucHV0L291dHB1dCkKICAgIENPU1RTID0geyd7J3snfSd9CiAgICAgICAgImdlbWluaS1mbGFzaCI6ICgwLjAwMywgMC4wMDYpLAogICAgICAgICJjbGF1ZGUtaGFpa3UiOiAoMC4wMDUsIDAuMDEpLAogICAgICAgICJjbGF1ZGUtc29ubmV0IjogKDAuMDE1LCAwLjA2KSwKICAgIHsnfSd9CiAgICBpbl9yYXRlLCBvdXRfcmF0ZSA9IENPU1RTLmdldChtb2RlbCwgKDAuMDEsIDAuMDMpKQogICAgY29zdCA9IChpbnB1dF90b2tlbnMgKiBpbl9yYXRlICsgb3V0cHV0X3Rva2VucyAqIG91dF9yYXRlKSAvIDEwMDAKICAgIAogICAgcmV0dXJuIHsneyd7J30nfQogICAgICAgICJ0b3RhbF90b2tlbnNfaW5wdXQiOiBzdGF0ZVsidG90YWxfdG9rZW5zX2lucHV0Il0gKyBpbnB1dF90b2tlbnMsCiAgICAgICAgInRvdGFsX3Rva2Vuc19vdXRwdXQiOiBzdGF0ZVsidG90YWxfdG9rZW5zX291dHB1dCJdICsgb3V0cHV0X3Rva2VucywKICAgICAgICAidG90YWxfY29zdF91c2QiOiBzdGF0ZVsidG90YWxfY29zdF91c2QiXSArIGNvc3QsCiAgICAgICAgIm1vZGVsX2NhbGxzIjogc3RhdGVbIm1vZGVsX2NhbGxzIl0gKyBbeyd7J3snfSd9CiAgICAgICAgICAgICJtb2RlbCI6IG1vZGVsLCAibm9kZSI6IG5vZGVfbmFtZSwKICAgICAgICAgICAgInRva2VucyI6IGlucHV0X3Rva2VucyArIG91dHB1dF90b2tlbnMsCiAgICAgICAgICAgICJjb3N0Ijogcm91bmQoY29zdCwgNikKICAgICAgICB7J30nfV0KICAgIHsnfSd9" />
 
 <Quiz
   question="SnapSense averages $0.019/scan with Gemini Flash. If you add an agent quality gate that calls Haiku for grading (adds ~$0.005/scan), what's the business case?"

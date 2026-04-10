@@ -9,116 +9,11 @@ The <JargonTip term="Claude Agent SDK">Claude Agent SDK</JargonTip> (evolved fro
 
 ### Subagents: Agents Spawning Agents
 
-<CodeBlock>
-{`from anthropic import Anthropic
-
-client = Anthropic()
-
-def run_research_subagent(topic: str) -> str:
-    """
-    Spawn a focused subagent for research.
-    The parent agent delegates a specific task,
-    the subagent completes it independently.
-    
-    Like a Director delegating a data quality analysis
-    to a senior analyst — clear scope, independent execution,
-    results roll up to the parent.
-    """
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=2048,
-        system=(
-            "You are a research specialist. "
-            "Thoroughly research the given topic. "
-            "Return structured findings with sources."
-        ),
-        messages=[{'{'{'}'}
-            "role": "user",
-            "content": f"Research this topic: {'{'{'}'}topic{'}'}"
-        {'}'}]
-    )
-    return response.content[0].text
-
-
-def run_analysis_subagent(research: str) -> str:
-    """
-    Second subagent analyzes the research output.
-    Each subagent has its own context window and 
-    system prompt — they're isolated specialists.
-    """
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=2048,
-        system=(
-            "You are a strategic analyst. "
-            "Identify patterns, risks, and opportunities."
-        ),
-        messages=[{'{'{'}'}
-            "role": "user",
-            "content": f"Analyze these findings:\\n{'{'{'}'}research{'}'}"
-        {'}'}]
-    )
-    return response.content[0].text`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBhbnRocm9waWMgaW1wb3J0IEFudGhyb3BpYwoKY2xpZW50ID0gQW50aHJvcGljKCkKCmRlZiBydW5fcmVzZWFyY2hfc3ViYWdlbnQodG9waWM6IHN0cikgLT4gc3RyOgogICAgIiIiCiAgICBTcGF3biBhIGZvY3VzZWQgc3ViYWdlbnQgZm9yIHJlc2VhcmNoLgogICAgVGhlIHBhcmVudCBhZ2VudCBkZWxlZ2F0ZXMgYSBzcGVjaWZpYyB0YXNrLAogICAgdGhlIHN1YmFnZW50IGNvbXBsZXRlcyBpdCBpbmRlcGVuZGVudGx5LgogICAgCiAgICBMaWtlIGEgRGlyZWN0b3IgZGVsZWdhdGluZyBhIGRhdGEgcXVhbGl0eSBhbmFseXNpcwogICAgdG8gYSBzZW5pb3IgYW5hbHlzdCDigJQgY2xlYXIgc2NvcGUsIGluZGVwZW5kZW50IGV4ZWN1dGlvbiwKICAgIHJlc3VsdHMgcm9sbCB1cCB0byB0aGUgcGFyZW50LgogICAgIiIiCiAgICByZXNwb25zZSA9IGNsaWVudC5tZXNzYWdlcy5jcmVhdGUoCiAgICAgICAgbW9kZWw9ImNsYXVkZS1zb25uZXQtNC0yMDI1MDUxNCIsCiAgICAgICAgbWF4X3Rva2Vucz0yMDQ4LAogICAgICAgIHN5c3RlbT0oCiAgICAgICAgICAgICJZb3UgYXJlIGEgcmVzZWFyY2ggc3BlY2lhbGlzdC4gIgogICAgICAgICAgICAiVGhvcm91Z2hseSByZXNlYXJjaCB0aGUgZ2l2ZW4gdG9waWMuICIKICAgICAgICAgICAgIlJldHVybiBzdHJ1Y3R1cmVkIGZpbmRpbmdzIHdpdGggc291cmNlcy4iCiAgICAgICAgKSwKICAgICAgICBtZXNzYWdlcz1beyd7J3snfSd9CiAgICAgICAgICAgICJyb2xlIjogInVzZXIiLAogICAgICAgICAgICAiY29udGVudCI6IGYiUmVzZWFyY2ggdGhpcyB0b3BpYzogeyd7J3snfSd9dG9waWN7J30nfSIKICAgICAgICB7J30nfV0KICAgICkKICAgIHJldHVybiByZXNwb25zZS5jb250ZW50WzBdLnRleHQKCgpkZWYgcnVuX2FuYWx5c2lzX3N1YmFnZW50KHJlc2VhcmNoOiBzdHIpIC0+IHN0cjoKICAgICIiIgogICAgU2Vjb25kIHN1YmFnZW50IGFuYWx5emVzIHRoZSByZXNlYXJjaCBvdXRwdXQuCiAgICBFYWNoIHN1YmFnZW50IGhhcyBpdHMgb3duIGNvbnRleHQgd2luZG93IGFuZCAKICAgIHN5c3RlbSBwcm9tcHQg4oCUIHRoZXkncmUgaXNvbGF0ZWQgc3BlY2lhbGlzdHMuCiAgICAiIiIKICAgIHJlc3BvbnNlID0gY2xpZW50Lm1lc3NhZ2VzLmNyZWF0ZSgKICAgICAgICBtb2RlbD0iY2xhdWRlLXNvbm5ldC00LTIwMjUwNTE0IiwKICAgICAgICBtYXhfdG9rZW5zPTIwNDgsCiAgICAgICAgc3lzdGVtPSgKICAgICAgICAgICAgIllvdSBhcmUgYSBzdHJhdGVnaWMgYW5hbHlzdC4gIgogICAgICAgICAgICAiSWRlbnRpZnkgcGF0dGVybnMsIHJpc2tzLCBhbmQgb3Bwb3J0dW5pdGllcy4iCiAgICAgICAgKSwKICAgICAgICBtZXNzYWdlcz1beyd7J3snfSd9CiAgICAgICAgICAgICJyb2xlIjogInVzZXIiLAogICAgICAgICAgICAiY29udGVudCI6IGYiQW5hbHl6ZSB0aGVzZSBmaW5kaW5nczpcXG57J3sneyd9J31yZXNlYXJjaHsnfSd9IgogICAgICAgIHsnfSd9XQogICAgKQogICAgcmV0dXJuIHJlc3BvbnNlLmNvbnRlbnRbMF0udGV4dA==" />
 
 ### Connecting Agents to MCP Servers
 
-<CodeBlock>
-{`from anthropic import Anthropic
-
-client = Anthropic()
-
-# Define tools that map to your MCP server's capabilities
-tools = [
-    {'{'{'}'}
-        "name": "search_supplier_db",
-        "description": "Search McKesson's supplier master database",
-        "input_schema": {'{'{'}'}
-            "type": "object",
-            "properties": {'{'{'}'}
-                "query": {'{'{'}'}"type": "string", "description": "Supplier name or ID"{'}'},
-                "match_type": {'{'{'}'}
-                    "type": "string",
-                    "enum": ["exact", "fuzzy"],
-                    "description": "Match strategy"
-                {'}'}
-            {'}'},
-            "required": ["query"]
-        {'}'}
-    {'}'},
-    {'{'{'}'}
-        "name": "validate_tax_id",
-        "description": "Validate a US Tax ID (EIN) against IRS database",
-        "input_schema": {'{'{'}'}
-            "type": "object",
-            "properties": {'{'{'}'}
-                "tax_id": {'{'{'}'}"type": "string", "description": "EIN to validate"{'}'}
-            {'}'},
-            "required": ["tax_id"]
-        {'}'}
-    {'}'}
-]
-
-# Agent with tool use
-response = client.messages.create(
-    model="claude-sonnet-4-20250514",
-    max_tokens=1024,
-    tools=tools,
-    messages=[{'{'{'}'}
-        "role": "user",
-        "content": "Check if supplier 'Acme Pharma Inc' exists "
-                   "and validate their tax ID 12-3456789"
-    {'}'}]
-)
-
-# Process tool use responses
-for block in response.content:
-    if block.type == "tool_use":
-        tool_name = block.name
-        tool_input = block.input
-        print(f"Agent wants to call: {'{'{'}'}tool_name{'}'}({'{'{'}'}tool_input{'}'})")
-        # Route to your MCP server or direct implementation`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBhbnRocm9waWMgaW1wb3J0IEFudGhyb3BpYwoKY2xpZW50ID0gQW50aHJvcGljKCkKCiMgRGVmaW5lIHRvb2xzIHRoYXQgbWFwIHRvIHlvdXIgTUNQIHNlcnZlcidzIGNhcGFiaWxpdGllcwp0b29scyA9IFsKICAgIHsneyd7J30nfQogICAgICAgICJuYW1lIjogInNlYXJjaF9zdXBwbGllcl9kYiIsCiAgICAgICAgImRlc2NyaXB0aW9uIjogIlNlYXJjaCBNY0tlc3NvbidzIHN1cHBsaWVyIG1hc3RlciBkYXRhYmFzZSIsCiAgICAgICAgImlucHV0X3NjaGVtYSI6IHsneyd7J30nfQogICAgICAgICAgICAidHlwZSI6ICJvYmplY3QiLAogICAgICAgICAgICAicHJvcGVydGllcyI6IHsneyd7J30nfQogICAgICAgICAgICAgICAgInF1ZXJ5Ijogeyd7J3snfSd9InR5cGUiOiAic3RyaW5nIiwgImRlc2NyaXB0aW9uIjogIlN1cHBsaWVyIG5hbWUgb3IgSUQieyd9J30sCiAgICAgICAgICAgICAgICAibWF0Y2hfdHlwZSI6IHsneyd7J30nfQogICAgICAgICAgICAgICAgICAgICJ0eXBlIjogInN0cmluZyIsCiAgICAgICAgICAgICAgICAgICAgImVudW0iOiBbImV4YWN0IiwgImZ1enp5Il0sCiAgICAgICAgICAgICAgICAgICAgImRlc2NyaXB0aW9uIjogIk1hdGNoIHN0cmF0ZWd5IgogICAgICAgICAgICAgICAgeyd9J30KICAgICAgICAgICAgeyd9J30sCiAgICAgICAgICAgICJyZXF1aXJlZCI6IFsicXVlcnkiXQogICAgICAgIHsnfSd9CiAgICB7J30nfSwKICAgIHsneyd7J30nfQogICAgICAgICJuYW1lIjogInZhbGlkYXRlX3RheF9pZCIsCiAgICAgICAgImRlc2NyaXB0aW9uIjogIlZhbGlkYXRlIGEgVVMgVGF4IElEIChFSU4pIGFnYWluc3QgSVJTIGRhdGFiYXNlIiwKICAgICAgICAiaW5wdXRfc2NoZW1hIjogeyd7J3snfSd9CiAgICAgICAgICAgICJ0eXBlIjogIm9iamVjdCIsCiAgICAgICAgICAgICJwcm9wZXJ0aWVzIjogeyd7J3snfSd9CiAgICAgICAgICAgICAgICAidGF4X2lkIjogeyd7J3snfSd9InR5cGUiOiAic3RyaW5nIiwgImRlc2NyaXB0aW9uIjogIkVJTiB0byB2YWxpZGF0ZSJ7J30nfQogICAgICAgICAgICB7J30nfSwKICAgICAgICAgICAgInJlcXVpcmVkIjogWyJ0YXhfaWQiXQogICAgICAgIHsnfSd9CiAgICB7J30nfQpdCgojIEFnZW50IHdpdGggdG9vbCB1c2UKcmVzcG9uc2UgPSBjbGllbnQubWVzc2FnZXMuY3JlYXRlKAogICAgbW9kZWw9ImNsYXVkZS1zb25uZXQtNC0yMDI1MDUxNCIsCiAgICBtYXhfdG9rZW5zPTEwMjQsCiAgICB0b29scz10b29scywKICAgIG1lc3NhZ2VzPVt7J3sneyd9J30KICAgICAgICAicm9sZSI6ICJ1c2VyIiwKICAgICAgICAiY29udGVudCI6ICJDaGVjayBpZiBzdXBwbGllciAnQWNtZSBQaGFybWEgSW5jJyBleGlzdHMgIgogICAgICAgICAgICAgICAgICAgImFuZCB2YWxpZGF0ZSB0aGVpciB0YXggSUQgMTItMzQ1Njc4OSIKICAgIHsnfSd9XQopCgojIFByb2Nlc3MgdG9vbCB1c2UgcmVzcG9uc2VzCmZvciBibG9jayBpbiByZXNwb25zZS5jb250ZW50OgogICAgaWYgYmxvY2sudHlwZSA9PSAidG9vbF91c2UiOgogICAgICAgIHRvb2xfbmFtZSA9IGJsb2NrLm5hbWUKICAgICAgICB0b29sX2lucHV0ID0gYmxvY2suaW5wdXQKICAgICAgICBwcmludChmIkFnZW50IHdhbnRzIHRvIGNhbGw6IHsneyd7J30nfXRvb2xfbmFtZXsnfSd9KHsneyd7J30nfXRvb2xfaW5wdXR7J30nfSkiKQogICAgICAgICMgUm91dGUgdG8geW91ciBNQ1Agc2VydmVyIG9yIGRpcmVjdCBpbXBsZW1lbnRhdGlvbg==" />
 
 <AnalogyBox emoji="🔧" title="Tool Use = API Orchestration">
 Claude's tool use is conceptually identical to MuleSoft API orchestration — the agent discovers available tools (APIs), selects the right one for the task, formats the request, and processes the response. The difference is the agent decides which tools to use based on the conversation, rather than following a pre-defined integration flow.

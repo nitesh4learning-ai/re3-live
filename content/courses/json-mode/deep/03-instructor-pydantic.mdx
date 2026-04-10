@@ -5,33 +5,7 @@ icon: "🐍"
 
 ## Instructor & Pydantic
 
-<CodeBlock>
-{`import instructor
-from pydantic import BaseModel, Field
-from openai import OpenAI
-
-# Define your output schema as a Pydantic model
-class SentimentAnalysis(BaseModel):
-    sentiment: str = Field(description="Overall sentiment", enum=["positive","negative","neutral"])
-    confidence: float = Field(ge=0, le=1, description="Confidence score 0-1")
-    key_phrases: list[str] = Field(description="Important phrases from the text")
-    reasoning: str = Field(description="Brief explanation of the sentiment")
-
-# Patch OpenAI client with Instructor
-client = instructor.from_openai(OpenAI())
-
-# Extract structured data with automatic retry on validation failure
-result = client.chat.completions.create(
-    model="gpt-4o",
-    response_model=SentimentAnalysis,  # Pydantic model as schema
-    max_retries=2,  # Auto-retry if validation fails
-    messages=[{'{'{'}'}"role":"user","content":"Analyze: 'Product is okay but shipping was terrible'"{'}'}]
-)
-
-print(result.sentiment)     # "mixed" -> ValidationError -> retry -> "negative"
-print(result.confidence)    # 0.78
-print(result.key_phrases)   # ["okay", "shipping was terrible"]`}
-</CodeBlock>
+<CodeBlock b64="aW1wb3J0IGluc3RydWN0b3IKZnJvbSBweWRhbnRpYyBpbXBvcnQgQmFzZU1vZGVsLCBGaWVsZApmcm9tIG9wZW5haSBpbXBvcnQgT3BlbkFJCgojIERlZmluZSB5b3VyIG91dHB1dCBzY2hlbWEgYXMgYSBQeWRhbnRpYyBtb2RlbApjbGFzcyBTZW50aW1lbnRBbmFseXNpcyhCYXNlTW9kZWwpOgogICAgc2VudGltZW50OiBzdHIgPSBGaWVsZChkZXNjcmlwdGlvbj0iT3ZlcmFsbCBzZW50aW1lbnQiLCBlbnVtPVsicG9zaXRpdmUiLCJuZWdhdGl2ZSIsIm5ldXRyYWwiXSkKICAgIGNvbmZpZGVuY2U6IGZsb2F0ID0gRmllbGQoZ2U9MCwgbGU9MSwgZGVzY3JpcHRpb249IkNvbmZpZGVuY2Ugc2NvcmUgMC0xIikKICAgIGtleV9waHJhc2VzOiBsaXN0W3N0cl0gPSBGaWVsZChkZXNjcmlwdGlvbj0iSW1wb3J0YW50IHBocmFzZXMgZnJvbSB0aGUgdGV4dCIpCiAgICByZWFzb25pbmc6IHN0ciA9IEZpZWxkKGRlc2NyaXB0aW9uPSJCcmllZiBleHBsYW5hdGlvbiBvZiB0aGUgc2VudGltZW50IikKCiMgUGF0Y2ggT3BlbkFJIGNsaWVudCB3aXRoIEluc3RydWN0b3IKY2xpZW50ID0gaW5zdHJ1Y3Rvci5mcm9tX29wZW5haShPcGVuQUkoKSkKCiMgRXh0cmFjdCBzdHJ1Y3R1cmVkIGRhdGEgd2l0aCBhdXRvbWF0aWMgcmV0cnkgb24gdmFsaWRhdGlvbiBmYWlsdXJlCnJlc3VsdCA9IGNsaWVudC5jaGF0LmNvbXBsZXRpb25zLmNyZWF0ZSgKICAgIG1vZGVsPSJncHQtNG8iLAogICAgcmVzcG9uc2VfbW9kZWw9U2VudGltZW50QW5hbHlzaXMsICAjIFB5ZGFudGljIG1vZGVsIGFzIHNjaGVtYQogICAgbWF4X3JldHJpZXM9MiwgICMgQXV0by1yZXRyeSBpZiB2YWxpZGF0aW9uIGZhaWxzCiAgICBtZXNzYWdlcz1beyd7J3snfSd9InJvbGUiOiJ1c2VyIiwiY29udGVudCI6IkFuYWx5emU6ICdQcm9kdWN0IGlzIG9rYXkgYnV0IHNoaXBwaW5nIHdhcyB0ZXJyaWJsZScieyd9J31dCikKCnByaW50KHJlc3VsdC5zZW50aW1lbnQpICAgICAjICJtaXhlZCIgLT4gVmFsaWRhdGlvbkVycm9yIC0+IHJldHJ5IC0+ICJuZWdhdGl2ZSIKcHJpbnQocmVzdWx0LmNvbmZpZGVuY2UpICAgICMgMC43OApwcmludChyZXN1bHQua2V5X3BocmFzZXMpICAgIyBbIm9rYXkiLCAic2hpcHBpbmcgd2FzIHRlcnJpYmxlIl0=" />
 
 <ExpandableSection title="Why Instructor is Powerful" icon="⚡">
 

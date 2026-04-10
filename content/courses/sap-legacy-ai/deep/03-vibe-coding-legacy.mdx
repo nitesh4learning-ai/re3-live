@@ -23,40 +23,7 @@ Vibe coding on a greenfield Next.js project is one thing. Vibe coding on a 20-ye
 
 For legacy systems, you can't write CLAUDE.md from memory — you have to build it from the code itself:
 
-<CodeBlock language="text" label="Building CLAUDE.md for a Legacy SAP Module">
-{`# Prompt for Claude Code (after exporting ABAP code):
-
-"Analyze the exported ABAP code in this directory and 
-create a CLAUDE.md file that documents:
-
-1. MODULE OVERVIEW
-   - What business process does this code support?
-   - Which SAP transactions use this code?
-   - What tables are read/written?
-
-2. ARCHITECTURE MAP
-   - Key function modules and their purposes
-   - Call hierarchy (who calls what)
-   - Dependencies on standard SAP objects
-   - Custom database tables and structures
-
-3. BUSINESS RULES
-   - Pricing logic and conditions
-   - Validation rules with thresholds
-   - Exception handling and error codes
-   - Authorization checks
-
-4. KNOWN RISKS
-   - Deprecated function modules still in use
-   - Direct database access (bypassing data layer)
-   - Hardcoded values that should be configurable
-   - Missing error handling
-
-5. MIGRATION CONSTRAINTS
-   - Objects incompatible with S/4HANA
-   - Custom tables that need redesign
-   - Interfaces that need replacement (RFC → API)"`}
-</CodeBlock>
+<CodeBlock language="text" label="Building CLAUDE.md for a Legacy SAP Module" b64="IyBQcm9tcHQgZm9yIENsYXVkZSBDb2RlIChhZnRlciBleHBvcnRpbmcgQUJBUCBjb2RlKToKCiJBbmFseXplIHRoZSBleHBvcnRlZCBBQkFQIGNvZGUgaW4gdGhpcyBkaXJlY3RvcnkgYW5kIApjcmVhdGUgYSBDTEFVREUubWQgZmlsZSB0aGF0IGRvY3VtZW50czoKCjEuIE1PRFVMRSBPVkVSVklFVwogICAtIFdoYXQgYnVzaW5lc3MgcHJvY2VzcyBkb2VzIHRoaXMgY29kZSBzdXBwb3J0PwogICAtIFdoaWNoIFNBUCB0cmFuc2FjdGlvbnMgdXNlIHRoaXMgY29kZT8KICAgLSBXaGF0IHRhYmxlcyBhcmUgcmVhZC93cml0dGVuPwoKMi4gQVJDSElURUNUVVJFIE1BUAogICAtIEtleSBmdW5jdGlvbiBtb2R1bGVzIGFuZCB0aGVpciBwdXJwb3NlcwogICAtIENhbGwgaGllcmFyY2h5ICh3aG8gY2FsbHMgd2hhdCkKICAgLSBEZXBlbmRlbmNpZXMgb24gc3RhbmRhcmQgU0FQIG9iamVjdHMKICAgLSBDdXN0b20gZGF0YWJhc2UgdGFibGVzIGFuZCBzdHJ1Y3R1cmVzCgozLiBCVVNJTkVTUyBSVUxFUwogICAtIFByaWNpbmcgbG9naWMgYW5kIGNvbmRpdGlvbnMKICAgLSBWYWxpZGF0aW9uIHJ1bGVzIHdpdGggdGhyZXNob2xkcwogICAtIEV4Y2VwdGlvbiBoYW5kbGluZyBhbmQgZXJyb3IgY29kZXMKICAgLSBBdXRob3JpemF0aW9uIGNoZWNrcwoKNC4gS05PV04gUklTS1MKICAgLSBEZXByZWNhdGVkIGZ1bmN0aW9uIG1vZHVsZXMgc3RpbGwgaW4gdXNlCiAgIC0gRGlyZWN0IGRhdGFiYXNlIGFjY2VzcyAoYnlwYXNzaW5nIGRhdGEgbGF5ZXIpCiAgIC0gSGFyZGNvZGVkIHZhbHVlcyB0aGF0IHNob3VsZCBiZSBjb25maWd1cmFibGUKICAgLSBNaXNzaW5nIGVycm9yIGhhbmRsaW5nCgo1LiBNSUdSQVRJT04gQ09OU1RSQUlOVFMKICAgLSBPYmplY3RzIGluY29tcGF0aWJsZSB3aXRoIFMvNEhBTkEKICAgLSBDdXN0b20gdGFibGVzIHRoYXQgbmVlZCByZWRlc2lnbgogICAtIEludGVyZmFjZXMgdGhhdCBuZWVkIHJlcGxhY2VtZW50IChSRkMg4oaSIEFQSSki" />
 
 <AnalogyBox emoji="🗺️" title="Data Discovery Before Data Governance">
 In MDM, you don't start with governance rules — you start with data discovery: what systems exist, what data flows where, who owns what. Legacy vibe coding follows the same pattern: discover the codebase before trying to change it. The AI-generated CLAUDE.md IS your discovery phase.
@@ -66,28 +33,7 @@ In MDM, you don't start with governance rules — you start with data discovery:
 
 AI-generated understanding of legacy code is a starting point, not the final word. Critical validation steps:
 
-<CodeBlock language="text" label="Human Validation Workflow">
-{`AI generates explanation of pricing module:
-"This module calculates tiered discount pricing 
-based on customer segment (Z1-Z5) and order volume.
-Discount tiers: 0-100 units = 0%, 101-500 = 5%, 
-501-1000 = 8%, 1000+ = 12%."
-
-Human validator (business analyst) reviews:
-"Correct for segments Z1-Z3, but Z4 and Z5 have 
-special override logic for government contracts 
-that the AI missed. Also, the 1000+ tier was 
-changed to 10% last year but the documentation 
-wasn't updated — the code has 10%, the AI read 
-an old comment saying 12%."
-
-AI updates understanding:
-"Corrected: Z4/Z5 government override, 1000+ tier 
-is 10% not 12% (comment was stale)."
-
-This loop continues until the human-validated 
-documentation matches the actual business behavior.`}
-</CodeBlock>
+<CodeBlock language="text" label="Human Validation Workflow" b64="QUkgZ2VuZXJhdGVzIGV4cGxhbmF0aW9uIG9mIHByaWNpbmcgbW9kdWxlOgoiVGhpcyBtb2R1bGUgY2FsY3VsYXRlcyB0aWVyZWQgZGlzY291bnQgcHJpY2luZyAKYmFzZWQgb24gY3VzdG9tZXIgc2VnbWVudCAoWjEtWjUpIGFuZCBvcmRlciB2b2x1bWUuCkRpc2NvdW50IHRpZXJzOiAwLTEwMCB1bml0cyA9IDAlLCAxMDEtNTAwID0gNSUsIAo1MDEtMTAwMCA9IDglLCAxMDAwKyA9IDEyJS4iCgpIdW1hbiB2YWxpZGF0b3IgKGJ1c2luZXNzIGFuYWx5c3QpIHJldmlld3M6CiJDb3JyZWN0IGZvciBzZWdtZW50cyBaMS1aMywgYnV0IFo0IGFuZCBaNSBoYXZlIApzcGVjaWFsIG92ZXJyaWRlIGxvZ2ljIGZvciBnb3Zlcm5tZW50IGNvbnRyYWN0cyAKdGhhdCB0aGUgQUkgbWlzc2VkLiBBbHNvLCB0aGUgMTAwMCsgdGllciB3YXMgCmNoYW5nZWQgdG8gMTAlIGxhc3QgeWVhciBidXQgdGhlIGRvY3VtZW50YXRpb24gCndhc24ndCB1cGRhdGVkIOKAlCB0aGUgY29kZSBoYXMgMTAlLCB0aGUgQUkgcmVhZCAKYW4gb2xkIGNvbW1lbnQgc2F5aW5nIDEyJS4iCgpBSSB1cGRhdGVzIHVuZGVyc3RhbmRpbmc6CiJDb3JyZWN0ZWQ6IFo0L1o1IGdvdmVybm1lbnQgb3ZlcnJpZGUsIDEwMDArIHRpZXIgCmlzIDEwJSBub3QgMTIlIChjb21tZW50IHdhcyBzdGFsZSkuIgoKVGhpcyBsb29wIGNvbnRpbnVlcyB1bnRpbCB0aGUgaHVtYW4tdmFsaWRhdGVkIApkb2N1bWVudGF0aW9uIG1hdGNoZXMgdGhlIGFjdHVhbCBidXNpbmVzcyBiZWhhdmlvci4=" />
 
 ### Step 3: Incremental Modernization
 

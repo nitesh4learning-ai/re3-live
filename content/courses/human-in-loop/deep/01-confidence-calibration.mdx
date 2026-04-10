@@ -5,43 +5,6 @@ icon: "📊"
 
 ## Confidence Calibration
 
-<CodeBlock>
-{`class ConfidenceCalibrator:
-    def __init__(self, model):
-        self.model = model
-        self.calibration_data = []
-
-    async def generate_with_confidence(self, query):
-        # Method 1: Ask the model to self-assess
-        response = await self.model.generate(
-            query + "\\n\\nAfter answering, rate your confidence 0-100."
-        )
-        self_assessed = extract_confidence(response)
-
-        # Method 2: Consistency check (sample 3 responses)
-        samples = [await self.model.generate(query) for _ in range(3)]
-        consistency = calculate_agreement(samples)
-
-        # Method 3: Entropy of token probabilities (if available)
-        logprobs = response.logprobs
-        entropy = calculate_entropy(logprobs) if logprobs else None
-
-        # Combine signals
-        confidence = weighted_average(
-            self_assessed * 0.3,
-            consistency * 0.5,
-            (1 - entropy) * 0.2 if entropy else self_assessed * 0.2
-        )
-
-        return {'{'{'}'}
-            "response": response.text,
-            "confidence": confidence,
-            "signals": {'{'{'}'}
-                "self_assessed": self_assessed,
-                "consistency": consistency,
-                "entropy": entropy
-            {'}'}
-        {'}'}`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgQ29uZmlkZW5jZUNhbGlicmF0b3I6CiAgICBkZWYgX19pbml0X18oc2VsZiwgbW9kZWwpOgogICAgICAgIHNlbGYubW9kZWwgPSBtb2RlbAogICAgICAgIHNlbGYuY2FsaWJyYXRpb25fZGF0YSA9IFtdCgogICAgYXN5bmMgZGVmIGdlbmVyYXRlX3dpdGhfY29uZmlkZW5jZShzZWxmLCBxdWVyeSk6CiAgICAgICAgIyBNZXRob2QgMTogQXNrIHRoZSBtb2RlbCB0byBzZWxmLWFzc2VzcwogICAgICAgIHJlc3BvbnNlID0gYXdhaXQgc2VsZi5tb2RlbC5nZW5lcmF0ZSgKICAgICAgICAgICAgcXVlcnkgKyAiXFxuXFxuQWZ0ZXIgYW5zd2VyaW5nLCByYXRlIHlvdXIgY29uZmlkZW5jZSAwLTEwMC4iCiAgICAgICAgKQogICAgICAgIHNlbGZfYXNzZXNzZWQgPSBleHRyYWN0X2NvbmZpZGVuY2UocmVzcG9uc2UpCgogICAgICAgICMgTWV0aG9kIDI6IENvbnNpc3RlbmN5IGNoZWNrIChzYW1wbGUgMyByZXNwb25zZXMpCiAgICAgICAgc2FtcGxlcyA9IFthd2FpdCBzZWxmLm1vZGVsLmdlbmVyYXRlKHF1ZXJ5KSBmb3IgXyBpbiByYW5nZSgzKV0KICAgICAgICBjb25zaXN0ZW5jeSA9IGNhbGN1bGF0ZV9hZ3JlZW1lbnQoc2FtcGxlcykKCiAgICAgICAgIyBNZXRob2QgMzogRW50cm9weSBvZiB0b2tlbiBwcm9iYWJpbGl0aWVzIChpZiBhdmFpbGFibGUpCiAgICAgICAgbG9ncHJvYnMgPSByZXNwb25zZS5sb2dwcm9icwogICAgICAgIGVudHJvcHkgPSBjYWxjdWxhdGVfZW50cm9weShsb2dwcm9icykgaWYgbG9ncHJvYnMgZWxzZSBOb25lCgogICAgICAgICMgQ29tYmluZSBzaWduYWxzCiAgICAgICAgY29uZmlkZW5jZSA9IHdlaWdodGVkX2F2ZXJhZ2UoCiAgICAgICAgICAgIHNlbGZfYXNzZXNzZWQgKiAwLjMsCiAgICAgICAgICAgIGNvbnNpc3RlbmN5ICogMC41LAogICAgICAgICAgICAoMSAtIGVudHJvcHkpICogMC4yIGlmIGVudHJvcHkgZWxzZSBzZWxmX2Fzc2Vzc2VkICogMC4yCiAgICAgICAgKQoKICAgICAgICByZXR1cm4geyd7J3snfSd9CiAgICAgICAgICAgICJyZXNwb25zZSI6IHJlc3BvbnNlLnRleHQsCiAgICAgICAgICAgICJjb25maWRlbmNlIjogY29uZmlkZW5jZSwKICAgICAgICAgICAgInNpZ25hbHMiOiB7J3sneyd9J30KICAgICAgICAgICAgICAgICJzZWxmX2Fzc2Vzc2VkIjogc2VsZl9hc3Nlc3NlZCwKICAgICAgICAgICAgICAgICJjb25zaXN0ZW5jeSI6IGNvbnNpc3RlbmN5LAogICAgICAgICAgICAgICAgImVudHJvcHkiOiBlbnRyb3B5CiAgICAgICAgICAgIHsnfSd9CiAgICAgICAgeyd9J30=" />
 
 <Quiz question="Why is self-assessed confidence (asking the model 'how confident are you?') unreliable on its own?" options={["Models can't understand confidence","Models tend to be overconfident -- they rarely express uncertainty proportional to their actual knowledge","Self-assessment is too slow","It only works with GPT-4"]} correctIndex={1} explanation="LLMs are systematically overconfident. They're trained on human feedback that rewards confident answers. Multi-signal confidence (self-assessment + consistency + entropy) is much more reliable." />

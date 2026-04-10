@@ -9,56 +9,13 @@ icon: "🔧"
 
 Claude Code is marketed as a coding tool, but it's actually a **general-purpose terminal agent** that happens to be exceptional at code. It can manage git workflows, run shell commands, interact with APIs, manage files, and orchestrate complex multi-step processes.
 
-<CodeBlock language="text" label="Claude Code Beyond Coding">
-{`# Git workflow automation
-"Commit my changes with a descriptive message, create a 
-PR with a summary of changes, and assign it to review"
-
-# Infrastructure management
-"Check which environment variables are set, verify the 
-database connection, and run the migration"
-
-# Code review
-"Review the last 3 commits for security issues, 
-performance problems, and style inconsistencies"
-
-# Release management
-"Write release notes for everything merged since the 
-last tag, increment the version, and create the tag"
-
-# Documentation
-"Generate API documentation for all public endpoints 
-in the /api directory, including request/response examples"`}
-</CodeBlock>
+<CodeBlock language="text" label="Claude Code Beyond Coding" b64="IyBHaXQgd29ya2Zsb3cgYXV0b21hdGlvbgoiQ29tbWl0IG15IGNoYW5nZXMgd2l0aCBhIGRlc2NyaXB0aXZlIG1lc3NhZ2UsIGNyZWF0ZSBhIApQUiB3aXRoIGEgc3VtbWFyeSBvZiBjaGFuZ2VzLCBhbmQgYXNzaWduIGl0IHRvIHJldmlldyIKCiMgSW5mcmFzdHJ1Y3R1cmUgbWFuYWdlbWVudAoiQ2hlY2sgd2hpY2ggZW52aXJvbm1lbnQgdmFyaWFibGVzIGFyZSBzZXQsIHZlcmlmeSB0aGUgCmRhdGFiYXNlIGNvbm5lY3Rpb24sIGFuZCBydW4gdGhlIG1pZ3JhdGlvbiIKCiMgQ29kZSByZXZpZXcKIlJldmlldyB0aGUgbGFzdCAzIGNvbW1pdHMgZm9yIHNlY3VyaXR5IGlzc3VlcywgCnBlcmZvcm1hbmNlIHByb2JsZW1zLCBhbmQgc3R5bGUgaW5jb25zaXN0ZW5jaWVzIgoKIyBSZWxlYXNlIG1hbmFnZW1lbnQKIldyaXRlIHJlbGVhc2Ugbm90ZXMgZm9yIGV2ZXJ5dGhpbmcgbWVyZ2VkIHNpbmNlIHRoZSAKbGFzdCB0YWcsIGluY3JlbWVudCB0aGUgdmVyc2lvbiwgYW5kIGNyZWF0ZSB0aGUgdGFnIgoKIyBEb2N1bWVudGF0aW9uCiJHZW5lcmF0ZSBBUEkgZG9jdW1lbnRhdGlvbiBmb3IgYWxsIHB1YmxpYyBlbmRwb2ludHMgCmluIHRoZSAvYXBpIGRpcmVjdG9yeSwgaW5jbHVkaW5nIHJlcXVlc3QvcmVzcG9uc2UgZXhhbXBsZXMi" />
 
 ### MCP Servers: Extending Claude's Reach
 
 <JargonTip term="MCP">Model Context Protocol</JargonTip> servers extend Claude Code's capabilities beyond the local filesystem. You can connect Claude to databases, APIs, cloud services, and custom tools.
 
-<CodeBlock language="json" label="Claude Code MCP Configuration">
-{`{
-  "mcpServers": {
-    "filesystem": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem",
-               "/Users/nitesh/projects"],
-      "description": "Read/write project files"
-    },
-    "github": {
-      "command": "npx", 
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": { "GITHUB_TOKEN": "ghp_..." },
-      "description": "GitHub repos, PRs, issues"
-    },
-    "postgres": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres",
-               "postgresql://localhost:5432/mydb"],
-      "description": "Database queries and schema"
-    }
-  }
-}`}
-</CodeBlock>
+<CodeBlock language="json" label="Claude Code MCP Configuration" b64="ewogICJtY3BTZXJ2ZXJzIjogewogICAgImZpbGVzeXN0ZW0iOiB7CiAgICAgICJjb21tYW5kIjogIm5weCIsCiAgICAgICJhcmdzIjogWyIteSIsICJAbW9kZWxjb250ZXh0cHJvdG9jb2wvc2VydmVyLWZpbGVzeXN0ZW0iLAogICAgICAgICAgICAgICAiL1VzZXJzL25pdGVzaC9wcm9qZWN0cyJdLAogICAgICAiZGVzY3JpcHRpb24iOiAiUmVhZC93cml0ZSBwcm9qZWN0IGZpbGVzIgogICAgfSwKICAgICJnaXRodWIiOiB7CiAgICAgICJjb21tYW5kIjogIm5weCIsIAogICAgICAiYXJncyI6IFsiLXkiLCAiQG1vZGVsY29udGV4dHByb3RvY29sL3NlcnZlci1naXRodWIiXSwKICAgICAgImVudiI6IHsgIkdJVEhVQl9UT0tFTiI6ICJnaHBfLi4uIiB9LAogICAgICAiZGVzY3JpcHRpb24iOiAiR2l0SHViIHJlcG9zLCBQUnMsIGlzc3VlcyIKICAgIH0sCiAgICAicG9zdGdyZXMiOiB7CiAgICAgICJjb21tYW5kIjogIm5weCIsCiAgICAgICJhcmdzIjogWyIteSIsICJAbW9kZWxjb250ZXh0cHJvdG9jb2wvc2VydmVyLXBvc3RncmVzIiwKICAgICAgICAgICAgICAgInBvc3RncmVzcWw6Ly9sb2NhbGhvc3Q6NTQzMi9teWRiIl0sCiAgICAgICJkZXNjcmlwdGlvbiI6ICJEYXRhYmFzZSBxdWVyaWVzIGFuZCBzY2hlbWEiCiAgICB9CiAgfQp9" />
 
 ### Skills vs MCP Servers: When to Use Which
 
@@ -72,47 +29,11 @@ in the /api directory, including request/response examples"`}
 
 ### Background Processes and Async Workflows
 
-<CodeBlock language="text" label="Running Claude Code in Background">
-{`# Start a long-running task
-"Run the full test suite, fix any failures, and commit 
-the fixes. I'll check back in 30 minutes."
-
-# Claude Code Channels (new in 2026)
-# Connect Claude Code to Discord or Telegram
-# Message it instructions while on the go
-# It runs tasks asynchronously and reports back
-
-# Multiple concurrent sessions
-# Run different Claude Code instances for different tasks:
-# Terminal 1: Feature implementation
-# Terminal 2: Test writing
-# Terminal 3: Documentation updates`}
-</CodeBlock>
+<CodeBlock language="text" label="Running Claude Code in Background" b64="IyBTdGFydCBhIGxvbmctcnVubmluZyB0YXNrCiJSdW4gdGhlIGZ1bGwgdGVzdCBzdWl0ZSwgZml4IGFueSBmYWlsdXJlcywgYW5kIGNvbW1pdCAKdGhlIGZpeGVzLiBJJ2xsIGNoZWNrIGJhY2sgaW4gMzAgbWludXRlcy4iCgojIENsYXVkZSBDb2RlIENoYW5uZWxzIChuZXcgaW4gMjAyNikKIyBDb25uZWN0IENsYXVkZSBDb2RlIHRvIERpc2NvcmQgb3IgVGVsZWdyYW0KIyBNZXNzYWdlIGl0IGluc3RydWN0aW9ucyB3aGlsZSBvbiB0aGUgZ28KIyBJdCBydW5zIHRhc2tzIGFzeW5jaHJvbm91c2x5IGFuZCByZXBvcnRzIGJhY2sKCiMgTXVsdGlwbGUgY29uY3VycmVudCBzZXNzaW9ucwojIFJ1biBkaWZmZXJlbnQgQ2xhdWRlIENvZGUgaW5zdGFuY2VzIGZvciBkaWZmZXJlbnQgdGFza3M6CiMgVGVybWluYWwgMTogRmVhdHVyZSBpbXBsZW1lbnRhdGlvbgojIFRlcm1pbmFsIDI6IFRlc3Qgd3JpdGluZwojIFRlcm1pbmFsIDM6IERvY3VtZW50YXRpb24gdXBkYXRlcw==" />
 
 ### Production Deployment Patterns
 
-<CodeBlock language="text" label="CI/CD Integration with Claude Code">
-{`# GitHub Actions integration
-# Claude Code can automate:
-- Code review on PRs (security, style, best practices)
-- Issue triage (label, prioritize, assign)
-- Release note generation
-- Dependency update PRs
-
-# Example GitHub Actions workflow:
-name: Claude Code Review
-on: pull_request
-jobs:
-  review:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: anthropics/claude-code-action@v1
-        with:
-          task: "Review this PR for security issues, 
-                 performance problems, and adherence 
-                 to our CLAUDE.md standards"
-          anthropic_api_key: secrets.ANTHROPIC_API_KEY`}
-</CodeBlock>
+<CodeBlock language="text" label="CI/CD Integration with Claude Code" b64="IyBHaXRIdWIgQWN0aW9ucyBpbnRlZ3JhdGlvbgojIENsYXVkZSBDb2RlIGNhbiBhdXRvbWF0ZToKLSBDb2RlIHJldmlldyBvbiBQUnMgKHNlY3VyaXR5LCBzdHlsZSwgYmVzdCBwcmFjdGljZXMpCi0gSXNzdWUgdHJpYWdlIChsYWJlbCwgcHJpb3JpdGl6ZSwgYXNzaWduKQotIFJlbGVhc2Ugbm90ZSBnZW5lcmF0aW9uCi0gRGVwZW5kZW5jeSB1cGRhdGUgUFJzCgojIEV4YW1wbGUgR2l0SHViIEFjdGlvbnMgd29ya2Zsb3c6Cm5hbWU6IENsYXVkZSBDb2RlIFJldmlldwpvbjogcHVsbF9yZXF1ZXN0CmpvYnM6CiAgcmV2aWV3OgogICAgcnVucy1vbjogdWJ1bnR1LWxhdGVzdAogICAgc3RlcHM6CiAgICAgIC0gdXNlczogYW50aHJvcGljcy9jbGF1ZGUtY29kZS1hY3Rpb25AdjEKICAgICAgICB3aXRoOgogICAgICAgICAgdGFzazogIlJldmlldyB0aGlzIFBSIGZvciBzZWN1cml0eSBpc3N1ZXMsIAogICAgICAgICAgICAgICAgIHBlcmZvcm1hbmNlIHByb2JsZW1zLCBhbmQgYWRoZXJlbmNlIAogICAgICAgICAgICAgICAgIHRvIG91ciBDTEFVREUubWQgc3RhbmRhcmRzIgogICAgICAgICAgYW50aHJvcGljX2FwaV9rZXk6IHNlY3JldHMuQU5USFJPUElDX0FQSV9LRVk=" />
 
 <AnalogyBox emoji="🏭" title="Automated Quality Gates">
 Claude Code in CI/CD is like automated data quality checks in your MDM pipeline — every data record (PR) passes through validation (code review) before promotion to the golden record (main branch). The rules are defined once (CLAUDE.md + review criteria), and enforcement is automatic.

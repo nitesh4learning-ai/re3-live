@@ -27,52 +27,7 @@ OpenAI's text-embedding-3 models and Jina v3 support Matryoshka truncation. This
 
 </ExpandableSection>
 
-<CodeBlock>
-{`from openai import OpenAI
-import numpy as np
-
-client = OpenAI()
-
-def get_embeddings(texts, model="text-embedding-3-small", dimensions=None):
-    """Get embeddings with optional dimension truncation (Matryoshka)."""
-    params = {'{'{'}'}"input": texts, "model": model{'}'}
-    if dimensions:
-        params["dimensions"] = dimensions  # Matryoshka truncation
-
-    response = client.embeddings.create(**params)
-    return [np.array(d.embedding) for d in response.data]
-
-def cosine_similarity(a, b):
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
-
-# Compare full vs truncated embeddings
-query = "How do I implement authentication in my web app?"
-docs = [
-    "OAuth 2.0 implementation guide for Node.js applications",
-    "Best practices for password hashing with bcrypt",
-    "Introduction to machine learning with Python",
-    "JWT token verification middleware setup",
-]
-
-# Full dimensions (1536)
-emb_full = get_embeddings([query] + docs, dimensions=1536)
-
-# Truncated (256 dims - 6x smaller, faster search)
-emb_small = get_embeddings([query] + docs, dimensions=256)
-
-print("Full (1536d) similarities:")
-for i, doc in enumerate(docs):
-    sim = cosine_similarity(emb_full[0], emb_full[i+1])
-    print(f"  {'{'{'}'}sim:.4f{'}'} - {'{'{'}'}doc[:50]{'}'}")
-
-print("\\nTruncated (256d) similarities:")
-for i, doc in enumerate(docs):
-    sim = cosine_similarity(emb_small[0], emb_small[i+1])
-    print(f"  {'{'{'}'}sim:.4f{'}'} - {'{'{'}'}doc[:50]{'}'}")
-
-# Storage comparison
-print(f"\\nStorage: {'{'{'}'}1536*4/1024:.1f{'}'}KB vs {'{'{'}'}256*4/1024:.1f{'}'}KB per vector")`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBvcGVuYWkgaW1wb3J0IE9wZW5BSQppbXBvcnQgbnVtcHkgYXMgbnAKCmNsaWVudCA9IE9wZW5BSSgpCgpkZWYgZ2V0X2VtYmVkZGluZ3ModGV4dHMsIG1vZGVsPSJ0ZXh0LWVtYmVkZGluZy0zLXNtYWxsIiwgZGltZW5zaW9ucz1Ob25lKToKICAgICIiIkdldCBlbWJlZGRpbmdzIHdpdGggb3B0aW9uYWwgZGltZW5zaW9uIHRydW5jYXRpb24gKE1hdHJ5b3Noa2EpLiIiIgogICAgcGFyYW1zID0geyd7J3snfSd9ImlucHV0IjogdGV4dHMsICJtb2RlbCI6IG1vZGVseyd9J30KICAgIGlmIGRpbWVuc2lvbnM6CiAgICAgICAgcGFyYW1zWyJkaW1lbnNpb25zIl0gPSBkaW1lbnNpb25zICAjIE1hdHJ5b3Noa2EgdHJ1bmNhdGlvbgoKICAgIHJlc3BvbnNlID0gY2xpZW50LmVtYmVkZGluZ3MuY3JlYXRlKCoqcGFyYW1zKQogICAgcmV0dXJuIFtucC5hcnJheShkLmVtYmVkZGluZykgZm9yIGQgaW4gcmVzcG9uc2UuZGF0YV0KCmRlZiBjb3NpbmVfc2ltaWxhcml0eShhLCBiKToKICAgIHJldHVybiBucC5kb3QoYSwgYikgLyAobnAubGluYWxnLm5vcm0oYSkgKiBucC5saW5hbGcubm9ybShiKSkKCiMgQ29tcGFyZSBmdWxsIHZzIHRydW5jYXRlZCBlbWJlZGRpbmdzCnF1ZXJ5ID0gIkhvdyBkbyBJIGltcGxlbWVudCBhdXRoZW50aWNhdGlvbiBpbiBteSB3ZWIgYXBwPyIKZG9jcyA9IFsKICAgICJPQXV0aCAyLjAgaW1wbGVtZW50YXRpb24gZ3VpZGUgZm9yIE5vZGUuanMgYXBwbGljYXRpb25zIiwKICAgICJCZXN0IHByYWN0aWNlcyBmb3IgcGFzc3dvcmQgaGFzaGluZyB3aXRoIGJjcnlwdCIsCiAgICAiSW50cm9kdWN0aW9uIHRvIG1hY2hpbmUgbGVhcm5pbmcgd2l0aCBQeXRob24iLAogICAgIkpXVCB0b2tlbiB2ZXJpZmljYXRpb24gbWlkZGxld2FyZSBzZXR1cCIsCl0KCiMgRnVsbCBkaW1lbnNpb25zICgxNTM2KQplbWJfZnVsbCA9IGdldF9lbWJlZGRpbmdzKFtxdWVyeV0gKyBkb2NzLCBkaW1lbnNpb25zPTE1MzYpCgojIFRydW5jYXRlZCAoMjU2IGRpbXMgLSA2eCBzbWFsbGVyLCBmYXN0ZXIgc2VhcmNoKQplbWJfc21hbGwgPSBnZXRfZW1iZWRkaW5ncyhbcXVlcnldICsgZG9jcywgZGltZW5zaW9ucz0yNTYpCgpwcmludCgiRnVsbCAoMTUzNmQpIHNpbWlsYXJpdGllczoiKQpmb3IgaSwgZG9jIGluIGVudW1lcmF0ZShkb2NzKToKICAgIHNpbSA9IGNvc2luZV9zaW1pbGFyaXR5KGVtYl9mdWxsWzBdLCBlbWJfZnVsbFtpKzFdKQogICAgcHJpbnQoZiIgIHsneyd7J30nfXNpbTouNGZ7J30nfSAtIHsneyd7J30nfWRvY1s6NTBdeyd9J30iKQoKcHJpbnQoIlxcblRydW5jYXRlZCAoMjU2ZCkgc2ltaWxhcml0aWVzOiIpCmZvciBpLCBkb2MgaW4gZW51bWVyYXRlKGRvY3MpOgogICAgc2ltID0gY29zaW5lX3NpbWlsYXJpdHkoZW1iX3NtYWxsWzBdLCBlbWJfc21hbGxbaSsxXSkKICAgIHByaW50KGYiICB7J3sneyd9J31zaW06LjRmeyd9J30gLSB7J3sneyd9J31kb2NbOjUwXXsnfSd9IikKCiMgU3RvcmFnZSBjb21wYXJpc29uCnByaW50KGYiXFxuU3RvcmFnZTogeyd7J3snfSd9MTUzNio0LzEwMjQ6LjFmeyd9J31LQiB2cyB7J3sneyd9J30yNTYqNC8xMDI0Oi4xZnsnfSd9S0IgcGVyIHZlY3RvciIp" />
 
 <ExpandableSection title="Task-Specific vs General Embeddings" icon="🎯">
 

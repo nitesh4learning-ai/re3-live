@@ -5,44 +5,8 @@ icon: "💾"
 
 ## <JargonTip term="prompt caching">Prompt Caching</JargonTip> & Batching
 
-<CodeBlock>
-{`import anthropic
-client = anthropic.Anthropic()
+<CodeBlock b64="aW1wb3J0IGFudGhyb3BpYwpjbGllbnQgPSBhbnRocm9waWMuQW50aHJvcGljKCkKCiMgU3RydWN0dXJlOiBsb25nIHN5c3RlbSBwcm9tcHQgKGNhY2hlZCkgKyBzaG9ydCB1c2VyIHF1ZXJ5CnJlc3BvbnNlID0gY2xpZW50Lm1lc3NhZ2VzLmNyZWF0ZSgKICAgIG1vZGVsPSJjbGF1ZGUtMy01LXNvbm5ldC0yMDI0MTAyMiIsCiAgICBtYXhfdG9rZW5zPTEwMjQsCiAgICBzeXN0ZW09W3sneyd7J30nfQogICAgICAgICJ0eXBlIjogInRleHQiLAogICAgICAgICJ0ZXh0IjogU1lTVEVNX1BST01QVCwgICMgMjAwMCsgdG9rZW5zLCBjYWNoZWQgZm9yIDUgbWluCiAgICAgICAgImNhY2hlX2NvbnRyb2wiOiB7J3sneyd9J30idHlwZSI6ICJlcGhlbWVyYWwieyd9J30KICAgIHsnfSd9XSwKICAgIG1lc3NhZ2VzPVt7J3sneyd9J30icm9sZSI6ICJ1c2VyIiwgImNvbnRlbnQiOiB1c2VyX3F1ZXJ5eyd9J31dCikKIyBDYWNoZSBoaXQ6IHBheSAxMCUgZm9yIGNhY2hlZCB0b2tlbnMsIDEwMCUgb25seSBmb3IgbmV3IHRva2VucwojIEV4YW1wbGU6IDIwMDAtdG9rZW4gc3lzdGVtIHByb21wdCA9IHNhdmUgJDUuNDAvMU0gcmVxdWVzdHM=" />
 
-# Structure: long system prompt (cached) + short user query
-response = client.messages.create(
-    model="claude-3-5-sonnet-20241022",
-    max_tokens=1024,
-    system=[{'{'{'}'}
-        "type": "text",
-        "text": SYSTEM_PROMPT,  # 2000+ tokens, cached for 5 min
-        "cache_control": {'{'{'}'}"type": "ephemeral"{'}'}
-    {'}'}],
-    messages=[{'{'{'}'}"role": "user", "content": user_query{'}'}]
-)
-# Cache hit: pay 10% for cached tokens, 100% only for new tokens
-# Example: 2000-token system prompt = save $5.40/1M requests`}
-</CodeBlock>
-
-<CodeBlock>
-{`from openai import OpenAI
-client = OpenAI()
-
-# Create batch file (JSONL format)
-batch_requests = [
-    {'{'{'}'}"custom_id": f"req-{'{'{'}'}i{'}'}",
-     "method": "POST",
-     "url": "/v1/chat/completions",
-     "body": {'{'{'}'}"model": "gpt-4o", "messages": msgs{'}'}{'}'}
-    for i, msgs in enumerate(all_messages)
-]
-
-# Submit batch (50% discount, 24h completion)
-batch = client.batches.create(
-    input_file_id=upload_batch_file(batch_requests),
-    endpoint="/v1/chat/completions",
-    completion_window="24h"
-)`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBvcGVuYWkgaW1wb3J0IE9wZW5BSQpjbGllbnQgPSBPcGVuQUkoKQoKIyBDcmVhdGUgYmF0Y2ggZmlsZSAoSlNPTkwgZm9ybWF0KQpiYXRjaF9yZXF1ZXN0cyA9IFsKICAgIHsneyd7J30nfSJjdXN0b21faWQiOiBmInJlcS17J3sneyd9J31peyd9J30iLAogICAgICJtZXRob2QiOiAiUE9TVCIsCiAgICAgInVybCI6ICIvdjEvY2hhdC9jb21wbGV0aW9ucyIsCiAgICAgImJvZHkiOiB7J3sneyd9J30ibW9kZWwiOiAiZ3B0LTRvIiwgIm1lc3NhZ2VzIjogbXNnc3snfSd9eyd9J30KICAgIGZvciBpLCBtc2dzIGluIGVudW1lcmF0ZShhbGxfbWVzc2FnZXMpCl0KCiMgU3VibWl0IGJhdGNoICg1MCUgZGlzY291bnQsIDI0aCBjb21wbGV0aW9uKQpiYXRjaCA9IGNsaWVudC5iYXRjaGVzLmNyZWF0ZSgKICAgIGlucHV0X2ZpbGVfaWQ9dXBsb2FkX2JhdGNoX2ZpbGUoYmF0Y2hfcmVxdWVzdHMpLAogICAgZW5kcG9pbnQ9Ii92MS9jaGF0L2NvbXBsZXRpb25zIiwKICAgIGNvbXBsZXRpb25fd2luZG93PSIyNGgiCik=" />
 
 <ComparisonTable title="When to Use Each" headers={['Strategy','Best For','Savings','Latency Impact']} rows={[['Prompt Caching','Repeated system prompts, RAG with common prefix','90% on cached tokens','None'],['Batching','Non-urgent bulk processing, overnight jobs','50% on entire request','Up to 24h delay'],['Cascading','Mixed-complexity workloads','60-80% overall','None (may improve)']]}/>

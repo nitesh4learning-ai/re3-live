@@ -5,34 +5,6 @@ icon: "⚡"
 
 ## <JargonTip term="streaming">Streaming</JargonTip> Structured Output
 
-<CodeBlock>
-{`import {'{'{'}'} streamObject {'}'} from 'ai';
-import {'{'{'}'} openai {'}'} from '@ai-sdk/openai';
-import {'{'{'}'} z {'}'} from 'zod';
-
-const AnalysisSchema = z.object({'{'{'}'}
-  summary: z.string(),
-  keyPoints: z.array(z.string()),
-  sentiment: z.enum(['positive', 'negative', 'neutral']),
-  actionItems: z.array(z.object({'{'{'}'}
-    task: z.string(),
-    priority: z.enum(['low', 'medium', 'high']),
-  {'}'})),
-{'}'});
-
-// Stream partial objects as they arrive
-const {'{'{'}'} partialObjectStream {'}'} = await streamObject({'{'{'}'}
-  model: openai('gpt-4o'),
-  schema: AnalysisSchema,
-  prompt: 'Analyze this meeting transcript...',
-{'}'});
-
-for await (const partial of partialObjectStream) {'{'{'}'}
-  // partial.summary may be incomplete string
-  // partial.keyPoints may have 2 of 5 items so far
-  // partial.sentiment may be undefined until model decides
-  renderPartialUI(partial);  // Update UI progressively
-{'}'}`}
-</CodeBlock>
+<CodeBlock b64="aW1wb3J0IHsneyd7J30nfSBzdHJlYW1PYmplY3Qgeyd9J30gZnJvbSAnYWknOwppbXBvcnQgeyd7J3snfSd9IG9wZW5haSB7J30nfSBmcm9tICdAYWktc2RrL29wZW5haSc7CmltcG9ydCB7J3sneyd9J30geiB7J30nfSBmcm9tICd6b2QnOwoKY29uc3QgQW5hbHlzaXNTY2hlbWEgPSB6Lm9iamVjdCh7J3sneyd9J30KICBzdW1tYXJ5OiB6LnN0cmluZygpLAogIGtleVBvaW50czogei5hcnJheSh6LnN0cmluZygpKSwKICBzZW50aW1lbnQ6IHouZW51bShbJ3Bvc2l0aXZlJywgJ25lZ2F0aXZlJywgJ25ldXRyYWwnXSksCiAgYWN0aW9uSXRlbXM6IHouYXJyYXkoei5vYmplY3Qoeyd7J3snfSd9CiAgICB0YXNrOiB6LnN0cmluZygpLAogICAgcHJpb3JpdHk6IHouZW51bShbJ2xvdycsICdtZWRpdW0nLCAnaGlnaCddKSwKICB7J30nfSkpLAp7J30nfSk7CgovLyBTdHJlYW0gcGFydGlhbCBvYmplY3RzIGFzIHRoZXkgYXJyaXZlCmNvbnN0IHsneyd7J30nfSBwYXJ0aWFsT2JqZWN0U3RyZWFtIHsnfSd9ID0gYXdhaXQgc3RyZWFtT2JqZWN0KHsneyd7J30nfQogIG1vZGVsOiBvcGVuYWkoJ2dwdC00bycpLAogIHNjaGVtYTogQW5hbHlzaXNTY2hlbWEsCiAgcHJvbXB0OiAnQW5hbHl6ZSB0aGlzIG1lZXRpbmcgdHJhbnNjcmlwdC4uLicsCnsnfSd9KTsKCmZvciBhd2FpdCAoY29uc3QgcGFydGlhbCBvZiBwYXJ0aWFsT2JqZWN0U3RyZWFtKSB7J3sneyd9J30KICAvLyBwYXJ0aWFsLnN1bW1hcnkgbWF5IGJlIGluY29tcGxldGUgc3RyaW5nCiAgLy8gcGFydGlhbC5rZXlQb2ludHMgbWF5IGhhdmUgMiBvZiA1IGl0ZW1zIHNvIGZhcgogIC8vIHBhcnRpYWwuc2VudGltZW50IG1heSBiZSB1bmRlZmluZWQgdW50aWwgbW9kZWwgZGVjaWRlcwogIHJlbmRlclBhcnRpYWxVSShwYXJ0aWFsKTsgIC8vIFVwZGF0ZSBVSSBwcm9ncmVzc2l2ZWx5CnsnfSd9" />
 
 <Quiz question="When streaming structured output, what challenge does partial JSON create?" options={["The model generates invalid JSON","Fields arrive in random order","Incomplete strings and arrays must be handled gracefully","Streaming is slower than non-streaming"]} correctIndex={2} explanation="During streaming, you receive partial objects where strings may be incomplete ('The meeting was about...' becoming 'The meeting was about project deadlines') and arrays grow incrementally. Your UI must handle undefined fields and growing arrays without crashing."/>

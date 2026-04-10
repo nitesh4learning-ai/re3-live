@@ -7,133 +7,14 @@ icon: "🔧"
 
 Production MCP tools go well beyond simple request-response. This section covers tool chaining, idempotency, partial failure handling, content types beyond text, and designing tools that LLMs use reliably at scale.
 
-      <CodeBlock>
-{`from mcp.types import (
-    TextContent, ImageContent, EmbeddedResource,
-    ResourceContents, BlobResourceContents
-)
-import base64
-
-@server.call_tool()
-async def call_tool(name: str, arguments: dict):
-    if name == "generate_debate_summary":
-        debate_id = arguments["debate_id"]
-        include_chart = arguments.get("include_chart", False)
-
-        # Fetch debate data
-        debate = await db.get_debate(debate_id)
-        summary_text = await generate_loom_markdown(debate)
-
-        content = [
-            # Primary text response
-            TextContent(type="text", text=summary_text),
-        ]
-
-        if include_chart:
-            # Generate a participation chart as PNG
-            chart_bytes = await render_participation_chart(debate)
-            content.append(ImageContent(
-                type="image",
-                data=base64.b64encode(chart_bytes).decode(),
-                mimeType="image/png"
-            ))
-
-        # Embed a related resource reference
-        content.append(EmbeddedResource(
-            type="resource",
-            resource=TextResourceContents(
-                uri=f"re3://debates/{'{'{'}'}debate_id{'}'}/full-transcript",
-                mimeType="text/markdown",
-                text="[Available via resource read]"
-            )
-        ))
-
-        return content`}
-</CodeBlock>
+      <CodeBlock b64="ZnJvbSBtY3AudHlwZXMgaW1wb3J0ICgKICAgIFRleHRDb250ZW50LCBJbWFnZUNvbnRlbnQsIEVtYmVkZGVkUmVzb3VyY2UsCiAgICBSZXNvdXJjZUNvbnRlbnRzLCBCbG9iUmVzb3VyY2VDb250ZW50cwopCmltcG9ydCBiYXNlNjQKCkBzZXJ2ZXIuY2FsbF90b29sKCkKYXN5bmMgZGVmIGNhbGxfdG9vbChuYW1lOiBzdHIsIGFyZ3VtZW50czogZGljdCk6CiAgICBpZiBuYW1lID09ICJnZW5lcmF0ZV9kZWJhdGVfc3VtbWFyeSI6CiAgICAgICAgZGViYXRlX2lkID0gYXJndW1lbnRzWyJkZWJhdGVfaWQiXQogICAgICAgIGluY2x1ZGVfY2hhcnQgPSBhcmd1bWVudHMuZ2V0KCJpbmNsdWRlX2NoYXJ0IiwgRmFsc2UpCgogICAgICAgICMgRmV0Y2ggZGViYXRlIGRhdGEKICAgICAgICBkZWJhdGUgPSBhd2FpdCBkYi5nZXRfZGViYXRlKGRlYmF0ZV9pZCkKICAgICAgICBzdW1tYXJ5X3RleHQgPSBhd2FpdCBnZW5lcmF0ZV9sb29tX21hcmtkb3duKGRlYmF0ZSkKCiAgICAgICAgY29udGVudCA9IFsKICAgICAgICAgICAgIyBQcmltYXJ5IHRleHQgcmVzcG9uc2UKICAgICAgICAgICAgVGV4dENvbnRlbnQodHlwZT0idGV4dCIsIHRleHQ9c3VtbWFyeV90ZXh0KSwKICAgICAgICBdCgogICAgICAgIGlmIGluY2x1ZGVfY2hhcnQ6CiAgICAgICAgICAgICMgR2VuZXJhdGUgYSBwYXJ0aWNpcGF0aW9uIGNoYXJ0IGFzIFBORwogICAgICAgICAgICBjaGFydF9ieXRlcyA9IGF3YWl0IHJlbmRlcl9wYXJ0aWNpcGF0aW9uX2NoYXJ0KGRlYmF0ZSkKICAgICAgICAgICAgY29udGVudC5hcHBlbmQoSW1hZ2VDb250ZW50KAogICAgICAgICAgICAgICAgdHlwZT0iaW1hZ2UiLAogICAgICAgICAgICAgICAgZGF0YT1iYXNlNjQuYjY0ZW5jb2RlKGNoYXJ0X2J5dGVzKS5kZWNvZGUoKSwKICAgICAgICAgICAgICAgIG1pbWVUeXBlPSJpbWFnZS9wbmciCiAgICAgICAgICAgICkpCgogICAgICAgICMgRW1iZWQgYSByZWxhdGVkIHJlc291cmNlIHJlZmVyZW5jZQogICAgICAgIGNvbnRlbnQuYXBwZW5kKEVtYmVkZGVkUmVzb3VyY2UoCiAgICAgICAgICAgIHR5cGU9InJlc291cmNlIiwKICAgICAgICAgICAgcmVzb3VyY2U9VGV4dFJlc291cmNlQ29udGVudHMoCiAgICAgICAgICAgICAgICB1cmk9ZiJyZTM6Ly9kZWJhdGVzL3sneyd7J30nfWRlYmF0ZV9pZHsnfSd9L2Z1bGwtdHJhbnNjcmlwdCIsCiAgICAgICAgICAgICAgICBtaW1lVHlwZT0idGV4dC9tYXJrZG93biIsCiAgICAgICAgICAgICAgICB0ZXh0PSJbQXZhaWxhYmxlIHZpYSByZXNvdXJjZSByZWFkXSIKICAgICAgICAgICAgKQogICAgICAgICkpCgogICAgICAgIHJldHVybiBjb250ZW50" />
       <ExpandableSection title="Idempotency and Safe Tool Design" icon="🔄">
 
 LLMs may retry tool calls if they do not see a response. Write-tools must be idempotent to prevent duplicate side effects.
 
-        <CodeBlock>
-{`import hashlib
-
-@server.call_tool()
-async def call_tool(name: str, arguments: dict):
-    if name == "create_article":
-        # Require idempotency key from the caller
-        idempotency_key = arguments.get("idempotency_key")
-        if not idempotency_key:
-            # Generate deterministic key from content hash if not provided
-            content_hash = hashlib.sha256(
-                json.dumps(arguments, sort_keys=True).encode()
-            ).hexdigest()[:16]
-            idempotency_key = f"auto_{'{'{'}'}content_hash{'}'}"
-
-        # Check for duplicate
-        existing = await db.get_by_idempotency_key(idempotency_key)
-        if existing:
-            return [TextContent(type="text", text=json.dumps({'{'{'}'}
-                "article_id": existing["id"],
-                "status": "already_created",
-                "idempotency_key": idempotency_key,
-                "message": "Article with this idempotency key already exists."
-            {'}'}))]
-
-        # Create new article
-        article_id = await db.create_article({'{'{'}'}
-            **arguments,
-            "idempotency_key": idempotency_key
-        {'}'})
-
-        return [TextContent(type="text", text=json.dumps({'{'{'}'}
-            "article_id": article_id,
-            "status": "created",
-            "idempotency_key": idempotency_key
-        {'}'}))]`}
-</CodeBlock>
+        <CodeBlock b64="aW1wb3J0IGhhc2hsaWIKCkBzZXJ2ZXIuY2FsbF90b29sKCkKYXN5bmMgZGVmIGNhbGxfdG9vbChuYW1lOiBzdHIsIGFyZ3VtZW50czogZGljdCk6CiAgICBpZiBuYW1lID09ICJjcmVhdGVfYXJ0aWNsZSI6CiAgICAgICAgIyBSZXF1aXJlIGlkZW1wb3RlbmN5IGtleSBmcm9tIHRoZSBjYWxsZXIKICAgICAgICBpZGVtcG90ZW5jeV9rZXkgPSBhcmd1bWVudHMuZ2V0KCJpZGVtcG90ZW5jeV9rZXkiKQogICAgICAgIGlmIG5vdCBpZGVtcG90ZW5jeV9rZXk6CiAgICAgICAgICAgICMgR2VuZXJhdGUgZGV0ZXJtaW5pc3RpYyBrZXkgZnJvbSBjb250ZW50IGhhc2ggaWYgbm90IHByb3ZpZGVkCiAgICAgICAgICAgIGNvbnRlbnRfaGFzaCA9IGhhc2hsaWIuc2hhMjU2KAogICAgICAgICAgICAgICAganNvbi5kdW1wcyhhcmd1bWVudHMsIHNvcnRfa2V5cz1UcnVlKS5lbmNvZGUoKQogICAgICAgICAgICApLmhleGRpZ2VzdCgpWzoxNl0KICAgICAgICAgICAgaWRlbXBvdGVuY3lfa2V5ID0gZiJhdXRvX3sneyd7J30nfWNvbnRlbnRfaGFzaHsnfSd9IgoKICAgICAgICAjIENoZWNrIGZvciBkdXBsaWNhdGUKICAgICAgICBleGlzdGluZyA9IGF3YWl0IGRiLmdldF9ieV9pZGVtcG90ZW5jeV9rZXkoaWRlbXBvdGVuY3lfa2V5KQogICAgICAgIGlmIGV4aXN0aW5nOgogICAgICAgICAgICByZXR1cm4gW1RleHRDb250ZW50KHR5cGU9InRleHQiLCB0ZXh0PWpzb24uZHVtcHMoeyd7J3snfSd9CiAgICAgICAgICAgICAgICAiYXJ0aWNsZV9pZCI6IGV4aXN0aW5nWyJpZCJdLAogICAgICAgICAgICAgICAgInN0YXR1cyI6ICJhbHJlYWR5X2NyZWF0ZWQiLAogICAgICAgICAgICAgICAgImlkZW1wb3RlbmN5X2tleSI6IGlkZW1wb3RlbmN5X2tleSwKICAgICAgICAgICAgICAgICJtZXNzYWdlIjogIkFydGljbGUgd2l0aCB0aGlzIGlkZW1wb3RlbmN5IGtleSBhbHJlYWR5IGV4aXN0cy4iCiAgICAgICAgICAgIHsnfSd9KSldCgogICAgICAgICMgQ3JlYXRlIG5ldyBhcnRpY2xlCiAgICAgICAgYXJ0aWNsZV9pZCA9IGF3YWl0IGRiLmNyZWF0ZV9hcnRpY2xlKHsneyd7J30nfQogICAgICAgICAgICAqKmFyZ3VtZW50cywKICAgICAgICAgICAgImlkZW1wb3RlbmN5X2tleSI6IGlkZW1wb3RlbmN5X2tleQogICAgICAgIHsnfSd9KQoKICAgICAgICByZXR1cm4gW1RleHRDb250ZW50KHR5cGU9InRleHQiLCB0ZXh0PWpzb24uZHVtcHMoeyd7J3snfSd9CiAgICAgICAgICAgICJhcnRpY2xlX2lkIjogYXJ0aWNsZV9pZCwKICAgICAgICAgICAgInN0YXR1cyI6ICJjcmVhdGVkIiwKICAgICAgICAgICAgImlkZW1wb3RlbmN5X2tleSI6IGlkZW1wb3RlbmN5X2tleQogICAgICAgIHsnfSd9KSld" />
       </ExpandableSection>
       <ExpandableSection title="Tool Chaining via Continuation Tokens" icon="🔗">
-        <CodeBlock>
-{`import asyncio
-import json
-
-# For operations that take >30s (LLM timeout), use async job pattern
-active_jobs: dict = {'{'{'}'}{'}'}
-
-@server.call_tool()
-async def call_tool(name: str, arguments: dict):
-    if name == "start_full_debate":
-        # Return immediately with job ID
-        job_id = f"job_{'{'{'}'}int(asyncio.get_event_loop().time() * 1000){'}'}"
-        asyncio.create_task(run_debate_pipeline(job_id, arguments))
-        return [TextContent(type="text", text=json.dumps({'{'{'}'}
-            "job_id": job_id,
-            "status": "started",
-            "poll_tool": "get_debate_status",
-            "message": "Debate pipeline started. Poll get_debate_status with this job_id."
-        {'}'}))]
-
-    elif name == "get_debate_status":
-        job_id = arguments["job_id"]
-        job = active_jobs.get(job_id)
-        if not job:
-            return [TextContent(type="text", text=json.dumps({'{'{'}'}"error": "Job not found"{'}'}))]
-        return [TextContent(type="text", text=json.dumps({'{'{'}'}
-            "job_id": job_id,
-            "status": job["status"],        # "running" | "complete" | "failed"
-            "progress": job.get("progress"), # e.g. "Round 2/3 complete"
-            "result": job.get("result")      # populated when complete
-        {'}'}))]
-
-async def run_debate_pipeline(job_id: str, args: dict):
-    active_jobs[job_id] = {'{'{'}'}"status": "running", "progress": "Selecting panel"{'}'}
-    try:
-        panel = await select_panel(args["article_id"])
-        active_jobs[job_id]["progress"] = "Round 1/3"
-        loom = await run_debate_rounds(panel, args["article_id"])
-        active_jobs[job_id] = {'{'{'}'}"status": "complete", "result": loom{'}'}
-    except Exception as e:
-        active_jobs[job_id] = {'{'{'}'}"status": "failed", "error": str(e){'}'}`}
-</CodeBlock>
+        <CodeBlock b64="aW1wb3J0IGFzeW5jaW8KaW1wb3J0IGpzb24KCiMgRm9yIG9wZXJhdGlvbnMgdGhhdCB0YWtlID4zMHMgKExMTSB0aW1lb3V0KSwgdXNlIGFzeW5jIGpvYiBwYXR0ZXJuCmFjdGl2ZV9qb2JzOiBkaWN0ID0geyd7J3snfSd9eyd9J30KCkBzZXJ2ZXIuY2FsbF90b29sKCkKYXN5bmMgZGVmIGNhbGxfdG9vbChuYW1lOiBzdHIsIGFyZ3VtZW50czogZGljdCk6CiAgICBpZiBuYW1lID09ICJzdGFydF9mdWxsX2RlYmF0ZSI6CiAgICAgICAgIyBSZXR1cm4gaW1tZWRpYXRlbHkgd2l0aCBqb2IgSUQKICAgICAgICBqb2JfaWQgPSBmImpvYl97J3sneyd9J31pbnQoYXN5bmNpby5nZXRfZXZlbnRfbG9vcCgpLnRpbWUoKSAqIDEwMDApeyd9J30iCiAgICAgICAgYXN5bmNpby5jcmVhdGVfdGFzayhydW5fZGViYXRlX3BpcGVsaW5lKGpvYl9pZCwgYXJndW1lbnRzKSkKICAgICAgICByZXR1cm4gW1RleHRDb250ZW50KHR5cGU9InRleHQiLCB0ZXh0PWpzb24uZHVtcHMoeyd7J3snfSd9CiAgICAgICAgICAgICJqb2JfaWQiOiBqb2JfaWQsCiAgICAgICAgICAgICJzdGF0dXMiOiAic3RhcnRlZCIsCiAgICAgICAgICAgICJwb2xsX3Rvb2wiOiAiZ2V0X2RlYmF0ZV9zdGF0dXMiLAogICAgICAgICAgICAibWVzc2FnZSI6ICJEZWJhdGUgcGlwZWxpbmUgc3RhcnRlZC4gUG9sbCBnZXRfZGViYXRlX3N0YXR1cyB3aXRoIHRoaXMgam9iX2lkLiIKICAgICAgICB7J30nfSkpXQoKICAgIGVsaWYgbmFtZSA9PSAiZ2V0X2RlYmF0ZV9zdGF0dXMiOgogICAgICAgIGpvYl9pZCA9IGFyZ3VtZW50c1siam9iX2lkIl0KICAgICAgICBqb2IgPSBhY3RpdmVfam9icy5nZXQoam9iX2lkKQogICAgICAgIGlmIG5vdCBqb2I6CiAgICAgICAgICAgIHJldHVybiBbVGV4dENvbnRlbnQodHlwZT0idGV4dCIsIHRleHQ9anNvbi5kdW1wcyh7J3sneyd9J30iZXJyb3IiOiAiSm9iIG5vdCBmb3VuZCJ7J30nfSkpXQogICAgICAgIHJldHVybiBbVGV4dENvbnRlbnQodHlwZT0idGV4dCIsIHRleHQ9anNvbi5kdW1wcyh7J3sneyd9J30KICAgICAgICAgICAgImpvYl9pZCI6IGpvYl9pZCwKICAgICAgICAgICAgInN0YXR1cyI6IGpvYlsic3RhdHVzIl0sICAgICAgICAjICJydW5uaW5nIiB8ICJjb21wbGV0ZSIgfCAiZmFpbGVkIgogICAgICAgICAgICAicHJvZ3Jlc3MiOiBqb2IuZ2V0KCJwcm9ncmVzcyIpLCAjIGUuZy4gIlJvdW5kIDIvMyBjb21wbGV0ZSIKICAgICAgICAgICAgInJlc3VsdCI6IGpvYi5nZXQoInJlc3VsdCIpICAgICAgIyBwb3B1bGF0ZWQgd2hlbiBjb21wbGV0ZQogICAgICAgIHsnfSd9KSldCgphc3luYyBkZWYgcnVuX2RlYmF0ZV9waXBlbGluZShqb2JfaWQ6IHN0ciwgYXJnczogZGljdCk6CiAgICBhY3RpdmVfam9ic1tqb2JfaWRdID0geyd7J3snfSd9InN0YXR1cyI6ICJydW5uaW5nIiwgInByb2dyZXNzIjogIlNlbGVjdGluZyBwYW5lbCJ7J30nfQogICAgdHJ5OgogICAgICAgIHBhbmVsID0gYXdhaXQgc2VsZWN0X3BhbmVsKGFyZ3NbImFydGljbGVfaWQiXSkKICAgICAgICBhY3RpdmVfam9ic1tqb2JfaWRdWyJwcm9ncmVzcyJdID0gIlJvdW5kIDEvMyIKICAgICAgICBsb29tID0gYXdhaXQgcnVuX2RlYmF0ZV9yb3VuZHMocGFuZWwsIGFyZ3NbImFydGljbGVfaWQiXSkKICAgICAgICBhY3RpdmVfam9ic1tqb2JfaWRdID0geyd7J3snfSd9InN0YXR1cyI6ICJjb21wbGV0ZSIsICJyZXN1bHQiOiBsb29teyd9J30KICAgIGV4Y2VwdCBFeGNlcHRpb24gYXMgZToKICAgICAgICBhY3RpdmVfam9ic1tqb2JfaWRdID0geyd7J3snfSd9InN0YXR1cyI6ICJmYWlsZWQiLCAiZXJyb3IiOiBzdHIoZSl7J30nfQ==" />
       </ExpandableSection>
       <Quiz question="An LLM calls your 'send_email' tool and does not receive a response before the timeout. It retries the call. What happens if your tool is not idempotent?" options={["Nothing — the LLM knows not to retry write operations","The email is sent twice","The server rejects the duplicate automatically","Timeouts never happen in production MCP"]} correctIndex={1} explanation="Without idempotency, a retried tool call will execute the full side effect again. For email sending, this means duplicate emails. For payment processing, duplicate charges. Every write-tool in production MCP must either be idempotent by nature or implement deduplication via idempotency keys."/>

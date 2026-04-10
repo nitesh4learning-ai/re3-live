@@ -4,30 +4,7 @@ icon: "\uD83C\uDFAF"
 ---
 
 ## Reranking & RAPTOR
-  <CodeBlock>
-{`from sentence_transformers import CrossEncoder
-
-class Reranker:
-    def __init__(self, model_name="cross-encoder/ms-marco-MiniLM-L-6-v2"):
-        self.model = CrossEncoder(model_name)
-
-    def rerank(self, query, documents, top_k=5):
-        """Score query-document pairs with cross-encoder"""
-        pairs = [[query, doc["text"]] for doc in documents]
-        scores = self.model.predict(pairs)
-
-        # Attach scores and sort
-        for doc, score in zip(documents, scores):
-            doc["rerank_score"] = float(score)
-
-        ranked = sorted(documents, key=lambda x: x["rerank_score"], reverse=True)
-        return ranked[:top_k]
-
-# Why reranking works: bi-encoders (used in vector search)
-# encode query and document SEPARATELY -- fast but approximate.
-# Cross-encoders process query+document TOGETHER -- slow but accurate.
-# Use bi-encoder for recall (top 50), cross-encoder for precision (top 5).`}
-</CodeBlock>
+  <CodeBlock b64="ZnJvbSBzZW50ZW5jZV90cmFuc2Zvcm1lcnMgaW1wb3J0IENyb3NzRW5jb2RlcgoKY2xhc3MgUmVyYW5rZXI6CiAgICBkZWYgX19pbml0X18oc2VsZiwgbW9kZWxfbmFtZT0iY3Jvc3MtZW5jb2Rlci9tcy1tYXJjby1NaW5pTE0tTC02LXYyIik6CiAgICAgICAgc2VsZi5tb2RlbCA9IENyb3NzRW5jb2Rlcihtb2RlbF9uYW1lKQoKICAgIGRlZiByZXJhbmsoc2VsZiwgcXVlcnksIGRvY3VtZW50cywgdG9wX2s9NSk6CiAgICAgICAgIiIiU2NvcmUgcXVlcnktZG9jdW1lbnQgcGFpcnMgd2l0aCBjcm9zcy1lbmNvZGVyIiIiCiAgICAgICAgcGFpcnMgPSBbW3F1ZXJ5LCBkb2NbInRleHQiXV0gZm9yIGRvYyBpbiBkb2N1bWVudHNdCiAgICAgICAgc2NvcmVzID0gc2VsZi5tb2RlbC5wcmVkaWN0KHBhaXJzKQoKICAgICAgICAjIEF0dGFjaCBzY29yZXMgYW5kIHNvcnQKICAgICAgICBmb3IgZG9jLCBzY29yZSBpbiB6aXAoZG9jdW1lbnRzLCBzY29yZXMpOgogICAgICAgICAgICBkb2NbInJlcmFua19zY29yZSJdID0gZmxvYXQoc2NvcmUpCgogICAgICAgIHJhbmtlZCA9IHNvcnRlZChkb2N1bWVudHMsIGtleT1sYW1iZGEgeDogeFsicmVyYW5rX3Njb3JlIl0sIHJldmVyc2U9VHJ1ZSkKICAgICAgICByZXR1cm4gcmFua2VkWzp0b3Bfa10KCiMgV2h5IHJlcmFua2luZyB3b3JrczogYmktZW5jb2RlcnMgKHVzZWQgaW4gdmVjdG9yIHNlYXJjaCkKIyBlbmNvZGUgcXVlcnkgYW5kIGRvY3VtZW50IFNFUEFSQVRFTFkgLS0gZmFzdCBidXQgYXBwcm94aW1hdGUuCiMgQ3Jvc3MtZW5jb2RlcnMgcHJvY2VzcyBxdWVyeStkb2N1bWVudCBUT0dFVEhFUiAtLSBzbG93IGJ1dCBhY2N1cmF0ZS4KIyBVc2UgYmktZW5jb2RlciBmb3IgcmVjYWxsICh0b3AgNTApLCBjcm9zcy1lbmNvZGVyIGZvciBwcmVjaXNpb24gKHRvcCA1KS4=" />
   <ExpandableSection title="RAPTOR: Recursive Summarization" icon="🌳" defaultOpen>
 
 <JargonTip term="RAPTOR">RAPTOR</JargonTip> builds a tree of summaries over your documents. Leaf nodes are original chunks, each with an <JargonTip term="embedding">embedding</JargonTip> vector. Parent nodes are summaries of groups of children. <JargonTip term="cross-encoder">Cross-encoder</JargonTip> rerankers then score results for precision. At query time, you search across all levels -- this lets you answer both detailed questions (from leaves) and broad questions (from summary nodes).

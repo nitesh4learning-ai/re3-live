@@ -5,28 +5,7 @@ icon: "📃"
 
 ## Event Schema Design
 
-<CodeBlock>
-{`# ACP uses CloudEvents as the event envelope format
-{'{'{'}'}
-    "specversion": "1.0",
-    "type": "com.acme.agent.document.classified",
-    "source": "agent://classifier/v2",
-    "id": "evt-abc-123",
-    "time": "2025-01-15T10:30:00Z",
-    "datacontenttype": "application/json",
-    "subject": "document/doc-12345",
-    "data": {'{'{'}'}
-        "classification": "financial_report",
-        "confidence": 0.94,
-        "subcategories": ["quarterly_earnings", "sec_filing"],
-        "processing_time_ms": 1250
-    {'}'},
-    # ACP extensions
-    "traceid": "trace-789",
-    "correlationid": "workflow-456",
-    "agentversion": "2.1.0"
-{'}'}`}
-</CodeBlock>
+<CodeBlock b64="IyBBQ1AgdXNlcyBDbG91ZEV2ZW50cyBhcyB0aGUgZXZlbnQgZW52ZWxvcGUgZm9ybWF0Cnsneyd7J30nfQogICAgInNwZWN2ZXJzaW9uIjogIjEuMCIsCiAgICAidHlwZSI6ICJjb20uYWNtZS5hZ2VudC5kb2N1bWVudC5jbGFzc2lmaWVkIiwKICAgICJzb3VyY2UiOiAiYWdlbnQ6Ly9jbGFzc2lmaWVyL3YyIiwKICAgICJpZCI6ICJldnQtYWJjLTEyMyIsCiAgICAidGltZSI6ICIyMDI1LTAxLTE1VDEwOjMwOjAwWiIsCiAgICAiZGF0YWNvbnRlbnR0eXBlIjogImFwcGxpY2F0aW9uL2pzb24iLAogICAgInN1YmplY3QiOiAiZG9jdW1lbnQvZG9jLTEyMzQ1IiwKICAgICJkYXRhIjogeyd7J3snfSd9CiAgICAgICAgImNsYXNzaWZpY2F0aW9uIjogImZpbmFuY2lhbF9yZXBvcnQiLAogICAgICAgICJjb25maWRlbmNlIjogMC45NCwKICAgICAgICAic3ViY2F0ZWdvcmllcyI6IFsicXVhcnRlcmx5X2Vhcm5pbmdzIiwgInNlY19maWxpbmciXSwKICAgICAgICAicHJvY2Vzc2luZ190aW1lX21zIjogMTI1MAogICAgeyd9J30sCiAgICAjIEFDUCBleHRlbnNpb25zCiAgICAidHJhY2VpZCI6ICJ0cmFjZS03ODkiLAogICAgImNvcnJlbGF0aW9uaWQiOiAid29ya2Zsb3ctNDU2IiwKICAgICJhZ2VudHZlcnNpb24iOiAiMi4xLjAiCnsnfSd9" />
 
 <ExpandableSection title="Event Design Best Practices" icon="💡">
 

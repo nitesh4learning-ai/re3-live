@@ -7,24 +7,7 @@ icon: "\uD83E\uDDE0"
 
 In multi-agent systems, agents need to share information. **State management** defines how data flows between agents, and **memory** determines what each agent can recall.
 
-  <CodeBlock>
-{`{'{'{'}'}
-  "debate_id": "d_1707234567",
-  "topic": "Impact of AI on healthcare",
-  "round": 2,
-  "agents": ["agent_strategist", "agent_ethicist", "agent_builder"],
-  "arguments": {'{'{'}'}
-    "round_1": [
-      {'{'{'}'}"agent": "agent_strategist", "position": "..."{'}'},
-      {'{'{'}'}"agent": "agent_ethicist", "position": "..."{'}'}
-    ],
-    "round_2": [
-      {'{'{'}'}"agent": "agent_strategist", "response": "..."{'}'}
-    ]
-  {'}'},
-  "moderator_notes": "Quality score: 8.5/10"
-{'}'}`}
-</CodeBlock>
+  <CodeBlock b64="eyd7J3snfSd9CiAgImRlYmF0ZV9pZCI6ICJkXzE3MDcyMzQ1NjciLAogICJ0b3BpYyI6ICJJbXBhY3Qgb2YgQUkgb24gaGVhbHRoY2FyZSIsCiAgInJvdW5kIjogMiwKICAiYWdlbnRzIjogWyJhZ2VudF9zdHJhdGVnaXN0IiwgImFnZW50X2V0aGljaXN0IiwgImFnZW50X2J1aWxkZXIiXSwKICAiYXJndW1lbnRzIjogeyd7J3snfSd9CiAgICAicm91bmRfMSI6IFsKICAgICAgeyd7J3snfSd9ImFnZW50IjogImFnZW50X3N0cmF0ZWdpc3QiLCAicG9zaXRpb24iOiAiLi4uInsnfSd9LAogICAgICB7J3sneyd9J30iYWdlbnQiOiAiYWdlbnRfZXRoaWNpc3QiLCAicG9zaXRpb24iOiAiLi4uInsnfSd9CiAgICBdLAogICAgInJvdW5kXzIiOiBbCiAgICAgIHsneyd7J30nfSJhZ2VudCI6ICJhZ2VudF9zdHJhdGVnaXN0IiwgInJlc3BvbnNlIjogIi4uLiJ7J30nfQogICAgXQogIHsnfSd9LAogICJtb2RlcmF0b3Jfbm90ZXMiOiAiUXVhbGl0eSBzY29yZTogOC41LzEwIgp7J30nfQ==" />
   <ExpandableSection title="Memory Strategies" icon="🧠">
 
 **Full history:** Every agent sees all previous messages. Simple but uses lots of <JargonTip term="token">tokens</JargonTip>.

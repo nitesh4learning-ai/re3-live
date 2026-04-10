@@ -26,55 +26,7 @@ This technique improves accuracy on math and logic tasks by 5-15% over single-pa
 
 </ExpandableSection>
 
-<CodeBlock>
-{`from openai import OpenAI
-from collections import Counter
-
-client = OpenAI()
-
-def self_consistency(question, n_paths=5, temperature=0.7):
-    """Generate multiple reasoning paths and vote on the answer."""
-    answers = []
-
-    for _ in range(n_paths):
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            temperature=temperature,
-            messages=[
-                {'{'{'}'}"role": "system", "content": "Solve the problem step by step. "
-                 "End with 'ANSWER: <your_answer>'"{'}'},
-                {'{'{'}'}"role": "user", "content": question{'}'}
-            ]
-        )
-        text = response.choices[0].message.content
-        # Extract answer after "ANSWER:"
-        if "ANSWER:" in text:
-            answer = text.split("ANSWER:")[-1].strip()
-            answers.append(answer)
-
-    # Majority vote
-    if not answers:
-        return None, []
-
-    vote = Counter(answers)
-    best_answer, count = vote.most_common(1)[0]
-    confidence = count / len(answers)
-
-    return {'{'{'}'}
-        "answer": best_answer,
-        "confidence": confidence,
-        "all_answers": answers,
-        "vote_distribution": dict(vote)
-    {'}'}
-
-result = self_consistency(
-    "A store has 15 apples. 3 customers each buy 2. A delivery adds 10. "
-    "Then 1 customer returns 3 apples. How many apples does the store have?",
-    n_paths=5
-)
-print(f"Answer: {'{'{'}'}result['answer']{'}'} (confidence: {'{'{'}'}result['confidence']:.0%{'}'})")
-print(f"All paths: {'{'{'}'}result['all_answers']{'}'}")`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBvcGVuYWkgaW1wb3J0IE9wZW5BSQpmcm9tIGNvbGxlY3Rpb25zIGltcG9ydCBDb3VudGVyCgpjbGllbnQgPSBPcGVuQUkoKQoKZGVmIHNlbGZfY29uc2lzdGVuY3kocXVlc3Rpb24sIG5fcGF0aHM9NSwgdGVtcGVyYXR1cmU9MC43KToKICAgICIiIkdlbmVyYXRlIG11bHRpcGxlIHJlYXNvbmluZyBwYXRocyBhbmQgdm90ZSBvbiB0aGUgYW5zd2VyLiIiIgogICAgYW5zd2VycyA9IFtdCgogICAgZm9yIF8gaW4gcmFuZ2Uobl9wYXRocyk6CiAgICAgICAgcmVzcG9uc2UgPSBjbGllbnQuY2hhdC5jb21wbGV0aW9ucy5jcmVhdGUoCiAgICAgICAgICAgIG1vZGVsPSJncHQtNG8iLAogICAgICAgICAgICB0ZW1wZXJhdHVyZT10ZW1wZXJhdHVyZSwKICAgICAgICAgICAgbWVzc2FnZXM9WwogICAgICAgICAgICAgICAgeyd7J3snfSd9InJvbGUiOiAic3lzdGVtIiwgImNvbnRlbnQiOiAiU29sdmUgdGhlIHByb2JsZW0gc3RlcCBieSBzdGVwLiAiCiAgICAgICAgICAgICAgICAgIkVuZCB3aXRoICdBTlNXRVI6IDx5b3VyX2Fuc3dlcj4nInsnfSd9LAogICAgICAgICAgICAgICAgeyd7J3snfSd9InJvbGUiOiAidXNlciIsICJjb250ZW50IjogcXVlc3Rpb257J30nfQogICAgICAgICAgICBdCiAgICAgICAgKQogICAgICAgIHRleHQgPSByZXNwb25zZS5jaG9pY2VzWzBdLm1lc3NhZ2UuY29udGVudAogICAgICAgICMgRXh0cmFjdCBhbnN3ZXIgYWZ0ZXIgIkFOU1dFUjoiCiAgICAgICAgaWYgIkFOU1dFUjoiIGluIHRleHQ6CiAgICAgICAgICAgIGFuc3dlciA9IHRleHQuc3BsaXQoIkFOU1dFUjoiKVstMV0uc3RyaXAoKQogICAgICAgICAgICBhbnN3ZXJzLmFwcGVuZChhbnN3ZXIpCgogICAgIyBNYWpvcml0eSB2b3RlCiAgICBpZiBub3QgYW5zd2VyczoKICAgICAgICByZXR1cm4gTm9uZSwgW10KCiAgICB2b3RlID0gQ291bnRlcihhbnN3ZXJzKQogICAgYmVzdF9hbnN3ZXIsIGNvdW50ID0gdm90ZS5tb3N0X2NvbW1vbigxKVswXQogICAgY29uZmlkZW5jZSA9IGNvdW50IC8gbGVuKGFuc3dlcnMpCgogICAgcmV0dXJuIHsneyd7J30nfQogICAgICAgICJhbnN3ZXIiOiBiZXN0X2Fuc3dlciwKICAgICAgICAiY29uZmlkZW5jZSI6IGNvbmZpZGVuY2UsCiAgICAgICAgImFsbF9hbnN3ZXJzIjogYW5zd2VycywKICAgICAgICAidm90ZV9kaXN0cmlidXRpb24iOiBkaWN0KHZvdGUpCiAgICB7J30nfQoKcmVzdWx0ID0gc2VsZl9jb25zaXN0ZW5jeSgKICAgICJBIHN0b3JlIGhhcyAxNSBhcHBsZXMuIDMgY3VzdG9tZXJzIGVhY2ggYnV5IDIuIEEgZGVsaXZlcnkgYWRkcyAxMC4gIgogICAgIlRoZW4gMSBjdXN0b21lciByZXR1cm5zIDMgYXBwbGVzLiBIb3cgbWFueSBhcHBsZXMgZG9lcyB0aGUgc3RvcmUgaGF2ZT8iLAogICAgbl9wYXRocz01CikKcHJpbnQoZiJBbnN3ZXI6IHsneyd7J30nfXJlc3VsdFsnYW5zd2VyJ117J30nfSAoY29uZmlkZW5jZTogeyd7J3snfSd9cmVzdWx0Wydjb25maWRlbmNlJ106LjAleyd9J30pIikKcHJpbnQoZiJBbGwgcGF0aHM6IHsneyd7J30nfXJlc3VsdFsnYWxsX2Fuc3dlcnMnXXsnfSd9Iik=" />
 
 <ExpandableSection title="Tree-of-Thought: Deliberate Exploration" icon="🌳">
 

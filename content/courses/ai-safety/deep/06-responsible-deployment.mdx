@@ -17,25 +17,4 @@ icon: "🚀"
 
 </ExpandableSection>
 
-<CodeBlock>
-{`monitoring_config = {'{'{'}'}
-    "metrics": {'{'{'}'}
-        "hallucination_rate": {'{'{'}'}"threshold": 0.05, "window": "1h"{'}'},
-        "toxicity_score": {'{'{'}'}"threshold": 0.1, "window": "15m"{'}'},
-        "refusal_rate": {'{'{'}'}"threshold": 0.3, "window": "1h"{'}'},
-        "user_reports": {'{'{'}'}"threshold": 5, "window": "1h"{'}'},
-    {'}'},
-    "alerts": {'{'{'}'}
-        "channel": "slack:#ai-safety",
-        "escalation": "pagerduty:ai-oncall",
-        "auto_disable_threshold": {'{'{'}'}
-            "toxicity_score": 0.3,  # Auto-disable if toxicity > 30%
-            "user_reports": 20,      # Auto-disable if > 20 reports/hour
-        {'}'}
-    {'}'},
-    "logging": {'{'{'}'}
-        "sample_rate": 0.1,  # Log 10% of interactions
-        "full_log_on_flag": True,  # Full log if any metric flagged
-    {'}'}
-{'}'}`}
-</CodeBlock>
+<CodeBlock b64="bW9uaXRvcmluZ19jb25maWcgPSB7J3sneyd9J30KICAgICJtZXRyaWNzIjogeyd7J3snfSd9CiAgICAgICAgImhhbGx1Y2luYXRpb25fcmF0ZSI6IHsneyd7J30nfSJ0aHJlc2hvbGQiOiAwLjA1LCAid2luZG93IjogIjFoInsnfSd9LAogICAgICAgICJ0b3hpY2l0eV9zY29yZSI6IHsneyd7J30nfSJ0aHJlc2hvbGQiOiAwLjEsICJ3aW5kb3ciOiAiMTVtInsnfSd9LAogICAgICAgICJyZWZ1c2FsX3JhdGUiOiB7J3sneyd9J30idGhyZXNob2xkIjogMC4zLCAid2luZG93IjogIjFoInsnfSd9LAogICAgICAgICJ1c2VyX3JlcG9ydHMiOiB7J3sneyd9J30idGhyZXNob2xkIjogNSwgIndpbmRvdyI6ICIxaCJ7J30nfSwKICAgIHsnfSd9LAogICAgImFsZXJ0cyI6IHsneyd7J30nfQogICAgICAgICJjaGFubmVsIjogInNsYWNrOiNhaS1zYWZldHkiLAogICAgICAgICJlc2NhbGF0aW9uIjogInBhZ2VyZHV0eTphaS1vbmNhbGwiLAogICAgICAgICJhdXRvX2Rpc2FibGVfdGhyZXNob2xkIjogeyd7J3snfSd9CiAgICAgICAgICAgICJ0b3hpY2l0eV9zY29yZSI6IDAuMywgICMgQXV0by1kaXNhYmxlIGlmIHRveGljaXR5ID4gMzAlCiAgICAgICAgICAgICJ1c2VyX3JlcG9ydHMiOiAyMCwgICAgICAjIEF1dG8tZGlzYWJsZSBpZiA+IDIwIHJlcG9ydHMvaG91cgogICAgICAgIHsnfSd9CiAgICB7J30nfSwKICAgICJsb2dnaW5nIjogeyd7J3snfSd9CiAgICAgICAgInNhbXBsZV9yYXRlIjogMC4xLCAgIyBMb2cgMTAlIG9mIGludGVyYWN0aW9ucwogICAgICAgICJmdWxsX2xvZ19vbl9mbGFnIjogVHJ1ZSwgICMgRnVsbCBsb2cgaWYgYW55IG1ldHJpYyBmbGFnZ2VkCiAgICB7J30nfQp7J30nfQ==" />

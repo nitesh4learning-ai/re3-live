@@ -5,20 +5,7 @@ icon: "\uD83D\uDD27"
 
 ## Tool Result Integration
 
-<CodeBlock>
-{`def format_tool_result(tool_name, raw_result, max_tokens=500):
-    if count_tokens(str(raw_result)) > max_tokens:
-        return {'{'{'}'}"tool": tool_name, "status": "success",
-                "summary": summarize(raw_result, max_tokens),
-                "note": "Full result truncated"{'}'}
-    return {'{'{'}'}"tool": tool_name, "status": "success",
-            "data": raw_result{'}'}
-
-def format_tool_error(tool_name, error):
-    return {'{'{'}'}"tool": tool_name, "status": "error",
-            "error": str(error),
-            "suggestion": "Try alternative approach or ask user"{'}'}`}
-</CodeBlock>
+<CodeBlock b64="ZGVmIGZvcm1hdF90b29sX3Jlc3VsdCh0b29sX25hbWUsIHJhd19yZXN1bHQsIG1heF90b2tlbnM9NTAwKToKICAgIGlmIGNvdW50X3Rva2VucyhzdHIocmF3X3Jlc3VsdCkpID4gbWF4X3Rva2VuczoKICAgICAgICByZXR1cm4geyd7J3snfSd9InRvb2wiOiB0b29sX25hbWUsICJzdGF0dXMiOiAic3VjY2VzcyIsCiAgICAgICAgICAgICAgICAic3VtbWFyeSI6IHN1bW1hcml6ZShyYXdfcmVzdWx0LCBtYXhfdG9rZW5zKSwKICAgICAgICAgICAgICAgICJub3RlIjogIkZ1bGwgcmVzdWx0IHRydW5jYXRlZCJ7J30nfQogICAgcmV0dXJuIHsneyd7J30nfSJ0b29sIjogdG9vbF9uYW1lLCAic3RhdHVzIjogInN1Y2Nlc3MiLAogICAgICAgICAgICAiZGF0YSI6IHJhd19yZXN1bHR7J30nfQoKZGVmIGZvcm1hdF90b29sX2Vycm9yKHRvb2xfbmFtZSwgZXJyb3IpOgogICAgcmV0dXJuIHsneyd7J30nfSJ0b29sIjogdG9vbF9uYW1lLCAic3RhdHVzIjogImVycm9yIiwKICAgICAgICAgICAgImVycm9yIjogc3RyKGVycm9yKSwKICAgICAgICAgICAgInN1Z2dlc3Rpb24iOiAiVHJ5IGFsdGVybmF0aXZlIGFwcHJvYWNoIG9yIGFzayB1c2VyInsnfSd9" />
 
 <ExpandableSection title="Multi-Tool Aggregation" icon={'\uD83D\uDD27'}>
 When multiple <JargonTip term="tool use">tools</JargonTip> run in parallel, aggregate results into one structured context block. This helps the model see the complete picture and reason across tool outputs.

@@ -7,47 +7,6 @@ icon: "\uD83D\uDCDD"
 
 High-risk AI systems require comprehensive technical documentation. <JargonTip term="model card">Model cards</JargonTip> and system cards are the industry standard for transparency.
 
-<CodeBlock>
-{`model_card:
-  model_details:
-    name: "ResumeScreener-v2.1"
-    version: "2.1.0"
-    type: "Classification (binary: advance/reject)"
-    developers: "TalentAI Inc."
-    release_date: "2025-03-15"
-
-  intended_use:
-    primary: "First-pass resume screening for technical roles"
-    out_of_scope: "Final hiring decisions, performance evaluation"
-    users: "HR teams with AI training certification"
-
-  training_data:
-    sources: "500K anonymized resumes from 2020-2024"
-    demographics: "Balanced across gender, ethnicity, age"
-    preprocessing: "Name/photo/address redaction, skill normalization"
-
-  performance:
-    overall_accuracy: 0.89
-    false_positive_rate: 0.08
-    false_negative_rate: 0.12
-
-  fairness_metrics:
-    demographic_parity:
-      gender: {'{'{'}'}male: 0.45, female: 0.44, non_binary: 0.43{'}'}
-      ethnicity: {'{'{'}'}max_disparity: 0.03{'}'}
-    equalized_odds:
-      tpr_gap: 0.02
-      fpr_gap: 0.01
-
-  limitations:
-    - "Not validated for non-English resumes"
-    - "Performance degrades for roles with < 100 training examples"
-    - "Cannot assess soft skills or cultural fit"
-
-  human_oversight:
-    mechanism: "All rejections reviewed by human within 48hrs"
-    override_rate: "12% of AI rejections reversed by human review"
-    escalation: "Candidates can request human-only review"`}
-</CodeBlock>
+<CodeBlock b64="bW9kZWxfY2FyZDoKICBtb2RlbF9kZXRhaWxzOgogICAgbmFtZTogIlJlc3VtZVNjcmVlbmVyLXYyLjEiCiAgICB2ZXJzaW9uOiAiMi4xLjAiCiAgICB0eXBlOiAiQ2xhc3NpZmljYXRpb24gKGJpbmFyeTogYWR2YW5jZS9yZWplY3QpIgogICAgZGV2ZWxvcGVyczogIlRhbGVudEFJIEluYy4iCiAgICByZWxlYXNlX2RhdGU6ICIyMDI1LTAzLTE1IgoKICBpbnRlbmRlZF91c2U6CiAgICBwcmltYXJ5OiAiRmlyc3QtcGFzcyByZXN1bWUgc2NyZWVuaW5nIGZvciB0ZWNobmljYWwgcm9sZXMiCiAgICBvdXRfb2Zfc2NvcGU6ICJGaW5hbCBoaXJpbmcgZGVjaXNpb25zLCBwZXJmb3JtYW5jZSBldmFsdWF0aW9uIgogICAgdXNlcnM6ICJIUiB0ZWFtcyB3aXRoIEFJIHRyYWluaW5nIGNlcnRpZmljYXRpb24iCgogIHRyYWluaW5nX2RhdGE6CiAgICBzb3VyY2VzOiAiNTAwSyBhbm9ueW1pemVkIHJlc3VtZXMgZnJvbSAyMDIwLTIwMjQiCiAgICBkZW1vZ3JhcGhpY3M6ICJCYWxhbmNlZCBhY3Jvc3MgZ2VuZGVyLCBldGhuaWNpdHksIGFnZSIKICAgIHByZXByb2Nlc3Npbmc6ICJOYW1lL3Bob3RvL2FkZHJlc3MgcmVkYWN0aW9uLCBza2lsbCBub3JtYWxpemF0aW9uIgoKICBwZXJmb3JtYW5jZToKICAgIG92ZXJhbGxfYWNjdXJhY3k6IDAuODkKICAgIGZhbHNlX3Bvc2l0aXZlX3JhdGU6IDAuMDgKICAgIGZhbHNlX25lZ2F0aXZlX3JhdGU6IDAuMTIKCiAgZmFpcm5lc3NfbWV0cmljczoKICAgIGRlbW9ncmFwaGljX3Bhcml0eToKICAgICAgZ2VuZGVyOiB7J3sneyd9J31tYWxlOiAwLjQ1LCBmZW1hbGU6IDAuNDQsIG5vbl9iaW5hcnk6IDAuNDN7J30nfQogICAgICBldGhuaWNpdHk6IHsneyd7J30nfW1heF9kaXNwYXJpdHk6IDAuMDN7J30nfQogICAgZXF1YWxpemVkX29kZHM6CiAgICAgIHRwcl9nYXA6IDAuMDIKICAgICAgZnByX2dhcDogMC4wMQoKICBsaW1pdGF0aW9uczoKICAgIC0gIk5vdCB2YWxpZGF0ZWQgZm9yIG5vbi1FbmdsaXNoIHJlc3VtZXMiCiAgICAtICJQZXJmb3JtYW5jZSBkZWdyYWRlcyBmb3Igcm9sZXMgd2l0aCA8IDEwMCB0cmFpbmluZyBleGFtcGxlcyIKICAgIC0gIkNhbm5vdCBhc3Nlc3Mgc29mdCBza2lsbHMgb3IgY3VsdHVyYWwgZml0IgoKICBodW1hbl9vdmVyc2lnaHQ6CiAgICBtZWNoYW5pc206ICJBbGwgcmVqZWN0aW9ucyByZXZpZXdlZCBieSBodW1hbiB3aXRoaW4gNDhocnMiCiAgICBvdmVycmlkZV9yYXRlOiAiMTIlIG9mIEFJIHJlamVjdGlvbnMgcmV2ZXJzZWQgYnkgaHVtYW4gcmV2aWV3IgogICAgZXNjYWxhdGlvbjogIkNhbmRpZGF0ZXMgY2FuIHJlcXVlc3QgaHVtYW4tb25seSByZXZpZXci" />
 
 <Quiz question="Why should a model card include fairness metrics broken down by demographic groups?" options={["It's only needed for marketing purposes","To identify disparate impact before deployment and satisfy regulatory requirements","Demographic data improves model accuracy","It's optional and rarely useful"]} correctIndex={1} explanation="Fairness metrics by demographic group are essential to identify disparate impact -- where a model performs differently across protected groups. This is required under the EU AI Act for high-risk systems and helps prevent discrimination."/>

@@ -5,47 +5,6 @@ icon: "✅"
 
 ## Validation & Error Handling
 
-<CodeBlock>
-{`import json
-
-def parse_llm_json(response_text, schema=None, max_retries=2):
-    """Parse JSON from LLM response with fallbacks."""
-    for attempt in range(max_retries + 1):
-        try:
-            # Step 1: Try direct parse
-            data = json.loads(response_text)
-
-            # Step 2: Validate against schema (if provided)
-            if schema:
-                validate(data, schema)
-
-            return {'{'{'}'}"success": True, "data": data{'}'}
-
-        except json.JSONDecodeError:
-            # Try extracting JSON from markdown
-            match = re.search(r'\\{'{'{'}'}[\\s\\S]*\\{'}'}', response_text)
-            if match:
-                try:
-                    data = json.loads(match.group())
-                    return {'{'{'}'}"success": True, "data": data{'}'}
-                except:
-                    pass
-
-            if attempt < max_retries:
-                # Retry with clearer instruction
-                response_text = retry_with_prompt(
-                    "Return ONLY valid JSON, no markdown or text."
-                )
-            else:
-                return {'{'{'}'}"success": False, "error": "Failed to parse JSON"{'}'}
-
-        except ValidationError as e:
-            if attempt < max_retries:
-                response_text = retry_with_prompt(
-                    f"Fix this JSON error: {'{'{'}'}e.message{'}'}"
-                )
-            else:
-                return {'{'{'}'}"success": False, "error": str(e){'}'}`}
-</CodeBlock>
+<CodeBlock b64="aW1wb3J0IGpzb24KCmRlZiBwYXJzZV9sbG1fanNvbihyZXNwb25zZV90ZXh0LCBzY2hlbWE9Tm9uZSwgbWF4X3JldHJpZXM9Mik6CiAgICAiIiJQYXJzZSBKU09OIGZyb20gTExNIHJlc3BvbnNlIHdpdGggZmFsbGJhY2tzLiIiIgogICAgZm9yIGF0dGVtcHQgaW4gcmFuZ2UobWF4X3JldHJpZXMgKyAxKToKICAgICAgICB0cnk6CiAgICAgICAgICAgICMgU3RlcCAxOiBUcnkgZGlyZWN0IHBhcnNlCiAgICAgICAgICAgIGRhdGEgPSBqc29uLmxvYWRzKHJlc3BvbnNlX3RleHQpCgogICAgICAgICAgICAjIFN0ZXAgMjogVmFsaWRhdGUgYWdhaW5zdCBzY2hlbWEgKGlmIHByb3ZpZGVkKQogICAgICAgICAgICBpZiBzY2hlbWE6CiAgICAgICAgICAgICAgICB2YWxpZGF0ZShkYXRhLCBzY2hlbWEpCgogICAgICAgICAgICByZXR1cm4geyd7J3snfSd9InN1Y2Nlc3MiOiBUcnVlLCAiZGF0YSI6IGRhdGF7J30nfQoKICAgICAgICBleGNlcHQganNvbi5KU09ORGVjb2RlRXJyb3I6CiAgICAgICAgICAgICMgVHJ5IGV4dHJhY3RpbmcgSlNPTiBmcm9tIG1hcmtkb3duCiAgICAgICAgICAgIG1hdGNoID0gcmUuc2VhcmNoKHInXFx7J3sneyd9J31bXFxzXFxTXSpcXHsnfSd9JywgcmVzcG9uc2VfdGV4dCkKICAgICAgICAgICAgaWYgbWF0Y2g6CiAgICAgICAgICAgICAgICB0cnk6CiAgICAgICAgICAgICAgICAgICAgZGF0YSA9IGpzb24ubG9hZHMobWF0Y2guZ3JvdXAoKSkKICAgICAgICAgICAgICAgICAgICByZXR1cm4geyd7J3snfSd9InN1Y2Nlc3MiOiBUcnVlLCAiZGF0YSI6IGRhdGF7J30nfQogICAgICAgICAgICAgICAgZXhjZXB0OgogICAgICAgICAgICAgICAgICAgIHBhc3MKCiAgICAgICAgICAgIGlmIGF0dGVtcHQgPCBtYXhfcmV0cmllczoKICAgICAgICAgICAgICAgICMgUmV0cnkgd2l0aCBjbGVhcmVyIGluc3RydWN0aW9uCiAgICAgICAgICAgICAgICByZXNwb25zZV90ZXh0ID0gcmV0cnlfd2l0aF9wcm9tcHQoCiAgICAgICAgICAgICAgICAgICAgIlJldHVybiBPTkxZIHZhbGlkIEpTT04sIG5vIG1hcmtkb3duIG9yIHRleHQuIgogICAgICAgICAgICAgICAgKQogICAgICAgICAgICBlbHNlOgogICAgICAgICAgICAgICAgcmV0dXJuIHsneyd7J30nfSJzdWNjZXNzIjogRmFsc2UsICJlcnJvciI6ICJGYWlsZWQgdG8gcGFyc2UgSlNPTiJ7J30nfQoKICAgICAgICBleGNlcHQgVmFsaWRhdGlvbkVycm9yIGFzIGU6CiAgICAgICAgICAgIGlmIGF0dGVtcHQgPCBtYXhfcmV0cmllczoKICAgICAgICAgICAgICAgIHJlc3BvbnNlX3RleHQgPSByZXRyeV93aXRoX3Byb21wdCgKICAgICAgICAgICAgICAgICAgICBmIkZpeCB0aGlzIEpTT04gZXJyb3I6IHsneyd7J30nfWUubWVzc2FnZXsnfSd9IgogICAgICAgICAgICAgICAgKQogICAgICAgICAgICBlbHNlOgogICAgICAgICAgICAgICAgcmV0dXJuIHsneyd7J30nfSJzdWNjZXNzIjogRmFsc2UsICJlcnJvciI6IHN0cihlKXsnfSd9" />
 
 <SeeItInRe3 text="Re³ uses regex JSON extraction with fallback handling in its LLM router — response.match(/\{[\s\S]*\}/) extracts JSON from any wrapper text."/>

@@ -7,35 +7,7 @@ icon: "📝"
 
 JSON Schema is the foundation of every <JargonTip term="tool schema">tool definition</JargonTip>. A well-designed schema tells the LLM exactly what parameters are available, their types, constraints, and when they are required. Poor schema design leads to <JargonTip term="hallucination">hallucinated</JargonTip> parameters, wrong types, and failed tool calls.
 
-<CodeBlock>
-{`{'{'{'}'}
-  "name": "search_database",
-  "description": "Search a structured database with filters and sorting.",
-  "input_schema": {'{'{'}'}
-    "type": "object",
-    "properties": {'{'{'}'}
-      "query": {'{'{'}'} "type": "string", "description": "Free-text search query" {'}'},
-      "filters": {'{'{'}'}
-        "type": "object",
-        "properties": {'{'{'}'}
-          "status": {'{'{'}'} "type": "string", "enum": ["active", "archived", "draft"] {'}'},
-          "created_after": {'{'{'}'} "type": "string", "format": "date" {'}'},
-          "tags": {'{'{'}'} "type": "array", "items": {'{'{'}'} "type": "string" {'}'} {'}'}
-        {'}'}
-      {'}'},
-      "sort": {'{'{'}'}
-        "type": "object",
-        "properties": {'{'{'}'}
-          "field": {'{'{'}'} "type": "string", "enum": ["created_at", "updated_at", "relevance"] {'}'},
-          "order": {'{'{'}'} "type": "string", "enum": ["asc", "desc"], "default": "desc" {'}'}
-        {'}'}
-      {'}'},
-      "limit": {'{'{'}'} "type": "integer", "minimum": 1, "maximum": 100, "default": 20 {'}'}
-    {'}'},
-    "required": ["query"]
-  {'}'}
-{'}'}`}
-</CodeBlock>
+<CodeBlock b64="eyd7J3snfSd9CiAgIm5hbWUiOiAic2VhcmNoX2RhdGFiYXNlIiwKICAiZGVzY3JpcHRpb24iOiAiU2VhcmNoIGEgc3RydWN0dXJlZCBkYXRhYmFzZSB3aXRoIGZpbHRlcnMgYW5kIHNvcnRpbmcuIiwKICAiaW5wdXRfc2NoZW1hIjogeyd7J3snfSd9CiAgICAidHlwZSI6ICJvYmplY3QiLAogICAgInByb3BlcnRpZXMiOiB7J3sneyd9J30KICAgICAgInF1ZXJ5Ijogeyd7J3snfSd9ICJ0eXBlIjogInN0cmluZyIsICJkZXNjcmlwdGlvbiI6ICJGcmVlLXRleHQgc2VhcmNoIHF1ZXJ5IiB7J30nfSwKICAgICAgImZpbHRlcnMiOiB7J3sneyd9J30KICAgICAgICAidHlwZSI6ICJvYmplY3QiLAogICAgICAgICJwcm9wZXJ0aWVzIjogeyd7J3snfSd9CiAgICAgICAgICAic3RhdHVzIjogeyd7J3snfSd9ICJ0eXBlIjogInN0cmluZyIsICJlbnVtIjogWyJhY3RpdmUiLCAiYXJjaGl2ZWQiLCAiZHJhZnQiXSB7J30nfSwKICAgICAgICAgICJjcmVhdGVkX2FmdGVyIjogeyd7J3snfSd9ICJ0eXBlIjogInN0cmluZyIsICJmb3JtYXQiOiAiZGF0ZSIgeyd9J30sCiAgICAgICAgICAidGFncyI6IHsneyd7J30nfSAidHlwZSI6ICJhcnJheSIsICJpdGVtcyI6IHsneyd7J30nfSAidHlwZSI6ICJzdHJpbmciIHsnfSd9IHsnfSd9CiAgICAgICAgeyd9J30KICAgICAgeyd9J30sCiAgICAgICJzb3J0Ijogeyd7J3snfSd9CiAgICAgICAgInR5cGUiOiAib2JqZWN0IiwKICAgICAgICAicHJvcGVydGllcyI6IHsneyd7J30nfQogICAgICAgICAgImZpZWxkIjogeyd7J3snfSd9ICJ0eXBlIjogInN0cmluZyIsICJlbnVtIjogWyJjcmVhdGVkX2F0IiwgInVwZGF0ZWRfYXQiLCAicmVsZXZhbmNlIl0geyd9J30sCiAgICAgICAgICAib3JkZXIiOiB7J3sneyd9J30gInR5cGUiOiAic3RyaW5nIiwgImVudW0iOiBbImFzYyIsICJkZXNjIl0sICJkZWZhdWx0IjogImRlc2MiIHsnfSd9CiAgICAgICAgeyd9J30KICAgICAgeyd9J30sCiAgICAgICJsaW1pdCI6IHsneyd7J30nfSAidHlwZSI6ICJpbnRlZ2VyIiwgIm1pbmltdW0iOiAxLCAibWF4aW11bSI6IDEwMCwgImRlZmF1bHQiOiAyMCB7J30nfQogICAgeyd9J30sCiAgICAicmVxdWlyZWQiOiBbInF1ZXJ5Il0KICB7J30nfQp7J30nfQ==" />
 
 <ExpandableSection title="Schema Design Best Practices" icon="📋" defaultOpen={true}>
 

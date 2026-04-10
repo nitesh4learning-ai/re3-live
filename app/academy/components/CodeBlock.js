@@ -1,13 +1,21 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { CODE_BG, CODE_TEXT } from "../constants";
 
-export default function CodeBlock({ code, children, language = 'text', label = null, title = null }) {
+export default function CodeBlock({ code, children, b64, language = 'text', label = null, title = null }) {
   // Support multiple ways to pass code content:
-  // 1. code={...} prop (original)
-  // 2. children (MDX v3 compatible - avoids curly brace escaping issues)
-  // 3. title prop as alias for label (backward compat with some MDX files)
-  const codeContent = code || (typeof children === 'string' ? children : '') || '';
+  // 1. b64 prop: base64-encoded code (MDX v3 safe - no curly brace issues)
+  // 2. code prop: direct string (works when no curlies in code)
+  // 3. children: JSX children (works when no curlies in code)
+  const codeContent = useMemo(() => {
+    if (b64) {
+      try { return atob(b64); } catch { return ''; }
+    }
+    if (code) return code;
+    if (typeof children === 'string') return children;
+    return '';
+  }, [b64, code, children]);
+
   const displayLabel = label || title || language;
   const [copied, setCopied] = useState(false);
 

@@ -7,40 +7,7 @@ icon: "🔍"
 
 AI governance is not a one-time audit -- it requires continuous monitoring, <JargonTip term="drift detection">drift detection</JargonTip>, and audit trails. Models degrade as data distributions shift.
 
-<CodeBlock>
-{`class ComplianceMonitor {'{'{'}'}
-  constructor(model, config) {'{'{'}'}
-    this.model = model;
-    this.alerts = [];
-    this.driftThreshold = config.driftThreshold || 0.05;
-  {'}'}
-
-  async checkDrift(currentData) {'{'{'}'}
-    const baseline = this.model.baselineDistribution;
-    const drift = this.calculatePSI(baseline, currentData);
-    if (drift > this.driftThreshold) {'{'{'}'}
-      this.alerts.push({'{'{'}'}
-        type: "DATA_DRIFT",
-        severity: drift > 0.2 ? "CRITICAL" : "WARNING",
-        metric: drift,
-        timestamp: new Date().toISOString(),
-      {'}'});
-    {'}'}
-    return drift;
-  {'}'}
-
-  async checkFairness(predictions, demographics) {'{'{'}'}
-    const groups = this.groupByDemographic(predictions, demographics);
-    const rates = {'{'{'}'}{'}'};
-    for (const [g, preds] of Object.entries(groups)) {'{'{'}'}
-      rates[g] = preds.filter(p => p > 0.5).length / preds.length;
-    {'}'}
-    const maxGap = Math.max(...Object.values(rates)) - Math.min(...Object.values(rates));
-    if (maxGap > 0.1) this.alerts.push({'{'{'}'} type: "FAIRNESS", details: rates {'}'});
-    return {'{'{'}'} rates, maxGap {'}'};
-  {'}'}
-{'}'}`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgQ29tcGxpYW5jZU1vbml0b3Igeyd7J3snfSd9CiAgY29uc3RydWN0b3IobW9kZWwsIGNvbmZpZykgeyd7J3snfSd9CiAgICB0aGlzLm1vZGVsID0gbW9kZWw7CiAgICB0aGlzLmFsZXJ0cyA9IFtdOwogICAgdGhpcy5kcmlmdFRocmVzaG9sZCA9IGNvbmZpZy5kcmlmdFRocmVzaG9sZCB8fCAwLjA1OwogIHsnfSd9CgogIGFzeW5jIGNoZWNrRHJpZnQoY3VycmVudERhdGEpIHsneyd7J30nfQogICAgY29uc3QgYmFzZWxpbmUgPSB0aGlzLm1vZGVsLmJhc2VsaW5lRGlzdHJpYnV0aW9uOwogICAgY29uc3QgZHJpZnQgPSB0aGlzLmNhbGN1bGF0ZVBTSShiYXNlbGluZSwgY3VycmVudERhdGEpOwogICAgaWYgKGRyaWZ0ID4gdGhpcy5kcmlmdFRocmVzaG9sZCkgeyd7J3snfSd9CiAgICAgIHRoaXMuYWxlcnRzLnB1c2goeyd7J3snfSd9CiAgICAgICAgdHlwZTogIkRBVEFfRFJJRlQiLAogICAgICAgIHNldmVyaXR5OiBkcmlmdCA+IDAuMiA/ICJDUklUSUNBTCIgOiAiV0FSTklORyIsCiAgICAgICAgbWV0cmljOiBkcmlmdCwKICAgICAgICB0aW1lc3RhbXA6IG5ldyBEYXRlKCkudG9JU09TdHJpbmcoKSwKICAgICAgeyd9J30pOwogICAgeyd9J30KICAgIHJldHVybiBkcmlmdDsKICB7J30nfQoKICBhc3luYyBjaGVja0ZhaXJuZXNzKHByZWRpY3Rpb25zLCBkZW1vZ3JhcGhpY3MpIHsneyd7J30nfQogICAgY29uc3QgZ3JvdXBzID0gdGhpcy5ncm91cEJ5RGVtb2dyYXBoaWMocHJlZGljdGlvbnMsIGRlbW9ncmFwaGljcyk7CiAgICBjb25zdCByYXRlcyA9IHsneyd7J30nfXsnfSd9OwogICAgZm9yIChjb25zdCBbZywgcHJlZHNdIG9mIE9iamVjdC5lbnRyaWVzKGdyb3VwcykpIHsneyd7J30nfQogICAgICByYXRlc1tnXSA9IHByZWRzLmZpbHRlcihwID0+IHAgPiAwLjUpLmxlbmd0aCAvIHByZWRzLmxlbmd0aDsKICAgIHsnfSd9CiAgICBjb25zdCBtYXhHYXAgPSBNYXRoLm1heCguLi5PYmplY3QudmFsdWVzKHJhdGVzKSkgLSBNYXRoLm1pbiguLi5PYmplY3QudmFsdWVzKHJhdGVzKSk7CiAgICBpZiAobWF4R2FwID4gMC4xKSB0aGlzLmFsZXJ0cy5wdXNoKHsneyd7J30nfSB0eXBlOiAiRkFJUk5FU1MiLCBkZXRhaWxzOiByYXRlcyB7J30nfSk7CiAgICByZXR1cm4geyd7J3snfSd9IHJhdGVzLCBtYXhHYXAgeyd9J307CiAgeyd9J30Keyd9J30=" />
 
 <ExpandableSection title="Audit Trail Requirements" icon="🔍" defaultOpen={true}>
 

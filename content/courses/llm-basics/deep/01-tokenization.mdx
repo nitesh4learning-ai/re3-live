@@ -23,9 +23,7 @@ The merge order is saved as the tokenizer's "vocabulary file." During inference,
 
 </ExpandableSection>
 
-<CodeBlock>
-{`import tiktoken\n\n# Load encoder for specific model\nenc = tiktoken.encoding_for_model("gpt-4o")\n\ntext = "Tokenization is fundamental to LLM cost optimization."\ntokens = enc.encode(text)\n\nprint(f"Text: {'{'{'}'}text{'}'}")\nprint(f"Token count: {'{'{'}'}len(tokens){'}'}")\nprint(f"Token IDs: {'{'{'}'}tokens{'}'}")\nprint(f"Decoded tokens: {'{'{'}'}[enc.decode([t]) for t in tokens]{'}'}")\n# Output: ['Token', 'ization', ' is', ' fundamental', ' to', ' LLM', ' cost', ' optimization', '.']\n\n# Cost estimation (GPT-4o: $2.50/1M input tokens)\ncost_per_token = 2.50 / 1_000_000\nprint("Estimated cost: $%.6f" % (len(tokens) * cost_per_token))`}
-</CodeBlock>
+<CodeBlock b64="aW1wb3J0IHRpa3Rva2VuXG5cbiMgTG9hZCBlbmNvZGVyIGZvciBzcGVjaWZpYyBtb2RlbFxuZW5jID0gdGlrdG9rZW4uZW5jb2RpbmdfZm9yX21vZGVsKCJncHQtNG8iKVxuXG50ZXh0ID0gIlRva2VuaXphdGlvbiBpcyBmdW5kYW1lbnRhbCB0byBMTE0gY29zdCBvcHRpbWl6YXRpb24uIlxudG9rZW5zID0gZW5jLmVuY29kZSh0ZXh0KVxuXG5wcmludChmIlRleHQ6IHsneyd7J30nfXRleHR7J30nfSIpXG5wcmludChmIlRva2VuIGNvdW50OiB7J3sneyd9J31sZW4odG9rZW5zKXsnfSd9IilcbnByaW50KGYiVG9rZW4gSURzOiB7J3sneyd9J310b2tlbnN7J30nfSIpXG5wcmludChmIkRlY29kZWQgdG9rZW5zOiB7J3sneyd9J31bZW5jLmRlY29kZShbdF0pIGZvciB0IGluIHRva2Vuc117J30nfSIpXG4jIE91dHB1dDogWydUb2tlbicsICdpemF0aW9uJywgJyBpcycsICcgZnVuZGFtZW50YWwnLCAnIHRvJywgJyBMTE0nLCAnIGNvc3QnLCAnIG9wdGltaXphdGlvbicsICcuJ11cblxuIyBDb3N0IGVzdGltYXRpb24gKEdQVC00bzogJDIuNTAvMU0gaW5wdXQgdG9rZW5zKVxuY29zdF9wZXJfdG9rZW4gPSAyLjUwIC8gMV8wMDBfMDAwXG5wcmludCgiRXN0aW1hdGVkIGNvc3Q6ICQlLjZmIiAlIChsZW4odG9rZW5zKSAqIGNvc3RfcGVyX3Rva2VuKSk=" />
 
 <ComparisonTable title="Tokenizer Comparison" columns={['Feature','tiktoken (GPT)','SentencePiece (LLaMA)','Tekken (Mistral)']} rows={[
   ['Algorithm','Byte-level BPE','Unigram language model','Byte-level BPE (optimized)'],

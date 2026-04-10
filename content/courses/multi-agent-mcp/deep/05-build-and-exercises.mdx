@@ -9,29 +9,7 @@ Build a Researcher → Analyst → Writer pipeline where each agent has speciali
 
 ### Architecture
 
-<CodeBlock>
-{`┌─────────────────────────────────────────┐
-│           SUPERVISOR                     │
-│  (decides who acts next)                 │
-└──────┬──────────┬──────────┬────────────┘
-       │          │          │
-┌──────▼───┐ ┌───▼────┐ ┌───▼──────┐
-│RESEARCHER│ │ANALYST │ │ WRITER   │
-│          │ │        │ │          │
-│ Tools:   │ │ Tools: │ │ Tools:   │
-│ •Search  │ │ •Data  │ │ •Format  │
-│ •Fetch   │ │ •Chart │ │ •Export  │
-└──────────┘ └────────┘ └──────────┘
-       │          │          │
-       └──────────┼──────────┘
-                  │
-          ┌───────▼───────┐
-          │ MCP SERVERS   │
-          │ •Filesystem   │
-          │ •Web Search   │
-          │ •Custom API   │
-          └───────────────┘`}
-</CodeBlock>
+<CodeBlock b64="4pSM4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSQCuKUgiAgICAgICAgICAgU1VQRVJWSVNPUiAgICAgICAgICAgICAgICAgICAgIOKUggrilIIgIChkZWNpZGVzIHdobyBhY3RzIG5leHQpICAgICAgICAgICAgICAgICDilIIK4pSU4pSA4pSA4pSA4pSA4pSA4pSA4pSs4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSs4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSs4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSYCiAgICAgICDilIIgICAgICAgICAg4pSCICAgICAgICAgIOKUggrilIzilIDilIDilIDilIDilIDilIDilrzilIDilIDilIDilJAg4pSM4pSA4pSA4pSA4pa84pSA4pSA4pSA4pSA4pSQIOKUjOKUgOKUgOKUgOKWvOKUgOKUgOKUgOKUgOKUgOKUgOKUkArilIJSRVNFQVJDSEVS4pSCIOKUgkFOQUxZU1Qg4pSCIOKUgiBXUklURVIgICDilIIK4pSCICAgICAgICAgIOKUgiDilIIgICAgICAgIOKUgiDilIIgICAgICAgICAg4pSCCuKUgiBUb29sczogICDilIIg4pSCIFRvb2xzOiDilIIg4pSCIFRvb2xzOiAgIOKUggrilIIg4oCiU2VhcmNoICDilIIg4pSCIOKAokRhdGEgIOKUgiDilIIg4oCiRm9ybWF0ICDilIIK4pSCIOKAokZldGNoICAg4pSCIOKUgiDigKJDaGFydCDilIIg4pSCIOKAokV4cG9ydCAg4pSCCuKUlOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUmCDilJTilIDilIDilIDilIDilIDilIDilIDilIDilJgg4pSU4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSYCiAgICAgICDilIIgICAgICAgICAg4pSCICAgICAgICAgIOKUggogICAgICAg4pSU4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pS84pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSYCiAgICAgICAgICAgICAgICAgIOKUggogICAgICAgICAg4pSM4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pa84pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSQCiAgICAgICAgICDilIIgTUNQIFNFUlZFUlMgICDilIIKICAgICAgICAgIOKUgiDigKJGaWxlc3lzdGVtICAg4pSCCiAgICAgICAgICDilIIg4oCiV2ViIFNlYXJjaCAgIOKUggogICAgICAgICAg4pSCIOKAokN1c3RvbSBBUEkgICDilIIKICAgICAgICAgIOKUlOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUmA==" />
 
 ### Requirements Checklist
 

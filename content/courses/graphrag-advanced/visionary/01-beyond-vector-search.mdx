@@ -26,24 +26,7 @@ Vector search is powerful — but it only finds documents *similar* to your quer
 - **Edges (Relationships)** -- Named, directed connections between nodes: WORKS_AT, FOUNDED, DEPENDS_ON, CITED_BY. Edges can also have properties.
 - **Properties** -- Attributes on nodes and edges: name, date, confidence score, source document, embedding vector. Rich metadata for filtering.
 
-<CodeBlock>
-{`// Nodes
-(n1:Person   {'{'{'}'}name: "Geoffrey Hinton",  field: "AI"{'}'})
-(n2:Concept  {'{'{'}'}name: "Backpropagation", domain: "ML"{'}'})
-(n3:Org      {'{'{'}'}name: "Google Brain",    founded: 2011{'}'})
-(n4:Paper    {'{'{'}'}name: "ImageNet 2012",   citations: 94000{'}'})
-
-// Edges
-(n1)-[:DEVELOPED]->(n2)
-(n1)-[:WORKED_AT]->(n3)
-(n1)-[:AUTHORED]->(n4)
-(n4)-[:INTRODUCED]->(n2)
-
-// Multi-hop Query:
-// "What concepts did Google Brain researchers develop?"
-// n3 <-[:WORKED_AT]- n1 -[:DEVELOPED]-> n2
-// Answer: Backpropagation (via Hinton → Google Brain)`}
-</CodeBlock>
+<CodeBlock b64="Ly8gTm9kZXMKKG4xOlBlcnNvbiAgIHsneyd7J30nfW5hbWU6ICJHZW9mZnJleSBIaW50b24iLCAgZmllbGQ6ICJBSSJ7J30nfSkKKG4yOkNvbmNlcHQgIHsneyd7J30nfW5hbWU6ICJCYWNrcHJvcGFnYXRpb24iLCBkb21haW46ICJNTCJ7J30nfSkKKG4zOk9yZyAgICAgIHsneyd7J30nfW5hbWU6ICJHb29nbGUgQnJhaW4iLCAgICBmb3VuZGVkOiAyMDExeyd9J30pCihuNDpQYXBlciAgICB7J3sneyd9J31uYW1lOiAiSW1hZ2VOZXQgMjAxMiIsICAgY2l0YXRpb25zOiA5NDAwMHsnfSd9KQoKLy8gRWRnZXMKKG4xKS1bOkRFVkVMT1BFRF0tPihuMikKKG4xKS1bOldPUktFRF9BVF0tPihuMykKKG4xKS1bOkFVVEhPUkVEXS0+KG40KQoobjQpLVs6SU5UUk9EVUNFRF0tPihuMikKCi8vIE11bHRpLWhvcCBRdWVyeToKLy8gIldoYXQgY29uY2VwdHMgZGlkIEdvb2dsZSBCcmFpbiByZXNlYXJjaGVycyBkZXZlbG9wPyIKLy8gbjMgPC1bOldPUktFRF9BVF0tIG4xIC1bOkRFVkVMT1BFRF0tPiBuMgovLyBBbnN3ZXI6IEJhY2twcm9wYWdhdGlvbiAodmlhIEhpbnRvbiDihpIgR29vZ2xlIEJyYWluKQ==" />
 
 <BasicVsGraphRAGComparison />
 <Quiz

@@ -14,140 +14,15 @@ MCP is built on **JSON-RPC 2.0** over a pluggable transport layer. Understanding
         ['Capabilities','MCP capability negotiation','Declare supported features at init','Yes — custom capabilities'],
         ['Protocol','MCP methods (tools, resources, sampling, prompts)','Business logic contract','Yes — via experimental extensions'],
       ]}/>
-      <CodeBlock>
-{`// 1. Host → Server: Initialize
-{'{'{'}'}
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "initialize",
-  "params": {'{'{'}'}
-    "protocolVersion": "2024-11-05",
-    "capabilities": {'{'{'}'}
-      "sampling": {'{'{'}'}{'}'},
-      "roots": {'{'{'}'} "listChanged": true {'}'}
-    {'}'},
-    "clientInfo": {'{'{'}'} "name": "claude-code", "version": "1.5.0" {'}'}
-  {'}'}
-{'}'}
-
-// 2. Server → Host: Initialize response
-{'{'{'}'}
-  "jsonrpc": "2.0",
-  "id": 1,
-  "result": {'{'{'}'}
-    "protocolVersion": "2024-11-05",
-    "capabilities": {'{'{'}'}
-      "tools": {'{'{'}'}{'}'},
-      "resources": {'{'{'}'} "subscribe": true, "listChanged": true {'}'},
-      "logging": {'{'{'}'}{'}'}
-    {'}'},
-    "serverInfo": {'{'{'}'} "name": "re3-search", "version": "1.0.0" {'}'}
-  {'}'}
-{'}'}
-
-// 3. Host → Server: Initialized notification (no response expected)
-{'{'{'}'}
-  "jsonrpc": "2.0",
-  "method": "notifications/initialized"
-{'}'}
-
-// 4. Host → Server: Call a tool
-{'{'{'}'}
-  "jsonrpc": "2.0",
-  "id": 2,
-  "method": "tools/call",
-  "params": {'{'{'}'}
-    "name": "search_articles",
-    "arguments": {'{'{'}'} "query": "consciousness and AI", "limit": 5 {'}'}
-  {'}'}
-{'}'}
-
-// 5. Server → Host: Tool result
-{'{'{'}'}
-  "jsonrpc": "2.0",
-  "id": 2,
-  "result": {'{'{'}'}
-    "content": [
-      {'{'{'}'} "type": "text", "text": "{'{'{'}'}\"results\": [...], \"count\": 5{'}'}" {'}'}
-    ],
-    "isError": false
-  {'}'}
-{'}'}
-
-// 6. Server → Host: Resource change notification (server-initiated)
-{'{'{'}'}
-  "jsonrpc": "2.0",
-  "method": "notifications/resources/updated",
-  "params": {'{'{'}'} "uri": "re3://articles/recent" {'}'}
-{'}'}`}
-</CodeBlock>
+      <CodeBlock b64="Ly8gMS4gSG9zdCDihpIgU2VydmVyOiBJbml0aWFsaXplCnsneyd7J30nfQogICJqc29ucnBjIjogIjIuMCIsCiAgImlkIjogMSwKICAibWV0aG9kIjogImluaXRpYWxpemUiLAogICJwYXJhbXMiOiB7J3sneyd9J30KICAgICJwcm90b2NvbFZlcnNpb24iOiAiMjAyNC0xMS0wNSIsCiAgICAiY2FwYWJpbGl0aWVzIjogeyd7J3snfSd9CiAgICAgICJzYW1wbGluZyI6IHsneyd7J30nfXsnfSd9LAogICAgICAicm9vdHMiOiB7J3sneyd9J30gImxpc3RDaGFuZ2VkIjogdHJ1ZSB7J30nfQogICAgeyd9J30sCiAgICAiY2xpZW50SW5mbyI6IHsneyd7J30nfSAibmFtZSI6ICJjbGF1ZGUtY29kZSIsICJ2ZXJzaW9uIjogIjEuNS4wIiB7J30nfQogIHsnfSd9CnsnfSd9CgovLyAyLiBTZXJ2ZXIg4oaSIEhvc3Q6IEluaXRpYWxpemUgcmVzcG9uc2UKeyd7J3snfSd9CiAgImpzb25ycGMiOiAiMi4wIiwKICAiaWQiOiAxLAogICJyZXN1bHQiOiB7J3sneyd9J30KICAgICJwcm90b2NvbFZlcnNpb24iOiAiMjAyNC0xMS0wNSIsCiAgICAiY2FwYWJpbGl0aWVzIjogeyd7J3snfSd9CiAgICAgICJ0b29scyI6IHsneyd7J30nfXsnfSd9LAogICAgICAicmVzb3VyY2VzIjogeyd7J3snfSd9ICJzdWJzY3JpYmUiOiB0cnVlLCAibGlzdENoYW5nZWQiOiB0cnVlIHsnfSd9LAogICAgICAibG9nZ2luZyI6IHsneyd7J30nfXsnfSd9CiAgICB7J30nfSwKICAgICJzZXJ2ZXJJbmZvIjogeyd7J3snfSd9ICJuYW1lIjogInJlMy1zZWFyY2giLCAidmVyc2lvbiI6ICIxLjAuMCIgeyd9J30KICB7J30nfQp7J30nfQoKLy8gMy4gSG9zdCDihpIgU2VydmVyOiBJbml0aWFsaXplZCBub3RpZmljYXRpb24gKG5vIHJlc3BvbnNlIGV4cGVjdGVkKQp7J3sneyd9J30KICAianNvbnJwYyI6ICIyLjAiLAogICJtZXRob2QiOiAibm90aWZpY2F0aW9ucy9pbml0aWFsaXplZCIKeyd9J30KCi8vIDQuIEhvc3Qg4oaSIFNlcnZlcjogQ2FsbCBhIHRvb2wKeyd7J3snfSd9CiAgImpzb25ycGMiOiAiMi4wIiwKICAiaWQiOiAyLAogICJtZXRob2QiOiAidG9vbHMvY2FsbCIsCiAgInBhcmFtcyI6IHsneyd7J30nfQogICAgIm5hbWUiOiAic2VhcmNoX2FydGljbGVzIiwKICAgICJhcmd1bWVudHMiOiB7J3sneyd9J30gInF1ZXJ5IjogImNvbnNjaW91c25lc3MgYW5kIEFJIiwgImxpbWl0IjogNSB7J30nfQogIHsnfSd9CnsnfSd9CgovLyA1LiBTZXJ2ZXIg4oaSIEhvc3Q6IFRvb2wgcmVzdWx0Cnsneyd7J30nfQogICJqc29ucnBjIjogIjIuMCIsCiAgImlkIjogMiwKICAicmVzdWx0Ijogeyd7J3snfSd9CiAgICAiY29udGVudCI6IFsKICAgICAgeyd7J3snfSd9ICJ0eXBlIjogInRleHQiLCAidGV4dCI6ICJ7J3sneyd9J31cInJlc3VsdHNcIjogWy4uLl0sIFwiY291bnRcIjogNXsnfSd9IiB7J30nfQogICAgXSwKICAgICJpc0Vycm9yIjogZmFsc2UKICB7J30nfQp7J30nfQoKLy8gNi4gU2VydmVyIOKGkiBIb3N0OiBSZXNvdXJjZSBjaGFuZ2Ugbm90aWZpY2F0aW9uIChzZXJ2ZXItaW5pdGlhdGVkKQp7J3sneyd9J30KICAianNvbnJwYyI6ICIyLjAiLAogICJtZXRob2QiOiAibm90aWZpY2F0aW9ucy9yZXNvdXJjZXMvdXBkYXRlZCIsCiAgInBhcmFtcyI6IHsneyd7J30nfSAidXJpIjogInJlMzovL2FydGljbGVzL3JlY2VudCIgeyd9J30Keyd9J30=" />
       <ExpandableSection title="Capability Negotiation Details" icon="🤝">
 
 At initialization, host and server exchange capability flags. A server must not use capabilities the host did not declare, and vice versa.
 
-        <CodeBlock>
-{`// Host capabilities (what the HOST offers the server)
-{'{'{'}'}
-  "sampling": {'{'{'}'}{'}'},          // Host can process sampling/createMessage requests
-  "roots": {'{'{'}'}
-    "listChanged": true    // Host will notify server when roots change
-  {'}'},
-  "experimental": {'{'{'}'}
-    "myCustomExtension": {'{'{'}'}{'}'}
-  {'}'}
-{'}'}
-
-// Server capabilities (what the SERVER offers the host)
-{'{'{'}'}
-  "tools": {'{'{'}'}
-    "listChanged": true    // Server will notify when tool list changes
-  {'}'},
-  "resources": {'{'{'}'}
-    "subscribe": true,     // Server supports resource subscriptions
-    "listChanged": true    // Server will notify when resource list changes
-  {'}'},
-  "prompts": {'{'{'}'}
-    "listChanged": false   // Server has prompts but list won't change
-  {'}'},
-  "logging": {'{'{'}'}{'}'},           // Server supports setLoggingLevel requests
-  "experimental": {'{'{'}'}{'}'}
-{'}'}`}
-</CodeBlock>
+        <CodeBlock b64="Ly8gSG9zdCBjYXBhYmlsaXRpZXMgKHdoYXQgdGhlIEhPU1Qgb2ZmZXJzIHRoZSBzZXJ2ZXIpCnsneyd7J30nfQogICJzYW1wbGluZyI6IHsneyd7J30nfXsnfSd9LCAgICAgICAgICAvLyBIb3N0IGNhbiBwcm9jZXNzIHNhbXBsaW5nL2NyZWF0ZU1lc3NhZ2UgcmVxdWVzdHMKICAicm9vdHMiOiB7J3sneyd9J30KICAgICJsaXN0Q2hhbmdlZCI6IHRydWUgICAgLy8gSG9zdCB3aWxsIG5vdGlmeSBzZXJ2ZXIgd2hlbiByb290cyBjaGFuZ2UKICB7J30nfSwKICAiZXhwZXJpbWVudGFsIjogeyd7J3snfSd9CiAgICAibXlDdXN0b21FeHRlbnNpb24iOiB7J3sneyd9J317J30nfQogIHsnfSd9CnsnfSd9CgovLyBTZXJ2ZXIgY2FwYWJpbGl0aWVzICh3aGF0IHRoZSBTRVJWRVIgb2ZmZXJzIHRoZSBob3N0KQp7J3sneyd9J30KICAidG9vbHMiOiB7J3sneyd9J30KICAgICJsaXN0Q2hhbmdlZCI6IHRydWUgICAgLy8gU2VydmVyIHdpbGwgbm90aWZ5IHdoZW4gdG9vbCBsaXN0IGNoYW5nZXMKICB7J30nfSwKICAicmVzb3VyY2VzIjogeyd7J3snfSd9CiAgICAic3Vic2NyaWJlIjogdHJ1ZSwgICAgIC8vIFNlcnZlciBzdXBwb3J0cyByZXNvdXJjZSBzdWJzY3JpcHRpb25zCiAgICAibGlzdENoYW5nZWQiOiB0cnVlICAgIC8vIFNlcnZlciB3aWxsIG5vdGlmeSB3aGVuIHJlc291cmNlIGxpc3QgY2hhbmdlcwogIHsnfSd9LAogICJwcm9tcHRzIjogeyd7J3snfSd9CiAgICAibGlzdENoYW5nZWQiOiBmYWxzZSAgIC8vIFNlcnZlciBoYXMgcHJvbXB0cyBidXQgbGlzdCB3b24ndCBjaGFuZ2UKICB7J30nfSwKICAibG9nZ2luZyI6IHsneyd7J30nfXsnfSd9LCAgICAgICAgICAgLy8gU2VydmVyIHN1cHBvcnRzIHNldExvZ2dpbmdMZXZlbCByZXF1ZXN0cwogICJleHBlcmltZW50YWwiOiB7J3sneyd9J317J30nfQp7J30nfQ==" />
       </ExpandableSection>
       <ExpandableSection title="Streamable HTTP Transport Details" icon="🌐">
-        <CodeBlock>
-{`from fastapi import FastAPI, Request, Response
-from fastapi.responses import StreamingResponse
-from mcp.server.streamable_http import MCPStreamableHTTPHandler
-import asyncio
-import json
-
-app = FastAPI()
-
-# The MCP server instance
-from re3_mcp_server import server  # our Server() instance
-
-handler = MCPStreamableHTTPHandler(server)
-
-@app.post("/mcp")
-async def mcp_endpoint(request: Request):
-    """Handles both single responses and SSE streams."""
-    body = await request.json()
-    accept = request.headers.get("accept", "application/json")
-
-    if "text/event-stream" in accept:
-        # Client wants streaming (for requests that may produce progress events)
-        async def event_stream():
-            async for chunk in handler.handle_streaming(body, request.headers):
-                yield f"data: {'{'{'}'}json.dumps(chunk){'}'}\\n\\n"
-            yield "data: [DONE]\\n\\n"
-        return StreamingResponse(event_stream(), media_type="text/event-stream",
-            headers={'{'{'}'}"Cache-Control": "no-cache", "X-Accel-Buffering": "no"{'}'})
-    else:
-        # Standard request/response
-        result = await handler.handle(body, request.headers)
-        return Response(content=json.dumps(result), media_type="application/json")`}
-</CodeBlock>
+        <CodeBlock b64="ZnJvbSBmYXN0YXBpIGltcG9ydCBGYXN0QVBJLCBSZXF1ZXN0LCBSZXNwb25zZQpmcm9tIGZhc3RhcGkucmVzcG9uc2VzIGltcG9ydCBTdHJlYW1pbmdSZXNwb25zZQpmcm9tIG1jcC5zZXJ2ZXIuc3RyZWFtYWJsZV9odHRwIGltcG9ydCBNQ1BTdHJlYW1hYmxlSFRUUEhhbmRsZXIKaW1wb3J0IGFzeW5jaW8KaW1wb3J0IGpzb24KCmFwcCA9IEZhc3RBUEkoKQoKIyBUaGUgTUNQIHNlcnZlciBpbnN0YW5jZQpmcm9tIHJlM19tY3Bfc2VydmVyIGltcG9ydCBzZXJ2ZXIgICMgb3VyIFNlcnZlcigpIGluc3RhbmNlCgpoYW5kbGVyID0gTUNQU3RyZWFtYWJsZUhUVFBIYW5kbGVyKHNlcnZlcikKCkBhcHAucG9zdCgiL21jcCIpCmFzeW5jIGRlZiBtY3BfZW5kcG9pbnQocmVxdWVzdDogUmVxdWVzdCk6CiAgICAiIiJIYW5kbGVzIGJvdGggc2luZ2xlIHJlc3BvbnNlcyBhbmQgU1NFIHN0cmVhbXMuIiIiCiAgICBib2R5ID0gYXdhaXQgcmVxdWVzdC5qc29uKCkKICAgIGFjY2VwdCA9IHJlcXVlc3QuaGVhZGVycy5nZXQoImFjY2VwdCIsICJhcHBsaWNhdGlvbi9qc29uIikKCiAgICBpZiAidGV4dC9ldmVudC1zdHJlYW0iIGluIGFjY2VwdDoKICAgICAgICAjIENsaWVudCB3YW50cyBzdHJlYW1pbmcgKGZvciByZXF1ZXN0cyB0aGF0IG1heSBwcm9kdWNlIHByb2dyZXNzIGV2ZW50cykKICAgICAgICBhc3luYyBkZWYgZXZlbnRfc3RyZWFtKCk6CiAgICAgICAgICAgIGFzeW5jIGZvciBjaHVuayBpbiBoYW5kbGVyLmhhbmRsZV9zdHJlYW1pbmcoYm9keSwgcmVxdWVzdC5oZWFkZXJzKToKICAgICAgICAgICAgICAgIHlpZWxkIGYiZGF0YTogeyd7J3snfSd9anNvbi5kdW1wcyhjaHVuayl7J30nfVxcblxcbiIKICAgICAgICAgICAgeWllbGQgImRhdGE6IFtET05FXVxcblxcbiIKICAgICAgICByZXR1cm4gU3RyZWFtaW5nUmVzcG9uc2UoZXZlbnRfc3RyZWFtKCksIG1lZGlhX3R5cGU9InRleHQvZXZlbnQtc3RyZWFtIiwKICAgICAgICAgICAgaGVhZGVycz17J3sneyd9J30iQ2FjaGUtQ29udHJvbCI6ICJuby1jYWNoZSIsICJYLUFjY2VsLUJ1ZmZlcmluZyI6ICJubyJ7J30nfSkKICAgIGVsc2U6CiAgICAgICAgIyBTdGFuZGFyZCByZXF1ZXN0L3Jlc3BvbnNlCiAgICAgICAgcmVzdWx0ID0gYXdhaXQgaGFuZGxlci5oYW5kbGUoYm9keSwgcmVxdWVzdC5oZWFkZXJzKQogICAgICAgIHJldHVybiBSZXNwb25zZShjb250ZW50PWpzb24uZHVtcHMocmVzdWx0KSwgbWVkaWFfdHlwZT0iYXBwbGljYXRpb24vanNvbiIp" />
       </ExpandableSection>
       <ArchitectureDecision
         scenario="You are building an MCP server that must serve 500+ concurrent LLM host processes in a cloud environment. Each host makes 10-50 tool calls per conversation. Which transport architecture fits best?"

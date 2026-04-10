@@ -24,16 +24,4 @@ Alignment is ensuring AI systems actually do what we intend, not just what we me
   ]}
 />
 
-<CodeBlock>
-{`def score_response(response, criteria):
-    """Score a model response against safety criteria."""
-    scores = {'{'{'}'}{'}'}
-    scores["helpful"] = evaluate_helpfulness(response)  # 0-1
-    scores["harmless"] = evaluate_safety(response)       # 0-1
-    scores["honest"] = evaluate_factuality(response)     # 0-1
-
-    # Weighted combination (safety gets highest weight)
-    weights = {'{'{'}'}"helpful": 0.3, "harmless": 0.5, "honest": 0.2{'}'}
-    total = sum(scores[k] * weights[k] for k in scores)
-    return {'{'{'}'}"scores": scores, "overall": total{'}'}`}
-</CodeBlock>
+<CodeBlock b64="ZGVmIHNjb3JlX3Jlc3BvbnNlKHJlc3BvbnNlLCBjcml0ZXJpYSk6CiAgICAiIiJTY29yZSBhIG1vZGVsIHJlc3BvbnNlIGFnYWluc3Qgc2FmZXR5IGNyaXRlcmlhLiIiIgogICAgc2NvcmVzID0geyd7J3snfSd9eyd9J30KICAgIHNjb3Jlc1siaGVscGZ1bCJdID0gZXZhbHVhdGVfaGVscGZ1bG5lc3MocmVzcG9uc2UpICAjIDAtMQogICAgc2NvcmVzWyJoYXJtbGVzcyJdID0gZXZhbHVhdGVfc2FmZXR5KHJlc3BvbnNlKSAgICAgICAjIDAtMQogICAgc2NvcmVzWyJob25lc3QiXSA9IGV2YWx1YXRlX2ZhY3R1YWxpdHkocmVzcG9uc2UpICAgICAjIDAtMQoKICAgICMgV2VpZ2h0ZWQgY29tYmluYXRpb24gKHNhZmV0eSBnZXRzIGhpZ2hlc3Qgd2VpZ2h0KQogICAgd2VpZ2h0cyA9IHsneyd7J30nfSJoZWxwZnVsIjogMC4zLCAiaGFybWxlc3MiOiAwLjUsICJob25lc3QiOiAwLjJ7J30nfQogICAgdG90YWwgPSBzdW0oc2NvcmVzW2tdICogd2VpZ2h0c1trXSBmb3IgayBpbiBzY29yZXMpCiAgICByZXR1cm4geyd7J3snfSd9InNjb3JlcyI6IHNjb3JlcywgIm92ZXJhbGwiOiB0b3RhbHsnfSd9" />

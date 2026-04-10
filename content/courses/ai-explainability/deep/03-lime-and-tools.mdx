@@ -11,27 +11,7 @@ While SHAP provides both global and local explanations, <JargonTip term="LIME">L
 
 LIME creates a simple, interpretable model (like linear regression) that approximates the complex model's behavior **in the neighborhood** of a specific prediction. It perturbs the input, observes how predictions change, and fits a local surrogate model.
 
-<CodeBlock language="python" label="LIME for a Text Classification Model">
-{`import lime
-from lime.lime_text import LimeTextExplainer
-
-# Assume we have a sentiment classifier
-explainer = LimeTextExplainer(class_names=["negative", "positive"])
-
-# Explain a specific prediction
-text = "The supplier delivered on time but quality was terrible"
-explanation = explainer.explain_instance(
-    text,
-    classifier.predict_proba,  # Model's prediction function
-    num_features=6
-)
-
-# Show which words drove this prediction
-explanation.show_in_notebook()
-# Result: "terrible" (-0.45), "quality" (-0.12) pushed toward negative
-#         "delivered" (+0.08), "on time" (+0.15) pushed toward positive
-# Net: negative sentiment — correctly driven by "terrible quality"`}
-</CodeBlock>
+<CodeBlock language="python" label="LIME for a Text Classification Model" b64="aW1wb3J0IGxpbWUKZnJvbSBsaW1lLmxpbWVfdGV4dCBpbXBvcnQgTGltZVRleHRFeHBsYWluZXIKCiMgQXNzdW1lIHdlIGhhdmUgYSBzZW50aW1lbnQgY2xhc3NpZmllcgpleHBsYWluZXIgPSBMaW1lVGV4dEV4cGxhaW5lcihjbGFzc19uYW1lcz1bIm5lZ2F0aXZlIiwgInBvc2l0aXZlIl0pCgojIEV4cGxhaW4gYSBzcGVjaWZpYyBwcmVkaWN0aW9uCnRleHQgPSAiVGhlIHN1cHBsaWVyIGRlbGl2ZXJlZCBvbiB0aW1lIGJ1dCBxdWFsaXR5IHdhcyB0ZXJyaWJsZSIKZXhwbGFuYXRpb24gPSBleHBsYWluZXIuZXhwbGFpbl9pbnN0YW5jZSgKICAgIHRleHQsCiAgICBjbGFzc2lmaWVyLnByZWRpY3RfcHJvYmEsICAjIE1vZGVsJ3MgcHJlZGljdGlvbiBmdW5jdGlvbgogICAgbnVtX2ZlYXR1cmVzPTYKKQoKIyBTaG93IHdoaWNoIHdvcmRzIGRyb3ZlIHRoaXMgcHJlZGljdGlvbgpleHBsYW5hdGlvbi5zaG93X2luX25vdGVib29rKCkKIyBSZXN1bHQ6ICJ0ZXJyaWJsZSIgKC0wLjQ1KSwgInF1YWxpdHkiICgtMC4xMikgcHVzaGVkIHRvd2FyZCBuZWdhdGl2ZQojICAgICAgICAgImRlbGl2ZXJlZCIgKCswLjA4KSwgIm9uIHRpbWUiICgrMC4xNSkgcHVzaGVkIHRvd2FyZCBwb3NpdGl2ZQojIE5ldDogbmVnYXRpdmUgc2VudGltZW50IOKAlCBjb3JyZWN0bHkgZHJpdmVuIGJ5ICJ0ZXJyaWJsZSBxdWFsaXR5Ig==" />
 
 ### SHAP vs LIME: When to Use Which
 

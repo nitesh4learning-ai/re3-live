@@ -7,28 +7,6 @@ icon: "📋"
 
 For complex tasks, <JargonTip term="plan-and-execute">plan first, then execute</JargonTip> step by step. Separating planning from execution improves reliability.
 
-<CodeBlock>
-{`def plan_and_execute(task, tools, max_replans=2):
-    # PLAN: Create a step-by-step plan
-    plan = call_llm(
-        f"Create a step-by-step plan for: {'{'{'}'}task{'}'}",
-        response_format="json",
-        schema={'{'{'}'}"steps": [{'{'{'}'}"description": "str", "tool": "str"{'}'}]{'}'}
-    )
-
-    results = []
-    for step in plan["steps"]:
-        # EXECUTE: Run each step
-        result = execute_step(step, tools)
-        results.append(result)
-
-        # CHECK: Verify step succeeded
-        if not result["success"]:
-            # REPLAN: Adjust remaining steps
-            plan = replan(task, results, remaining_steps)
-
-    # SYNTHESIZE: Combine all results
-    return synthesize(task, results)`}
-</CodeBlock>
+<CodeBlock b64="ZGVmIHBsYW5fYW5kX2V4ZWN1dGUodGFzaywgdG9vbHMsIG1heF9yZXBsYW5zPTIpOgogICAgIyBQTEFOOiBDcmVhdGUgYSBzdGVwLWJ5LXN0ZXAgcGxhbgogICAgcGxhbiA9IGNhbGxfbGxtKAogICAgICAgIGYiQ3JlYXRlIGEgc3RlcC1ieS1zdGVwIHBsYW4gZm9yOiB7J3sneyd9J310YXNreyd9J30iLAogICAgICAgIHJlc3BvbnNlX2Zvcm1hdD0ianNvbiIsCiAgICAgICAgc2NoZW1hPXsneyd7J30nfSJzdGVwcyI6IFt7J3sneyd9J30iZGVzY3JpcHRpb24iOiAic3RyIiwgInRvb2wiOiAic3RyInsnfSd9XXsnfSd9CiAgICApCgogICAgcmVzdWx0cyA9IFtdCiAgICBmb3Igc3RlcCBpbiBwbGFuWyJzdGVwcyJdOgogICAgICAgICMgRVhFQ1VURTogUnVuIGVhY2ggc3RlcAogICAgICAgIHJlc3VsdCA9IGV4ZWN1dGVfc3RlcChzdGVwLCB0b29scykKICAgICAgICByZXN1bHRzLmFwcGVuZChyZXN1bHQpCgogICAgICAgICMgQ0hFQ0s6IFZlcmlmeSBzdGVwIHN1Y2NlZWRlZAogICAgICAgIGlmIG5vdCByZXN1bHRbInN1Y2Nlc3MiXToKICAgICAgICAgICAgIyBSRVBMQU46IEFkanVzdCByZW1haW5pbmcgc3RlcHMKICAgICAgICAgICAgcGxhbiA9IHJlcGxhbih0YXNrLCByZXN1bHRzLCByZW1haW5pbmdfc3RlcHMpCgogICAgIyBTWU5USEVTSVpFOiBDb21iaW5lIGFsbCByZXN1bHRzCiAgICByZXR1cm4gc3ludGhlc2l6ZSh0YXNrLCByZXN1bHRzKQ==" />
 
 <Quiz question="When is Plan-and-Execute better than ReAct?" options={["Always -- planning is always better","When the task has many interdependent steps that benefit from upfront planning","When the task is simple and doesn't need tools","When speed is the top priority"]} correctIndex={1} explanation="Plan-and-Execute shines for complex, multi-step tasks where the order of operations matters. For simple tasks, ReAct's step-by-step approach is faster and more flexible." />

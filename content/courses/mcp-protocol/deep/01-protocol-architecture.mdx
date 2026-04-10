@@ -13,71 +13,11 @@ icon: "📡"
   ['Streamable HTTP','HTTP with bidirectional streaming','Production APIs, scalable services','Newer spec, less tooling support'],
 ]}/>
 
-<CodeBlock>
-{`// Client -> Server: Initialize handshake
-{'{'{'}'}
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "initialize",
-  "params": {'{'{'}'}
-    "protocolVersion": "2025-03-26",
-    "capabilities": {'{'{'}'}
-      "roots": {'{'{'}'} "listChanged": true {'}'}
-    {'}'},
-    "clientInfo": {'{'{'}'}
-      "name": "my-ai-app",
-      "version": "1.0.0"
-    {'}'}
-  {'}'}
-{'}'}
-
-// Server -> Client: Capability response
-{'{'{'}'}
-  "jsonrpc": "2.0",
-  "id": 1,
-  "result": {'{'{'}'}
-    "protocolVersion": "2025-03-26",
-    "capabilities": {'{'{'}'}
-      "tools": {'{'{'}'} "listChanged": true {'}'},
-      "resources": {'{'{'}'} "subscribe": true {'}'},
-      "prompts": {'{'{'}'} "listChanged": true {'}'}
-    {'}'},
-    "serverInfo": {'{'{'}'}
-      "name": "github-mcp-server",
-      "version": "2.1.0"
-    {'}'}
-  {'}'}
-{'}'}`}
-</CodeBlock>
+<CodeBlock b64="Ly8gQ2xpZW50IC0+IFNlcnZlcjogSW5pdGlhbGl6ZSBoYW5kc2hha2UKeyd7J3snfSd9CiAgImpzb25ycGMiOiAiMi4wIiwKICAiaWQiOiAxLAogICJtZXRob2QiOiAiaW5pdGlhbGl6ZSIsCiAgInBhcmFtcyI6IHsneyd7J30nfQogICAgInByb3RvY29sVmVyc2lvbiI6ICIyMDI1LTAzLTI2IiwKICAgICJjYXBhYmlsaXRpZXMiOiB7J3sneyd9J30KICAgICAgInJvb3RzIjogeyd7J3snfSd9ICJsaXN0Q2hhbmdlZCI6IHRydWUgeyd9J30KICAgIHsnfSd9LAogICAgImNsaWVudEluZm8iOiB7J3sneyd9J30KICAgICAgIm5hbWUiOiAibXktYWktYXBwIiwKICAgICAgInZlcnNpb24iOiAiMS4wLjAiCiAgICB7J30nfQogIHsnfSd9CnsnfSd9CgovLyBTZXJ2ZXIgLT4gQ2xpZW50OiBDYXBhYmlsaXR5IHJlc3BvbnNlCnsneyd7J30nfQogICJqc29ucnBjIjogIjIuMCIsCiAgImlkIjogMSwKICAicmVzdWx0Ijogeyd7J3snfSd9CiAgICAicHJvdG9jb2xWZXJzaW9uIjogIjIwMjUtMDMtMjYiLAogICAgImNhcGFiaWxpdGllcyI6IHsneyd7J30nfQogICAgICAidG9vbHMiOiB7J3sneyd9J30gImxpc3RDaGFuZ2VkIjogdHJ1ZSB7J30nfSwKICAgICAgInJlc291cmNlcyI6IHsneyd7J30nfSAic3Vic2NyaWJlIjogdHJ1ZSB7J30nfSwKICAgICAgInByb21wdHMiOiB7J3sneyd9J30gImxpc3RDaGFuZ2VkIjogdHJ1ZSB7J30nfQogICAgeyd9J30sCiAgICAic2VydmVySW5mbyI6IHsneyd7J30nfQogICAgICAibmFtZSI6ICJnaXRodWItbWNwLXNlcnZlciIsCiAgICAgICJ2ZXJzaW9uIjogIjIuMS4wIgogICAgeyd9J30KICB7J30nfQp7J30nfQ==" />
 
 The capability negotiation phase is critical. The client advertises what it supports (e.g., root listing), and the server responds with what it offers (tools, resources, prompts). Both sides only use features the other supports.
 
-<CodeBlock>
-{`from mcp.server import Server
-from mcp.server.stdio import stdio_server
-from mcp.server.sse import SseServerTransport
-from starlette.applications import Starlette
-from starlette.routing import Route
-
-app = Server("my-server")
-
-# Option 1: stdio transport (local, e.g., Claude Desktop)
-async def run_stdio():
-    async with stdio_server() as (read, write):
-        await app.run(read, write, app.create_initialization_options())
-
-# Option 2: SSE transport (remote, HTTP-based)
-sse = SseServerTransport("/messages")
-
-async def handle_sse(request):
-    async with sse.connect_sse(request.scope, request.receive, request._send) as streams:
-        await app.run(streams[0], streams[1], app.create_initialization_options())
-
-starlette_app = Starlette(routes=[
-    Route("/sse", endpoint=handle_sse),
-    Route("/messages", endpoint=sse.handle_post_message, methods=["POST"]),
-])`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBtY3Auc2VydmVyIGltcG9ydCBTZXJ2ZXIKZnJvbSBtY3Auc2VydmVyLnN0ZGlvIGltcG9ydCBzdGRpb19zZXJ2ZXIKZnJvbSBtY3Auc2VydmVyLnNzZSBpbXBvcnQgU3NlU2VydmVyVHJhbnNwb3J0CmZyb20gc3RhcmxldHRlLmFwcGxpY2F0aW9ucyBpbXBvcnQgU3RhcmxldHRlCmZyb20gc3RhcmxldHRlLnJvdXRpbmcgaW1wb3J0IFJvdXRlCgphcHAgPSBTZXJ2ZXIoIm15LXNlcnZlciIpCgojIE9wdGlvbiAxOiBzdGRpbyB0cmFuc3BvcnQgKGxvY2FsLCBlLmcuLCBDbGF1ZGUgRGVza3RvcCkKYXN5bmMgZGVmIHJ1bl9zdGRpbygpOgogICAgYXN5bmMgd2l0aCBzdGRpb19zZXJ2ZXIoKSBhcyAocmVhZCwgd3JpdGUpOgogICAgICAgIGF3YWl0IGFwcC5ydW4ocmVhZCwgd3JpdGUsIGFwcC5jcmVhdGVfaW5pdGlhbGl6YXRpb25fb3B0aW9ucygpKQoKIyBPcHRpb24gMjogU1NFIHRyYW5zcG9ydCAocmVtb3RlLCBIVFRQLWJhc2VkKQpzc2UgPSBTc2VTZXJ2ZXJUcmFuc3BvcnQoIi9tZXNzYWdlcyIpCgphc3luYyBkZWYgaGFuZGxlX3NzZShyZXF1ZXN0KToKICAgIGFzeW5jIHdpdGggc3NlLmNvbm5lY3Rfc3NlKHJlcXVlc3Quc2NvcGUsIHJlcXVlc3QucmVjZWl2ZSwgcmVxdWVzdC5fc2VuZCkgYXMgc3RyZWFtczoKICAgICAgICBhd2FpdCBhcHAucnVuKHN0cmVhbXNbMF0sIHN0cmVhbXNbMV0sIGFwcC5jcmVhdGVfaW5pdGlhbGl6YXRpb25fb3B0aW9ucygpKQoKc3RhcmxldHRlX2FwcCA9IFN0YXJsZXR0ZShyb3V0ZXM9WwogICAgUm91dGUoIi9zc2UiLCBlbmRwb2ludD1oYW5kbGVfc3NlKSwKICAgIFJvdXRlKCIvbWVzc2FnZXMiLCBlbmRwb2ludD1zc2UuaGFuZGxlX3Bvc3RfbWVzc2FnZSwgbWV0aG9kcz1bIlBPU1QiXSksCl0p" />
 
 <ArchitectureDecision scenario="You are building an MCP server for a team's internal knowledge base. Developers will use it from Claude Desktop on their laptops, but the knowledge base lives on a shared server accessible via HTTP." options={[
   {label:'stdio transport',tradeoff:'Simple setup, but requires the server binary on every developer machine and cannot access remote knowledge base directly'},

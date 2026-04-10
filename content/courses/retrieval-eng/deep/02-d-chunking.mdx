@@ -11,27 +11,5 @@ icon: "\uD83D\uDD2A"
     ['Agentic','LLM decides chunk boundaries','Best quality boundaries','Expensive, slow'],
     ['Parent-child','Small chunks indexed, large chunks retrieved','Best of both: precise search + full context','More complex indexing'],
   ]}/>
-  <CodeBlock>
-{`from sentence_transformers import SentenceTransformer
-import numpy as np
-
-def semantic_chunk(text, threshold=0.75):
-    """Split text where meaning shifts significantly"""
-    model = SentenceTransformer("all-MiniLM-L6-v2")
-    sentences = text.split(". ")
-    embeddings = model.encode(sentences)
-
-    chunks, current_chunk = [], [sentences[0]]
-    for i in range(1, len(sentences)):
-        similarity = np.dot(embeddings[i], embeddings[i-1]) / (
-            np.linalg.norm(embeddings[i]) * np.linalg.norm(embeddings[i-1])
-        )
-        if similarity < threshold:
-            chunks.append(". ".join(current_chunk))
-            current_chunk = [sentences[i]]
-        else:
-            current_chunk.append(sentences[i])
-    chunks.append(". ".join(current_chunk))
-    return chunks`}
-</CodeBlock>
+  <CodeBlock b64="ZnJvbSBzZW50ZW5jZV90cmFuc2Zvcm1lcnMgaW1wb3J0IFNlbnRlbmNlVHJhbnNmb3JtZXIKaW1wb3J0IG51bXB5IGFzIG5wCgpkZWYgc2VtYW50aWNfY2h1bmsodGV4dCwgdGhyZXNob2xkPTAuNzUpOgogICAgIiIiU3BsaXQgdGV4dCB3aGVyZSBtZWFuaW5nIHNoaWZ0cyBzaWduaWZpY2FudGx5IiIiCiAgICBtb2RlbCA9IFNlbnRlbmNlVHJhbnNmb3JtZXIoImFsbC1NaW5pTE0tTDYtdjIiKQogICAgc2VudGVuY2VzID0gdGV4dC5zcGxpdCgiLiAiKQogICAgZW1iZWRkaW5ncyA9IG1vZGVsLmVuY29kZShzZW50ZW5jZXMpCgogICAgY2h1bmtzLCBjdXJyZW50X2NodW5rID0gW10sIFtzZW50ZW5jZXNbMF1dCiAgICBmb3IgaSBpbiByYW5nZSgxLCBsZW4oc2VudGVuY2VzKSk6CiAgICAgICAgc2ltaWxhcml0eSA9IG5wLmRvdChlbWJlZGRpbmdzW2ldLCBlbWJlZGRpbmdzW2ktMV0pIC8gKAogICAgICAgICAgICBucC5saW5hbGcubm9ybShlbWJlZGRpbmdzW2ldKSAqIG5wLmxpbmFsZy5ub3JtKGVtYmVkZGluZ3NbaS0xXSkKICAgICAgICApCiAgICAgICAgaWYgc2ltaWxhcml0eSA8IHRocmVzaG9sZDoKICAgICAgICAgICAgY2h1bmtzLmFwcGVuZCgiLiAiLmpvaW4oY3VycmVudF9jaHVuaykpCiAgICAgICAgICAgIGN1cnJlbnRfY2h1bmsgPSBbc2VudGVuY2VzW2ldXQogICAgICAgIGVsc2U6CiAgICAgICAgICAgIGN1cnJlbnRfY2h1bmsuYXBwZW5kKHNlbnRlbmNlc1tpXSkKICAgIGNodW5rcy5hcHBlbmQoIi4gIi5qb2luKGN1cnJlbnRfY2h1bmspKQogICAgcmV0dXJuIGNodW5rcw==" />
   <Quiz question="When should you use parent-child chunking instead of simple fixed-size chunking?" options={["Always -- it's universally better","When you need precise search matching but need surrounding context for the LLM to generate good answers","Only for very large documents","When you want to save storage space"]} correctIndex={1} explanation="Parent-child chunking indexes small chunks (for precise retrieval) but returns their parent chunk (for context). This solves the core tension: small chunks retrieve better, but large chunks generate better answers."/>

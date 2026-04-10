@@ -5,36 +5,6 @@ icon: "🔄"
 
 ## Saga Orchestration
 
-<CodeBlock>
-{`class SagaCoordinator:
-    def __init__(self, steps):
-        self.steps = steps  # [{'{'{'}'}execute, compensate, agent{'}'}]
-        self.completed = []
-
-    async def run(self, context):
-        for step in self.steps:
-            try:
-                result = await step["agent"].execute(context)
-                self.completed.append(step)
-                context.update(result)
-                await self.publish_event(
-                    f"saga.step.completed",
-                    {'{'{'}'}"step": step["agent"].name, "result": result{'}'}
-                )
-            except Exception as e:
-                await self.publish_event(
-                    "saga.step.failed",
-                    {'{'{'}'}"step": step["agent"].name, "error": str(e){'}'}
-                )
-                # Compensate in reverse order
-                for completed_step in reversed(self.completed):
-                    await completed_step["agent"].compensate(context)
-                    await self.publish_event(
-                        "saga.step.compensated",
-                        {'{'{'}'}"step": completed_step["agent"].name{'}'}
-                    )
-                raise SagaFailedError(f"Failed at {'{'{'}'}step['agent'].name{'}'}")
-        return context`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgU2FnYUNvb3JkaW5hdG9yOgogICAgZGVmIF9faW5pdF9fKHNlbGYsIHN0ZXBzKToKICAgICAgICBzZWxmLnN0ZXBzID0gc3RlcHMgICMgW3sneyd7J30nfWV4ZWN1dGUsIGNvbXBlbnNhdGUsIGFnZW50eyd9J31dCiAgICAgICAgc2VsZi5jb21wbGV0ZWQgPSBbXQoKICAgIGFzeW5jIGRlZiBydW4oc2VsZiwgY29udGV4dCk6CiAgICAgICAgZm9yIHN0ZXAgaW4gc2VsZi5zdGVwczoKICAgICAgICAgICAgdHJ5OgogICAgICAgICAgICAgICAgcmVzdWx0ID0gYXdhaXQgc3RlcFsiYWdlbnQiXS5leGVjdXRlKGNvbnRleHQpCiAgICAgICAgICAgICAgICBzZWxmLmNvbXBsZXRlZC5hcHBlbmQoc3RlcCkKICAgICAgICAgICAgICAgIGNvbnRleHQudXBkYXRlKHJlc3VsdCkKICAgICAgICAgICAgICAgIGF3YWl0IHNlbGYucHVibGlzaF9ldmVudCgKICAgICAgICAgICAgICAgICAgICBmInNhZ2Euc3RlcC5jb21wbGV0ZWQiLAogICAgICAgICAgICAgICAgICAgIHsneyd7J30nfSJzdGVwIjogc3RlcFsiYWdlbnQiXS5uYW1lLCAicmVzdWx0IjogcmVzdWx0eyd9J30KICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgZXhjZXB0IEV4Y2VwdGlvbiBhcyBlOgogICAgICAgICAgICAgICAgYXdhaXQgc2VsZi5wdWJsaXNoX2V2ZW50KAogICAgICAgICAgICAgICAgICAgICJzYWdhLnN0ZXAuZmFpbGVkIiwKICAgICAgICAgICAgICAgICAgICB7J3sneyd9J30ic3RlcCI6IHN0ZXBbImFnZW50Il0ubmFtZSwgImVycm9yIjogc3RyKGUpeyd9J30KICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgICAgICMgQ29tcGVuc2F0ZSBpbiByZXZlcnNlIG9yZGVyCiAgICAgICAgICAgICAgICBmb3IgY29tcGxldGVkX3N0ZXAgaW4gcmV2ZXJzZWQoc2VsZi5jb21wbGV0ZWQpOgogICAgICAgICAgICAgICAgICAgIGF3YWl0IGNvbXBsZXRlZF9zdGVwWyJhZ2VudCJdLmNvbXBlbnNhdGUoY29udGV4dCkKICAgICAgICAgICAgICAgICAgICBhd2FpdCBzZWxmLnB1Ymxpc2hfZXZlbnQoCiAgICAgICAgICAgICAgICAgICAgICAgICJzYWdhLnN0ZXAuY29tcGVuc2F0ZWQiLAogICAgICAgICAgICAgICAgICAgICAgICB7J3sneyd9J30ic3RlcCI6IGNvbXBsZXRlZF9zdGVwWyJhZ2VudCJdLm5hbWV7J30nfQogICAgICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgICAgIHJhaXNlIFNhZ2FGYWlsZWRFcnJvcihmIkZhaWxlZCBhdCB7J3sneyd9J31zdGVwWydhZ2VudCddLm5hbWV7J30nfSIpCiAgICAgICAgcmV0dXJuIGNvbnRleHQ=" />
 
 <Quiz question="Why use the Saga pattern instead of distributed transactions for multi-agent workflows?" options={["Sagas are faster","Distributed transactions require all agents to be available simultaneously and lock resources","Sagas are simpler to implement","There is no difference"]} correctIndex={1} explanation="Distributed transactions (2PC) require all participants to be available and lock resources until commit. Sagas allow each agent to work independently and compensate on failure -- much better for loosely coupled agent systems." />

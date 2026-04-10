@@ -17,50 +17,7 @@ Pure vector search excels at semantic matching but struggles with exact terms (p
 
 </ExpandableSection>
 
-<CodeBlock>
-{`from typing import List, Dict
-import numpy as np
-
-def reciprocal_rank_fusion(
-    result_lists: List[List[str]],
-    k: int = 60
-) -> List[Dict]:
-    """
-    Fuse multiple ranked result lists using Reciprocal Rank Fusion.
-    Each result_list is a list of document IDs ordered by relevance.
-    """
-    scores = {'{'{'}'}{'}'}
-    for result_list in result_lists:
-        for rank, doc_id in enumerate(result_list):
-            if doc_id not in scores:
-                scores[doc_id] = 0
-            scores[doc_id] += 1.0 / (k + rank + 1)  # +1 for 0-indexed
-
-    # Sort by fused score (descending)
-    fused = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-    return [{'{'{'}'}"doc_id": doc_id, "rrf_score": score{'}'} for doc_id, score in fused]
-
-# Example: Hybrid search combining BM25 and vector results
-bm25_results = ["doc_42", "doc_7", "doc_15", "doc_3", "doc_88"]
-vector_results = ["doc_7", "doc_42", "doc_99", "doc_15", "doc_23"]
-
-fused = reciprocal_rank_fusion([bm25_results, vector_results])
-print("Fused results:")
-for r in fused[:5]:
-    print(f"  {'{'{'}'}r['doc_id']{'}'}: RRF score = {'{'{'}'}r['rrf_score']:.4f{'}'}")
-# doc_42 and doc_7 rank highest (appear in both lists)
-
-# Weighted hybrid (e.g., 70% vector, 30% keyword)
-def weighted_hybrid(vector_scores, bm25_scores, alpha=0.7):
-    """Combine normalized scores with weighting."""
-    all_docs = set(vector_scores.keys()) | set(bm25_scores.keys())
-    results = {'{'{'}'}{'}'}
-    for doc in all_docs:
-        v_score = vector_scores.get(doc, 0)
-        b_score = bm25_scores.get(doc, 0)
-        results[doc] = alpha * v_score + (1 - alpha) * b_score
-    return sorted(results.items(), key=lambda x: x[1], reverse=True)`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSB0eXBpbmcgaW1wb3J0IExpc3QsIERpY3QKaW1wb3J0IG51bXB5IGFzIG5wCgpkZWYgcmVjaXByb2NhbF9yYW5rX2Z1c2lvbigKICAgIHJlc3VsdF9saXN0czogTGlzdFtMaXN0W3N0cl1dLAogICAgazogaW50ID0gNjAKKSAtPiBMaXN0W0RpY3RdOgogICAgIiIiCiAgICBGdXNlIG11bHRpcGxlIHJhbmtlZCByZXN1bHQgbGlzdHMgdXNpbmcgUmVjaXByb2NhbCBSYW5rIEZ1c2lvbi4KICAgIEVhY2ggcmVzdWx0X2xpc3QgaXMgYSBsaXN0IG9mIGRvY3VtZW50IElEcyBvcmRlcmVkIGJ5IHJlbGV2YW5jZS4KICAgICIiIgogICAgc2NvcmVzID0geyd7J3snfSd9eyd9J30KICAgIGZvciByZXN1bHRfbGlzdCBpbiByZXN1bHRfbGlzdHM6CiAgICAgICAgZm9yIHJhbmssIGRvY19pZCBpbiBlbnVtZXJhdGUocmVzdWx0X2xpc3QpOgogICAgICAgICAgICBpZiBkb2NfaWQgbm90IGluIHNjb3JlczoKICAgICAgICAgICAgICAgIHNjb3Jlc1tkb2NfaWRdID0gMAogICAgICAgICAgICBzY29yZXNbZG9jX2lkXSArPSAxLjAgLyAoayArIHJhbmsgKyAxKSAgIyArMSBmb3IgMC1pbmRleGVkCgogICAgIyBTb3J0IGJ5IGZ1c2VkIHNjb3JlIChkZXNjZW5kaW5nKQogICAgZnVzZWQgPSBzb3J0ZWQoc2NvcmVzLml0ZW1zKCksIGtleT1sYW1iZGEgeDogeFsxXSwgcmV2ZXJzZT1UcnVlKQogICAgcmV0dXJuIFt7J3sneyd9J30iZG9jX2lkIjogZG9jX2lkLCAicnJmX3Njb3JlIjogc2NvcmV7J30nfSBmb3IgZG9jX2lkLCBzY29yZSBpbiBmdXNlZF0KCiMgRXhhbXBsZTogSHlicmlkIHNlYXJjaCBjb21iaW5pbmcgQk0yNSBhbmQgdmVjdG9yIHJlc3VsdHMKYm0yNV9yZXN1bHRzID0gWyJkb2NfNDIiLCAiZG9jXzciLCAiZG9jXzE1IiwgImRvY18zIiwgImRvY184OCJdCnZlY3Rvcl9yZXN1bHRzID0gWyJkb2NfNyIsICJkb2NfNDIiLCAiZG9jXzk5IiwgImRvY18xNSIsICJkb2NfMjMiXQoKZnVzZWQgPSByZWNpcHJvY2FsX3JhbmtfZnVzaW9uKFtibTI1X3Jlc3VsdHMsIHZlY3Rvcl9yZXN1bHRzXSkKcHJpbnQoIkZ1c2VkIHJlc3VsdHM6IikKZm9yIHIgaW4gZnVzZWRbOjVdOgogICAgcHJpbnQoZiIgIHsneyd7J30nfXJbJ2RvY19pZCddeyd9J306IFJSRiBzY29yZSA9IHsneyd7J30nfXJbJ3JyZl9zY29yZSddOi40ZnsnfSd9IikKIyBkb2NfNDIgYW5kIGRvY183IHJhbmsgaGlnaGVzdCAoYXBwZWFyIGluIGJvdGggbGlzdHMpCgojIFdlaWdodGVkIGh5YnJpZCAoZS5nLiwgNzAlIHZlY3RvciwgMzAlIGtleXdvcmQpCmRlZiB3ZWlnaHRlZF9oeWJyaWQodmVjdG9yX3Njb3JlcywgYm0yNV9zY29yZXMsIGFscGhhPTAuNyk6CiAgICAiIiJDb21iaW5lIG5vcm1hbGl6ZWQgc2NvcmVzIHdpdGggd2VpZ2h0aW5nLiIiIgogICAgYWxsX2RvY3MgPSBzZXQodmVjdG9yX3Njb3Jlcy5rZXlzKCkpIHwgc2V0KGJtMjVfc2NvcmVzLmtleXMoKSkKICAgIHJlc3VsdHMgPSB7J3sneyd9J317J30nfQogICAgZm9yIGRvYyBpbiBhbGxfZG9jczoKICAgICAgICB2X3Njb3JlID0gdmVjdG9yX3Njb3Jlcy5nZXQoZG9jLCAwKQogICAgICAgIGJfc2NvcmUgPSBibTI1X3Njb3Jlcy5nZXQoZG9jLCAwKQogICAgICAgIHJlc3VsdHNbZG9jXSA9IGFscGhhICogdl9zY29yZSArICgxIC0gYWxwaGEpICogYl9zY29yZQogICAgcmV0dXJuIHNvcnRlZChyZXN1bHRzLml0ZW1zKCksIGtleT1sYW1iZGEgeDogeFsxXSwgcmV2ZXJzZT1UcnVlKQ==" />
 
 <ExpandableSection title="Cross-Encoder Reranking" icon="🎯">
 

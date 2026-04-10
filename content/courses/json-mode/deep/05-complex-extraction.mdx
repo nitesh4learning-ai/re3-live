@@ -5,38 +5,6 @@ icon: "📂"
 
 ## Complex Extraction
 
-<CodeBlock>
-{`from pydantic import BaseModel
-from typing import Optional
-import instructor
-
-class LineItem(BaseModel):
-    description: str
-    quantity: int
-    unit_price: float
-    total: float
-
-class Invoice(BaseModel):
-    invoice_number: str
-    date: str
-    vendor_name: str
-    vendor_address: Optional[str]
-    line_items: list[LineItem]
-    subtotal: float
-    tax: float
-    total: float
-    currency: str = "USD"
-
-# Extract structured invoice data from raw text
-result = client.chat.completions.create(
-    model="gpt-4o",
-    response_model=Invoice,
-    messages=[{'{'{'}'}
-        "role": "user",
-        "content": f"Extract invoice data:\\n\\n{'{'{'}'}raw_invoice_text{'}'}"
-    {'}'}]
-)
-# Returns fully typed Invoice object with validated line items`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBweWRhbnRpYyBpbXBvcnQgQmFzZU1vZGVsCmZyb20gdHlwaW5nIGltcG9ydCBPcHRpb25hbAppbXBvcnQgaW5zdHJ1Y3RvcgoKY2xhc3MgTGluZUl0ZW0oQmFzZU1vZGVsKToKICAgIGRlc2NyaXB0aW9uOiBzdHIKICAgIHF1YW50aXR5OiBpbnQKICAgIHVuaXRfcHJpY2U6IGZsb2F0CiAgICB0b3RhbDogZmxvYXQKCmNsYXNzIEludm9pY2UoQmFzZU1vZGVsKToKICAgIGludm9pY2VfbnVtYmVyOiBzdHIKICAgIGRhdGU6IHN0cgogICAgdmVuZG9yX25hbWU6IHN0cgogICAgdmVuZG9yX2FkZHJlc3M6IE9wdGlvbmFsW3N0cl0KICAgIGxpbmVfaXRlbXM6IGxpc3RbTGluZUl0ZW1dCiAgICBzdWJ0b3RhbDogZmxvYXQKICAgIHRheDogZmxvYXQKICAgIHRvdGFsOiBmbG9hdAogICAgY3VycmVuY3k6IHN0ciA9ICJVU0QiCgojIEV4dHJhY3Qgc3RydWN0dXJlZCBpbnZvaWNlIGRhdGEgZnJvbSByYXcgdGV4dApyZXN1bHQgPSBjbGllbnQuY2hhdC5jb21wbGV0aW9ucy5jcmVhdGUoCiAgICBtb2RlbD0iZ3B0LTRvIiwKICAgIHJlc3BvbnNlX21vZGVsPUludm9pY2UsCiAgICBtZXNzYWdlcz1beyd7J3snfSd9CiAgICAgICAgInJvbGUiOiAidXNlciIsCiAgICAgICAgImNvbnRlbnQiOiBmIkV4dHJhY3QgaW52b2ljZSBkYXRhOlxcblxcbnsneyd7J30nfXJhd19pbnZvaWNlX3RleHR7J30nfSIKICAgIHsnfSd9XQopCiMgUmV0dXJucyBmdWxseSB0eXBlZCBJbnZvaWNlIG9iamVjdCB3aXRoIHZhbGlkYXRlZCBsaW5lIGl0ZW1z" />
 
 <ArchitectureDecision scenario="You need to extract structured data from legal documents (contracts). Documents have variable format, nested clauses, cross-references, and legal jargon. Which approach?" options={[{label:'Single large schema covering all possible fields',tradeoff:'Comprehensive but many fields will be empty or hallucinated for simpler documents'},{label:'Multi-pass: first extract document type, then use type-specific schemas',tradeoff:'Higher quality — each schema is focused. But 2x API calls and latency'},{label:'Flat key-value extraction with no schema',tradeoff:'Flexible but no type safety, harder to process downstream'}]} correctIndex={1} explanation="Multi-pass extraction first classifies the document type (NDA, employment contract, sales agreement), then applies a focused schema for that type. This avoids the 'empty field' problem and reduces hallucination since the schema only asks for relevant fields."/>

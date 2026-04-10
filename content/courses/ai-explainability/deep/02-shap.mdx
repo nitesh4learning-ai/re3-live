@@ -11,38 +11,7 @@ icon: "📊"
 
 The core idea: for each prediction, calculate how much each feature contributed to pushing the prediction away from the baseline (average prediction).
 
-<CodeBlock language="python" label="SHAP in Action — Credit Risk Model">
-{`import shap
-import xgboost as xgb
-import pandas as pd
-
-# Train a model (credit risk prediction)
-model = xgb.XGBClassifier()
-model.fit(X_train, y_train)
-
-# Create SHAP explainer
-explainer = shap.TreeExplainer(model)
-
-# Get SHAP values for the entire dataset (global)
-shap_values = explainer.shap_values(X_test)
-
-# Global explanation: which features matter most overall?
-shap.summary_plot(shap_values, X_test)
-# Shows: income, credit_history, debt_ratio are top predictors
-
-# Local explanation: why was THIS applicant rejected?
-applicant_idx = 42
-shap.waterfall_plot(
-    shap.Explanation(
-        values=shap_values[applicant_idx],
-        base_values=explainer.expected_value,
-        data=X_test.iloc[applicant_idx],
-        feature_names=X_test.columns.tolist()
-    )
-)
-# Shows: high debt_ratio (+0.3) and short credit_history (+0.2)
-# pushed this applicant toward "reject"`}
-</CodeBlock>
+<CodeBlock language="python" label="SHAP in Action — Credit Risk Model" b64="aW1wb3J0IHNoYXAKaW1wb3J0IHhnYm9vc3QgYXMgeGdiCmltcG9ydCBwYW5kYXMgYXMgcGQKCiMgVHJhaW4gYSBtb2RlbCAoY3JlZGl0IHJpc2sgcHJlZGljdGlvbikKbW9kZWwgPSB4Z2IuWEdCQ2xhc3NpZmllcigpCm1vZGVsLmZpdChYX3RyYWluLCB5X3RyYWluKQoKIyBDcmVhdGUgU0hBUCBleHBsYWluZXIKZXhwbGFpbmVyID0gc2hhcC5UcmVlRXhwbGFpbmVyKG1vZGVsKQoKIyBHZXQgU0hBUCB2YWx1ZXMgZm9yIHRoZSBlbnRpcmUgZGF0YXNldCAoZ2xvYmFsKQpzaGFwX3ZhbHVlcyA9IGV4cGxhaW5lci5zaGFwX3ZhbHVlcyhYX3Rlc3QpCgojIEdsb2JhbCBleHBsYW5hdGlvbjogd2hpY2ggZmVhdHVyZXMgbWF0dGVyIG1vc3Qgb3ZlcmFsbD8Kc2hhcC5zdW1tYXJ5X3Bsb3Qoc2hhcF92YWx1ZXMsIFhfdGVzdCkKIyBTaG93czogaW5jb21lLCBjcmVkaXRfaGlzdG9yeSwgZGVidF9yYXRpbyBhcmUgdG9wIHByZWRpY3RvcnMKCiMgTG9jYWwgZXhwbGFuYXRpb246IHdoeSB3YXMgVEhJUyBhcHBsaWNhbnQgcmVqZWN0ZWQ/CmFwcGxpY2FudF9pZHggPSA0MgpzaGFwLndhdGVyZmFsbF9wbG90KAogICAgc2hhcC5FeHBsYW5hdGlvbigKICAgICAgICB2YWx1ZXM9c2hhcF92YWx1ZXNbYXBwbGljYW50X2lkeF0sCiAgICAgICAgYmFzZV92YWx1ZXM9ZXhwbGFpbmVyLmV4cGVjdGVkX3ZhbHVlLAogICAgICAgIGRhdGE9WF90ZXN0Lmlsb2NbYXBwbGljYW50X2lkeF0sCiAgICAgICAgZmVhdHVyZV9uYW1lcz1YX3Rlc3QuY29sdW1ucy50b2xpc3QoKQogICAgKQopCiMgU2hvd3M6IGhpZ2ggZGVidF9yYXRpbyAoKzAuMykgYW5kIHNob3J0IGNyZWRpdF9oaXN0b3J5ICgrMC4yKQojIHB1c2hlZCB0aGlzIGFwcGxpY2FudCB0b3dhcmQgInJlamVjdCI=" />
 
 ### SHAP Variants
 

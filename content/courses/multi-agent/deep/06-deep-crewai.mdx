@@ -7,69 +7,7 @@ icon: "\uD83E\uDD16"
 
 CrewAI and AutoGen take different approaches to multi-agent orchestration. CrewAI uses role-based teams with structured task delegation, while AutoGen focuses on conversational agent interactions. Understanding when to use each saves significant development time.
 
-  <CodeBlock>
-{`from crewai import Agent, Task, Crew, Process
-
-# Define agents with roles and expertise
-researcher = Agent(
-    role="Senior Research Analyst",
-    goal="Find comprehensive data on the given topic",
-    backstory="You are an expert researcher with 15 years experience "
-              "in data analysis and information synthesis.",
-    llm="claude-sonnet-4-20250514",
-    verbose=True,
-    allow_delegation=True  # Can delegate subtasks to other agents
-)
-
-writer = Agent(
-    role="Technical Writer",
-    goal="Create clear, engaging technical content",
-    backstory="You specialize in making complex topics accessible "
-              "without sacrificing accuracy.",
-    llm="claude-sonnet-4-20250514",
-    verbose=True
-)
-
-editor = Agent(
-    role="Senior Editor",
-    goal="Ensure content is polished and publication-ready",
-    backstory="Former editor at a major tech publication with an eye "
-              "for clarity, accuracy, and engagement.",
-    llm="claude-sonnet-4-20250514",
-    verbose=True
-)
-
-# Define tasks with dependencies
-research_task = Task(
-    description="Research {'{'{'}'}topic{'}'} thoroughly. Include data and examples.",
-    expected_output="A detailed research brief with key findings.",
-    agent=researcher
-)
-
-writing_task = Task(
-    description="Write an article based on the research brief.",
-    expected_output="A 1500-word article suitable for publication.",
-    agent=writer,
-    context=[research_task]  # Depends on research output
-)
-
-editing_task = Task(
-    description="Edit the article for clarity and accuracy.",
-    expected_output="A polished, publication-ready article.",
-    agent=editor,
-    context=[writing_task]
-)
-
-# Assemble and run the crew
-crew = Crew(
-    agents=[researcher, writer, editor],
-    tasks=[research_task, writing_task, editing_task],
-    process=Process.sequential,  # or Process.hierarchical
-    verbose=True
-)
-
-result = crew.kickoff(inputs={'{'{'}'}"topic": "Multi-agent AI systems"{'}'})`}
-</CodeBlock>
+  <CodeBlock b64="ZnJvbSBjcmV3YWkgaW1wb3J0IEFnZW50LCBUYXNrLCBDcmV3LCBQcm9jZXNzCgojIERlZmluZSBhZ2VudHMgd2l0aCByb2xlcyBhbmQgZXhwZXJ0aXNlCnJlc2VhcmNoZXIgPSBBZ2VudCgKICAgIHJvbGU9IlNlbmlvciBSZXNlYXJjaCBBbmFseXN0IiwKICAgIGdvYWw9IkZpbmQgY29tcHJlaGVuc2l2ZSBkYXRhIG9uIHRoZSBnaXZlbiB0b3BpYyIsCiAgICBiYWNrc3Rvcnk9IllvdSBhcmUgYW4gZXhwZXJ0IHJlc2VhcmNoZXIgd2l0aCAxNSB5ZWFycyBleHBlcmllbmNlICIKICAgICAgICAgICAgICAiaW4gZGF0YSBhbmFseXNpcyBhbmQgaW5mb3JtYXRpb24gc3ludGhlc2lzLiIsCiAgICBsbG09ImNsYXVkZS1zb25uZXQtNC0yMDI1MDUxNCIsCiAgICB2ZXJib3NlPVRydWUsCiAgICBhbGxvd19kZWxlZ2F0aW9uPVRydWUgICMgQ2FuIGRlbGVnYXRlIHN1YnRhc2tzIHRvIG90aGVyIGFnZW50cwopCgp3cml0ZXIgPSBBZ2VudCgKICAgIHJvbGU9IlRlY2huaWNhbCBXcml0ZXIiLAogICAgZ29hbD0iQ3JlYXRlIGNsZWFyLCBlbmdhZ2luZyB0ZWNobmljYWwgY29udGVudCIsCiAgICBiYWNrc3Rvcnk9IllvdSBzcGVjaWFsaXplIGluIG1ha2luZyBjb21wbGV4IHRvcGljcyBhY2Nlc3NpYmxlICIKICAgICAgICAgICAgICAid2l0aG91dCBzYWNyaWZpY2luZyBhY2N1cmFjeS4iLAogICAgbGxtPSJjbGF1ZGUtc29ubmV0LTQtMjAyNTA1MTQiLAogICAgdmVyYm9zZT1UcnVlCikKCmVkaXRvciA9IEFnZW50KAogICAgcm9sZT0iU2VuaW9yIEVkaXRvciIsCiAgICBnb2FsPSJFbnN1cmUgY29udGVudCBpcyBwb2xpc2hlZCBhbmQgcHVibGljYXRpb24tcmVhZHkiLAogICAgYmFja3N0b3J5PSJGb3JtZXIgZWRpdG9yIGF0IGEgbWFqb3IgdGVjaCBwdWJsaWNhdGlvbiB3aXRoIGFuIGV5ZSAiCiAgICAgICAgICAgICAgImZvciBjbGFyaXR5LCBhY2N1cmFjeSwgYW5kIGVuZ2FnZW1lbnQuIiwKICAgIGxsbT0iY2xhdWRlLXNvbm5ldC00LTIwMjUwNTE0IiwKICAgIHZlcmJvc2U9VHJ1ZQopCgojIERlZmluZSB0YXNrcyB3aXRoIGRlcGVuZGVuY2llcwpyZXNlYXJjaF90YXNrID0gVGFzaygKICAgIGRlc2NyaXB0aW9uPSJSZXNlYXJjaCB7J3sneyd9J310b3BpY3snfSd9IHRob3JvdWdobHkuIEluY2x1ZGUgZGF0YSBhbmQgZXhhbXBsZXMuIiwKICAgIGV4cGVjdGVkX291dHB1dD0iQSBkZXRhaWxlZCByZXNlYXJjaCBicmllZiB3aXRoIGtleSBmaW5kaW5ncy4iLAogICAgYWdlbnQ9cmVzZWFyY2hlcgopCgp3cml0aW5nX3Rhc2sgPSBUYXNrKAogICAgZGVzY3JpcHRpb249IldyaXRlIGFuIGFydGljbGUgYmFzZWQgb24gdGhlIHJlc2VhcmNoIGJyaWVmLiIsCiAgICBleHBlY3RlZF9vdXRwdXQ9IkEgMTUwMC13b3JkIGFydGljbGUgc3VpdGFibGUgZm9yIHB1YmxpY2F0aW9uLiIsCiAgICBhZ2VudD13cml0ZXIsCiAgICBjb250ZXh0PVtyZXNlYXJjaF90YXNrXSAgIyBEZXBlbmRzIG9uIHJlc2VhcmNoIG91dHB1dAopCgplZGl0aW5nX3Rhc2sgPSBUYXNrKAogICAgZGVzY3JpcHRpb249IkVkaXQgdGhlIGFydGljbGUgZm9yIGNsYXJpdHkgYW5kIGFjY3VyYWN5LiIsCiAgICBleHBlY3RlZF9vdXRwdXQ9IkEgcG9saXNoZWQsIHB1YmxpY2F0aW9uLXJlYWR5IGFydGljbGUuIiwKICAgIGFnZW50PWVkaXRvciwKICAgIGNvbnRleHQ9W3dyaXRpbmdfdGFza10KKQoKIyBBc3NlbWJsZSBhbmQgcnVuIHRoZSBjcmV3CmNyZXcgPSBDcmV3KAogICAgYWdlbnRzPVtyZXNlYXJjaGVyLCB3cml0ZXIsIGVkaXRvcl0sCiAgICB0YXNrcz1bcmVzZWFyY2hfdGFzaywgd3JpdGluZ190YXNrLCBlZGl0aW5nX3Rhc2tdLAogICAgcHJvY2Vzcz1Qcm9jZXNzLnNlcXVlbnRpYWwsICAjIG9yIFByb2Nlc3MuaGllcmFyY2hpY2FsCiAgICB2ZXJib3NlPVRydWUKKQoKcmVzdWx0ID0gY3Jldy5raWNrb2ZmKGlucHV0cz17J3sneyd9J30idG9waWMiOiAiTXVsdGktYWdlbnQgQUkgc3lzdGVtcyJ7J30nfSk=" />
   <ComparisonTable title="CrewAI vs AutoGen vs LangGraph" columns={['Feature','CrewAI','AutoGen','LangGraph']} rows={[
     ['Mental Model','Team of role-based agents','Conversational agents','State machine graph'],
     ['Orchestration','Sequential or hierarchical process','Chat-based turn-taking','Graph edges and conditions'],

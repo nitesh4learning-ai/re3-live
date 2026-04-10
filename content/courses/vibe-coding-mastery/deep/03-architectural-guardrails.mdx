@@ -19,67 +19,13 @@ The #1 failure mode in vibe coding isn't syntax errors — it's **architectural 
 
 ### Architectural Patterns to Enforce
 
-<CodeBlock language="markdown" label="Architecture Rules Section in CLAUDE.md">
-{`## Architecture Guardrails (Non-Negotiable)
-
-### File Organization
-- Max 200 lines per file. If a file exceeds this, split it.
-- One component per file. No multi-component files.
-- Group by feature, not by type:
-  /features/auth/         ← auth component, hook, test, types
-  /features/scan/         ← scan component, hook, test, types
-  NOT: /components/ /hooks/ /tests/ (scattered across features)
-
-### State Management
-- Use Provider pattern exclusively. No ad-hoc state sharing.
-- Local state: useState for UI-only state
-- Shared state: Provider + useContext for cross-component state
-- Persistent state: Hive for on-device, Firestore for cloud
-
-### Error Handling
-- Every async function has try/catch
-- Errors logged to Crashlytics with context
-- User-facing errors show friendly message, not stack trace
-- Never swallow exceptions silently
-
-### API Patterns
-- All LLM calls go through the gateway, never direct
-- Retry with exponential backoff (max 3 attempts)
-- Token count tracked on every call
-- Cost per call logged for monitoring
-
-### Testing
-- Every new feature needs at least one test
-- Tests live next to the code they test (feature.test.js)
-- Run tests before committing — Claude should verify`}
-</CodeBlock>
+<CodeBlock language="markdown" label="Architecture Rules Section in CLAUDE.md" b64="IyMgQXJjaGl0ZWN0dXJlIEd1YXJkcmFpbHMgKE5vbi1OZWdvdGlhYmxlKQoKIyMjIEZpbGUgT3JnYW5pemF0aW9uCi0gTWF4IDIwMCBsaW5lcyBwZXIgZmlsZS4gSWYgYSBmaWxlIGV4Y2VlZHMgdGhpcywgc3BsaXQgaXQuCi0gT25lIGNvbXBvbmVudCBwZXIgZmlsZS4gTm8gbXVsdGktY29tcG9uZW50IGZpbGVzLgotIEdyb3VwIGJ5IGZlYXR1cmUsIG5vdCBieSB0eXBlOgogIC9mZWF0dXJlcy9hdXRoLyAgICAgICAgIOKGkCBhdXRoIGNvbXBvbmVudCwgaG9vaywgdGVzdCwgdHlwZXMKICAvZmVhdHVyZXMvc2Nhbi8gICAgICAgICDihpAgc2NhbiBjb21wb25lbnQsIGhvb2ssIHRlc3QsIHR5cGVzCiAgTk9UOiAvY29tcG9uZW50cy8gL2hvb2tzLyAvdGVzdHMvIChzY2F0dGVyZWQgYWNyb3NzIGZlYXR1cmVzKQoKIyMjIFN0YXRlIE1hbmFnZW1lbnQKLSBVc2UgUHJvdmlkZXIgcGF0dGVybiBleGNsdXNpdmVseS4gTm8gYWQtaG9jIHN0YXRlIHNoYXJpbmcuCi0gTG9jYWwgc3RhdGU6IHVzZVN0YXRlIGZvciBVSS1vbmx5IHN0YXRlCi0gU2hhcmVkIHN0YXRlOiBQcm92aWRlciArIHVzZUNvbnRleHQgZm9yIGNyb3NzLWNvbXBvbmVudCBzdGF0ZQotIFBlcnNpc3RlbnQgc3RhdGU6IEhpdmUgZm9yIG9uLWRldmljZSwgRmlyZXN0b3JlIGZvciBjbG91ZAoKIyMjIEVycm9yIEhhbmRsaW5nCi0gRXZlcnkgYXN5bmMgZnVuY3Rpb24gaGFzIHRyeS9jYXRjaAotIEVycm9ycyBsb2dnZWQgdG8gQ3Jhc2hseXRpY3Mgd2l0aCBjb250ZXh0Ci0gVXNlci1mYWNpbmcgZXJyb3JzIHNob3cgZnJpZW5kbHkgbWVzc2FnZSwgbm90IHN0YWNrIHRyYWNlCi0gTmV2ZXIgc3dhbGxvdyBleGNlcHRpb25zIHNpbGVudGx5CgojIyMgQVBJIFBhdHRlcm5zCi0gQWxsIExMTSBjYWxscyBnbyB0aHJvdWdoIHRoZSBnYXRld2F5LCBuZXZlciBkaXJlY3QKLSBSZXRyeSB3aXRoIGV4cG9uZW50aWFsIGJhY2tvZmYgKG1heCAzIGF0dGVtcHRzKQotIFRva2VuIGNvdW50IHRyYWNrZWQgb24gZXZlcnkgY2FsbAotIENvc3QgcGVyIGNhbGwgbG9nZ2VkIGZvciBtb25pdG9yaW5nCgojIyMgVGVzdGluZwotIEV2ZXJ5IG5ldyBmZWF0dXJlIG5lZWRzIGF0IGxlYXN0IG9uZSB0ZXN0Ci0gVGVzdHMgbGl2ZSBuZXh0IHRvIHRoZSBjb2RlIHRoZXkgdGVzdCAoZmVhdHVyZS50ZXN0LmpzKQotIFJ1biB0ZXN0cyBiZWZvcmUgY29tbWl0dGluZyDigJQgQ2xhdWRlIHNob3VsZCB2ZXJpZnk=" />
 
 ### Skills: Reusable Expertise for Claude
 
 Skills are reusable instruction files that teach Claude specialized tasks. They're like giving your junior developer a procedures manual for specific types of work.
 
-<CodeBlock language="text" label="Using Skills in Claude Code">
-{`# Skills live in project directories:
-.claude/
-  skills/
-    create-widget.md      # How to create new UI widgets
-    api-endpoint.md       # Standard pattern for API routes
-    database-migration.md # Steps for schema changes
-
-# Claude reads relevant skills automatically when the task matches.
-# You can also reference them explicitly:
-"Follow the api-endpoint skill to create the /api/scan endpoint"
-
-# Anthropic provides built-in skills for:
-- docx, pptx, xlsx creation
-- Frontend design (design tokens, component patterns)
-- PDF creation and reading
-
-# Community skills extend capabilities:
-- Production security hardening
-- SEO optimization
-- Performance auditing`}
-</CodeBlock>
+<CodeBlock language="text" label="Using Skills in Claude Code" b64="IyBTa2lsbHMgbGl2ZSBpbiBwcm9qZWN0IGRpcmVjdG9yaWVzOgouY2xhdWRlLwogIHNraWxscy8KICAgIGNyZWF0ZS13aWRnZXQubWQgICAgICAjIEhvdyB0byBjcmVhdGUgbmV3IFVJIHdpZGdldHMKICAgIGFwaS1lbmRwb2ludC5tZCAgICAgICAjIFN0YW5kYXJkIHBhdHRlcm4gZm9yIEFQSSByb3V0ZXMKICAgIGRhdGFiYXNlLW1pZ3JhdGlvbi5tZCAjIFN0ZXBzIGZvciBzY2hlbWEgY2hhbmdlcwoKIyBDbGF1ZGUgcmVhZHMgcmVsZXZhbnQgc2tpbGxzIGF1dG9tYXRpY2FsbHkgd2hlbiB0aGUgdGFzayBtYXRjaGVzLgojIFlvdSBjYW4gYWxzbyByZWZlcmVuY2UgdGhlbSBleHBsaWNpdGx5OgoiRm9sbG93IHRoZSBhcGktZW5kcG9pbnQgc2tpbGwgdG8gY3JlYXRlIHRoZSAvYXBpL3NjYW4gZW5kcG9pbnQiCgojIEFudGhyb3BpYyBwcm92aWRlcyBidWlsdC1pbiBza2lsbHMgZm9yOgotIGRvY3gsIHBwdHgsIHhsc3ggY3JlYXRpb24KLSBGcm9udGVuZCBkZXNpZ24gKGRlc2lnbiB0b2tlbnMsIGNvbXBvbmVudCBwYXR0ZXJucykKLSBQREYgY3JlYXRpb24gYW5kIHJlYWRpbmcKCiMgQ29tbXVuaXR5IHNraWxscyBleHRlbmQgY2FwYWJpbGl0aWVzOgotIFByb2R1Y3Rpb24gc2VjdXJpdHkgaGFyZGVuaW5nCi0gU0VPIG9wdGltaXphdGlvbgotIFBlcmZvcm1hbmNlIGF1ZGl0aW5n" />
 
 <AnalogyBox emoji="📖" title="Skills = Standard Operating Procedures">
 In enterprise operations, SOPs ensure consistent quality regardless of who performs the task. Skills serve the same purpose for Claude Code — whether you're creating an API endpoint or a database migration, the skill ensures it follows your organization's standard pattern every time.

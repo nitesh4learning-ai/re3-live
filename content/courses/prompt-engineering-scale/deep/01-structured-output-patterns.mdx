@@ -17,30 +17,4 @@ At McKesson, you wouldn't deploy a data pipeline without testing it against know
 
 ### Structured Output Patterns
 
-<CodeBlock>
-{`from anthropic import Anthropic
-
-client = Anthropic()
-
-response = client.messages.create(
-    model="claude-sonnet-4-20250514",
-    max_tokens=1024,
-    system=(
-        "You analyze products and return structured data. "
-        "Always respond with valid JSON only, no other text."
-    ),
-    messages=[{'{'{'}'}
-        "role": "user",
-        "content": (
-            "Analyze this product: Organic Baby Spinach 5oz\n\n"
-            "Return JSON with: category, nutri_score (A-E), "
-            "is_organic (boolean), safety_flags (array)"
-        )
-    {'}'}]
-)
-
-import json
-result = json.loads(response.content[0].text)
-# {'{'{'}'}"category": "Food", "nutri_score": "A", 
-#  "is_organic": true, "safety_flags": []{'}'}`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBhbnRocm9waWMgaW1wb3J0IEFudGhyb3BpYwoKY2xpZW50ID0gQW50aHJvcGljKCkKCnJlc3BvbnNlID0gY2xpZW50Lm1lc3NhZ2VzLmNyZWF0ZSgKICAgIG1vZGVsPSJjbGF1ZGUtc29ubmV0LTQtMjAyNTA1MTQiLAogICAgbWF4X3Rva2Vucz0xMDI0LAogICAgc3lzdGVtPSgKICAgICAgICAiWW91IGFuYWx5emUgcHJvZHVjdHMgYW5kIHJldHVybiBzdHJ1Y3R1cmVkIGRhdGEuICIKICAgICAgICAiQWx3YXlzIHJlc3BvbmQgd2l0aCB2YWxpZCBKU09OIG9ubHksIG5vIG90aGVyIHRleHQuIgogICAgKSwKICAgIG1lc3NhZ2VzPVt7J3sneyd9J30KICAgICAgICAicm9sZSI6ICJ1c2VyIiwKICAgICAgICAiY29udGVudCI6ICgKICAgICAgICAgICAgIkFuYWx5emUgdGhpcyBwcm9kdWN0OiBPcmdhbmljIEJhYnkgU3BpbmFjaCA1b3pcblxuIgogICAgICAgICAgICAiUmV0dXJuIEpTT04gd2l0aDogY2F0ZWdvcnksIG51dHJpX3Njb3JlIChBLUUpLCAiCiAgICAgICAgICAgICJpc19vcmdhbmljIChib29sZWFuKSwgc2FmZXR5X2ZsYWdzIChhcnJheSkiCiAgICAgICAgKQogICAgeyd9J31dCikKCmltcG9ydCBqc29uCnJlc3VsdCA9IGpzb24ubG9hZHMocmVzcG9uc2UuY29udGVudFswXS50ZXh0KQojIHsneyd7J30nfSJjYXRlZ29yeSI6ICJGb29kIiwgIm51dHJpX3Njb3JlIjogIkEiLCAKIyAgImlzX29yZ2FuaWMiOiB0cnVlLCAic2FmZXR5X2ZsYWdzIjogW117J30nfQ==" />

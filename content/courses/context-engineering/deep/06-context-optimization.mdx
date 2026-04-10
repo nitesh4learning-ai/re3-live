@@ -7,19 +7,4 @@ icon: "\u26A1"
 
 <ComparisonTable title="Optimization Techniques" headers={['Technique','Savings','Quality Impact','Complexity']} rows={[['Prompt caching','90% cost on cached prefix','None','Low'],['Compression','40-60% tokens','Minimal if done well','Medium'],['Summary Chains','70-80% old convo','Some detail loss','Medium'],['Selective Retrieval','50-70% vs stuffing','Often improves quality','High'],['Output Limits','Varies','May truncate','Low']]}/>
 
-<CodeBlock>
-{`import anthropic
-client = anthropic.Anthropic()
-
-response = client.messages.create(
-    model="claude-3-5-sonnet-20241022",
-    max_tokens=1024,
-    system=[{'{'{'}'}
-        "type": "text",
-        "text": LONG_SYSTEM_PROMPT,  # Gets cached
-        "cache_control": {'{'{'}'}"type": "ephemeral"{'}'}
-    {'}'}],
-    messages=[{'{'{'}'}"role": "user", "content": query{'}'}]
-)
-# First call: full price. Next calls within 5 min: 90% cheaper!`}
-</CodeBlock>
+<CodeBlock b64="aW1wb3J0IGFudGhyb3BpYwpjbGllbnQgPSBhbnRocm9waWMuQW50aHJvcGljKCkKCnJlc3BvbnNlID0gY2xpZW50Lm1lc3NhZ2VzLmNyZWF0ZSgKICAgIG1vZGVsPSJjbGF1ZGUtMy01LXNvbm5ldC0yMDI0MTAyMiIsCiAgICBtYXhfdG9rZW5zPTEwMjQsCiAgICBzeXN0ZW09W3sneyd7J30nfQogICAgICAgICJ0eXBlIjogInRleHQiLAogICAgICAgICJ0ZXh0IjogTE9OR19TWVNURU1fUFJPTVBULCAgIyBHZXRzIGNhY2hlZAogICAgICAgICJjYWNoZV9jb250cm9sIjogeyd7J3snfSd9InR5cGUiOiAiZXBoZW1lcmFsInsnfSd9CiAgICB7J30nfV0sCiAgICBtZXNzYWdlcz1beyd7J3snfSd9InJvbGUiOiAidXNlciIsICJjb250ZW50IjogcXVlcnl7J30nfV0KKQojIEZpcnN0IGNhbGw6IGZ1bGwgcHJpY2UuIE5leHQgY2FsbHMgd2l0aGluIDUgbWluOiA5MCUgY2hlYXBlciE=" />

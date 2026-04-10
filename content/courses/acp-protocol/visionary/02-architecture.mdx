@@ -11,27 +11,7 @@ ACP uses a central message bus (or broker) through which all agent communication
 
 </ExpandableSection>
 
-<CodeBlock>
-{`# Agent publishes an event to the message bus
-event = {'{'{'}'}
-    "type": "document.analyzed",
-    "source": "agent://doc-analyzer/v1",
-    "subject": "doc-12345",
-    "data": {'{'{'}'}
-        "entities_found": 15,
-        "sentiment": "neutral",
-        "risk_flags": ["pii_detected", "compliance_review"]
-    {'}'},
-    "metadata": {'{'{'}'}
-        "timestamp": "2025-01-15T10:30:00Z",
-        "trace_id": "abc-123",
-        "correlation_id": "workflow-789"
-    {'}'}
-{'}'}
-
-# Other agents subscribed to "document.analyzed" receive this
-# e.g., ComplianceAgent, SummaryAgent, NotificationAgent`}
-</CodeBlock>
+<CodeBlock b64="IyBBZ2VudCBwdWJsaXNoZXMgYW4gZXZlbnQgdG8gdGhlIG1lc3NhZ2UgYnVzCmV2ZW50ID0geyd7J3snfSd9CiAgICAidHlwZSI6ICJkb2N1bWVudC5hbmFseXplZCIsCiAgICAic291cmNlIjogImFnZW50Oi8vZG9jLWFuYWx5emVyL3YxIiwKICAgICJzdWJqZWN0IjogImRvYy0xMjM0NSIsCiAgICAiZGF0YSI6IHsneyd7J30nfQogICAgICAgICJlbnRpdGllc19mb3VuZCI6IDE1LAogICAgICAgICJzZW50aW1lbnQiOiAibmV1dHJhbCIsCiAgICAgICAgInJpc2tfZmxhZ3MiOiBbInBpaV9kZXRlY3RlZCIsICJjb21wbGlhbmNlX3JldmlldyJdCiAgICB7J30nfSwKICAgICJtZXRhZGF0YSI6IHsneyd7J30nfQogICAgICAgICJ0aW1lc3RhbXAiOiAiMjAyNS0wMS0xNVQxMDozMDowMFoiLAogICAgICAgICJ0cmFjZV9pZCI6ICJhYmMtMTIzIiwKICAgICAgICAiY29ycmVsYXRpb25faWQiOiAid29ya2Zsb3ctNzg5IgogICAgeyd9J30Keyd9J30KCiMgT3RoZXIgYWdlbnRzIHN1YnNjcmliZWQgdG8gImRvY3VtZW50LmFuYWx5emVkIiByZWNlaXZlIHRoaXMKIyBlLmcuLCBDb21wbGlhbmNlQWdlbnQsIFN1bW1hcnlBZ2VudCwgTm90aWZpY2F0aW9uQWdlbnQ=" />
 
 <ComparisonTable title="ACP vs A2A vs MCP" columns={['Feature','ACP','A2A','MCP']} rows={[
   ['Communication','Pub/sub events','Bilateral conversation','Client-server tools'],

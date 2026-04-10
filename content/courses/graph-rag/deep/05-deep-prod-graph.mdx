@@ -7,70 +7,7 @@ icon: "⚙️"
 
 Production Graph RAG systems need incremental graph updates, consistency guarantees between the graph and vector store, performance tuning for large graphs, and monitoring for graph quality degradation.
 
-  <CodeBlock>
-{`class ProductionGraphRAG:
-    def __init__(self, graph_db, vector_store, llm, embedder):
-        self.graph = graph_db
-        self.vectors = vector_store
-        self.llm = llm
-        self.embedder = embedder
-        self.resolver = EntityResolver(embedder)
-
-    async def ingest_document(self, doc_id: str, content: str):
-        """Incrementally add a document to the graph."""
-        chunks = chunk_text(content, max_tokens=500, overlap=50)
-
-        async with self.graph.transaction() as tx:
-            # Create document node
-            await tx.run(
-                "MERGE (d:Document {'{'{'}'}id: $id{'}'}) SET d.updated = datetime()",
-                id=doc_id)
-
-            for i, chunk in enumerate(chunks):
-                # Extract and resolve entities
-                extraction = await extract_knowledge(chunk, self.llm)
-
-                for entity in extraction.entities:
-                    canonical = await self.resolver.resolve(
-                        entity.name, entity.type)
-                    await tx.run("""
-                        MERGE (e:Entity {'{'{'}'}name: $name{'}'})
-                        SET e.type = $type, e.updated = datetime()
-                        MERGE (d:Document {'{'{'}'}id: $doc_id{'}'})
-                        MERGE (d)-[:MENTIONS]->(e)
-                    """, name=canonical, type=entity.type, doc_id=doc_id)
-
-                for rel in extraction.relations:
-                    src = await self.resolver.resolve(rel.source, "Entity")
-                    tgt = await self.resolver.resolve(rel.target, "Entity")
-                    await tx.run("""
-                        MATCH (a:Entity {'{'{'}'}name: $src{'}'}), (b:Entity {'{'{'}'}name: $tgt{'}'})
-                        MERGE (a)-[r:RELATES {'{'{'}'}type: $rel_type{'}'}]->(b)
-                        SET r.confidence = $conf, r.evidence = $evidence
-                    """, src=src, tgt=tgt, rel_type=rel.relation,
-                         conf=rel.confidence, evidence=rel.evidence)
-
-                # Index chunk in vector store
-                embedding = await self.embedder.embed(chunk)
-                await self.vectors.upsert(
-                    id=f"{'{'{'}'}doc_id{'}'}_chunk_{'{'{'}'}i{'}'}", vector=embedding,
-                    metadata={'{'{'}'}"doc_id": doc_id, "chunk_index": i,
-                              "text": chunk,
-                              "entities": [e.name for e in extraction.entities]{'}'}
-                )
-
-    async def query(self, question: str, strategy: str = "hybrid"):
-        """Query with configurable retrieval strategy."""
-        if strategy == "local":
-            return await self._local_search(question)
-        elif strategy == "global":
-            return await self._global_search(question)
-        else:
-            # Hybrid: combine graph + vector retrieval
-            graph_ctx = await self._graph_context(question)
-            vector_ctx = await self._vector_context(question)
-            return await self._synthesize(question, graph_ctx, vector_ctx)`}
-</CodeBlock>
+  <CodeBlock b64="Y2xhc3MgUHJvZHVjdGlvbkdyYXBoUkFHOgogICAgZGVmIF9faW5pdF9fKHNlbGYsIGdyYXBoX2RiLCB2ZWN0b3Jfc3RvcmUsIGxsbSwgZW1iZWRkZXIpOgogICAgICAgIHNlbGYuZ3JhcGggPSBncmFwaF9kYgogICAgICAgIHNlbGYudmVjdG9ycyA9IHZlY3Rvcl9zdG9yZQogICAgICAgIHNlbGYubGxtID0gbGxtCiAgICAgICAgc2VsZi5lbWJlZGRlciA9IGVtYmVkZGVyCiAgICAgICAgc2VsZi5yZXNvbHZlciA9IEVudGl0eVJlc29sdmVyKGVtYmVkZGVyKQoKICAgIGFzeW5jIGRlZiBpbmdlc3RfZG9jdW1lbnQoc2VsZiwgZG9jX2lkOiBzdHIsIGNvbnRlbnQ6IHN0cik6CiAgICAgICAgIiIiSW5jcmVtZW50YWxseSBhZGQgYSBkb2N1bWVudCB0byB0aGUgZ3JhcGguIiIiCiAgICAgICAgY2h1bmtzID0gY2h1bmtfdGV4dChjb250ZW50LCBtYXhfdG9rZW5zPTUwMCwgb3ZlcmxhcD01MCkKCiAgICAgICAgYXN5bmMgd2l0aCBzZWxmLmdyYXBoLnRyYW5zYWN0aW9uKCkgYXMgdHg6CiAgICAgICAgICAgICMgQ3JlYXRlIGRvY3VtZW50IG5vZGUKICAgICAgICAgICAgYXdhaXQgdHgucnVuKAogICAgICAgICAgICAgICAgIk1FUkdFIChkOkRvY3VtZW50IHsneyd7J30nfWlkOiAkaWR7J30nfSkgU0VUIGQudXBkYXRlZCA9IGRhdGV0aW1lKCkiLAogICAgICAgICAgICAgICAgaWQ9ZG9jX2lkKQoKICAgICAgICAgICAgZm9yIGksIGNodW5rIGluIGVudW1lcmF0ZShjaHVua3MpOgogICAgICAgICAgICAgICAgIyBFeHRyYWN0IGFuZCByZXNvbHZlIGVudGl0aWVzCiAgICAgICAgICAgICAgICBleHRyYWN0aW9uID0gYXdhaXQgZXh0cmFjdF9rbm93bGVkZ2UoY2h1bmssIHNlbGYubGxtKQoKICAgICAgICAgICAgICAgIGZvciBlbnRpdHkgaW4gZXh0cmFjdGlvbi5lbnRpdGllczoKICAgICAgICAgICAgICAgICAgICBjYW5vbmljYWwgPSBhd2FpdCBzZWxmLnJlc29sdmVyLnJlc29sdmUoCiAgICAgICAgICAgICAgICAgICAgICAgIGVudGl0eS5uYW1lLCBlbnRpdHkudHlwZSkKICAgICAgICAgICAgICAgICAgICBhd2FpdCB0eC5ydW4oIiIiCiAgICAgICAgICAgICAgICAgICAgICAgIE1FUkdFIChlOkVudGl0eSB7J3sneyd9J31uYW1lOiAkbmFtZXsnfSd9KQogICAgICAgICAgICAgICAgICAgICAgICBTRVQgZS50eXBlID0gJHR5cGUsIGUudXBkYXRlZCA9IGRhdGV0aW1lKCkKICAgICAgICAgICAgICAgICAgICAgICAgTUVSR0UgKGQ6RG9jdW1lbnQgeyd7J3snfSd9aWQ6ICRkb2NfaWR7J30nfSkKICAgICAgICAgICAgICAgICAgICAgICAgTUVSR0UgKGQpLVs6TUVOVElPTlNdLT4oZSkKICAgICAgICAgICAgICAgICAgICAiIiIsIG5hbWU9Y2Fub25pY2FsLCB0eXBlPWVudGl0eS50eXBlLCBkb2NfaWQ9ZG9jX2lkKQoKICAgICAgICAgICAgICAgIGZvciByZWwgaW4gZXh0cmFjdGlvbi5yZWxhdGlvbnM6CiAgICAgICAgICAgICAgICAgICAgc3JjID0gYXdhaXQgc2VsZi5yZXNvbHZlci5yZXNvbHZlKHJlbC5zb3VyY2UsICJFbnRpdHkiKQogICAgICAgICAgICAgICAgICAgIHRndCA9IGF3YWl0IHNlbGYucmVzb2x2ZXIucmVzb2x2ZShyZWwudGFyZ2V0LCAiRW50aXR5IikKICAgICAgICAgICAgICAgICAgICBhd2FpdCB0eC5ydW4oIiIiCiAgICAgICAgICAgICAgICAgICAgICAgIE1BVENIIChhOkVudGl0eSB7J3sneyd9J31uYW1lOiAkc3Jjeyd9J30pLCAoYjpFbnRpdHkgeyd7J3snfSd9bmFtZTogJHRndHsnfSd9KQogICAgICAgICAgICAgICAgICAgICAgICBNRVJHRSAoYSktW3I6UkVMQVRFUyB7J3sneyd9J310eXBlOiAkcmVsX3R5cGV7J30nfV0tPihiKQogICAgICAgICAgICAgICAgICAgICAgICBTRVQgci5jb25maWRlbmNlID0gJGNvbmYsIHIuZXZpZGVuY2UgPSAkZXZpZGVuY2UKICAgICAgICAgICAgICAgICAgICAiIiIsIHNyYz1zcmMsIHRndD10Z3QsIHJlbF90eXBlPXJlbC5yZWxhdGlvbiwKICAgICAgICAgICAgICAgICAgICAgICAgIGNvbmY9cmVsLmNvbmZpZGVuY2UsIGV2aWRlbmNlPXJlbC5ldmlkZW5jZSkKCiAgICAgICAgICAgICAgICAjIEluZGV4IGNodW5rIGluIHZlY3RvciBzdG9yZQogICAgICAgICAgICAgICAgZW1iZWRkaW5nID0gYXdhaXQgc2VsZi5lbWJlZGRlci5lbWJlZChjaHVuaykKICAgICAgICAgICAgICAgIGF3YWl0IHNlbGYudmVjdG9ycy51cHNlcnQoCiAgICAgICAgICAgICAgICAgICAgaWQ9ZiJ7J3sneyd9J31kb2NfaWR7J30nfV9jaHVua197J3sneyd9J31peyd9J30iLCB2ZWN0b3I9ZW1iZWRkaW5nLAogICAgICAgICAgICAgICAgICAgIG1ldGFkYXRhPXsneyd7J30nfSJkb2NfaWQiOiBkb2NfaWQsICJjaHVua19pbmRleCI6IGksCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICJ0ZXh0IjogY2h1bmssCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICJlbnRpdGllcyI6IFtlLm5hbWUgZm9yIGUgaW4gZXh0cmFjdGlvbi5lbnRpdGllc117J30nfQogICAgICAgICAgICAgICAgKQoKICAgIGFzeW5jIGRlZiBxdWVyeShzZWxmLCBxdWVzdGlvbjogc3RyLCBzdHJhdGVneTogc3RyID0gImh5YnJpZCIpOgogICAgICAgICIiIlF1ZXJ5IHdpdGggY29uZmlndXJhYmxlIHJldHJpZXZhbCBzdHJhdGVneS4iIiIKICAgICAgICBpZiBzdHJhdGVneSA9PSAibG9jYWwiOgogICAgICAgICAgICByZXR1cm4gYXdhaXQgc2VsZi5fbG9jYWxfc2VhcmNoKHF1ZXN0aW9uKQogICAgICAgIGVsaWYgc3RyYXRlZ3kgPT0gImdsb2JhbCI6CiAgICAgICAgICAgIHJldHVybiBhd2FpdCBzZWxmLl9nbG9iYWxfc2VhcmNoKHF1ZXN0aW9uKQogICAgICAgIGVsc2U6CiAgICAgICAgICAgICMgSHlicmlkOiBjb21iaW5lIGdyYXBoICsgdmVjdG9yIHJldHJpZXZhbAogICAgICAgICAgICBncmFwaF9jdHggPSBhd2FpdCBzZWxmLl9ncmFwaF9jb250ZXh0KHF1ZXN0aW9uKQogICAgICAgICAgICB2ZWN0b3JfY3R4ID0gYXdhaXQgc2VsZi5fdmVjdG9yX2NvbnRleHQocXVlc3Rpb24pCiAgICAgICAgICAgIHJldHVybiBhd2FpdCBzZWxmLl9zeW50aGVzaXplKHF1ZXN0aW9uLCBncmFwaF9jdHgsIHZlY3Rvcl9jdHgp" />
   <ArchitectureDecision scenario="Your Graph RAG system processes 100 new documents daily. After 3 months, query latency increased from 200ms to 2 seconds. Graph has 500K nodes and 2M edges. What is the most likely fix?" options={[
     {label:'Rebuild the entire graph from scratch monthly',tradeoff:'Clean state but expensive. Causes downtime during rebuild.'},
     {label:'Add graph database indexes on frequently queried properties',tradeoff:'Addresses the root cause. Index on entity names and types speeds up MATCH queries dramatically.'},

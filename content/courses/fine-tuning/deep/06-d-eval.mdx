@@ -4,28 +4,7 @@ icon: "\uD83D\uDE80"
 ---
 
 ## Evaluation & Deployment
-  <CodeBlock>
-{`def evaluate_fine_tuned_model(base_model, ft_model, test_set):
-    results = {'{'{'}'}"base": [], "finetuned": []{'}'}
-    for example in test_set:
-        base_response = base_model.generate(example["prompt"])
-        ft_response = ft_model.generate(example["prompt"])
-
-        # Score on multiple dimensions
-        for name, model_resp in [("base", base_response), ("finetuned", ft_response)]:
-            results[name].append({'{'{'}'}
-                "relevance": score_relevance(model_resp, example["reference"]),
-                "style_match": score_style(model_resp, target_style),
-                "factuality": score_facts(model_resp, example["facts"]),
-                "toxicity": score_toxicity(model_resp),
-            {'}'})
-
-    # Compare
-    for metric in ["relevance", "style_match", "factuality"]:
-        base_avg = mean([r[metric] for r in results["base"]])
-        ft_avg = mean([r[metric] for r in results["finetuned"]])
-        print(f"{'{'{'}'}metric{'}'}: base={'{'{'}'}base_avg:.2f{'}'} ft={'{'{'}'}ft_avg:.2f{'}'} delta={'{'{'}'}ft_avg-base_avg:+.2f{'}'}")`}
-</CodeBlock>
+  <CodeBlock b64="ZGVmIGV2YWx1YXRlX2ZpbmVfdHVuZWRfbW9kZWwoYmFzZV9tb2RlbCwgZnRfbW9kZWwsIHRlc3Rfc2V0KToKICAgIHJlc3VsdHMgPSB7J3sneyd9J30iYmFzZSI6IFtdLCAiZmluZXR1bmVkIjogW117J30nfQogICAgZm9yIGV4YW1wbGUgaW4gdGVzdF9zZXQ6CiAgICAgICAgYmFzZV9yZXNwb25zZSA9IGJhc2VfbW9kZWwuZ2VuZXJhdGUoZXhhbXBsZVsicHJvbXB0Il0pCiAgICAgICAgZnRfcmVzcG9uc2UgPSBmdF9tb2RlbC5nZW5lcmF0ZShleGFtcGxlWyJwcm9tcHQiXSkKCiAgICAgICAgIyBTY29yZSBvbiBtdWx0aXBsZSBkaW1lbnNpb25zCiAgICAgICAgZm9yIG5hbWUsIG1vZGVsX3Jlc3AgaW4gWygiYmFzZSIsIGJhc2VfcmVzcG9uc2UpLCAoImZpbmV0dW5lZCIsIGZ0X3Jlc3BvbnNlKV06CiAgICAgICAgICAgIHJlc3VsdHNbbmFtZV0uYXBwZW5kKHsneyd7J30nfQogICAgICAgICAgICAgICAgInJlbGV2YW5jZSI6IHNjb3JlX3JlbGV2YW5jZShtb2RlbF9yZXNwLCBleGFtcGxlWyJyZWZlcmVuY2UiXSksCiAgICAgICAgICAgICAgICAic3R5bGVfbWF0Y2giOiBzY29yZV9zdHlsZShtb2RlbF9yZXNwLCB0YXJnZXRfc3R5bGUpLAogICAgICAgICAgICAgICAgImZhY3R1YWxpdHkiOiBzY29yZV9mYWN0cyhtb2RlbF9yZXNwLCBleGFtcGxlWyJmYWN0cyJdKSwKICAgICAgICAgICAgICAgICJ0b3hpY2l0eSI6IHNjb3JlX3RveGljaXR5KG1vZGVsX3Jlc3ApLAogICAgICAgICAgICB7J30nfSkKCiAgICAjIENvbXBhcmUKICAgIGZvciBtZXRyaWMgaW4gWyJyZWxldmFuY2UiLCAic3R5bGVfbWF0Y2giLCAiZmFjdHVhbGl0eSJdOgogICAgICAgIGJhc2VfYXZnID0gbWVhbihbclttZXRyaWNdIGZvciByIGluIHJlc3VsdHNbImJhc2UiXV0pCiAgICAgICAgZnRfYXZnID0gbWVhbihbclttZXRyaWNdIGZvciByIGluIHJlc3VsdHNbImZpbmV0dW5lZCJdXSkKICAgICAgICBwcmludChmInsneyd7J30nfW1ldHJpY3snfSd9OiBiYXNlPXsneyd7J30nfWJhc2VfYXZnOi4yZnsnfSd9IGZ0PXsneyd7J30nfWZ0X2F2ZzouMmZ7J30nfSBkZWx0YT17J3sneyd9J31mdF9hdmctYmFzZV9hdmc6Ky4yZnsnfSd9Iik=" />
   <ExpandableSection title="Deployment Checklist" icon="✅">
 
 - A/B test fine-tuned vs base model on 10% of traffic

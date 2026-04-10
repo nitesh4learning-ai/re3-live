@@ -16,40 +16,7 @@ In production systems, LLM outputs must be reliably parseable by downstream code
   ['Outlines / Guidance','Open-source (local)','Grammar-constrained decoding','Self-hosted models, regex patterns'],
 ]}/>
 
-<CodeBlock>
-{`from openai import OpenAI
-from pydantic import BaseModel, Field
-from typing import Literal
-
-client = OpenAI()
-
-# Define the exact output schema using Pydantic
-class SecurityFinding(BaseModel):
-    severity: Literal["critical", "high", "medium", "low"]
-    resource: str = Field(description="Affected resource identifier")
-    issue: str = Field(description="Description of the vulnerability")
-    remediation: str = Field(description="Specific fix steps")
-
-class SecurityAnalysis(BaseModel):
-    findings: list[SecurityFinding]
-    overall_risk: Literal["critical", "high", "medium", "low"]
-    summary: str = Field(description="One-sentence risk assessment")
-
-# Use structured outputs - guaranteed schema compliance
-response = client.beta.chat.completions.parse(
-    model="gpt-4o-2024-08-06",
-    messages=[
-        {'{'{'}'}"role": "system", "content": "Analyze cloud configurations for security issues."{'}'},
-        {'{'{'}'}"role": "user", "content": "Review this S3 bucket policy: {'{'{'}'}'Effect':'Allow','Principal':'*','Action':'s3:GetObject'{'}'}"{'}'}
-    ],
-    response_format=SecurityAnalysis,
-)
-
-result = response.choices[0].message.parsed
-print(f"Risk: {'{'{'}'}result.overall_risk{'}'}")
-for f in result.findings:
-    print(f"  [{'{'{'}'}f.severity.upper(){'}'}] {'{'{'}'}f.resource{'}'}: {'{'{'}'}f.issue{'}'}")`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBvcGVuYWkgaW1wb3J0IE9wZW5BSQpmcm9tIHB5ZGFudGljIGltcG9ydCBCYXNlTW9kZWwsIEZpZWxkCmZyb20gdHlwaW5nIGltcG9ydCBMaXRlcmFsCgpjbGllbnQgPSBPcGVuQUkoKQoKIyBEZWZpbmUgdGhlIGV4YWN0IG91dHB1dCBzY2hlbWEgdXNpbmcgUHlkYW50aWMKY2xhc3MgU2VjdXJpdHlGaW5kaW5nKEJhc2VNb2RlbCk6CiAgICBzZXZlcml0eTogTGl0ZXJhbFsiY3JpdGljYWwiLCAiaGlnaCIsICJtZWRpdW0iLCAibG93Il0KICAgIHJlc291cmNlOiBzdHIgPSBGaWVsZChkZXNjcmlwdGlvbj0iQWZmZWN0ZWQgcmVzb3VyY2UgaWRlbnRpZmllciIpCiAgICBpc3N1ZTogc3RyID0gRmllbGQoZGVzY3JpcHRpb249IkRlc2NyaXB0aW9uIG9mIHRoZSB2dWxuZXJhYmlsaXR5IikKICAgIHJlbWVkaWF0aW9uOiBzdHIgPSBGaWVsZChkZXNjcmlwdGlvbj0iU3BlY2lmaWMgZml4IHN0ZXBzIikKCmNsYXNzIFNlY3VyaXR5QW5hbHlzaXMoQmFzZU1vZGVsKToKICAgIGZpbmRpbmdzOiBsaXN0W1NlY3VyaXR5RmluZGluZ10KICAgIG92ZXJhbGxfcmlzazogTGl0ZXJhbFsiY3JpdGljYWwiLCAiaGlnaCIsICJtZWRpdW0iLCAibG93Il0KICAgIHN1bW1hcnk6IHN0ciA9IEZpZWxkKGRlc2NyaXB0aW9uPSJPbmUtc2VudGVuY2UgcmlzayBhc3Nlc3NtZW50IikKCiMgVXNlIHN0cnVjdHVyZWQgb3V0cHV0cyAtIGd1YXJhbnRlZWQgc2NoZW1hIGNvbXBsaWFuY2UKcmVzcG9uc2UgPSBjbGllbnQuYmV0YS5jaGF0LmNvbXBsZXRpb25zLnBhcnNlKAogICAgbW9kZWw9ImdwdC00by0yMDI0LTA4LTA2IiwKICAgIG1lc3NhZ2VzPVsKICAgICAgICB7J3sneyd9J30icm9sZSI6ICJzeXN0ZW0iLCAiY29udGVudCI6ICJBbmFseXplIGNsb3VkIGNvbmZpZ3VyYXRpb25zIGZvciBzZWN1cml0eSBpc3N1ZXMuInsnfSd9LAogICAgICAgIHsneyd7J30nfSJyb2xlIjogInVzZXIiLCAiY29udGVudCI6ICJSZXZpZXcgdGhpcyBTMyBidWNrZXQgcG9saWN5OiB7J3sneyd9J30nRWZmZWN0JzonQWxsb3cnLCdQcmluY2lwYWwnOicqJywnQWN0aW9uJzonczM6R2V0T2JqZWN0J3snfSd9InsnfSd9CiAgICBdLAogICAgcmVzcG9uc2VfZm9ybWF0PVNlY3VyaXR5QW5hbHlzaXMsCikKCnJlc3VsdCA9IHJlc3BvbnNlLmNob2ljZXNbMF0ubWVzc2FnZS5wYXJzZWQKcHJpbnQoZiJSaXNrOiB7J3sneyd9J31yZXN1bHQub3ZlcmFsbF9yaXNreyd9J30iKQpmb3IgZiBpbiByZXN1bHQuZmluZGluZ3M6CiAgICBwcmludChmIiAgW3sneyd7J30nfWYuc2V2ZXJpdHkudXBwZXIoKXsnfSd9XSB7J3sneyd9J31mLnJlc291cmNleyd9J306IHsneyd7J30nfWYuaXNzdWV7J30nfSIp" />
 
 <ExpandableSection title="XML-Guided Generation (Claude Pattern)" icon="📋">
 

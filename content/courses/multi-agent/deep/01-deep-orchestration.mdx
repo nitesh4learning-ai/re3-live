@@ -13,63 +13,7 @@ Production <JargonTip term="multi-agent">multi-agent</JargonTip> systems use fou
     ['Peer-to-Peer','Agents communicate directly via message bus','Single agent failure can cascade','Low latency, no bottleneck','Real-time collaboration, swarm intelligence'],
     ['Swarm','Emergent behavior from simple rules','Graceful degradation','Highly parallel','Exploration, creative tasks, brainstorming'],
   ]}/>
-  <CodeBlock>
-{`from langgraph.graph import StateGraph, END
-from typing import TypedDict, Annotated, Sequence
-import operator
-
-class AgentState(TypedDict):
-    messages: Annotated[Sequence[dict], operator.add]
-    next_agent: str
-    results: dict
-
-def supervisor_node(state: AgentState) -> AgentState:
-    """Central supervisor decides which agent to invoke next."""
-    messages = state["messages"]
-    response = llm.invoke([
-        {'{'{'}'}"role": "system", "content": """You are a supervisor managing:
-        - researcher: finds information and data
-        - writer: drafts content from research
-        - critic: reviews and improves drafts
-        Decide which agent should act next, or FINISH if done."""{'}'},
-        *messages
-    ])
-    next_agent = parse_routing(response.content)
-    return {'{'{'}'}"next_agent": next_agent, "messages": [response]{'}'}
-
-def researcher_node(state: AgentState) -> AgentState:
-    response = llm.invoke([
-        {'{'{'}'}"role": "system", "content": "You are a researcher. Find relevant data."{'}'},
-        *state["messages"]
-    ])
-    return {'{'{'}'}"messages": [{'{'{'}'}"role": "assistant", "content": f"[Researcher]: {'{'{'}'}response.content{'}'}"{'}'}]{'}'}
-
-def writer_node(state: AgentState) -> AgentState:
-    response = llm.invoke([
-        {'{'{'}'}"role": "system", "content": "You are a writer. Draft content from research."{'}'},
-        *state["messages"]
-    ])
-    return {'{'{'}'}"messages": [{'{'{'}'}"role": "assistant", "content": f"[Writer]: {'{'{'}'}response.content{'}'}"{'}'}]{'}'}
-
-# Build the graph
-graph = StateGraph(AgentState)
-graph.add_node("supervisor", supervisor_node)
-graph.add_node("researcher", researcher_node)
-graph.add_node("writer", writer_node)
-graph.add_node("critic", critic_node)
-
-# Supervisor routes to agents
-graph.add_conditional_edges("supervisor", lambda s: s["next_agent"],
-    {'{'{'}'}"researcher": "researcher", "writer": "writer",
-     "critic": "critic", "FINISH": END{'}'})
-
-# All agents report back to supervisor
-for agent in ["researcher", "writer", "critic"]:
-    graph.add_edge(agent, "supervisor")
-
-graph.set_entry_point("supervisor")
-app = graph.compile()`}
-</CodeBlock>
+  <CodeBlock b64="ZnJvbSBsYW5nZ3JhcGguZ3JhcGggaW1wb3J0IFN0YXRlR3JhcGgsIEVORApmcm9tIHR5cGluZyBpbXBvcnQgVHlwZWREaWN0LCBBbm5vdGF0ZWQsIFNlcXVlbmNlCmltcG9ydCBvcGVyYXRvcgoKY2xhc3MgQWdlbnRTdGF0ZShUeXBlZERpY3QpOgogICAgbWVzc2FnZXM6IEFubm90YXRlZFtTZXF1ZW5jZVtkaWN0XSwgb3BlcmF0b3IuYWRkXQogICAgbmV4dF9hZ2VudDogc3RyCiAgICByZXN1bHRzOiBkaWN0CgpkZWYgc3VwZXJ2aXNvcl9ub2RlKHN0YXRlOiBBZ2VudFN0YXRlKSAtPiBBZ2VudFN0YXRlOgogICAgIiIiQ2VudHJhbCBzdXBlcnZpc29yIGRlY2lkZXMgd2hpY2ggYWdlbnQgdG8gaW52b2tlIG5leHQuIiIiCiAgICBtZXNzYWdlcyA9IHN0YXRlWyJtZXNzYWdlcyJdCiAgICByZXNwb25zZSA9IGxsbS5pbnZva2UoWwogICAgICAgIHsneyd7J30nfSJyb2xlIjogInN5c3RlbSIsICJjb250ZW50IjogIiIiWW91IGFyZSBhIHN1cGVydmlzb3IgbWFuYWdpbmc6CiAgICAgICAgLSByZXNlYXJjaGVyOiBmaW5kcyBpbmZvcm1hdGlvbiBhbmQgZGF0YQogICAgICAgIC0gd3JpdGVyOiBkcmFmdHMgY29udGVudCBmcm9tIHJlc2VhcmNoCiAgICAgICAgLSBjcml0aWM6IHJldmlld3MgYW5kIGltcHJvdmVzIGRyYWZ0cwogICAgICAgIERlY2lkZSB3aGljaCBhZ2VudCBzaG91bGQgYWN0IG5leHQsIG9yIEZJTklTSCBpZiBkb25lLiIiInsnfSd9LAogICAgICAgICptZXNzYWdlcwogICAgXSkKICAgIG5leHRfYWdlbnQgPSBwYXJzZV9yb3V0aW5nKHJlc3BvbnNlLmNvbnRlbnQpCiAgICByZXR1cm4geyd7J3snfSd9Im5leHRfYWdlbnQiOiBuZXh0X2FnZW50LCAibWVzc2FnZXMiOiBbcmVzcG9uc2Vdeyd9J30KCmRlZiByZXNlYXJjaGVyX25vZGUoc3RhdGU6IEFnZW50U3RhdGUpIC0+IEFnZW50U3RhdGU6CiAgICByZXNwb25zZSA9IGxsbS5pbnZva2UoWwogICAgICAgIHsneyd7J30nfSJyb2xlIjogInN5c3RlbSIsICJjb250ZW50IjogIllvdSBhcmUgYSByZXNlYXJjaGVyLiBGaW5kIHJlbGV2YW50IGRhdGEuInsnfSd9LAogICAgICAgICpzdGF0ZVsibWVzc2FnZXMiXQogICAgXSkKICAgIHJldHVybiB7J3sneyd9J30ibWVzc2FnZXMiOiBbeyd7J3snfSd9InJvbGUiOiAiYXNzaXN0YW50IiwgImNvbnRlbnQiOiBmIltSZXNlYXJjaGVyXTogeyd7J3snfSd9cmVzcG9uc2UuY29udGVudHsnfSd9InsnfSd9XXsnfSd9CgpkZWYgd3JpdGVyX25vZGUoc3RhdGU6IEFnZW50U3RhdGUpIC0+IEFnZW50U3RhdGU6CiAgICByZXNwb25zZSA9IGxsbS5pbnZva2UoWwogICAgICAgIHsneyd7J30nfSJyb2xlIjogInN5c3RlbSIsICJjb250ZW50IjogIllvdSBhcmUgYSB3cml0ZXIuIERyYWZ0IGNvbnRlbnQgZnJvbSByZXNlYXJjaC4ieyd9J30sCiAgICAgICAgKnN0YXRlWyJtZXNzYWdlcyJdCiAgICBdKQogICAgcmV0dXJuIHsneyd7J30nfSJtZXNzYWdlcyI6IFt7J3sneyd9J30icm9sZSI6ICJhc3Npc3RhbnQiLCAiY29udGVudCI6IGYiW1dyaXRlcl06IHsneyd7J30nfXJlc3BvbnNlLmNvbnRlbnR7J30nfSJ7J30nfV17J30nfQoKIyBCdWlsZCB0aGUgZ3JhcGgKZ3JhcGggPSBTdGF0ZUdyYXBoKEFnZW50U3RhdGUpCmdyYXBoLmFkZF9ub2RlKCJzdXBlcnZpc29yIiwgc3VwZXJ2aXNvcl9ub2RlKQpncmFwaC5hZGRfbm9kZSgicmVzZWFyY2hlciIsIHJlc2VhcmNoZXJfbm9kZSkKZ3JhcGguYWRkX25vZGUoIndyaXRlciIsIHdyaXRlcl9ub2RlKQpncmFwaC5hZGRfbm9kZSgiY3JpdGljIiwgY3JpdGljX25vZGUpCgojIFN1cGVydmlzb3Igcm91dGVzIHRvIGFnZW50cwpncmFwaC5hZGRfY29uZGl0aW9uYWxfZWRnZXMoInN1cGVydmlzb3IiLCBsYW1iZGEgczogc1sibmV4dF9hZ2VudCJdLAogICAgeyd7J3snfSd9InJlc2VhcmNoZXIiOiAicmVzZWFyY2hlciIsICJ3cml0ZXIiOiAid3JpdGVyIiwKICAgICAiY3JpdGljIjogImNyaXRpYyIsICJGSU5JU0giOiBFTkR7J30nfSkKCiMgQWxsIGFnZW50cyByZXBvcnQgYmFjayB0byBzdXBlcnZpc29yCmZvciBhZ2VudCBpbiBbInJlc2VhcmNoZXIiLCAid3JpdGVyIiwgImNyaXRpYyJdOgogICAgZ3JhcGguYWRkX2VkZ2UoYWdlbnQsICJzdXBlcnZpc29yIikKCmdyYXBoLnNldF9lbnRyeV9wb2ludCgic3VwZXJ2aXNvciIpCmFwcCA9IGdyYXBoLmNvbXBpbGUoKQ==" />
   <ArchitectureDecision scenario="You are building a content pipeline where a researcher gathers data, a writer drafts articles, and an editor polishes them. The editor sometimes sends work back to the writer. Which orchestration pattern fits best?" options={[
     {label:'Supervisor Pattern',tradeoff:'Central coordinator routes between agents. Handles cycles well but adds latency per hop.'},
     {label:'Strict Pipeline',tradeoff:'Linear flow, no backtracking. Fast but cannot handle editor sending work back to writer.'},

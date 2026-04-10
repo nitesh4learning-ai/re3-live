@@ -7,94 +7,9 @@ icon: "🔒"
 
 MCP servers often access sensitive systems -- databases, APIs, internal tools. Security is not optional. The protocol supports **OAuth 2.0** for authentication, and servers must implement input sanitization, rate limiting, and <JargonTip term="guardrails">trust verification</JargonTip>.
 
-<CodeBlock>
-{`import time
-from collections import defaultdict
+<CodeBlock b64="aW1wb3J0IHRpbWUKZnJvbSBjb2xsZWN0aW9ucyBpbXBvcnQgZGVmYXVsdGRpY3QKCiMgU2ltcGxlIHJhdGUgbGltaXRlcgpjbGFzcyBSYXRlTGltaXRlcjoKICAgIGRlZiBfX2luaXRfXyhzZWxmLCBtYXhfY2FsbHM6IGludCwgd2luZG93X3NlY29uZHM6IGludCk6CiAgICAgICAgc2VsZi5tYXhfY2FsbHMgPSBtYXhfY2FsbHMKICAgICAgICBzZWxmLndpbmRvdyA9IHdpbmRvd19zZWNvbmRzCiAgICAgICAgc2VsZi5jYWxsczogZGljdFtzdHIsIGxpc3RbZmxvYXRdXSA9IGRlZmF1bHRkaWN0KGxpc3QpCgogICAgZGVmIGNoZWNrKHNlbGYsIGNsaWVudF9pZDogc3RyKSAtPiBib29sOgogICAgICAgIG5vdyA9IHRpbWUudGltZSgpCiAgICAgICAgIyBSZW1vdmUgb2xkIGVudHJpZXMgb3V0c2lkZSB0aGUgd2luZG93CiAgICAgICAgc2VsZi5jYWxsc1tjbGllbnRfaWRdID0gWwogICAgICAgICAgICB0IGZvciB0IGluIHNlbGYuY2FsbHNbY2xpZW50X2lkXQogICAgICAgICAgICBpZiBub3cgLSB0IDwgc2VsZi53aW5kb3cKICAgICAgICBdCiAgICAgICAgaWYgbGVuKHNlbGYuY2FsbHNbY2xpZW50X2lkXSkgPj0gc2VsZi5tYXhfY2FsbHM6CiAgICAgICAgICAgIHJldHVybiBGYWxzZQogICAgICAgIHNlbGYuY2FsbHNbY2xpZW50X2lkXS5hcHBlbmQobm93KQogICAgICAgIHJldHVybiBUcnVlCgpsaW1pdGVyID0gUmF0ZUxpbWl0ZXIobWF4X2NhbGxzPTEwMCwgd2luZG93X3NlY29uZHM9NjApCgpAYXBwLnRvb2woKQphc3luYyBkZWYgcXVlcnlfZGF0YWJhc2Uoc3FsX3F1ZXJ5OiBzdHIpIC0+IHN0cjoKICAgICIiIlJ1biBhIHJlYWQtb25seSBTUUwgcXVlcnkgYWdhaW5zdCB0aGUgYW5hbHl0aWNzIGRhdGFiYXNlLgoKICAgIEFyZ3M6CiAgICAgICAgc3FsX3F1ZXJ5OiBTUUwgU0VMRUNUIHF1ZXJ5IChyZWFkLW9ubHksIG5vIG11dGF0aW9ucyBhbGxvd2VkKQogICAgIiIiCiAgICAjIDEuIFJhdGUgbGltaXQKICAgIGlmIG5vdCBsaW1pdGVyLmNoZWNrKCJkZWZhdWx0Iik6CiAgICAgICAgcmV0dXJuIGpzb24uZHVtcHMoeyd7J3snfSd9ImVycm9yIjogIlJhdGUgbGltaXQgZXhjZWVkZWQuIFRyeSBhZ2FpbiBpbiA2MHMuInsnfSd9KQoKICAgICMgMi4gSW5wdXQgc2FuaXRpemF0aW9uIC0tIGJsb2NrIGRhbmdlcm91cyBwYXR0ZXJucwogICAgYmxvY2tlZCA9IFsiRFJPUCIsICJERUxFVEUiLCAiVVBEQVRFIiwgIklOU0VSVCIsICJBTFRFUiIsICJFWEVDIiwgIi0tIiwgIjsiXQogICAgdXBwZXIgPSBzcWxfcXVlcnkudXBwZXIoKQogICAgZm9yIHBhdHRlcm4gaW4gYmxvY2tlZDoKICAgICAgICBpZiBwYXR0ZXJuIGluIHVwcGVyOgogICAgICAgICAgICByZXR1cm4ganNvbi5kdW1wcyh7J3sneyd9J30iZXJyb3IiOiBmIkJsb2NrZWQ6IHF1ZXJ5IGNvbnRhaW5zICd7J3sneyd9J31wYXR0ZXJueyd9J30nLiBPbmx5IFNFTEVDVCBxdWVyaWVzIGFyZSBhbGxvd2VkLiJ7J30nfSkKCiAgICAjIDMuIEVuZm9yY2UgcmVhZC1vbmx5IGF0IERCIGxldmVsIHRvbyAoZGVmZW5zZSBpbiBkZXB0aCkKICAgIHRyeToKICAgICAgICByZXN1bHQgPSBhd2FpdCBkYi5leGVjdXRlX3JlYWRvbmx5KHNxbF9xdWVyeSwgdGltZW91dD0xMCkKICAgICAgICByZXR1cm4ganNvbi5kdW1wcyh7J3sneyd9J30icm93cyI6IHJlc3VsdCwgImNvdW50IjogbGVuKHJlc3VsdCl7J30nfSkKICAgIGV4Y2VwdCBFeGNlcHRpb24gYXMgZToKICAgICAgICByZXR1cm4ganNvbi5kdW1wcyh7J3sneyd9J30iZXJyb3IiOiBzdHIoZSl7J30nfSk=" />
 
-# Simple rate limiter
-class RateLimiter:
-    def __init__(self, max_calls: int, window_seconds: int):
-        self.max_calls = max_calls
-        self.window = window_seconds
-        self.calls: dict[str, list[float]] = defaultdict(list)
-
-    def check(self, client_id: str) -> bool:
-        now = time.time()
-        # Remove old entries outside the window
-        self.calls[client_id] = [
-            t for t in self.calls[client_id]
-            if now - t < self.window
-        ]
-        if len(self.calls[client_id]) >= self.max_calls:
-            return False
-        self.calls[client_id].append(now)
-        return True
-
-limiter = RateLimiter(max_calls=100, window_seconds=60)
-
-@app.tool()
-async def query_database(sql_query: str) -> str:
-    """Run a read-only SQL query against the analytics database.
-
-    Args:
-        sql_query: SQL SELECT query (read-only, no mutations allowed)
-    """
-    # 1. Rate limit
-    if not limiter.check("default"):
-        return json.dumps({'{'{'}'}"error": "Rate limit exceeded. Try again in 60s."{'}'})
-
-    # 2. Input sanitization -- block dangerous patterns
-    blocked = ["DROP", "DELETE", "UPDATE", "INSERT", "ALTER", "EXEC", "--", ";"]
-    upper = sql_query.upper()
-    for pattern in blocked:
-        if pattern in upper:
-            return json.dumps({'{'{'}'}"error": f"Blocked: query contains '{'{'{'}'}pattern{'}'}'. Only SELECT queries are allowed."{'}'})
-
-    # 3. Enforce read-only at DB level too (defense in depth)
-    try:
-        result = await db.execute_readonly(sql_query, timeout=10)
-        return json.dumps({'{'{'}'}"rows": result, "count": len(result){'}'})
-    except Exception as e:
-        return json.dumps({'{'{'}'}"error": str(e){'}'})`}
-</CodeBlock>
-
-<CodeBlock>
-{`from mcp.server.auth import oauth2_required
-import jwt
-
-# Verify OAuth tokens on MCP connections
-async def verify_token(token: str) -> dict:
-    """Verify and decode an OAuth 2.0 bearer token."""
-    try:
-        payload = jwt.decode(
-            token,
-            key=PUBLIC_KEY,
-            algorithms=["RS256"],
-            audience="mcp-knowledge-server"
-        )
-        return {'{'{'}'}
-            "user_id": payload["sub"],
-            "scopes": payload.get("scope", "").split(),
-            "expires": payload["exp"]
-        {'}'}
-    except jwt.ExpiredSignatureError:
-        raise ValueError("Token expired")
-    except jwt.InvalidTokenError:
-        raise ValueError("Invalid token")
-
-# Check scopes before tool execution
-async def require_scope(token_info: dict, scope: str):
-    if scope not in token_info["scopes"]:
-        raise PermissionError(f"Missing required scope: {'{'{'}'}scope{'}'}")
-
-@app.tool()
-async def delete_document(doc_id: str) -> str:
-    """Delete a document from the knowledge base. Requires 'write' scope."""
-    token_info = get_current_token()  # From auth middleware
-    await require_scope(token_info, "write")
-    await db.delete(doc_id)
-    return json.dumps({'{'{'}'}"deleted": doc_id{'}'})`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBtY3Auc2VydmVyLmF1dGggaW1wb3J0IG9hdXRoMl9yZXF1aXJlZAppbXBvcnQgand0CgojIFZlcmlmeSBPQXV0aCB0b2tlbnMgb24gTUNQIGNvbm5lY3Rpb25zCmFzeW5jIGRlZiB2ZXJpZnlfdG9rZW4odG9rZW46IHN0cikgLT4gZGljdDoKICAgICIiIlZlcmlmeSBhbmQgZGVjb2RlIGFuIE9BdXRoIDIuMCBiZWFyZXIgdG9rZW4uIiIiCiAgICB0cnk6CiAgICAgICAgcGF5bG9hZCA9IGp3dC5kZWNvZGUoCiAgICAgICAgICAgIHRva2VuLAogICAgICAgICAgICBrZXk9UFVCTElDX0tFWSwKICAgICAgICAgICAgYWxnb3JpdGhtcz1bIlJTMjU2Il0sCiAgICAgICAgICAgIGF1ZGllbmNlPSJtY3Ata25vd2xlZGdlLXNlcnZlciIKICAgICAgICApCiAgICAgICAgcmV0dXJuIHsneyd7J30nfQogICAgICAgICAgICAidXNlcl9pZCI6IHBheWxvYWRbInN1YiJdLAogICAgICAgICAgICAic2NvcGVzIjogcGF5bG9hZC5nZXQoInNjb3BlIiwgIiIpLnNwbGl0KCksCiAgICAgICAgICAgICJleHBpcmVzIjogcGF5bG9hZFsiZXhwIl0KICAgICAgICB7J30nfQogICAgZXhjZXB0IGp3dC5FeHBpcmVkU2lnbmF0dXJlRXJyb3I6CiAgICAgICAgcmFpc2UgVmFsdWVFcnJvcigiVG9rZW4gZXhwaXJlZCIpCiAgICBleGNlcHQgand0LkludmFsaWRUb2tlbkVycm9yOgogICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoIkludmFsaWQgdG9rZW4iKQoKIyBDaGVjayBzY29wZXMgYmVmb3JlIHRvb2wgZXhlY3V0aW9uCmFzeW5jIGRlZiByZXF1aXJlX3Njb3BlKHRva2VuX2luZm86IGRpY3QsIHNjb3BlOiBzdHIpOgogICAgaWYgc2NvcGUgbm90IGluIHRva2VuX2luZm9bInNjb3BlcyJdOgogICAgICAgIHJhaXNlIFBlcm1pc3Npb25FcnJvcihmIk1pc3NpbmcgcmVxdWlyZWQgc2NvcGU6IHsneyd7J30nfXNjb3Bleyd9J30iKQoKQGFwcC50b29sKCkKYXN5bmMgZGVmIGRlbGV0ZV9kb2N1bWVudChkb2NfaWQ6IHN0cikgLT4gc3RyOgogICAgIiIiRGVsZXRlIGEgZG9jdW1lbnQgZnJvbSB0aGUga25vd2xlZGdlIGJhc2UuIFJlcXVpcmVzICd3cml0ZScgc2NvcGUuIiIiCiAgICB0b2tlbl9pbmZvID0gZ2V0X2N1cnJlbnRfdG9rZW4oKSAgIyBGcm9tIGF1dGggbWlkZGxld2FyZQogICAgYXdhaXQgcmVxdWlyZV9zY29wZSh0b2tlbl9pbmZvLCAid3JpdGUiKQogICAgYXdhaXQgZGIuZGVsZXRlKGRvY19pZCkKICAgIHJldHVybiBqc29uLmR1bXBzKHsneyd7J30nfSJkZWxldGVkIjogZG9jX2lkeyd9J30p" />
 
 <Quiz question="Why implement both SQL pattern blocking AND a read-only database connection?" options={["Redundancy is wasteful -- pick one","Defense in depth: if one layer fails, the other still protects","It makes the code look more secure","For compliance documentation only"]} correctIndex={1} explanation="Defense in depth means multiple independent security layers. If a creative SQL injection bypasses pattern matching, the read-only database connection still prevents mutations. Neither layer alone is sufficient." />
 

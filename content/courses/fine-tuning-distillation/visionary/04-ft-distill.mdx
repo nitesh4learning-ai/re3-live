@@ -9,55 +9,12 @@ Model distillation compresses knowledge from a large **teacher** model into a sm
 
   <AnalogyBox emoji="🎓" title="Think of it like a mentor-apprentice relationship">A senior expert (teacher) doesn't just tell the apprentice (student) the answer. They explain their reasoning, what alternatives they considered, and why they were ruled out. This "dark knowledge" -- the probability distribution over all possible answers -- is what makes distillation so powerful.</AnalogyBox>
   <DistillationSimulator/>
-  <CodeBlock>
-{`import torch
-import torch.nn.functional as F
-
-def distillation_loss(student_logits, teacher_logits, labels,
-                      temperature=4.0, alpha=0.7):
-    """
-    Combined distillation + hard label loss.
-
-    - Soft loss: KL divergence between teacher and student
-      distributions at high temperature (transfers dark knowledge)
-    - Hard loss: Standard cross-entropy with ground truth
-      (keeps student grounded in correct answers)
-    """
-    # Soft targets from teacher (high temperature = softer)
-    soft_teacher = F.softmax(teacher_logits / temperature, dim=-1)
-    soft_student = F.log_softmax(student_logits / temperature, dim=-1)
-
-    # KL divergence (scaled by T² as per Hinton et al.)
-    soft_loss = F.kl_div(
-        soft_student, soft_teacher, reduction="batchmean"
-    ) * (temperature ** 2)
-
-    # Standard hard label loss
-    hard_loss = F.cross_entropy(student_logits, labels)
-
-    # Weighted combination
-    return alpha * soft_loss + (1 - alpha) * hard_loss`}
-</CodeBlock>
+  <CodeBlock b64="aW1wb3J0IHRvcmNoCmltcG9ydCB0b3JjaC5ubi5mdW5jdGlvbmFsIGFzIEYKCmRlZiBkaXN0aWxsYXRpb25fbG9zcyhzdHVkZW50X2xvZ2l0cywgdGVhY2hlcl9sb2dpdHMsIGxhYmVscywKICAgICAgICAgICAgICAgICAgICAgIHRlbXBlcmF0dXJlPTQuMCwgYWxwaGE9MC43KToKICAgICIiIgogICAgQ29tYmluZWQgZGlzdGlsbGF0aW9uICsgaGFyZCBsYWJlbCBsb3NzLgoKICAgIC0gU29mdCBsb3NzOiBLTCBkaXZlcmdlbmNlIGJldHdlZW4gdGVhY2hlciBhbmQgc3R1ZGVudAogICAgICBkaXN0cmlidXRpb25zIGF0IGhpZ2ggdGVtcGVyYXR1cmUgKHRyYW5zZmVycyBkYXJrIGtub3dsZWRnZSkKICAgIC0gSGFyZCBsb3NzOiBTdGFuZGFyZCBjcm9zcy1lbnRyb3B5IHdpdGggZ3JvdW5kIHRydXRoCiAgICAgIChrZWVwcyBzdHVkZW50IGdyb3VuZGVkIGluIGNvcnJlY3QgYW5zd2VycykKICAgICIiIgogICAgIyBTb2Z0IHRhcmdldHMgZnJvbSB0ZWFjaGVyIChoaWdoIHRlbXBlcmF0dXJlID0gc29mdGVyKQogICAgc29mdF90ZWFjaGVyID0gRi5zb2Z0bWF4KHRlYWNoZXJfbG9naXRzIC8gdGVtcGVyYXR1cmUsIGRpbT0tMSkKICAgIHNvZnRfc3R1ZGVudCA9IEYubG9nX3NvZnRtYXgoc3R1ZGVudF9sb2dpdHMgLyB0ZW1wZXJhdHVyZSwgZGltPS0xKQoKICAgICMgS0wgZGl2ZXJnZW5jZSAoc2NhbGVkIGJ5IFTCsiBhcyBwZXIgSGludG9uIGV0IGFsLikKICAgIHNvZnRfbG9zcyA9IEYua2xfZGl2KAogICAgICAgIHNvZnRfc3R1ZGVudCwgc29mdF90ZWFjaGVyLCByZWR1Y3Rpb249ImJhdGNobWVhbiIKICAgICkgKiAodGVtcGVyYXR1cmUgKiogMikKCiAgICAjIFN0YW5kYXJkIGhhcmQgbGFiZWwgbG9zcwogICAgaGFyZF9sb3NzID0gRi5jcm9zc19lbnRyb3B5KHN0dWRlbnRfbG9naXRzLCBsYWJlbHMpCgogICAgIyBXZWlnaHRlZCBjb21iaW5hdGlvbgogICAgcmV0dXJuIGFscGhhICogc29mdF9sb3NzICsgKDEgLSBhbHBoYSkgKiBoYXJkX2xvc3M=" />
   <ExpandableSection title="Distilling Chain-of-Thought" icon="💭">
 
 You can distill not just final answers but reasoning chains. Have the teacher generate step-by-step explanations, then train the student to produce similar reasoning. This is how smaller models learn to "think" like larger ones.
 
-    <CodeBlock>
-{`# Generate reasoning chains from teacher
-def create_cot_training_data(teacher_model, problems):
-    training_pairs = []
-    for problem in problems:
-        response = teacher_model.generate(
-            f"Solve step by step: {'{'{'}'}problem['question']{'}'}"
-        )
-        training_pairs.append({'{'{'}'}
-            "messages": [
-                {'{'{'}'}"role": "user", "content": problem["question"]{'}'},
-                {'{'{'}'}"role": "assistant", "content": response{'}'}  # Full CoT
-            ]
-        {'}'})
-    return training_pairs`}
-</CodeBlock>
+    <CodeBlock b64="IyBHZW5lcmF0ZSByZWFzb25pbmcgY2hhaW5zIGZyb20gdGVhY2hlcgpkZWYgY3JlYXRlX2NvdF90cmFpbmluZ19kYXRhKHRlYWNoZXJfbW9kZWwsIHByb2JsZW1zKToKICAgIHRyYWluaW5nX3BhaXJzID0gW10KICAgIGZvciBwcm9ibGVtIGluIHByb2JsZW1zOgogICAgICAgIHJlc3BvbnNlID0gdGVhY2hlcl9tb2RlbC5nZW5lcmF0ZSgKICAgICAgICAgICAgZiJTb2x2ZSBzdGVwIGJ5IHN0ZXA6IHsneyd7J30nfXByb2JsZW1bJ3F1ZXN0aW9uJ117J30nfSIKICAgICAgICApCiAgICAgICAgdHJhaW5pbmdfcGFpcnMuYXBwZW5kKHsneyd7J30nfQogICAgICAgICAgICAibWVzc2FnZXMiOiBbCiAgICAgICAgICAgICAgICB7J3sneyd9J30icm9sZSI6ICJ1c2VyIiwgImNvbnRlbnQiOiBwcm9ibGVtWyJxdWVzdGlvbiJdeyd9J30sCiAgICAgICAgICAgICAgICB7J3sneyd9J30icm9sZSI6ICJhc3Npc3RhbnQiLCAiY29udGVudCI6IHJlc3BvbnNleyd9J30gICMgRnVsbCBDb1QKICAgICAgICAgICAgXQogICAgICAgIHsnfSd9KQogICAgcmV0dXJuIHRyYWluaW5nX3BhaXJz" />
   </ExpandableSection>
   <ComparisonTable title="Distillation Approaches" columns={['Method','What Transfers','Best For']} rows={[
     ['Logit Distillation','Full probability distributions','Classification, token prediction'],

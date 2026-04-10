@@ -9,46 +9,11 @@ You can't improve what you don't measure. Agent evaluation answers three questio
 
 ### LangSmith for Agent Tracing
 
-<CodeBlock language="python" label="Adding LangSmith Tracing">
-{`import os
-os.environ["LANGCHAIN_TRACING_V2"] = "true"
-os.environ["LANGCHAIN_API_KEY"] = "your-langsmith-key"
-os.environ["LANGCHAIN_PROJECT"] = "snapsense-agent-eval"
-
-# That's it - LangGraph automatically traces every node,
-# edge, and LLM call. You can see:
-# - Which nodes executed and in what order
-# - Token usage per node
-# - Latency per node
-# - Full input/output at each step
-# - Where retries happened and why`}
-</CodeBlock>
+<CodeBlock language="python" label="Adding LangSmith Tracing" b64="aW1wb3J0IG9zCm9zLmVudmlyb25bIkxBTkdDSEFJTl9UUkFDSU5HX1YyIl0gPSAidHJ1ZSIKb3MuZW52aXJvblsiTEFOR0NIQUlOX0FQSV9LRVkiXSA9ICJ5b3VyLWxhbmdzbWl0aC1rZXkiCm9zLmVudmlyb25bIkxBTkdDSEFJTl9QUk9KRUNUIl0gPSAic25hcHNlbnNlLWFnZW50LWV2YWwiCgojIFRoYXQncyBpdCAtIExhbmdHcmFwaCBhdXRvbWF0aWNhbGx5IHRyYWNlcyBldmVyeSBub2RlLAojIGVkZ2UsIGFuZCBMTE0gY2FsbC4gWW91IGNhbiBzZWU6CiMgLSBXaGljaCBub2RlcyBleGVjdXRlZCBhbmQgaW4gd2hhdCBvcmRlcgojIC0gVG9rZW4gdXNhZ2UgcGVyIG5vZGUKIyAtIExhdGVuY3kgcGVyIG5vZGUKIyAtIEZ1bGwgaW5wdXQvb3V0cHV0IGF0IGVhY2ggc3RlcAojIC0gV2hlcmUgcmV0cmllcyBoYXBwZW5lZCBhbmQgd2h5" />
 
 ### Custom Evaluation Framework
 
-<CodeBlock language="python" label="SnapSense Scan Evaluation Suite">
-{`# Test cases: (product, expected_category, expect_rating, expect_safety)
-TEST_CASES = [
-    ("Tylenol Extra Strength 500mg", "Medicine", False, True),
-    ("Organic Baby Spinach", "Food", True, False),
-    ("TERRO Ant Bait", "Household Chemical", False, True),
-]
-
-def run_eval(agent_fn):
-    results = []
-    for (product, exp_cat, exp_rating, exp_safety) in TEST_CASES:
-        output = agent_fn(product)
-        cat_correct = output.get("category") == exp_cat
-        rating_correct = bool(output.get("rating")) == exp_rating
-        results.append((product, cat_correct, rating_correct))
-
-    correct = sum(1 for r in results if r[1])
-    total = len(results)
-    pct = int(100 * correct / total)
-    print("Accuracy: " + str(pct) + "%")
-    print("Passed: " + str(correct) + "/" + str(total))
-    return results`}
-</CodeBlock>
+<CodeBlock language="python" label="SnapSense Scan Evaluation Suite" b64="IyBUZXN0IGNhc2VzOiAocHJvZHVjdCwgZXhwZWN0ZWRfY2F0ZWdvcnksIGV4cGVjdF9yYXRpbmcsIGV4cGVjdF9zYWZldHkpClRFU1RfQ0FTRVMgPSBbCiAgICAoIlR5bGVub2wgRXh0cmEgU3RyZW5ndGggNTAwbWciLCAiTWVkaWNpbmUiLCBGYWxzZSwgVHJ1ZSksCiAgICAoIk9yZ2FuaWMgQmFieSBTcGluYWNoIiwgIkZvb2QiLCBUcnVlLCBGYWxzZSksCiAgICAoIlRFUlJPIEFudCBCYWl0IiwgIkhvdXNlaG9sZCBDaGVtaWNhbCIsIEZhbHNlLCBUcnVlKSwKXQoKZGVmIHJ1bl9ldmFsKGFnZW50X2ZuKToKICAgIHJlc3VsdHMgPSBbXQogICAgZm9yIChwcm9kdWN0LCBleHBfY2F0LCBleHBfcmF0aW5nLCBleHBfc2FmZXR5KSBpbiBURVNUX0NBU0VTOgogICAgICAgIG91dHB1dCA9IGFnZW50X2ZuKHByb2R1Y3QpCiAgICAgICAgY2F0X2NvcnJlY3QgPSBvdXRwdXQuZ2V0KCJjYXRlZ29yeSIpID09IGV4cF9jYXQKICAgICAgICByYXRpbmdfY29ycmVjdCA9IGJvb2wob3V0cHV0LmdldCgicmF0aW5nIikpID09IGV4cF9yYXRpbmcKICAgICAgICByZXN1bHRzLmFwcGVuZCgocHJvZHVjdCwgY2F0X2NvcnJlY3QsIHJhdGluZ19jb3JyZWN0KSkKCiAgICBjb3JyZWN0ID0gc3VtKDEgZm9yIHIgaW4gcmVzdWx0cyBpZiByWzFdKQogICAgdG90YWwgPSBsZW4ocmVzdWx0cykKICAgIHBjdCA9IGludCgxMDAgKiBjb3JyZWN0IC8gdG90YWwpCiAgICBwcmludCgiQWNjdXJhY3k6ICIgKyBzdHIocGN0KSArICIlIikKICAgIHByaW50KCJQYXNzZWQ6ICIgKyBzdHIoY29ycmVjdCkgKyAiLyIgKyBzdHIodG90YWwpKQogICAgcmV0dXJuIHJlc3VsdHM=" />
 
 <AnalogyBox emoji="📊" title="Data Quality Scorecard">
 This evaluation framework is the AI equivalent of your MDM data quality scorecard — measuring accuracy, completeness, timeliness, and conformity. Instead of golden record quality, you're measuring agent output quality. The principles are identical; the domain is different.

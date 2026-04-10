@@ -13,36 +13,5 @@ Knowledge graphs need a storage layer optimized for traversals, pattern matching
     ['Memgraph','Property Graph','Cypher-compatible','In-memory speed, streaming ingestion','Self-hosted, cloud'],
     ['FalkorDB','Property Graph','Cypher subset','Redis-compatible, very fast reads','Self-hosted'],
   ]}/>
-  <CodeBlock>
-{`// Create entities and relationships
-CREATE (e:Person {'{'{'}'}name: 'Einstein', born: 1879{'}'})
-CREATE (r:Concept {'{'{'}'}name: 'Relativity', field: 'Physics'{'}'})
-CREATE (e)-[:DEVELOPED {'{'{'}'}year: 1905{'}'}]->(r)
-
-// Find all concepts developed by Einstein
-MATCH (p:Person {'{'{'}'}name: 'Einstein'{'}'})-[:DEVELOPED]->(c:Concept)
-RETURN c.name, c.field
-
-// Multi-hop: Find collaborators of Einstein's collaborators
-MATCH (e:Person {'{'{'}'}name: 'Einstein'{'}'})-[:COLLABORATED_WITH]->
-      (colleague)-[:COLLABORATED_WITH]->(extended)
-WHERE extended <> e
-RETURN DISTINCT extended.name, COUNT(*) AS connections
-ORDER BY connections DESC
-
-// Shortest path between two concepts
-MATCH path = shortestPath(
-  (a:Concept {'{'{'}'}name: 'Quantum Mechanics'{'}'})-[*..6]-
-  (b:Concept {'{'{'}'}name: 'General Relativity'{'}'})
-)
-RETURN [node IN nodes(path) | node.name] AS pathway
-
-// Subgraph for context retrieval (Graph RAG)
-MATCH (seed:Concept {'{'{'}'}name: $query_entity{'}'})
-CALL apoc.path.subgraphAll(seed, {'{'{'}'}
-  maxLevel: 2,
-  relationshipFilter: "RELATES_TO|DEPENDS_ON|IMPLEMENTS"
-{'}'}) YIELD nodes, relationships
-RETURN nodes, relationships`}
-</CodeBlock>
+  <CodeBlock b64="Ly8gQ3JlYXRlIGVudGl0aWVzIGFuZCByZWxhdGlvbnNoaXBzCkNSRUFURSAoZTpQZXJzb24geyd7J3snfSd9bmFtZTogJ0VpbnN0ZWluJywgYm9ybjogMTg3OXsnfSd9KQpDUkVBVEUgKHI6Q29uY2VwdCB7J3sneyd9J31uYW1lOiAnUmVsYXRpdml0eScsIGZpZWxkOiAnUGh5c2ljcyd7J30nfSkKQ1JFQVRFIChlKS1bOkRFVkVMT1BFRCB7J3sneyd9J315ZWFyOiAxOTA1eyd9J31dLT4ocikKCi8vIEZpbmQgYWxsIGNvbmNlcHRzIGRldmVsb3BlZCBieSBFaW5zdGVpbgpNQVRDSCAocDpQZXJzb24geyd7J3snfSd9bmFtZTogJ0VpbnN0ZWluJ3snfSd9KS1bOkRFVkVMT1BFRF0tPihjOkNvbmNlcHQpClJFVFVSTiBjLm5hbWUsIGMuZmllbGQKCi8vIE11bHRpLWhvcDogRmluZCBjb2xsYWJvcmF0b3JzIG9mIEVpbnN0ZWluJ3MgY29sbGFib3JhdG9ycwpNQVRDSCAoZTpQZXJzb24geyd7J3snfSd9bmFtZTogJ0VpbnN0ZWluJ3snfSd9KS1bOkNPTExBQk9SQVRFRF9XSVRIXS0+CiAgICAgIChjb2xsZWFndWUpLVs6Q09MTEFCT1JBVEVEX1dJVEhdLT4oZXh0ZW5kZWQpCldIRVJFIGV4dGVuZGVkIDw+IGUKUkVUVVJOIERJU1RJTkNUIGV4dGVuZGVkLm5hbWUsIENPVU5UKCopIEFTIGNvbm5lY3Rpb25zCk9SREVSIEJZIGNvbm5lY3Rpb25zIERFU0MKCi8vIFNob3J0ZXN0IHBhdGggYmV0d2VlbiB0d28gY29uY2VwdHMKTUFUQ0ggcGF0aCA9IHNob3J0ZXN0UGF0aCgKICAoYTpDb25jZXB0IHsneyd7J30nfW5hbWU6ICdRdWFudHVtIE1lY2hhbmljcyd7J30nfSktWyouLjZdLQogIChiOkNvbmNlcHQgeyd7J3snfSd9bmFtZTogJ0dlbmVyYWwgUmVsYXRpdml0eSd7J30nfSkKKQpSRVRVUk4gW25vZGUgSU4gbm9kZXMocGF0aCkgfCBub2RlLm5hbWVdIEFTIHBhdGh3YXkKCi8vIFN1YmdyYXBoIGZvciBjb250ZXh0IHJldHJpZXZhbCAoR3JhcGggUkFHKQpNQVRDSCAoc2VlZDpDb25jZXB0IHsneyd7J30nfW5hbWU6ICRxdWVyeV9lbnRpdHl7J30nfSkKQ0FMTCBhcG9jLnBhdGguc3ViZ3JhcGhBbGwoc2VlZCwgeyd7J3snfSd9CiAgbWF4TGV2ZWw6IDIsCiAgcmVsYXRpb25zaGlwRmlsdGVyOiAiUkVMQVRFU19UT3xERVBFTkRTX09OfElNUExFTUVOVFMiCnsnfSd9KSBZSUVMRCBub2RlcywgcmVsYXRpb25zaGlwcwpSRVRVUk4gbm9kZXMsIHJlbGF0aW9uc2hpcHM=" />
   <Quiz question="Why do graph databases outperform relational databases for multi-hop relationship queries?" options={["Graph databases use SQL which is faster","Graph databases use index-free adjacency -- each node directly references its neighbors","Graph databases store less data","Relational databases cannot represent relationships"]} correctIndex={1} explanation="Index-free adjacency means each node stores direct pointers to its neighbors. A 6-hop traversal in a graph DB is O(6) regardless of graph size, while the same query in SQL requires 6 JOIN operations that scale with table size."/>

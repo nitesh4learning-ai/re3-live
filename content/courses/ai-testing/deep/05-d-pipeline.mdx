@@ -4,52 +4,7 @@ icon: "\u2699\uFE0F"
 ---
 
 ## Production Evaluation Pipeline
-  <CodeBlock>
-{`class AIEvalPipeline:
-    """Automated evaluation in CI/CD"""
-
-    def __init__(self, test_suite_path):
-        self.test_cases = self.load_test_suite(test_suite_path)
-        self.thresholds = {'{'{'}'}
-            "accuracy": 0.90,
-            "safety": 0.99,
-            "latency_p95_ms": 2000,
-            "hallucination_rate": 0.05,
-        {'}'}
-
-    def run_eval(self, model_config):
-        results = {'{'{'}'}"accuracy": [], "safety": [], "latency": []{'}'}
-
-        for case in self.test_cases:
-            start = time.time()
-            response = generate(model_config, case["input"])
-            latency = (time.time() - start) * 1000
-
-            results["accuracy"].append(
-                self.score_accuracy(response, case["expected"])
-            )
-            results["safety"].append(
-                self.score_safety(response)
-            )
-            results["latency"].append(latency)
-
-        metrics = {'{'{'}'}
-            "accuracy": sum(results["accuracy"]) / len(results["accuracy"]),
-            "safety": sum(results["safety"]) / len(results["safety"]),
-            "latency_p95_ms": sorted(results["latency"])[
-                int(len(results["latency"]) * 0.95)
-            ],
-            "hallucination_rate": self.detect_hallucinations(results),
-        {'}'}
-
-        # Gate deployment on thresholds
-        passed = all(
-            metrics[k] >= v if k != "latency_p95_ms" and k != "hallucination_rate"
-            else metrics[k] <= v
-            for k, v in self.thresholds.items()
-        )
-        return {'{'{'}'}"passed": passed, "metrics": metrics{'}'}`}
-</CodeBlock>
+  <CodeBlock b64="Y2xhc3MgQUlFdmFsUGlwZWxpbmU6CiAgICAiIiJBdXRvbWF0ZWQgZXZhbHVhdGlvbiBpbiBDSS9DRCIiIgoKICAgIGRlZiBfX2luaXRfXyhzZWxmLCB0ZXN0X3N1aXRlX3BhdGgpOgogICAgICAgIHNlbGYudGVzdF9jYXNlcyA9IHNlbGYubG9hZF90ZXN0X3N1aXRlKHRlc3Rfc3VpdGVfcGF0aCkKICAgICAgICBzZWxmLnRocmVzaG9sZHMgPSB7J3sneyd9J30KICAgICAgICAgICAgImFjY3VyYWN5IjogMC45MCwKICAgICAgICAgICAgInNhZmV0eSI6IDAuOTksCiAgICAgICAgICAgICJsYXRlbmN5X3A5NV9tcyI6IDIwMDAsCiAgICAgICAgICAgICJoYWxsdWNpbmF0aW9uX3JhdGUiOiAwLjA1LAogICAgICAgIHsnfSd9CgogICAgZGVmIHJ1bl9ldmFsKHNlbGYsIG1vZGVsX2NvbmZpZyk6CiAgICAgICAgcmVzdWx0cyA9IHsneyd7J30nfSJhY2N1cmFjeSI6IFtdLCAic2FmZXR5IjogW10sICJsYXRlbmN5IjogW117J30nfQoKICAgICAgICBmb3IgY2FzZSBpbiBzZWxmLnRlc3RfY2FzZXM6CiAgICAgICAgICAgIHN0YXJ0ID0gdGltZS50aW1lKCkKICAgICAgICAgICAgcmVzcG9uc2UgPSBnZW5lcmF0ZShtb2RlbF9jb25maWcsIGNhc2VbImlucHV0Il0pCiAgICAgICAgICAgIGxhdGVuY3kgPSAodGltZS50aW1lKCkgLSBzdGFydCkgKiAxMDAwCgogICAgICAgICAgICByZXN1bHRzWyJhY2N1cmFjeSJdLmFwcGVuZCgKICAgICAgICAgICAgICAgIHNlbGYuc2NvcmVfYWNjdXJhY3kocmVzcG9uc2UsIGNhc2VbImV4cGVjdGVkIl0pCiAgICAgICAgICAgICkKICAgICAgICAgICAgcmVzdWx0c1sic2FmZXR5Il0uYXBwZW5kKAogICAgICAgICAgICAgICAgc2VsZi5zY29yZV9zYWZldHkocmVzcG9uc2UpCiAgICAgICAgICAgICkKICAgICAgICAgICAgcmVzdWx0c1sibGF0ZW5jeSJdLmFwcGVuZChsYXRlbmN5KQoKICAgICAgICBtZXRyaWNzID0geyd7J3snfSd9CiAgICAgICAgICAgICJhY2N1cmFjeSI6IHN1bShyZXN1bHRzWyJhY2N1cmFjeSJdKSAvIGxlbihyZXN1bHRzWyJhY2N1cmFjeSJdKSwKICAgICAgICAgICAgInNhZmV0eSI6IHN1bShyZXN1bHRzWyJzYWZldHkiXSkgLyBsZW4ocmVzdWx0c1sic2FmZXR5Il0pLAogICAgICAgICAgICAibGF0ZW5jeV9wOTVfbXMiOiBzb3J0ZWQocmVzdWx0c1sibGF0ZW5jeSJdKVsKICAgICAgICAgICAgICAgIGludChsZW4ocmVzdWx0c1sibGF0ZW5jeSJdKSAqIDAuOTUpCiAgICAgICAgICAgIF0sCiAgICAgICAgICAgICJoYWxsdWNpbmF0aW9uX3JhdGUiOiBzZWxmLmRldGVjdF9oYWxsdWNpbmF0aW9ucyhyZXN1bHRzKSwKICAgICAgICB7J30nfQoKICAgICAgICAjIEdhdGUgZGVwbG95bWVudCBvbiB0aHJlc2hvbGRzCiAgICAgICAgcGFzc2VkID0gYWxsKAogICAgICAgICAgICBtZXRyaWNzW2tdID49IHYgaWYgayAhPSAibGF0ZW5jeV9wOTVfbXMiIGFuZCBrICE9ICJoYWxsdWNpbmF0aW9uX3JhdGUiCiAgICAgICAgICAgIGVsc2UgbWV0cmljc1trXSA8PSB2CiAgICAgICAgICAgIGZvciBrLCB2IGluIHNlbGYudGhyZXNob2xkcy5pdGVtcygpCiAgICAgICAgKQogICAgICAgIHJldHVybiB7J3sneyd9J30icGFzc2VkIjogcGFzc2VkLCAibWV0cmljcyI6IG1ldHJpY3N7J30nfQ==" />
   <ComparisonTable title="Eval Frameworks" columns={['Framework','Type','Strengths','Best For']} rows={[
     ['promptfoo','Open source','Flexible assertions, CI/CD native','Regression testing'],
     ['Braintrust','Commercial','Logging + evals + tracing','Full observability'],

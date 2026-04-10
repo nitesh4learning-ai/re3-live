@@ -11,38 +11,7 @@ Tools are the bridge between an agent's reasoning and the real world. A well-des
 
 
 ### Function Calling: The Tool Protocol
-  <CodeBlock>
-{`{'{'{'}'}
-  "type": "function",
-  "function": {'{'{'}'}
-    "name": "search_database",
-    "description": "Search the product database by name, category, or price range. Returns up to 10 matching products with name, price, and availability.",
-    "parameters": {'{'{'}'}
-      "type": "object",
-      "properties": {'{'{'}'}
-        "query": {'{'{'}'}
-          "type": "string",
-          "description": "Natural language search query"
-        {'}'},
-        "category": {'{'{'}'}
-          "type": "string",
-          "enum": ["electronics", "clothing", "home", "sports"],
-          "description": "Product category to filter by"
-        {'}'},
-        "max_price": {'{'{'}'}
-          "type": "number",
-          "description": "Maximum price in USD"
-        {'}'},
-        "limit": {'{'{'}'}
-          "type": "integer",
-          "description": "Max results to return (default 10, max 50)"
-        {'}'}
-      {'}'},
-      "required": ["query"]
-    {'}'}
-  {'}'}
-{'}'}`}
-</CodeBlock>
+  <CodeBlock b64="eyd7J3snfSd9CiAgInR5cGUiOiAiZnVuY3Rpb24iLAogICJmdW5jdGlvbiI6IHsneyd7J30nfQogICAgIm5hbWUiOiAic2VhcmNoX2RhdGFiYXNlIiwKICAgICJkZXNjcmlwdGlvbiI6ICJTZWFyY2ggdGhlIHByb2R1Y3QgZGF0YWJhc2UgYnkgbmFtZSwgY2F0ZWdvcnksIG9yIHByaWNlIHJhbmdlLiBSZXR1cm5zIHVwIHRvIDEwIG1hdGNoaW5nIHByb2R1Y3RzIHdpdGggbmFtZSwgcHJpY2UsIGFuZCBhdmFpbGFiaWxpdHkuIiwKICAgICJwYXJhbWV0ZXJzIjogeyd7J3snfSd9CiAgICAgICJ0eXBlIjogIm9iamVjdCIsCiAgICAgICJwcm9wZXJ0aWVzIjogeyd7J3snfSd9CiAgICAgICAgInF1ZXJ5Ijogeyd7J3snfSd9CiAgICAgICAgICAidHlwZSI6ICJzdHJpbmciLAogICAgICAgICAgImRlc2NyaXB0aW9uIjogIk5hdHVyYWwgbGFuZ3VhZ2Ugc2VhcmNoIHF1ZXJ5IgogICAgICAgIHsnfSd9LAogICAgICAgICJjYXRlZ29yeSI6IHsneyd7J30nfQogICAgICAgICAgInR5cGUiOiAic3RyaW5nIiwKICAgICAgICAgICJlbnVtIjogWyJlbGVjdHJvbmljcyIsICJjbG90aGluZyIsICJob21lIiwgInNwb3J0cyJdLAogICAgICAgICAgImRlc2NyaXB0aW9uIjogIlByb2R1Y3QgY2F0ZWdvcnkgdG8gZmlsdGVyIGJ5IgogICAgICAgIHsnfSd9LAogICAgICAgICJtYXhfcHJpY2UiOiB7J3sneyd9J30KICAgICAgICAgICJ0eXBlIjogIm51bWJlciIsCiAgICAgICAgICAiZGVzY3JpcHRpb24iOiAiTWF4aW11bSBwcmljZSBpbiBVU0QiCiAgICAgICAgeyd9J30sCiAgICAgICAgImxpbWl0Ijogeyd7J3snfSd9CiAgICAgICAgICAidHlwZSI6ICJpbnRlZ2VyIiwKICAgICAgICAgICJkZXNjcmlwdGlvbiI6ICJNYXggcmVzdWx0cyB0byByZXR1cm4gKGRlZmF1bHQgMTAsIG1heCA1MCkiCiAgICAgICAgeyd9J30KICAgICAgeyd9J30sCiAgICAgICJyZXF1aXJlZCI6IFsicXVlcnkiXQogICAgeyd9J30KICB7J30nfQp7J30nfQ==" />
 
   <ExpandableSection title="Tool Design Best Practices" icon="✅" defaultOpen>
 
@@ -63,40 +32,7 @@ Tools are the bridge between an agent's reasoning and the real world. A well-des
 
 
 ### Error Handling & Sandboxing
-  <CodeBlock>
-{`import asyncio
-from dataclasses import dataclass
-from typing import Any
-
-@dataclass
-class ToolResult:
-    success: bool
-    data: Any = None
-    error: str = None
-
-async def safe_execute(tool_fn, args, timeout_s=30):
-    """Execute a tool with timeout, error handling, and sandboxing."""
-    try:
-        # Timeout prevents runaway tools
-        result = await asyncio.wait_for(
-            tool_fn(**args), timeout=timeout_s
-        )
-        return ToolResult(success=True, data=result)
-    except asyncio.TimeoutError:
-        return ToolResult(success=False, error=f"Tool timed out after {'{'{'}'}timeout_s{'}'}s")
-    except PermissionError as e:
-        return ToolResult(success=False, error=f"Permission denied: {'{'{'}'}e{'}'}")
-    except Exception as e:
-        return ToolResult(success=False, error=f"Tool error: {'{'{'}'}type(e).__name__{'}'}: {'{'{'}'}e{'}'}")
-
-# Tool execution sandbox: restrict file system, network, memory
-SANDBOX_CONFIG = {'{'{'}'}
-    "max_memory_mb": 512,
-    "allowed_paths": ["/tmp/agent_workspace/"],
-    "blocked_domains": ["internal.company.com"],
-    "max_execution_time_s": 30,
-{'}'}`}
-</CodeBlock>
+  <CodeBlock b64="aW1wb3J0IGFzeW5jaW8KZnJvbSBkYXRhY2xhc3NlcyBpbXBvcnQgZGF0YWNsYXNzCmZyb20gdHlwaW5nIGltcG9ydCBBbnkKCkBkYXRhY2xhc3MKY2xhc3MgVG9vbFJlc3VsdDoKICAgIHN1Y2Nlc3M6IGJvb2wKICAgIGRhdGE6IEFueSA9IE5vbmUKICAgIGVycm9yOiBzdHIgPSBOb25lCgphc3luYyBkZWYgc2FmZV9leGVjdXRlKHRvb2xfZm4sIGFyZ3MsIHRpbWVvdXRfcz0zMCk6CiAgICAiIiJFeGVjdXRlIGEgdG9vbCB3aXRoIHRpbWVvdXQsIGVycm9yIGhhbmRsaW5nLCBhbmQgc2FuZGJveGluZy4iIiIKICAgIHRyeToKICAgICAgICAjIFRpbWVvdXQgcHJldmVudHMgcnVuYXdheSB0b29scwogICAgICAgIHJlc3VsdCA9IGF3YWl0IGFzeW5jaW8ud2FpdF9mb3IoCiAgICAgICAgICAgIHRvb2xfZm4oKiphcmdzKSwgdGltZW91dD10aW1lb3V0X3MKICAgICAgICApCiAgICAgICAgcmV0dXJuIFRvb2xSZXN1bHQoc3VjY2Vzcz1UcnVlLCBkYXRhPXJlc3VsdCkKICAgIGV4Y2VwdCBhc3luY2lvLlRpbWVvdXRFcnJvcjoKICAgICAgICByZXR1cm4gVG9vbFJlc3VsdChzdWNjZXNzPUZhbHNlLCBlcnJvcj1mIlRvb2wgdGltZWQgb3V0IGFmdGVyIHsneyd7J30nfXRpbWVvdXRfc3snfSd9cyIpCiAgICBleGNlcHQgUGVybWlzc2lvbkVycm9yIGFzIGU6CiAgICAgICAgcmV0dXJuIFRvb2xSZXN1bHQoc3VjY2Vzcz1GYWxzZSwgZXJyb3I9ZiJQZXJtaXNzaW9uIGRlbmllZDogeyd7J3snfSd9ZXsnfSd9IikKICAgIGV4Y2VwdCBFeGNlcHRpb24gYXMgZToKICAgICAgICByZXR1cm4gVG9vbFJlc3VsdChzdWNjZXNzPUZhbHNlLCBlcnJvcj1mIlRvb2wgZXJyb3I6IHsneyd7J30nfXR5cGUoZSkuX19uYW1lX197J30nfTogeyd7J3snfSd9ZXsnfSd9IikKCiMgVG9vbCBleGVjdXRpb24gc2FuZGJveDogcmVzdHJpY3QgZmlsZSBzeXN0ZW0sIG5ldHdvcmssIG1lbW9yeQpTQU5EQk9YX0NPTkZJRyA9IHsneyd7J30nfQogICAgIm1heF9tZW1vcnlfbWIiOiA1MTIsCiAgICAiYWxsb3dlZF9wYXRocyI6IFsiL3RtcC9hZ2VudF93b3Jrc3BhY2UvIl0sCiAgICAiYmxvY2tlZF9kb21haW5zIjogWyJpbnRlcm5hbC5jb21wYW55LmNvbSJdLAogICAgIm1heF9leGVjdXRpb25fdGltZV9zIjogMzAsCnsnfSd9" />
 
   <Quiz question="Why should tool descriptions include information about what the tool returns?" options={["It's optional metadata","The LLM uses return descriptions to decide whether a tool's output will be useful for the current task","It makes the JSON schema look more complete","Return descriptions are only for human developers"]} correctIndex={1} explanation="The LLM reads tool descriptions to decide which tool to call. If the description says the tool returns 'product name, price, and availability', the agent knows whether this tool can answer the current question. Without return info, the agent may call the wrong tool or misinterpret results."/>
 

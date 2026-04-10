@@ -13,40 +13,7 @@ icon: "\uD83C\uDF0D"
   ['Canada AIDA','Risk-based','Federal regulated entities','Criminal penalties possible','In progress'],
 ]}/>
 
-<CodeBlock>
-{`class EUAIActClassifier:
-    """Classify AI systems per EU AI Act risk tiers"""
-
-    UNACCEPTABLE = {'{'{'}'}
-        "social_scoring", "real_time_biometric_mass",
-        "emotion_detection_workplace", "predictive_policing_individual"
-    {'}'}
-    HIGH_RISK_DOMAINS = {'{'{'}'}
-        "hiring", "credit_scoring", "education_access",
-        "medical_diagnosis", "criminal_justice", "border_control",
-        "critical_infrastructure", "law_enforcement"
-    {'}'}
-
-    def classify(self, system_profile):
-        use_case = system_profile["use_case"]
-        if use_case in self.UNACCEPTABLE:
-            return {'{'{'}'}"tier": "UNACCEPTABLE", "action": "DO NOT DEPLOY"{'}'}
-        if system_profile.get("domain") in self.HIGH_RISK_DOMAINS:
-            return {'{'{'}'}
-                "tier": "HIGH_RISK",
-                "requirements": [
-                    "conformity_assessment",
-                    "quality_management_system",
-                    "technical_documentation",
-                    "human_oversight_measures",
-                    "accuracy_robustness_cybersecurity",
-                    "post_market_monitoring"
-                ]
-            {'}'}
-        if system_profile.get("interacts_with_humans"):
-            return {'{'{'}'}"tier": "LIMITED_RISK", "requirements": ["transparency_disclosure"]{'}'}
-        return {'{'{'}'}"tier": "MINIMAL_RISK", "requirements": []{'}'}`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgRVVBSUFjdENsYXNzaWZpZXI6CiAgICAiIiJDbGFzc2lmeSBBSSBzeXN0ZW1zIHBlciBFVSBBSSBBY3QgcmlzayB0aWVycyIiIgoKICAgIFVOQUNDRVBUQUJMRSA9IHsneyd7J30nfQogICAgICAgICJzb2NpYWxfc2NvcmluZyIsICJyZWFsX3RpbWVfYmlvbWV0cmljX21hc3MiLAogICAgICAgICJlbW90aW9uX2RldGVjdGlvbl93b3JrcGxhY2UiLCAicHJlZGljdGl2ZV9wb2xpY2luZ19pbmRpdmlkdWFsIgogICAgeyd9J30KICAgIEhJR0hfUklTS19ET01BSU5TID0geyd7J3snfSd9CiAgICAgICAgImhpcmluZyIsICJjcmVkaXRfc2NvcmluZyIsICJlZHVjYXRpb25fYWNjZXNzIiwKICAgICAgICAibWVkaWNhbF9kaWFnbm9zaXMiLCAiY3JpbWluYWxfanVzdGljZSIsICJib3JkZXJfY29udHJvbCIsCiAgICAgICAgImNyaXRpY2FsX2luZnJhc3RydWN0dXJlIiwgImxhd19lbmZvcmNlbWVudCIKICAgIHsnfSd9CgogICAgZGVmIGNsYXNzaWZ5KHNlbGYsIHN5c3RlbV9wcm9maWxlKToKICAgICAgICB1c2VfY2FzZSA9IHN5c3RlbV9wcm9maWxlWyJ1c2VfY2FzZSJdCiAgICAgICAgaWYgdXNlX2Nhc2UgaW4gc2VsZi5VTkFDQ0VQVEFCTEU6CiAgICAgICAgICAgIHJldHVybiB7J3sneyd9J30idGllciI6ICJVTkFDQ0VQVEFCTEUiLCAiYWN0aW9uIjogIkRPIE5PVCBERVBMT1kieyd9J30KICAgICAgICBpZiBzeXN0ZW1fcHJvZmlsZS5nZXQoImRvbWFpbiIpIGluIHNlbGYuSElHSF9SSVNLX0RPTUFJTlM6CiAgICAgICAgICAgIHJldHVybiB7J3sneyd9J30KICAgICAgICAgICAgICAgICJ0aWVyIjogIkhJR0hfUklTSyIsCiAgICAgICAgICAgICAgICAicmVxdWlyZW1lbnRzIjogWwogICAgICAgICAgICAgICAgICAgICJjb25mb3JtaXR5X2Fzc2Vzc21lbnQiLAogICAgICAgICAgICAgICAgICAgICJxdWFsaXR5X21hbmFnZW1lbnRfc3lzdGVtIiwKICAgICAgICAgICAgICAgICAgICAidGVjaG5pY2FsX2RvY3VtZW50YXRpb24iLAogICAgICAgICAgICAgICAgICAgICJodW1hbl9vdmVyc2lnaHRfbWVhc3VyZXMiLAogICAgICAgICAgICAgICAgICAgICJhY2N1cmFjeV9yb2J1c3RuZXNzX2N5YmVyc2VjdXJpdHkiLAogICAgICAgICAgICAgICAgICAgICJwb3N0X21hcmtldF9tb25pdG9yaW5nIgogICAgICAgICAgICAgICAgXQogICAgICAgICAgICB7J30nfQogICAgICAgIGlmIHN5c3RlbV9wcm9maWxlLmdldCgiaW50ZXJhY3RzX3dpdGhfaHVtYW5zIik6CiAgICAgICAgICAgIHJldHVybiB7J3sneyd9J30idGllciI6ICJMSU1JVEVEX1JJU0siLCAicmVxdWlyZW1lbnRzIjogWyJ0cmFuc3BhcmVuY3lfZGlzY2xvc3VyZSJdeyd9J30KICAgICAgICByZXR1cm4geyd7J3snfSd9InRpZXIiOiAiTUlOSU1BTF9SSVNLIiwgInJlcXVpcmVtZW50cyI6IFtdeyd9J30=" />
 
 <ArchitectureDecision scenario="Your startup is building an AI resume screener for enterprise clients. You want to sell globally. How should you approach compliance?" options={[
   {label:"Comply with EU AI Act only (strictest)",tradeoff:"Covers most requirements but misses US-specific rules like NYC Local Law 144"},

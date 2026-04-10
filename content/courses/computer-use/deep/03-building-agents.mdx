@@ -5,72 +5,7 @@ icon: "\uD83C\uDFD7\uFE0F"
 
 ## Building a Browser Agent
 
-<CodeBlock>
-{`from playwright.async_api import async_playwright
-import anthropic
-
-class BrowserAgent:
-    def __init__(self, task, max_steps=20):
-        self.task = task
-        self.max_steps = max_steps
-        self.client = anthropic.Anthropic()
-        self.history = []
-
-    async def get_page_context(self, page):
-        """Extract structured page representation"""
-        # Get accessibility tree (more reliable than raw DOM)
-        tree = await page.accessibility.snapshot()
-        url = page.url
-        title = await page.title()
-        return {'{'{'}'}
-            "url": url,
-            "title": title,
-            "elements": self._flatten_tree(tree),
-            "interactable": [
-                e for e in self._flatten_tree(tree)
-                if e.get("role") in (
-                    "button", "link", "textbox",
-                    "checkbox", "combobox"
-                )
-            ]
-        {'}'}
-
-    async def decide_action(self, context):
-        """Use LLM to decide next action"""
-        response = self.client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=500,
-            system="You are a browser automation agent.",
-            messages=[{'{'{'}'}
-                "role": "user",
-                "content": f"""Task: {'{'{'}'}self.task{'}'}
-Current page: {'{'{'}'}context['title']{'}'} ({'{'{'}'}context['url']{'}'})
-History: {'{'{'}'}self.history[-5:]{'}'}
-Interactive elements: {'{'{'}'}context['interactable'][:30]{'}'}
-
-Return JSON: {'{'{'}'}{'{'{'}'}"action": "click|type|navigate|scroll|done",
-"target": "element description", "value": "text if typing"{'}'}{'}'}"""
-            {'}'}]
-        )
-        return self._parse_action(response)
-
-    async def run(self):
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=False)
-            page = await browser.new_page()
-
-            for step in range(self.max_steps):
-                context = await self.get_page_context(page)
-                action = await self.decide_action(context)
-
-                if action["action"] == "done":
-                    return {'{'{'}'}"success": True, "steps": step{'}'}
-
-                await self._execute(page, action)
-                self.history.append(action)
-
-            return {'{'{'}'}"success": False, "reason": "max steps"{'}'}`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBwbGF5d3JpZ2h0LmFzeW5jX2FwaSBpbXBvcnQgYXN5bmNfcGxheXdyaWdodAppbXBvcnQgYW50aHJvcGljCgpjbGFzcyBCcm93c2VyQWdlbnQ6CiAgICBkZWYgX19pbml0X18oc2VsZiwgdGFzaywgbWF4X3N0ZXBzPTIwKToKICAgICAgICBzZWxmLnRhc2sgPSB0YXNrCiAgICAgICAgc2VsZi5tYXhfc3RlcHMgPSBtYXhfc3RlcHMKICAgICAgICBzZWxmLmNsaWVudCA9IGFudGhyb3BpYy5BbnRocm9waWMoKQogICAgICAgIHNlbGYuaGlzdG9yeSA9IFtdCgogICAgYXN5bmMgZGVmIGdldF9wYWdlX2NvbnRleHQoc2VsZiwgcGFnZSk6CiAgICAgICAgIiIiRXh0cmFjdCBzdHJ1Y3R1cmVkIHBhZ2UgcmVwcmVzZW50YXRpb24iIiIKICAgICAgICAjIEdldCBhY2Nlc3NpYmlsaXR5IHRyZWUgKG1vcmUgcmVsaWFibGUgdGhhbiByYXcgRE9NKQogICAgICAgIHRyZWUgPSBhd2FpdCBwYWdlLmFjY2Vzc2liaWxpdHkuc25hcHNob3QoKQogICAgICAgIHVybCA9IHBhZ2UudXJsCiAgICAgICAgdGl0bGUgPSBhd2FpdCBwYWdlLnRpdGxlKCkKICAgICAgICByZXR1cm4geyd7J3snfSd9CiAgICAgICAgICAgICJ1cmwiOiB1cmwsCiAgICAgICAgICAgICJ0aXRsZSI6IHRpdGxlLAogICAgICAgICAgICAiZWxlbWVudHMiOiBzZWxmLl9mbGF0dGVuX3RyZWUodHJlZSksCiAgICAgICAgICAgICJpbnRlcmFjdGFibGUiOiBbCiAgICAgICAgICAgICAgICBlIGZvciBlIGluIHNlbGYuX2ZsYXR0ZW5fdHJlZSh0cmVlKQogICAgICAgICAgICAgICAgaWYgZS5nZXQoInJvbGUiKSBpbiAoCiAgICAgICAgICAgICAgICAgICAgImJ1dHRvbiIsICJsaW5rIiwgInRleHRib3giLAogICAgICAgICAgICAgICAgICAgICJjaGVja2JveCIsICJjb21ib2JveCIKICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgXQogICAgICAgIHsnfSd9CgogICAgYXN5bmMgZGVmIGRlY2lkZV9hY3Rpb24oc2VsZiwgY29udGV4dCk6CiAgICAgICAgIiIiVXNlIExMTSB0byBkZWNpZGUgbmV4dCBhY3Rpb24iIiIKICAgICAgICByZXNwb25zZSA9IHNlbGYuY2xpZW50Lm1lc3NhZ2VzLmNyZWF0ZSgKICAgICAgICAgICAgbW9kZWw9ImNsYXVkZS1zb25uZXQtNC0yMDI1MDUxNCIsCiAgICAgICAgICAgIG1heF90b2tlbnM9NTAwLAogICAgICAgICAgICBzeXN0ZW09IllvdSBhcmUgYSBicm93c2VyIGF1dG9tYXRpb24gYWdlbnQuIiwKICAgICAgICAgICAgbWVzc2FnZXM9W3sneyd7J30nfQogICAgICAgICAgICAgICAgInJvbGUiOiAidXNlciIsCiAgICAgICAgICAgICAgICAiY29udGVudCI6IGYiIiJUYXNrOiB7J3sneyd9J31zZWxmLnRhc2t7J30nfQpDdXJyZW50IHBhZ2U6IHsneyd7J30nfWNvbnRleHRbJ3RpdGxlJ117J30nfSAoeyd7J3snfSd9Y29udGV4dFsndXJsJ117J30nfSkKSGlzdG9yeTogeyd7J3snfSd9c2VsZi5oaXN0b3J5Wy01Ol17J30nfQpJbnRlcmFjdGl2ZSBlbGVtZW50czogeyd7J3snfSd9Y29udGV4dFsnaW50ZXJhY3RhYmxlJ11bOjMwXXsnfSd9CgpSZXR1cm4gSlNPTjogeyd7J3snfSd9eyd7J3snfSd9ImFjdGlvbiI6ICJjbGlja3x0eXBlfG5hdmlnYXRlfHNjcm9sbHxkb25lIiwKInRhcmdldCI6ICJlbGVtZW50IGRlc2NyaXB0aW9uIiwgInZhbHVlIjogInRleHQgaWYgdHlwaW5nInsnfSd9eyd9J30iIiIKICAgICAgICAgICAgeyd9J31dCiAgICAgICAgKQogICAgICAgIHJldHVybiBzZWxmLl9wYXJzZV9hY3Rpb24ocmVzcG9uc2UpCgogICAgYXN5bmMgZGVmIHJ1bihzZWxmKToKICAgICAgICBhc3luYyB3aXRoIGFzeW5jX3BsYXl3cmlnaHQoKSBhcyBwOgogICAgICAgICAgICBicm93c2VyID0gYXdhaXQgcC5jaHJvbWl1bS5sYXVuY2goaGVhZGxlc3M9RmFsc2UpCiAgICAgICAgICAgIHBhZ2UgPSBhd2FpdCBicm93c2VyLm5ld19wYWdlKCkKCiAgICAgICAgICAgIGZvciBzdGVwIGluIHJhbmdlKHNlbGYubWF4X3N0ZXBzKToKICAgICAgICAgICAgICAgIGNvbnRleHQgPSBhd2FpdCBzZWxmLmdldF9wYWdlX2NvbnRleHQocGFnZSkKICAgICAgICAgICAgICAgIGFjdGlvbiA9IGF3YWl0IHNlbGYuZGVjaWRlX2FjdGlvbihjb250ZXh0KQoKICAgICAgICAgICAgICAgIGlmIGFjdGlvblsiYWN0aW9uIl0gPT0gImRvbmUiOgogICAgICAgICAgICAgICAgICAgIHJldHVybiB7J3sneyd9J30ic3VjY2VzcyI6IFRydWUsICJzdGVwcyI6IHN0ZXB7J30nfQoKICAgICAgICAgICAgICAgIGF3YWl0IHNlbGYuX2V4ZWN1dGUocGFnZSwgYWN0aW9uKQogICAgICAgICAgICAgICAgc2VsZi5oaXN0b3J5LmFwcGVuZChhY3Rpb24pCgogICAgICAgICAgICByZXR1cm4geyd7J3snfSd9InN1Y2Nlc3MiOiBGYWxzZSwgInJlYXNvbiI6ICJtYXggc3RlcHMieyd9J30=" />
 
 <ArchitectureDecision scenario="You're building a browser agent for internal enterprise use (expense reports, HR forms). The agent needs to fill forms that contain employee PII. How should you handle credentials and sensitive data?" options={[
   {label:"Pass credentials to the LLM in the prompt",tradeoff:"Simple but extremely dangerous -- PII in LLM context, potential logging/training exposure"},

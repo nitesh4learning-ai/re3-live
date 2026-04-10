@@ -7,31 +7,6 @@ icon: "🔌"
 
 Each LLM provider implements <JargonTip term="structured output">structured outputs</JargonTip> differently. Some use <JargonTip term="function calling">function calling</JargonTip> under the hood, while others support native <JargonTip term="constrained decoding">constrained decoding</JargonTip>.
 
-<CodeBlock>
-{`from openai import OpenAI
-client = OpenAI()
-
-response = client.chat.completions.create(
-    model="gpt-4o",
-    response_format={'{'{'}'}
-        "type": "json_schema",
-        "json_schema": {'{'{'}'}
-            "name": "sentiment_analysis",
-            "strict": True,  # Guarantees exact schema match
-            "schema": {'{'{'}'}
-                "type": "object",
-                "properties": {'{'{'}'}
-                    "sentiment": {'{'{'}'}"type": "string", "enum": ["positive","negative","neutral"]{'}'},
-                    "confidence": {'{'{'}'}"type": "number"{'}'},
-                    "key_phrases": {'{'{'}'}"type": "array", "items": {'{'{'}'}"type": "string"{'}'}{'}'}
-                {'}'},
-                "required": ["sentiment", "confidence", "key_phrases"],
-                "additionalProperties": False
-            {'}'}
-        {'}'}
-    {'}'},
-    messages=[{'{'{'}'}"role":"user","content":"Analyze: 'Great product!'"{'}'}]
-)`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBvcGVuYWkgaW1wb3J0IE9wZW5BSQpjbGllbnQgPSBPcGVuQUkoKQoKcmVzcG9uc2UgPSBjbGllbnQuY2hhdC5jb21wbGV0aW9ucy5jcmVhdGUoCiAgICBtb2RlbD0iZ3B0LTRvIiwKICAgIHJlc3BvbnNlX2Zvcm1hdD17J3sneyd9J30KICAgICAgICAidHlwZSI6ICJqc29uX3NjaGVtYSIsCiAgICAgICAgImpzb25fc2NoZW1hIjogeyd7J3snfSd9CiAgICAgICAgICAgICJuYW1lIjogInNlbnRpbWVudF9hbmFseXNpcyIsCiAgICAgICAgICAgICJzdHJpY3QiOiBUcnVlLCAgIyBHdWFyYW50ZWVzIGV4YWN0IHNjaGVtYSBtYXRjaAogICAgICAgICAgICAic2NoZW1hIjogeyd7J3snfSd9CiAgICAgICAgICAgICAgICAidHlwZSI6ICJvYmplY3QiLAogICAgICAgICAgICAgICAgInByb3BlcnRpZXMiOiB7J3sneyd9J30KICAgICAgICAgICAgICAgICAgICAic2VudGltZW50Ijogeyd7J3snfSd9InR5cGUiOiAic3RyaW5nIiwgImVudW0iOiBbInBvc2l0aXZlIiwibmVnYXRpdmUiLCJuZXV0cmFsIl17J30nfSwKICAgICAgICAgICAgICAgICAgICAiY29uZmlkZW5jZSI6IHsneyd7J30nfSJ0eXBlIjogIm51bWJlciJ7J30nfSwKICAgICAgICAgICAgICAgICAgICAia2V5X3BocmFzZXMiOiB7J3sneyd9J30idHlwZSI6ICJhcnJheSIsICJpdGVtcyI6IHsneyd7J30nfSJ0eXBlIjogInN0cmluZyJ7J30nfXsnfSd9CiAgICAgICAgICAgICAgICB7J30nfSwKICAgICAgICAgICAgICAgICJyZXF1aXJlZCI6IFsic2VudGltZW50IiwgImNvbmZpZGVuY2UiLCAia2V5X3BocmFzZXMiXSwKICAgICAgICAgICAgICAgICJhZGRpdGlvbmFsUHJvcGVydGllcyI6IEZhbHNlCiAgICAgICAgICAgIHsnfSd9CiAgICAgICAgeyd9J30KICAgIHsnfSd9LAogICAgbWVzc2FnZXM9W3sneyd7J30nfSJyb2xlIjoidXNlciIsImNvbnRlbnQiOiJBbmFseXplOiAnR3JlYXQgcHJvZHVjdCEnInsnfSd9XQop" />
 
 <ComparisonTable title="Feature Comparison" headers={['Feature','OpenAI','Anthropic','Gemini']} rows={[['Strict schema mode','Yes (strict: true)','Via tool_use','Yes (response_schema)'],['Nested objects','Full support','Full support','Full support'],['Enum enforcement','Yes','Yes','Yes'],['Streaming partial JSON','Yes','Yes','Limited'],['Max schema complexity','High','Medium','Medium'],['Additional cost','None','None','None']]}/>

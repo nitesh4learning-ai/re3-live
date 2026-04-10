@@ -9,23 +9,7 @@ icon: "⚡"
 
 Plan Mode is the single biggest efficiency gain in Claude Code. Instead of jumping straight into implementation, Claude first creates a detailed plan — architecture decisions, file changes, dependency considerations — and waits for your approval.
 
-<CodeBlock language="text" label="Activating Plan Mode">
-{`# In Claude Code, start with:
-"Enter plan mode and design an implementation strategy for [your goal]"
-
-# Or more specifically:
-"Before writing any code, plan the following:
-1. Which files need to change
-2. What new dependencies are needed
-3. What could break
-4. What tests need updating
-Then wait for my approval before implementing."
-
-# Plan Mode also launches sub-agents:
-# - Explore agent: analyzes your codebase structure
-# - Research agent: searches for current library versions
-# - Architecture agent: proposes design patterns`}
-</CodeBlock>
+<CodeBlock language="text" label="Activating Plan Mode" b64="IyBJbiBDbGF1ZGUgQ29kZSwgc3RhcnQgd2l0aDoKIkVudGVyIHBsYW4gbW9kZSBhbmQgZGVzaWduIGFuIGltcGxlbWVudGF0aW9uIHN0cmF0ZWd5IGZvciBbeW91ciBnb2FsXSIKCiMgT3IgbW9yZSBzcGVjaWZpY2FsbHk6CiJCZWZvcmUgd3JpdGluZyBhbnkgY29kZSwgcGxhbiB0aGUgZm9sbG93aW5nOgoxLiBXaGljaCBmaWxlcyBuZWVkIHRvIGNoYW5nZQoyLiBXaGF0IG5ldyBkZXBlbmRlbmNpZXMgYXJlIG5lZWRlZAozLiBXaGF0IGNvdWxkIGJyZWFrCjQuIFdoYXQgdGVzdHMgbmVlZCB1cGRhdGluZwpUaGVuIHdhaXQgZm9yIG15IGFwcHJvdmFsIGJlZm9yZSBpbXBsZW1lbnRpbmcuIgoKIyBQbGFuIE1vZGUgYWxzbyBsYXVuY2hlcyBzdWItYWdlbnRzOgojIC0gRXhwbG9yZSBhZ2VudDogYW5hbHl6ZXMgeW91ciBjb2RlYmFzZSBzdHJ1Y3R1cmUKIyAtIFJlc2VhcmNoIGFnZW50OiBzZWFyY2hlcyBmb3IgY3VycmVudCBsaWJyYXJ5IHZlcnNpb25zCiMgLSBBcmNoaXRlY3R1cmUgYWdlbnQ6IHByb3Bvc2VzIGRlc2lnbiBwYXR0ZXJucw==" />
 
 <AnalogyBox emoji="📐" title="Architecture Review Before Sprint">
 Plan Mode is your architecture review meeting. In enterprise projects, you don't start coding after a Jira ticket lands — you review the approach, identify risks, align on patterns. Plan Mode makes Claude do the same: research, propose, get approval, then execute.
@@ -51,28 +35,7 @@ When Claude starts going down a rabbit hole — refactoring files you didn't ask
 
 ### Prompting for Accuracy
 
-<CodeBlock language="text" label="High-Accuracy Prompting Patterns">
-{`# 1. ASK FOR CLARIFICATION FIRST
-"Before you start building the auth system, ask me 
-questions about the requirements I haven't specified."
-
-# 2. CONSTRAIN THE SCOPE
-"ONLY modify auth.js and auth.test.js. Do NOT touch 
-any other files. If you think other files need changes, 
-tell me first."
-
-# 3. VERIFY BEFORE PROCEEDING
-"After making changes, run the test suite and show me 
-the results before moving on."
-
-# 4. REFERENCE EXISTING PATTERNS
-"Look at how we implemented the search feature in 
-search.js and follow the same pattern for this new filter."
-
-# 5. INCREMENTAL VERIFICATION
-"Implement step 1 and verify it works before starting 
-step 2. I want to review each step independently."`}
-</CodeBlock>
+<CodeBlock language="text" label="High-Accuracy Prompting Patterns" b64="IyAxLiBBU0sgRk9SIENMQVJJRklDQVRJT04gRklSU1QKIkJlZm9yZSB5b3Ugc3RhcnQgYnVpbGRpbmcgdGhlIGF1dGggc3lzdGVtLCBhc2sgbWUgCnF1ZXN0aW9ucyBhYm91dCB0aGUgcmVxdWlyZW1lbnRzIEkgaGF2ZW4ndCBzcGVjaWZpZWQuIgoKIyAyLiBDT05TVFJBSU4gVEhFIFNDT1BFCiJPTkxZIG1vZGlmeSBhdXRoLmpzIGFuZCBhdXRoLnRlc3QuanMuIERvIE5PVCB0b3VjaCAKYW55IG90aGVyIGZpbGVzLiBJZiB5b3UgdGhpbmsgb3RoZXIgZmlsZXMgbmVlZCBjaGFuZ2VzLCAKdGVsbCBtZSBmaXJzdC4iCgojIDMuIFZFUklGWSBCRUZPUkUgUFJPQ0VFRElORwoiQWZ0ZXIgbWFraW5nIGNoYW5nZXMsIHJ1biB0aGUgdGVzdCBzdWl0ZSBhbmQgc2hvdyBtZSAKdGhlIHJlc3VsdHMgYmVmb3JlIG1vdmluZyBvbi4iCgojIDQuIFJFRkVSRU5DRSBFWElTVElORyBQQVRURVJOUwoiTG9vayBhdCBob3cgd2UgaW1wbGVtZW50ZWQgdGhlIHNlYXJjaCBmZWF0dXJlIGluIApzZWFyY2guanMgYW5kIGZvbGxvdyB0aGUgc2FtZSBwYXR0ZXJuIGZvciB0aGlzIG5ldyBmaWx0ZXIuIgoKIyA1LiBJTkNSRU1FTlRBTCBWRVJJRklDQVRJT04KIkltcGxlbWVudCBzdGVwIDEgYW5kIHZlcmlmeSBpdCB3b3JrcyBiZWZvcmUgc3RhcnRpbmcgCnN0ZXAgMi4gSSB3YW50IHRvIHJldmlldyBlYWNoIHN0ZXAgaW5kZXBlbmRlbnRseS4i" />
 
 ### The Three-Window Workflow
 

@@ -4,23 +4,5 @@ icon: "\uD83D\uDCCA"
 ---
 
 ## Evaluation Frameworks
-  <CodeBlock>
-{`def evaluate_response(question, response, reference_answer):
-    """Use a powerful LLM to judge response quality."""
-    judge_prompt = f"""Rate this AI response on a scale of 1-5:
-
-Question: {'{'{'}'}question{'}'}
-AI Response: {'{'{'}'}response{'}'}
-Reference Answer: {'{'{'}'}reference_answer{'}'}
-
-Criteria:
-- Accuracy (1-5): Does the response contain correct information?
-- Completeness (1-5): Does it address all parts of the question?
-- Clarity (1-5): Is it well-written and easy to understand?
-
-Return JSON: {'{'{'}'}{'{'{'}'}"accuracy": N, "completeness": N, "clarity": N, "reasoning": "..."{'}'}{'}'}"""
-
-    judgment = call_llm("gpt-4o", judge_prompt, response_format="json")
-    return judgment`}
-</CodeBlock>
+  <CodeBlock b64="ZGVmIGV2YWx1YXRlX3Jlc3BvbnNlKHF1ZXN0aW9uLCByZXNwb25zZSwgcmVmZXJlbmNlX2Fuc3dlcik6CiAgICAiIiJVc2UgYSBwb3dlcmZ1bCBMTE0gdG8ganVkZ2UgcmVzcG9uc2UgcXVhbGl0eS4iIiIKICAgIGp1ZGdlX3Byb21wdCA9IGYiIiJSYXRlIHRoaXMgQUkgcmVzcG9uc2Ugb24gYSBzY2FsZSBvZiAxLTU6CgpRdWVzdGlvbjogeyd7J3snfSd9cXVlc3Rpb257J30nfQpBSSBSZXNwb25zZTogeyd7J3snfSd9cmVzcG9uc2V7J30nfQpSZWZlcmVuY2UgQW5zd2VyOiB7J3sneyd9J31yZWZlcmVuY2VfYW5zd2Vyeyd9J30KCkNyaXRlcmlhOgotIEFjY3VyYWN5ICgxLTUpOiBEb2VzIHRoZSByZXNwb25zZSBjb250YWluIGNvcnJlY3QgaW5mb3JtYXRpb24/Ci0gQ29tcGxldGVuZXNzICgxLTUpOiBEb2VzIGl0IGFkZHJlc3MgYWxsIHBhcnRzIG9mIHRoZSBxdWVzdGlvbj8KLSBDbGFyaXR5ICgxLTUpOiBJcyBpdCB3ZWxsLXdyaXR0ZW4gYW5kIGVhc3kgdG8gdW5kZXJzdGFuZD8KClJldHVybiBKU09OOiB7J3sneyd9J317J3sneyd9J30iYWNjdXJhY3kiOiBOLCAiY29tcGxldGVuZXNzIjogTiwgImNsYXJpdHkiOiBOLCAicmVhc29uaW5nIjogIi4uLiJ7J30nfXsnfSd9IiIiCgogICAganVkZ21lbnQgPSBjYWxsX2xsbSgiZ3B0LTRvIiwganVkZ2VfcHJvbXB0LCByZXNwb25zZV9mb3JtYXQ9Impzb24iKQogICAgcmV0dXJuIGp1ZGdtZW50" />
   <ComparisonTable title="Evaluation Methods" headers={['Method','Speed','Cost','Reliability','Best For']} rows={[['Exact match','Instant','Free','High (for factual)','Classification, extraction'],['BLEU/ROUGE','Instant','Free','Medium','Summarization'],['LLM-as-Judge','Slow','$$','Good','Open-ended generation'],['Human eval','Very slow','$$$','Highest','Critical applications'],['Automated test suites','Fast','$','Good','Regression testing']]}/>

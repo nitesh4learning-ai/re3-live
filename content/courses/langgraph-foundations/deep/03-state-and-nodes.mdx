@@ -9,43 +9,7 @@ State design is the most important architectural decision in any LangGraph appli
 
 ### The State Contract
 
-<CodeBlock>
-{`from typing import TypedDict, Annotated, List, Optional
-from langgraph.graph import add_messages
-from langchain_core.messages import BaseMessage
-
-class ResearchState(TypedDict):
-    """
-    Production state design for a self-correcting research agent.
-    
-    Design principles:
-    1. Every field the agent needs to make decisions → in state
-    2. Fields that track loop behavior (retry_count) → in state
-    3. Fields for observability (timestamps, scores) → in state
-    4. Use Annotated + reducer for append-only fields (messages)
-    
-    Think of this like designing a database schema for your
-    workflow — except it's all in-memory and flows through nodes.
-    """
-    # ── Core data fields ──
-    messages: Annotated[list[BaseMessage], add_messages]
-    query: str                    # Current search query (may be rewritten)
-    original_query: str           # Preserved original for comparison
-    search_results: List[str]     # Raw results from search
-    
-    # ── Decision-making fields ──
-    quality_score: float          # LLM-graded relevance (0-10)
-    retry_count: int              # How many rewrites attempted
-    max_retries: int              # Safety limit (default: 3)
-    
-    # ── Output fields ──
-    summary: str                  # Final generated summary
-    sources: List[str]            # URLs/citations tracked
-    
-    # ── Observability ──
-    current_node: str             # Which node is executing
-    error: Optional[str]          # Error message if any`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSB0eXBpbmcgaW1wb3J0IFR5cGVkRGljdCwgQW5ub3RhdGVkLCBMaXN0LCBPcHRpb25hbApmcm9tIGxhbmdncmFwaC5ncmFwaCBpbXBvcnQgYWRkX21lc3NhZ2VzCmZyb20gbGFuZ2NoYWluX2NvcmUubWVzc2FnZXMgaW1wb3J0IEJhc2VNZXNzYWdlCgpjbGFzcyBSZXNlYXJjaFN0YXRlKFR5cGVkRGljdCk6CiAgICAiIiIKICAgIFByb2R1Y3Rpb24gc3RhdGUgZGVzaWduIGZvciBhIHNlbGYtY29ycmVjdGluZyByZXNlYXJjaCBhZ2VudC4KICAgIAogICAgRGVzaWduIHByaW5jaXBsZXM6CiAgICAxLiBFdmVyeSBmaWVsZCB0aGUgYWdlbnQgbmVlZHMgdG8gbWFrZSBkZWNpc2lvbnMg4oaSIGluIHN0YXRlCiAgICAyLiBGaWVsZHMgdGhhdCB0cmFjayBsb29wIGJlaGF2aW9yIChyZXRyeV9jb3VudCkg4oaSIGluIHN0YXRlCiAgICAzLiBGaWVsZHMgZm9yIG9ic2VydmFiaWxpdHkgKHRpbWVzdGFtcHMsIHNjb3Jlcykg4oaSIGluIHN0YXRlCiAgICA0LiBVc2UgQW5ub3RhdGVkICsgcmVkdWNlciBmb3IgYXBwZW5kLW9ubHkgZmllbGRzIChtZXNzYWdlcykKICAgIAogICAgVGhpbmsgb2YgdGhpcyBsaWtlIGRlc2lnbmluZyBhIGRhdGFiYXNlIHNjaGVtYSBmb3IgeW91cgogICAgd29ya2Zsb3cg4oCUIGV4Y2VwdCBpdCdzIGFsbCBpbi1tZW1vcnkgYW5kIGZsb3dzIHRocm91Z2ggbm9kZXMuCiAgICAiIiIKICAgICMg4pSA4pSAIENvcmUgZGF0YSBmaWVsZHMg4pSA4pSACiAgICBtZXNzYWdlczogQW5ub3RhdGVkW2xpc3RbQmFzZU1lc3NhZ2VdLCBhZGRfbWVzc2FnZXNdCiAgICBxdWVyeTogc3RyICAgICAgICAgICAgICAgICAgICAjIEN1cnJlbnQgc2VhcmNoIHF1ZXJ5IChtYXkgYmUgcmV3cml0dGVuKQogICAgb3JpZ2luYWxfcXVlcnk6IHN0ciAgICAgICAgICAgIyBQcmVzZXJ2ZWQgb3JpZ2luYWwgZm9yIGNvbXBhcmlzb24KICAgIHNlYXJjaF9yZXN1bHRzOiBMaXN0W3N0cl0gICAgICMgUmF3IHJlc3VsdHMgZnJvbSBzZWFyY2gKICAgIAogICAgIyDilIDilIAgRGVjaXNpb24tbWFraW5nIGZpZWxkcyDilIDilIAKICAgIHF1YWxpdHlfc2NvcmU6IGZsb2F0ICAgICAgICAgICMgTExNLWdyYWRlZCByZWxldmFuY2UgKDAtMTApCiAgICByZXRyeV9jb3VudDogaW50ICAgICAgICAgICAgICAjIEhvdyBtYW55IHJld3JpdGVzIGF0dGVtcHRlZAogICAgbWF4X3JldHJpZXM6IGludCAgICAgICAgICAgICAgIyBTYWZldHkgbGltaXQgKGRlZmF1bHQ6IDMpCiAgICAKICAgICMg4pSA4pSAIE91dHB1dCBmaWVsZHMg4pSA4pSACiAgICBzdW1tYXJ5OiBzdHIgICAgICAgICAgICAgICAgICAjIEZpbmFsIGdlbmVyYXRlZCBzdW1tYXJ5CiAgICBzb3VyY2VzOiBMaXN0W3N0cl0gICAgICAgICAgICAjIFVSTHMvY2l0YXRpb25zIHRyYWNrZWQKICAgIAogICAgIyDilIDilIAgT2JzZXJ2YWJpbGl0eSDilIDilIAKICAgIGN1cnJlbnRfbm9kZTogc3RyICAgICAgICAgICAgICMgV2hpY2ggbm9kZSBpcyBleGVjdXRpbmcKICAgIGVycm9yOiBPcHRpb25hbFtzdHJdICAgICAgICAgICMgRXJyb3IgbWVzc2FnZSBpZiBhbnk=" />
 
 ### State Design Principles
 
@@ -64,117 +28,13 @@ If you've worked with MDM golden records, state design will feel familiar. A mas
 
 ### The Reducer Pattern: add_messages
 
-<CodeBlock>
-{`# WITHOUT a reducer:
-# Each node's return REPLACES the field
-# Node 1 returns: {'{'{'}'}"query": "AI governance"{'}'}
-# Node 2 returns: {'{'{'}'}"query": "AI governance frameworks 2026"{'}'}
-# Result: query = "AI governance frameworks 2026" (replaced)
-
-# WITH a reducer (add_messages):
-# Each node's return is MERGED using the reducer function
-# Node 1 returns: {'{'{'}'}"messages": [HumanMessage("Hello")]{'}'}
-# Node 2 returns: {'{'{'}'}"messages": [AIMessage("Hi there!")]{'}'}  
-# Result: messages = [HumanMessage("Hello"), AIMessage("Hi there!")]
-# The reducer APPENDED instead of replacing.
-
-# This is why messages uses Annotated[list, add_messages]
-# while query uses plain str — different merge strategies.`}
-</CodeBlock>
+<CodeBlock b64="IyBXSVRIT1VUIGEgcmVkdWNlcjoKIyBFYWNoIG5vZGUncyByZXR1cm4gUkVQTEFDRVMgdGhlIGZpZWxkCiMgTm9kZSAxIHJldHVybnM6IHsneyd7J30nfSJxdWVyeSI6ICJBSSBnb3Zlcm5hbmNlInsnfSd9CiMgTm9kZSAyIHJldHVybnM6IHsneyd7J30nfSJxdWVyeSI6ICJBSSBnb3Zlcm5hbmNlIGZyYW1ld29ya3MgMjAyNiJ7J30nfQojIFJlc3VsdDogcXVlcnkgPSAiQUkgZ292ZXJuYW5jZSBmcmFtZXdvcmtzIDIwMjYiIChyZXBsYWNlZCkKCiMgV0lUSCBhIHJlZHVjZXIgKGFkZF9tZXNzYWdlcyk6CiMgRWFjaCBub2RlJ3MgcmV0dXJuIGlzIE1FUkdFRCB1c2luZyB0aGUgcmVkdWNlciBmdW5jdGlvbgojIE5vZGUgMSByZXR1cm5zOiB7J3sneyd9J30ibWVzc2FnZXMiOiBbSHVtYW5NZXNzYWdlKCJIZWxsbyIpXXsnfSd9CiMgTm9kZSAyIHJldHVybnM6IHsneyd7J30nfSJtZXNzYWdlcyI6IFtBSU1lc3NhZ2UoIkhpIHRoZXJlISIpXXsnfSd9ICAKIyBSZXN1bHQ6IG1lc3NhZ2VzID0gW0h1bWFuTWVzc2FnZSgiSGVsbG8iKSwgQUlNZXNzYWdlKCJIaSB0aGVyZSEiKV0KIyBUaGUgcmVkdWNlciBBUFBFTkRFRCBpbnN0ZWFkIG9mIHJlcGxhY2luZy4KCiMgVGhpcyBpcyB3aHkgbWVzc2FnZXMgdXNlcyBBbm5vdGF0ZWRbbGlzdCwgYWRkX21lc3NhZ2VzXQojIHdoaWxlIHF1ZXJ5IHVzZXMgcGxhaW4gc3RyIOKAlCBkaWZmZXJlbnQgbWVyZ2Ugc3RyYXRlZ2llcy4=" />
 
 ### Writing Nodes: The Single-Responsibility Principle
 
 Each node should do **one thing well**. This makes your graph modular, testable, and debuggable.
 
-<CodeBlock>
-{`from langchain_anthropic import ChatAnthropic
-from langchain_core.messages import HumanMessage, SystemMessage
-
-llm = ChatAnthropic(model="claude-sonnet-4-20250514")
-
-# ─── Node 1: Search ───
-def search_node(state: ResearchState) -> dict:
-    """
-    Takes query from state, performs web search.
-    Returns PARTIAL state update — only the fields that changed.
-    """
-    query = state["query"]
-    results = tavily_search.invoke(query)  # Tavily, SerpAPI, etc.
-    return {'{'{'}'}
-        "search_results": results,
-        "current_node": "search"
-    {'}'}
-
-# ─── Node 2: Grade ───
-def grade_node(state: ResearchState) -> dict:
-    """
-    LLM evaluates search result relevance.
-    Returns a quality score that the routing function uses.
-    """
-    response = llm.invoke([
-        SystemMessage(content=(
-            "You are a research quality evaluator. "
-            "Score the relevance of these search results "
-            "to the query on a scale of 0-10. "
-            "Return ONLY the number, nothing else."
-        )),
-        HumanMessage(content=(
-            f"Query: {'{'{'}'}state['query']{'}'}\\n\\n"
-            f"Results: {'{'{'}'}state['search_results'][:2000]{'}'}"
-        ))
-    ])
-    score = float(response.content.strip())
-    return {'{'{'}'}
-        "quality_score": score,
-        "current_node": "grade"
-    {'}'}
-
-# ─── Node 3: Rewrite Query ───
-def rewrite_node(state: ResearchState) -> dict:
-    """
-    If results were poor, LLM rewrites the query.
-    Increments retry_count for the safety limit check.
-    """
-    response = llm.invoke([
-        SystemMessage(content=(
-            "The search results below were not relevant "
-            "to the original query. Rewrite the query to "
-            "get better results. Return ONLY the new query."
-        )),
-        HumanMessage(content=(
-            f"Original query: {'{'{'}'}state['original_query']{'}'}\\n"
-            f"Current query: {'{'{'}'}state['query']{'}'}\\n"
-            f"Poor results: {'{'{'}'}state['search_results'][:500]{'}'}"
-        ))
-    ])
-    return {'{'{'}'}
-        "query": response.content.strip(),
-        "retry_count": state["retry_count"] + 1,
-        "current_node": "rewrite"
-    {'}'}
-
-# ─── Node 4: Summarize ───
-def summarize_node(state: ResearchState) -> dict:
-    """
-    With high-quality results, generate the final summary.
-    This is a terminal node — after this, the graph ends.
-    """
-    response = llm.invoke([
-        SystemMessage(content=(
-            "Synthesize these search results into a clear, "
-            "comprehensive summary. Include key findings "
-            "and cite sources where possible."
-        )),
-        HumanMessage(content=(
-            f"Research topic: {'{'{'}'}state['original_query']{'}'}\\n\\n"
-            f"Results: {'{'{'}'}state['search_results']{'}'}"
-        ))
-    ])
-    return {'{'{'}'}
-        "summary": response.content,
-        "current_node": "summarize"
-    {'}'}`}
-</CodeBlock>
+<CodeBlock b64="ZnJvbSBsYW5nY2hhaW5fYW50aHJvcGljIGltcG9ydCBDaGF0QW50aHJvcGljCmZyb20gbGFuZ2NoYWluX2NvcmUubWVzc2FnZXMgaW1wb3J0IEh1bWFuTWVzc2FnZSwgU3lzdGVtTWVzc2FnZQoKbGxtID0gQ2hhdEFudGhyb3BpYyhtb2RlbD0iY2xhdWRlLXNvbm5ldC00LTIwMjUwNTE0IikKCiMg4pSA4pSA4pSAIE5vZGUgMTogU2VhcmNoIOKUgOKUgOKUgApkZWYgc2VhcmNoX25vZGUoc3RhdGU6IFJlc2VhcmNoU3RhdGUpIC0+IGRpY3Q6CiAgICAiIiIKICAgIFRha2VzIHF1ZXJ5IGZyb20gc3RhdGUsIHBlcmZvcm1zIHdlYiBzZWFyY2guCiAgICBSZXR1cm5zIFBBUlRJQUwgc3RhdGUgdXBkYXRlIOKAlCBvbmx5IHRoZSBmaWVsZHMgdGhhdCBjaGFuZ2VkLgogICAgIiIiCiAgICBxdWVyeSA9IHN0YXRlWyJxdWVyeSJdCiAgICByZXN1bHRzID0gdGF2aWx5X3NlYXJjaC5pbnZva2UocXVlcnkpICAjIFRhdmlseSwgU2VycEFQSSwgZXRjLgogICAgcmV0dXJuIHsneyd7J30nfQogICAgICAgICJzZWFyY2hfcmVzdWx0cyI6IHJlc3VsdHMsCiAgICAgICAgImN1cnJlbnRfbm9kZSI6ICJzZWFyY2giCiAgICB7J30nfQoKIyDilIDilIDilIAgTm9kZSAyOiBHcmFkZSDilIDilIDilIAKZGVmIGdyYWRlX25vZGUoc3RhdGU6IFJlc2VhcmNoU3RhdGUpIC0+IGRpY3Q6CiAgICAiIiIKICAgIExMTSBldmFsdWF0ZXMgc2VhcmNoIHJlc3VsdCByZWxldmFuY2UuCiAgICBSZXR1cm5zIGEgcXVhbGl0eSBzY29yZSB0aGF0IHRoZSByb3V0aW5nIGZ1bmN0aW9uIHVzZXMuCiAgICAiIiIKICAgIHJlc3BvbnNlID0gbGxtLmludm9rZShbCiAgICAgICAgU3lzdGVtTWVzc2FnZShjb250ZW50PSgKICAgICAgICAgICAgIllvdSBhcmUgYSByZXNlYXJjaCBxdWFsaXR5IGV2YWx1YXRvci4gIgogICAgICAgICAgICAiU2NvcmUgdGhlIHJlbGV2YW5jZSBvZiB0aGVzZSBzZWFyY2ggcmVzdWx0cyAiCiAgICAgICAgICAgICJ0byB0aGUgcXVlcnkgb24gYSBzY2FsZSBvZiAwLTEwLiAiCiAgICAgICAgICAgICJSZXR1cm4gT05MWSB0aGUgbnVtYmVyLCBub3RoaW5nIGVsc2UuIgogICAgICAgICkpLAogICAgICAgIEh1bWFuTWVzc2FnZShjb250ZW50PSgKICAgICAgICAgICAgZiJRdWVyeTogeyd7J3snfSd9c3RhdGVbJ3F1ZXJ5J117J30nfVxcblxcbiIKICAgICAgICAgICAgZiJSZXN1bHRzOiB7J3sneyd9J31zdGF0ZVsnc2VhcmNoX3Jlc3VsdHMnXVs6MjAwMF17J30nfSIKICAgICAgICApKQogICAgXSkKICAgIHNjb3JlID0gZmxvYXQocmVzcG9uc2UuY29udGVudC5zdHJpcCgpKQogICAgcmV0dXJuIHsneyd7J30nfQogICAgICAgICJxdWFsaXR5X3Njb3JlIjogc2NvcmUsCiAgICAgICAgImN1cnJlbnRfbm9kZSI6ICJncmFkZSIKICAgIHsnfSd9CgojIOKUgOKUgOKUgCBOb2RlIDM6IFJld3JpdGUgUXVlcnkg4pSA4pSA4pSACmRlZiByZXdyaXRlX25vZGUoc3RhdGU6IFJlc2VhcmNoU3RhdGUpIC0+IGRpY3Q6CiAgICAiIiIKICAgIElmIHJlc3VsdHMgd2VyZSBwb29yLCBMTE0gcmV3cml0ZXMgdGhlIHF1ZXJ5LgogICAgSW5jcmVtZW50cyByZXRyeV9jb3VudCBmb3IgdGhlIHNhZmV0eSBsaW1pdCBjaGVjay4KICAgICIiIgogICAgcmVzcG9uc2UgPSBsbG0uaW52b2tlKFsKICAgICAgICBTeXN0ZW1NZXNzYWdlKGNvbnRlbnQ9KAogICAgICAgICAgICAiVGhlIHNlYXJjaCByZXN1bHRzIGJlbG93IHdlcmUgbm90IHJlbGV2YW50ICIKICAgICAgICAgICAgInRvIHRoZSBvcmlnaW5hbCBxdWVyeS4gUmV3cml0ZSB0aGUgcXVlcnkgdG8gIgogICAgICAgICAgICAiZ2V0IGJldHRlciByZXN1bHRzLiBSZXR1cm4gT05MWSB0aGUgbmV3IHF1ZXJ5LiIKICAgICAgICApKSwKICAgICAgICBIdW1hbk1lc3NhZ2UoY29udGVudD0oCiAgICAgICAgICAgIGYiT3JpZ2luYWwgcXVlcnk6IHsneyd7J30nfXN0YXRlWydvcmlnaW5hbF9xdWVyeSddeyd9J31cXG4iCiAgICAgICAgICAgIGYiQ3VycmVudCBxdWVyeTogeyd7J3snfSd9c3RhdGVbJ3F1ZXJ5J117J30nfVxcbiIKICAgICAgICAgICAgZiJQb29yIHJlc3VsdHM6IHsneyd7J30nfXN0YXRlWydzZWFyY2hfcmVzdWx0cyddWzo1MDBdeyd9J30iCiAgICAgICAgKSkKICAgIF0pCiAgICByZXR1cm4geyd7J3snfSd9CiAgICAgICAgInF1ZXJ5IjogcmVzcG9uc2UuY29udGVudC5zdHJpcCgpLAogICAgICAgICJyZXRyeV9jb3VudCI6IHN0YXRlWyJyZXRyeV9jb3VudCJdICsgMSwKICAgICAgICAiY3VycmVudF9ub2RlIjogInJld3JpdGUiCiAgICB7J30nfQoKIyDilIDilIDilIAgTm9kZSA0OiBTdW1tYXJpemUg4pSA4pSA4pSACmRlZiBzdW1tYXJpemVfbm9kZShzdGF0ZTogUmVzZWFyY2hTdGF0ZSkgLT4gZGljdDoKICAgICIiIgogICAgV2l0aCBoaWdoLXF1YWxpdHkgcmVzdWx0cywgZ2VuZXJhdGUgdGhlIGZpbmFsIHN1bW1hcnkuCiAgICBUaGlzIGlzIGEgdGVybWluYWwgbm9kZSDigJQgYWZ0ZXIgdGhpcywgdGhlIGdyYXBoIGVuZHMuCiAgICAiIiIKICAgIHJlc3BvbnNlID0gbGxtLmludm9rZShbCiAgICAgICAgU3lzdGVtTWVzc2FnZShjb250ZW50PSgKICAgICAgICAgICAgIlN5bnRoZXNpemUgdGhlc2Ugc2VhcmNoIHJlc3VsdHMgaW50byBhIGNsZWFyLCAiCiAgICAgICAgICAgICJjb21wcmVoZW5zaXZlIHN1bW1hcnkuIEluY2x1ZGUga2V5IGZpbmRpbmdzICIKICAgICAgICAgICAgImFuZCBjaXRlIHNvdXJjZXMgd2hlcmUgcG9zc2libGUuIgogICAgICAgICkpLAogICAgICAgIEh1bWFuTWVzc2FnZShjb250ZW50PSgKICAgICAgICAgICAgZiJSZXNlYXJjaCB0b3BpYzogeyd7J3snfSd9c3RhdGVbJ29yaWdpbmFsX3F1ZXJ5J117J30nfVxcblxcbiIKICAgICAgICAgICAgZiJSZXN1bHRzOiB7J3sneyd9J31zdGF0ZVsnc2VhcmNoX3Jlc3VsdHMnXXsnfSd9IgogICAgICAgICkpCiAgICBdKQogICAgcmV0dXJuIHsneyd7J30nfQogICAgICAgICJzdW1tYXJ5IjogcmVzcG9uc2UuY29udGVudCwKICAgICAgICAiY3VycmVudF9ub2RlIjogInN1bW1hcml6ZSIKICAgIHsnfSd9" />
 
 <Quiz
   question="Why does each node return a Python dict (partial state) instead of the full ResearchState object?"

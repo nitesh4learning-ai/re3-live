@@ -7,62 +7,7 @@ icon: "🏭"
 
 A production tool system goes beyond basic function calling. It includes logging, cost tracking, rate limiting, caching, and monitoring.
 
-<CodeBlock>
-{`class ProductionToolRegistry {'{'{'}'}
-  constructor(config = {'{'{'}'}{'}'}) {'{'{'}'}
-    this.tools = new Map();
-    this.metrics = {'{'{'}'} calls: 0, errors: 0, totalLatency: 0 {'}'};
-    this.cache = new Map();
-  {'}'}
-
-  register(tool) {'{'{'}'}
-    if (!tool.name || !tool.handler || !tool.schema)
-      throw new Error("Tool must have name, handler, and schema");
-    this.tools.set(tool.name, {'{'{'}'} ...tool, callCount: 0, errorCount: 0, avgLatency: 0 {'}'});
-  {'}'}
-
-  async call(name, args, context = {'{'{'}'}{'}'}) {'{'{'}'}
-    const tool = this.tools.get(name);
-    if (!tool) throw new Error("Unknown tool: " + name);
-
-    // Cache check for idempotent tools
-    const cacheKey = name + ":" + JSON.stringify(args);
-    if (tool.cacheable && this.cache.has(cacheKey)) return this.cache.get(cacheKey);
-
-    const start = Date.now();
-    this.metrics.calls++;
-    tool.callCount++;
-
-    try {'{'{'}'}
-      const result = await tool.handler(args, context);
-      const latency = Date.now() - start;
-      this.metrics.totalLatency += latency;
-      tool.avgLatency = (tool.avgLatency + latency) / 2;
-
-      if (tool.cacheable) {'{'{'}'}
-        this.cache.set(cacheKey, result);
-        setTimeout(() => this.cache.delete(cacheKey), 300000);
-      {'}'}
-      return result;
-    {'}'} catch (err) {'{'{'}'}
-      this.metrics.errors++;
-      tool.errorCount++;
-      throw err;
-    {'}'}
-  {'}'}
-
-  getMetrics() {'{'{'}'}
-    return {'{'{'}'}
-      ...this.metrics,
-      avgLatency: this.metrics.calls ? this.metrics.totalLatency / this.metrics.calls : 0,
-      errorRate: this.metrics.calls ? this.metrics.errors / this.metrics.calls : 0,
-      tools: Array.from(this.tools.values()).map(t => ({'{'{'}'}
-        name: t.name, calls: t.callCount, errors: t.errorCount, avgLatency: Math.round(t.avgLatency)
-      {'}'}))
-    {'}'};
-  {'}'}
-{'}'}`}
-</CodeBlock>
+<CodeBlock b64="Y2xhc3MgUHJvZHVjdGlvblRvb2xSZWdpc3RyeSB7J3sneyd9J30KICBjb25zdHJ1Y3Rvcihjb25maWcgPSB7J3sneyd9J317J30nfSkgeyd7J3snfSd9CiAgICB0aGlzLnRvb2xzID0gbmV3IE1hcCgpOwogICAgdGhpcy5tZXRyaWNzID0geyd7J3snfSd9IGNhbGxzOiAwLCBlcnJvcnM6IDAsIHRvdGFsTGF0ZW5jeTogMCB7J30nfTsKICAgIHRoaXMuY2FjaGUgPSBuZXcgTWFwKCk7CiAgeyd9J30KCiAgcmVnaXN0ZXIodG9vbCkgeyd7J3snfSd9CiAgICBpZiAoIXRvb2wubmFtZSB8fCAhdG9vbC5oYW5kbGVyIHx8ICF0b29sLnNjaGVtYSkKICAgICAgdGhyb3cgbmV3IEVycm9yKCJUb29sIG11c3QgaGF2ZSBuYW1lLCBoYW5kbGVyLCBhbmQgc2NoZW1hIik7CiAgICB0aGlzLnRvb2xzLnNldCh0b29sLm5hbWUsIHsneyd7J30nfSAuLi50b29sLCBjYWxsQ291bnQ6IDAsIGVycm9yQ291bnQ6IDAsIGF2Z0xhdGVuY3k6IDAgeyd9J30pOwogIHsnfSd9CgogIGFzeW5jIGNhbGwobmFtZSwgYXJncywgY29udGV4dCA9IHsneyd7J30nfXsnfSd9KSB7J3sneyd9J30KICAgIGNvbnN0IHRvb2wgPSB0aGlzLnRvb2xzLmdldChuYW1lKTsKICAgIGlmICghdG9vbCkgdGhyb3cgbmV3IEVycm9yKCJVbmtub3duIHRvb2w6ICIgKyBuYW1lKTsKCiAgICAvLyBDYWNoZSBjaGVjayBmb3IgaWRlbXBvdGVudCB0b29scwogICAgY29uc3QgY2FjaGVLZXkgPSBuYW1lICsgIjoiICsgSlNPTi5zdHJpbmdpZnkoYXJncyk7CiAgICBpZiAodG9vbC5jYWNoZWFibGUgJiYgdGhpcy5jYWNoZS5oYXMoY2FjaGVLZXkpKSByZXR1cm4gdGhpcy5jYWNoZS5nZXQoY2FjaGVLZXkpOwoKICAgIGNvbnN0IHN0YXJ0ID0gRGF0ZS5ub3coKTsKICAgIHRoaXMubWV0cmljcy5jYWxscysrOwogICAgdG9vbC5jYWxsQ291bnQrKzsKCiAgICB0cnkgeyd7J3snfSd9CiAgICAgIGNvbnN0IHJlc3VsdCA9IGF3YWl0IHRvb2wuaGFuZGxlcihhcmdzLCBjb250ZXh0KTsKICAgICAgY29uc3QgbGF0ZW5jeSA9IERhdGUubm93KCkgLSBzdGFydDsKICAgICAgdGhpcy5tZXRyaWNzLnRvdGFsTGF0ZW5jeSArPSBsYXRlbmN5OwogICAgICB0b29sLmF2Z0xhdGVuY3kgPSAodG9vbC5hdmdMYXRlbmN5ICsgbGF0ZW5jeSkgLyAyOwoKICAgICAgaWYgKHRvb2wuY2FjaGVhYmxlKSB7J3sneyd9J30KICAgICAgICB0aGlzLmNhY2hlLnNldChjYWNoZUtleSwgcmVzdWx0KTsKICAgICAgICBzZXRUaW1lb3V0KCgpID0+IHRoaXMuY2FjaGUuZGVsZXRlKGNhY2hlS2V5KSwgMzAwMDAwKTsKICAgICAgeyd9J30KICAgICAgcmV0dXJuIHJlc3VsdDsKICAgIHsnfSd9IGNhdGNoIChlcnIpIHsneyd7J30nfQogICAgICB0aGlzLm1ldHJpY3MuZXJyb3JzKys7CiAgICAgIHRvb2wuZXJyb3JDb3VudCsrOwogICAgICB0aHJvdyBlcnI7CiAgICB7J30nfQogIHsnfSd9CgogIGdldE1ldHJpY3MoKSB7J3sneyd9J30KICAgIHJldHVybiB7J3sneyd9J30KICAgICAgLi4udGhpcy5tZXRyaWNzLAogICAgICBhdmdMYXRlbmN5OiB0aGlzLm1ldHJpY3MuY2FsbHMgPyB0aGlzLm1ldHJpY3MudG90YWxMYXRlbmN5IC8gdGhpcy5tZXRyaWNzLmNhbGxzIDogMCwKICAgICAgZXJyb3JSYXRlOiB0aGlzLm1ldHJpY3MuY2FsbHMgPyB0aGlzLm1ldHJpY3MuZXJyb3JzIC8gdGhpcy5tZXRyaWNzLmNhbGxzIDogMCwKICAgICAgdG9vbHM6IEFycmF5LmZyb20odGhpcy50b29scy52YWx1ZXMoKSkubWFwKHQgPT4gKHsneyd7J30nfQogICAgICAgIG5hbWU6IHQubmFtZSwgY2FsbHM6IHQuY2FsbENvdW50LCBlcnJvcnM6IHQuZXJyb3JDb3VudCwgYXZnTGF0ZW5jeTogTWF0aC5yb3VuZCh0LmF2Z0xhdGVuY3kpCiAgICAgIHsnfSd9KSkKICAgIHsnfSd9OwogIHsnfSd9CnsnfSd9" />
 
 <Quiz question="Why is caching important in a production tool system?" options={["To reduce code complexity","To avoid redundant API calls, saving latency and cost","Caching is not important","To prevent all errors"]} correctIndex={1} explanation="Many tool calls are idempotent. Caching prevents redundant API calls, reducing both latency and cost." />
 

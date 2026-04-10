@@ -7,28 +7,6 @@ icon: "🧠"
 
 The most fundamental agentic pattern. The <JargonTip term="ReAct">ReAct</JargonTip> loop: the model **thinks** about what to do, **acts** (calls a tool), **observes** the result, then **thinks** again.
 
-<CodeBlock>
-{`def react_loop(query, tools, max_steps=5):
-    messages = [{'{'{'}'}"role": "user", "content": query{'}'}]
-
-    for step in range(max_steps):
-        # THINK: model reasons about what to do
-        response = call_llm(messages, tools=tools)
-
-        if response.is_final_answer:
-            return response.content  # Done!
-
-        if response.tool_call:
-            # ACT: execute the tool
-            tool_result = execute_tool(
-                response.tool_call.name,
-                response.tool_call.arguments
-            )
-            # OBSERVE: add result to conversation
-            messages.append({'{'{'}'}"role": "tool", "content": tool_result{'}'})
-            # Loop back to THINK
-
-    return "Max steps reached"`}
-</CodeBlock>
+<CodeBlock b64="ZGVmIHJlYWN0X2xvb3AocXVlcnksIHRvb2xzLCBtYXhfc3RlcHM9NSk6CiAgICBtZXNzYWdlcyA9IFt7J3sneyd9J30icm9sZSI6ICJ1c2VyIiwgImNvbnRlbnQiOiBxdWVyeXsnfSd9XQoKICAgIGZvciBzdGVwIGluIHJhbmdlKG1heF9zdGVwcyk6CiAgICAgICAgIyBUSElOSzogbW9kZWwgcmVhc29ucyBhYm91dCB3aGF0IHRvIGRvCiAgICAgICAgcmVzcG9uc2UgPSBjYWxsX2xsbShtZXNzYWdlcywgdG9vbHM9dG9vbHMpCgogICAgICAgIGlmIHJlc3BvbnNlLmlzX2ZpbmFsX2Fuc3dlcjoKICAgICAgICAgICAgcmV0dXJuIHJlc3BvbnNlLmNvbnRlbnQgICMgRG9uZSEKCiAgICAgICAgaWYgcmVzcG9uc2UudG9vbF9jYWxsOgogICAgICAgICAgICAjIEFDVDogZXhlY3V0ZSB0aGUgdG9vbAogICAgICAgICAgICB0b29sX3Jlc3VsdCA9IGV4ZWN1dGVfdG9vbCgKICAgICAgICAgICAgICAgIHJlc3BvbnNlLnRvb2xfY2FsbC5uYW1lLAogICAgICAgICAgICAgICAgcmVzcG9uc2UudG9vbF9jYWxsLmFyZ3VtZW50cwogICAgICAgICAgICApCiAgICAgICAgICAgICMgT0JTRVJWRTogYWRkIHJlc3VsdCB0byBjb252ZXJzYXRpb24KICAgICAgICAgICAgbWVzc2FnZXMuYXBwZW5kKHsneyd7J30nfSJyb2xlIjogInRvb2wiLCAiY29udGVudCI6IHRvb2xfcmVzdWx0eyd9J30pCiAgICAgICAgICAgICMgTG9vcCBiYWNrIHRvIFRISU5LCgogICAgcmV0dXJuICJNYXggc3RlcHMgcmVhY2hlZCI=" />
 
 <SeeItInRe3 text="Re³'s agent debate system uses a form of ReAct -- each agent reasons about its position, observes other agents' arguments, then refines its conclusion through multiple rounds."/>

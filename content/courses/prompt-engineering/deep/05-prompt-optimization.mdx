@@ -15,54 +15,7 @@ DSPy compiles your program into optimized prompts by trying many variants and se
 
 </ExpandableSection>
 
-<CodeBlock>
-{`import dspy
-
-# Configure the language model
-lm = dspy.LM("openai/gpt-4o-mini", temperature=0.7)
-dspy.configure(lm=lm)
-
-# Define the task as a signature
-class ClassifyTicket(dspy.Signature):
-    """Classify a customer support ticket into a category."""
-    ticket_text: str = dspy.InputField(desc="The customer's message")
-    category: str = dspy.OutputField(
-        desc="One of: billing, technical, shipping, product_question, complaint"
-    )
-
-# Create a module (DSPy chooses the best strategy)
-classifier = dspy.ChainOfThought(ClassifyTicket)
-
-# Prepare training examples
-trainset = [
-    dspy.Example(
-        ticket_text="I was charged twice for my order",
-        category="billing"
-    ).with_inputs("ticket_text"),
-    dspy.Example(
-        ticket_text="The app keeps crashing on login",
-        category="technical"
-    ).with_inputs("ticket_text"),
-    # ... more examples
-]
-
-# Define evaluation metric
-def accuracy_metric(example, prediction, trace=None):
-    return prediction.category.lower() == example.category.lower()
-
-# Optimize the prompt automatically
-optimizer = dspy.MIPROv2(metric=accuracy_metric, auto="medium")
-optimized_classifier = optimizer.compile(
-    classifier,
-    trainset=trainset,
-    max_bootstrapped_demos=4,  # max few-shot examples
-    max_labeled_demos=8,
-)
-
-# Use the optimized classifier
-result = optimized_classifier(ticket_text="My package hasn't arrived yet")
-print(f"Category: {'{'{'}'}result.category{'}'}")`}
-</CodeBlock>
+<CodeBlock b64="aW1wb3J0IGRzcHkKCiMgQ29uZmlndXJlIHRoZSBsYW5ndWFnZSBtb2RlbApsbSA9IGRzcHkuTE0oIm9wZW5haS9ncHQtNG8tbWluaSIsIHRlbXBlcmF0dXJlPTAuNykKZHNweS5jb25maWd1cmUobG09bG0pCgojIERlZmluZSB0aGUgdGFzayBhcyBhIHNpZ25hdHVyZQpjbGFzcyBDbGFzc2lmeVRpY2tldChkc3B5LlNpZ25hdHVyZSk6CiAgICAiIiJDbGFzc2lmeSBhIGN1c3RvbWVyIHN1cHBvcnQgdGlja2V0IGludG8gYSBjYXRlZ29yeS4iIiIKICAgIHRpY2tldF90ZXh0OiBzdHIgPSBkc3B5LklucHV0RmllbGQoZGVzYz0iVGhlIGN1c3RvbWVyJ3MgbWVzc2FnZSIpCiAgICBjYXRlZ29yeTogc3RyID0gZHNweS5PdXRwdXRGaWVsZCgKICAgICAgICBkZXNjPSJPbmUgb2Y6IGJpbGxpbmcsIHRlY2huaWNhbCwgc2hpcHBpbmcsIHByb2R1Y3RfcXVlc3Rpb24sIGNvbXBsYWludCIKICAgICkKCiMgQ3JlYXRlIGEgbW9kdWxlIChEU1B5IGNob29zZXMgdGhlIGJlc3Qgc3RyYXRlZ3kpCmNsYXNzaWZpZXIgPSBkc3B5LkNoYWluT2ZUaG91Z2h0KENsYXNzaWZ5VGlja2V0KQoKIyBQcmVwYXJlIHRyYWluaW5nIGV4YW1wbGVzCnRyYWluc2V0ID0gWwogICAgZHNweS5FeGFtcGxlKAogICAgICAgIHRpY2tldF90ZXh0PSJJIHdhcyBjaGFyZ2VkIHR3aWNlIGZvciBteSBvcmRlciIsCiAgICAgICAgY2F0ZWdvcnk9ImJpbGxpbmciCiAgICApLndpdGhfaW5wdXRzKCJ0aWNrZXRfdGV4dCIpLAogICAgZHNweS5FeGFtcGxlKAogICAgICAgIHRpY2tldF90ZXh0PSJUaGUgYXBwIGtlZXBzIGNyYXNoaW5nIG9uIGxvZ2luIiwKICAgICAgICBjYXRlZ29yeT0idGVjaG5pY2FsIgogICAgKS53aXRoX2lucHV0cygidGlja2V0X3RleHQiKSwKICAgICMgLi4uIG1vcmUgZXhhbXBsZXMKXQoKIyBEZWZpbmUgZXZhbHVhdGlvbiBtZXRyaWMKZGVmIGFjY3VyYWN5X21ldHJpYyhleGFtcGxlLCBwcmVkaWN0aW9uLCB0cmFjZT1Ob25lKToKICAgIHJldHVybiBwcmVkaWN0aW9uLmNhdGVnb3J5Lmxvd2VyKCkgPT0gZXhhbXBsZS5jYXRlZ29yeS5sb3dlcigpCgojIE9wdGltaXplIHRoZSBwcm9tcHQgYXV0b21hdGljYWxseQpvcHRpbWl6ZXIgPSBkc3B5Lk1JUFJPdjIobWV0cmljPWFjY3VyYWN5X21ldHJpYywgYXV0bz0ibWVkaXVtIikKb3B0aW1pemVkX2NsYXNzaWZpZXIgPSBvcHRpbWl6ZXIuY29tcGlsZSgKICAgIGNsYXNzaWZpZXIsCiAgICB0cmFpbnNldD10cmFpbnNldCwKICAgIG1heF9ib290c3RyYXBwZWRfZGVtb3M9NCwgICMgbWF4IGZldy1zaG90IGV4YW1wbGVzCiAgICBtYXhfbGFiZWxlZF9kZW1vcz04LAopCgojIFVzZSB0aGUgb3B0aW1pemVkIGNsYXNzaWZpZXIKcmVzdWx0ID0gb3B0aW1pemVkX2NsYXNzaWZpZXIodGlja2V0X3RleHQ9Ik15IHBhY2thZ2UgaGFzbid0IGFycml2ZWQgeWV0IikKcHJpbnQoZiJDYXRlZ29yeTogeyd7J3snfSd9cmVzdWx0LmNhdGVnb3J5eyd9J30iKQ==" />
 
 <ExpandableSection title="Prompt Versioning & A/B Testing" icon="🔬">
 
