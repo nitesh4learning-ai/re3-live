@@ -570,14 +570,9 @@ export default function OrchestrationPage({ user, onNavigate, runId, readOnly = 
 
       {/* Main layout */}
       {!showResults ? (
-        /* Pre-run: Show intake form centered + library below */
+        /* Pre-run: Use Case Library (existing cases) on top, submit form below */
         <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-          {accessBanner}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
-            <IntakeForm onSubmit={handleSubmit} isRunning={isRunning} isAdmin={isAdmin} readOnly={readOnly} />
-          </div>
-
-          {/* Use Case Library + Compare toggle */}
+          {/* Use Case Library + Compare toggle — already-generated cases first */}
           {showComparison ? (
             <RunComparison
               runs={savedRuns.map((r) => {
@@ -612,6 +607,12 @@ export default function OrchestrationPage({ user, onNavigate, runId, readOnly = 
               )}
             </>
           )}
+
+          {/* Submit a new orchestration — moved below the library */}
+          {accessBanner}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
+            <IntakeForm onSubmit={handleSubmit} isRunning={isRunning} isAdmin={isAdmin} readOnly={readOnly} />
+          </div>
         </div>
       ) : (
         /* During/Post-run: New Playground UI (dark theme) */
