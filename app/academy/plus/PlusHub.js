@@ -2,12 +2,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useApp } from "../../providers";
-import { GIM, ADMIN_EMAIL } from "../constants";
+import { GIM, isAdminEmail } from "../constants";
 import FadeIn from "../components/FadeIn";
 
 function AdminGate({ children }) {
   const { user } = useApp();
-  const isAdmin = user?.email === ADMIN_EMAIL;
+  const isAdmin = isAdminEmail(user?.email);
 
   if (!isAdmin) {
     return (

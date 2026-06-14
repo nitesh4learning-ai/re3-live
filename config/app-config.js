@@ -7,7 +7,8 @@ export const APP_CONFIG = {
   siteUrl: "https://re3.live",
   tagline: "Rethink \u00B7 Rediscover \u00B7 Reinvent",
   description: "Where human intuition meets machine foresight.",
-  adminEmail: "nitesh4learning@gmail.com",
+  // Admin identity is NOT configured here — see lib/admins.js (server gate) and
+  // app/constants/ui.js (client UX check, driven by NEXT_PUBLIC_ADMIN_EMAILS).
 
   // Design tokens (Governance Interaction Mesh)
   colors: {

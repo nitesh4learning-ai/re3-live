@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { GIM, ADMIN_EMAIL } from "../constants";
+import { GIM, isAdminEmail } from "../constants";
 import { useApp } from "../../providers";
 import FadeIn from "../components/FadeIn";
 import ProgressBar from "../components/ProgressBar";
@@ -37,7 +37,7 @@ function DepthSelector({ depth, onChangeDepth }) {
 export default function CourseShell({ courseId, meta, visionaryTabs = [], deepTabs = [] }) {
   const { user } = useApp();
   const isPlusCourse = !!meta?.programLink;
-  const isAdmin = user?.email === ADMIN_EMAIL;
+  const isAdmin = isAdminEmail(user?.email);
 
   // All hooks must be called before any early return (React rules)
   const [getDepth, setDepth] = useDepthPreference();

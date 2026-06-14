@@ -1,7 +1,7 @@
 "use client";
 import { useState, useCallback } from "react";
 import { COURSES } from "../../constants/courses";
-import { TIER_DEFAULTS, DEFAULT_TIER_COLORS, ADMIN_EMAIL } from "../constants";
+import { TIER_DEFAULTS, DEFAULT_TIER_COLORS, isAdminEmail } from "../constants";
 
 const ADB = {
   get: (key, fb) => { try { const d = typeof window !== 'undefined' && localStorage.getItem(`re3_academy_${key}`); return d ? JSON.parse(d) : fb; } catch { return fb; } },
@@ -9,7 +9,7 @@ const ADB = {
 };
 
 export function isAcademyAdmin(user) {
-  return user?.email === ADMIN_EMAIL;
+  return isAdminEmail(user?.email);
 }
 
 export default function useAcademyAdmin(serverCourses) {

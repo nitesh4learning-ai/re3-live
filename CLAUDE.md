@@ -60,11 +60,13 @@ CI (`.github/workflows/ci.yml`) runs lint → test → build on push/PR to `main
 
 ## Access gating & auth (do not loosen)
 
-- **Client auth:** Firebase Auth + Google OAuth. Admin is `ADMIN_EMAIL` (`nitesh4learning@gmail.com`) via `isAdmin(user)` in `app/constants/ui.js`; client pages redirect non-admins, but that is UX only — never the real gate.
-- **Server auth:** `lib/auth.js` `getAuthUser(req, {allowGuest})` verifies the `Authorization: Bearer <Firebase ID token>` via firebase-admin. Most POST routes go through `lib/api-handler.js` `createHandler(schema, handler, {allowGuest, rateLimit})`, which chains auth → rate-limit → zod validation. Admin/access routes hand-roll the same `user.email === ADMIN_EMAIL` check and return 403 otherwise.
+Admin identity has a deliberate **server/client split** — there is no single hardcoded admin email anymore:
+
+- **Server gate (the real one):** `lib/admins.js` — `isAdminEmail(email)` backed by `ADMIN_EMAILS` (from the **server-only** `ADMIN_EMAILS` env var, comma-separated; falls back to the built-in defaults `nitesh4learning@gmail.com` + `einsteinrethink@gmail.com`). `ADMIN_EMAILS` is **not** `NEXT_PUBLIC`, so it is never shipped to the browser. The two admin/access API routes import `isAdminEmail` from here — that is the enforcement boundary.
+- **Client check (UX only):** `app/constants/ui.js` exports `isAdminEmail`/`isAdmin` from a **separate** list read from `NEXT_PUBLIC_ADMIN_EMAILS`. This only shows/hides admin affordances; it is **not** a security boundary. There are no admin emails hardcoded on the client path. Academy and orchestration UIs consume this via the constants barrels.
+- **Server auth:** `lib/auth.js` `getAuthUser(req, {allowGuest})` verifies the `Authorization: Bearer <Firebase ID token>` via firebase-admin. Most POST routes go through `lib/api-handler.js` `createHandler(schema, handler, {allowGuest, rateLimit})`, which chains auth → rate-limit → zod validation. The admin/access routes (`api/admin/requests`, `api/access/status`) hand-roll auth and check `isAdminEmail(user.email)`, returning 403 otherwise.
 - **Feature gating:** users request features (`arena`, `loom_extras`) via `api/access/request`; status from `api/access/status`; admin approves in `api/admin/requests`. Backed by the Firestore `access_requests` collection.
-- **Firestore rules** (`firestore.rules`) are the last line of defense: public read on content, authed write, admin-only delete. Keep server check + rules in sync; never widen rules to close a client bug.
-- **Known inconsistency:** `firestore.rules` `isAdmin()` keys off `einsteinrethink@gmail.com` (or a custom claim `admin:true`), while app code uses `nitesh4learning@gmail.com`. Verify which email you actually need before relying on either; don't "fix" one to match the other without confirming intent.
+- **Firestore rules** (`firestore.rules`) are the last line of defense: public read on content, authed write, admin-only delete. `isAdmin()` there matches `einsteinrethink@gmail.com`, `nitesh4learning@gmail.com`, or the custom claim `admin:true`. Rules **cannot read env**, so this admin list is maintained by hand and must be kept in sync with `lib/admins.js`. Rules only take effect after `firebase deploy --only firestore:rules`. Never widen rules to close a client bug.
 
 ## Secrets & env
 
@@ -73,7 +75,10 @@ All keys come from `process.env` — **never hardcode or commit them**. No secre
 - LLM: `ANTHROPIC_API_KEY` (required), `OPENAI_API_KEY`, `GOOGLE_GEMINI_API_KEY`, `GROQ_API_KEY` (optional).
 - Firebase admin: `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`.
 - Infra: `UPSTASH_REDIS_REST_URL`/`_TOKEN` (rate limit; in-memory fallback if unset), `SENTRY_AUTH_TOKEN`.
+- Admin: `ADMIN_EMAILS` (server-only, comma-separated; optional — defaults to both admins) and `NEXT_PUBLIC_ADMIN_EMAILS` (client UX, comma-separated). See the ⚠️ note below.
 - Client Firebase: `next.config.js` maps `REACT_APP_FIREBASE_*` → `NEXT_PUBLIC_FIREBASE_*` at build (quirk — set the `REACT_APP_*` names). `next.config.js` warns on missing required prod keys; `.env*.local` is gitignored; CI/Vercel inject real values.
+
+> ⚠️ **`NEXT_PUBLIC_ADMIN_EMAILS` must be set in Vercel** to `nitesh4learning@gmail.com,einsteinrethink@gmail.com` — otherwise the **admin UI will not appear in production** (the admin nav/panels stay hidden), even though server-side and Firestore admin powers still work. This is the deliberate cost of keeping admin emails out of the client bundle: the client has no hardcoded fallback. Set this env var after deploying. (Server enforcement uses the separate `ADMIN_EMAILS`, whose defaults are populated, so it never depends on this.)
 
 ## LLM router
 

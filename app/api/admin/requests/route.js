@@ -1,14 +1,13 @@
 // API: GET/POST /api/admin/requests — admin manages access requests
 import { getAuthUser } from "../../../../lib/auth";
+import { isAdminEmail } from "../../../../lib/admins";
 import { NextResponse } from "next/server";
-
-const ADMIN_EMAIL = "nitesh4learning@gmail.com";
 
 export async function GET(req) {
   try {
     const { user, error, status } = await getAuthUser(req);
     if (error) return NextResponse.json({ error }, { status });
-    if (user.email !== ADMIN_EMAIL) {
+    if (!isAdminEmail(user.email)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -37,7 +36,7 @@ export async function POST(req) {
   try {
     const { user, error, status } = await getAuthUser(req);
     if (error) return NextResponse.json({ error }, { status });
-    if (user.email !== ADMIN_EMAIL) {
+    if (!isAdminEmail(user.email)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

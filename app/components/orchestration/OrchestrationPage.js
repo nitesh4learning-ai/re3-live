@@ -16,6 +16,7 @@ import UseCaseLibrary from "./UseCaseLibrary";
 import BlackboardPanel from "./panels/BlackboardPanel";
 import { saveRun, listRuns, getRun, getRunCloud, listRunsCloud } from "../../../lib/orchestration/run-store";
 import RunComparison from "./RunComparison";
+import { isAdminEmail } from "../../constants";
 import MermaidDiagram from "./panels/MermaidDiagram";
 import PrototypeSandbox from "./panels/PrototypeSandbox";
 
@@ -79,10 +80,8 @@ const EVENT_TO_PHASE = {
   "phase.failed": "failed",
 };
 
-const ADMIN_EMAIL = "nitesh4learning@gmail.com";
-
 export default function OrchestrationPage({ user, onNavigate, runId, readOnly = false, accessBanner = null }) {
-  const isAdmin = user?.email === ADMIN_EMAIL;
+  const isAdmin = isAdminEmail(user?.email);
   const [isRunning, setIsRunning] = useState(false);
   const [boardSnapshot, setBoardSnapshot] = useState(null);
   const [budget, setBudget] = useState(null);

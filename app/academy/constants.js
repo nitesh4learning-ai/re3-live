@@ -33,4 +33,5 @@ export const TIER_DEFAULTS = {
   4: { accent: '#DC2626', bg: '#FEF2F2', label: 'Strategic & Frontier' },
 };
 
-export const ADMIN_EMAIL = 'nitesh4learning@gmail.com';
+// Re-exported from the central client admin check (UX only — see app/constants/ui.js).
+export { isAdminEmail } from '../constants/ui';

@@ -2,7 +2,7 @@
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useApp } from "../../../providers";
-import { GIM, ADMIN_EMAIL } from "../../constants";
+import { GIM, isAdminEmail } from "../../constants";
 import FadeIn from "../../components/FadeIn";
 
 // ── Portable: all data comes from props, no external dependencies ──
@@ -175,7 +175,7 @@ function CertCard({ cert }) {
 
 export default function ProgramShell({ programId, program }) {
   const { user } = useApp();
-  const isAdmin = user?.email === ADMIN_EMAIL;
+  const isAdmin = isAdminEmail(user?.email);
   const [expandedWeek, setExpandedWeek] = useState(null);
   const [showCerts, setShowCerts] = useState(false);
 

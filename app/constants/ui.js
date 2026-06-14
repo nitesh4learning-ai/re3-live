@@ -21,7 +21,17 @@ export const REACTION_MAP = {
   I: { label:"Reinvent", pillar:"reinvent" },
 };
 
-export const ADMIN_EMAIL = "nitesh4learning@gmail.com";
-export const isAdmin = (user) => user?.email === ADMIN_EMAIL;
+// Client-side admin check — UX ONLY (show/hide admin affordances). NOT a security
+// boundary: real enforcement is the server routes (lib/admins.js) + Firestore rules.
+// Reads NEXT_PUBLIC_ADMIN_EMAILS (comma-separated) so admin addresses are configured
+// at deploy time and never hardcoded into the client bundle. If it is unset, no admin
+// UI is shown — server/Firestore admin still works regardless.
+export const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || "")
+  .split(",")
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+export const isAdminEmail = (email) =>
+  typeof email === "string" && ADMIN_EMAILS.includes(email.toLowerCase());
+export const isAdmin = (user) => isAdminEmail(user?.email);
 
 export const ORCH_AVATAR_KEY = { agent_sage:"hypatia", agent_atlas:"socratia", agent_forge:"ada" };

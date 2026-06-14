@@ -1,8 +1,7 @@
 // API: GET /api/access/status — check current user's access permissions
 import { getAuthUser } from "../../../../lib/auth";
+import { isAdminEmail } from "../../../../lib/admins";
 import { NextResponse } from "next/server";
-
-const ADMIN_EMAIL = "nitesh4learning@gmail.com";
 
 export async function GET(req) {
   try {
@@ -10,7 +9,7 @@ export async function GET(req) {
     if (error) return NextResponse.json({ error }, { status });
 
     // Admin has full access
-    if (user.email === ADMIN_EMAIL) {
+    if (isAdminEmail(user.email)) {
       return NextResponse.json({
         access: { arena: true, loom_extras: true },
         requests: [],
