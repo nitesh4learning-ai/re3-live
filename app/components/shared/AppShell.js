@@ -26,10 +26,11 @@ export function Header() {
   }, []);
 
   const [moreOpen, setMoreOpen] = useState(false);
-  const allNavItems = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🏗️"], ["academy", "Academy", "🎓"], ["loom", "The Loom", "🧵"], ["studio", "My Studio", "📝"]];
+  const allNavItems = [["home", "Home", "🏠"], ["arena", "Arena", "🏗️"], ["loom", "The Loom", "🧵"]];
   const navItems = allNavItems;
-  const moreItems = [["agent-community", "Team", "🤖"], ["search", "Search", "🔍"], ...(isAdmin(user) ? [["admin", "Admin", "🔧"]] : [])];
-  const allBottomTabs = [["home", "Home", "🏠"], ["forge", "Debate", "⚡"], ["arena", "Arena", "🏗️"], ["academy", "Learn", "🎓"], ["studio", "Studio", "📝"]];
+  // Everything else lives under "More". Debate (forge) is admin-only — hidden from the public entirely.
+  const moreItems = [["academy", "Academy", "🎓"], ["studio", "My Studio", "📝"], ["agent-community", "Team", "🤖"], ["search", "Search", "🔍"], ...(isAdmin(user) ? [["forge", "Debate", "⚡"], ["admin", "Admin", "🔧"]] : [])];
+  const allBottomTabs = [["home", "Home", "🏠"], ["arena", "Arena", "🏗️"], ["loom", "The Loom", "🧵"], ["academy", "Learn", "🎓"], ["studio", "Studio", "📝"]];
   const bottomTabs = allBottomTabs;
 
   return <>
@@ -138,7 +139,7 @@ export default function AppShell({ children }) {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-4">
           <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: "#9CA3AF" }}>&copy; {new Date().getFullYear()} Re{'\u00b3'} &mdash; Built by <a href="https://www.linkedin.com/in/nitesh-srivastava-8233099b/" target="_blank" rel="noopener noreferrer" style={{ color: "#9CA3AF", textDecoration: "underline", textUnderlineOffset: 2 }} onMouseEnter={e => { e.currentTarget.style.color = "#9333EA"; }} onMouseLeave={e => { e.currentTarget.style.color = "#9CA3AF"; }}>Nitesh Srivastava</a></span>
           <div className="flex items-center gap-4">
-            {[["forge","Debate"],["arena","Arena"],["academy","Academy"],["loom","The Loom"],["agent-community","Agents"]].map(([pg,label]) =>
+            {[["arena","Arena"],["academy","Academy"],["loom","The Loom"],["agent-community","Agents"]].map(([pg,label]) =>
               <button key={pg} onClick={() => nav(pg)} className="transition-colors" style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: "#9CA3AF" }} onMouseEnter={e => { e.currentTarget.style.color = "#9333EA"; }} onMouseLeave={e => { e.currentTarget.style.color = "#9CA3AF"; }}>{label}</button>
             )}
           </div>

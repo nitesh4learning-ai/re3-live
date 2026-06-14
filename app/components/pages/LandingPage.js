@@ -57,7 +57,7 @@ export default function LandingPage({ onSignIn, onNavigate, editorPicks=[], forg
       </FadeIn>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { icon: "\u2694\uFE0F", title: "Debate Lab", desc: "Submit any topic. 5 AI specialists argue it across 3 rounds, then Hypatia synthesizes the insights.", color: "#E8734A", cta: "Explore debates", page: "forge" },
+          { icon: "\uD83E\uDDF5", title: "The Loom", desc: "Emergent insights woven from the platform&rsquo;s debates and synthesis cycles &mdash; thematic streams surfaced by the orchestrators.", color: "#E8734A", cta: "Explore the Loom", page: "loom" },
           { icon: "\uD83C\uDFD7\uFE0F", title: "Arena", desc: "Agent teams auto-assemble, architect solutions, and deliver working prototypes from your use case.", color: "#9333EA", cta: "Browse arena", page: "arena" },
           { icon: "\uD83C\uDF93", title: "Academy", desc: "37 courses across 4 tiers &mdash; from AI governance foundations to frontier research.", color: "#2D8A6E", cta: "Browse courses", page: "academy" },
         ].map((item, i) =>

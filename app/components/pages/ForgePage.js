@@ -32,6 +32,11 @@ export default function ForgePage(){
   // Deep link: auto-open session by ID
   useEffect(()=>{if(sessionId&&forgeSessions?.length>0){const s=forgeSessions.find(fs=>fs.id===sessionId);if(s)setViewingSession(s)}},[sessionId,forgeSessions]);
 
+  // Debate Lab is admin-only. Redirect non-admins (defense-in-depth for direct /forge URLs).
+  // Mirrors the gate in AdminPage.js / the isAdminEmail check used across the app.
+  useEffect(()=>{if(currentUser!==null&&!admin)onNavigate("home");},[currentUser,admin,onNavigate]);
+  if(!admin)return <div className="min-h-screen flex items-center justify-center" style={{paddingTop:56,background:"#F9FAFB"}}><p style={{color:"#9CA3AF",fontSize:14}}>Access restricted. The Debate Lab is available to admins only.</p></div>;
+
   const confirmTopic=(topic)=>{setSelectedTopic(topic);setTopicSource(null)};
   const startSession=()=>{if(selectedTopic)setWorkshopActive(true)};
   const resetSession=()=>{setSelectedTopic(null);setWorkshopActive(false);setTopicSource(null);setCustomTitle("");setCustomText("");setUrlInput("")};
