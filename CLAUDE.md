@@ -2,6 +2,8 @@
 
 Re³ (Rethink · Rediscover · Reinvent) is a multi-agent AI **debate + orchestration** platform with a gated **Academy** course section. AI agents argue, critique, and refine positions under orchestrators; humans drop in topics and get synthesized insight. Deployed at https://re3.live (Vercel).
 
+> 🔎 **Query the codebase graph BEFORE reading/grepping many files.** For any "how does X connect / where is Y used / what calls Z / what breaks if I change W" question, run `/graphify query|path|explain` (or `~/.graphify-venv/bin/graphify …`) first. It's a local traversal — **free, no API tokens** — and avoids burning tokens scanning the tree. The graph auto-rebuilds on every commit, so it's current. Details in [Codebase knowledge graph (Graphify)](#codebase-knowledge-graph-graphify).
+
 ## Stack
 
 - **Next.js 14.2.3** (App Router) + **React 18** — JavaScript, not TypeScript (a tsconfig + `lib/types.ts` exist for tooling/types only).
@@ -84,18 +86,35 @@ All keys come from `process.env` — **never hardcode or commit them**. No secre
 
 `callLLM(model, systemPrompt, userMessage, opts)` in `lib/llm-router.js` routes by `model` (`anthropic`/`openai`/`gemini`/`llama`) and falls back to Anthropic on failure. `opts.tier` (`light`/`standard`/`heavy`) maps to Anthropic Haiku/Sonnet/Sonnet. `lib/ai-gateway.js` wraps it with cost estimation, complexity-based model routing, and budget tracking. LLM JSON is extracted with a regex (`lib/llm-parse.js`); user text is run through `lib/sanitize.js` before prompts. When touching model IDs, prefer the latest Claude models.
 
+## Deploy & infra
+
+- **Hosting:** Vercel — pushing to `main` auto-builds and deploys. The Vercel project is `re3-live`, owned by the **nitesh4learning** account.
+- **GitHub:** the repo is `nitesh4learning-ai/re3-live`. Pushing requires the **nitesh4learning-ai** GitHub account; the `einsteinrethink-sudo` account has pull-only access (commits are authored as einsteinrethink-sudo but can't push). Use `gh` for auth.
+- **Firestore rules deploy separately — Vercel does NOT touch them.** After editing `firestore.rules`:
+  `firebase deploy --only firestore:rules --project re3-live --account nitesh4learning@gmail.com`
+  (Firebase project ID is `re3-live`; rules can't read env, so their admin list is hand-maintained.)
+- **After any deploy that changes admin behavior:** confirm `NEXT_PUBLIC_ADMIN_EMAILS` is set in Vercel (see the ⚠️ in Secrets & env) — without it, admin UI is hidden in prod even though server/Firestore admin works.
+
 ## Codebase knowledge graph (Graphify)
 
-When you need to understand how parts of this codebase connect — especially across the two agent systems, the API/handler/auth chain, or Academy loading — **query the graph instead of grepping many files**:
+Graphify **is set up** in this repo. When you need to understand how parts connect — across the two agent systems, the route→handler→auth chain, or Academy loading — **query the graph instead of grepping many files**. (A pilot confirmed the graph cleanly separates the 25-debater system from the 1,000-agent registry and captures the `route → createHandler → getAuthUser` chain — so it's reliable for these questions.)
 
-- `/graphify query "<question>"` — find relevant nodes/edges for a question.
+- `/graphify query "<question>"` — relevant nodes/edges for a question.
 - `/graphify path <A> <B>` — trace how two parts connect.
-- `/graphify explain <node>` — explain a component and why it's built that way.
+- `/graphify explain <node>` — explain a component and its neighbors.
 
-Outputs live in `graphify-out/` (`graph.json` is the queryable graph, `GRAPH_REPORT.md` the human-readable report). The graph regenerates on merge to `main`, so treat it as current. *(Graphify is not set up in this repo yet — use these commands once it is.)*
+These queries are **local graph traversals — free, no API key**. The `/graphify` slash command appears after a Claude Code reload; until then run the CLI directly: `~/.graphify-venv/bin/graphify query "…"` (installed in a Python 3.12 venv).
+
+Two freshness layers:
+- **Structural** (files, functions, imports, calls) — auto-rebuilds on every commit via installed git hooks (`graphify update`, **free, no LLM**). Always current.
+- **Semantic** (inferred edges + community names) — **manual and costs tokens**: needs `ANTHROPIC_API_KEY` in `.env.local`, then `graphify extract . && graphify label .` (~$1). Re-run after big refactors.
+
+Outputs live in `graphify-out/` (`graph.json` queryable, `GRAPH_REPORT.md` human-readable, `graph.html` interactive) — **gitignored** (regenerable artifact, ~3.6 MB). `GRAPH_REPORT.md`'s "Graph Freshness" line shows the commit it was built from.
 
 ## Working style
 
+- **Graph-first for code research** — before grepping/reading many files to understand structure, query the Graphify graph (see the 🔎 note at the top). It's free and avoids burning tokens; fall back to reading files when the graph is thin or you need exact source.
+- **Keep this file current** — when a change alters architecture, the agent systems, auth/admin, deploy steps, or commands, update `CLAUDE.md` in the same commit. (The Graphify graph auto-tracks code *structure* per commit; this prose does not — it's curated, so update it by hand when the mental model changes.)
 - **Plan mode for multi-file changes** — propose the plan and wait for approval before editing.
 - **Small, scoped commits**; don't bundle unrelated changes. Commit only when asked.
 - **If you've corrected the same issue twice, stop and resync** with the user rather than trying a third variation.
