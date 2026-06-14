@@ -14,7 +14,7 @@ import IntakeForm from "./IntakeForm";
 import ExecutionTimeline from "./ExecutionTimeline";
 import UseCaseLibrary from "./UseCaseLibrary";
 import BlackboardPanel from "./panels/BlackboardPanel";
-import { saveRun, listRuns, getRun, getRunCloud, listRunsCloud } from "../../../lib/orchestration/run-store";
+import { saveRun, listRuns, getRun, getRunCloud, listRunsCloud, syncLocalRunsToCloud } from "../../../lib/orchestration/run-store";
 import RunComparison from "./RunComparison";
 import { isAdminEmail } from "../../constants";
 import MermaidDiagram from "./panels/MermaidDiagram";
@@ -103,12 +103,24 @@ export default function OrchestrationPage({ user, onNavigate, runId, readOnly = 
   // Ref to preserve last snapshot with real stateEntries (before result event clears them)
   const lastRealSnapshotRef = useRef(null);
 
-  // Load library index on mount (local + cloud merge)
+  // Load library index on mount (local + cloud merge).
+  // For signed-in users, first backfill any local-only runs to Firestore so the
+  // public Use Case Library is populated (one-time per session, idempotent), then
+  // refresh from the cloud so everyone — including signed-out visitors — sees them.
   useEffect(() => {
     setSavedRuns(listRuns());
-    // Async merge with cloud runs
-    listRunsCloud().then((merged) => setSavedRuns(merged)).catch(() => {});
-  }, []);
+    let cancelled = false;
+    (async () => {
+      if (user) {
+        try { await syncLocalRunsToCloud(); } catch { /* non-fatal */ }
+      }
+      try {
+        const merged = await listRunsCloud();
+        if (!cancelled) setSavedRuns(merged);
+      } catch { /* cloud unavailable — local list already shown */ }
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
 
   // Hydrate a saved run into the UI state
   const hydrateRun = useCallback((saved) => {

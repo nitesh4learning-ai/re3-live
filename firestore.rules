@@ -65,6 +65,14 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Orchestration runs (Arena use-case library) — public read so the library
+    // is shareable, authenticated write (run creators sync their runs), admin delete.
+    match /orchestration_runs/{runId} {
+      allow read: if true;
+      allow create, update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
     // Deny everything else by default
     match /{document=**} {
       allow read, write: if false;
