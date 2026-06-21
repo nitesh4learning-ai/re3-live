@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useApp } from "../../providers";
 import { isAdmin } from "../../constants";
 import { authFetch } from "../../utils/firebase-client";
+import { listAllContextRunsAdmin, setContextRunApproved } from "../../../lib/orchestration/context-store";
 import { FadeIn } from "../shared/UIComponents";
 
 export default function AdminPage() {
@@ -10,6 +11,7 @@ export default function AdminPage() {
   const [tab, setTab] = useState("requests");
   const [requests, setRequests] = useState([]);
   const [users, setUsers] = useState([]);
+  const [contextRuns, setContextRuns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
 
@@ -30,6 +32,7 @@ export default function AdminPage() {
         setRequests(data.requests || []);
         setUsers(data.users || []);
       }
+      setContextRuns(await listAllContextRunsAdmin());
     } catch (e) {
       console.error("Failed to fetch admin data:", e);
     }
@@ -49,6 +52,17 @@ export default function AdminPage() {
     setActionLoading(null);
   };
 
+  const handleApprove = async (runId, approved) => {
+    setActionLoading(runId);
+    try {
+      await setContextRunApproved(runId, approved);
+      setContextRuns(await listAllContextRunsAdmin());
+    } catch (e) {
+      console.error("Approve failed:", e);
+    }
+    setActionLoading(null);
+  };
+
   if (!user || !isAdmin(user)) {
     return <div className="min-h-screen flex items-center justify-center" style={{ paddingTop: 56, background: "#F9FAFB" }}>
       <p style={{ color: "#9CA3AF", fontSize: 14 }}>Access restricted. Please sign in as admin.</p>
@@ -57,6 +71,7 @@ export default function AdminPage() {
 
   const pending = requests.filter(r => r.status === "pending");
   const resolved = requests.filter(r => r.status !== "pending");
+  const unapprovedContext = contextRuns.filter(r => !r.approved).length;
 
   return <div className="min-h-screen" style={{ paddingTop: 56, background: "#F9FAFB" }}>
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
@@ -68,7 +83,7 @@ export default function AdminPage() {
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6">
-          {[["requests", `Requests${pending.length > 0 ? ` (${pending.length})` : ""}`], ["users", "Users"], ["history", "History"]].map(([key, label]) =>
+          {[["requests", `Requests${pending.length > 0 ? ` (${pending.length})` : ""}`], ["users", "Users"], ["library", `Library${unapprovedContext > 0 ? ` (${unapprovedContext})` : ""}`], ["history", "History"]].map(([key, label]) =>
             <button key={key} onClick={() => setTab(key)} className="px-4 py-2 rounded-xl text-sm font-semibold transition-all" style={{
               background: tab === key ? "#F3E8FF" : "#FFFFFF",
               color: tab === key ? "#9333EA" : "#4B5563",
@@ -132,6 +147,28 @@ export default function AdminPage() {
                 </div>;
               })}
             </div>
+          </div>}
+        </FadeIn>}
+
+        {/* Context Library moderation */}
+        {tab === "library" && <FadeIn delay={40}>
+          {contextRuns.length === 0 ? <div className="rounded-2xl p-8 text-center" style={{ background: "white", border: "1px solid #E5E7EB" }}>
+            <p style={{ fontSize: 14, color: "#9CA3AF" }}>No “Apply this framework” runs yet</p>
+          </div> : <div className="space-y-3">
+            {contextRuns.map(r => <div key={r.runId} className="rounded-xl p-4 flex items-center justify-between gap-3" style={{ background: "white", border: "1px solid #E5E7EB" }}>
+              <div style={{ minWidth: 0 }}>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2 py-0.5 rounded-full font-bold" style={{ fontSize: 10, background: r.approved ? "#E0F2EC" : "#F3F4F6", color: r.approved ? "#2D8A6E" : "#9CA3AF" }}>
+                    {r.approved ? "Public" : "Private"}
+                  </span>
+                  <span className="font-semibold text-sm truncate" style={{ color: "#111827" }}>{r.title || "Untitled"}</span>
+                </div>
+                <p className="truncate" style={{ fontSize: 11, color: "#9CA3AF" }}>{r.ownerName || r.ownerEmail || "Unknown"} &middot; {r.completedAt ? new Date(r.completedAt).toLocaleDateString() : ""}</p>
+              </div>
+              <button onClick={() => handleApprove(r.runId, !r.approved)} disabled={actionLoading === r.runId} className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0" style={{ background: r.approved ? "#FFFFFF" : "#2D8A6E", color: r.approved ? "#4B5563" : "white", border: r.approved ? "1px solid #E5E7EB" : "none" }}>
+                {actionLoading === r.runId ? "..." : r.approved ? "Unpublish" : "Publish"}
+              </button>
+            </div>)}
           </div>}
         </FadeIn>}
 
