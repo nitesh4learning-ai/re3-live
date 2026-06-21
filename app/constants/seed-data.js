@@ -87,7 +87,9 @@ export const INIT_THEMES = [
 ];
 
 export const DEFAULT_PROJECTS = [
-  { id:"nz1", title:"GIM Framework", subtitle:"Governance Interaction Mesh", status:"Live", statusColor:"#2D8A6E", description:"A mesh-based approach to enterprise AI governance with 58 nodes across 5 pillars.", tags:["AI Governance","Enterprise"], ownerId:"u1", type:"whitepaper", icon:"\u{1F310}" },
+  // In-house work — opens as an in-app page at /work/<slug> (internal:true). External tiles keep using `link`.
+  { id:"ctx-frontier", title:"Context as a Frontier", subtitle:"CodeMesh Series · 01 / 03", status:"Live", statusColor:"#2D8A6E", description:"A six-stage spine to derive one trusted, living source of truth — golden context — that humans and AI agents can act on.", tags:["Framework","Context","AI Agents"], ownerId:"u1", type:"framework", icon:"\u{1F9ED}", internal:true, slug:"context-as-a-frontier" },
+  { id:"nz1", title:"GIM Framework", subtitle:"Governance Interaction Mesh", status:"Coming Soon", statusColor:"#94A3B8", description:"A mesh-based approach to enterprise AI governance with 58 nodes across 5 pillars.", tags:["AI Governance","Enterprise"], ownerId:"u1", type:"framework", icon:"\u{1F310}", internal:true, slug:"gim-framework" },
   { id:"nz2", title:"Pinwheel Framework", subtitle:"AI Transformation Model", status:"Evolving", statusColor:"#E8734A", description:"Four execution blades powered by business engagement for enterprise AI adoption.", tags:["AI Strategy","Transformation"], ownerId:"u1", type:"whitepaper", icon:"\u{1F3AF}" },
   { id:"nz3", title:"Re\u00b3 Platform", subtitle:"This platform", status:"Alpha", statusColor:"#3B6B9B", description:"Human-AI collaborative thinking platform with three AI agents.", tags:["React","Next.js","AI Agents"], link:"https://re3.live", ownerId:"u1", type:"project", icon:"\u{1F680}" },
   { id:"nz4", title:"RAG Pipeline", subtitle:"Retrieval-Augmented Generation", status:"Experiment", statusColor:"#8B5CF6", description:"LangChain + PostgreSQL for enterprise knowledge retrieval.", tags:["LangChain","PostgreSQL","Python"], ownerId:"u1", type:"project", icon:"\u{1F9EA}" },

@@ -13,16 +13,18 @@ export default function StudioPage(){
   const[showProjForm,setShowProjForm]=useState(false);const[editProj,setEditProj]=useState(null);
   const[projTitle,setProjTitle]=useState("");const[projSubtitle,setProjSubtitle]=useState("");const[projDesc,setProjDesc]=useState("");const[projStatus,setProjStatus]=useState("Alpha");const[projTags,setProjTags]=useState("");const[projLink,setProjLink]=useState("");
   const[projType,setProjType]=useState("project");const[projIcon,setProjIcon]=useState("\u{1F4E6}");
+  const[projSlug,setProjSlug]=useState("");const[projInternal,setProjInternal]=useState(false);
   const[flippedTile,setFlippedTile]=useState(null);
   const admin = isAdmin(currentUser);
   const publishedArticles = articles.filter(a=>a.status==="published");
   const draftArticles = admin ? articles.filter(a=>a.status==="draft") : [];
-  const STATUS_COLORS={Live:"#2D8A6E",Evolving:"#E8734A",Alpha:"#3B6B9B",Experiment:"#8B5CF6",Archived:"#999"};
-  const STATUS_BGS={Live:"#EBF5F1",Evolving:"#FDF0EB",Alpha:"#EEF3F8",Experiment:"#F5F0FA",Archived:"#F3F4F6"};
+  const STATUS_COLORS={Live:"#2D8A6E",Evolving:"#E8734A",Alpha:"#3B6B9B",Experiment:"#8B5CF6","Coming Soon":"#94A3B8",Archived:"#999"};
+  const STATUS_BGS={Live:"#EBF5F1",Evolving:"#FDF0EB",Alpha:"#EEF3F8",Experiment:"#F5F0FA","Coming Soon":"#F1F5F9",Archived:"#F3F4F6"};
+  const slugify=(s)=>s.toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
 
   const handleSave = (article) => { onSaveArticle(article); setEditing(null); };
-  const openProjForm=(proj)=>{if(proj){setEditProj(proj.id);setProjTitle(proj.title);setProjSubtitle(proj.subtitle||"");setProjDesc(proj.description||"");setProjStatus(proj.status||"Alpha");setProjTags(proj.tags?.join(", ")||"");setProjLink(proj.link||"");setProjType(proj.type||"project");setProjIcon(proj.icon||"\u{1F4E6}")}else{setEditProj(null);setProjTitle("");setProjSubtitle("");setProjDesc("");setProjStatus("Alpha");setProjTags("");setProjLink("");setProjType("project");setProjIcon("\u{1F4E6}")}setShowProjForm(true);setFlippedTile(null)};
-  const saveProjForm=()=>{if(!projTitle.trim())return;const p={id:editProj||"proj_"+Date.now(),title:projTitle.trim(),subtitle:projSubtitle.trim(),status:projStatus,statusColor:STATUS_COLORS[projStatus]||"#999",description:projDesc.trim(),tags:projTags.split(",").map(t=>t.trim()).filter(Boolean),link:projLink.trim()||undefined,ownerId:"u1",type:projType,icon:projIcon};onSaveProject(p);setShowProjForm(false)};
+  const openProjForm=(proj)=>{if(proj){setEditProj(proj.id);setProjTitle(proj.title);setProjSubtitle(proj.subtitle||"");setProjDesc(proj.description||"");setProjStatus(proj.status||"Alpha");setProjTags(proj.tags?.join(", ")||"");setProjLink(proj.link||"");setProjType(proj.type||"project");setProjIcon(proj.icon||"\u{1F4E6}");setProjInternal(!!proj.internal);setProjSlug(proj.slug||"")}else{setEditProj(null);setProjTitle("");setProjSubtitle("");setProjDesc("");setProjStatus("Alpha");setProjTags("");setProjLink("");setProjType("project");setProjIcon("\u{1F4E6}");setProjInternal(false);setProjSlug("")}setShowProjForm(true);setFlippedTile(null)};
+  const saveProjForm=()=>{if(!projTitle.trim())return;const slug=projInternal?(slugify(projSlug)||slugify(projTitle)):undefined;const p={id:editProj||"proj_"+Date.now(),title:projTitle.trim(),subtitle:projSubtitle.trim(),status:projStatus,statusColor:STATUS_COLORS[projStatus]||"#999",description:projDesc.trim(),tags:projTags.split(",").map(t=>t.trim()).filter(Boolean),link:projInternal?undefined:(projLink.trim()||undefined),ownerId:"u1",type:projType,icon:projIcon,internal:projInternal||undefined,slug};onSaveProject(p);setShowProjForm(false)};
 
   if(editing){return <div className="min-h-screen" style={{paddingTop:56,background:"#F9FAFB"}}><div className="px-4 sm:px-6 py-8">
     <Suspense fallback={<div className="max-w-3xl mx-auto"><p style={{color:"#CCC"}}>Loading editor...</p></div>}>
@@ -60,12 +62,19 @@ export default function StudioPage(){
       <input value={projSubtitle} onChange={e=>setProjSubtitle(e.target.value)} placeholder="Subtitle (e.g. Governance Interaction Mesh)" className="w-full px-3 py-2 rounded-xl border focus:outline-none text-sm mb-2" style={{borderColor:"#E5E7EB",color:"#555"}}/>
       <textarea value={projDesc} onChange={e=>setProjDesc(e.target.value)} placeholder="Description..." className="w-full px-3 py-2 rounded-xl border focus:outline-none text-sm mb-2" style={{borderColor:"#E5E7EB",color:"#555",minHeight:60,resize:"vertical"}}/>
       <div className="flex flex-wrap gap-2 mb-2">
-        <div className="flex items-center gap-1"><span className="text-xs" style={{color:"#BBB"}}>Status:</span>{["Live","Evolving","Alpha","Experiment","Archived"].map(s=><button key={s} onClick={()=>setProjStatus(s)} className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{background:projStatus===s?STATUS_BGS[s]:"white",color:projStatus===s?STATUS_COLORS[s]:"#CCC",border:`1px solid ${projStatus===s?STATUS_COLORS[s]:"#E5E7EB"}`}}>{s}</button>)}</div>
+        <div className="flex items-center gap-1 flex-wrap"><span className="text-xs" style={{color:"#BBB"}}>Status:</span>{["Live","Evolving","Alpha","Experiment","Coming Soon","Archived"].map(s=><button key={s} onClick={()=>setProjStatus(s)} className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{background:projStatus===s?STATUS_BGS[s]:"white",color:projStatus===s?STATUS_COLORS[s]:"#CCC",border:`1px solid ${projStatus===s?STATUS_COLORS[s]:"#E5E7EB"}`}}>{s}</button>)}</div>
       </div>
       <div className="flex flex-wrap items-center gap-2 mb-2">
         <span className="text-xs" style={{color:"#BBB"}}>Type:</span>
-        {["project","whitepaper"].map(t=><button key={t} onClick={()=>setProjType(t)} className="px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize" style={{background:projType===t?"#F5F0FA":"white",color:projType===t?"#9333EA":"#CCC",border:`1px solid ${projType===t?"#9333EA":"#E5E7EB"}`}}>{t}</button>)}
+        {["framework","web app","article","project","whitepaper"].map(t=><button key={t} onClick={()=>setProjType(t)} className="px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize" style={{background:projType===t?"#F5F0FA":"white",color:projType===t?"#9333EA":"#CCC",border:`1px solid ${projType===t?"#9333EA":"#E5E7EB"}`}}>{t}</button>)}
       </div>
+      {/* Destination: in-app page (internal) vs external link */}
+      <div className="flex flex-wrap items-center gap-2 mb-2">
+        <span className="text-xs" style={{color:"#BBB"}}>Opens:</span>
+        {[["Internal page",true],["External link",false]].map(([lbl,val])=><button key={lbl} onClick={()=>setProjInternal(val)} className="px-2.5 py-0.5 rounded-full text-xs font-semibold" style={{background:projInternal===val?"#F5F0FA":"white",color:projInternal===val?"#9333EA":"#CCC",border:`1px solid ${projInternal===val?"#9333EA":"#E5E7EB"}`}}>{lbl}</button>)}
+        {projInternal&&<input value={projSlug} onChange={e=>setProjSlug(e.target.value)} placeholder="slug (auto from title if blank)" className="flex-1 min-w-[140px] px-3 py-1 rounded-xl border focus:outline-none text-sm" style={{borderColor:"#E5E7EB",color:"#555"}}/>}
+      </div>
+      {projInternal&&<p className="text-xs mb-2" style={{color:"#94A3B8"}}>Opens at <span style={{fontFamily:"'JetBrains Mono',monospace"}}>/work/{slugify(projSlug)||slugify(projTitle)||"…"}</span></p>}
       <div className="flex flex-wrap items-center gap-2 mb-2">
         <span className="text-xs" style={{color:"#BBB"}}>Icon:</span>
         <span style={{fontSize:24}}>{projIcon}</span>
@@ -73,7 +82,7 @@ export default function StudioPage(){
         <div className="flex gap-1">{["\u{1F680}","\u{1F4DD}","\u{1F9EA}","\u{1F310}","\u{1F3AF}","\u{2699}\u{FE0F}","\u{1F4CA}","\u{1F916}"].map(e=><button key={e} onClick={()=>setProjIcon(e)} className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:projIcon===e?"#F5F0FA":"transparent",border:projIcon===e?"1px solid #9333EA":"1px solid transparent",fontSize:16}}>{e}</button>)}</div>
       </div>
       <input value={projTags} onChange={e=>setProjTags(e.target.value)} placeholder="Tags (comma separated)" className="w-full px-3 py-2 rounded-xl border focus:outline-none text-sm mb-2" style={{borderColor:"#E5E7EB",color:"#555"}}/>
-      <input value={projLink} onChange={e=>setProjLink(e.target.value)} placeholder="Link (optional — e.g. https://medium.com/...)" className="w-full px-3 py-2 rounded-xl border focus:outline-none text-sm mb-2" style={{borderColor:"#E5E7EB",color:"#555"}}/>
+      {!projInternal&&<input value={projLink} onChange={e=>setProjLink(e.target.value)} placeholder="External link (e.g. https://medium.com/...)" className="w-full px-3 py-2 rounded-xl border focus:outline-none text-sm mb-2" style={{borderColor:"#E5E7EB",color:"#555"}}/>}
       <div className="flex gap-2"><button onClick={saveProjForm} className="px-4 py-1.5 rounded-full font-semibold text-sm" style={{background:"#9333EA",color:"white"}}>{editProj?"Update":"Add"}</button><button onClick={()=>setShowProjForm(false)} className="px-4 py-1.5 rounded-full font-semibold text-sm" style={{color:"#CCC",border:"1px solid #E5E7EB"}}>Cancel</button></div>
     </div></FadeIn>}
 
@@ -104,7 +113,7 @@ export default function StudioPage(){
               {proj.tags?.length>0&&<div className="flex flex-wrap gap-1 mb-2">{proj.tags.map(t=><span key={t} className="px-1.5 py-0 rounded-full" style={{fontSize:9,background:"#F3F4F6",color:"#999"}}>{t}</span>)}</div>}
             </div>
             <div className="flex items-center justify-between">
-              {proj.link?<a href={proj.link} target="_blank" rel="noopener noreferrer" onClick={e=>e.stopPropagation()} className="px-3 py-1 rounded-full text-xs font-semibold transition-all hover:shadow-sm" style={{background:"#EEF3F8",color:"#3B6B9B",minHeight:"auto",minWidth:"auto"}}>{linkLabel} &rarr;</a>:<span/>}
+              {proj.internal&&proj.slug?<button onClick={e=>{e.stopPropagation();onNavigate("work",proj.slug)}} className="px-3 py-1 rounded-full text-xs font-semibold transition-all hover:shadow-sm" style={{background:"#F5F0FA",color:"#9333EA",minHeight:"auto",minWidth:"auto"}}>Open &rarr;</button>:proj.link?<a href={proj.link} target="_blank" rel="noopener noreferrer" onClick={e=>e.stopPropagation()} className="px-3 py-1 rounded-full text-xs font-semibold transition-all hover:shadow-sm" style={{background:"#EEF3F8",color:"#3B6B9B",minHeight:"auto",minWidth:"auto"}}>{linkLabel} &rarr;</a>:<span/>}
               {admin&&<div className="flex gap-1" onClick={e=>e.stopPropagation()}>
                 <button onClick={()=>openProjForm(proj)} className="px-2 py-0.5 rounded text-xs font-semibold" style={{color:"#3B6B9B",background:"#EEF3F8",minHeight:"auto",minWidth:"auto"}}>Edit</button>
                 <button onClick={()=>onDeleteProject(proj.id)} className="px-2 py-0.5 rounded text-xs font-semibold" style={{color:"#E53E3E",background:"#FFF5F5",minHeight:"auto",minWidth:"auto"}}>Remove</button>

@@ -9,6 +9,7 @@ export function pageToPath(pg, id) {
     case "forge": return id ? `/forge/${id}` : "/forge";
     case "academy": return id ? `/academy/${id}` : "/academy";
     case "write": return "/write";
+    case "work": return id ? `/work/${id}` : "/work";
     case "debates": return "/debates";
     case "search": return "/search";
     case "arena": return id ? `/arena/${id}` : "/arena";
@@ -33,6 +34,8 @@ export function pathToPage(pathname) {
   if (p.startsWith("/academy/")) return { page: "academy", pageId: p.slice(9) };
   if (p === "/academy") return { page: "academy", pageId: null };
   if (p === "/write") return { page: "write", pageId: null };
+  if (p.startsWith("/work/")) return { page: "work", pageId: p.slice(6) };
+  if (p === "/work") return { page: "work", pageId: null };
   if (p === "/debates") return { page: "debates", pageId: null };
   if (p === "/search") return { page: "search", pageId: null };
   if (p.startsWith("/arena/")) return { page: "arena", pageId: p.slice(7) };
