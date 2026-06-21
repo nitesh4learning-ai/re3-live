@@ -6,10 +6,12 @@
 import { useParams } from 'next/navigation';
 import { useApp } from '../../providers';
 import { FadeIn } from '../shared/UIComponents';
+import ContextAsAFrontier from './ContextAsAFrontier';
 
 // slug -> in-app page component. Append here as in-house work is built.
-// (Phase 2 registers "context-as-a-frontier".)
-const WORK_PAGES = {};
+const WORK_PAGES = {
+  'context-as-a-frontier': ContextAsAFrontier,
+};
 
 function ComingSoon({ project, onNavigate }) {
   return <div className="min-h-screen flex items-center justify-center" style={{ paddingTop: 56, background: "#F9FAFB" }}>
