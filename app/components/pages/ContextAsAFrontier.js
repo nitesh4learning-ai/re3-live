@@ -541,6 +541,7 @@ function ContextApplyEngine() {
   const [error, setError] = useState(null);
   const [libRuns, setLibRuns] = useState([]);
   const submittedRef = useRef("");
+  const terminalRef = useRef(false); // saw a result/error event for the current run
 
   const reloadLibrary = useCallback(() => {
     listContextRunsCloud(user?.id).then(setLibRuns).catch(() => {});
@@ -555,6 +556,7 @@ function ContextApplyEngine() {
 
   const handleEvent = useCallback((event) => {
     const { type, data } = event || {};
+    if (type === "result" || type === "error") terminalRef.current = true;
     if (type === "result") {
       const d = data?.deliverable;
       if (d) {
@@ -627,6 +629,7 @@ function ContextApplyEngine() {
       return;
     }
     submittedRef.current = description;
+    terminalRef.current = false;
     setError(null);
     setRoadmap(null);
     setSummary(null);
@@ -677,6 +680,13 @@ function ContextApplyEngine() {
         }
         if (buffer.trim().startsWith("data: ")) {
           try { handleEvent(JSON.parse(buffer.trim().slice(6))); } catch { /* ignore */ }
+        }
+        // Stream ended without a result/error event — the function was likely
+        // cut off (e.g. the 5-minute serverless limit). Surface it, don't hang.
+        if (!terminalRef.current) {
+          setError("The run was cut off before finishing (the server has a 5-minute limit). Please try again — it’s usually faster on a retry.");
+          setStatus("error");
+          setPhaseLabel("");
         }
       } else {
         const d = await res.json();
@@ -739,7 +749,7 @@ function ContextApplyEngine() {
                 {s.output
                   ? <div className="sr-body"><StageBody text={s.output} /></div>
                   : busy
-                    ? <div className="sr-state" style={{ marginTop: 12 }}>{s.status === "active" ? "Analyzing your system…" : s.status === "failed" ? "This stage failed." : "Queued…"}</div>
+                    ? <div className="sr-state" style={{ marginTop: 12 }}>{s.status === "active" ? "Analyzing your system…" : s.status === "done" ? "Done — composing the roadmap…" : s.status === "failed" ? "This stage failed." : "Queued…"}</div>
                     : null}
               </div>
             ))}
