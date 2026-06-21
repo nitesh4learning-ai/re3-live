@@ -20,6 +20,11 @@ import {
   CONTEXT_SPINE,
   CONTEXT_COMPREHENSION_TYPE,
 } from "../../../lib/orchestration/context-spine";
+import {
+  saveContextRun,
+  listContextRunsCloud,
+  getContextRunCloud,
+} from "../../../lib/orchestration/context-store";
 
 const CAF_CSS = `
 .caf-root{
@@ -133,6 +138,18 @@ const CAF_CSS = `
 .caf-root .rm-list{margin:6px 0 0 0;padding-left:18px;font-size:14.5px;line-height:1.6;color:var(--slate)}
 .caf-root .rm-tools{margin-top:8px;display:flex;flex-wrap:wrap;gap:7px}
 .caf-root .rm-tool{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal);background:rgba(28,114,147,.08);border:1px solid rgba(28,114,147,.2);border-radius:999px;padding:4px 11px}
+.caf-root .lib{margin-top:44px;border-top:1px solid var(--line);padding-top:30px}
+.caf-root .lib-grid{margin-top:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:14px}
+.caf-root .lib-tile{text-align:left;border:1px solid var(--line);border-radius:12px;background:#fff;padding:18px 18px 16px;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .1s;font-family:'Inter',sans-serif;width:100%}
+.caf-root .lib-tile:hover{border-color:var(--teal);box-shadow:0 6px 18px rgba(10,37,64,.06)}
+.caf-root .lib-tile:active{transform:translateY(1px)}
+.caf-root .lib-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;color:var(--navy);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.caf-root .lib-desc{margin-top:6px;font-size:13px;color:var(--muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.caf-root .lib-meta{margin-top:12px;display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--dim);letter-spacing:.04em}
+.caf-root .lib-badge{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:999px}
+.caf-root .lib-badge.pub{background:rgba(28,114,147,.1);color:var(--teal)}
+.caf-root .lib-badge.priv{background:#F1F5F9;color:var(--dim)}
+.caf-root .lib-empty{margin-top:14px;font-size:14px;color:var(--muted);line-height:1.6;max-width:60ch}
 `;
 
 // MAIN — hero through the golden-context outcome. SVG inline <style> blocks have
@@ -522,6 +539,14 @@ function ContextApplyEngine() {
   const [roadmap, setRoadmap] = useState(null);
   const [summary, setSummary] = useState(null);
   const [error, setError] = useState(null);
+  const [libRuns, setLibRuns] = useState([]);
+  const submittedRef = useRef("");
+
+  const reloadLibrary = useCallback(() => {
+    listContextRunsCloud(user?.id).then(setLibRuns).catch(() => {});
+  }, [user?.id]);
+
+  useEffect(() => { reloadLibrary(); }, [reloadLibrary]);
 
   const patchStage = useCallback((taskId, patch) => {
     if (!taskId) return;
@@ -543,6 +568,10 @@ function ContextApplyEngine() {
         }
         setRoadmap(Array.isArray(d.roadmap) ? d.roadmap : null);
         setSummary(d.executiveSummary || null);
+        try {
+          saveContextRun({ deliverable: d, description: submittedRef.current, user });
+          reloadLibrary();
+        } catch { /* storage unavailable — non-fatal */ }
       }
       setStatus("done");
       setPhaseLabel("");
@@ -575,7 +604,21 @@ function ContextApplyEngine() {
       case "phase.synthesize.start": setPhaseLabel("Sequencing the roadmap…"); break;
       default: break;
     }
-  }, [patchStage]);
+  }, [patchStage, user, reloadLibrary]);
+
+  const openSaved = useCallback(async (runId) => {
+    const rec = await getContextRunCloud(runId);
+    if (!rec) return;
+    setStages((rec.stages || []).map((s) => ({ ...s, status: s.status || "done" })));
+    setRoadmap(Array.isArray(rec.roadmap) ? rec.roadmap : null);
+    setSummary(rec.executiveSummary || null);
+    setError(null);
+    setStatus("done");
+    setPhaseLabel("");
+    if (typeof document !== "undefined") {
+      document.getElementById("apply")?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, []);
 
   const run = useCallback(async () => {
     const description = desc.trim();
@@ -583,6 +626,7 @@ function ContextApplyEngine() {
       setError("Add a sentence or two more about your system — what it does, the stack, and where the logic and config live.");
       return;
     }
+    submittedRef.current = description;
     setError(null);
     setRoadmap(null);
     setSummary(null);
@@ -720,6 +764,27 @@ function ContextApplyEngine() {
             ))}
           </div>
         )}
+
+        <div className="lib">
+          <div className="eyebrow">Worked examples</div>
+          <h2 style={{ marginTop: 12, fontSize: 26 }}>The use-case library</h2>
+          {libRuns.length === 0 ? (
+            <p className="lib-empty">No saved runs yet. Run the framework above and your result is saved here — private to you until it’s approved as a public example.</p>
+          ) : (
+            <div className="lib-grid">
+              {libRuns.map((r) => (
+                <button key={r.runId} className="lib-tile" onClick={() => openSaved(r.runId)}>
+                  <div className="lib-title">{r.title}</div>
+                  <div className="lib-desc">{r.description}</div>
+                  <div className="lib-meta">
+                    <span className={`lib-badge ${r.approved ? "pub" : "priv"}`}>{r.approved ? "Public" : "Private"}</span>
+                    <span>{r.ownerName || "You"}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

@@ -73,6 +73,20 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Context "Apply this framework" runs — owner-private by default, public once
+    // an admin approves (moderated use-case library). Owners read their own;
+    // anyone reads approved runs. Create is owner-only and forced private
+    // (approved:false); only admins approve (update) or delete.
+    match /context_runs/{runId} {
+      allow read: if (resource.data.approved == true)
+        || (isAuthenticated() && request.auth.uid == resource.data.ownerId)
+        || isAdmin();
+      allow create: if isAuthenticated()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.approved == false;
+      allow update, delete: if isAdmin();
+    }
+
     // Deny everything else by default
     match /{document=**} {
       allow read, write: if false;
