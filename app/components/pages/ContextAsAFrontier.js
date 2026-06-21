@@ -14,7 +14,12 @@
 // the CLOSE + footer. A future interactive engine (use case → tailored tech list
 // + roadmap through the six stages) drops into the extension slot below the
 // framework content without restructuring the rest.
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { useApp } from "../../providers";
+import {
+  CONTEXT_SPINE,
+  CONTEXT_COMPREHENSION_TYPE,
+} from "../../../lib/orchestration/context-spine";
 
 const CAF_CSS = `
 .caf-root{
@@ -86,6 +91,48 @@ const CAF_CSS = `
 .caf-root .ring-lbl{font-family:'JetBrains Mono',monospace;font-size:11px;fill:#AFC2D6;letter-spacing:.06em}
 .caf-root .ctr-lbl{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;fill:#F5A623}
 .caf-root .cap2{font-family:'JetBrains Mono',monospace;font-size:10.5px;fill:#6F86A0;letter-spacing:.04em}
+
+/* ── Interactive "Apply this framework" engine ── */
+.caf-root .apply-intro{max-width:60ch;margin-top:14px;color:var(--slate)}
+.caf-root .apply-form{margin-top:30px}
+.caf-root .apply-ta{width:100%;min-height:130px;resize:vertical;font-family:'Inter',sans-serif;font-size:16px;line-height:1.55;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;outline:none;transition:border-color .2s,box-shadow .2s}
+.caf-root .apply-ta:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(28,114,147,.12)}
+.caf-root .apply-ta::placeholder{color:var(--dim)}
+.caf-root .apply-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:16px}
+.caf-root .apply-btn{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;color:#fff;background:var(--teal);border:none;border-radius:999px;padding:12px 26px;cursor:pointer;transition:background .2s,transform .1s,opacity .2s}
+.caf-root .apply-btn:hover:not(:disabled){background:#155C79}
+.caf-root .apply-btn:active:not(:disabled){transform:translateY(1px)}
+.caf-root .apply-btn:disabled{opacity:.55;cursor:not-allowed}
+.caf-root .apply-hint{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);letter-spacing:.02em}
+.caf-root .apply-err{margin-top:16px;border-left:3px solid #C5562E;background:rgba(197,86,46,.06);color:#9A3F1E;padding:12px 16px;border-radius:0 8px 8px 0;font-size:14px}
+.caf-root .apply-status{margin-top:26px;display:flex;align-items:center;gap:12px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;color:var(--teal);text-transform:uppercase}
+.caf-root .apply-spinner{width:13px;height:13px;border:2px solid rgba(28,114,147,.25);border-top-color:var(--teal);border-radius:50%;animation:caf-spin .8s linear infinite}
+@keyframes caf-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.caf-root .apply-spinner{animation:none}}
+.caf-root .stage-results{margin-top:34px;display:grid;gap:16px}
+.caf-root .sr-card{border:1px solid var(--line);border-radius:12px;background:#fff;padding:22px 24px;transition:border-color .2s,box-shadow .2s}
+.caf-root .sr-card.is-active{border-color:var(--teal);box-shadow:0 0 0 3px rgba(28,114,147,.10)}
+.caf-root .sr-card.is-done{border-left:3px solid var(--amber)}
+.caf-root .sr-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.caf-root .sr-num{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--amber);letter-spacing:.08em}
+.caf-root .sr-name{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;color:var(--navy)}
+.caf-root .sr-q{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--teal);margin-top:4px}
+.caf-root .sr-persona{margin-left:auto;text-align:right;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.5;color:var(--muted)}
+.caf-root .sr-persona b{color:var(--navy);font-weight:600;font-family:'Space Grotesk',sans-serif}
+.caf-root .sr-state{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.caf-root .sr-body{margin-top:14px;font-size:15px;line-height:1.62;color:var(--slate);white-space:pre-wrap}
+.caf-root .sr-body h3{font-family:'Space Grotesk',sans-serif;font-size:15px;color:var(--navy);margin:14px 0 6px}
+.caf-root .sr-body strong{color:var(--navy);font-weight:600}
+.caf-root .roadmap{margin-top:40px;border:1px solid rgba(245,166,35,.4);border-radius:14px;background:rgba(245,166,35,.05);padding:28px 28px 30px}
+.caf-root .roadmap h3{font-family:'Space Grotesk',sans-serif;font-size:22px;color:var(--navy);margin-bottom:6px}
+.caf-root .roadmap .rm-sum{font-size:15.5px;line-height:1.6;color:var(--slate);max-width:60ch}
+.caf-root .rm-step{margin-top:20px;padding-top:18px;border-top:1px solid rgba(245,166,35,.3)}
+.caf-root .rm-step:first-of-type{border-top:none}
+.caf-root .rm-stage{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--teal);letter-spacing:.08em}
+.caf-root .rm-obj{font-family:'Space Grotesk',sans-serif;font-size:16px;color:var(--navy);margin:4px 0 8px;font-weight:500}
+.caf-root .rm-list{margin:6px 0 0 0;padding-left:18px;font-size:14.5px;line-height:1.6;color:var(--slate)}
+.caf-root .rm-tools{margin-top:8px;display:flex;flex-wrap:wrap;gap:7px}
+.caf-root .rm-tool{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal);background:rgba(28,114,147,.08);border:1px solid rgba(28,114,147,.2);border-radius:999px;padding:4px 11px}
 `;
 
 // MAIN — hero through the golden-context outcome. SVG inline <style> blocks have
@@ -425,6 +472,259 @@ const BODY_CLOSE = `
 </footer>
 `;
 
+// Minimal inline markdown: **bold** within a line.
+function renderInline(text) {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((p, i) =>
+    p.startsWith("**") && p.endsWith("**")
+      ? <strong key={i}>{p.slice(2, -2)}</strong>
+      : <span key={i}>{p}</span>
+  );
+}
+
+// Render a stage agent's markdown output (### headings, "- " bullets, paragraphs).
+function StageBody({ text }) {
+  const lines = String(text).split("\n");
+  const out = [];
+  let bullets = null;
+  const flush = (key) => {
+    if (bullets) {
+      out.push(<ul className="rm-list" key={`u${key}`} style={{ marginTop: 4 }}>{bullets}</ul>);
+      bullets = null;
+    }
+  };
+  lines.forEach((raw, i) => {
+    const ln = raw.replace(/\s+$/, "");
+    const h = ln.match(/^#{1,6}\s+(.*)$/);
+    const b = ln.match(/^[-*]\s+(.*)$/);
+    if (h) { flush(i); out.push(<h3 key={i}>{renderInline(h[1])}</h3>); return; }
+    if (b) { (bullets || (bullets = [])).push(<li key={i}>{renderInline(b[1])}</li>); return; }
+    flush(i);
+    if (ln.trim()) out.push(<p key={i} style={{ margin: "0 0 6px" }}>{renderInline(ln)}</p>);
+  });
+  flush("end");
+  return out;
+}
+
+const initialStages = () =>
+  CONTEXT_SPINE.map((s) => ({
+    id: s.id, num: s.num, name: s.name, question: s.question,
+    agentName: null, specialization: null, status: "idle", output: null,
+  }));
+
+// Interactive "Apply this framework" engine. Submits a context-comprehension run
+// to the existing orchestration endpoint and renders the six-stage result live.
+function ContextApplyEngine() {
+  const { user, setShowLogin } = useApp();
+  const [desc, setDesc] = useState("");
+  const [status, setStatus] = useState("idle"); // idle | running | done | error
+  const [phaseLabel, setPhaseLabel] = useState("");
+  const [stages, setStages] = useState(initialStages);
+  const [roadmap, setRoadmap] = useState(null);
+  const [summary, setSummary] = useState(null);
+  const [error, setError] = useState(null);
+
+  const patchStage = useCallback((taskId, patch) => {
+    if (!taskId) return;
+    setStages((prev) => prev.map((s) => (s.id === taskId ? { ...s, ...patch } : s)));
+  }, []);
+
+  const handleEvent = useCallback((event) => {
+    const { type, data } = event || {};
+    if (type === "result") {
+      const d = data?.deliverable;
+      if (d) {
+        if (Array.isArray(d.taskResults)) {
+          setStages((prev) => prev.map((s) => {
+            const r = d.taskResults.find((t) => t.taskId === s.id);
+            return r
+              ? { ...s, output: r.output || s.output, agentName: r.agentName || s.agentName, status: r.status === "failed" ? "failed" : "done" }
+              : s;
+          }));
+        }
+        setRoadmap(Array.isArray(d.roadmap) ? d.roadmap : null);
+        setSummary(d.executiveSummary || null);
+      }
+      setStatus("done");
+      setPhaseLabel("");
+      return;
+    }
+    if (type === "error") {
+      setError(data?.error || "Something went wrong running the engine.");
+      setStatus("error");
+      setPhaseLabel("");
+      return;
+    }
+    switch (type) {
+      case "phase.decompose.start": setPhaseLabel("Mapping the spine…"); break;
+      case "phase.assemble.start": setPhaseLabel("Assembling specialists…"); break;
+      case "phase.assemble.complete":
+        setPhaseLabel("Running the six stages…");
+        if (Array.isArray(data?.agents)) {
+          setStages((prev) => prev.map((s) => {
+            const a = data.agents.find((ag) => ag.assignedTask === s.id);
+            return a ? { ...s, agentName: a.name, specialization: a.specialization } : s;
+          }));
+        }
+        break;
+      case "phase.execute.start": setPhaseLabel("Running the six stages…"); break;
+      case "task.start": patchStage(data?.taskId, { status: "active" }); break;
+      case "task.complete": patchStage(data?.taskId, { status: "done" }); break;
+      case "task.failed": patchStage(data?.taskId, { status: "failed" }); break;
+      case "a2a.start":
+      case "a2a.refine.start": setPhaseLabel("Cross-checking across stages…"); break;
+      case "phase.synthesize.start": setPhaseLabel("Sequencing the roadmap…"); break;
+      default: break;
+    }
+  }, [patchStage]);
+
+  const run = useCallback(async () => {
+    const description = desc.trim();
+    if (description.length < 40) {
+      setError("Add a sentence or two more about your system — what it does, the stack, and where the logic and config live.");
+      return;
+    }
+    setError(null);
+    setRoadmap(null);
+    setSummary(null);
+    setStages(initialStages());
+    setStatus("running");
+    setPhaseLabel("Starting…");
+
+    try {
+      const { getFirebase } = await import("../../utils/firebase-client");
+      const { auth } = await getFirebase();
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) {
+        setStatus("idle");
+        setPhaseLabel("");
+        setError("Please sign in to run the framework engine.");
+        setShowLogin(true);
+        return;
+      }
+
+      const res = await fetch("/api/orchestration/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          title: `Apply Context as a Frontier — ${description.slice(0, 60)}`,
+          description,
+          type: CONTEXT_COMPREHENSION_TYPE,
+          options: { maxAgents: 6 },
+        }),
+      });
+
+      const ct = res.headers.get("content-type") || "";
+      if (ct.includes("text/event-stream")) {
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const parts = buffer.split("\n\n");
+          buffer = parts.pop() || "";
+          for (const part of parts) {
+            const t = part.trim();
+            if (t.startsWith("data: ")) {
+              try { handleEvent(JSON.parse(t.slice(6))); } catch { /* skip malformed */ }
+            }
+          }
+        }
+        if (buffer.trim().startsWith("data: ")) {
+          try { handleEvent(JSON.parse(buffer.trim().slice(6))); } catch { /* ignore */ }
+        }
+      } else {
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.error || "The engine could not run this. Try refining your description.");
+      }
+    } catch (err) {
+      setError(err.message || "Network error — please try again.");
+      setStatus("error");
+      setPhaseLabel("");
+    }
+  }, [desc, handleEvent, setShowLogin]);
+
+  const busy = status === "running";
+  const showResults = (status !== "idle" && status !== "error") || (status === "error" && stages.some((s) => s.output));
+
+  return (
+    <section className="band band-panel" id="apply">
+      <div className="wrap reveal">
+        <div className="eyebrow">Apply the framework</div>
+        <h2 style={{ marginTop: 14, maxWidth: "22ch" }}>Run your own system through the spine</h2>
+        <p className="apply-intro">Describe a system in plain language — what it does, its stack, and where the logic and configuration live. Six specialist agents each take one stage and return what it means for your system, the tooling that fits your stack, and a sequenced roadmap.</p>
+
+        <div className="apply-form">
+          <textarea
+            className="apply-ta"
+            value={desc}
+            onChange={(e) => setDesc(e.target.value)}
+            disabled={busy}
+            placeholder={"e.g. We run a 12-year-old maintenance system — a .NET monolith over SQL Server, with pricing and SLA rules in config tables and a couple of vendor integrations. How do we apply this framework?"}
+          />
+          <div className="apply-row">
+            <button className="apply-btn" onClick={run} disabled={busy}>
+              {busy ? "Running…" : "Apply the framework"}
+            </button>
+            <span className="apply-hint">{user ? "Six stages · ~30–60s" : "Sign in to run · six stages"}</span>
+          </div>
+          {error && <div className="apply-err">{error}</div>}
+        </div>
+
+        {busy && phaseLabel && (
+          <div className="apply-status"><span className="apply-spinner" />{phaseLabel}</div>
+        )}
+
+        {showResults && (
+          <div className="stage-results">
+            {stages.map((s) => (
+              <div key={s.id} className={`sr-card${s.status === "active" ? " is-active" : ""}${s.status === "done" ? " is-done" : ""}`}>
+                <div className="sr-head">
+                  <div>
+                    <span className="sr-num">{s.num}</span>{" "}
+                    <span className="sr-name">{s.name}</span>
+                    <div className="sr-q">{s.question}</div>
+                  </div>
+                  <div className="sr-persona">
+                    {s.agentName
+                      ? <><b>{s.agentName}</b><br />{s.specialization || ""}</>
+                      : <span className="sr-state">{s.status === "active" ? "working…" : s.status === "failed" ? "failed" : "queued"}</span>}
+                  </div>
+                </div>
+                {s.output
+                  ? <div className="sr-body"><StageBody text={s.output} /></div>
+                  : busy
+                    ? <div className="sr-state" style={{ marginTop: 12 }}>{s.status === "active" ? "Analyzing your system…" : s.status === "failed" ? "This stage failed." : "Queued…"}</div>
+                    : null}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {roadmap && (
+          <div className="roadmap reveal">
+            <h3>Your sequenced roadmap</h3>
+            {summary && <p className="rm-sum">{summary}</p>}
+            {roadmap.map((step, i) => (
+              <div className="rm-step" key={i}>
+                <div className="rm-stage">{step.stage}</div>
+                {step.objective && <div className="rm-obj">{step.objective}</div>}
+                {Array.isArray(step.actions) && step.actions.length > 0 && (
+                  <ul className="rm-list">{step.actions.map((a, j) => <li key={j}>{a}</li>)}</ul>
+                )}
+                {Array.isArray(step.tools) && step.tools.length > 0 && (
+                  <div className="rm-tools">{step.tools.map((t, j) => <span className="rm-tool" key={j}>{t}</span>)}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export default function ContextAsAFrontier() {
   const rootRef = useRef(null);
 
@@ -456,9 +756,9 @@ export default function ContextAsAFrontier() {
     <div className="caf-root" ref={rootRef}>
       <style dangerouslySetInnerHTML={{ __html: CAF_CSS }} />
       <div dangerouslySetInnerHTML={{ __html: BODY_MAIN }} />
-      {/* EXTENSION SLOT — future interactive engine (use case → tailored tech
-          list + roadmap through the six stages) mounts here, between the
-          framework content and the close. */}
+      {/* EXTENSION SLOT — the interactive "Apply this framework" engine, between
+          the framework content and the close. */}
+      <ContextApplyEngine />
       <div dangerouslySetInnerHTML={{ __html: BODY_CLOSE }} />
     </div>
   );
