@@ -26,12 +26,26 @@ export function Header() {
   }, []);
 
   const [moreOpen, setMoreOpen] = useState(false);
-  const allNavItems = [["home", "Home", "🏠"], ["arena", "Arena", "🏗️"], ["loom", "The Loom", "🧵"]];
-  const navItems = allNavItems;
-  // Everything else lives under "More". Debate (forge) is admin-only — hidden from the public entirely.
-  const moreItems = [["academy", "Academy", "🎓"], ["studio", "My Studio", "📝"], ["agent-community", "Team", "🤖"], ["search", "Search", "🔍"], ...(isAdmin(user) ? [["forge", "Debate", "⚡"], ["admin", "Admin", "🔧"]] : [])];
-  const allBottomTabs = [["home", "Home", "🏠"], ["arena", "Arena", "🏗️"], ["loom", "The Loom", "🧵"], ["academy", "Learn", "🎓"], ["studio", "Studio", "📝"]];
-  const bottomTabs = allBottomTabs;
+  // Personal-brand nav. Frameworks/Writing deep-link into Studio sections;
+  // About jumps to the home credibility row. Features live under "More".
+  const navItems = user ? [{ page: "studio", label: "Studio", icon: "📂" }] : [];
+  // Everything else lives under "More". Debate (forge) is admin-only. Signed-out
+  // visitors get a minimal public nav (logo + Sign in only).
+  const moreItems = user
+    ? [
+        { page: "arena", label: "Arena", icon: "🏗️" },
+        { page: "search", label: "Search", icon: "🔍" },
+        ...(isAdmin(user) ? [{ page: "forge", label: "Debate", icon: "⚡" }, { page: "admin", label: "Admin", icon: "🔧" }] : []),
+      ]
+    : [];
+  // Navigate to a page, then scroll to its section anchor if the item has one.
+  const navTo = (item) => {
+    nav(item.page);
+    if (item.anchor && typeof document !== "undefined") {
+      setTimeout(() => document.getElementById(item.anchor)?.scrollIntoView({ behavior: "smooth" }), 300);
+    }
+  };
+  const bottomTabs = user ? [["home", "Home", "🏠"], ["studio", "Studio", "📂"], ["arena", "Arena", "🏗️"]] : [];
 
   return <>
     <header className="fixed top-0 left-0 right-0 z-50" style={{ background: "#FFFFFF", borderBottom: "0.8px solid #E5E7EB" }}>
@@ -39,19 +53,19 @@ export function Header() {
         <button onClick={() => { nav("home"); setMob(false); }} className="flex items-center gap-2" style={{ minHeight: 'auto', minWidth: 'auto' }}>
           <Re3Logo variant="full" size={24} />
         </button>
-        <nav className="re3-desktop-nav hidden md:flex items-center gap-0">{navItems.map(([pg, label, icon]) => {
-          const a = currentPage === pg;
-          return <button key={pg} onClick={() => nav(pg)} className="px-2.5 py-1.5 rounded-lg transition-all" style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, fontWeight: a ? 600 : 500, color: a ? "#9333EA" : "#4B5563", background: a ? "#FAF5FF" : "transparent", minHeight: 'auto', minWidth: 'auto' }}><span style={{ marginRight: 3 }}>{icon}</span>{label}</button>;
+        <nav className="re3-desktop-nav hidden md:flex items-center gap-0">{navItems.map((item) => {
+          const a = currentPage === item.page && !item.anchor;
+          return <button key={item.label} onClick={() => navTo(item)} className="px-2.5 py-1.5 rounded-lg transition-all" style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, fontWeight: a ? 600 : 500, color: a ? "#9333EA" : "#4B5563", background: a ? "#FAF5FF" : "transparent", minHeight: 'auto', minWidth: 'auto' }}><span style={{ marginRight: 3 }}>{item.icon}</span>{item.label}</button>;
         })}
-          <div className="relative" onMouseLeave={() => setMoreOpen(false)}>
-            <button onClick={() => setMoreOpen(!moreOpen)} onMouseEnter={() => setMoreOpen(true)} className="px-3 py-1.5 rounded-lg transition-all" style={{ fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: moreItems.some(([pg]) => currentPage === pg) ? 600 : 500, color: moreItems.some(([pg]) => currentPage === pg) ? "#9333EA" : "#4B5563", background: moreItems.some(([pg]) => currentPage === pg) ? "#FAF5FF" : "transparent", minHeight: 'auto', minWidth: 'auto' }}>More ▾</button>
+          {moreItems.length > 0 && <div className="relative" onMouseLeave={() => setMoreOpen(false)}>
+            <button onClick={() => setMoreOpen(!moreOpen)} onMouseEnter={() => setMoreOpen(true)} className="px-3 py-1.5 rounded-lg transition-all" style={{ fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: moreItems.some((m) => currentPage === m.page) ? 600 : 500, color: moreItems.some((m) => currentPage === m.page) ? "#9333EA" : "#4B5563", background: moreItems.some((m) => currentPage === m.page) ? "#FAF5FF" : "transparent", minHeight: 'auto', minWidth: 'auto' }}>More ▾</button>
             {moreOpen && <div className="absolute top-full right-0 mt-1 py-1 rounded-xl" style={{ background: "#FFFFFF", border: "1px solid #E5E7EB", boxShadow: "0 8px 24px rgba(0,0,0,0.1)", minWidth: 160, zIndex: 100 }}>
-              {moreItems.map(([pg, label, icon]) => {
-                const a = currentPage === pg;
-                return <button key={pg} onClick={() => { nav(pg); setMoreOpen(false); }} className="w-full text-left px-4 py-2 transition-all" style={{ fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: a ? 600 : 400, color: a ? "#9333EA" : "#4B5563", background: a ? "#FAF5FF" : "transparent", display: "block" }} onMouseEnter={e => { e.currentTarget.style.background = "#FAF5FF"; }} onMouseLeave={e => { if (!a) e.currentTarget.style.background = "transparent"; }}><span style={{ marginRight: 6 }}>{icon}</span>{label}</button>;
+              {moreItems.map((item) => {
+                const a = currentPage === item.page;
+                return <button key={item.label} onClick={() => { nav(item.page); setMoreOpen(false); }} className="w-full text-left px-4 py-2 transition-all" style={{ fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: a ? 600 : 400, color: a ? "#9333EA" : "#4B5563", background: a ? "#FAF5FF" : "transparent", display: "block" }} onMouseEnter={e => { e.currentTarget.style.background = "#FAF5FF"; }} onMouseLeave={e => { if (!a) e.currentTarget.style.background = "transparent"; }}><span style={{ marginRight: 6 }}>{item.icon}</span>{item.label}</button>;
               })}
             </div>}
-          </div>
+          </div>}
         </nav>
         <div className="flex items-center gap-2">
           {user ? <>
@@ -59,22 +73,22 @@ export function Header() {
             <button onClick={() => nav("profile", user.id)} className="w-8 h-8 rounded-full flex items-center justify-center font-bold overflow-hidden" style={{ fontSize: 9, background: "#FAF5FF", color: "#9333EA", border: "1px solid #E9D5FF", minHeight: 'auto', minWidth: 'auto' }}>{user.photoURL ? <img src={user.photoURL} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" /> : user.avatar}</button>
             <button onClick={logout} className="hidden sm:block" style={{ fontFamily: "'Inter',sans-serif", fontSize: 10, color: "#9CA3AF", minHeight: 'auto', minWidth: 'auto' }}>Logout</button>
           </> : <button onClick={() => setShowLogin(true)} className="px-3 py-1.5 font-medium transition-all hover:shadow-md" style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, background: "#9333EA", color: "white", borderRadius: 8 }}>Sign in</button>}
-          <button onClick={() => setMob(!mob)} className="md:hidden p-1" style={{ color: "#4B5563", fontSize: 18, minHeight: 'auto', minWidth: 'auto' }}>{mob ? "\u2715" : "\u2630"}</button>
+          {user && <button onClick={() => setMob(!mob)} className="md:hidden p-1" style={{ color: "#4B5563", fontSize: 18, minHeight: 'auto', minWidth: 'auto' }}>{mob ? "\u2715" : "\u2630"}</button>}
         </div>
       </div>
     </header>
     {/* Mobile fullscreen menu */}
     {mob && <div className="fixed inset-0 z-40 pt-14" style={{ background: "#FFFFFF" }}><div className="flex flex-col p-6 gap-1">
-      {navItems.map(([pg, label, icon]) => <button key={pg} onClick={() => { nav(pg); setMob(false); }} className="text-left p-3 rounded-xl text-base font-medium" style={{ fontFamily: "'Inter',sans-serif", color: currentPage === pg ? "#9333EA" : "#4B5563", background: currentPage === pg ? "#FAF5FF" : "transparent" }}>{icon} {label}</button>)}
+      {navItems.map((item) => <button key={item.label} onClick={() => { navTo(item); setMob(false); }} className="text-left p-3 rounded-xl text-base font-medium" style={{ fontFamily: "'Inter',sans-serif", color: currentPage === item.page && !item.anchor ? "#9333EA" : "#4B5563", background: currentPage === item.page && !item.anchor ? "#FAF5FF" : "transparent" }}>{item.icon} {item.label}</button>)}
       <div className="my-1" style={{ height: 1, background: "#E5E7EB" }} />
-      {moreItems.map(([pg, label, icon]) => <button key={pg} onClick={() => { nav(pg); setMob(false); }} className="text-left p-3 rounded-xl text-base font-medium" style={{ fontFamily: "'Inter',sans-serif", color: currentPage === pg ? "#9333EA" : "#6B7280", background: currentPage === pg ? "#FAF5FF" : "transparent" }}>{icon} {label}</button>)}
+      {moreItems.map((item) => <button key={item.label} onClick={() => { nav(item.page); setMob(false); }} className="text-left p-3 rounded-xl text-base font-medium" style={{ fontFamily: "'Inter',sans-serif", color: currentPage === item.page ? "#9333EA" : "#6B7280", background: currentPage === item.page ? "#FAF5FF" : "transparent" }}>{item.icon} {item.label}</button>)}
       {user && <><div className="my-1" style={{ height: 1, background: "#E5E7EB" }} /><button onClick={() => { nav("write"); setMob(false); }} className="text-left p-3 rounded-xl text-base font-medium" style={{ color: "#9333EA" }}>✏️ Write</button></>}
     </div></div>}
     {/* Mobile bottom tab bar */}
-    <nav className="re3-bottom-tabs">{bottomTabs.map(([pg, label, icon]) => {
+    {bottomTabs.length > 0 && <nav className="re3-bottom-tabs">{bottomTabs.map(([pg, label, icon]) => {
       const a = currentPage === pg;
       return <button key={pg} onClick={() => { nav(pg); setMob(false); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, padding: "6px 0", gap: 2, border: "none", background: "transparent", cursor: "pointer", minHeight: 56, minWidth: 'auto' }}><span style={{ fontSize: 18, lineHeight: 1, opacity: a ? 1 : 0.5 }}>{icon}</span><span style={{ fontFamily: "'Inter',sans-serif", fontSize: 9, fontWeight: a ? 700 : 500, color: a ? "#9333EA" : "#9CA3AF", letterSpacing: "0.02em" }}>{label}</span></button>;
-    })}</nav>
+    })}</nav>}
   </>;
 }
 
@@ -116,7 +130,7 @@ export function LoginModal() {
         <div className="mt-3 pt-3" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
           <p style={{ fontFamily: "'Inter',sans-serif", fontSize: 10, color: "#9CA3AF", lineHeight: 1.6, marginBottom: 4 }}>By signing in, you agree that:</p>
           <ul style={{ fontFamily: "'Inter',sans-serif", fontSize: 10, color: "#9CA3AF", lineHeight: 1.7, paddingLeft: 12, margin: 0 }}>
-            <li>This is an experimental alpha platform {"\u2014"} features may change or reset</li>
+            <li>This is an experimental platform {"\u2014"} features may change or reset</li>
             <li>Content is generated through human-AI collaboration and may be inaccurate</li>
             <li>We store your name, email, and profile photo from Google</li>
             <li>Your contributions (posts, comments) are publicly visible</li>
@@ -137,7 +151,7 @@ export default function AppShell({ children }) {
     <footer className="py-8" style={{ borderTop: "1px solid #E5E7EB", background: "#F9FAFB" }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-4">
-          <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: "#9CA3AF" }}>&copy; {new Date().getFullYear()} Re{'\u00b3'} &mdash; Built by <a href="https://www.linkedin.com/in/nitesh-srivastava-8233099b/" target="_blank" rel="noopener noreferrer" style={{ color: "#9CA3AF", textDecoration: "underline", textUnderlineOffset: 2 }} onMouseEnter={e => { e.currentTarget.style.color = "#9333EA"; }} onMouseLeave={e => { e.currentTarget.style.color = "#9CA3AF"; }}>Nitesh Srivastava</a></span>
+          <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: "#9CA3AF" }}>&copy; 2025 Re{'\u00b3'} &mdash; Built by <a href="https://www.linkedin.com/in/nitesh-srivastava-8233099b/" target="_blank" rel="noopener noreferrer" style={{ color: "#9CA3AF", textDecoration: "underline", textUnderlineOffset: 2 }} onMouseEnter={e => { e.currentTarget.style.color = "#9333EA"; }} onMouseLeave={e => { e.currentTarget.style.color = "#9CA3AF"; }}>Nitesh Srivastava</a></span>
           <div className="flex items-center gap-4">
             {[["arena","Arena"],["academy","Academy"],["loom","The Loom"],["agent-community","Agents"]].map(([pg,label]) =>
               <button key={pg} onClick={() => nav(pg)} className="transition-colors" style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: "#9CA3AF" }} onMouseEnter={e => { e.currentTarget.style.color = "#9333EA"; }} onMouseLeave={e => { e.currentTarget.style.color = "#9CA3AF"; }}>{label}</button>

@@ -9,28 +9,28 @@ export const viewport = {
 export const metadata = {
   metadataBase: new URL('https://re3.live'),
   title: {
-    default: 'Re\u00B3 | Rethink \u00B7 Rediscover \u00B7 Reinvent',
+    default: 'Nitesh Srivastava \u2014 Re\u00B3 Lab',
     template: '%s | Re\u00B3',
   },
-  description: 'Where human intuition meets machine foresight. A collaborative intelligence platform where AI agents and humans create connected ideas through structured knowledge synthesis, debate, and intellectual journeys.',
-  keywords: ['AI collaboration', 'knowledge platform', 'AI governance', 'data governance', 'human-AI synthesis', 'AI debate', 'knowledge synthesis', 'collaborative intelligence', 'AI agents', 'structured thinking'],
-  authors: [{ name: 'Re\u00B3' }],
-  creator: 'Re\u00B3',
-  publisher: 'Re\u00B3',
+  description: 'Nitesh Srivastava \u2014 enterprise data & AI leader. Agentic systems, multi-agent orchestration, and the frameworks behind them: created, delivered, and thought about, in one studio.',
+  keywords: ['enterprise data', 'master data management', 'data governance', 'AI governance', 'agentic AI', 'multi-agent orchestration', 'AI strategy', 'Nitesh Srivastava'],
+  authors: [{ name: 'Nitesh Srivastava' }],
+  creator: 'Nitesh Srivastava',
+  publisher: 'Re\u00B3 Lab',
   formatDetection: { email: false, telephone: false },
   openGraph: {
-    title: 'Re\u00B3 | Rethink \u00B7 Rediscover \u00B7 Reinvent',
-    description: 'Where human intuition meets machine foresight. AI agents and humans create connected intellectual journeys.',
+    title: 'Nitesh Srivastava \u2014 Re\u00B3 Lab',
+    description: 'Nitesh Srivastava \u2014 enterprise data & AI leader. Agentic systems, multi-agent orchestration, and the frameworks behind them: created, delivered, and thought about, in one studio.',
     url: 'https://re3.live',
-    siteName: 'Re\u00B3',
+    siteName: 'Re\u00B3 Lab',
     locale: 'en_US',
     type: 'website',
-    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Re\u00B3 \u2014 Rethink \u00B7 Rediscover \u00B7 Reinvent' }],
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Nitesh Srivastava \u2014 Re\u00B3 Lab' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Re\u00B3 | Rethink \u00B7 Rediscover \u00B7 Reinvent',
-    description: 'Where human intuition meets machine foresight.',
+    title: 'Nitesh Srivastava \u2014 Re\u00B3 Lab',
+    description: 'Nitesh Srivastava \u2014 enterprise data & AI leader. Agentic systems, multi-agent orchestration, and the frameworks behind them: created, delivered, and thought about, in one studio.',
     images: ['/opengraph-image'],
   },
   robots: {
@@ -46,23 +46,37 @@ export const metadata = {
 
 // JSON-LD structured data for the site
 function JsonLd() {
+  const positioning = 'Nitesh Srivastava \u2014 enterprise data & AI leader. Agentic systems, multi-agent orchestration, and the frameworks behind them: created, delivered, and thought about, in one studio.';
   const structuredData = {
     '@context': 'https://schema.org',
-    '@type': 'WebApplication',
-    name: 'Re\u00B3',
-    alternateName: 'Re3',
-    url: 'https://re3.live',
-    description: 'A collaborative intelligence platform where AI agents and humans create connected intellectual journeys through structured knowledge synthesis and debate.',
-    applicationCategory: 'EducationalApplication',
-    operatingSystem: 'Web',
-    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-    author: { '@type': 'Organization', name: 'Re\u00B3', url: 'https://re3.live' },
-    featureList: [
-      'AI-powered debate synthesis',
-      'Multi-agent intellectual discourse',
-      'Three-pillar knowledge framework (Rethink, Rediscover, Reinvent)',
-      'Connected intellectual journeys',
-      'Academy courses on AI and technology',
+    '@graph': [
+      {
+        '@type': 'Person',
+        name: 'Nitesh Srivastava',
+        url: 'https://re3.live',
+        jobTitle: 'Enterprise Data & AI Leader',
+        knowsAbout: [
+          'Master Data Management',
+          'Data Governance',
+          'Enterprise Data Management',
+          'AI Governance',
+          'Agentic AI',
+          'Multi-agent orchestration',
+        ],
+        description: positioning,
+        sameAs: [
+          'LINKEDIN_URL_PLACEHOLDER',
+          'GITHUB_URL_PLACEHOLDER',
+        ],
+      },
+      {
+        '@type': 'WebSite',
+        name: 'Re\u00B3 Lab',
+        alternateName: 'Re3',
+        url: 'https://re3.live',
+        description: positioning,
+        author: { '@type': 'Person', name: 'Nitesh Srivastava' },
+      },
     ],
   };
 

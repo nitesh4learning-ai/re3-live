@@ -1,11 +1,11 @@
 import HomePage from './components/pages/HomePage';
 
 export const metadata = {
-  title: { absolute: 'Re³ — Rethink · Rediscover · Reinvent | Human-AI Synthesis Lab' },
-  description: 'Where human intuition meets machine foresight. Explore AI-human synthesis cycles, multi-agent debates, and connected intellectual journeys on Re³.',
+  title: { absolute: 'Nitesh Srivastava — Re³ Lab' },
+  description: 'Enterprise data & AI leader. Agentic systems, multi-agent orchestration, and the frameworks behind them — created, delivered, and thought about, in one studio.',
   openGraph: {
-    title: 'Re³ — Rethink · Rediscover · Reinvent | Human-AI Synthesis Lab',
-    description: 'A collaborative human-AI thinking platform. AI agents and humans create connected ideas through structured knowledge synthesis, debate, and idea generation.',
+    title: 'Nitesh Srivastava — Re³ Lab',
+    description: 'Enterprise data & AI leader. Agentic systems, multi-agent orchestration, and the frameworks behind them — created, delivered, and thought about, in one studio.',
   },
 };
 
@@ -14,44 +14,43 @@ export const metadata = {
 function SSRContent() {
   return (
     <div id="ssr-content" style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 960, margin: '0 auto', padding: '40px 24px' }}>
-      <h1>Re³ — Rethink · Rediscover · Reinvent</h1>
-      <p>A collaborative human-AI thinking platform where human intuition meets machine foresight.
-      Drop in any topic — AI specialists debate and build it. You get the insights nobody saw.</p>
+      <h1>Nitesh Srivastava — Re³ Lab</h1>
+      <p>Systems to think with. I make enterprise data trustworthy and governable — and build
+      the agentic systems, and the frameworks behind them, that make AI legible at enterprise scale.
+      Everything I&rsquo;ve delivered and thought about, converged in one studio.</p>
+      <p><a href="/studio">Enter the Studio</a></p>
 
-      <h2>How It Works</h2>
-      <ol>
-        <li><strong>Submit</strong> — Drop any topic, article, or question</li>
-        <li><strong>Curate</strong> — AI selects the ideal 5-agent panel from 1,000+ specialists</li>
-        <li><strong>Debate</strong> — 3 structured rounds: initial positions, challenges, refined conclusions</li>
-        <li><strong>Synthesize</strong> — Emergent insights no single perspective could produce</li>
-      </ol>
+      <h2>Delivered</h2>
+      <p>Live multi-agent systems, plus the bodies of work behind them.</p>
+      <h3>Live systems</h3>
+      <ul>
+        <li><a href="/arena">The Arena</a> — agentic debate &amp; orchestration: agent teams auto-assemble, architect, and ship a working result from your use case.</li>
+        <li><a href="/arena">Use-Case Orchestration Engine</a> — the pipeline inside the Arena: intake → decompose → assemble → execute → synthesize.</li>
+        <li><a href="/agents">Agent Registry</a> — 1,000 specialist personas across 15 domains, the talent pool every orchestration draws from.</li>
+      </ul>
+      <h3>Bodies of work</h3>
+      <ul>
+        <li><a href="/work/context-as-a-frontier">Context as a Frontier</a> — a six-stage spine to derive one trusted, living source of truth (golden context) for humans and agents.</li>
+        <li>The Agentic SDLC — how software delivery changes when agents do the building.</li>
+        <li><a href="/academy">Agentic AI Mastery</a> — a structured 12-week curriculum, from agentic architecture to production.</li>
+      </ul>
 
-      <h2>What You Can Do</h2>
-      <h3><a href="/forge">Debate Lab</a></h3>
-      <p>Submit any topic. 5 AI specialists argue it across 3 rounds, then Hypatia synthesizes the insights.
-      25+ specialist agents across 6 categories: Executive Suite, Builders, Human Lens, Cross-Domain, Wild Cards, and Industry Specialists.</p>
-
-      <h3><a href="/arena">Arena — Agentic Orchestration</a></h3>
-      <p>Agent teams auto-assemble, architect solutions, and deliver working prototypes from your use case.
-      Real-time visual canvas with cost tracking and shared memory.</p>
-
-      <h3><a href="/academy">Academy</a></h3>
-      <p>37 courses across 4 tiers — from AI governance foundations to frontier research.
-      Learn AI governance, data architecture, and human-AI collaboration.</p>
-
-      <h2>1,000+ AI Agents Across 15 Domains</h2>
-      <p>CTOs, behavioral economists, constitutional lawyers, quantum physicists, ethicists, data engineers, and more.
-      Each with a distinct persona, worldview, and expertise.</p>
-      <p><a href="/agents">Browse all agents</a></p>
+      <h2>Thought about</h2>
+      <p>The frameworks underneath the work.</p>
+      <ul>
+        <li><a href="/academy">GIM — Governance Interaction Mesh</a> — a mesh-based model for enterprise AI governance across five pillars.</li>
+        <li>The Pinwheel Framework — four execution blades powered by business engagement for enterprise AI adoption.</li>
+        <li>CodeMesh — comprehend the system, codify its truth, compose what&rsquo;s next.</li>
+      </ul>
 
       <nav>
-        <h2>Explore Re³</h2>
+        <h2>Explore the Re³ Lab</h2>
         <ul>
-          <li><a href="/loom">The Loom — Weekly Synthesis Cycles</a></li>
-          <li><a href="/forge">Debate Lab — Multi-Agent AI Debates</a></li>
-          <li><a href="/arena">Arena — Agentic Orchestration</a></li>
-          <li><a href="/academy">Academy — AI &amp; Data Governance Courses</a></li>
-          <li><a href="/agents">Agent Community — 1,000+ AI Specialists</a></li>
+          <li><a href="/studio">The Studio — delivered work &amp; frameworks</a></li>
+          <li><a href="/arena">The Arena — agentic orchestration</a></li>
+          <li><a href="/academy">Academy — AI &amp; data governance courses</a></li>
+          <li><a href="/agents">Agent Registry — 1,000 AI specialists</a></li>
+          <li><a href="/work/context-as-a-frontier">Context as a Frontier — the golden-context spine</a></li>
         </ul>
       </nav>
     </div>

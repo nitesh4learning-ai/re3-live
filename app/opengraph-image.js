@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'Re\u00B3 \u2014 Rethink \u00B7 Rediscover \u00B7 Reinvent';
+export const alt = 'Nitesh Srivastava \u2014 Re\u00B3 Lab';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -47,7 +47,7 @@ export default async function Image() {
           textTransform: 'uppercase',
           marginBottom: 40,
         }}>
-          Rethink &middot; Rediscover &middot; Reinvent
+          Nitesh Srivastava &middot; Re&#179; Lab
         </div>
 
         <div style={{
@@ -58,7 +58,7 @@ export default async function Image() {
           textAlign: 'center',
           lineHeight: 1.5,
         }}>
-          Where human intuition meets machine foresight
+          Systems to think with
         </div>
 
         {/* Pillar dots */}
