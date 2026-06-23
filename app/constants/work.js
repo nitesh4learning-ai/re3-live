@@ -19,7 +19,7 @@ export const WORK_ITEMS = [
   { title: "Agentic AI Mastery", type: "app", status: "live", page: "academy", desc: "From agentic architecture to production — a structured multi-week program." },
 
   // ---- Frameworks ----
-  { title: "GIM — Governance Interaction Mesh", type: "framework", status: "live", page: "academy", pageId: "gim-framework-2", desc: "A mesh-based model for enterprise AI governance — nodes across five pillars." },
+  { title: "GIM — Governance Interaction Mesh", type: "framework", status: "live", url: "https://gim-framework.vercel.app/", desc: "A mesh-based model for enterprise AI governance — nodes across five pillars." },
   { title: "The Pinwheel Framework", type: "framework", status: "soon", desc: "Four execution blades powered by business engagement for enterprise AI adoption." },
   { title: "CodeMesh — Comprehend · Codify · Compose", type: "framework", status: "soon", desc: "The method behind the series: comprehend the system, codify its truth, compose what's next." },
 

@@ -222,7 +222,9 @@ export default function LandingPage({ onNavigate, visitCount = null, articles = 
                   <h3 className="font-bold mb-1" style={{ fontFamily: GIM.fontMain, color: GIM.headingText, fontSize: 14.5, lineHeight: 1.3 }}>{t.title}</h3>
                   <p className="flex-1 mb-3" style={{ fontFamily: GIM.fontMain, fontSize: 12.5, color: GIM.bodyText, lineHeight: 1.6 }}>{t.desc}</p>
                   {live
-                    ? <button onClick={() => openTile(t)} className="self-start px-3 py-1.5 rounded-lg font-semibold transition-all hover:shadow-sm" style={{ fontFamily: GIM.fontMain, fontSize: 11, background: '#F5F0FA', color: GIM.primary }}>{actionLabel}</button>
+                    ? (t.url
+                        ? <a href={t.url} target="_blank" rel="noopener noreferrer" className="self-start px-3 py-1.5 rounded-lg font-semibold transition-all hover:shadow-sm" style={{ fontFamily: GIM.fontMain, fontSize: 11, background: '#F5F0FA', color: GIM.primary, textDecoration: 'none' }}>Open ↗</a>
+                        : <button onClick={() => openTile(t)} className="self-start px-3 py-1.5 rounded-lg font-semibold transition-all hover:shadow-sm" style={{ fontFamily: GIM.fontMain, fontSize: 11, background: '#F5F0FA', color: GIM.primary }}>{actionLabel}</button>)
                     : <span className="self-start px-3 py-1.5 rounded-lg font-semibold" style={{ fontFamily: GIM.fontMain, fontSize: 11, background: '#F3F4F6', color: '#9CA3AF' }}>Soon</span>}
                 </div>
               </FadeIn>;
