@@ -232,11 +232,48 @@ export default function LandingPage({ onNavigate, visitCount = null, articles = 
           </div>}
     </section>
 
+    {/* ===== ATLAS TEASER ===== */}
+    <section className="max-w-5xl mx-auto px-6" style={{ paddingTop: 48, paddingBottom: 48 }}>
+      <FadeIn>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          {/* LEFT */}
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-5" style={{ background: '#F3E8FF', border: '1px solid #E9D5FF' }}>
+              <span className="font-bold" style={{ fontFamily: GIM.fontMain, fontSize: 11, letterSpacing: '0.06em', color: GIM.primary }}>Under the hood</span>
+            </div>
+            <h2 className="font-semibold mb-3" style={{ fontFamily: GIM.fontMain, fontSize: 'clamp(24px,3vw,32px)', letterSpacing: '-0.02em', color: GIM.headingText }}>The system maps itself</h2>
+            <p className="mb-5" style={{ fontFamily: GIM.fontMain, fontSize: 15, color: GIM.bodyText, lineHeight: 1.7, maxWidth: 460 }}>
+              Re3.live&rsquo;s own codebase as a living knowledge graph of ~2500 modules regenerated automatically on every release.
+            </p>
+            <button onClick={() => onNavigate?.('atlas')} className="px-3 py-1.5 rounded-lg font-semibold transition-all hover:shadow-sm" style={{ fontFamily: GIM.fontMain, fontSize: 11, background: '#F5F0FA', color: GIM.primary }}>Explore the Atlas &rarr;</button>
+          </div>
+          {/* RIGHT — decorative thumbnail, also navigates to the Atlas */}
+          <button onClick={() => onNavigate?.('atlas')} aria-label="Explore the Atlas" className="rounded-2xl overflow-hidden transition-all hover:shadow-md" style={{ cursor: 'pointer', display: 'block', width: '100%', padding: 0, border: `1px solid ${GIM.border}`, background: 'transparent' }}>
+            <svg viewBox="0 0 200 96" style={{ width:'100%', height:'auto', display:'block' }} xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="0.5" y="0.5" width="199" height="95" rx="10" fill="#14132A" stroke="rgba(255,255,255,0.08)"/>
+              <g stroke="#8E92B0" strokeOpacity="0.25" strokeWidth="0.6">
+                <line x1="60" y1="48" x2="45" y2="38"/><line x1="60" y1="48" x2="78" y2="42"/>
+                <line x1="60" y1="48" x2="50" y2="62"/><line x1="60" y1="48" x2="75" y2="61"/>
+                <line x1="78" y1="42" x2="96" y2="46"/><line x1="96" y1="46" x2="112" y2="62"/>
+              </g>
+              <circle cx="60" cy="48" r="5" fill="#ED93B1"/>
+              <circle cx="45" cy="38" r="3" fill="#F0997B"/><circle cx="78" cy="42" r="3" fill="#5DCAA5"/>
+              <circle cx="50" cy="62" r="3" fill="#85B7EB"/><circle cx="75" cy="61" r="3" fill="#F0997B"/>
+              <circle cx="40" cy="50" r="2.5" fill="#97C459"/><circle cx="96" cy="46" r="2.5" fill="#AFA9EC"/>
+              <circle cx="112" cy="62" r="2.5" fill="#85B7EB"/>
+              <circle cx="132" cy="30" r="3" fill="#97C459"/><circle cx="150" cy="54" r="3" fill="#EF9F27"/>
+              <circle cx="120" cy="70" r="2.5" fill="#F0997B"/><circle cx="162" cy="38" r="2.5" fill="#AFA9EC"/>
+              <circle cx="170" cy="68" r="2.5" fill="#5DCAA5"/>
+            </svg>
+          </button>
+        </div>
+      </FadeIn>
+    </section>
+
     {/* ===== CLOSE ===== */}
     <section className="max-w-3xl mx-auto px-6 pb-24 text-center">
       <FadeIn>
-        <h2 className="font-bold mb-3" style={{ fontFamily: GIM.fontMain, fontSize: 26, color: GIM.headingText, letterSpacing: '-0.02em' }}>Get in touch.</h2>
-        <div className="flex flex-wrap items-center justify-center gap-3 mt-5">
+        <div className="flex flex-wrap items-center justify-center gap-3">
           <a href="https://www.linkedin.com/in/nitesh-srivastava-8233099b/" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 rounded-xl font-semibold text-sm transition-all hover:bg-gray-100" style={{ border: `1px solid ${GIM.border}`, color: GIM.bodyText, background: '#fff', textDecoration: 'none', display: 'inline-block' }}>Get in touch</a>
         </div>
       </FadeIn>
