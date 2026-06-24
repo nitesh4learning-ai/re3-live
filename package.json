@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/sync-atlas-graph.mjs && next build",
+    "graph:refresh": "graphify update . && node scripts/sync-atlas-graph.mjs",
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",

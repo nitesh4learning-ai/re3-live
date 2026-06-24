@@ -20,11 +20,15 @@ Re³ (Rethink · Rediscover · Reinvent) is a multi-agent AI **debate + orchestr
 
 ```bash
 npm run dev          # dev server
-npm run build        # production build (validates required env in prod)
+npm run build        # production build (validates required env in prod). Prepends
+                     #   `node scripts/sync-atlas-graph.mjs` — refreshes the served Atlas
+                     #   graph from graphify-out/ if present; no-ops on Vercel (absent there)
 npm start            # serve production build
 npm test             # vitest run (one-shot)
 npm run test:watch   # vitest watch
 npm run lint         # eslint app/ lib/ --max-warnings 0  (zero-warning gate)
+npm run graph:refresh # `graphify update . && sync` — regenerate the graph + refresh the
+                     #   served public/atlas-graph.html copy (commit the result)
 ```
 
 CI (`.github/workflows/ci.yml`) runs lint → test → build on push/PR to `main` with dummy env keys.
@@ -36,7 +40,7 @@ CI (`.github/workflows/ci.yml`) runs lint → test → build on push/PR to `main
 - `app/components/orchestration/`, `app/components/playground/`, `app/components/shared/` — feature UIs.
 - `app/api/<feature>/route.js` — serverless routes: `debate/*`, `orchestration/*`, `agents/*`, `cycle/*`, `academy/*`, `access/*`, `admin/*`, `health`, `visits`, `og`.
 - `app/academy/` — Academy hub, course shells, MDX components/widgets, hooks, `lib/course-loader.js`; `app/academy/plus/` — gated multi-week programs.
-- `app/atlas/` — **the Atlas** (`/atlas`, `AtlasPage.js`): frames re3.live's own codebase as a knowledge graph — a stylized annotated overview + a button to the full live interactive graph served as the static asset `public/atlas-graph.html` (a copy of Graphify's `graph.html`; regenerate by re-copying after a semantic rebuild). Not in the public nav; reached from the Home **Atlas teaser** (`LandingPage.js`) via `onNavigate('atlas')`.
+- `app/atlas/` — **the Atlas** (`/atlas`, `AtlasPage.js`): frames re3.live's own codebase as a knowledge graph — a stylized annotated overview + a button to the full live interactive graph served as the **committed** static asset `public/atlas-graph.html` (a copy of Graphify's `graph.html`). The copy is kept in sync by `scripts/sync-atlas-graph.mjs`: it's auto-run by `npm run build` (no-ops when `graphify-out/` is absent, e.g. on Vercel — so Vercel just serves the committed copy), and `npm run graph:refresh` regenerates the graph + re-syncs it (then commit the updated `public/atlas-graph.html`). Not in the public nav; reached from the Home **Atlas teaser** (`LandingPage.js`) via `onNavigate('atlas')`.
 - `app/work/[slug]/` — **in-house work pages.** My Studio (`StudioPage.js`) is now a **curated presentation** — read-only `STUDIO_SECTIONS` cards (Delivered: live systems + bodies of work; Thought about: frameworks) linking to existing routes. (The old in-page **Workspace** — article authoring + the editable project-tile grid/admin form — was removed as redundant with these cards and the Home gallery.) Project `internal`/`slug`/`type`/`status` fields still come from `app/constants/seed-data.js`: `internal:true` tiles open in-app at `/work/<slug>`; external tiles use `link`. `WorkPage.js` resolves a slug against the `WORK_PAGES` registry (e.g. `context-as-a-frontier` → `ContextAsAFrontier.js`, a 1:1 port that keeps its own navy/teal/amber identity), falling back to a Re³-branded "Coming soon" placeholder. **Article authoring** now lives at `/write` (`WritePage`) + editing from `ArticlePage` — not the Studio.
   - `ContextAsAFrontier.js` also hosts the interactive **"Apply this framework" engine** (in the page's extension slot): a user describes a system → it runs a `context-comprehension` orchestration via the existing `/api/orchestration/run` SSE endpoint → renders the six stages live (with the persona handling each) + a roadmap. Completed runs persist via `lib/orchestration/context-store.js` to a **moderated library** (see Firestore rules). Sign-in required; CAF visual identity, not the Arena UI.
 - `app/constants/` — `agents.js` (orchestrators + 25 debaters), `courses.js` (catalog), `ui.js` (`ADMIN_EMAIL`, `isAdmin`), `seed-data.js` (default projects/content), `work.js` (`WORK_ITEMS` — the curated Home work gallery; descriptions are hand-synced with the Studio's curated tiles). Barrel re-exports in `index.js`.
@@ -117,7 +121,7 @@ Two freshness layers:
 - **Structural** (files, functions, imports, calls) — auto-rebuilds on every commit via installed git hooks (`graphify update`, **free, no LLM**). Always current.
 - **Semantic** (inferred edges + community names) — **manual and costs tokens**: needs `ANTHROPIC_API_KEY` in `.env.local`, then `graphify extract . && graphify label .` (~$1). Re-run after big refactors.
 
-Outputs live in `graphify-out/` (`graph.json` queryable, `GRAPH_REPORT.md` human-readable, `graph.html` interactive) — **gitignored** (regenerable artifact, ~3.6 MB). `GRAPH_REPORT.md`'s "Graph Freshness" line shows the commit it was built from.
+Outputs live in `graphify-out/` (`graph.json` queryable, `GRAPH_REPORT.md` human-readable, `graph.html` interactive) — **gitignored** (regenerable artifact, ~3.6 MB). `GRAPH_REPORT.md`'s "Graph Freshness" line shows the commit it was built from. The **`/atlas` page** serves the interactive `graph.html` to the public via a committed copy at `public/atlas-graph.html` (synced by `scripts/sync-atlas-graph.mjs`; see Commands / the `app/atlas/` layout note) — so the served graph only updates when you re-sync and commit, never on Vercel.
 
 ## Working style
 
